@@ -22,6 +22,7 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 /**
@@ -62,15 +63,15 @@ public class PasswordPolicyConfiguration
     private int pwdCheckQuality = 0;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
-     *  Default value -1, no minimum length enforced
+     *  Default value 0, no minimum length enforced
      */
-    private int pwdMinLength = -1;
+    private int pwdMinLength = 0;
 
     /**
      * this attribute holds the maximum number of characters that may be used in a password.
-     * Default value -1, no maximum length enforced
+     * Default value 0, no maximum length enforced
      */
-    private int pwdMaxLength = -1;
+    private int pwdMaxLength = 0;
 
     /**
      * the maximum number of seconds before a password is due to expire that expiration warning
@@ -112,7 +113,10 @@ public class PasswordPolicyConfiguration
      */
     private int pwdMaxFailure;
 
-    /** the number of seconds after which the password failures are purged from the failure counter. */
+    /**
+     * the number of seconds after which the password failures are purged from the failure counter.
+     * Default value is 0, reset all pwdFailureTimes after a successful authentication.
+     */
     private int pwdFailureCountInterval;
 
     /** 
@@ -387,4 +391,118 @@ public class PasswordPolicyConfiguration
         this.pwdMaxIdle = pwdMaxIdle;
     }
 
+
+    /**
+     * validates the policy configuration and throws a LdapException if there are any errors
+     * 
+     * @throws LdapException if there are any errors in the configuration
+     */
+    public void validate() throws LdapException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        int errCount = 0;
+
+        if ( pwdMinAge < 0 )
+        {
+            sb.append( ++errCount ).append( ". password minimum age cannot be negative\n" );
+        }
+
+        if ( pwdMaxAge < 0 )
+        {
+            sb.append( ++errCount ).append( ". password maximum age cannot be negative\n" );
+        }
+
+        if ( ( pwdMaxAge > 0 ) && ( pwdMaxAge < pwdMinAge ) )
+        {
+            sb.append( ++errCount ).append( ". password maximum age should be greater than the minimum age\n" );
+        }
+
+        if ( pwdInHistory < 0 )
+        {
+            sb.append( ++errCount ).append( ". password history count cannot be negative\n" );
+        }
+
+        if ( ( pwdCheckQuality < 0 ) || ( pwdCheckQuality > 2 ) )
+        {
+            sb.append( ++errCount ).append( ". invalid password quality check value, valid values are 0, 1 and 2 \n" );
+        }
+
+        if ( pwdMinLength < 0 )
+        {
+            sb.append( ++errCount ).append( ". password minimum length cannot be negative\n" );
+        }
+
+        if ( pwdMaxLength < 0 )
+        {
+            sb.append( ++errCount ).append( ". password maximum length cannot be negative\n" );
+        }
+
+        if ( pwdMaxLength < pwdMinLength )
+        {
+            sb.append( ++errCount ).append( ". password maximum length should be greater than minimum length\n" );
+        }
+
+        if ( pwdExpireWarning < 0 )
+        {
+            sb.append( ++errCount ).append( ". password expire warning time cannot be negative\n" );
+        }
+
+        if ( pwdGraceAuthNLimit < 0 )
+        {
+            sb.append( ++errCount ).append( ". password grace authentication limits cannot be negative\n" );
+        }
+
+        if ( pwdGraceExpire < 0 )
+        {
+            sb.append( ++errCount ).append( ". password grace expiration time cannot be negative\n" );
+        }
+
+        if ( pwdLockoutDuration < 0 )
+        {
+            sb.append( ++errCount ).append( ". password lockout duration time cannot be negative\n" );
+        }
+
+        if ( pwdMaxFailure < 0 )
+        {
+            sb.append( ++errCount ).append( ". password maximum failure count cannot be negative\n" );
+        }
+
+        if ( pwdFailureCountInterval < 0 )
+        {
+            sb.append( ++errCount ).append( ". password failure count interval time cannot be negative\n" );
+        }
+
+        if ( ( ( pwdMinDelay > 0 ) && ( pwdMaxDelay <= 0 ) ) 
+            || ( ( pwdMaxDelay > 0 ) && ( pwdMinDelay <= 0 ) ) )
+        {
+            sb
+                .append( ++errCount )
+                .append(
+                    ". if password minimum or maximum delay time is specified then the correspomding maximu or minimum delay time should also be specified\n" );
+        }
+        else
+        // just to avoid both warnings
+        {
+            if ( pwdMinDelay < 0 )
+            {
+                sb.append( ++errCount ).append( ". password minimum delay time cannot be negative\n" );
+            }
+
+            if ( pwdMaxDelay < 0 )
+            {
+                sb.append( ++errCount ).append( ". password maximum delay time cannot be negative\n" );
+            }
+        }
+
+        if ( pwdMaxIdle < 0 )
+        {
+            sb.append( ++errCount ).append( ". password maximum idle time cannot be negative\n" );
+        }
+
+        if ( errCount > 0 )
+        {
+            throw new LdapException( "There are errors in password policy configuration\n" + sb.toString() );
+        }
+    }
 }
