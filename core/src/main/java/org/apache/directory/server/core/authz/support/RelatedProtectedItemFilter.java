@@ -123,10 +123,12 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         {
             if ( item == ProtectedItem.ENTRY )
             {
-                if ( scope == OperationScope.ENTRY )
+                if ( scope != OperationScope.ENTRY )
                 {
-                    return true;
+                    continue;
                 }
+                
+                return true;
             }
             else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
             {

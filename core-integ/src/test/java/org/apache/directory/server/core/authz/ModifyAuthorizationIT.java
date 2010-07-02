@@ -581,92 +581,146 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     }
 
 
-    //    /**
-    //     * Checks to make sure name based userClass works for modify operations.
-    //     *
-    //     * @throws javax.naming.Exception if the test encounters an error
-    //     */
-    //    public void testGrantModifyByName() throws Exception
-    //    {
-    //        // create the non-admin user
-    //        createUser( "billyd", "billyd" );
+    /**
+     * Checks to make sure name based userClass works for modify operations.
+     *
+     * @throws javax.naming.Exception if the test encounters an error
+     */
+    @Test
+    public void testGrantModifyByName() throws Exception
+    {
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultEntryAttribute( "telephoneNumber", "012-3456" ) );
+
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an modify operation which should fail without any ACI
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+
+        // now add a subentry that enables user billyd to modify an entry below ou=system
+        createAccessControlSubentry( 
+            "billydAdd", 
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantRead, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems {allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantRead, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
+
+        // should work now that billyd is authorized by name
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+    }
+    
+    
+    /**
+     * Checks to make sure subtree based userClass works for modify operations.
+     *
+     * @throws javax.naming.Exception if the test encounters an error
+     */
+    @Test
+    public void testGrantModifyBySubtree() throws Exception
+    {
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultEntryAttribute( "telephoneNumber", "012-345678" ) );
+
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try a modify operation which should fail without any ACI
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+
+        // now add a subentry that enables user billyd to modify an entry below ou=system
+        createAccessControlSubentry( 
+            "billyAddBySubtree", 
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses " +
+            "    {" +
+            "      subtree { { base \"ou=users,ou=system\" } } " +
+            "    }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantRead, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems {allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantRead, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
     //
-    //        // try an modify operation which should fail without any ACI
-    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //
-    //        // now add a subentry that enables user billyd to modify an entry below ou=system
-    //        createAccessControlSubentry( "billydAdd", "{ " +
-    //                "identificationTag \"addAci\", " +
-    //                "precedence 14, " +
-    //                "authenticationLevel none, " +
-    //                "itemOrUserFirst userFirst: { " +
-    //                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-    //                "userPermissions { { " +
-    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-    //
-    //        // should work now that billyd is authorized by name
-    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //    }
+        // should work now that billyd is authorized by the subtree userClass
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+    }
     //
     //
-    //    /**
-    //     * Checks to make sure subtree based userClass works for modify operations.
-    //     *
-    //     * @throws javax.naming.Exception if the test encounters an error
-    //     */
-    //    public void testGrantModifyBySubtree() throws Exception
-    //    {
-    //        // create the non-admin user
-    //        createUser( "billyd", "billyd" );
-    //
-    //        // try a modify operation which should fail without any ACI
-    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //
-    //        // now add a subentry that enables user billyd to modify an entry below ou=system
-    //        createAccessControlSubentry( "billyAddBySubtree", "{ " +
-    //                "identificationTag \"addAci\", " +
-    //                "precedence 14, " +
-    //                "authenticationLevel none, " +
-    //                "itemOrUserFirst userFirst: { " +
-    //                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
-    //                "userPermissions { { " +
-    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-    //
-    //        // should work now that billyd is authorized by the subtree userClass
-    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //    }
-    //
-    //
-    //    /**
-    //     * Checks to make sure <b>allUsers</b> userClass works for modify operations.
-    //     *
-    //     * @throws javax.naming.Exception if the test encounters an error
-    //     */
-    //    public void testGrantModifyAllUsers() throws Exception
-    //    {
-    //        // create the non-admin user
-    //        createUser( "billyd", "billyd" );
-    //
-    //        // try an add operation which should fail without any ACI
-    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //
-    //        // now add a subentry that enables anyone to add an entry below ou=system
-    //        createAccessControlSubentry( "anybodyAdd", "{ " +
-    //                "identificationTag \"addAci\", " +
-    //                "precedence 14, " +
-    //                "authenticationLevel none, " +
-    //                "itemOrUserFirst userFirst: { " +
-    //                "userClasses { allUsers }, " +
-    //                "userPermissions { { " +
-    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-    //
-    //        // see if we can now modify that test entry's number which we could not before
-    //        // should work with billyd now that all users are authorized
-    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-    //    }
+    /**
+     * Checks to make sure <b>allUsers</b> userClass works for modify operations.
+     *
+     * @throws javax.naming.Exception if the test encounters an error
+     */
+    @Test
+    public void testGrantModifyAllUsers() throws Exception
+    {
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultEntryAttribute( "telephoneNumber", "001-012345" ) );
+
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+
+        // now add a subentry that enables anyone to add an entry below ou=system
+        createAccessControlSubentry( 
+            "anybodyAdd", 
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantRead, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems {allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantRead, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
+
+        // see if we can now modify that test entry's number which we could not before
+        // should work with billyd now that all users are authorized
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+    }
 
     @Test
     public void testPresciptiveACIModification() throws Exception
