@@ -40,8 +40,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -266,12 +266,28 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "selfModifyUserPassword", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { thisEntry }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse, grantRead } }, "
-            + "{ protectedItems {allAttributeValues {userPassword}}, grantsAndDenials { grantAdd, grantRemove } } "
-            + "} } }" );
+        createAccessControlSubentry( 
+            "selfModifyUserPassword", 
+            "{ " + 
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { thisEntry }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse, grantRead } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems {allAttributeValues {userPassword}}, " +
+            "        grantsAndDenials { grantAdd, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI
         assertTrue( checkCanSelfModify( "billyd", "billyd", mods ) );
@@ -307,16 +323,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyAdd",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } "
-                + "} } }" );
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {registeredAddress}, " +
+            "          allAttributeValues {registeredAddress}" +
+            "        }, " +
+            "        grantsAndDenials { grantAdd } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -344,16 +374,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyRemove",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } "
-                + "} } }" );
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {telephoneNumber}, " +
+            "          allAttributeValues {telephoneNumber}" +
+            "        }, " +
+            "        grantsAndDenials { grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -374,16 +418,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyReplace",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
-                + "} } }" );
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {registeredAddress}, " +
+            "          allAttributeValues {telephoneNumber}" +
+            "        }, " +
+            "        grantsAndDenials { grantAdd, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -406,16 +464,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyAdd",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } "
-                + "} } }" );
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " + 
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + 
+            "    userPermissions " +
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " + 
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {registeredAddress}, " +
+            "          allAttributeValues {registeredAddress}" +
+            "        }, " +
+            "        grantsAndDenials { grantAdd } " +
+            "      } " + 
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.ADD_ATTRIBUTE, changes ) );
@@ -435,16 +507,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyRemove",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } "
-                + "} } }" );
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {telephoneNumber}, " +
+            "          allAttributeValues {telephoneNumber}" +
+            "        }, " +
+            "        grantsAndDenials { grantRemove } " +
+            "      } " + 
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REMOVE_ATTRIBUTE, changes ) );
@@ -464,16 +550,30 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // entries and all attribute types and values
         createAccessControlSubentry(
             "administratorModifyReplace",
-            "{ "
-                + "identificationTag \"addAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
-                + "} } }" );
+            "{ " +
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          attributeType {registeredAddress}, " +
+            "          allAttributeValues {telephoneNumber}" +
+            "        }, " +
+            "        grantsAndDenials { grantAdd, grantRemove } " +
+            "      } " + 
+            "    } " +
+            "  } " +
+            "}" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REPLACE_ATTRIBUTE, changes ) );
@@ -579,24 +679,46 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         createAccessControlSubentry(
             "modifyACI",
-            "{ "
-                + "identificationTag \"modifyAci\", "
-                + "precedence 14, "
-                + "authenticationLevel none, "
-                + "itemOrUserFirst userFirst: { "
-                + "userClasses { allUsers }, "
-                + "userPermissions { "
-                + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } } } } }" );
+            "{ " +
+            "  identificationTag \"modifyAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
         mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute( "registeredAddress",
             "200 Park Ave." ) );
 
-        changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-            + "userPermissions { "
-            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { denyModify } } } } }" );
+        changePresciptiveACI( 
+            "modifyACI", 
+            "{ " + 
+            "  identificationTag \"modifyAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " + 
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { denyModify } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
@@ -609,13 +731,33 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public void testMaxValueCountProtectedItem() throws Exception
     {
         createUser( "billyd", "billyd" );
-        createAccessControlSubentry( "mvcACI", " {" + " identificationTag \"mvcACI\"," + " precedence 10,"
-            + " authenticationLevel simple," + " itemOrUserFirst userFirst:" + " {" + " userClasses { allUsers },"
-            + " userPermissions" + " {" + " {" + " protectedItems { entry },"
-            + " grantsAndDenials { grantModify, grantBrowse }" + " }" + " ," + " {" + " protectedItems" + " {"
-            + " attributeType { description }," + " allAttributeValues { description }," + " maxValueCount" + " {"
-            + " { type description, maxCount 1 }" + " }" + " }" + " ," + " grantsAndDenials" + " {" + " grantRemove,"
-            + " grantAdd" + " }" + " }" + " }" + " }" + " }" );
+        createAccessControlSubentry( 
+            "mvcACI", 
+            "{" + 
+            "  identificationTag \"mvcACI\"," + 
+            "  precedence 10," +
+            "  authenticationLevel simple," + 
+            "  itemOrUserFirst userFirst:" + 
+            "  {" + 
+            "    userClasses { allUsers }," +
+            "    userPermissions" + 
+            "    {" + 
+            "      {" + 
+            "        protectedItems { entry }," +
+            "        grantsAndDenials { grantModify, grantBrowse }" + 
+            "      }," + 
+            "      {" + 
+            "        protectedItems" + 
+            "        {" +
+            "          attributeType { description }," + 
+            "          allAttributeValues { description }," + 
+            "          maxValueCount { { type description, maxCount 1 } }" + 
+            "        } ," + 
+            "        grantsAndDenials { grantRemove, grantAdd }" + 
+            "      }" + 
+            "    }" + 
+            "  }" + 
+            "}" );
 
         Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute( "description",
             "description 1" ) );

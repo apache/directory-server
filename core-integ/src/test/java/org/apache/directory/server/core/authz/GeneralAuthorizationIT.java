@@ -64,10 +64,22 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
-        ResultCodeEnum result = createAccessControlSubentry( "anybodyAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } }" );
+        ResultCodeEnum result = createAccessControlSubentry( 
+            "anybodyAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " + 
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    }" );
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, result );
     }
 }
