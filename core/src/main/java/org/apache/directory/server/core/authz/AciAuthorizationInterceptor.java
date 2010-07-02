@@ -160,14 +160,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
-    private AttributeType objectClassType;
-    private AttributeType acSubentryType;
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
+
+    /** The AccessControlSubentry AttributeType */
+    private static AttributeType ACCESS_CONTROL_SUBENTRY_AT;
 
     /** A storage for the entryACI attributeType */
-    private AttributeType entryAciType;
+    private static AttributeType ENTRY_ACI_AT;
 
     /** the subentry ACI attribute type */
-    private AttributeType subentryAciType;
+    private static AttributeType SUBENTRY_ACI_AT;
 
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
 
@@ -187,20 +190,22 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
+        schemaManager = directoryService.getSchemaManager();
+        chain = directoryService.getInterceptorChain();
 
+        // Create the caches
         tupleCache = new TupleCache( adminSession );
         groupCache = new GroupCache( adminSession );
-        schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information
-        objectClassType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        acSubentryType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        entryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID );
-        subentryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        ACCESS_CONTROL_SUBENTRY_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        ENTRY_ACI_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID );
+        SUBENTRY_ACI_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
 
+        // Iitialize the ACI PARSER and ACDF engine
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager );
         engine = new ACDFEngine( schemaManager );
-        chain = directoryService.getInterceptorChain();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
@@ -252,11 +257,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( entry instanceof ClonedServerEntry )
         {
-            oc = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( objectClassType );
+            oc = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( OBJECT_CLASS_AT );
         }
         else
         {
-            oc = entry.get( objectClassType );
+            oc = entry.get( OBJECT_CLASS_AT );
         }
 
         /*
@@ -275,7 +280,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 
-        EntryAttribute subentries = entry.get( acSubentryType );
+        EntryAttribute subentries = entry.get( ACCESS_CONTROL_SUBENTRY_AT );
 
         if ( subentries == null )
         {
@@ -300,7 +305,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws LdapException
     {
-        EntryAttribute entryAci = entry.get( entryAciType );
+        EntryAttribute entryAci = entry.get( ENTRY_ACI_AT );
 
         if ( entryAci == null )
         {
@@ -354,7 +359,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Entry administrativeEntry = ( ( ClonedServerEntry ) opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ) )
             .getOriginalEntry();
 
-        EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
+        EntryAttribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
 
         if ( subentryAci == null )
         {
@@ -705,8 +710,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
+        DN dn = lookupContext.getDn();
+        
         // no permissions checks on the RootDSE
-        if ( lookupContext.getDn().getNormName().trim().equals( "" ) )
+        if ( dn.isRootDSE() )
         {
             return;
         }
@@ -715,13 +722,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN userName = principal.getDN();
         Set<DN> userGroups = groupCache.getGroups( userName.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
+        addPerscriptiveAciTuples( lookupContext, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
+        addSubentryAciTuples( lookupContext, tuples, dn, entry );
 
         // check that we have read access to the entry
         engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal.getAuthenticationLevel(),
-            lookupContext.getDn(), null, null, LOOKUP_PERMS, tuples, entry, null );
+            dn, null, null, LOOKUP_PERMS, tuples, entry, null );
 
         // check that we have read access to every attribute type and value
         for ( EntryAttribute attribute : entry )
@@ -730,13 +737,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attribute )
             {
                 engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal
-                    .getAuthenticationLevel(), lookupContext.getDn(), attribute.getAttributeType(), value, READ_PERMS, tuples,
+                    .getAuthenticationLevel(), dn, attribute.getAttributeType(), value, READ_PERMS, tuples,
                     entry, null );
             }
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
@@ -750,6 +760,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             principalDn.normalize( schemaManager.getNormalizerMapping() );
         }
 
+        // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
         if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
             return next.lookup( lookupContext );
