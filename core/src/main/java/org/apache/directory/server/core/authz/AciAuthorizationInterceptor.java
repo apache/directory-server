@@ -90,12 +90,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AciAuthorizationInterceptor.class );
 
-    /**
-     * the multivalued op attr used to track the prescriptive access control
-     * subentries that apply to an entry.
-     */
-    private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
-
     private static final Collection<MicroOperation> ADD_PERMS;
     private static final Collection<MicroOperation> READ_PERMS;
     private static final Collection<MicroOperation> COMPARE_PERMS;
@@ -169,8 +163,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private AttributeType objectClassType;
     private AttributeType acSubentryType;
 
-    private String subentryOid;
-
     /** A storage for the entryACI attributeType */
     private AttributeType entryAciType;
 
@@ -182,7 +174,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     /**
      * Initializes this interceptor based service by getting a handle on the nexus, setting up
-     * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
+     * the tuple and group membership caches, the ACIItem parser and the ACDF engine.
      *
      * @param directoryService the directory service core
      * @throws Exception if there are problems during initialization
@@ -191,7 +183,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
@@ -199,19 +191,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         tupleCache = new TupleCache( adminSession );
         groupCache = new GroupCache( adminSession );
         schemaManager = directoryService.getSchemaManager();
-        //ocRegistry = registries.getObjectClassRegistry();
 
         // look up some constant information
-        String objectClassOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT );
-        subentryOid = schemaManager.getObjectClassRegistry().getOidByName( SchemaConstants.SUBENTRY_OC );
-        String acSubentryOid = schemaManager.getAttributeTypeRegistry().getOidByName( AC_SUBENTRY_ATTR );
-        objectClassType = schemaManager.lookupAttributeTypeRegistry( objectClassOid );
-        acSubentryType = schemaManager.lookupAttributeTypeRegistry( acSubentryOid );
+        objectClassType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        acSubentryType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
         entryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID );
         subentryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
 
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager );
-        engine = new ACDFEngine( schemaManager.getGlobalOidRegistry(), schemaManager );
+        engine = new ACDFEngine( schemaManager );
         chain = directoryService.getInterceptorChain();
 
         // stuff for dealing with subentries (garbage for now)
@@ -280,7 +268,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( oc.contains( SchemaConstants.SUBENTRY_OC ) || oc.contains( subentryOid ) )
+        if ( oc.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             DN parentDn = ( DN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
@@ -422,11 +410,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN principalDn = principal.getDN();
 
         Entry serverEntry = addContext.getEntry();
-        //Attributes entry = ServerEntryUtils.toAttributesImpl( serverEntry );
 
-        DN name = addContext.getDn();
+        DN dn = addContext.getDn();
 
-        // bypass authz code if we are disabled
+        // bypass authz code if it was disabled
         if ( !addContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.add( addContext );
@@ -437,15 +424,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.add( addContext );
-            tupleCache.subentryAdded( name, serverEntry );
-            groupCache.groupAdded( name, serverEntry );
+            tupleCache.subentryAdded( dn, serverEntry );
+            groupCache.groupAdded( dn, serverEntry );
             return;
         }
 
         // perform checks below here for all non-admin users
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
             .getName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( name, serverEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( dn, serverEntry );
 
         for ( EntryAttribute attribute : serverEntry )
         {
@@ -458,12 +445,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Build the total collection of tuples to be considered for add rights
         // NOTE: entryACI are NOT considered in adds (it would be a security breech)
-        addPerscriptiveAciTuples( addContext, tuples, name, subentryAttrs );
-        addSubentryAciTuples( addContext, tuples, name, subentryAttrs );
+        addPerscriptiveAciTuples( addContext, tuples, dn, subentryAttrs );
+        addSubentryAciTuples( addContext, tuples, dn, subentryAttrs );
 
         // check if entry scope permission is granted
         engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            name, null, null, ADD_PERMS, tuples, subentryAttrs, null );
+            dn, null, null, ADD_PERMS, tuples, subentryAttrs, null );
 
         // now we must check if attribute type and value scope permission is granted
         for ( EntryAttribute attribute : serverEntry )
@@ -471,7 +458,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attribute )
             {
                 engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), name, attribute.getAttributeType(), value, ADD_PERMS, tuples, serverEntry, null );
+                    .getAuthenticationLevel(), dn, attribute.getAttributeType(), value, ADD_PERMS, tuples, serverEntry, null );
             }
         }
 
@@ -480,8 +467,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
-        tupleCache.subentryAdded( name, serverEntry );
-        groupCache.groupAdded( name, serverEntry );
+        tupleCache.subentryAdded( dn, serverEntry );
+        groupCache.groupAdded( dn, serverEntry );
     }
 
 

@@ -121,10 +121,10 @@ public class RelatedProtectedItemFilterTest
         USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
+            OID_REGISTRY ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
 
         filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
+            OID_REGISTRY ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );

@@ -70,7 +70,7 @@ public class RelatedUserClassFilterTest
     @BeforeClass
     public static void init() throws Exception
     {
-        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DefaultSchemaManager( null ) );
+        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager( null ) );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
         
         try

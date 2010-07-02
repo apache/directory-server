@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 
@@ -69,7 +68,7 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator( OidRegistry oidRegistry, SchemaManager schemaManager )
+    public ExpressionEvaluator( SchemaManager schemaManager )
     {
         SubstringEvaluator substringEvaluator = null;
         substringEvaluator = new SubstringEvaluator( schemaManager );

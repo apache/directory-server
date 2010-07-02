@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,11 +77,10 @@ public class EventInterceptor extends BaseInterceptor
         super.init( ds );
 
         this.ds = ds;
-        OidRegistry oidRegistry = ds.getSchemaManager().getGlobalOidRegistry();
         SchemaManager schemaManager = ds.getSchemaManager();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );
-        evaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
+        evaluator = new ExpressionEvaluator( schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
 
         this.ds.setEventService( new DefaultEventService() );

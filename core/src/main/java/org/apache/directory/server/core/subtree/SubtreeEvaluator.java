@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -52,9 +51,9 @@ public class SubtreeEvaluator
      * @param oidRegistry a registry used to lookup objectClass names for OIDs
      * @param attrRegistry registry to be looked up
      */
-    public SubtreeEvaluator( OidRegistry oidRegistry, SchemaManager schemaManager )
+    public SubtreeEvaluator( SchemaManager schemaManager )
     {
-        evaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
+        evaluator = new ExpressionEvaluator( schemaManager );
     }
 
 

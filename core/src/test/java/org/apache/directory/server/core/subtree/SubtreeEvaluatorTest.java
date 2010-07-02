@@ -94,7 +94,7 @@ public class SubtreeEvaluatorTest
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
-        evaluator = new SubtreeEvaluator( schemaManager.getGlobalOidRegistry(), schemaManager );
+        evaluator = new SubtreeEvaluator( schemaManager );
     }
 
 

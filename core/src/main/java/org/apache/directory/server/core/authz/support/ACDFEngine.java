@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -88,15 +87,15 @@ public class ACDFEngine
      * 
      * @throws LdapException if failed to initialize internal components
      */
-    public ACDFEngine( OidRegistry oidRegistry, SchemaManager schemaManager ) throws LdapException
+    public ACDFEngine( SchemaManager schemaManager ) throws LdapException
     {
-        Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
-        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
-        RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( oidRegistry ) );
+        Evaluator entryEvaluator = new ExpressionEvaluator( schemaManager );
+        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( schemaManager );
+        RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( schemaManager.getGlobalOidRegistry() ) );
 
         filters = new ACITupleFilter[] {
             new RelatedUserClassFilter( subtreeEvaluator ),
-            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, schemaManager ),
+            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, schemaManager ),
             new MaxValueCountFilter(),
             new MaxImmSubFilter(),
             new RestrictedByFilter(),

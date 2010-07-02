@@ -82,7 +82,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
@@ -127,9 +126,6 @@ public class SubentryInterceptor extends BaseInterceptor
     /** The global registries */
     private SchemaManager schemaManager;
 
-    /** The OID registry */
-    private OidRegistry oidRegistry;
-
     private AttributeType objectClassType;
 
 
@@ -138,7 +134,6 @@ public class SubentryInterceptor extends BaseInterceptor
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
-        oidRegistry = schemaManager.getGlobalOidRegistry();
 
         // setup various attribute type values
         objectClassType = schemaManager.lookupAttributeTypeRegistry( schemaManager.getAttributeTypeRegistry()
@@ -151,7 +146,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 return schemaManager.getNormalizerMapping();
             }
         }, schemaManager.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
+        evaluator = new SubtreeEvaluator( schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();

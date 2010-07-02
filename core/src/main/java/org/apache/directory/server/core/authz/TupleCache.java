@@ -84,6 +84,9 @@ public class TupleCache
     /** A storage for the PrescriptiveACI attributeType */
     private AttributeType prescriptiveAciAT;
 
+    /** A storage for the ObjectClass attributeType */
+    private static AttributeType OBJECT_CLASS_AT;
+
 
     /**
      * Creates a ACITuple cache.
@@ -98,6 +101,7 @@ public class TupleCache
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         aciParser = new ACIItemParser( ncn, schemaManager );
         prescriptiveAciAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         initialize( session );
     }
 
@@ -160,6 +164,9 @@ public class TupleCache
     }
 
 
+    /** 
+     * Check if the Entry contains a prescriptiveACI 
+     */
     private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
@@ -167,8 +174,7 @@ public class TupleCache
 
         if ( aci == null )
         {
-            if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC )
-                || entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ) )
+            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
@@ -185,19 +191,22 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( DN normName, Entry entry ) throws LdapException
+    public void subentryAdded( DN dn, Entry entry ) throws LdapException
     {
-        // only do something if the entry contains prescriptiveACI
-        EntryAttribute aciAttr = entry.get( prescriptiveAciAT );
-
+        // only do something if the entry contains a prescriptiveACI
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
 
+        // Get the prescriptiveACI
+        EntryAttribute prescriptiveAci = entry.get( prescriptiveAciAT );
+
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
 
-        for ( Value<?> value : aciAttr )
+        // Loop on all the ACI, parse each of them and
+        // store the associated tuples into the cache
+        for ( Value<?> value : prescriptiveAci )
         {
             String aci = value.getString();
             ACIItem item = null;
@@ -217,7 +226,7 @@ public class TupleCache
             }
         }
 
-        tuples.put( normName.getNormName(), entryTuples );
+        tuples.put( dn.getNormName(), entryTuples );
     }
 
 

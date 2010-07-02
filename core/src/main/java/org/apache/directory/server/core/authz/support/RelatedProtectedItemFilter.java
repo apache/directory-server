@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -66,8 +65,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     private final SchemaManager schemaManager;
 
 
-    public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator, 
-        OidRegistry oidRegistry, SchemaManager schemaManager )
+    public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator, SchemaManager schemaManager )
     {
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
