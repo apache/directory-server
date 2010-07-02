@@ -128,11 +128,24 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantAdd perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
+        createAccessControlSubentry( 
+            "administratorAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -161,11 +174,24 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to add an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
+        createAccessControlSubentry( 
+            "billydAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -187,11 +213,27 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to add an entry below ou=system
-        createAccessControlSubentry( "billyAddBySubtree", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
+        createAccessControlSubentry( 
+            "billyAddBySubtree", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses " +
+            "    { " +
+            "      subtree { { base \"ou=users,ou=system\" } } " +
+            "    }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -213,10 +255,24 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables anyone to add an entry below ou=system
-        createAccessControlSubentry( "anybodyAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
+        createAccessControlSubentry( 
+            "anybodyAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " + 
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // should work now with billyd now that all users are authorized
