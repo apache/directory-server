@@ -64,6 +64,7 @@ import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.Loggers;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -89,6 +90,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AciAuthorizationInterceptor.class );
+    
+    /** the dedicated logger for ACI */
+    private static final Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
 
     private static final Collection<MicroOperation> ADD_PERMS;
     private static final Collection<MicroOperation> READ_PERMS;
@@ -410,6 +414,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
+        // bypass authz code if it was disabled
+        if ( !addContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            ACI_LOG.debug( "ACI interceptor disabled" );
+            next.add( addContext );
+            return;
+        }
+
+        ACI_LOG.debug( "Adding the entry {}", addContext.getEntry() );
+
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
@@ -418,16 +432,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         DN dn = addContext.getDn();
 
-        // bypass authz code if it was disabled
-        if ( !addContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            next.add( addContext );
-            return;
-        }
-
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
+            ACI_LOG.debug( "Addition done by the administartor : no check" );
+            
             next.add( addContext );
             tupleCache.subentryAdded( dn, serverEntry );
             groupCache.groupAdded( dn, serverEntry );
