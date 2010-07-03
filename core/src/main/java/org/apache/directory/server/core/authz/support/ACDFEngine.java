@@ -221,10 +221,18 @@ public class ACDFEngine
 
         // Clone aciTuples in case it is unmodifiable.
         aciTuples = new ArrayList<ACITuple>( aciTuples );
+        
+        
 
         // Filter unrelated and invalid tuples
         for ( ACITupleFilter filter : filters )
         {
+            if ( aciTuples.size() == 0 )
+            {
+                // No need to continue filtering
+                return false;
+            }
+            
             aciTuples = filter.filter( 
                 schemaManager, 
                 aciTuples, 

@@ -26,12 +26,15 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.Loggers;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +46,9 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public interface ACITupleFilter
 {
+    /** the dedicated logger for ACI */
+    static final Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
+
     /**
      * Returns the collection of the filtered tuples using the specified
      * extra information.

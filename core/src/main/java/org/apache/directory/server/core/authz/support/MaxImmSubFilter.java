@@ -95,6 +95,8 @@ public class MaxImmSubFilter implements ACITupleFilter
             Entry entryView )
         throws LdapException
     {
+        ACI_LOG.debug( "Filtering MaxImmSub..." );
+
         if ( entryName.size() == 0 )
         {
             return tuples;

@@ -1189,4 +1189,50 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // now we should not be able to access the subentry with a search
         assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
     }
+
+
+    /**
+     * Checks that we can protect a RangeOfValues item
+     *
+     * @throws Exception if the test encounters an error
+     */
+    @Test
+    @Ignore
+    public void testRangeOfValues() throws Exception
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try a search operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // now add a subentry that allows a user to read the CN only
+        createAccessControlSubentry( 
+            "rangeOfValues", 
+            "{ " +
+            "  identificationTag \"rangeOfValuesAci\", " + 
+            "  precedence 14," +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " + 
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems { entry, rangeOfValues (cn=billyd) }, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
+
+        // see if we can now search and find 4 entries
+        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // check to make sure the telephoneNumber attribute is not present in results
+        for ( Entry result : results.values() )
+        {
+            assertNotNull( result.get( "cn" ) );
+        }
+    }
 }

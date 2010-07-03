@@ -60,8 +60,11 @@ public class HighestPrecedenceFilter implements ACITupleFilter
             Entry entryView )
         throws LdapException
     {
+        ACI_LOG.debug( "Filtering HighestPrecedence..." );
+        
         if ( tuples.size() <= 1 )
         {
+            ACI_LOG.debug( "HighestPrecedence : nothing to do" );
             return tuples;
         }
 
