@@ -335,8 +335,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             String subentryDnStr = list.next();
             DN subentryDn = new DN( subentryDnStr );
-            DN apDn = ( DN ) subentryDn.clone();
-            apDn.remove( apDn.size() - 1 );
+            DN apDn = subentryDn.getParent();
             Subentry subentry = subentryCache.getSubentry( subentryDnStr );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
@@ -357,6 +356,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     operational.add( subentryDn.getNormName() );
                 }
+                
                 if ( subentry.isSchemaSubentry() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
@@ -370,6 +370,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     operational.add( subentryDn.getNormName() );
                 }
+                
                 if ( subentry.isCollectiveSubentry() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -384,6 +385,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     operational.add( subentryDn.getNormName() );
                 }
+                
                 if ( subentry.isTriggerSubentry() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
@@ -414,8 +416,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
-            DN apName = ( DN ) name.clone();
-            apName.remove( name.size() - 1 );
+            DN apName = name.getParent();
             Entry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
             EntryAttribute administrativeRole = ap.get( "administrativeRole" );
 
@@ -435,7 +436,7 @@ public class SubentryInterceptor extends BaseInterceptor
              */
             Subentry subentry = new Subentry();
             subentry.setTypes( getSubentryTypes( entry ) );
-            Entry operational = getSubentryOperatationalAttributes( name, subentry );
+            Entry operational = getSubentryOperationalAttributes( name, subentry );
 
             /* ----------------------------------------------------------------
              * Parse the subtreeSpecification of the subentry and add it to the
@@ -1169,7 +1170,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // search for all selected entries by the new SS and add references to subentry
             Subentry subentry = subentryCache.getSubentry( dn.getNormName() );
-            Entry operational = getSubentryOperatationalAttributes( dn, subentry );
+            Entry operational = getSubentryOperationalAttributes( dn, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
 
@@ -1316,7 +1317,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param subentry the subentry to get attributes from
      * @return the set of attributes to be added or removed from entries
      */
-    private Entry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws LdapException
+    private Entry getSubentryOperationalAttributes( DN name, Subentry subentry ) throws LdapException
     {
         Entry operational = new DefaultEntry( schemaManager, name );
 
