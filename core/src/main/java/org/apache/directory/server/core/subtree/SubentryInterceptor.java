@@ -418,10 +418,12 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             DN apName = name.getParent();
             Entry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
-            EntryAttribute administrativeRole = ap.get( "administrativeRole" );
+            
+            // The administrativeRole AT must exist and not be null
+            EntryAttribute administrativeRole = ap.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
 
             // check that administrativeRole has something valid in it for us
-            if ( administrativeRole == null || administrativeRole.size() <= 0 )
+            if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
             {
                 throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apName ) );
             }
@@ -680,7 +682,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private boolean hasAdministrativeDescendant( OperationContext opContext, DN name ) throws LdapException
     {
-        ExprNode filter = new PresenceNode( "administrativeRole" );
+        ExprNode filter = new PresenceNode( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
