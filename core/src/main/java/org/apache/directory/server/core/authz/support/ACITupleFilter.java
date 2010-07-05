@@ -22,17 +22,12 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.Loggers;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,20 +64,5 @@ public interface ACITupleFilter
      * @return the collection of filtered tuples
      * @throws LdapException if failed to filter the specific tuples
      */
-    Collection<ACITuple> filter( 
-            SchemaManager schemaManager, 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            OperationContext opContext,
-            Collection<DN> userGroupNames, 
-            DN userName, 
-            Entry userEntry,
-            AuthenticationLevel authenticationLevel, 
-            DN entryName, 
-            AttributeType attributeType,
-            Value<?> attrValue, 
-            Entry entry, 
-            Collection<MicroOperation> microOperations,
-            Entry entryView )
-        throws LdapException;
+    Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException;
 }

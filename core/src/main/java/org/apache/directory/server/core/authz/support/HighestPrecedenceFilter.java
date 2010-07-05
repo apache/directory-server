@@ -23,16 +23,9 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -43,44 +36,30 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( 
-            SchemaManager schemaManager, 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            OperationContext opContext,
-            Collection<DN> userGroupNames, 
-            DN userName, 
-            Entry userEntry, 
-            AuthenticationLevel authenticationLevel,
-            DN entryName, 
-            AttributeType attributeType, 
-            Value<?> attrValue, 
-            Entry entry, 
-            Collection<MicroOperation> microOperations,
-            Entry entryView )
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
         ACI_LOG.debug( "Filtering HighestPrecedence..." );
         
-        if ( tuples.size() <= 1 )
+        if ( aciContext.getAciTuples().size() <= 1 )
         {
             ACI_LOG.debug( "HighestPrecedence : nothing to do" );
-            return tuples;
+            return aciContext.getAciTuples();
         }
 
         int maxPrecedence = -1;
 
         // Find the maximum precedence for all tuples.
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
-            if ( ( tuple.getPrecedence() != null ) && (tuple.getPrecedence() > maxPrecedence ) )
+            if ( ( tuple.getPrecedence() != null ) && ( tuple.getPrecedence() > maxPrecedence ) )
             {
                 maxPrecedence = tuple.getPrecedence();
             }
         }
 
         // Remove all tuples whose precedences are not the maximum one.
-        for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> i = aciContext.getAciTuples().iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
             
@@ -90,6 +69,6 @@ public class HighestPrecedenceFilter implements ACITupleFilter
             }
         }
 
-        return tuples;
+        return aciContext.getAciTuples();
     }
 }

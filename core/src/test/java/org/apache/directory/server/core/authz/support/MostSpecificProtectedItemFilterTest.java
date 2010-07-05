@@ -156,14 +156,18 @@ public class MostSpecificProtectedItemFilterTest
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, null, null, null, null, null ).size() );
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
@@ -173,8 +177,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_A );
-        tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null, null );
+        
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = ( List<ACITuple> ) filter.filter(  aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 4, tuples.size() );
         assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
@@ -190,8 +197,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_B );
-        tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null, null );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 3, tuples.size() );
         assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
@@ -206,8 +216,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_C );
-        tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null, null );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 2, tuples.size() );
         assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
@@ -221,8 +234,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_D );
-        tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null, null );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 1, tuples.size() );
         assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
@@ -235,8 +251,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_E );
-        tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null, null );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 2, tuples.size() );
         assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );

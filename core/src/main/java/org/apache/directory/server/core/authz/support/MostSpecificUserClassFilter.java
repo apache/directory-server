@@ -23,17 +23,10 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -50,33 +43,18 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( 
-            SchemaManager schemaManager, 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            OperationContext opContext,
-            Collection<DN> userGroupNames, 
-            DN userName, 
-            Entry userEntry, 
-            AuthenticationLevel authenticationLevel,
-            DN entryName, 
-            AttributeType attributeType, 
-            Value<?> attrValue, 
-            Entry entry, 
-            Collection<MicroOperation> microOperations,
-            Entry entryView )
-        throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
     {
-        if ( tuples.size() <= 1 )
+        if ( aciContext.getAciTuples().size() <= 1 )
         {
-            return tuples;
+            return aciContext.getAciTuples();
         }
 
         Collection<ACITuple> filteredTuples = new ArrayList<ACITuple>();
 
         // If there are any tuples matching the requestor with UserClasses
         // element name or thisEntry, discard all other tuples.
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
             for ( UserClass userClass:tuple.getUserClasses() )
             {
@@ -95,7 +73,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching UserGroup,
         // discard all other tuples.
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
             for ( UserClass userClass:tuple.getUserClasses() )
             {
@@ -114,7 +92,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching subtree,
         // discard all other tuples.
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
             for ( UserClass userClass:tuple.getUserClasses() )
             {
@@ -131,7 +109,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             return filteredTuples;
         }
 
-        return tuples;
+        return aciContext.getAciTuples();
     }
 
 }

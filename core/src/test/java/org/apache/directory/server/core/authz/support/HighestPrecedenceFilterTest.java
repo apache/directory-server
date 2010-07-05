@@ -60,8 +60,10 @@ public class HighestPrecedenceFilterTest
     public void testZeroTuple() throws Exception
     {
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
-        assertEquals( 0, filter.filter( null, AT_EMPTY_COLLECTION, null, null, null, null, null, null, null, null, null,
-            null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( AT_EMPTY_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, null, null ).size() );
     }
 
 
@@ -74,8 +76,10 @@ public class HighestPrecedenceFilterTest
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true, 10 ) );
         tuples = Collections.unmodifiableCollection( tuples );
         
-        assertEquals( tuples, filter.filter( null, tuples, null, null, null, null, null, null, null, null, null, null,
-            null, null ) );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( tuples, filter.filter( aciContext, null, null ) );
     }
 
 
@@ -95,7 +99,10 @@ public class HighestPrecedenceFilterTest
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
             MAX_PRECEDENCE / 3 ) );
 
-        tuples = filter.filter( null, tuples, null, null, null, null, null, null, null, null, null, null, null, null );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        tuples = filter.filter( aciContext, null, null );
 
         for ( ACITuple tuple:tuples )
         {

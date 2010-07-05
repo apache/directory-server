@@ -1219,7 +1219,11 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             "    userPermissions " +
             "    { " +
             "      { " +
-            "        protectedItems { entry, rangeOfValues (cn=billyd) }, " +
+            "        protectedItems { entry }, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
+            "      }, " +
+            "      { " +
+            "        protectedItems { rangeOfValues (cn=billyd) }, " +
             "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
             "      } " +
             "    } " +

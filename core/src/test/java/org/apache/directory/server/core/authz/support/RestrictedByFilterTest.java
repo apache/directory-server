@@ -117,11 +117,15 @@ public class RestrictedByFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
-            null, null, null, null, null, null, null ) );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null,
-            null, null, null, null, null ) );
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE, null ) );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ENTRY, null ) );
     }
 
 
@@ -130,8 +134,10 @@ public class RestrictedByFilterTest
     {
         RestrictedByFilter filter = new RestrictedByFilter();
 
-        assertEquals( 0, filter.filter( null, AT_EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( AT_EMPTY_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
@@ -144,8 +150,12 @@ public class RestrictedByFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, SN_AT, null, ENTRY, null, null ) );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( SN_AT );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ) );
     }
 
 
@@ -156,13 +166,28 @@ public class RestrictedByFilterTest
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, SN_AT, new StringValue( "1" ), ENTRY, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( SN_AT );
+        aciContext.setAttrValue( new StringValue( "1" ) );
+        aciContext.setEntry( ENTRY );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, SN_AT, new StringValue( "2" ), ENTRY, null, null ).size() );
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, SN_AT, new StringValue( "3" ), ENTRY, null, null ).size() );
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( SN_AT );
+        aciContext.setAttrValue( new StringValue( "2" ) );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( SN_AT );
+        aciContext.setAttrValue( new StringValue( "3" ) );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 }

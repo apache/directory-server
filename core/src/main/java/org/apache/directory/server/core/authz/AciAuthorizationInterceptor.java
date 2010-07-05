@@ -36,6 +36,7 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
+import org.apache.directory.server.core.authz.support.AciContext;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -100,7 +101,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private static final Collection<MicroOperation> SEARCH_ENTRY_PERMS;
     private static final Collection<MicroOperation> SEARCH_ATTRVAL_PERMS;
     private static final Collection<MicroOperation> REMOVE_PERMS;
-    private static final Collection<MicroOperation> MATCHEDNAME_PERMS;
     private static final Collection<MicroOperation> BROWSE_PERMS;
     private static final Collection<MicroOperation> LOOKUP_PERMS;
     private static final Collection<MicroOperation> REPLACE_PERMS;
@@ -136,7 +136,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         READ_PERMS = Collections.singleton( MicroOperation.READ );
         COMPARE_PERMS = Collections.singleton( MicroOperation.COMPARE );
         REMOVE_PERMS = Collections.singleton( MicroOperation.REMOVE );
-        MATCHEDNAME_PERMS = Collections.singleton( MicroOperation.DISCLOSE_ON_ERROR );
         BROWSE_PERMS = Collections.singleton( MicroOperation.BROWSE );
         RENAME_PERMS = Collections.singleton( MicroOperation.RENAME );
         EXPORT_PERMS = Collections.singleton( MicroOperation.EXPORT );
@@ -447,11 +446,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // perform checks below here for all non-admin users
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
             .getName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( dn, serverEntry );
+        Entry subentry = subentryInterceptor.getSubentryAttributes( dn, serverEntry );
 
         for ( EntryAttribute attribute : serverEntry )
         {
-            subentryAttrs.put( attribute );
+            subentry.put( attribute );
         }
 
         // Assemble all the information required to make an access control decision
@@ -460,20 +459,38 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Build the total collection of tuples to be considered for add rights
         // NOTE: entryACI are NOT considered in adds (it would be a security breech)
-        addPerscriptiveAciTuples( addContext, tuples, dn, subentryAttrs );
-        addSubentryAciTuples( addContext, tuples, dn, subentryAttrs );
+        addPerscriptiveAciTuples( addContext, tuples, dn, subentry );
+        addSubentryAciTuples( addContext, tuples, dn, subentry );
 
         // check if entry scope permission is granted
-        engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            dn, null, null, ADD_PERMS, tuples, subentryAttrs, null );
+        AciContext entryAciCtx = new AciContext( schemaManager, addContext );
+        entryAciCtx.setUserGroupNames( userGroups );
+        entryAciCtx.setUserDn( principalDn );
+        entryAciCtx.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        entryAciCtx.setEntryDn( dn );
+        entryAciCtx.setMicroOperations( ADD_PERMS );
+        entryAciCtx.setAciTuples( tuples );
+        entryAciCtx.setEntry( subentry );
+        
+        engine.checkPermission( entryAciCtx );
 
         // now we must check if attribute type and value scope permission is granted
         for ( EntryAttribute attribute : serverEntry )
         {
             for ( Value<?> value : attribute )
             {
-                engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), dn, attribute.getAttributeType(), value, ADD_PERMS, tuples, serverEntry, null );
+                AciContext attrAciContext = new AciContext( schemaManager, addContext );
+                attrAciContext.setUserGroupNames( userGroups );
+                attrAciContext.setUserDn( principalDn );
+                attrAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                attrAciContext.setEntryDn( dn );
+                attrAciContext.setAttributeType( attribute.getAttributeType() );
+                attrAciContext.setAttrValue( value );
+                attrAciContext.setMicroOperations( ADD_PERMS );
+                attrAciContext.setAciTuples( tuples );
+                attrAciContext.setEntry( serverEntry );
+
+                engine.checkPermission( attrAciContext );
             }
         }
 
@@ -529,8 +546,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( deleteContext, tuples, dn, entry );
 
-        engine.checkPermission( schemaManager, deleteContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), dn, null, null, REMOVE_PERMS, tuples, entry, null );
+        AciContext aciContext = new AciContext( schemaManager, deleteContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( REMOVE_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
 
         next.delete( deleteContext );
 
@@ -580,8 +605,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( modifyContext, tuples, dn, entry );
 
-        engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            dn, null, null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
+        AciContext entryAciContext = new AciContext( schemaManager, modifyContext );
+        entryAciContext.setUserGroupNames( userGroups );
+        entryAciContext.setUserDn( principalDn );
+        entryAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        entryAciContext.setEntryDn( dn );
+        entryAciContext.setMicroOperations( Collections.singleton( MicroOperation.MODIFY ) );
+        entryAciContext.setAciTuples( tuples );
+        entryAciContext.setEntry( entry );
+
+        engine.checkPermission( entryAciContext );
 
         Collection<MicroOperation> perms = null;
         Entry entryView = ( Entry ) entry.clone();
@@ -598,9 +631,18 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                     // If the attribute is being created with an initial value ...
                     if ( entry.get( attr.getId() ) == null )
                     {
+                        AciContext attrAciContext = new AciContext( schemaManager, modifyContext );
+                        attrAciContext.setUserGroupNames( userGroups );
+                        attrAciContext.setUserDn( principalDn );
+                        attrAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                        attrAciContext.setEntryDn( dn );
+                        attrAciContext.setAttributeType( attr.getAttributeType() );
+                        attrAciContext.setMicroOperations( perms );
+                        attrAciContext.setAciTuples( tuples );
+                        attrAciContext.setEntry( entry );
+
                         // ... we also need to check if adding the attribute is permitted
-                        engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                            .getAuthenticationLevel(), dn, attr.getAttributeType(), null, perms, tuples, entry, null );
+                        engine.checkPermission( attrAciContext );
                     }
 
                     break;
@@ -615,8 +657,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         if ( entryAttr.size() == 1 )
                         {
                             // ... we also need to check if removing the attribute at all is permitted
-                            engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                                .getAuthenticationLevel(), dn, attr.getAttributeType(), null, perms, tuples, entry, null );
+                            AciContext aciContext = new AciContext( schemaManager, modifyContext );
+                            aciContext.setUserGroupNames( userGroups );
+                            aciContext.setUserDn( principalDn );
+                            aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                            aciContext.setEntryDn( dn );
+                            aciContext.setAttributeType( attr.getAttributeType() );
+                            aciContext.setMicroOperations( perms );
+                            aciContext.setAciTuples( tuples );
+                            aciContext.setEntry( entry );
+
+                            engine.checkPermission( aciContext );
                         }
                     }
 
@@ -644,8 +695,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
             for ( Value<?> value : attr )
             {
-                engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), dn, attr.getAttributeType(), value, perms, tuples, entry, entryView );
+                AciContext aciContext = new AciContext( schemaManager, modifyContext );
+                aciContext.setUserGroupNames( userGroups );
+                aciContext.setUserDn( principalDn );
+                aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                aciContext.setEntryDn( dn );
+                aciContext.setAttributeType( attr.getAttributeType() );
+                aciContext.setAttrValue( value );
+                aciContext.setMicroOperations( perms );
+                aciContext.setAciTuples( tuples );
+                aciContext.setEntry( entry );
+                aciContext.setEntryView( entryView );
+                
+                engine.checkPermission( aciContext );
             }
         }
 
@@ -695,9 +757,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addSubentryAciTuples( hasEntryContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
 
         // check that we have browse access to the entry
-        engine.checkPermission( schemaManager, hasEntryContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), dn, null, null, BROWSE_PERMS, tuples, ( ( ClonedServerEntry ) entry )
-            .getOriginalEntry(), null );
+        AciContext aciContext = new AciContext( schemaManager, hasEntryContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( BROWSE_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ((ClonedServerEntry)entry).getOriginalEntry() );
+
+        engine.checkPermission( aciContext );
 
         return next.hasEntry( hasEntryContext );
     }
@@ -737,8 +806,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addSubentryAciTuples( lookupContext, tuples, dn, entry );
 
         // check that we have read access to the entry
-        engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal.getAuthenticationLevel(),
-            dn, null, null, LOOKUP_PERMS, tuples, entry, null );
+        AciContext aciContext = new AciContext( schemaManager, lookupContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( userName );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( LOOKUP_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
 
         // check that we have read access to every attribute type and value
         for ( EntryAttribute attribute : entry )
@@ -746,9 +823,18 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
             for ( Value<?> value : attribute )
             {
-                engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal
-                    .getAuthenticationLevel(), dn, attribute.getAttributeType(), value, READ_PERMS, tuples,
-                    entry, null );
+                AciContext valueAciContext = new AciContext( schemaManager, lookupContext );
+                valueAciContext.setUserGroupNames( userGroups );
+                valueAciContext.setUserDn( userName );
+                valueAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                valueAciContext.setEntryDn( dn );
+                valueAciContext.setAttributeType( attribute.getAttributeType() );
+                valueAciContext.setAttrValue( value );
+                valueAciContext.setMicroOperations( READ_PERMS );
+                valueAciContext.setAciTuples( tuples );
+                valueAciContext.setEntry( entry );
+                
+                engine.checkPermission( valueAciContext );
             }
         }
     }
@@ -826,8 +912,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, originalEntry );
         addSubentryAciTuples( renameContext, tuples, oldName, originalEntry );
 
-        engine.checkPermission( schemaManager, renameContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), oldName, null, null, RENAME_PERMS, tuples, originalEntry, null );
+        AciContext aciContext = new AciContext( schemaManager, renameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( oldName );
+        aciContext.setMicroOperations( RENAME_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( originalEntry );
+
+        engine.checkPermission( aciContext );
 
         next.rename( renameContext );
         tupleCache.subentryRenamed( oldName, newName );
@@ -870,8 +964,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oldDn, entry );
 
-        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), oldDn, null, null, MOVERENAME_PERMS, tuples, entry, null );
+        AciContext aciContext = new AciContext( schemaManager, moveAndRenameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( oldDn );
+        aciContext.setMicroOperations( MOVERENAME_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
 
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
@@ -899,10 +1001,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
         addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newDn, subentryAttrs );
+
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), newDn, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
+        aciContext = new AciContext( schemaManager, moveAndRenameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( newDn );
+        aciContext.setMicroOperations( IMPORT_PERMS );
+        aciContext.setAciTuples( destTuples );
+        aciContext.setEntry( subentryAttrs );
+
+        engine.checkPermission( aciContext );
 
         next.moveAndRename( moveAndRenameContext );
         tupleCache.subentryRenamed( oldDn, newDn );
@@ -949,8 +1060,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveContext, tuples, oriChildName, entry );
 
-        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn,
-            principal.getAuthenticationLevel(), oriChildName, null, null, EXPORT_PERMS, tuples, entry, null );
+        AciContext aciContext = new AciContext( schemaManager, moveContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( oriChildName );
+        aciContext.setMicroOperations( EXPORT_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
 
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
@@ -976,10 +1095,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
         addPerscriptiveAciTuples( moveContext, destTuples, newDn, subentryAttrs );
+
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn,
-            principal.getAuthenticationLevel(), newDn, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
+        aciContext = new AciContext( schemaManager, moveContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( newDn );
+        aciContext.setMicroOperations( IMPORT_PERMS );
+        aciContext.setAciTuples( destTuples );
+        aciContext.setEntry( subentryAttrs );
+
+        engine.checkPermission( aciContext );
 
         next.move( moveContext );
         tupleCache.subentryRenamed( oriChildName, newDn );
@@ -1059,12 +1187,30 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( compareContext, tuples, dn, entry );
 
-        engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            dn, null, null, READ_PERMS, tuples, entry, null );
+        AciContext aciContext = new AciContext( schemaManager, compareContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( READ_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
         
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-        engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            dn, attributeType, value, COMPARE_PERMS, tuples, entry, null );
+        
+        aciContext = new AciContext( schemaManager, compareContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setAttributeType( attributeType );
+        aciContext.setMicroOperations( COMPARE_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
 
         return next.compare( compareContext );
     }
@@ -1092,8 +1238,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );
         addSubentryAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
 
-        if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal.getAuthenticationLevel(),
-            normName, null, null, SEARCH_ENTRY_PERMS, tuples, clonedEntry.getOriginalEntry(), null ) )
+        AciContext aciContext = new AciContext( schemaManager, opContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( userDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( normName );
+        aciContext.setMicroOperations( SEARCH_ENTRY_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( clonedEntry.getOriginalEntry() );
+
+        if ( !engine.hasPermission( aciContext ) )
         {
             return false;
         }
@@ -1112,8 +1266,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             // if attribute type scope access is not allowed then remove the attribute and continue
             EntryAttribute attr = clonedEntry.get( attributeType );
 
-            if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
-                .getAuthenticationLevel(), normName, attributeType, null, SEARCH_ATTRVAL_PERMS, tuples, clonedEntry, null ) )
+            aciContext = new AciContext( schemaManager, opContext );
+            aciContext.setUserGroupNames( userGroups );
+            aciContext.setUserDn( userDn );
+            aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+            aciContext.setEntryDn( normName );
+            aciContext.setAttributeType( attributeType );
+            aciContext.setMicroOperations( SEARCH_ATTRVAL_PERMS );
+            aciContext.setAciTuples( tuples );
+            aciContext.setEntry( clonedEntry );
+
+            if ( !engine.hasPermission( aciContext ) )
             {
                 attributeToRemove.add( attributeType );
 
@@ -1125,9 +1288,18 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             // attribute type scope is ok now let's determine value level scope
             for ( Value<?> value : attr )
             {
-                if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
-                    .getAuthenticationLevel(), normName, attr.getAttributeType(), value, SEARCH_ATTRVAL_PERMS, tuples,
-                    clonedEntry, null ) )
+                aciContext = new AciContext( schemaManager, opContext );
+                aciContext.setUserGroupNames( userGroups );
+                aciContext.setUserDn( userDn );
+                aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                aciContext.setEntryDn( normName );
+                aciContext.setAttributeType( attr.getAttributeType() );
+                aciContext.setAttrValue( value );
+                aciContext.setMicroOperations( SEARCH_ATTRVAL_PERMS );
+                aciContext.setAciTuples( tuples );
+                aciContext.setEntry( clonedEntry );
+
+                if ( !engine.hasPermission( aciContext ) )
                 {
                     valueToRemove.add( value );
                 }

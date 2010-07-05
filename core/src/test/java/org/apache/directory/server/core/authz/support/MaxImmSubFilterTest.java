@@ -108,11 +108,19 @@ public class MaxImmSubFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null, null,
-            ENTRY_NAME, null, null, ENTRY, null, null ) );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, ENTRY_NAME, null, null, ENTRY, null, null ) );
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE, null ) );
+
+        aciContext = new AciContext( schemaManager, null );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ) );
     }
 
 
@@ -127,8 +135,12 @@ public class MaxImmSubFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null,
-            ROOTDSE_NAME, null, null, ENTRY, null, null ) );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setEntryDn( ROOTDSE_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ENTRY, null ) );
     }
 
 
@@ -137,8 +149,12 @@ public class MaxImmSubFilterTest
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
-        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ENTRY, null, null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
@@ -152,8 +168,12 @@ public class MaxImmSubFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null,
-            ENTRY_NAME, null, null, ENTRY, null, null ) );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ENTRY, null ) );
     }
 
 
@@ -165,10 +185,18 @@ public class MaxImmSubFilterTest
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, new MockOperation( 1 ), null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
+        AciContext aciContext = new AciContext( schemaManager, new MockOperation( 1 ) );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, new MockOperation( 3 ), null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( schemaManager, new MockOperation( 3 ) );
+        aciContext.setEntryDn( ENTRY_NAME );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 }

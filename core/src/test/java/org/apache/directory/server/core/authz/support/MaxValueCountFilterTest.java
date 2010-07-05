@@ -116,11 +116,15 @@ public class MaxValueCountFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
-            null, null, null, null, null, null, null ) );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null,
-            null, null, null, null, null ) );
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE, null ) );
+
+        aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ENTRY, null ) );
     }
 
 
@@ -129,8 +133,10 @@ public class MaxValueCountFilterTest
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
 
-        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
-            null, null, null, null, null, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() ); 
     }
 
 
@@ -144,10 +150,19 @@ public class MaxValueCountFilterTest
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, CN_AT, null, ENTRY, null, null ) );
-        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, CN_AT, null, FULL_ENTRY, null, null ) );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( CN_AT );
+        aciContext.setEntry( ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ) );
+
+        aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( CN_AT );
+        aciContext.setEntry( FULL_ENTRY );
+
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,null ) );
     }
 
 
@@ -167,10 +182,20 @@ public class MaxValueCountFilterTest
             true, 
             0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, CN_AT, null, ENTRY, null, ENTRY ).size() );
+        AciContext aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( CN_AT );
+        aciContext.setEntry( ENTRY );
+        aciContext.setEntryView( ENTRY );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, CN_AT, null, FULL_ENTRY, null, FULL_ENTRY ).size() );
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
+
+        aciContext = new AciContext( schemaManager, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAttributeType( CN_AT );
+        aciContext.setEntry( FULL_ENTRY );
+        aciContext.setEntryView( FULL_ENTRY );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 }

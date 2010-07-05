@@ -31,7 +31,6 @@ import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
@@ -41,14 +40,9 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -124,22 +118,9 @@ public class ACDFEngine
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @throws LdapException if failed to evaluate ACI items
      */
-    public void checkPermission( 
-        SchemaManager schemaManager, 
-        OperationContext opContext, 
-        Collection<DN> userGroupNames, 
-        DN username,
-        AuthenticationLevel authenticationLevel, 
-        DN entryName, 
-        AttributeType attributeType, 
-        Value<?> attrValue, 
-        Collection<MicroOperation> microOperations, 
-        Collection<ACITuple> aciTuples, 
-        Entry entry, 
-        Entry entryView ) throws LdapException
+    public void checkPermission( AciContext aciContext )throws LdapException
     {
-        if ( !hasPermission( schemaManager, opContext, userGroupNames, username, authenticationLevel, entryName, 
-            attributeType, attrValue, microOperations, aciTuples, entry, entryView ) )
+        if ( !hasPermission( aciContext ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -182,35 +163,23 @@ public class ACDFEngine
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      */
-    public boolean hasPermission( 
-        SchemaManager schemaManager, 
-        OperationContext opContext, 
-        Collection<DN> userGroupNames, 
-        DN userName,
-        AuthenticationLevel authenticationLevel, 
-        DN entryName, 
-        AttributeType attributeType, 
-        Value<?> attrValue, 
-        Collection<MicroOperation> microOperations, 
-        Collection<ACITuple> aciTuples, 
-        Entry entry, 
-        Entry entryView ) throws LdapException
+    public boolean hasPermission( AciContext aciContext ) throws LdapException
     {
-        if ( entryName == null )
+        if ( aciContext.getEntryDn() == null )
         {
             throw new IllegalArgumentException( "entryName" );
         }
 
-        Entry userEntry = opContext.lookup( userName, USER_LOOKUP_BYPASS );
+        Entry userEntry = aciContext.getOperationContext().lookup( aciContext.getUserDn(), USER_LOOKUP_BYPASS );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
         
-        if ( attributeType == null )
+        if ( aciContext.getAttributeType() == null )
         {
             scope = OperationScope.ENTRY;
         }
-        else if ( attrValue == null )
+        else if ( aciContext.getAttrValue() == null )
         {
             scope = OperationScope.ATTRIBUTE_TYPE;
         }
@@ -220,45 +189,29 @@ public class ACDFEngine
         }
 
         // Clone aciTuples in case it is unmodifiable.
-        aciTuples = new ArrayList<ACITuple>( aciTuples );
+        aciContext.setAciTuples( new ArrayList<ACITuple>( aciContext.getAciTuples() ) );
         
-        
-
         // Filter unrelated and invalid tuples
         for ( ACITupleFilter filter : filters )
         {
-            if ( aciTuples.size() == 0 )
+            if ( aciContext.getAciTuples().size() == 0 )
             {
                 // No need to continue filtering
                 return false;
             }
             
-            aciTuples = filter.filter( 
-                schemaManager, 
-                aciTuples, 
-                scope, 
-                opContext, 
-                userGroupNames, 
-                userName, 
-                userEntry,
-                authenticationLevel, 
-                entryName, 
-                attributeType, 
-                attrValue, 
-                entry, 
-                microOperations, 
-                entryView );
+            aciContext.setAciTuples( filter.filter( aciContext, scope, userEntry ) );
         }
 
         // Deny access if no tuples left.
-        if ( aciTuples.size() == 0 )
+        if ( aciContext.getAciTuples().size() == 0 )
         {
             return false;
         }
 
         // Grant access if and only if one or more tuples remain and
         // all grant access. Otherwise deny access.
-        for ( ACITuple tuple : aciTuples )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
             if ( !tuple.isGrant() )
             {

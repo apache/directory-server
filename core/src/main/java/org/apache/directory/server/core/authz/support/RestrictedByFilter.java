@@ -23,20 +23,15 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -47,34 +42,19 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class RestrictedByFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( 
-            SchemaManager schemaManager, 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            OperationContext opContext,
-            Collection<DN> userGroupNames, 
-            DN userName, 
-            Entry userEntry, 
-            AuthenticationLevel authenticationLevel,
-            DN entryName, 
-            AttributeType attributeType, 
-            Value<?> attrValue, 
-            Entry entry, 
-            Collection<MicroOperation> microOperations,
-            Entry entryView )
-        throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
         {
-            return tuples;
+            return aciContext.getAciTuples();
         }
 
-        if ( tuples.size() == 0 )
+        if ( aciContext.getAciTuples().size() == 0 )
         {
-            return tuples;
+            return aciContext.getAciTuples();
         }
 
-        for ( Iterator<ACITuple> ii = tuples.iterator() ; ii.hasNext(); )
+        for ( Iterator<ACITuple> ii = aciContext.getAciTuples().iterator() ; ii.hasNext(); )
         {
             ACITuple tuple = ii.next();
             
@@ -83,13 +63,13 @@ public class RestrictedByFilter implements ACITupleFilter
                 continue;
             }
 
-            if ( isRemovable( tuple, attributeType, attrValue, entry ) )
+            if ( isRemovable( tuple, aciContext.getAttributeType(), aciContext.getAttrValue(), aciContext.getEntry() ) )
             {
                 ii.remove();
             }
         }
 
-        return tuples;
+        return aciContext.getAciTuples();
     }
 
 

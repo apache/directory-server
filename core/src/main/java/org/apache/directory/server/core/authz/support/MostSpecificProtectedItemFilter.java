@@ -23,22 +23,15 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -57,33 +50,18 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( 
-            SchemaManager schemaManager, 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            OperationContext opContext,
-            Collection<DN> userGroupNames, 
-            DN userName, 
-            Entry userEntry, 
-            AuthenticationLevel authenticationLevel,
-            DN entryName, 
-            AttributeType attributeType, 
-            Value<?> attrValue, 
-            Entry entry, 
-            Collection<MicroOperation> microOperations,
-            Entry entryView )
-        throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
     {
-        if ( tuples.size() <= 1 )
+        if ( aciContext.getAciTuples().size() <= 1 )
         {
-            return tuples;
+            return aciContext.getAciTuples();
         }
 
         Collection<ACITuple> filteredTuples = new ArrayList<ACITuple>();
 
         // If the protected item is an attribute and there are tuples that
         // specify the attribute type explicitly, discard all other tuples.
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
             for ( ProtectedItem item:tuple.getProtectedItems() )
             {
@@ -105,7 +83,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         // that specify the attribute value explicitly, discard all other tuples.
         // A protected item which is a rangeOfValues is to be treated as
         // specifying an attribute value explicitly. 
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple:aciContext.getAciTuples() )
         {
             for ( ProtectedItem item:tuple.getProtectedItems() )
             {
@@ -121,6 +99,6 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             return filteredTuples;
         }
 
-        return tuples;
+        return aciContext.getAciTuples();
     }
 }

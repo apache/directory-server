@@ -91,8 +91,10 @@ public class RelatedUserClassFilterTest
     @Test
     public void testZeroTuple() throws Exception
     {
-        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
@@ -100,9 +102,11 @@ public class RelatedUserClassFilterTest
     public void testAllUsers() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( UserClass.ALL_USERS );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
@@ -111,10 +115,21 @@ public class RelatedUserClassFilterTest
     {
         Collection<ACITuple> tuples = getTuples( UserClass.THIS_ENTRY );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new DN( "ou=unrelated" ), null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setEntryDn( USER_NAME );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
     
     
@@ -123,10 +138,21 @@ public class RelatedUserClassFilterTest
     {
         Collection<ACITuple> tuples = getTuples( UserClass.PARENT_OF_ENTRY );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new DN( "ou=phoneBook, ou=test, ou=users, ou=system" ), null, null, null, null, null ).size() );
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new DN( "ou=unrelated" ), null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setEntryDn( new DN( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
@@ -134,11 +160,21 @@ public class RelatedUserClassFilterTest
     public void testName() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( new UserClass.Name( USER_NAMES ) );
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null,
-            new DN( "ou=unrelateduser, ou=users" ), null, AuthenticationLevel.NONE, USER_NAME, null, null, null,
-            null, null ).size() );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( new DN( "ou=unrelateduser, ou=users" ) );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setEntryDn( USER_NAME );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
@@ -146,14 +182,26 @@ public class RelatedUserClassFilterTest
     public void testUserGroup() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( new UserClass.UserGroup( GROUP_NAMES ) );
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, GROUP_NAMES, USER_NAME, null,
-            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
+
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserGroupNames( GROUP_NAMES );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         Set<DN> wrongGroupNames = new HashSet<DN>();
         wrongGroupNames.add( new DN( "ou=unrelatedgroup" ) );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, wrongGroupNames, USER_NAME, null,
-            AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setUserDn( USER_NAME );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+        aciContext.setUserGroupNames( wrongGroupNames );
+        aciContext.setEntryDn( USER_NAME );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
@@ -169,25 +217,45 @@ public class RelatedUserClassFilterTest
     {
         Collection<ACITuple> tuples = getTuples( AuthenticationLevel.SIMPLE, true );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.STRONG, null, null, null, null, null, null ).size() );
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.SIMPLE, null, null, null, null, null, null ).size() );
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.STRONG );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.SIMPLE );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         tuples = getTuples( AuthenticationLevel.SIMPLE, false );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.STRONG, null, null, null, null, null, null ).size() );
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.STRONG );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         tuples = getTuples( AuthenticationLevel.SIMPLE, false );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.SIMPLE, null, null, null, null, null, null ).size() );
+        aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( tuples );
+        aciContext.setAuthenticationLevel( AuthenticationLevel.SIMPLE );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 

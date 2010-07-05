@@ -20,18 +20,16 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.authz.support.MicroOperationFilter;
-import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -75,8 +73,10 @@ public class MicroOperationFilterTest
     {
         MicroOperationFilter filter = new MicroOperationFilter();
 
-        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
-            null, null, null, null, null, null, null, null, null, null, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
@@ -89,9 +89,16 @@ public class MicroOperationFilterTest
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
             TUPLE_OPERATIONS, true, 0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
-            null, null, USER_OPERATIONS_A, null ).size() );
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
-            null, null, USER_OPERATIONS_B, null ).size() );
+        AciContext aciContext = new AciContext( null, null );
+        aciContext.setMicroOperations( USER_OPERATIONS_A );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
+
+        aciContext = new AciContext( null, null );
+        aciContext.setMicroOperations( USER_OPERATIONS_B );
+        aciContext.setAciTuples( tuples );
+
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 }
