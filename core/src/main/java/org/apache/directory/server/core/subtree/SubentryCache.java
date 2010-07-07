@@ -23,12 +23,13 @@ package org.apache.directory.server.core.subtree;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
- * A cache for subtree specifications.
+ * A cache for subtree specifications. It associates a 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -49,12 +50,12 @@ public class SubentryCache
     }
     
     
-    final Subentry setSubentry( String normalizedName, SubtreeSpecification ss, int types )
+    final Subentry setSubentry( String normalizedName, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
     {
         Subentry old = name2subentry.get( normalizedName );
         Subentry subentry = new Subentry();
         subentry.setSubtreeSpecification( ss );
-        subentry.setTypes( types );
+        subentry.setAdministrativeRoles( adminRoles );
         name2subentry.put( normalizedName, subentry );
         return old;
     }

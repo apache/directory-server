@@ -21,6 +21,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -186,7 +187,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
     
                     dnName.normalize( schemaManager.getNormalizerMapping() );
-                    subentryCache.setSubentry( dnName.getNormName(), ss, getSubentryTypes( subentry ) );
+                    subentryCache.setSubentry( dnName.getNormName(), ss, getSubentryAdminRoles( subentry ) );
                 }
                 
                 subentries.close();
@@ -199,9 +200,9 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private int getSubentryTypes( Entry subentry ) throws LdapException
+    private Set<AdministrativeRole> getSubentryAdminRoles( Entry subentry ) throws LdapException
     {
-        int types = 0;
+        Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
 
         EntryAttribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -212,25 +213,25 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( oc.contains( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
         {
-            types |= Subentry.ACCESS_CONTROL_SUBENTRY;
+            adminRoles.add( AdministrativeRole.ACCESS_CONTROL_ADMIN_ROLE );
         }
 
         if ( oc.contains( SchemaConstants.SUBSCHEMA_OC ) )
         {
-            types |= Subentry.SCHEMA_SUBENTRY;
+            adminRoles.add( AdministrativeRole.SUB_SCHEMA_ADMIN_ROLE );
         }
 
         if ( oc.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
-            types |= Subentry.COLLECTIVE_SUBENTRY;
+            adminRoles.add( AdministrativeRole.COLLECTIVE_ADMIN_ROLE );
         }
 
         if ( oc.contains( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
         {
-            types |= Subentry.TRIGGER_SUBENTRY;
+            adminRoles.add( AdministrativeRole.TRIGGERS_ADMIN_ROLE );
         }
 
-        return types;
+        return adminRoles;
     }
 
 
@@ -334,7 +335,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 EntryAttribute operational;
 
-                if ( subentry.isAccessControlSubentry() )
+                if ( subentry.isAccessControlAdminRole() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
 
@@ -348,7 +349,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     operational.add( subentryDn.getNormName() );
                 }
                 
-                if ( subentry.isSchemaSubentry() )
+                if ( subentry.isSchemaAdminRole() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
 
@@ -362,7 +363,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     operational.add( subentryDn.getNormName() );
                 }
                 
-                if ( subentry.isCollectiveSubentry() )
+                if ( subentry.isCollectiveAdminRole() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
@@ -377,7 +378,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     operational.add( subentryDn.getNormName() );
                 }
                 
-                if ( subentry.isTriggerSubentry() )
+                if ( subentry.isTriggersAdminRole() )
                 {
                     operational = subentryAttrs.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
@@ -428,7 +429,7 @@ public class SubentryInterceptor extends BaseInterceptor
              * ----------------------------------------------------------------
              */
             Subentry subentry = new Subentry();
-            subentry.setTypes( getSubentryTypes( entry ) );
+            subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
             Entry operational = getSubentryOperationalAttributes( name, subentry );
 
             /* ----------------------------------------------------------------
@@ -452,7 +453,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
-            subentryCache.setSubentry( name.getNormName(), ss, getSubentryTypes( entry ) );
+            subentryCache.setSubentry( name.getNormName(), ss, getSubentryAdminRoles( entry ) );
 
             next.add( addContext );
 
@@ -520,7 +521,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     EntryAttribute operational;
 
-                    if ( subentry.isAccessControlSubentry() )
+                    if ( subentry.isAccessControlAdminRole() )
                     {
                         operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
 
@@ -534,7 +535,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         operational.add( subentryDn.getNormName() );
                     }
 
-                    if ( subentry.isSchemaSubentry() )
+                    if ( subentry.isSchemaAdminRole() )
                     {
                         operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
 
@@ -548,7 +549,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         operational.add( subentryDn.getNormName() );
                     }
 
-                    if ( subentry.isCollectiveSubentry() )
+                    if ( subentry.isCollectiveAdminRole() )
                     {
                         operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
@@ -562,7 +563,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         operational.add( subentryDn.getNormName() );
                     }
 
-                    if ( subentry.isTriggerSubentry() )
+                    if ( subentry.isTriggersAdminRole() )
                     {
                         operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
@@ -797,7 +798,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( renameContext.getNewRdn() );
 
             String newNormName = newName.getNormName();
-            subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
+            subentryCache.setSubentry( newNormName, ss, subentry.getAdministrativeRoles() );
             next.rename( renameContext );
 
             subentry = subentryCache.getSubentry( newNormName );
@@ -884,7 +885,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( moveAndRenameContext.getNewRdn() );
 
             String newNormName = newName.getNormName();
-            subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
+            subentryCache.setSubentry( newNormName, ss, subentry.getAdministrativeRoles() );
             next.moveAndRename( moveAndRenameContext );
 
             subentry = subentryCache.getSubentry( newNormName );
@@ -973,7 +974,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( newSuperiorDn.get( newSuperiorDn.size() - 1 ) );
 
             String newNormName = newName.getNormName();
-            subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
+            subentryCache.setSubentry( newNormName, ss, subentry.getAdministrativeRoles() );
             next.move( moveContext );
 
             subentry = subentryCache.getSubentry( newNormName );
@@ -1040,7 +1041,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
 
-    private int getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
+    private Set<AdministrativeRole> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
         EntryAttribute ocFinalState = entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
 
@@ -1075,7 +1076,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry attrs = new DefaultEntry( schemaManager, DN.EMPTY_DN );
         attrs.put( ocFinalState );
-        return getSubentryTypes( attrs );
+        return getSubentryAdminRoles( attrs );
     }
 
 
@@ -1222,7 +1223,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         EntryAttribute operational;
 
-        if ( subentry.isAccessControlSubentry() )
+        if ( subentry.isAccessControlAdminRole() )
         {
             operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).clone();
 
@@ -1241,7 +1242,7 @@ public class SubentryInterceptor extends BaseInterceptor
             modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
-        if ( subentry.isSchemaSubentry() )
+        if ( subentry.isSchemaAdminRole() )
         {
             operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).clone();
 
@@ -1260,7 +1261,7 @@ public class SubentryInterceptor extends BaseInterceptor
             modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
-        if ( subentry.isCollectiveSubentry() )
+        if ( subentry.isCollectiveAdminRole() )
         {
             operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).clone();
 
@@ -1279,7 +1280,7 @@ public class SubentryInterceptor extends BaseInterceptor
             modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
-        if ( subentry.isTriggerSubentry() )
+        if ( subentry.isTriggersAdminRole() )
         {
             operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).clone();
 
@@ -1314,7 +1315,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Entry operational = new DefaultEntry( schemaManager, name );
 
-        if ( subentry.isAccessControlSubentry() )
+        if ( subentry.isAccessControlAdminRole() )
         {
             if ( operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) == null )
             {
@@ -1326,7 +1327,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
         
-        if ( subentry.isSchemaSubentry() )
+        if ( subentry.isSchemaAdminRole() )
         {
             if ( operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) == null )
             {
@@ -1338,7 +1339,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
         
-        if ( subentry.isCollectiveSubentry() )
+        if ( subentry.isCollectiveAdminRole() )
         {
             if ( operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) == null )
             {
@@ -1350,7 +1351,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
         
-        if ( subentry.isTriggerSubentry() )
+        if ( subentry.isTriggersAdminRole() )
         {
             if ( operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) == null )
             {

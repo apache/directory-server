@@ -20,69 +20,97 @@
 package org.apache.directory.server.core.subtree;
 
 
+import java.util.Set;
+
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
- * An operational view of a subentry within the system.
+ * An operational view of a subentry within the system. A Subentry can have
+ * many types (Collective, Schema, AccessControl or Trigger) but only one 
+ * Subtree Specification.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Subentry
 {
-    static final int COLLECTIVE_SUBENTRY = 1;
-    static final int SCHEMA_SUBENTRY = 2;
-    static final int ACCESS_CONTROL_SUBENTRY = 4;
-    static final int TRIGGER_SUBENTRY = 8;
-    
+    /** The Subtree Specification associated with this subentry */
     private SubtreeSpecification ss;
-    private int type;
+    
+    /** The administratives roles */
+    private Set<AdministrativeRole> administrativeRoles;
     
     
+    /**
+     * Stores the subtree
+     *
+     * @param ss The subtree specification
+     */
     final void setSubtreeSpecification( SubtreeSpecification ss )
     {
         this.ss = ss;
     }
     
 
+    /**
+     * @return The subtree specification
+     */
     final SubtreeSpecification getSubtreeSpecification()
     {
         return ss;
     }
 
 
-    final void setTypes( int type )
+    /**
+     * 
+     * TODO setAdministrativeRoles.
+     *
+     * @param administrativeRoles
+     */
+    final void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
     {
-        this.type = type;
+        this.administrativeRoles = administrativeRoles;
     }
 
 
-    final int getTypes()
+    final Set<AdministrativeRole> getAdministrativeRoles()
     {
-        return type;
+        return administrativeRoles;
     }
     
     
-    final boolean isCollectiveSubentry()
+    /**
+     * Tells if the type contains the Collective attribute Administrative Role 
+     */
+    final boolean isCollectiveAdminRole()
     {
-        return ( COLLECTIVE_SUBENTRY & type ) == COLLECTIVE_SUBENTRY;
+        return administrativeRoles.contains( AdministrativeRole.COLLECTIVE_ADMIN_ROLE );
     }
     
     
-    final boolean isSchemaSubentry()
+    /**
+     * Tells if the type contains the SubSchema Administrative Role 
+     */
+    final boolean isSchemaAdminRole()
     {
-        return ( SCHEMA_SUBENTRY & type ) == SCHEMA_SUBENTRY;
+        return administrativeRoles.contains( AdministrativeRole.SUB_SCHEMA_ADMIN_ROLE );
     }
     
     
-    final boolean isAccessControlSubentry()
+    /**
+     * Tells if the type contains the Access Control Administrative Role 
+     */
+    final boolean isAccessControlAdminRole()
     {
-        return ( ACCESS_CONTROL_SUBENTRY & type ) == ACCESS_CONTROL_SUBENTRY;
+        return administrativeRoles.contains( AdministrativeRole.ACCESS_CONTROL_ADMIN_ROLE );
     }
     
     
-    final boolean isTriggerSubentry()
+    /**
+     * Tells if the type contains the Triggers Administrative Role 
+     */
+    final boolean isTriggersAdminRole()
     {
-        return ( TRIGGER_SUBENTRY & type ) == TRIGGER_SUBENTRY;
+        return administrativeRoles.contains( AdministrativeRole.TRIGGERS_ADMIN_ROLE );
     }
 }
