@@ -23,7 +23,6 @@ package org.apache.directory.server.core.subtree;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.directory.SearchControls;
@@ -79,9 +78,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
@@ -139,13 +136,7 @@ public class SubentryInterceptor extends BaseInterceptor
         objectClassType = schemaManager.lookupAttributeTypeRegistry( schemaManager.getAttributeTypeRegistry()
             .getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
 
-        ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
-        {
-            public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
-            {
-                return schemaManager.getNormalizerMapping();
-            }
-        }, schemaManager.getNormalizerMapping() );
+        ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
 
         // prepare to find all subentries in all namingContexts
@@ -224,7 +215,7 @@ public class SubentryInterceptor extends BaseInterceptor
             types |= Subentry.ACCESS_CONTROL_SUBENTRY;
         }
 
-        if ( oc.contains( "subschema" ) )
+        if ( oc.contains( SchemaConstants.SUBSCHEMA_OC ) )
         {
             types |= Subentry.SCHEMA_SUBENTRY;
         }
@@ -430,7 +421,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             /* ----------------------------------------------------------------
              * Build the set of operational attributes to be injected into
-             * entries that are contained within the subtree repesented by this
+             * entries that are contained within the subtree represented by this
              * new subentry.  In the process we make sure the proper roles are
              * supported by the administrative point to allow the addition of
              * this new subentry.
@@ -1334,6 +1325,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).add( name.getNormName() );
             }
         }
+        
         if ( subentry.isSchemaSubentry() )
         {
             if ( operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) == null )
@@ -1345,6 +1337,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).add( name.getNormName() );
             }
         }
+        
         if ( subentry.isCollectiveSubentry() )
         {
             if ( operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) == null )
@@ -1356,6 +1349,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).add( name.getNormName() );
             }
         }
+        
         if ( subentry.isTriggerSubentry() )
         {
             if ( operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) == null )

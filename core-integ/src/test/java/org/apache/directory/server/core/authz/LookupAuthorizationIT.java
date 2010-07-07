@@ -23,11 +23,13 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +65,17 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
     public void testLookupACIEnabled() throws Exception
     {
         service.setAccessControlEnabled( true );
+        DN dn = new DN( "cn=test,ou=system" );
+        
+        try
+        {      
+            Entry entry = service.getSession().lookup( dn );
+            fail();
+        }
+        catch ( LdapNoPermissionException lnpe )
+        {
+            System.out.println( lnpe.getMessage() );
+        }
         
         createAccessControlSubentry( 
             "anybodySearch", 
@@ -83,7 +96,6 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
             "  } " +
             "}" );
         
-        DN dn = new DN( "cn=test,ou=system" );
         Entry entry = service.getSession().lookup( dn );
         
         assertNotNull( entry );
@@ -96,5 +108,4 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
         assertEquals( "sn_test", entry.get( "sn" ).getString() );
         assertTrue( entry.contains( "objectClass", "top", "person" ) );
     }
-
 }

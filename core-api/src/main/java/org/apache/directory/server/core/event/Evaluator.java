@@ -44,5 +44,5 @@ public interface Evaluator
      * @return true if the filter selects the candidate false otherwise
      * @throws LdapException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException;
+    boolean evaluate( ExprNode refinement, DN dn, Entry entry ) throws LdapException;
 }
