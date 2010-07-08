@@ -84,9 +84,6 @@ public class RelatedProtectedItemFilterTest
     private static Set<DN> GROUP_NAMES = new HashSet<DN>();
 
     private static SchemaManager schemaManager;
-    //private static AttributeTypeRegistry atRegistryA;
-    //private static AttributeTypeRegistry atRegistryB;
-    private static OidRegistry OID_REGISTRY;
 
     private static RelatedProtectedItemFilter filterA;
     private static RelatedProtectedItemFilter filterB;
@@ -115,16 +112,14 @@ public class RelatedProtectedItemFilterTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        OID_REGISTRY = schemaManager.getGlobalOidRegistry();
-
         GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
+            schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
 
         filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
+            schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );

@@ -93,7 +93,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
-        m_oidAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_OID_AT );
+        m_oidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
     }
     

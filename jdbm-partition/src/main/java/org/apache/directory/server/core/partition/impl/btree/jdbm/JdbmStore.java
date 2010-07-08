@@ -111,10 +111,10 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         this.schemaManager = schemaManager;
 
         // Initialize Attribute types used all over this method
-        objectClassAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        aliasedObjectNameAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        entryCsnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
-        entryUuidAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        aliasedObjectNameAT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
 
         partitionDir.mkdirs();
 

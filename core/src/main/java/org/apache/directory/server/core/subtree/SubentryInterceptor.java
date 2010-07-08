@@ -141,7 +141,7 @@ public class SubentryInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
 
         // setup various attribute type values
-        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
@@ -213,7 +213,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
 
-        EntryAttribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = subentry.get( OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
@@ -413,7 +413,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN name = addContext.getDn();
         ClonedServerEntry entry = addContext.getEntry();
 
-        EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -625,8 +625,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName(
-                SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -808,8 +807,7 @@ public class SubentryInterceptor extends BaseInterceptor
             next.rename( renameContext );
 
             subentry = subentryCache.getSubentry( newName );
-            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName(
-                SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getName() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -894,8 +892,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newName );
 
-            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName(
-                SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -963,7 +960,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveContext.getOriginalEntry();
 
-        EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -1040,16 +1037,17 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     // -----------------------------------------------------------------------
-    // Methods dealing subentry modification
+    // Methods dealing with subentry modification
     // -----------------------------------------------------------------------
 
     private Set<AdministrativeRole> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
-        EntryAttribute ocFinalState = entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
+        EntryAttribute ocFinalState = entry.get( OBJECT_CLASS_AT ).clone();
 
         for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
+                 mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 switch ( mod.getOperation() )
                 {
@@ -1130,8 +1128,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN apName = dn.getParent();
             DN oldBaseDn = ( DN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName(
-                SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1465,7 +1462,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
             if ( objectClasses != null )
             {
@@ -1491,7 +1488,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
             if ( objectClasses != null )
             {

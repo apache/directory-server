@@ -83,7 +83,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.schemaManager = schemaManager;
 
         dao = new SchemaPartitionDaoImpl( this.partition, schemaManager );
-        cnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CN_AT );
+        cnAT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
 
         initStaticDNs( "system" );
         initStaticDNs( "core" );

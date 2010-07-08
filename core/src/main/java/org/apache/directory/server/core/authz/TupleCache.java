@@ -82,7 +82,7 @@ public class TupleCache
     private final ACIItemParser aciParser;
 
     /** A storage for the PrescriptiveACI attributeType */
-    private AttributeType prescriptiveAciAT;
+    private AttributeType PRESCRIPTIVE_ACI_AT;
 
     /** A storage for the ObjectClass attributeType */
     private static AttributeType OBJECT_CLASS_AT;
@@ -100,8 +100,8 @@ public class TupleCache
         this.nexus = session.getDirectoryService().getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         aciParser = new ACIItemParser( ncn, schemaManager );
-        prescriptiveAciAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.PRESCRIPTIVE_ACI_AT );
-        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        PRESCRIPTIVE_ACI_AT = schemaManager.getAttributeType( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         initialize( session );
     }
 
@@ -142,7 +142,7 @@ public class TupleCache
                     Entry result = results.get();
                     DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
                             getNormalizerMapping() );
-                    EntryAttribute aci = result.get( prescriptiveAciAT );
+                    EntryAttribute aci = result.get( PRESCRIPTIVE_ACI_AT );
     
                     if ( aci == null )
                     {
@@ -170,7 +170,7 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
-        EntryAttribute aci = entry.get( prescriptiveAciAT );
+        EntryAttribute aci = entry.get( PRESCRIPTIVE_ACI_AT );
 
         if ( aci == null )
         {
@@ -200,7 +200,7 @@ public class TupleCache
         }
 
         // Get the prescriptiveACI
-        EntryAttribute prescriptiveAci = entry.get( prescriptiveAciAT );
+        EntryAttribute prescriptiveAci = entry.get( PRESCRIPTIVE_ACI_AT );
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
 
@@ -266,7 +266,7 @@ public class TupleCache
             return;
         }
 
-        if ( mods.get( prescriptiveAciAT ) != null )
+        if ( mods.get( PRESCRIPTIVE_ACI_AT ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName, entry );

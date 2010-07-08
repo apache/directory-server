@@ -157,7 +157,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** interceptor chain */
     private InterceptorChain chain;
 
-    /** Global registries */
+    /** SchemaManager instance */
     private SchemaManager schemaManager;
 
     /** the system wide subschemaSubentryDn */
@@ -201,10 +201,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         groupCache = new GroupCache( adminSession );
 
         // look up some constant information
-        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        ACCESS_CONTROL_SUBENTRY_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        ENTRY_ACI_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID );
-        SUBENTRY_ACI_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        ACCESS_CONTROL_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
+        SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
 
         // Iitialize the ACI PARSER and ACDF engine
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager );

@@ -74,11 +74,14 @@ public class GroupCache
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
 
+    /** A storage for the ObjectClass attributeType */
+    private AttributeType OBJECT_CLASS_AT;
+
     /** A storage for the member attributeType */
-    private AttributeType memberAT;
+    private AttributeType MEMBER_AT;
 
     /** A storage for the uniqueMember attributeType */
-    private AttributeType uniqueMemberAT;
+    private AttributeType UNIQUE_MEMBER_AT;
 
     /**
      * The OIDs normalizer map
@@ -102,8 +105,9 @@ public class GroupCache
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         normalizerMap = schemaManager.getNormalizerMapping();
         nexus = session.getDirectoryService().getPartitionNexus();
-        memberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MEMBER_AT_OID );
-        uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
+        UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
@@ -191,18 +195,18 @@ public class GroupCache
      */
     private EntryAttribute getMemberAttribute( Entry entry ) throws LdapException
     {
-        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
-            EntryAttribute member = entry.get( memberAT );
+            EntryAttribute member = entry.get( MEMBER_AT );
 
             if ( member != null )
             {
                 return member;
             }
 
-            EntryAttribute uniqueMember = entry.get( uniqueMemberAT );
+            EntryAttribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
 
             if ( uniqueMember != null )
             {
@@ -214,13 +218,13 @@ public class GroupCache
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) || oc.contains( SchemaConstants.GROUP_OF_NAMES_OC_OID ) )
         {
-            return entry.get( memberAT );
+            return entry.get( MEMBER_AT );
         }
 
         if ( oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC )
             || oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC_OID ) )
         {
-            return entry.get( uniqueMemberAT );
+            return entry.get( UNIQUE_MEMBER_AT );
         }
 
         return null;
@@ -389,17 +393,17 @@ public class GroupCache
     {
         EntryAttribute members = null;
         String memberAttrId = null;
-        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) )
         {
-            members = entry.get( memberAT );
+            members = entry.get( MEMBER_AT );
             memberAttrId = SchemaConstants.MEMBER_AT;
         }
 
         if ( oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) )
         {
-            members = entry.get( uniqueMemberAT );
+            members = entry.get( UNIQUE_MEMBER_AT );
             memberAttrId = SchemaConstants.UNIQUE_MEMBER_AT;
         }
 

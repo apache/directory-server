@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -96,6 +97,12 @@ public class TriggerInterceptor extends BaseInterceptor
     private TriggerExecutionAuthorizer triggerExecutionAuthorizer = new SimpleTriggerExecutionAuthorizer();
 
     private StoredProcExecutionManager manager;
+    
+    /** The global schemaManager */
+    private SchemaManager schemaManager;
+
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
 
 
     /**
@@ -126,7 +133,7 @@ public class TriggerInterceptor extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             DN parentDn = ( DN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
@@ -233,7 +240,10 @@ public class TriggerInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         triggerSpecCache = new TriggerSpecCache( directoryService );
-        final SchemaManager schemaManager = directoryService.getSchemaManager();
+        schemaManager = directoryService.getSchemaManager();
+
+        // look up some constant information
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
         {

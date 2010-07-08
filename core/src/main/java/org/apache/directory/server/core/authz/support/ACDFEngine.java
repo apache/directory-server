@@ -85,7 +85,7 @@ public class ACDFEngine
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( schemaManager );
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( schemaManager );
-        RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( schemaManager.getGlobalOidRegistry() ) );
+        RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( schemaManager ) );
 
         filters = new ACITupleFilter[] {
             new RelatedUserClassFilter( subtreeEvaluator ),

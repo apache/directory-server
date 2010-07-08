@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.AfterClass;
@@ -87,8 +86,7 @@ public class RefinementEvaluatorTest
 
         registries = schemaManager.getRegistries();
 
-        OidRegistry registry = registries.getGlobalOidRegistry();
-        RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );
+        RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( schemaManager );
         evaluator = new RefinementEvaluator( leafEvaluator );
         
         OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );

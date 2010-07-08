@@ -116,7 +116,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         ADMIN_GROUP_DN = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         ADMIN_GROUP_DN.normalize( schemaManager.getNormalizerMapping() );
 
-        uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        uniqueMemberAT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
 
         loadAdministrators( directoryService );
     }

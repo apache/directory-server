@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
@@ -84,10 +85,9 @@ public class RefinementLeafEvaluatorTest
 
         registries = schemaManager.getRegistries();
         
-        OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
+        OBJECT_CLASS = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
-        OidRegistry registry = registries.getGlobalOidRegistry();
-        evaluator = new RefinementLeafEvaluator( registry );
+        evaluator = new RefinementLeafEvaluator( schemaManager );
     }
     
 

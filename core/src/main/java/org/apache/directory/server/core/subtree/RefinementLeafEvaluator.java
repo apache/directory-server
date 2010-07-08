@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
@@ -40,8 +41,8 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  */
 public class RefinementLeafEvaluator
 {
-    /** an OID to name and vice versa registry */
-    private final OidRegistry registry;
+    /** A SchemaManager instance */
+    private final SchemaManager schemaManager;
 
 
     /**
@@ -49,9 +50,9 @@ public class RefinementLeafEvaluator
      *
      * @param registry the OID registry used to lookup names for objectClass OIDs
      */
-    public RefinementLeafEvaluator(OidRegistry registry)
+    public RefinementLeafEvaluator( SchemaManager schemaManager)
     {
-        this.registry = registry;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -103,7 +104,7 @@ public class RefinementLeafEvaluator
         
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
-            Iterator<String> list = registry.getNameSet( value ).iterator();
+            Iterator<String> list = schemaManager.getGlobalOidRegistry().getNameSet( value ).iterator();
             
             while ( list.hasNext() )
             {

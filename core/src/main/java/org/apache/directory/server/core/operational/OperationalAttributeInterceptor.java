@@ -144,9 +144,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
 
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
     }
 
 

@@ -133,7 +133,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private SchemaManager schemaManager;
 
     /** A global reference to the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS;
+    private AttributeType OBJECT_CLASS_AT;
 
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
@@ -185,7 +185,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
-        OBJECT_CLASS = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
@@ -210,9 +210,8 @@ public class SchemaInterceptor extends BaseInterceptor
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
         schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader );
 
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
 
         if ( IS_DEBUG )
         {
@@ -880,7 +879,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+        allowed.add( SchemaConstants.OBJECT_CLASS_AT_OID );
 
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
@@ -1405,14 +1404,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        EntryAttribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClassAttr = entry.get( OBJECT_CLASS_AT );
 
         // Protect the server against a null objectClassAttr
         // It can be the case if the user forgot to add it to the entry ...
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
+            objectClassAttr = new DefaultEntryAttribute( OBJECT_CLASS_AT );
         }
 
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
@@ -1526,7 +1525,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // get the schema name
             String schemaName = getSchemaName( name );
 
-            if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
+            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
                 next.add( addContext );
 
@@ -1536,7 +1535,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperiors();
                 }
             }
-            else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_OBJECT_CLASS_OC ) )
+            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_OBJECT_CLASS_OC ) )
             {
                 // This is an ObjectClass addition
                 checkOcSuperior( addContext.getEntry() );
@@ -1553,7 +1552,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperior( addedOC );
                 }
             }
-            else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
+            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
 
                 // This is an AttributeType addition
@@ -1595,7 +1594,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {

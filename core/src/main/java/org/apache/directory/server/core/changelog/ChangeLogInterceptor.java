@@ -90,7 +90,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         changeLog = directoryService.getChangeLog();
         schemaService = directoryService.getSchemaService();
         entryDeleted = directoryService.getSchemaManager()
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
+                .getAttributeType( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
     }
 
 

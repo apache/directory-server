@@ -214,7 +214,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         //this.directoryService = directoryService;
         schemaManager = directoryService.getSchemaManager();
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
 
         // Initialize and normalize the localy used DNs
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -334,7 +334,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultEntryAttribute( schemaManager
-                    .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffix().getName() );
+                    .getAttributeType( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffix().getName() );
                 rootDSE.put( namingContexts );
             }
             else

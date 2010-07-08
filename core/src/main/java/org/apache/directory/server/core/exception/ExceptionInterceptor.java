@@ -60,6 +60,8 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -98,6 +100,12 @@ public class ExceptionInterceptor extends BaseInterceptor
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
+    /** SchemaManager instance */
+    private SchemaManager schemaManager;
+
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
+
 
     /**
      * Creates an interceptor that is also the exception handling service.
@@ -113,6 +121,10 @@ public class ExceptionInterceptor extends BaseInterceptor
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = new DN( attr.getString() );
         subschemSubentryDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        schemaManager = directoryService.getSchemaManager();
+
+        // look up some constant information
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -180,7 +192,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
 
             EntryAttribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
-                SchemaConstants.OBJECT_CLASS_AT );
+                OBJECT_CLASS_AT );
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
