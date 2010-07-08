@@ -69,15 +69,12 @@ public class SubtreeEvaluator
     public boolean evaluate( SubtreeSpecification subtree, DN apDn, DN entryDn, Entry entry )
         throws LdapException
     {
-        // TODO: Try to make this cast unnecessary.
-        DN dnEntryDn = (DN) entryDn;
-        
         /* =====================================================================
          * NOTE: Regarding the overall approach, we try to narrow down the
          * possibilities by slowly pruning relative names off of the entryDn.
          * For example we check first if the entry is a descendant of the AP.
          * If so we use the relative name thereafter to calculate if it is
-         * a descendant of the base.  This means shorter names to compare and
+         * a descendant of the base. This means shorter names to compare and
          * less work to do while we continue to deduce inclusion by the subtree
          * specification.
          * =====================================================================
@@ -90,7 +87,7 @@ public class SubtreeEvaluator
          */
         DN apRelativeRdn;
         
-        if ( !NamespaceTools.isDescendant( apDn, entryDn ) )
+        if ( !entryDn.isChildOf( apDn ) )
         {
             return false;
         }
@@ -119,7 +116,7 @@ public class SubtreeEvaluator
         {
             baseRelativeRdn = new DN();
         }
-        else if ( !NamespaceTools.isDescendant( subtree.getBase(), apRelativeRdn ) )
+        else if ( !apRelativeRdn.isChildOf( subtree.getBase() ) )
         {
             return false;
         }
@@ -160,7 +157,7 @@ public class SubtreeEvaluator
         {
             DN chopBefore = list.next();
             
-            if ( NamespaceTools.isDescendant( chopBefore, baseRelativeRdn ) )
+            if ( baseRelativeRdn.isChildOf( chopBefore ) )
             {
                 return false;
             }
@@ -172,7 +169,7 @@ public class SubtreeEvaluator
         {
             DN chopAfter = ( DN ) list.next();
             
-            if ( NamespaceTools.isDescendant( chopAfter, baseRelativeRdn ) && !chopAfter.equals( baseRelativeRdn ) )
+            if ( baseRelativeRdn.isChildOf( chopAfter ) && !chopAfter.equals( baseRelativeRdn ) )
             {
                 return false;
             }
@@ -185,7 +182,7 @@ public class SubtreeEvaluator
          */
         if ( subtree.getRefinement() != null )
         {
-            return evaluator.evaluate( subtree.getRefinement(), dnEntryDn, entry );
+            return evaluator.evaluate( subtree.getRefinement(), entryDn, entry );
         }
 
         /*
