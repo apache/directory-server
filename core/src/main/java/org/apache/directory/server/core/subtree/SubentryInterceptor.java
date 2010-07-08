@@ -94,48 +94,54 @@ import org.slf4j.LoggerFactory;
  */
 public class SubentryInterceptor extends BaseInterceptor
 {
+    /** The logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( SubentryInterceptor.class );
+
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
 
-    public static final String AC_AREA = "accessControlSpecificArea";
-    public static final String AC_INNERAREA = "accessControlInnerArea";
-
-    public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
-
-    public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
-    public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
-
-    public static final String TRIGGER_AREA = "triggerExecutionSpecificArea";
-    public static final String TRIGGER_INNERAREA = "triggerExecutionInnerArea";
-
+    /** The set of Subentry operational attributes */
     public static final String[] SUBENTRY_OPATTRS =
-        { SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, SchemaConstants.SUBSCHEMA_SUBENTRY_AT,
-            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT };
-
-    private static final Logger LOG = LoggerFactory.getLogger( SubentryInterceptor.class );
+        { 
+            SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, 
+            SchemaConstants.SUBSCHEMA_SUBENTRY_AT,
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, 
+            SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT 
+        };
 
     /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
     private final SubentryCache subentryCache = new SubentryCache();
 
+    /** The SubTree specification parser instance */
     private SubtreeSpecificationParser ssParser;
+    
+    /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
+    
+    /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
 
-    /** The global registries */
+    /** The SchemManager instance */
     private SchemaManager schemaManager;
 
-    private AttributeType objectClassType;
+    /** A reference to the ObjectClass AT */
+    private static AttributeType OBJECT_CLASS_AT;
 
 
+    /**
+     * Initialize the Subentry Interceptor
+     * 
+     * @param directoryService The DirectoryService instance
+     */
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
+        
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
 
         // setup various attribute type values
-        objectClassType = schemaManager.lookupAttributeTypeRegistry( schemaManager.getAttributeTypeRegistry()
-            .getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
@@ -155,8 +161,9 @@ public class SubentryInterceptor extends BaseInterceptor
             DN suffixDn = new DN( suffix );
             suffixDn.normalize( schemaManager.getNormalizerMapping() );
 
-            DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
             adminDn.normalize( schemaManager.getNormalizerMapping() );
+            
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
@@ -166,6 +173,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
+            // Loop on all the found Subentries, parse the SubtreeSpecification
+            // and store the subentry in the subrentry cache
             try
             {
                 while ( subentries.next() )
@@ -596,7 +605,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         DN name = deleteContext.getDn();
         Entry entry = deleteContext.getEntry();
-        EntryAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -780,7 +789,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = renameContext.getEntry().getClonedEntry();
 
-        EntryAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -866,7 +875,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
-        EntryAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -1083,7 +1092,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = modifyContext.getEntry();
 
-        EntryAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
 

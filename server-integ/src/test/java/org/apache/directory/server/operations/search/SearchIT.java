@@ -55,7 +55,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -617,9 +616,9 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes ap = adminCtx.getAttributes( "", new String[]
             { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
-        if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
-            Attributes changes = new BasicAttributes( "administrativeRole", SubentryInterceptor.AC_AREA, true );
+            Attributes changes = new BasicAttributes( "administrativeRole", "accessControlSpecificArea", true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 

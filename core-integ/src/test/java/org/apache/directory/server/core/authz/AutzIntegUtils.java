@@ -36,7 +36,6 @@ import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -322,10 +321,10 @@ public class AutzIntegUtils
         // modify ou=system to be an AP for an A/C AA if it is not already
         EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
         
-        if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
             ModifyRequest modReq = new ModifyRequest( systemEntry.getDn() );
-            modReq.add( "administrativeRole", SubentryInterceptor.AC_AREA );
+            modReq.add( "administrativeRole", "accessControlSpecificArea" );
             connection.modify( modReq );
         }
 
