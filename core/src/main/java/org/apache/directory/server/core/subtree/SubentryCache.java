@@ -74,27 +74,27 @@ public class SubentryCache
     
     
     /**
-     * Retrieve a Subentry given a AP DN. If there is none, null will be returned.
+     * Retrieve a Subentry given a DN. If there is none, null will be returned.
      *
-     * @param apDn The AdministrativePoint we want to get the Subentry for 
+     * @param dn The DN we want to get the Subentry for 
      * @return The found Subentry, or null
      */
-    final Subentry getSubentry( DN apDn )
+    final Subentry getSubentry( DN dn )
     {
-        return cache.get( apDn.getNormName() );
+        return cache.get( dn.getNormName() );
     }
     
     
     /**
-     * Remove a Subentry for a given AdministrativePoint 
+     * Remove a Subentry for a given DN 
      *
-     * @param apDn The administrativePoint for which we want to remove the 
+     * @param dn The DN for which we want to remove the 
      * associated Subentry
      * @return The removed Subentry, if any
      */
-    final Subentry removeSubentry( DN apDn )
+    final Subentry removeSubentry( DN dn )
     {
-        Subentry oldSubentry = cache.remove( apDn.getNormName() );
+        Subentry oldSubentry = cache.remove( dn.getNormName() );
         
         if ( oldSubentry != null )
         {
@@ -106,26 +106,26 @@ public class SubentryCache
     
     
     /**
-     * Stores a new Subentry into the cache, associated with an AdministrativePoint
+     * Stores a new Subentry into the cache, associated with a DN
      *
-     * @param apDn The administrativePoint DN
+     * @param dn The Subentry DN
      * @param ss The SubtreeSpecification
      * @param adminRoles The administrative roles for this Subentry
      * @return The old Subentry, if any
      */
-    final Subentry addSubentry( DN apDn, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
+    final Subentry addSubentry( DN dn, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
             // TODO : Throw an exception here
         }
         
-        Subentry oldSubentry = cache.get( apDn.getNormName() );
+        Subentry oldSubentry = cache.get( dn.getNormName() );
         
         Subentry subentry = new Subentry();
         subentry.setSubtreeSpecification( ss );
         subentry.setAdministrativeRoles( adminRoles );
-        cache.put( apDn.getNormName(), subentry );
+        cache.put( dn.getNormName(), subentry );
         
         if ( oldSubentry == null )
         {
@@ -137,18 +137,18 @@ public class SubentryCache
     
     
     /**
-     * Tells if there is a Subentry associated with an administrativePoint
-     * @param apDn The administrativePoint DN
+     * Tells if there is a Subentry associated with a DN
+     * @param dn The DN
      * @return True if a Subentry is found
      */
-    final boolean hasSubentry( DN apDn )
+    final boolean hasSubentry( DN dn )
     {
-        return cache.containsKey( apDn.getNormName() );
+        return cache.containsKey( dn.getNormName() );
     }
     
     
     /**
-     * @return An Iterator over the AdministartivePoints normalized DNs 
+     * @return An Iterator over the Subentry's DNs 
      */
     final Iterator<String> nameIterator()
     {
