@@ -24,51 +24,116 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
- * A cache for subtree specifications. It associates a 
+ * A cache for subtree specifications. It associates a Subentry with a DN,
+ * representing its position in the DIT.<br>
+ * This cache has a size limit set to 1000 at the moment. We should add a configuration
+ * parameter to manage its size.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SubentryCache
 {
-    private final Map<String, Subentry> name2subentry = new HashMap<String, Subentry>();
+    /** The default cache size limit */
+    private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
     
+    /** The cache size limit */
+    private int cacheMaxSize = DEFAULT_CACHE_MAX_SIZE;
     
-    final Subentry getSubentry( String normalizedName )
+    /** The current cache size */
+    private AtomicInteger cacheSize;
+    
+    /** The Subentry cache */
+    private final Map<String, Subentry> cache;
+    
+    /**
+     * Creates a new instance of SubentryCache with a default maximum size.
+     */
+    public SubentryCache()
     {
-        return name2subentry.get( normalizedName );
+        cache = new HashMap<String, Subentry>();
+        cacheSize = new AtomicInteger( 0 );
     }
     
     
-    final Subentry removeSubentry( String normalizedName )
+    /**
+     * Creates a new instance of SubentryCache with a specific maximum size.
+     */
+    public SubentryCache( int maxSize )
     {
-        return  name2subentry.remove( normalizedName );
+        cache = new HashMap<String, Subentry>();
+        cacheSize = new AtomicInteger( 0 );
+        cacheMaxSize = maxSize;
     }
     
     
-    final Subentry setSubentry( String normalizedName, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
+    /**
+     * Retrieve a Subentry given a AP DN. If there is none, null will be returned.
+     *
+     * @param apDn The AdministrativePoint we want to get the Subentry for 
+     * @return The found Subentry, or null
+     */
+    final Subentry getSubentry( DN apDn )
     {
-        Subentry old = name2subentry.get( normalizedName );
+        return cache.get( apDn.getNormName() );
+    }
+    
+    
+    /**
+     * Remove a Subentry for a given AdministrativePoint 
+     *
+     * @param apDn The administrativePoint for which we want to remove the 
+     * associated Subentry
+     * @return The removed Subentry, if any
+     */
+    final Subentry removeSubentry( DN apDn )
+    {
+        return  cache.remove( apDn.getNormName() );
+    }
+    
+    
+    /**
+     * Stores a new Subentry into the cache, associated with an AdministrativePoint
+     *
+     * @param apDn The administrativePoint DN
+     * @param ss The SubtreeSpecification
+     * @param adminRoles The administrative roles for this Subentry
+     * @return The old Subentry, if any
+     */
+    final Subentry addSubentry( DN apDn, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
+    {
+        Subentry oldSubentry = cache.get( apDn.getNormName() );
         Subentry subentry = new Subentry();
         subentry.setSubtreeSpecification( ss );
         subentry.setAdministrativeRoles( adminRoles );
-        name2subentry.put( normalizedName, subentry );
-        return old;
+        cache.put( apDn.getNormName(), subentry );
+        
+        return oldSubentry;
     }
     
     
-    final boolean hasSubentry( String normalizedName )
+    /**
+     * Tells if there is a Subentry associated with an administrativePoint
+     * @param apDn The administrativePoint DN
+     * @return True if a Subentry is found
+     */
+    final boolean hasSubentry( DN apDn )
     {
-        return name2subentry.containsKey( normalizedName );
+        return cache.containsKey( apDn.getNormName() );
     }
     
     
+    /**
+     * @return An Iterator over the AdministartivePoints normalized DNs 
+     */
     final Iterator<String> nameIterator()
     {
-        return name2subentry.keySet().iterator();
+        return cache.keySet().iterator();
     }
 }
