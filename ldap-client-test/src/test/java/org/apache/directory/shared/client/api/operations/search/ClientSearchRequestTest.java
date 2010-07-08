@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.SearchCursor;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
@@ -43,6 +44,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -113,8 +115,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearch() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
-            "+" );
+        SearchCursor cursor = ( SearchCursor ) connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*", "+" );
         int count = 0;
         while ( cursor.next() )
         {
@@ -122,6 +123,10 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             count++;
         }
 
+        SearchResultDone done = cursor.getSearchDone();
+        
+        assertNotNull( done );
+        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
         assertEquals( 5, count );
     }
     
