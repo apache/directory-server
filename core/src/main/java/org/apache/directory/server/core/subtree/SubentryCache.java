@@ -94,7 +94,14 @@ public class SubentryCache
      */
     final Subentry removeSubentry( DN apDn )
     {
-        return  cache.remove( apDn.getNormName() );
+        Subentry oldSubentry = cache.remove( apDn.getNormName() );
+        
+        if ( oldSubentry != null )
+        {
+            cacheSize.decrementAndGet();
+        }
+        
+        return oldSubentry;
     }
     
     
@@ -108,11 +115,22 @@ public class SubentryCache
      */
     final Subentry addSubentry( DN apDn, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
     {
+        if ( cacheSize.get() > cacheMaxSize )
+        {
+            // TODO : Throw an exception here
+        }
+        
         Subentry oldSubentry = cache.get( apDn.getNormName() );
+        
         Subentry subentry = new Subentry();
         subentry.setSubtreeSpecification( ss );
         subentry.setAdministrativeRoles( adminRoles );
         cache.put( apDn.getNormName(), subentry );
+        
+        if ( oldSubentry == null )
+        {
+            cacheSize.getAndIncrement();
+        }
         
         return oldSubentry;
     }
@@ -135,5 +153,14 @@ public class SubentryCache
     final Iterator<String> nameIterator()
     {
         return cache.keySet().iterator();
+    }
+    
+    
+    /**
+     * @return The number of elements in the cache
+     */
+    public int getCacheSize()
+    {
+        return cacheSize.get();
     }
 }
