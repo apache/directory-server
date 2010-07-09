@@ -81,7 +81,7 @@ public class ACDFEngine
      * 
      * @throws LdapException if failed to initialize internal components
      */
-    public ACDFEngine( SchemaManager schemaManager ) throws LdapException
+    public ACDFEngine( SchemaManager schemaManager )
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( schemaManager );
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( schemaManager );
@@ -91,7 +91,7 @@ public class ACDFEngine
             new RelatedUserClassFilter( subtreeEvaluator ),
             new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, schemaManager ),
             new MaxValueCountFilter(),
-            new MaxImmSubFilter(),
+            new MaxImmSubFilter( schemaManager ),
             new RestrictedByFilter(),
             new MicroOperationFilter(),
             new HighestPrecedenceFilter(),

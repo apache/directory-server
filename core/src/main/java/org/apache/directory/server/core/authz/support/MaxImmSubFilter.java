@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 
@@ -65,7 +66,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     private final SearchControls childrenSearchControls;
 
 
-    public MaxImmSubFilter()
+    public MaxImmSubFilter( SchemaManager schemaManager )
     {
         childrenFilter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         childrenSearchControls = new SearchControls();

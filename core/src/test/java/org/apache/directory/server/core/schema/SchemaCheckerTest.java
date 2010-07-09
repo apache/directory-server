@@ -596,7 +596,7 @@ public class SchemaCheckerTest
 
     class MockOidRegistry extends OidRegistry
     {
-        public String getOid( String name ) throws LdapException
+        public String getOid( String name )
         {
             return StringTools.deepTrimToLower( name );
         }

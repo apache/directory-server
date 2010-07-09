@@ -101,7 +101,7 @@ public class MaxImmSubFilterTest
     @Test
     public void testWrongScope() throws Exception
     {
-        MaxImmSubFilter filter = new MaxImmSubFilter();
+        MaxImmSubFilter filter = new MaxImmSubFilter( schemaManager );
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
             EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
@@ -127,7 +127,7 @@ public class MaxImmSubFilterTest
     @Test
     public void testRootDSE() throws Exception
     {
-        MaxImmSubFilter filter = new MaxImmSubFilter();
+        MaxImmSubFilter filter = new MaxImmSubFilter( schemaManager );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
@@ -147,7 +147,7 @@ public class MaxImmSubFilterTest
     @Test
     public void testZeroTuple() throws Exception
     {
-        MaxImmSubFilter filter = new MaxImmSubFilter();
+        MaxImmSubFilter filter = new MaxImmSubFilter( schemaManager );
 
         AciContext aciContext = new AciContext( null, null );
         aciContext.setEntryDn( ENTRY_NAME );
@@ -161,7 +161,7 @@ public class MaxImmSubFilterTest
     @Test
     public void testDenialTuple() throws Exception
     {
-        MaxImmSubFilter filter = new MaxImmSubFilter();
+        MaxImmSubFilter filter = new MaxImmSubFilter( schemaManager );
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, false, 0 ) );
@@ -180,7 +180,7 @@ public class MaxImmSubFilterTest
     @Test
     public void testGrantTuple() throws Exception
     {
-        MaxImmSubFilter filter = new MaxImmSubFilter();
+        MaxImmSubFilter filter = new MaxImmSubFilter( schemaManager );
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );

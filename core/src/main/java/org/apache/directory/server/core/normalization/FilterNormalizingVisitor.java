@@ -68,7 +68,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
 
-    /** the global registries used to resolve OIDs for attributeType ids */
+    /** the SchemaManager instance used to resolve OIDs for attributeType ids */
     private final SchemaManager schemaManager;
 
     /**
@@ -113,7 +113,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * Creates a new instance of NormalizingVisitor.
      *
      * @param ncn The name component normalizer to use
-     * @param registries The global registries
+     * @param schemaManager The schemaManager
      */
     public FilterNormalizingVisitor( NameComponentNormalizer ncn, SchemaManager schemaManager )
     {
