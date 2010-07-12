@@ -165,7 +165,7 @@ public class NotCursorTest
     {
         String filter = "(!(cn=J*))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
@@ -200,7 +200,7 @@ public class NotCursorTest
     {
         NotNode notNode = new NotNode();
 
-        ExprNode exprNode = new SubstringNode( "cn", "J", null );
+        ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
             schemaManager );
         notNode.addNode( exprNode );

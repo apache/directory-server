@@ -91,6 +91,8 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -110,6 +112,12 @@ public abstract class ServerContext implements EventContext
 
     /** The directory service which owns this context **/
     private final DirectoryService service;
+    
+    /** The SchemManager instance */
+    protected SchemaManager schemaManager;
+    
+    /** A reference to the ObjectClass AT */
+    protected AttributeType OBJECT_CLASS_AT;
 
     /** The cloned environment used by this Context */
     private final Hashtable<String, Object> env;
@@ -136,8 +144,6 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-
-    
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.  This
@@ -175,6 +181,11 @@ public abstract class ServerContext implements EventContext
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
+        
+        schemaManager = service.getSchemaManager();
+
+        // setup attribute type value
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
     
     
@@ -203,6 +214,11 @@ public abstract class ServerContext implements EventContext
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
+        
+        schemaManager = service.getSchemaManager();
+
+        // setup attribute type value
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -220,6 +236,11 @@ public abstract class ServerContext implements EventContext
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
+        
+        schemaManager = service.getSchemaManager();
+
+        // setup attribute type value
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -336,7 +357,7 @@ public abstract class ServerContext implements EventContext
                 && ( searchControls.getReturningAttributes().length == 0 ) )
             && ( filter instanceof EqualityNode ) )
         {
-        	CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
+            CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
             
             // Inject the referral handling into the operation context
             injectReferralControl( compareContext );
@@ -1370,7 +1391,7 @@ public abstract class ServerContext implements EventContext
     {
         // Conduct a special one level search at base for all objects
         DN base = buildTarget( DN.fromName( name ) );
-        PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -1459,7 +1480,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
-        ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
+        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
 
         try
         {

@@ -82,8 +82,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         this.node = node;
         this.schemaManager = schemaManager;
 
-        String oid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
-        type = schemaManager.lookupAttributeTypeRegistry( oid );
+        type = node.getAttributeType();
 
         MatchingRule rule = type.getSubstring();
 

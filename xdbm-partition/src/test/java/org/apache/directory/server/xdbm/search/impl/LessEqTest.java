@@ -165,7 +165,7 @@ public class LessEqTest
     public void testCursorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.POSTALCODE_AT_OID, new StringValue( at, "3" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
@@ -422,7 +422,7 @@ public class LessEqTest
     public void testCursorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new StringValue( at, "3" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
@@ -576,7 +576,7 @@ public class LessEqTest
     public void testEvaluatorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.POSTALCODE_AT_OID, new StringValue( at, "3" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -622,7 +622,7 @@ public class LessEqTest
     public void testEvaluatorWithDescendantValue() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.STREET_AT_OID, new StringValue( at, "2" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -651,7 +651,7 @@ public class LessEqTest
     public void testEvaluatorWithoutDescendants() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.C_POSTALCODE_AT_OID, new StringValue( at, "2" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -669,7 +669,7 @@ public class LessEqTest
     public void testEvaluatorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        LessEqNode node = new LessEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new StringValue( at, "3" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -725,7 +725,7 @@ public class LessEqTest
 
         try
         {
-            LessEqNode node = new LessEqNode( at.getOid(), new StringValue( at, "3" ) );
+            LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
             new LessEqEvaluator( node, store, schemaManager );
         }
@@ -764,7 +764,7 @@ public class LessEqTest
         desc.setNames( names );
         desc.setObsolete( false );
 
-        LessEqNode node = new LessEqNode( at.getOid(), new StringValue( at, "3" ) );
+        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
         new LessEqEvaluator( node, store, schemaManager );
         schemaManager.delete( at );
     }

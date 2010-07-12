@@ -300,9 +300,14 @@ public class EventInterceptor extends BaseInterceptor
             NotificationCriteria criteria = registration.getCriteria();
 
             DN base = criteria.getBase();
+            
+            if ( !criteria.getFilter().isSchemaAware() )
+            {
+                criteria.getFilter().accept( filterNormalizer );
+            }
 
             // fix for DIRSERVER-1502
-            if ( name.equals( base ) || name.isChildOf( base )
+            if ( ( name.equals( base ) || name.isChildOf( base ) )
                 && evaluator.evaluate( criteria.getFilter(), base, entry ) )
             {
                 selecting.add( registration );

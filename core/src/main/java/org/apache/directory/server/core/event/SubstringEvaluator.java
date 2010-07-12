@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -45,19 +44,11 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class SubstringEvaluator implements Evaluator
 {
-    /** SchemaManager needed for normalizing and comparing values */
-    private SchemaManager schemaManager;
-
-
     /**
      * Creates a new SubstringEvaluator for substring expressions.
-     *
-     * @param oidRegistry the OID registry for name to OID mapping
-     * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator( SchemaManager schemaManager )
+    public SubstringEvaluator()
     {
-        this.schemaManager = schemaManager;
     }
 
 
@@ -68,13 +59,12 @@ public class SubstringEvaluator implements Evaluator
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
-        String oid = schemaManager.getAttributeTypeRegistry().getOidByName( snode.getAttribute() );
-        AttributeType type = schemaManager.lookupAttributeTypeRegistry( oid );
-        MatchingRule matchingRule = type.getSubstring();
+        AttributeType attributeType = snode.getAttributeType();
+        MatchingRule matchingRule = attributeType.getSubstring();
         
         if ( matchingRule == null )
         {
-            matchingRule = type.getEquality();
+            matchingRule = attributeType.getEquality();
         }
         
         Normalizer normalizer = matchingRule.getNormalizer();

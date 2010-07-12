@@ -256,7 +256,7 @@ public class SubtreeEvaluatorTest
     @Test
     public void testWithMinMaxAndSimpleRefinement() throws Exception
     {
-        ExprNode refinement = FilterParser.parse( "(objectClass=person)" );
+        ExprNode refinement = FilterParser.parse( schemaManager, "(objectClass=person)" );
         refinement.accept( visitor );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -314,7 +314,7 @@ public class SubtreeEvaluatorTest
     @Test
     public void testWithFilter() throws Exception
     {
-        ExprNode filter = FilterParser.parse( "(&(cn=Ersin)(objectClass=person))" );
+        ExprNode filter = FilterParser.parse( schemaManager, "(&(cn=Ersin)(objectClass=person))" );
         filter.accept( visitor );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();

@@ -62,7 +62,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> implements Evaluat
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
-        this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
+        this.type = node.getAttributeType();
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {

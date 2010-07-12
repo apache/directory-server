@@ -57,12 +57,11 @@ import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -402,7 +401,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     catch ( LdapException e )
                     {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
                 }
             }
@@ -732,7 +730,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
-            PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
+            PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
             AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
             try
             {
@@ -756,17 +754,19 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             {
                 Object value = attr.get();
                 SimpleNode<?> node;
+                String attributeType = attr.getID();
 
                 if ( value instanceof byte[] )
                 {
-                    node = new EqualityNode<byte[]>( attr.getID(), new BinaryValue( ( byte[] ) value ) );
+                    node = new EqualityNode<byte[]>( attributeType, new BinaryValue( ( byte[] ) value ) );
                 }
                 else
                 {
-                    node = new EqualityNode<String>( attr.getID(), new StringValue( ( String ) value ) );
+                    node = new EqualityNode<String>( attributeType, new StringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+                
                 try
                 {
                     EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, node, ctls );
@@ -887,7 +887,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            filterNode = FilterParser.parse( filter );
+            filterNode = FilterParser.parse( schemaManager, filter );
         }
         catch ( ParseException pe )
         {
@@ -897,6 +897,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+        
         try
         {
             EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, filterNode, cons );
@@ -1003,7 +1004,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            filter = FilterParser.parse( filterStr );
+            filter = FilterParser.parse( schemaManager, filterStr );
         }
         catch ( Exception e )
         {

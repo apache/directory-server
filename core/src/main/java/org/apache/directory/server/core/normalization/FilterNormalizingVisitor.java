@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -132,21 +131,19 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param value The value to normalize
      * @return the normalized value
      */
-    private Value<?> normalizeValue( String attribute, Value<?> value )
+    private Value<?> normalizeValue( AttributeType attributeType, Value<?> value )
     {
         try
         {
             Value<?> normalized = null;
 
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
-
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = new StringValue( ( String ) ncn.normalizeByName( attribute, value.getString() ) );
+                normalized = new StringValue( ( String ) ncn.normalizeByName( attributeType.getOid(), value.getString() ) );
             }
             else
             {
-                normalized = ( Value<?> ) ncn.normalizeByName( attribute, value.getBytes() );
+                normalized = ( Value<?> ) ncn.normalizeByName( attributeType.getOid(), value.getBytes() );
             }
 
             return normalized;
@@ -168,14 +165,14 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitPresenceNode( PresenceNode node ) throws LdapException
     {
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-        }
-        catch ( LdapNoSuchAttributeException lnsae )
+        // still need this check here in case the top level is a leaf node
+        // with an undefined attributeType for its attribute
+        if ( !ncn.isDefined( node.getAttribute() ) )
         {
             return null;
         }
+
+        node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
 
         return node;
     }
@@ -194,7 +191,6 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitSimpleNode( SimpleNode node ) throws LdapException
     {
-        
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
         if ( !ncn.isDefined( node.getAttribute() ) )
@@ -202,17 +198,9 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
         
-        // Check that the AttributeType is valid
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-        }
-        catch ( LdapNoSuchAttributeException lnsae )
-        {
-            return null;
-        }
-
-        Value<?> normalized = normalizeValue( node.getAttribute(), node.getValue() );
+        node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
+        
+        Value<?> normalized = normalizeValue( node.getAttributeType(), node.getValue() );
 
         if ( normalized == null )
         {
@@ -243,11 +231,13 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
+        node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
+
         Value<?> normInitial = null;
 
         if ( node.getInitial() != null )
         {
-            normInitial = normalizeValue( node.getAttribute(), new StringValue( node.getInitial() ) );
+            normInitial = normalizeValue( node.getAttributeType(), new StringValue( node.getInitial() ) );
 
             if ( normInitial == null )
             {
@@ -263,7 +253,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             for ( String any : node.getAny() )
             {
-                Value<?> normAny = normalizeValue( node.getAttribute(), new StringValue( any ) );
+                Value<?> normAny = normalizeValue( node.getAttributeType(), new StringValue( any ) );
 
                 if ( normAny != null )
                 {
@@ -281,15 +271,13 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( node.getFinal() != null )
         {
-            normFinal = normalizeValue( node.getAttribute(), new StringValue( node.getFinal() ) );
+            normFinal = normalizeValue( node.getAttributeType(), new StringValue( node.getFinal() ) );
 
             if ( normFinal == null )
             {
                 return null;
             }
         }
-
-        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
 
         if ( normInitial != null )
         {
@@ -326,15 +314,14 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitExtensibleNode( ExtensibleNode node ) throws LdapException
     {
-        // Check that the AttributeType is valid
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-        }
-        catch ( LdapNoSuchAttributeException lnsae )
+        // still need this check here in case the top level is a leaf node
+        // with an undefined attributeType for its attribute
+        if ( !ncn.isDefined( node.getAttribute() ) )
         {
             return null;
         }
+
+        node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
 
         return node;
     }

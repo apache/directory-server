@@ -35,8 +35,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -173,7 +173,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 
         try
         {
-            ExprNode filter = FilterParser.parse( "(objectClass=*)" );
+            ExprNode filter = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
             service.getAdminSession().search( new DN( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
         }
         catch ( LdapNoPermissionException e )

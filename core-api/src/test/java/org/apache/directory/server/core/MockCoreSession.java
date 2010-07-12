@@ -722,7 +722,7 @@ public class MockCoreSession implements CoreSession
         
         try
         {
-            FilterParser.parse( filter ); 
+            FilterParser.parse( directoryService.getSchemaManager(), filter ); 
         }
         catch ( ParseException pe )
         {

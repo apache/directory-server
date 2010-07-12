@@ -167,7 +167,7 @@ public class NestedFilterTest
     {
         String filter = "(|(&(cn=J*)(sn=w*))(ou=apache))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
@@ -197,7 +197,7 @@ public class NestedFilterTest
     {
         String filter = "(&(&(cn=Jo*)(sn=w*))(!(ou=apache)))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
@@ -218,7 +218,7 @@ public class NestedFilterTest
 
         UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
@@ -243,7 +243,7 @@ public class NestedFilterTest
     {
         String filter = "(!(|(|(cn=Jo*)(sn=w*))(!(ou=apache))))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );

@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -89,7 +90,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** cached to save redundant lookups into registries */ 
-    private AttributeType objectClassAttributeType;
+    private AttributeType OBJECT_CLASS_AT;
     
     protected ReplicationProvider replicationProvider;
     
@@ -103,14 +104,14 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
      */
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        if ( objectClassAttributeType == null )
+        if ( OBJECT_CLASS_AT == null )
         {
-            objectClassAttributeType = session.getCoreSession().getDirectoryService().
-                getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+            OBJECT_CLASS_AT = session.getCoreSession().getDirectoryService().
+                getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         }
         
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT,
-            new StringValue( objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( OBJECT_CLASS_AT,
+            new StringValue( OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC ) );
         
         return ocIsReferral;
     }
@@ -938,12 +939,24 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         {
             PresenceNode presenceNode = ( PresenceNode ) req.getFilter();
             
-            AttributeType at = session.getCoreSession().getDirectoryService()
-                .getSchemaManager().lookupAttributeTypeRegistry( presenceNode.getAttribute() );
-            
-            if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            if ( presenceNode.isSchemaAware() )
             {
-                return;
+                AttributeType attributeType = presenceNode.getAttributeType();
+                
+                if ( attributeType.equals( OBJECT_CLASS_AT ) )
+                {
+                    return;
+                }
+            }
+            else
+            {
+                String attribute = presenceNode.getAttribute();
+                
+                if ( attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
+                     attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+                {
+                    return;
+                }
             }
         }
 
@@ -1281,9 +1294,18 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         
         if ( req.getFilter() instanceof PresenceNode )
         {
-            String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
-            isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
-                                attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            ExprNode filter = req.getFilter();
+            
+            if ( filter.isSchemaAware() )
+            {
+                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
+                isRootDSEFilter = attributeType.equals( OBJECT_CLASS_AT );
+            }
+            else
+            {
+                String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
+                isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            }
         }
         
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;

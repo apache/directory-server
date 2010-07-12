@@ -396,7 +396,7 @@ public class LdifPartitionTest
         DN dn = new DN( "dc=test,ou=test,ou=system" );
         dn.normalize( schemaManager.getNormalizerMapping() );
         searchCtx.setDn( dn );
-        ExprNode filter = FilterParser.parse( "(ObjectClass=domain)" );
+        ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=domain)" );
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         FilterNormalizingVisitor visitor = new FilterNormalizingVisitor( ncn, schemaManager );
         filter.accept( visitor );

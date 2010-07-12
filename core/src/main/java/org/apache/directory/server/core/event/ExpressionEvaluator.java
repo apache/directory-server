@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
- * Top level filter expression evaluator implemenation.
+ * Top level filter expression evaluator implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -48,7 +48,6 @@ public class ExpressionEvaluator implements Evaluator
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
      * evaluator which is already provided.
@@ -71,7 +70,7 @@ public class ExpressionEvaluator implements Evaluator
     public ExpressionEvaluator( SchemaManager schemaManager )
     {
         SubstringEvaluator substringEvaluator = null;
-        substringEvaluator = new SubstringEvaluator( schemaManager );
+        substringEvaluator = new SubstringEvaluator();
         leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
     }
 
@@ -90,7 +89,6 @@ public class ExpressionEvaluator implements Evaluator
     // ------------------------------------------------------------------------
     // Evaluator.evaluate() implementation
     // ------------------------------------------------------------------------
-
     /**
      * @see Evaluator#evaluate(ExprNode, String, Entry)
      */

@@ -70,6 +70,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         this.greaterEqEvaluator = greaterEqEvaluator;
 
         String attribute = greaterEqEvaluator.getExpression().getAttribute();
+        
         if ( db.hasIndexOn( attribute ) )
         {
             userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attribute ) ).forwardCursor();

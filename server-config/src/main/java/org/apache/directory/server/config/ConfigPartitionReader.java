@@ -86,6 +86,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +110,9 @@ public class ConfigPartitionReader
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
+
+    /** A reference to the ObjectClass AT */
+    private static AttributeType OBJECT_CLASS_AT;
 
     /** the parent directory of the config partition's working directory */
     private File workDir;
@@ -150,6 +154,9 @@ public class ConfigPartitionReader
         se = configPartition.getSearchEngine();
         this.schemaManager = configPartition.getSchemaManager();
         workDir = configPartition.getPartitionDir().getParentFile();
+        
+        // setup ObjectClass attribute type value
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -161,7 +168,7 @@ public class ConfigPartitionReader
      */
     public LdapServer getLdapServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -219,7 +226,7 @@ public class ConfigPartitionReader
         }
         
         // read the SASL mechanism handlers' configuration
-        filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC ) );
         cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
         
@@ -237,7 +244,7 @@ public class ConfigPartitionReader
         cursor.close();
         
         // read the extnded operation handlers' config
-        filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_EXT_OP_HANDLER_OC ) );
         cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
         
@@ -264,7 +271,7 @@ public class ConfigPartitionReader
 
     public KdcServer getKdcServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -411,7 +418,7 @@ public class ConfigPartitionReader
 
     public DnsServer getDnsServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DNS_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -451,7 +458,7 @@ public class ConfigPartitionReader
     //TODO making this method invisible cause there is no DhcpServer exists as of now
     private DhcpService getDhcpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DHCP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -486,7 +493,7 @@ public class ConfigPartitionReader
 
     public NtpServer getNtpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_NTP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -525,7 +532,7 @@ public class ConfigPartitionReader
     
     public ChangePasswordServer getChangePwdServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_CHANGEPWD_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -629,7 +636,7 @@ public class ConfigPartitionReader
     
     public HttpServer getHttpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_HTTP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -694,8 +701,8 @@ public class ConfigPartitionReader
      */
     public DirectoryService getDirectoryService() throws Exception
     {
-
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
+        AttributeType adsDirectoryServiceidAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
+        PresenceNode filter = new PresenceNode( adsDirectoryServiceidAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -827,7 +834,7 @@ public class ConfigPartitionReader
 
     private List<SyncreplConfiguration> getReplProviderConfigs() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_REPL_PROVIDER_OC ) );
 
         SearchControls controls = new SearchControls();
@@ -964,7 +971,8 @@ public class ConfigPartitionReader
      */
     private List<Interceptor> getInterceptors( DN dirServiceDN ) throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
+        AttributeType adsInterceptorIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
+        PresenceNode filter = new PresenceNode( adsInterceptorIdAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
@@ -1015,7 +1023,8 @@ public class ConfigPartitionReader
 
     private Map<String, Partition> getPartitions( DN dirServiceDN ) throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_PARTITION_ID );
+        AttributeType adsPartitionIdeAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_PARTITION_ID );
+        PresenceNode filter = new PresenceNode( adsPartitionIdeAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
@@ -1033,7 +1042,7 @@ public class ConfigPartitionReader
             {
                 continue;
             }
-            EntryAttribute ocAttr = partitionEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute ocAttr = partitionEntry.get( OBJECT_CLASS_AT );
 
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMPARTITION ) )
             {
@@ -1094,7 +1103,8 @@ public class ConfigPartitionReader
 
     private Set<Index<?, Entry, Long>> getIndexes( DN partitionDN ) throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
+        AttributeType adsIndexAttributeIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
+        PresenceNode filter = new PresenceNode( adsIndexAttributeIdAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
@@ -1113,7 +1123,7 @@ public class ConfigPartitionReader
                 continue;
             }
 
-            EntryAttribute ocAttr = indexEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute ocAttr = indexEntry.get( OBJECT_CLASS_AT );
 
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMINDEX ) )
             {
@@ -1153,7 +1163,8 @@ public class ConfigPartitionReader
 
     private Transport[] getTransports( DN adsServerDN ) throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_TRANSPORT_ID );
+        AttributeType adsTransportIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_TRANSPORT_ID );
+        PresenceNode filter = new PresenceNode( adsTransportIdAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( adsServerDN, AliasDerefMode.NEVER_DEREF_ALIASES,
@@ -1186,7 +1197,7 @@ public class ConfigPartitionReader
     {
         Transport transport = null;
 
-        EntryAttribute ocAttr = transportEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute ocAttr = transportEntry.get( OBJECT_CLASS_AT );
 
         if ( ocAttr.contains( ConfigSchemaConstants.ADS_TCP_TRANSPORT ) )
         {
@@ -1336,7 +1347,8 @@ public class ConfigPartitionReader
 
     private Set<WebApp> getWebApps( DN webAppsDN ) throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_HTTP_WARFILE );
+        AttributeType adsHttpWarFileAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_HTTP_WARFILE );
+        PresenceNode filter = new PresenceNode( adsHttpWarFileAt );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,

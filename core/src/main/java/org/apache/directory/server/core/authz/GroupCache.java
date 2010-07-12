@@ -137,9 +137,9 @@ public class GroupCache
             // didn't use clone() cause it is creating List objects, which IMO is not worth calling
             // in this initialization phase
             BranchNode filter = new OrNode();
-            filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_NAMES_OC ) ) );
-            filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
             DN baseDn = new DN( suffix ).normalize( normalizerMap );

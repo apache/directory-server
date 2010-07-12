@@ -609,7 +609,7 @@ public class PartitionFrame extends JFrame
 
         try
         {
-            root = FilterParser.parse( filter );
+            root = FilterParser.parse( schemaManager, filter );
         }
         catch ( Exception e )
         {
@@ -751,7 +751,7 @@ public class PartitionFrame extends JFrame
 
         try
         {
-            root = FilterParser.parse( filter );
+            root = FilterParser.parse( schemaManager, filter );
         }
         catch ( Exception e )
         {

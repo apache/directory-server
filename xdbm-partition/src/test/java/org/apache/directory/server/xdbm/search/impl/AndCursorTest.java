@@ -168,7 +168,7 @@ public class AndCursorTest
     {
         String filter = "(&(cn=J*)(sn=*))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
@@ -205,7 +205,7 @@ public class AndCursorTest
         List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
         Evaluator<? extends ExprNode, Entry, Long> eval;
 
-        ExprNode exprNode = new SubstringNode( "cn", "J", null );
+        ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
@@ -215,7 +215,7 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        exprNode = new PresenceNode( "sn" );
+        exprNode = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
         eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
 

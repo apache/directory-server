@@ -27,8 +27,8 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -86,7 +86,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
         else
         {
             idx = null;
-            type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
+            type = node.getAttributeType() ;
 
             MatchingRule mr = type.getEquality();
 

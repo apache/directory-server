@@ -100,21 +100,20 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     private final SchemaEntityFactory factory;
     private final SchemaManager schemaManager;
 
-    private final String M_NAME_OID;
-    private final String CN_OID;
-    private final String M_OID_OID;
-    private final String OBJECTCLASS_OID;
-    private final String M_SYNTAX_OID;
-    private final String M_ORDERING_OID;
-    private final String M_SUBSTRING_OID;
-    private final String M_EQUALITY_OID;
-    private final String M_SUP_ATTRIBUTE_TYPE_OID;
-    private final String M_MUST_OID;
-    private final String M_MAY_OID;
-    private final String M_AUX_OID;
-    private final String M_OC_OID;
-    private final String M_SUP_OBJECT_CLASS_OID;
-    private final String M_DEPENDENCIES_OID;
+    private final AttributeType M_NAME_AT;
+    private final AttributeType M_OID_AT;
+    private final AttributeType OBJECT_CLASS_AT;
+    private final AttributeType M_SYNTAX_AT;
+    private final AttributeType M_ORDERING_AT;
+    private final AttributeType M_SUBSTRING_AT;
+    private final AttributeType M_EQUALITY_AT;
+    private final AttributeType M_SUP_ATTRIBUTE_TYPE_AT;
+    private final AttributeType M_MUST_AT;
+    private final AttributeType M_MAY_AT;
+    private final AttributeType M_AUX_AT;
+    private final AttributeType M_OC_AT;
+    private final AttributeType M_SUP_OBJECT_CLASS_AT;
+    private final AttributeType M_DEPENDENCIES_AT;
 
     private final Set<AttributeTypeOptions> schemaAttributesToReturn = new HashSet<AttributeTypeOptions>();
     private final AttributeType disabledAttributeType;
@@ -133,22 +132,21 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         this.factory = new SchemaEntityFactory();
         this.schemaManager = schemaManager;
 
-        this.M_NAME_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_NAME_AT );
-        this.CN_OID = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.CN_AT );
+        this.M_NAME_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT );
         this.disabledAttributeType = schemaManager.getAttributeType( MetaSchemaConstants.M_DISABLED_AT );
-        this.M_OID_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT ).getOid();
-        this.OBJECTCLASS_OID = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT );
-        this.M_SYNTAX_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_SYNTAX_AT ).getOid();
-        this.M_ORDERING_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_ORDERING_AT ).getOid();
-        this.M_EQUALITY_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_EQUALITY_AT ).getOid();
-        this.M_SUBSTRING_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_SUBSTR_AT ).getOid();
-        this.M_SUP_ATTRIBUTE_TYPE_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT ).getOid();
-        this.M_MUST_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT ).getOid();
-        this.M_MAY_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT ).getOid();
-        this.M_AUX_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_AUX_AT ).getOid();
-        this.M_OC_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_OC_AT ).getOid();
-        this.M_SUP_OBJECT_CLASS_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ).getOid();
-        this.M_DEPENDENCIES_OID = schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT ).getOid();
+        this.M_OID_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        this.M_SYNTAX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SYNTAX_AT );
+        this.M_ORDERING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_ORDERING_AT );
+        this.M_EQUALITY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_EQUALITY_AT );
+        this.M_SUBSTRING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUBSTR_AT );
+        this.M_SUP_ATTRIBUTE_TYPE_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        this.M_MUST_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT );
+        this.M_MAY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT );
+        this.M_AUX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_AUX_AT );
+        this.M_OC_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OC_AT );
+        this.M_SUP_OBJECT_CLASS_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        this.M_DEPENDENCIES_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT );
         
         for ( String attrId : SCHEMA_ATTRIBUTES )
         {
@@ -199,7 +197,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         DN base = new DN( SchemaConstants.OU_SCHEMA );
         base.normalize( schemaManager.getNormalizerMapping() );
-        ExprNode filter = new EqualityNode<String>( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ),
+        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( null );
@@ -228,16 +226,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasMatchingRule( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue(
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             MetaSchemaConstants.META_MATCHING_RULE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode<String>( M_OID_OID, new StringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_AT, new StringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode<String>( M_NAME_OID, new StringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_AT, new StringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
@@ -280,16 +278,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasAttributeType( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue(
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode<String>( M_OID_OID, new StringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_AT, new StringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode<String>( M_NAME_OID, new StringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_AT, new StringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
@@ -332,16 +330,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasObjectClass( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode<String>( M_OID_OID, new StringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_AT, new StringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode<String>( M_NAME_OID, new StringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_AT, new StringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
@@ -384,16 +382,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasSyntax( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
                 new StringValue( MetaSchemaConstants.META_SYNTAX_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode<String>( M_OID_OID, new StringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_AT, new StringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode<String>( M_NAME_OID, new StringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_AT, new StringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
@@ -436,16 +434,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasSyntaxChecker( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode<String>( M_OID_OID, new StringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_AT, new StringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode<String>( M_NAME_OID, new StringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_AT, new StringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
@@ -495,9 +493,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         RDN rdn = dn.getRdn( 1 );
         
-        if ( !rdn.getNormType().equalsIgnoreCase( CN_OID ) )
+        if ( !rdn.getNormType().equalsIgnoreCase( SchemaConstants.CN_AT_OID ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_434, dn.getNormName(), CN_OID, rdn.getNormType() ) );
+            throw new NamingException( I18n.err( I18n.ERR_434, dn.getNormName(), SchemaConstants.CN_AT_OID, rdn.getNormType() ) );
         }
 
         return rdn.getNormValue().getString();
@@ -522,9 +520,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public Entry find( String entityName ) throws Exception
     {
         BranchNode filter = new OrNode();
-        SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_OID, 
+        SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_AT, 
             new StringValue( entityName.toLowerCase() ) );
-        SimpleNode<String> oidAVA = new EqualityNode<String>( M_OID_OID, 
+        SimpleNode<String> oidAVA = new EqualityNode<String>( M_OID_AT, 
             new StringValue( entityName.toLowerCase() ) );
         filter.addNode( nameAVA );
         filter.addNode( oidAVA );
@@ -614,13 +612,13 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
 
         filter.addNode( or );
-        filter.addNode( new EqualityNode<String>( M_SYNTAX_OID, new StringValue( numericOid.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( M_SYNTAX_AT, new StringValue( numericOid.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -660,13 +658,13 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         BranchNode filter = new AndNode();
 
         // ( objectClass = metaAttributeType )
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue(
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
 
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( M_ORDERING_OID, new StringValue( mr.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_SUBSTRING_OID, new StringValue( mr.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_EQUALITY_OID, new StringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_ORDERING_AT, new StringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUBSTRING_AT, new StringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_EQUALITY_AT, new StringValue( mr.getOid() ) ) );
         filter.addNode( or );
 
         List<String> names = mr.getNames();
@@ -675,9 +673,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         {
             for ( String name : names )
             {
-                or.addNode( new EqualityNode<String>( M_ORDERING_OID, new StringValue( name.toLowerCase() ) ) );
-                or.addNode( new EqualityNode<String>( M_SUBSTRING_OID, new StringValue( name.toLowerCase() ) ) );
-                or.addNode( new EqualityNode<String>( M_EQUALITY_OID, new StringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_ORDERING_AT, new StringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_SUBSTRING_AT, new StringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_EQUALITY_AT, new StringValue( name.toLowerCase() ) ) );
             }
         }
 
@@ -720,8 +718,8 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         BranchNode filter = new AndNode();
 
         // (& (m-oid=*) (m-name=*) )
-        filter.addNode( new PresenceNode( M_OID_OID ) );
-        filter.addNode( new PresenceNode( M_NAME_OID ) );
+        filter.addNode( new PresenceNode( M_OID_AT ) );
+        filter.addNode( new PresenceNode( M_NAME_AT ) );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
             filter, searchControls );
@@ -759,16 +757,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         // ( objectClass = metaAttributeType )
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
         or = new OrNode();
-        or.addNode( new EqualityNode<String>( M_MAY_OID, new StringValue( at.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_MUST_OID, new StringValue( at.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_SUP_ATTRIBUTE_TYPE_OID, new StringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_MAY_AT, new StringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_MUST_AT, new StringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUP_ATTRIBUTE_TYPE_AT, new StringValue( at.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
@@ -814,9 +812,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
-        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_OID, 
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT, 
             new StringValue( schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
@@ -856,9 +854,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue( 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( 
             MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
-        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_OID, new StringValue( 
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT, new StringValue( 
             schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
@@ -933,18 +931,18 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         BranchNode filter = new AndNode();
 
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue( MetaSchemaConstants.META_NAME_FORM_OC
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( MetaSchemaConstants.META_NAME_FORM_OC
             .toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
             .toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue(
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
         or = new OrNode();
-        or.addNode( new EqualityNode<String>( M_AUX_OID, new StringValue( oc.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_OC_OID, new StringValue( oc.getOid() ) ) );
-        or.addNode( new EqualityNode<String>( M_SUP_OBJECT_CLASS_OID, new StringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_AUX_AT, new StringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_OC_AT, new StringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUP_OBJECT_CLASS_AT, new StringValue( oc.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();

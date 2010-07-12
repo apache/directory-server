@@ -70,6 +70,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         this.lessEqEvaluator = lessEqEvaluator;
 
         String attribute = lessEqEvaluator.getExpression().getAttribute();
+        
         if ( db.hasIndexOn( attribute ) )
         {
             userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attribute ) ).forwardCursor();

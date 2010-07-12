@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -43,6 +44,9 @@ public class RefinementLeafEvaluator
     /** A SchemaManager instance */
     private final SchemaManager schemaManager;
 
+    /** A storage for the ObjectClass attributeType */
+    private AttributeType OBJECT_CLASS_AT;
+
 
     /**
      * Creates a refinement filter's leaf node evaluator.
@@ -52,6 +56,7 @@ public class RefinementLeafEvaluator
     public RefinementLeafEvaluator( SchemaManager schemaManager)
     {
         this.schemaManager = schemaManager;
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -77,10 +82,19 @@ public class RefinementLeafEvaluator
             throw new LdapException( I18n.err( I18n.ERR_301, node ) );
         }
         
-        if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( node.isSchemaAware() )
         {
-            throw new LdapException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+            if ( !node.getAttributeType().equals( OBJECT_CLASS_AT ) )
+            {
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+            }
         }
+        else if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) &&
+                  !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+        }
+            
 
         if ( null == objectClasses )
         {

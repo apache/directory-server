@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,17 +52,17 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class RefinementEvaluatorTest
 {
-    /** the registries */
-    private static Registries registries;
+    /** the SchemaManager instance */
+    private static SchemaManager schemaManager;
     
     /** the refinement evaluator to test */
     private static RefinementEvaluator evaluator;
 
     /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS;
+    private static AttributeType OBJECT_CLASS_AT;
 
-    /** The CN AttributeType */
-    private static AttributeType CN;
+    /** The CN_AT AttributeType */
+    private static AttributeType CN_AT;
     
     
     /**
@@ -75,7 +74,7 @@ public class RefinementEvaluatorTest
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
         boolean loaded = schemaManager.loadAllEnabled();
 
@@ -84,13 +83,11 @@ public class RefinementEvaluatorTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        registries = schemaManager.getRegistries();
-
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( schemaManager );
         evaluator = new RefinementEvaluator( leafEvaluator );
         
-        OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
-        CN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( "objectClass" );
+        CN_AT = schemaManager.getAttributeTypeRegistry().lookup( "cn" );
     }
 
 
@@ -113,7 +110,7 @@ public class RefinementEvaluatorTest
     {
         try
         {
-            assertFalse( evaluator.evaluate( null, new DefaultEntryAttribute( "objectClass", OBJECT_CLASS ) ) );
+            assertFalse( evaluator.evaluate( null, new DefaultEntryAttribute( OBJECT_CLASS_AT ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -122,7 +119,7 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", new StringValue( "" ) ), null ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( (String)null, new StringValue( "" ) ), null ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -131,8 +128,8 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", new StringValue( "" ) ), 
-                new DefaultEntryAttribute( "cn", CN ) ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( (String)null, new StringValue( "" ) ), 
+                new DefaultEntryAttribute( "cn", CN_AT ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -147,38 +144,38 @@ public class RefinementEvaluatorTest
         EntryAttribute objectClasses = null;
 
         // positive test
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person", "blah" );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         // negative tests
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "blah" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "blah" ) ), objectClasses ) );
 
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "blah" );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
     }
 
 
     @Test 
     public void testMatchByOID() throws Exception
     {
-        EntryAttribute objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
 
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person", "blah" );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
 
         // negative tests
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
 
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "blah" );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
     }
 
 
@@ -186,17 +183,17 @@ public class RefinementEvaluatorTest
     public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         String refStr = "(|(objectClass=person)(objectClass=organizationalUnit))";
         
-        refinement = FilterParser.parse( refStr );
+        refinement = FilterParser.parse( schemaManager, refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "organizationalUnit" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "domain" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
@@ -205,21 +202,21 @@ public class RefinementEvaluatorTest
     public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         objectClasses.add( "organizationalUnit" );
         String refStr = "(&(objectClass=person)(objectClass=organizationalUnit))";
         
-        refinement = FilterParser.parse( refStr );
+        refinement = FilterParser.parse( schemaManager,refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "organizationalUnit" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "domain" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
@@ -228,22 +225,22 @@ public class RefinementEvaluatorTest
     public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         String refStr = "(!(objectClass=person))";
 
-        refinement = FilterParser.parse( refStr );
+        refinement = FilterParser.parse( schemaManager, refStr );
 
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "organizationalUnit" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         
-        objectClasses = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS, "domain" );
+        objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "domain" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
 
         try
         {
-            assertFalse( evaluator.evaluate( new NotNode(), new DefaultEntryAttribute( "objectClass", OBJECT_CLASS ) ) );
+            assertFalse( evaluator.evaluate( new NotNode(), new DefaultEntryAttribute( OBJECT_CLASS_AT ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )

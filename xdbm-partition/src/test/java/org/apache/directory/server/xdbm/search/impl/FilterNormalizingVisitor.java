@@ -168,16 +168,8 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitPresenceNode( PresenceNode node )
     {
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-            return node;
-        }
-        catch ( LdapException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttributeType( node.getAttributeType() );
+        return node;
     }
 
 
@@ -208,17 +200,9 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-            node.setValue( normalized );
-            return node;
-        }
-        catch ( LdapException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttribute( node.getAttribute() );
+        node.setValue( normalized );
+        return node;
     }
 
 
@@ -286,37 +270,29 @@ public class FilterNormalizingVisitor implements FilterVisitor
             }
         }
 
-        try
+        node.setAttribute( node.getAttribute() );
+
+        if ( normInitial != null )
         {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-
-            if ( normInitial != null )
-            {
-                node.setInitial( normInitial.getString() );
-            }
-            else
-            {
-                node.setInitial( null );
-            }
-
-            node.setAny( normAnys );
-
-            if ( normFinal != null )
-            {
-                node.setFinal( normFinal.getString() );
-            }
-            else
-            {
-                node.setFinal( null );
-            }
-
-            return node;
+            node.setInitial( normInitial.getString() );
         }
-        catch ( LdapException ne )
+        else
         {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
+            node.setInitial( null );
         }
+
+        node.setAny( normAnys );
+
+        if ( normFinal != null )
+        {
+            node.setFinal( normFinal.getString() );
+        }
+        else
+        {
+            node.setFinal( null );
+        }
+
+        return node;
     }
 
 
@@ -331,16 +307,8 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitExtensibleNode( ExtensibleNode node )
     {
-        try
-        {
-            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
-            return node;
-        }
-        catch ( LdapException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttributeType( node.getAttributeType() );
+        return node;
     }
 
 

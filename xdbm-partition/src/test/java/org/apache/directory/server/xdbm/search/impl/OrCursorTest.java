@@ -167,7 +167,7 @@ public class OrCursorTest
     {
         String filter = "(|(cn=J*)(sn=W*))";
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
@@ -257,7 +257,7 @@ public class OrCursorTest
 
         OrNode orNode = new OrNode();
 
-        ExprNode exprNode = new SubstringNode( "cn", "J", null );
+        ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         Cursor subStrCursor1 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         cursors.add( subStrCursor1 );
@@ -271,7 +271,7 @@ public class OrCursorTest
         //        }
         //        catch( IllegalArgumentException ie ){ }
 
-        exprNode = new SubstringNode( "sn", "W", null );
+        exprNode = new SubstringNode( schemaManager.getAttributeType( "sn" ), "W", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
         Cursor subStrCursor2 = new SubstringCursor( store, ( SubstringEvaluator ) eval );

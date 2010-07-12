@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,9 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( CramMd5CallbackHandler.class );
 
     private String bindDn;
-    //private String userPassword;
+    
+    /** A SchemaManager instance */
+    private SchemaManager schemaManager;
 
 
     /**
@@ -71,6 +74,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
         super( adminSession.getDirectoryService(), bindRequest );
         this.ldapSession = ldapSession;
         this.adminSession = adminSession;
+        schemaManager = adminSession.getDirectoryService().getSchemaManager();
     }
 
 
@@ -78,7 +82,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     {
         try
         {
-            ExprNode filter = FilterParser.parse( "(uid=" + username + ")" );
+            ExprNode filter = FilterParser.parse( schemaManager, "(uid=" + username + ")" );
             Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
             
             AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );

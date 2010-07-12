@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,7 +82,9 @@ public class MostSpecificProtectedItemFilterTest
     private static final List<ACITuple> TUPLES_D = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_E = new ArrayList<ACITuple>();
 
-    static
+    
+    @BeforeClass
+    public static void init()
     {
         Collection<ProtectedItem> attributeType = new ArrayList<ProtectedItem>();
         Collection<ProtectedItem> allAttributeValues = new ArrayList<ProtectedItem>();
@@ -95,7 +98,7 @@ public class MostSpecificProtectedItemFilterTest
         allAttributeValues.add( new AllAttributeValuesItem( EMPTY_STRING_COLLECTION ) );
         selfValue.add( new SelfValueItem( EMPTY_STRING_COLLECTION ) );
         attributeValue.add( new AttributeValueItem( EMPTY_ATTRIBUTE_COLLECTION ) );
-        rangeOfValues.add( new RangeOfValuesItem( new PresenceNode( "objectClass" ) ) );
+        rangeOfValues.add( new RangeOfValuesItem( new PresenceNode( (String)null ) ) );
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
@@ -149,7 +152,6 @@ public class MostSpecificProtectedItemFilterTest
         TUPLES_E.add( allUserAttributeTypesTuple );
         TUPLES_E.add( allUserAttributeTypesAndValuesTuple );
     }
-
 
     @Test
     public void testZeroOrOneTuple() throws Exception

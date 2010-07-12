@@ -126,6 +126,9 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the ObjectClass AT */
     private static AttributeType OBJECT_CLASS_AT;
+    
+    /** A reference to the AdmiistrativeRole AT */
+    private static AttributeType ADMINISTRATIVE_ROLE_AT;
 
 
     /**
@@ -142,13 +145,14 @@ public class SubentryInterceptor extends BaseInterceptor
 
         // setup various attribute type values
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
-        ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -478,7 +482,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ); // (objectClass=*)
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -625,7 +629,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -681,7 +685,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private boolean hasAdministrativeDescendant( OperationContext opContext, DN name ) throws LdapException
     {
-        ExprNode filter = new PresenceNode( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+        ExprNode filter = new PresenceNode( ADMINISTRATIVE_ROLE_AT );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -807,7 +811,7 @@ public class SubentryInterceptor extends BaseInterceptor
             next.rename( renameContext );
 
             subentry = subentryCache.getSubentry( newName );
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getName() );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -892,7 +896,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newName );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -978,7 +982,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newName );
 
-            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1128,7 +1132,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN apName = dn.getParent();
             DN oldBaseDn = ( DN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT.getOid() );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]

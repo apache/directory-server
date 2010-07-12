@@ -145,7 +145,7 @@ public class SubstringTest
     @Test
     public void testIndexedCnStartsWithJ() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -297,7 +297,7 @@ public class SubstringTest
     @Test
     public void testIndexedCnStartsWithJim() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "jim", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "jim", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -389,7 +389,7 @@ public class SubstringTest
     @Test
     public void testIndexedCnEndsWithBean() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, null, "bean" );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), null, "bean" );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -481,7 +481,7 @@ public class SubstringTest
     @Test
     public void testNonIndexedSnStartsWithB() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "b", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -543,7 +543,7 @@ public class SubstringTest
     @Test
     public void testIndexedSnEndsWithEr() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, null, "er" );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), null, "er" );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -604,7 +604,7 @@ public class SubstringTest
     @Test
     public void testNonIndexedAttributes() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "walk", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "walk", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 5L );
@@ -616,35 +616,35 @@ public class SubstringTest
         indexEntry.setObject( null );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.SN_AT_OID, "wa", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "wa", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 5L );
         indexEntry.setObject( store.lookup( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.SEARCHGUIDE_AT_OID, "j", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.ST_AT_OID, "j", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.NAME_AT_OID, "j", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.NAME_AT_OID, "s", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
@@ -656,7 +656,7 @@ public class SubstringTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "jim", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "jim", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
@@ -665,14 +665,14 @@ public class SubstringTest
         indexEntry.setObject( null );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        node = new SubstringNode( SchemaConstants.CN_AT_OID, "s", null );
+        node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "s", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
@@ -690,7 +690,7 @@ public class SubstringTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "b", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
         cursor.get();
@@ -700,7 +700,7 @@ public class SubstringTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException2() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
         cursor.get();
@@ -710,7 +710,7 @@ public class SubstringTest
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "j", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
@@ -724,7 +724,7 @@ public class SubstringTest
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "j", null );
+        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
         SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 

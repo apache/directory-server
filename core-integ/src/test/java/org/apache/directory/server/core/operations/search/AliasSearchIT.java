@@ -439,7 +439,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             DN base = new DN( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
-            ExprNode exprNode = FilterParser.parse( "(objectClass=*)" );
+            ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
             EntryFilteringCursor cursor = service.getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode, null );
@@ -482,7 +482,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             DN base = new DN( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
-            ExprNode exprNode = FilterParser.parse( "(objectClass=*)" );
+            ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
             EntryFilteringCursor cursor = service.getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode, null );
@@ -573,7 +573,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> nextResults = new ArrayList<String>();
 
-        ExprNode exprNode = FilterParser.parse( filter );
+        ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), filter );
         EntryFilteringCursor cursor = service.getAdminSession().search( new DN( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();

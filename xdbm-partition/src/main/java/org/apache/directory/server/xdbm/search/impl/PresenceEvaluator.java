@@ -26,8 +26,8 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -54,7 +54,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
-        this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
+        this.type = node.getAttributeType();
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {

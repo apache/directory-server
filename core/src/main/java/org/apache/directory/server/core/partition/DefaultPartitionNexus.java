@@ -144,7 +144,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /** the closed state of this partition */
     private boolean initialized;
 
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
+    /** A reference to the EntryCSN attributeType */
+    private static AttributeType ENTRY_CSN_AT;
+
+    /** A reference to the ObjectClass attributeType */
+    private static AttributeType OBJECT_CLASS_AT;
 
     final List<Modification> mods = new ArrayList<Modification>( 2 );
 
@@ -214,7 +218,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         //this.directoryService = directoryService;
         schemaManager = directoryService.getSchemaManager();
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         // Initialize and normalize the localy used DNs
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -672,7 +677,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition backend = getPartition( modifyContext.getDn() );
 
         String csn = directoryService.getCSN().toString();
-        EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
+        EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_AT, csn );
         Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         modifyContext.getModItems().add( updatedCsn );
 
@@ -825,7 +830,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             // We have to be careful, as we may have a filter which is not a PresenceFilter
             if ( filter instanceof PresenceNode )
             {
-                isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+                isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
             }
 
             /*

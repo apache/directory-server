@@ -81,7 +81,7 @@ public class NormalizationVisitorTest
     @Test
     public void testSimpleFilter() throws ParseException
     {
-        ExprNode filter = FilterParser.parse( "(ou=  test  1 )" );
+        ExprNode filter = FilterParser.parse( schemaManager, "(ou=  test  1 )" );
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
         
         assertNotNull( result );
@@ -89,14 +89,14 @@ public class NormalizationVisitorTest
         EqualityNode<?> equalityNode = (EqualityNode<?>)result;
         
         assertEquals( "test 1", equalityNode.getValue().getNormalizedValue() );
-        assertEquals( "2.5.4.11", equalityNode.getAttribute() );
+        assertEquals( "2.5.4.11", equalityNode.getAttributeType().getOid() );
     }
     
     
     @Test
     public void testBranchNormalizedVisitor() throws Exception
     {
-        ExprNode filter = FilterParser.parse( "(!(|(uniqueMember=cn=user1,ou=Test,dc=example,dc=com)(member=cn=user2,ou=Test,dc=example,dc=com)))" );
+        ExprNode filter = FilterParser.parse( schemaManager, "(!(|(uniqueMember=cn=user1,ou=Test,dc=example,dc=com)(member=cn=user2,ou=Test,dc=example,dc=com)))" );
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         assertNotNull( result );

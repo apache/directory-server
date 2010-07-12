@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,9 @@ public class LdapClassLoader extends ClassLoader
     private DN defaultSearchDn;
     private DirectoryService directoryService;
 
+    /** A storage for the ObjectClass attributeType */
+    private AttributeType OBJECT_CLASS_AT;
+
     
     public LdapClassLoader( DirectoryService directoryService ) throws LdapException
     {
@@ -72,6 +76,8 @@ public class LdapClassLoader extends ClassLoader
         this.directoryService = directoryService;
         defaultSearchDn = new DN( DEFAULT_SEARCH_CONTEXTS_CONFIG );
         defaultSearchDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        
+        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
     
@@ -79,9 +85,9 @@ public class LdapClassLoader extends ClassLoader
     {
         // Set up the search filter
         BranchNode filter = new AndNode( );
-        filter.addNode( new EqualityNode<String>( "fullyQualifiedJavaClassName", 
-            new StringValue( name ) ) );
-        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+        AttributeType fqjcnAt = directoryService.getSchemaManager().getAttributeType( "fullyQualifiedJavaClassName" );
+        filter.addNode( new EqualityNode<String>( fqjcnAt, new StringValue( name ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
         
         try

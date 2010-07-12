@@ -41,7 +41,7 @@ public class NotificationCriteria
     public static final SearchScope DEFAULT_SCOPE = SearchScope.ONELEVEL;
     public static final AliasDerefMode DEFAULT_ALIAS_DEREF_MODE = AliasDerefMode.DEREF_ALWAYS;
     public static final DN DEFAULT_BASE = new DN();
-    public static final ExprNode DEFAULT_FILTER = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID );
+    public static final ExprNode DEFAULT_FILTER = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
     
     private SearchScope scope = DEFAULT_SCOPE;
     private AliasDerefMode aliasDerefMode = DEFAULT_ALIAS_DEREF_MODE;

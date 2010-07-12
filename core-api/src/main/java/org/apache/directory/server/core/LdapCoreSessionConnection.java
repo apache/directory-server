@@ -95,7 +95,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     private CoreSession session;
 
     /** the SchemaManager */
-    private SchemaManager sm;
+    private SchemaManager schemaManager;
 
     /** the session's DirectoryService */
     private DirectoryService directoryService;
@@ -191,7 +191,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         try
         {
-            Entry se = new DefaultEntry( sm, entry );
+            Entry se = new DefaultEntry( schemaManager, entry );
 
             session.add( se );
         }
@@ -443,7 +443,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public SchemaManager getSchemaManager()
     {
-        return sm;
+        return schemaManager;
     }
 
 
@@ -840,7 +840,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             InternalSearchRequest iSearchReq = new SearchRequestImpl( searchRequest.getMessageId() );
             iSearchReq.setBase( new DN( searchRequest.getBaseDn() ) );
             iSearchReq.setDerefAliases( searchRequest.getDerefAliases() );
-            iSearchReq.setFilter( FilterParser.parse( searchRequest.getFilter() ) );
+            iSearchReq.setFilter( FilterParser.parse( schemaManager, searchRequest.getFilter() ) );
             iSearchReq.setScope( searchRequest.getScope() );
             iSearchReq.setSizeLimit( searchRequest.getSizeLimit() );
             iSearchReq.setTimeLimit( searchRequest.getTimeLimit() );
@@ -1060,7 +1060,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         this.session = session;
         this.directoryService = session.getDirectoryService();
-        this.sm = directoryService.getSchemaManager();
+        this.schemaManager = directoryService.getSchemaManager();
     }
 
 }

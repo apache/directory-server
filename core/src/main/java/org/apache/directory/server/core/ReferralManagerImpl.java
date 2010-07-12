@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 
 
@@ -56,6 +57,9 @@ public class ReferralManagerImpl implements ReferralManager
     /** A lock to guarantee the manager consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
+    /** A storage for the ObjectClass attributeType */
+    private AttributeType OBJECT_CLASS_AT;
+
     
     /**
      * 
@@ -72,9 +76,10 @@ public class ReferralManagerImpl implements ReferralManager
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
         Set<String> suffixes = nexus.listSuffixes();
-        
+        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+
         init( directoryService, suffixes.toArray( new String[]{} ) );
-        
+
         unlock();
     }
     
@@ -142,7 +147,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public void init( DirectoryService directoryService, String... suffixes ) throws LdapException
     {
-        ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
@@ -197,7 +202,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public void remove( DirectoryService directoryService, DN suffix ) throws Exception
     {
-        ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT, 
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value

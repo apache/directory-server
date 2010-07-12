@@ -725,7 +725,7 @@ public class DefaultCoreSession implements CoreSession
         
         try
         { 
-            filterNode = (ExprNode)FilterParser.parse( filter ); 
+            filterNode = (ExprNode)FilterParser.parse( directoryService.getSchemaManager(), filter ); 
         }
         catch ( ParseException pe )
         {

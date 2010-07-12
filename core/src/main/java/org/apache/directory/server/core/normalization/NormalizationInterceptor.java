@@ -253,18 +253,23 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         ExprNode filter = searchContext.getFilter();
 
-        // Normalize the filter
-        ExprNode result = ( ExprNode ) filter.accept( normVisitor );
-
-        if ( result == null )
+        if ( filter == null )
         {
-            LOG
-                .warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+        }
+
+        // Normalize the filter
+        filter = ( ExprNode ) filter.accept( normVisitor );
+
+        if ( filter == null )
+        {
+            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
             return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
         }
         else
         {
-            searchContext.setFilter( result );
+            searchContext.setFilter( filter );
 
             // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( searchContext );

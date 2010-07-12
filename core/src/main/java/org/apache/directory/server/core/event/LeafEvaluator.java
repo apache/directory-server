@@ -24,9 +24,9 @@ import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
@@ -116,8 +116,7 @@ public class LeafEvaluator implements Evaluator
 
         if ( node instanceof PresenceNode )
         {
-            String attrId = ( ( PresenceNode ) node ).getAttribute();
-            return evalPresence( attrId, entry );
+            return evalPresence( ( ( PresenceNode ) node ).getAttributeType(), entry );
         }
         else if ( ( node instanceof EqualityNode ) || ( node instanceof ApproximateNode ) )
         {
@@ -161,11 +160,10 @@ public class LeafEvaluator implements Evaluator
     private boolean evalGreaterOrLesser( SimpleNode<?> node, Entry entry, boolean isGreaterOrLesser )
         throws LdapException
     {
-        String attrId = node.getAttribute();
+        AttributeType attributeType = node.getAttributeType();
 
         // get the attribute associated with the node
-        AttributeType type = schemaManager.lookupAttributeTypeRegistry( attrId );
-        EntryAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -177,8 +175,8 @@ public class LeafEvaluator implements Evaluator
          * We need to iterate through all values and for each value we normalize
          * and use the comparator to determine if a match exists.
          */
-        Normalizer normalizer = getNormalizer( attrId );
-        Comparator comparator = getComparator( attrId );
+        Normalizer normalizer = getNormalizer( attributeType );
+        Comparator comparator = getComparator( attributeType );
         Object filterValue = normalizer.normalize( node.getValue() );
 
         /*
@@ -225,14 +223,14 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( String attrId, Entry entry ) throws LdapException
+    private boolean evalPresence( AttributeType attributeType, Entry entry ) throws LdapException
     {
         if ( entry == null )
         {
             return false;
         }
 
-        return null != entry.get( attrId );
+        return null != entry.get( attributeType );
     }
 
 
@@ -248,8 +246,8 @@ public class LeafEvaluator implements Evaluator
     @SuppressWarnings("unchecked")
     private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException
     {
-        Normalizer normalizer = getNormalizer( node.getAttribute() );
-        Comparator comparator = getComparator( node.getAttribute() );
+        Normalizer normalizer = getNormalizer( node.getAttributeType() );
+        Comparator comparator = getComparator( node.getAttributeType() );
 
         // get the attribute associated with the node
         EntryAttribute attr = entry.get( node.getAttribute() );
@@ -261,10 +259,10 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if AVA value exists in attribute
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
+        AttributeType attributeType = node.getAttributeType();
         Value<?> value = null;
         
-        if ( at.getSyntax().isHumanReadable() )
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
             if ( node.getValue().isBinary() )
             {
@@ -317,13 +315,14 @@ public class LeafEvaluator implements Evaluator
     /**
      * Gets the comparator for equality matching.
      *
-     * @param attrId the attribute identifier
+     * @param attributeType the attributeType
      * @return the comparator for equality matching
      * @throws LdapException if there is a failure
      */
-    private LdapComparator<? super Object> getComparator( String attrId ) throws LdapException
+    private LdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
     {
-        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        
         return mrule.getLdapComparator();
     }
 
@@ -331,13 +330,14 @@ public class LeafEvaluator implements Evaluator
     /**
      * Gets the normalizer for equality matching.
      *
-     * @param attrId the attribute identifier
+     * @param attributeType the attributeType
      * @return the normalizer for equality matching
      * @throws LdapException if there is a failure
      */
-    private Normalizer getNormalizer( String attrId ) throws LdapException
+    private Normalizer getNormalizer( AttributeType attributeType ) throws LdapException
     {
-        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        
         return mrule.getNormalizer();
     }
 
@@ -345,27 +345,26 @@ public class LeafEvaluator implements Evaluator
     /**
      * Gets the matching rule for an attributeType.
      *
-     * @param attrId the attribute identifier
+     * @param attributeType the attributeType
      * @return the matching rule
      * @throws LdapException if there is a failure
      */
-    private MatchingRule getMatchingRule( String attrId, int matchType ) throws LdapException
+    private MatchingRule getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
     {
         MatchingRule mrule = null;
-        AttributeType type = schemaManager.lookupAttributeTypeRegistry( attrId );
 
         switch ( matchType )
         {
             case ( EQUALITY_MATCH ):
-                mrule = type.getEquality();
+                mrule = attributeType.getEquality();
                 break;
 
             case ( SUBSTRING_MATCH ):
-                mrule = type.getSubstring();
+                mrule = attributeType.getSubstring();
                 break;
 
             case ( ORDERING_MATCH ):
-                mrule = type.getOrdering();
+                mrule = attributeType.getOrdering();
                 break;
 
             default:
@@ -374,7 +373,7 @@ public class LeafEvaluator implements Evaluator
 
         if ( ( mrule == null ) && ( matchType != EQUALITY_MATCH ) )
         {
-            mrule = type.getEquality();
+            mrule = attributeType.getEquality();
         }
 
         return mrule;

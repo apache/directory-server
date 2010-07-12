@@ -165,7 +165,7 @@ public class GreaterEqTest
     public void testCursorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new StringValue( at, "3" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
@@ -402,7 +402,7 @@ public class GreaterEqTest
     public void testCursorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new StringValue( at, "3" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
@@ -552,7 +552,7 @@ public class GreaterEqTest
     public void testEvaluatorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new StringValue( at, "3" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         assertEquals( node, evaluator.getExpression() );
@@ -597,7 +597,7 @@ public class GreaterEqTest
     public void testEvaluatorWithDescendantValue() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.STREET_AT_OID, new StringValue( at, "2" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         assertEquals( node, evaluator.getExpression() );
@@ -625,7 +625,7 @@ public class GreaterEqTest
     public void testEvaluatorWithoutDescendants() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.C_POSTALCODE_AT_OID, new StringValue( at, "2" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -643,7 +643,7 @@ public class GreaterEqTest
     public void testEvaluatorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new StringValue( at, "3" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
@@ -699,7 +699,7 @@ public class GreaterEqTest
 
         try
         {
-            GreaterEqNode node = new GreaterEqNode( at.getOid(), new StringValue( at, "3" ) );
+            GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
             new GreaterEqEvaluator( node, store, schemaManager );
         }
         finally
@@ -737,7 +737,7 @@ public class GreaterEqTest
         desc.setObsolete( false );
         //schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
-        GreaterEqNode node = new GreaterEqNode( at.getOid(), new StringValue( at, "3" ) );
+        GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, schemaManager );
         schemaManager.delete( at );
     }

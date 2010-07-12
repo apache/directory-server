@@ -22,6 +22,10 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.List;
 
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.AssertionNode;
@@ -38,10 +42,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.search.Optimizer;
-import org.apache.directory.server.xdbm.Store;
 
 
 /**

@@ -124,7 +124,7 @@ public class TupleCache
         for ( String suffix:suffixes )
         {
             DN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
-            ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+            ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, 
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );

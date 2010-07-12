@@ -28,8 +28,8 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -56,7 +56,7 @@ public class GetCatalog implements DirectoryServiceOperation
         EntryFilteringCursor list = session.search( 
             DN.EMPTY_DN, 
             SearchScope.SUBTREE, 
-            FilterParser.parse( filter ), 
+            FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ), 
             AliasDerefMode.DEREF_ALWAYS,
             null );
 

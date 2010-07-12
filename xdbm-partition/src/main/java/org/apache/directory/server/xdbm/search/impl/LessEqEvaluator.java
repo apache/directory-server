@@ -27,8 +27,8 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -62,7 +62,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> implements Evaluator<
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
-        this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
+        this.type = node.getAttributeType();
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {

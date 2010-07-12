@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -65,6 +65,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
 
         String attribute = equalityEvaluator.getExpression().getAttribute();
         Value<V> value = equalityEvaluator.getExpression().getValue();
+        
         if ( db.hasIndexOn( attribute ) )
         {
             Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attribute );

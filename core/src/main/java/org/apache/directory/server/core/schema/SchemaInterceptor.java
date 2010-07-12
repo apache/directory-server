@@ -529,17 +529,15 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Value<?> convert( String id, Object value ) throws LdapException
+    private Value<?> convert( AttributeType attributeType, Value<?> value ) throws LdapException
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( id );
-
-        if ( at.getSyntax().isHumanReadable() )
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
-            if ( value instanceof byte[] )
+            if ( value instanceof BinaryValue )
             {
                 try
                 {
-                    return new StringValue( new String( ( byte[] ) value, "UTF-8" ) );
+                    return new StringValue( attributeType, new String( (( BinaryValue ) value).getBytes(), "UTF-8" ) );
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
@@ -551,18 +549,9 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            if ( value instanceof String )
+            if ( value instanceof StringValue )
             {
-                try
-                {
-                    return new BinaryValue( ( ( String ) value ).getBytes( "UTF-8" ) );
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    String message = I18n.err( I18n.ERR_48 );
-                    LOG.error( message );
-                    throw new LdapException( message );
-                }
+                return new BinaryValue( attributeType, ( ( StringValue ) value ).getBytes() );
             }
         }
 
@@ -589,9 +578,9 @@ public class SchemaInterceptor extends BaseInterceptor
             if ( filter instanceof EqualityNode )
             {
                 EqualityNode node = ( ( EqualityNode ) filter );
-                Object value = node.getValue();
+                Value<?> value = node.getValue();
 
-                Value<?> newValue = convert( node.getAttribute(), value );
+                Value<?> newValue = convert( node.getAttributeType(), value );
 
                 if ( newValue != null )
                 {
@@ -608,9 +597,9 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( filter instanceof GreaterEqNode )
             {
                 GreaterEqNode node = ( ( GreaterEqNode ) filter );
-                Object value = node.getValue();
+                Value<?> value = node.getValue();
 
-                Value<?> newValue = convert( node.getAttribute(), value );
+                Value<?> newValue = convert( node.getAttributeType(), value );
 
                 if ( newValue != null )
                 {
@@ -621,9 +610,9 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( filter instanceof LessEqNode )
             {
                 LessEqNode node = ( ( LessEqNode ) filter );
-                Object value = node.getValue();
+                Value<?> value = node.getValue();
 
-                Value<?> newValue = convert( node.getAttribute(), value );
+                Value<?> newValue = convert( node.getAttributeType(), value );
 
                 if ( newValue != null )
                 {
@@ -633,20 +622,13 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( filter instanceof ExtensibleNode )
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
-
-                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
-                {
-                    String message = I18n.err( I18n.ERR_51 );
-                    LOG.error( message );
-                    throw new LdapException( message );
-                }
             }
             else if ( filter instanceof ApproximateNode )
             {
                 ApproximateNode node = ( ( ApproximateNode ) filter );
-                Object value = node.getValue();
+                Value<?> value = node.getValue();
 
-                Value<?> newValue = convert( node.getAttribute(), value );
+                Value<?> newValue = convert( node.getAttributeType(), value );
 
                 if ( newValue != null )
                 {
@@ -730,10 +712,10 @@ public class SchemaInterceptor extends BaseInterceptor
                     return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
                 }
 
-                String nodeOid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
+                AttributeType nodeAt = node.getAttributeType();
 
                 // see if node attribute is objectClass
-                if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
+                if ( nodeAt.equals( OBJECT_CLASS_AT )
                     && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || objectClassOid
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
@@ -752,7 +734,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 PresenceNode node = ( PresenceNode ) filter;
 
                 // see if node attribute is objectClass
-                if ( node.getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+                if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
                 {
                     // call.setBypass( true );
                     Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );

@@ -102,7 +102,7 @@ public class ExpandingVisitor implements FilterVisitor
 
                 try
                 {
-                    if ( schemaManager.getAttributeTypeRegistry().hasDescendants( leaf.getAttribute() ) )
+                    if ( schemaManager.getAttributeTypeRegistry().hasDescendants( leaf.getAttributeType() ) )
                     {
                         // create a new OR node to hold all descendent forms
                         // add to this node the generalized leaf node and 
@@ -112,7 +112,7 @@ public class ExpandingVisitor implements FilterVisitor
                         children.set( childNumber++, orNode );
 
                         // iterate through descendants adding them to the orNode
-                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttribute() );
+                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttributeType() );
 
                         while ( descendants.hasNext() )
                         {
@@ -121,42 +121,42 @@ public class ExpandingVisitor implements FilterVisitor
 
                             if ( leaf instanceof PresenceNode )
                             {
-                                newLeaf = new PresenceNode( descendant.getOid() );
+                                newLeaf = new PresenceNode( descendant );
                             }
                             else if ( leaf instanceof ApproximateNode )
                             {
                                 ApproximateNode approximateNode = ( ApproximateNode ) leaf;
 
-                                newLeaf = new ApproximateNode( descendant.getOid(), approximateNode.getValue() );
+                                newLeaf = new ApproximateNode( descendant, approximateNode.getValue() );
                             }
                             else if ( leaf instanceof EqualityNode )
                             {
                                 EqualityNode equalityNode = ( EqualityNode ) leaf;
 
-                                newLeaf = new EqualityNode( descendant.getOid(), equalityNode.getValue() );
+                                newLeaf = new EqualityNode( descendant, equalityNode.getValue() );
                             }
                             else if ( leaf instanceof GreaterEqNode )
                             {
                                 GreaterEqNode greaterEqNode = ( GreaterEqNode ) leaf;
 
-                                newLeaf = new GreaterEqNode( descendant.getOid(), greaterEqNode.getValue() );
+                                newLeaf = new GreaterEqNode( descendant, greaterEqNode.getValue() );
                             }
                             else if ( leaf instanceof LessEqNode )
                             {
                                 LessEqNode lessEqNode = ( LessEqNode ) leaf;
 
-                                newLeaf = new LessEqNode( descendant.getOid(), lessEqNode.getValue() );
+                                newLeaf = new LessEqNode( descendant, lessEqNode.getValue() );
                             }
                             else if ( leaf instanceof ExtensibleNode )
                             {
                                 ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
-                                newLeaf = new ExtensibleNode( descendant.getOid(), extensibleNode.getValue(),
+                                newLeaf = new ExtensibleNode( descendant, extensibleNode.getValue(),
                                     extensibleNode.getMatchingRuleId(), extensibleNode.hasDnAttributes() );
                             }
                             else if ( leaf instanceof SubstringNode )
                             {
                                 SubstringNode substringNode = ( SubstringNode ) leaf;
-                                newLeaf = new SubstringNode( descendant.getOid(), substringNode.getInitial(),
+                                newLeaf = new SubstringNode( descendant, substringNode.getInitial(),
                                     substringNode.getFinal() );
                             }
                             else
