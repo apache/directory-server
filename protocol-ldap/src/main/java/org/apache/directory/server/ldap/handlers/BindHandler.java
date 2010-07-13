@@ -188,6 +188,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             }
             
             // Return the successful response
+            bindRequest.getResultResponse().addAll( bindContext.getResponseControls() ); 
             sendBindSuccess( ldapSession, bindRequest, null );
         }
         catch ( Exception e )
@@ -237,6 +238,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             }
 
             result.setErrorMessage( msg );
+            bindRequest.getResultResponse().addAll( bindContext.getResponseControls() );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
     }

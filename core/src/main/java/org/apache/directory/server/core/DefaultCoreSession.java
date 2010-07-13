@@ -179,7 +179,15 @@ public class DefaultCoreSession implements CoreSession
         addContext.setLogChange( log );
         
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.add( addContext );
+        try
+        {
+            operationManager.add( addContext );
+        }
+        catch( LdapException e )
+        {
+            addRequest.getResultResponse().addAll( addContext.getResponseControls() );
+            throw e;
+        }
         addRequest.getResultResponse().addAll( addContext.getResponseControls() );
     }
 
@@ -788,7 +796,17 @@ public class DefaultCoreSession implements CoreSession
     {
         CompareOperationContext compareContext = new CompareOperationContext( this, compareRequest );
         OperationManager operationManager = directoryService.getOperationManager();
-        boolean result = operationManager.compare( compareContext );
+        boolean result = false;
+        try
+        {
+            result = operationManager.compare( compareContext );
+        }
+        catch( LdapException e )
+        {
+            compareRequest.getResultResponse().addAll( compareContext.getResponseControls() );
+            throw e;
+        }
+        
         compareRequest.getResultResponse().addAll( compareContext.getResponseControls() );
         return result;
     }
@@ -813,7 +831,16 @@ public class DefaultCoreSession implements CoreSession
         deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.delete( deleteContext );
+        try
+        {
+            operationManager.delete( deleteContext );
+        }
+        catch( LdapException e )
+        {
+            deleteRequest.getResultResponse().addAll( deleteContext.getResponseControls() );
+            throw e;
+        }
+        
         deleteRequest.getResultResponse().addAll( deleteContext.getResponseControls() );
     }
 
@@ -845,7 +872,17 @@ public class DefaultCoreSession implements CoreSession
         modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.modify( modifyContext );
+        
+        try
+        {
+            operationManager.modify( modifyContext );
+        }
+        catch( LdapException e )
+        {
+            modifyRequest.getResultResponse().addAll( modifyContext.getResponseControls() );
+            throw e;
+        }
+        
         modifyRequest.getResultResponse().addAll( modifyContext.getResponseControls() );
     }
 
@@ -869,7 +906,17 @@ public class DefaultCoreSession implements CoreSession
         moveContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.move( moveContext );
+        
+        try
+        {
+            operationManager.move( moveContext );
+        }
+        catch( LdapException e )
+        {
+            modifyDnRequest.getResultResponse().addAll( moveContext.getResponseControls() );
+            throw e;
+        }
+        
         modifyDnRequest.getResultResponse().addAll( moveContext.getResponseControls() );
     }
 
@@ -893,7 +940,17 @@ public class DefaultCoreSession implements CoreSession
         moveAndRenameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.moveAndRename( moveAndRenameContext );
+        
+        try
+        {
+            operationManager.moveAndRename( moveAndRenameContext );
+        }
+        catch( LdapException e )
+        {
+            modifyDnRequest.getResultResponse().addAll( moveAndRenameContext.getResponseControls() );
+            throw e;
+        }
+        
         modifyDnRequest.getResultResponse().addAll( moveAndRenameContext.getResponseControls() );
     }
 
@@ -917,7 +974,17 @@ public class DefaultCoreSession implements CoreSession
         renameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.rename( renameContext );
+        
+        try
+        {
+            operationManager.rename( renameContext );
+        }
+        catch( LdapException e )
+        {
+            modifyDnRequest.getResultResponse().addAll( renameContext.getResponseControls() );
+            throw e;
+        }
+        
         modifyDnRequest.getResultResponse().addAll( renameContext.getResponseControls() );
     }
 
@@ -926,7 +993,19 @@ public class DefaultCoreSession implements CoreSession
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
-        EntryFilteringCursor cursor = operationManager.search( searchContext );
+        
+        EntryFilteringCursor cursor = null;
+        
+        try
+        {
+            cursor = operationManager.search( searchContext );
+        }
+        catch( LdapException e )
+        {
+            searchRequest.getResultResponse().addAll( searchContext.getResponseControls() );
+            throw e;
+        }
+        
         searchRequest.getResultResponse().addAll( searchContext.getResponseControls() );
         
         return cursor;
