@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -85,6 +86,12 @@ public class AvlStoreTest
     private static AvlStore<Entry> store;
     private static SchemaManager schemaManager = null;
     private static DN EXAMPLE_COM;
+
+    /** The OU AttributeType instance */
+    private static AttributeType OU_AT;
+
+    /** The DC AttributeType instance */
+    private static AttributeType DC_AT;
 
 
     @BeforeClass
@@ -115,6 +122,9 @@ public class AvlStoreTest
 
         EXAMPLE_COM = new DN( "dc=example,dc=com" );
         EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+
+        OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
+        DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
     }
 
 
@@ -338,8 +348,8 @@ public class AvlStoreTest
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 2, store.getUserIndices().size() );
-        assertFalse( store.hasUserIndexOn( "dc" ) );
-        assertTrue( store.hasUserIndexOn( SchemaConstants.OU_AT_OID ) );
+        assertFalse( store.hasUserIndexOn( DC_AT ) );
+        assertTrue( store.hasUserIndexOn( OU_AT ) );
         assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );

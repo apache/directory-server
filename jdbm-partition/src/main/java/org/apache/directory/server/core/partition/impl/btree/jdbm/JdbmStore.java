@@ -36,7 +36,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.MultiException;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -108,13 +107,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     public synchronized void init( SchemaManager schemaManager ) throws Exception
     {
-        this.schemaManager = schemaManager;
-
-        // Initialize Attribute types used all over this method
-        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        aliasedObjectNameAT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
-        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        super.init( schemaManager );
 
         partitionDir.mkdirs();
 

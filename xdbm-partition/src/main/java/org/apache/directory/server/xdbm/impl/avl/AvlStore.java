@@ -26,7 +26,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -64,12 +63,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      */
     public void init( SchemaManager schemaManager ) throws Exception
     {
-        this.schemaManager = schemaManager;
-
-        objectClassAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        aliasedObjectNameAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        entryCsnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
-        entryUuidAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+        super.init( schemaManager );
 
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );

@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -347,6 +348,16 @@ public interface Store<E, ID extends Comparable<ID>>
      * @throws Exception If something went wrong
      */
     boolean hasUserIndexOn( String id ) throws Exception;
+
+
+    /**
+     * Tells if an index is already present in the User's index list
+     * @param attributeType The attributeType index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
 
 
     /**

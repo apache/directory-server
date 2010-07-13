@@ -848,11 +848,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else if ( isOnelevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-                for ( Partition p : partitions.values() )
+                
+                for ( Partition partition : partitions.values() )
                 {
-                    searchContext.setDn( p.getSuffix() );
+                    searchContext.setDn( partition.getSuffix() );
                     searchContext.setScope( SearchScope.OBJECT );
-                    cursors.add( p.search( searchContext ) );
+                    cursors.add( partition.search( searchContext ) );
                 }
 
                 return new CursorList( cursors, searchContext );
@@ -860,10 +861,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else if ( isSublevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-                for ( Partition p : partitions.values() )
+                
+                for ( Partition partition : partitions.values() )
                 {
-                    ClonedServerEntry entry = p.lookup( new LookupOperationContext( directoryService.getAdminSession(),
-                        p.getSuffix() ) );
+                    ClonedServerEntry entry = partition.lookup( new LookupOperationContext( directoryService.getAdminSession(),
+                        partition.getSuffix() ) );
+                    
                     if ( entry != null )
                     {
                         Partition backend = getPartition( entry.getDn() );
@@ -886,6 +889,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( base );
+        
         return backend.search( searchContext );
     }
 

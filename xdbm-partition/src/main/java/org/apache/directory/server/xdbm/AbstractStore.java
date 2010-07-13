@@ -71,10 +71,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
     /** Cached attributes types to avoid lookup all over the code */
-    protected AttributeType objectClassAT;
-    protected AttributeType entryCsnAT;
-    protected AttributeType entryUuidAT;
-    protected AttributeType aliasedObjectNameAT;
+    protected AttributeType OBJECT_CLASS_AT;
+    protected AttributeType ENTRY_CSN_AT;
+    protected AttributeType ENTRY_UUID_AT;
+    protected AttributeType ALIASED_OBJECT_NAME_AT;
 
     /** true if initialized */
     protected boolean initialized;
@@ -136,6 +136,18 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** the relative distinguished name index */
     protected Index<ParentIdAndRdn<ID>, E, ID> rdnIdx;
 
+    
+    public void init( SchemaManager schemaManager ) throws Exception
+    {
+        this.schemaManager = schemaManager;
+
+        // Initialize Attribute types used all over this method
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        ALIASED_OBJECT_NAME_AT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+
+    }
 
     protected void protect( String property )
     {
@@ -416,6 +428,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public boolean hasUserIndexOn( String id ) throws LdapException
     {
         return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
+    {
+        return userIndices.containsKey( attributeType.getOid() );
     }
 
 
@@ -812,7 +833,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         rdnIdx.add( key, id );
 
-        EntryAttribute objectClass = entry.get( objectClassAT );
+        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
@@ -833,7 +854,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
-            EntryAttribute aliasAttr = entry.get( aliasedObjectNameAT );
+            EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
             addAliasIndices( id, entryDn, aliasAttr.getString() );
         }
 
@@ -845,7 +866,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
-        EntryAttribute entryCsn = entry.get( entryCsnAT );
+        EntryAttribute entryCsn = entry.get( ENTRY_CSN_AT );
 
         if ( entryCsn == null )
         {
@@ -856,7 +877,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         entryCsnIdx.add( entryCsn.getString(), id );
 
         // Update the EntryUuid index
-        EntryAttribute entryUuid = entry.get( entryUuidAT );
+        EntryAttribute entryUuid = entry.get( ENTRY_UUID_AT );
 
         if ( entryUuid == null )
         {
@@ -882,7 +903,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             String attributeOid = attribute.getAttributeType().getOid();
 
-            if ( hasUserIndexOn( attributeOid ) )
+            if ( hasUserIndexOn( attribute.getAttributeType() ) )
             {
                 Index<Object, E, ID> idx = ( Index<Object, E, ID> ) getUserIndex( attributeOid );
 
@@ -1006,7 +1027,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Entry entry = master.get( id );
 
-        EntryAttribute objectClass = entry.get( objectClassAT );
+        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
@@ -1028,7 +1049,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             String attributeOid = attribute.getAttributeType().getOid();
 
-            if ( hasUserIndexOn( attributeOid ) )
+            if ( hasUserIndexOn( attribute.getAttributeType() ) )
             {
                 Index<?, E, ID> index = getUserIndex( attributeOid );
 
@@ -1411,7 +1432,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 objectClassIdx.add( value.getString(), id );
             }
         }
-        else if ( hasUserIndexOn( modsOid ) )
+        else if ( hasUserIndexOn( mods.getAttributeType() ) )
         {
             Index<?, E, ID> index = getUserIndex( modsOid );
 
@@ -1428,11 +1449,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         // add all the values in mods to the same attribute in the entry
-        AttributeType type = schemaManager.lookupAttributeTypeRegistry( modsOid );
 
         for ( Value<?> value : mods )
         {
-            entry.add( type, value );
+            entry.add( mods.getAttributeType(), value );
         }
 
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
@@ -1466,7 +1486,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
-        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
         {
             // if the id exists in the index drop all existing attribute 
             // value index entries and add new ones
@@ -1480,7 +1500,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 objectClassIdx.add( value.getString(), id );
             }
         }
-        else if ( hasUserIndexOn( modsOid ) )
+        else if ( hasUserIndexOn( mods.getAttributeType() ) )
         {
             Index<?, E, ID> index = getUserIndex( modsOid );
 
@@ -1509,7 +1529,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName(
             SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
-        if ( modsOid.equals( aliasAttributeOid ) )
+        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
         {
             dropAliasIndices( id );
         }
@@ -1557,7 +1577,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
-        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
         {
             /*
              * If there are no attribute values in the modifications then this 
@@ -1576,7 +1596,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 }
             }
         }
-        else if ( hasUserIndexOn( modsOid ) )
+        else if ( hasUserIndexOn( mods.getAttributeType() ) )
         {
             Index<?, E, ID> index = getUserIndex( modsOid );
 
@@ -1608,19 +1628,20 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
+        
         /*
          * If there are no attribute values in the modifications then this 
-         * implies the compelete removal of the attribute from the entry. Else
+         * implies the complete removal of the attribute from the entry. Else
          * we remove individual attribute values from the entry in mods one 
          * at a time.
          */
         if ( mods.size() == 0 )
         {
-            entry.removeAttributes( attrType );
+            entry.removeAttributes( mods.getAttributeType() );
         }
         else
         {
-            EntryAttribute entryAttr = entry.get( attrType );
+            EntryAttribute entryAttr = entry.get( mods.getAttributeType() );
 
             for ( Value<?> value : mods )
             {
@@ -1635,7 +1656,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
+        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
         {
             dropAliasIndices( id );
         }

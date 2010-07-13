@@ -20,11 +20,11 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -52,7 +52,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
         // as it doesn't make sense because every entry has such an attribute
         // instead for those attributes and all un-indexed attributes we use the ndn index
-        if ( db.hasUserIndexOn( type.getOid() ) )
+        if ( db.hasUserIndexOn( type ) )
         {
             presenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );
             ndnCursor = null;

@@ -347,7 +347,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      */
     private long getPresenceScan( PresenceNode node ) throws Exception
     {
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
             Index<String, E, ID> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );

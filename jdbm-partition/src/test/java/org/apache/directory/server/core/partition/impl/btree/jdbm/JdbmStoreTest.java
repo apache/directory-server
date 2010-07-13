@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -86,6 +87,9 @@ public class JdbmStoreTest
     private static SchemaManager schemaManager = null;
     private static LdifSchemaLoader loader;
     private static DN EXAMPLE_COM;
+    
+    /** The OU AttributeType instance */
+    private static AttributeType OU_AT;
 
 
     @BeforeClass
@@ -115,6 +119,8 @@ public class JdbmStoreTest
 
         EXAMPLE_COM = new DN( "dc=example,dc=com" );
         EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+        
+        OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
     }
 
 
@@ -405,7 +411,7 @@ public class JdbmStoreTest
 
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( "dc" ) );
-        assertTrue( store.hasUserIndexOn( SchemaConstants.OU_AT ) );
+        assertTrue( store.hasUserIndexOn( OU_AT ) );
         assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
@@ -674,8 +680,7 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -883,8 +888,7 @@ public class JdbmStoreTest
         store.add( entry );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );

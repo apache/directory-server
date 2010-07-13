@@ -56,7 +56,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         this.schemaManager = schemaManager;
         this.type = node.getAttributeType();
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
             idx = db.getPresenceIndex();
         }
