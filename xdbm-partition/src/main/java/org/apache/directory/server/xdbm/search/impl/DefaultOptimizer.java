@@ -274,9 +274,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
             return idx.count( node.getValue().get() );
         }
 
@@ -297,9 +297,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().get() );
@@ -327,9 +327,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     @SuppressWarnings("unchecked")
     private long getFullScan( LeafNode node ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index idx = db.getIndex( node.getAttribute() );
+            Index idx = db.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -352,7 +352,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
             Index<String, E, ID> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );
         }
-        else if ( db.hasSystemIndexOn( node.getAttribute() ) )
+        else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
         {
             // the system indices (objectClass, entryUUID, entryCSN) are maintained for
             // each entry, so we could just return the database count

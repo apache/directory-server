@@ -118,7 +118,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     // wrapper or the raw normalized value
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
-        if ( db.hasSystemIndexOn( node.getAttribute() ) )
+        if ( db.hasSystemIndexOn( node.getAttributeType() ) )
         {
             // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
             // however as every entry has such an attribute this evaluator always evaluates to true

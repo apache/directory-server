@@ -111,9 +111,9 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             regex = null;
         }
 
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<String, Entry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<String, Entry, ID> ) db.getIndex( node.getAttributeType() );
         }
         else
         {

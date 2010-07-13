@@ -76,9 +76,9 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
         this.node = node;
         this.schemaManager = schemaManager;
 
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttributeType() );
             type = null;
             normalizer = null;
             comparator = null;

@@ -72,6 +72,15 @@ public class AbstractStoreTest
     private static Store<Entry, Long> store;
     private static SchemaManager schemaManager = null;
     private static DN EXAMPLE_COM;
+    
+    /** The OU AttributType instance */
+    private static AttributeType OU_AT;
+
+    /** The CN AttributType instance */
+    private static AttributeType CN_AT;
+
+    /** The UID AttributType instance */
+    private static AttributeType UID_AT;
 
 
     @BeforeClass
@@ -102,6 +111,10 @@ public class AbstractStoreTest
 
         EXAMPLE_COM = new DN( "dc=example,dc=com" );
         EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+        
+        OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
+        CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
+        UID_AT = schemaManager.getAttributeType( SchemaConstants.UID_AT );
     }
 
 
@@ -149,9 +162,9 @@ public class AbstractStoreTest
         assertEquals( 11, store.getEntryCsnIndex().count() );
         assertEquals( 11, store.getEntryUuidIndex().count() );
         assertEquals( 3, store.getUserIndices().size() );
-        assertEquals( 9, store.getUserIndex( SchemaConstants.OU_AT_OID ).count() );
-        assertEquals( 0, store.getUserIndex( SchemaConstants.UID_AT_OID ).count() );
-        assertEquals( 6, store.getUserIndex( SchemaConstants.CN_AT_OID ).count() );
+        assertEquals( 9, store.getUserIndex( OU_AT ).count() );
+        assertEquals( 0, store.getUserIndex( UID_AT ).count() );
+        assertEquals( 6, store.getUserIndex( CN_AT ).count() );
     }
 
 
@@ -199,8 +212,7 @@ public class AbstractStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "sales";
         attrib.add( attribVal );
@@ -212,7 +224,7 @@ public class AbstractStoreTest
         Entry lookedup = store.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( SchemaConstants.OU_AT );
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
@@ -235,8 +247,7 @@ public class AbstractStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -245,7 +256,7 @@ public class AbstractStoreTest
         Entry lookedup = store.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( SchemaConstants.OU_AT );
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
         assertTrue( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );

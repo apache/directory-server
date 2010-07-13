@@ -64,9 +64,9 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> implements Evaluator<
         this.schemaManager = schemaManager;
         this.type = node.getAttributeType();
 
-        if ( db.hasIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttributeType() );
         }
         else
         {

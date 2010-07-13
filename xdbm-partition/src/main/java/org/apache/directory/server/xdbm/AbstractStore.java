@@ -425,6 +425,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
+    public boolean hasIndexOn( AttributeType attributeType ) throws LdapException
+    {
+        return hasUserIndexOn( attributeType ) || hasSystemIndexOn( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasUserIndexOn( String id ) throws LdapException
     {
         return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
@@ -452,6 +461,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
+    public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
+    {
+        return systemIndices.containsKey( attributeType.getOid() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public Set<Index<?, E, ID>> getUserIndices()
     {
         return new HashSet<Index<?, E, ID>>( userIndices.values() );
@@ -465,7 +483,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         try
         {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+            return getIndex( schemaManager.lookupAttributeTypeRegistry( id) );
         }
         catch ( LdapException e )
         {
@@ -473,6 +491,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             LOG.error( msg, e );
             throw new IndexNotFoundException( msg, id, e );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        String id = attributeType.getOid();
 
         if ( userIndices.containsKey( id ) )
         {
@@ -495,7 +522,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         try
         {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+            return getUserIndex( schemaManager.lookupAttributeTypeRegistry( id ) );
         }
         catch ( LdapException e )
         {
@@ -503,6 +530,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             LOG.error( msg, e );
             throw new IndexNotFoundException( msg, id, e );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        String id = attributeType.getOid();
 
         if ( userIndices.containsKey( id ) )
         {
@@ -520,7 +556,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         try
         {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+            return getSystemIndex( schemaManager.lookupAttributeTypeRegistry( id ) );
         }
         catch ( LdapException e )
         {
@@ -528,6 +564,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             LOG.error( msg, e );
             throw new IndexNotFoundException( msg, id, e );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        String id = attributeType.getOid();
 
         if ( systemIndices.containsKey( id ) )
         {

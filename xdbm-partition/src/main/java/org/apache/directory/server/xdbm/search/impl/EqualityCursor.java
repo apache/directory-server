@@ -29,6 +29,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
@@ -63,12 +64,12 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     {
         this.equalityEvaluator = equalityEvaluator;
 
-        String attribute = equalityEvaluator.getExpression().getAttribute();
+        AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
         Value<V> value = equalityEvaluator.getExpression().getValue();
         
-        if ( db.hasIndexOn( attribute ) )
+        if ( db.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attribute );
+            Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
             userIdxCursor = userIndex.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }

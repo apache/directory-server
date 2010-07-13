@@ -51,11 +51,11 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         throws Exception
     {
         evaluator = substringEvaluator;
-        hasIndex = db.hasIndexOn( evaluator.getExpression().getAttribute() );
+        hasIndex = db.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, ID> ) db.getIndex( evaluator.getExpression().getAttribute() ) )
+            wrapped = ( ( Index<String, Entry, ID> ) db.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
