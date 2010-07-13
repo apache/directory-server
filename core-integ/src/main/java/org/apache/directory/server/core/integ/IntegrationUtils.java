@@ -35,6 +35,7 @@ import javax.naming.ldap.LdapName;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -42,6 +43,7 @@ import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -393,7 +395,26 @@ public class IntegrationUtils
         openConnections.add( connection );
         return connection;
     }
+
     
+    public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        connection.setTimeOut( 0 );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        openConnections.add( connection );
+
+        return connection;
+    }
+
+    
+    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
+    {
+        return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
+    }
+
     
     public static void closeConnections()
     {
