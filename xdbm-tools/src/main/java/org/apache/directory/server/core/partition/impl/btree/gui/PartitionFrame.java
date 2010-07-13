@@ -73,6 +73,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -789,16 +790,18 @@ public class PartitionFrame extends JFrame
      */
     public void showIndexDialog( String idxAttr ) throws Exception
     {
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( idxAttr );
+        
         Index index;
-        boolean isSystem = partition.hasSystemIndexOn( idxAttr );
+        boolean isSystem = partition.hasSystemIndexOn( attributeType );
 
         if ( isSystem )
         {
-            index = partition.getSystemIndex( idxAttr );
+            index = partition.getSystemIndex( attributeType );
         }
         else
         {
-            index = partition.getUserIndex( idxAttr );
+            index = partition.getUserIndex( attributeType );
         }
 
         if ( index != null )

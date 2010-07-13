@@ -884,9 +884,9 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<?, Entry, Long> getSystemIndex( String id ) throws Exception
+    public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
     {
-        return wrappedPartition.getSystemIndex( id );
+        return wrappedPartition.getSystemIndex( attributeType );
     }
 
 
@@ -898,9 +898,9 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<? extends Object, Entry, Long> getUserIndex( String id ) throws Exception
+    public Index<? extends Object, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
     {
-        return wrappedPartition.getUserIndex( id );
+        return wrappedPartition.getUserIndex( attributeType );
     }
 
 
@@ -912,16 +912,16 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public boolean hasSystemIndexOn( String id ) throws Exception
+    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
     {
-        return wrappedPartition.hasSystemIndexOn( id );
+        return wrappedPartition.hasSystemIndexOn( attributeType );
     }
 
 
     @Override
-    public boolean hasUserIndexOn( String id ) throws Exception
+    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
     {
-        return wrappedPartition.hasUserIndexOn( id );
+        return wrappedPartition.hasUserIndexOn( attributeType );
     }
 
 

@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformExceptio
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
@@ -168,33 +169,33 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final boolean hasUserIndexOn( String id ) throws Exception
+    public final boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
     {
-        return store.hasUserIndexOn( id );
+        return store.hasUserIndexOn( attributeType );
     }
 
 
-    public final boolean hasSystemIndexOn( String id ) throws Exception
+    public final boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
     {
-        return store.hasSystemIndexOn( id );
+        return store.hasSystemIndexOn( attributeType );
     }
 
 
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
      */
-    public final Index<? extends Object, Entry, ID> getUserIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, Entry, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
-        return store.getUserIndex( id );
+        return store.getUserIndex( attributeType );
     }
 
 
     /**
      * @see BTreePartition#getEntryId(String)
      */
-    public final Index<? extends Object, Entry, ID> getSystemIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
-        return store.getSystemIndex( id );
+        return store.getSystemIndex( attributeType );
     }
 
 

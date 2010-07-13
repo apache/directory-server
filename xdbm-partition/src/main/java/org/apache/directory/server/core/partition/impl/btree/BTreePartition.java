@@ -344,10 +344,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception;
 
 
-    public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
+    public abstract boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
 
 
-    public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
+    public abstract boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
 
 
     public abstract Index<String, Entry, ID> getPresenceIndex();
@@ -423,12 +423,12 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract Index<? extends Object, Entry, ID> getUserIndex( String attribute ) throws Exception;
+    public abstract Index<? extends Object, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
 
 
-    public abstract Index<? extends Object, Entry, ID> getSystemIndex( String attribute ) throws Exception;
+    public abstract Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
 
-
+    
     public abstract ID getEntryId( DN dn ) throws LdapException;
 
 

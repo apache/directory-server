@@ -91,6 +91,15 @@ public class JdbmStoreTest
     /** The OU AttributeType instance */
     private static AttributeType OU_AT;
 
+    /** The ApacheAlias AttributeType instance */
+    private static AttributeType APACHE_ALIAS_AT;
+
+    /** The DC AttributeType instance */
+    private static AttributeType DC_AT;
+
+    /** The SN AttributeType instance */
+    private static AttributeType SN_AT;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -121,6 +130,9 @@ public class JdbmStoreTest
         EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
         
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
+        DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
+        SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
+        APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
     }
 
 
@@ -389,7 +401,8 @@ public class JdbmStoreTest
         }
 
         assertFalse( systemIndices.hasNext() );
-        assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
+        assertNotNull( store.getSystemIndex( APACHE_ALIAS_AT ) );
+        
         try
         {
             store.getSystemIndex( "bogus" );
@@ -400,7 +413,7 @@ public class JdbmStoreTest
         }
         try
         {
-            store.getSystemIndex( "dc" );
+            store.getSystemIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -412,14 +425,14 @@ public class JdbmStoreTest
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( "dc" ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
+        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
-        assertNotNull( store.getUserIndex( SchemaConstants.OU_AT ) );
+        assertNotNull( store.getUserIndex( OU_AT ) );
         try
         {
             store.getUserIndex( "bogus" );
@@ -783,8 +796,7 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, SN_AT );
 
         String attribVal = "Walker";
         attrib.add( attribVal );
@@ -815,8 +827,7 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
 
         String attribVal = "Johnny";
         attrib.add( attribVal );
@@ -848,8 +859,7 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );

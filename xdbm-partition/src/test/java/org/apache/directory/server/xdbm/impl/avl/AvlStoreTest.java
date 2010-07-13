@@ -92,6 +92,9 @@ public class AvlStoreTest
 
     /** The DC AttributeType instance */
     private static AttributeType DC_AT;
+    
+    /** The ApacheAlias AttributeType instance */
+    private static AttributeType APACHE_ALIAS_AT;
 
 
     @BeforeClass
@@ -125,6 +128,7 @@ public class AvlStoreTest
 
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
+        APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
     }
 
 
@@ -225,6 +229,7 @@ public class AvlStoreTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( store.getAliasIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
@@ -235,8 +240,8 @@ public class AvlStoreTest
         }
 
         assertEquals( 0, store.getCacheSize() );
-
         assertNotNull( store.getPresenceIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
@@ -247,6 +252,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getOneLevelIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
@@ -257,6 +263,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getSubLevelIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
@@ -267,6 +274,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getId() );
+        
         try
         {
             store.setId( "foo" );
@@ -277,8 +285,8 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getNdnIndex() );
-
         assertNotNull( store.getRdnIndex() );
+        
         try
         {
             store.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
@@ -289,6 +297,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getOneAliasIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
@@ -299,6 +308,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getSubAliasIndex() );
+        
         try
         {
             store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
@@ -309,6 +319,7 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getSuffixDn() );
+        
         try
         {
             store.setSuffixDn( EXAMPLE_COM );
@@ -320,14 +331,15 @@ public class AvlStoreTest
 
         Iterator<String> systemIndices = store.systemIndices();
 
-        for ( int ii = 0; ii < 10; ii++ )
+        for ( int i = 0; i < 10; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
         }
 
         assertFalse( systemIndices.hasNext() );
-        assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        assertNotNull( store.getSystemIndex( APACHE_ALIAS_AT ) );
+        
         try
         {
             store.getSystemIndex( "bogus" );
@@ -336,9 +348,10 @@ public class AvlStoreTest
         catch ( IndexNotFoundException e )
         {
         }
+        
         try
         {
-            store.getSystemIndex( "dc" );
+            store.getSystemIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -346,18 +359,18 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getSuffixDn() );
-
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( DC_AT ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
-        assertNotNull( store.getUserIndex( SchemaConstants.OU_AT_OID ) );
+        assertNotNull( store.getUserIndex( OU_AT ) );
+        
         try
         {
             store.getUserIndex( "bogus" );
@@ -366,6 +379,7 @@ public class AvlStoreTest
         catch ( IndexNotFoundException e )
         {
         }
+        
         try
         {
             store.getUserIndex( "dc" );
@@ -376,7 +390,6 @@ public class AvlStoreTest
         }
 
         assertNull( store.getPartitionDir() );
-
         assertTrue( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );
 
@@ -400,9 +413,6 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-        //        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
-        //        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
-        //        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
@@ -604,8 +614,7 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -812,8 +821,7 @@ public class AvlStoreTest
         store.add( entry );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
-            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );
