@@ -52,6 +52,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -168,7 +169,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-
+    private static AttributeType PWD_CHANGED_TIME_ATTRIBUTE_TYPE;
+    private static AttributeType PWD_HISTRORY_ATTRIBUTE_TYPE;
 
     /**
      * Initialize the Schema Service
@@ -212,6 +214,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        PWD_CHANGED_TIME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT );
+        PWD_HISTRORY_ATTRIBUTE_TYPE = schemaManager.getAttributeType( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
 
         if ( IS_DEBUG )
         {
@@ -1044,8 +1048,10 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We don't allow modification of operational attributes
             if ( !attributeType.isUserModifiable()
-                && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) && !attributeType
-                    .equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) ) )
+                && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) 
+                && ( !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+                && ( !attributeType.equals( PWD_CHANGED_TIME_ATTRIBUTE_TYPE ) )
+                && ( !attributeType.equals( PWD_HISTRORY_ATTRIBUTE_TYPE ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
                 LOG.error( msg );
