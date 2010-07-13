@@ -20,11 +20,11 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
 
 
 /**
@@ -34,7 +34,10 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  */
 public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
 {
+    /** The ExprNode to evaluate */
     private final NotNode node;
+
+    /** The Evaluator to use for the inner Node */
     private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
 
 

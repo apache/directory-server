@@ -20,16 +20,16 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.search.Evaluator;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
 /**
@@ -39,8 +39,10 @@ import java.util.Comparator;
  */
 public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
 {
+    /** The list of evaluators associated with each of the children */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
 
+    /** The AndNode */
     private final AndNode node;
 
 
@@ -68,6 +70,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
         List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
+        
         Collections.sort( optimized, new Comparator<Evaluator<?, Entry, ID>>()
         {
             public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )

@@ -20,16 +20,16 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.search.Evaluator;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 
 
 /**
@@ -39,8 +39,10 @@ import java.util.Comparator;
  */
 public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
 {
+    /** The list of evaluators associated with each of the children */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
 
+    /** The OrNode */
     private final OrNode node;
 
 

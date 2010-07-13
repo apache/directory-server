@@ -191,14 +191,17 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitSimpleNode( SimpleNode node ) throws LdapException
     {
-        // still need this check here in case the top level is a leaf node
-        // with an undefined attributeType for its attribute
-        if ( !ncn.isDefined( node.getAttribute() ) )
+        if ( node.getAttributeType() == null )
         {
-            return null;
+            // still need this check here in case the top level is a leaf node
+            // with an undefined attributeType for its attribute
+            if ( !ncn.isDefined( node.getAttribute() ) )
+            {
+                return null;
+            }
+            
+            node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
         }
-        
-        node.setAttributeType( schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ) );
         
         Value<?> normalized = normalizeValue( node.getAttributeType(), node.getValue() );
 

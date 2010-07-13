@@ -59,10 +59,13 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     /** The regular expression generated for the SubstringNode pattern */
     private final Pattern regex;
 
-    private final AttributeType type;
+    /** The AttributeType we will use for the evaluation */
+    private final AttributeType attributeType;
 
+    /** The associated normalizer */
     private final Normalizer normalizer;
 
+    /** The index to use if any */
     private final Index<String, Entry, ID> idx;
 
 
@@ -81,14 +84,13 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
+        this.attributeType = node.getAttributeType();
 
-        type = node.getAttributeType();
-
-        MatchingRule rule = type.getSubstring();
+        MatchingRule rule = attributeType.getSubstring();
 
         if ( rule == null )
         {
-            rule = type.getEquality();
+            rule = attributeType.getEquality();
         }
 
         if ( rule != null )
@@ -97,12 +99,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
         else
         {
-            normalizer = new NoOpNormalizer( type.getSyntaxOid() );
+            normalizer = new NoOpNormalizer( attributeType.getSyntaxOid() );
         }
 
         // compile the regular expression to search for a matching attribute
         // if the attributeType is humanReadable
-        if ( type.getSyntax().isHumanReadable() )
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
             regex = node.getRegex( normalizer );
         }
@@ -111,9 +113,9 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             regex = null;
         }
 
-        if ( db.hasIndexOn( node.getAttributeType() ) )
+        if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<String, Entry, ID> ) db.getIndex( node.getAttributeType() );
+            idx = ( Index<String, Entry, ID> ) db.getIndex( attributeType );
         }
         else
         {
@@ -253,7 +255,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     private boolean evaluateWithoutIndex( Entry entry ) throws Exception
     {
         // get the attribute
-        EntryAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( attributeType );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )
@@ -282,13 +284,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
-                node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
@@ -345,7 +346,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          */
 
         // get the attribute
-        EntryAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( attributeType );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )
@@ -400,13 +401,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
-                node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {

@@ -41,10 +41,19 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, Entry, ID>
 {
+    /** The ExprNode to evaluate */
     private final PresenceNode node;
+
+    /** The backend */
     private final Store<Entry, ID> db;
-    private final AttributeType type;
+
+    /** The AttributeType we will use for the evaluation */
+    private final AttributeType attributeType;
+
+    /** The SchemaManager instance */
     private final SchemaManager schemaManager;
+
+    /** The index to use if any */
     private final Index<String, Entry, ID> idx;
 
 
@@ -54,9 +63,9 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
-        this.type = node.getAttributeType();
+        this.attributeType = node.getAttributeType();
 
-        if ( db.hasUserIndexOn( node.getAttributeType() ) )
+        if ( db.hasUserIndexOn( attributeType ) )
         {
             idx = db.getPresenceIndex();
         }
@@ -75,7 +84,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
 
     public AttributeType getAttributeType()
     {
-        return type;
+        return attributeType;
     }
 
 
@@ -85,7 +94,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     {
         if ( idx != null )
         {
-            return idx.forward( type.getOid(), indexEntry.getId() );
+            return idx.forward( attributeType.getOid(), indexEntry.getId() );
         }
 
         Entry entry = indexEntry.getObject();
@@ -107,7 +116,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     {
         if ( idx != null )
         {
-            return idx.forward( type.getOid(), id );
+            return idx.forward( attributeType.getOid(), id );
         }
 
         return evaluateEntry( db.lookup( id ) );
@@ -118,7 +127,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     // wrapper or the raw normalized value
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
-        if ( db.hasSystemIndexOn( node.getAttributeType() ) )
+        if ( db.hasSystemIndexOn( attributeType ) )
         {
             // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
             // however as every entry has such an attribute this evaluator always evaluates to true
@@ -126,7 +135,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         }
 
         // get the attribute
-        EntryAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( attributeType );
 
         // if the attribute exists just return true
         if ( attr != null )
@@ -137,13 +146,12 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
-                node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             do
             {

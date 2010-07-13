@@ -50,10 +50,19 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluator<EqualityNode<T>, Entry, ID>
 {
+    /** The ExprNode to evaluate */
     private final EqualityNode<T> node;
+
+    /** The backend */
     private final Store<Entry, ID> db;
+    
+    /** The SchemaManager instance */
     private final SchemaManager schemaManager;
-    private final AttributeType type;
+
+    /** The AttributeType we will use for the evaluation */
+    private final AttributeType attributeType;
+
+    /** The associated normalizer */
     private final Normalizer normalizer;
 
     /** The comparator to use */
@@ -65,6 +74,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
     /** The default String comparator if no comparator has been defined */
     private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
 
+    /** The index to use if any */
     private final Index<T, Entry, ID> idx;
 
 
@@ -75,24 +85,23 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
+        this.attributeType = node.getAttributeType();
 
-        if ( db.hasIndexOn( node.getAttributeType() ) )
+        if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttributeType() );
-            type = null;
+            idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
             normalizer = null;
             comparator = null;
         }
         else
         {
             idx = null;
-            type = node.getAttributeType() ;
 
-            MatchingRule mr = type.getEquality();
+            MatchingRule mr = attributeType.getEquality();
 
             if ( mr == null )
             {
-                normalizer = new NoOpNormalizer( type.getOid() );
+                normalizer = new NoOpNormalizer( attributeType.getOid() );
                 comparator = null;
             }
             else
@@ -133,10 +142,10 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
-        EntryAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( attributeType );
 
         // if the attribute does not exist just return false
-        if ( attr != null && evaluate( attr ) )
+        if ( ( attr != null ) && evaluate( attr ) )
         {
             return true;
         }
@@ -144,13 +153,12 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
-                node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
@@ -158,7 +166,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
 
                 attr = entry.get( descendant );
 
-                if ( attr != null && evaluate( attr ) )
+                if ( ( attr != null ) && evaluate( attr ) )
                 {
                     return true;
                 }

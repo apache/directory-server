@@ -53,6 +53,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -275,9 +277,11 @@ public abstract class BTreePartition<ID> extends AbstractPartition
         {
             SearchControls searchCtls = searchContext.getSearchControls();
             IndexCursor<ID, Entry, ID> underlying;
+            DN dn = searchContext.getDn();
+            AliasDerefMode derefMode = searchContext.getAliasDerefMode();
+            ExprNode filter = searchContext.getFilter();
     
-            underlying = searchEngine.cursor( searchContext.getDn(), searchContext.getAliasDerefMode(), searchContext.getFilter(),
-                searchCtls );
+            underlying = searchEngine.cursor( dn, derefMode, filter, searchCtls );
     
             return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }

@@ -336,7 +336,6 @@ public abstract class ServerContext implements EventContext
     {
         OperationManager operationManager = service.getOperationManager();
         EntryFilteringCursor results = null;
-        OperationContext opContext;
         
         Object typesOnlyObj = getEnvironment().get( "java.naming.ldap.typesOnly" );
         boolean typesOnly = false;
@@ -388,10 +387,10 @@ public abstract class ServerContext implements EventContext
             // It's a Search
             
             // setup the op context and populate with request controls
-        	searchContext = new SearchOperationContext( session, dn, filter, searchControls );
-        	searchContext.setAliasDerefMode( aliasDerefMode );
-        	searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-        	searchContext.setTypesOnly(  typesOnly );
+            searchContext = new SearchOperationContext( session, dn, filter, searchControls );
+            searchContext.setAliasDerefMode( aliasDerefMode );
+            searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+            searchContext.setTypesOnly(  typesOnly );
             
             // Inject the referral handling into the operation context
             injectReferralControl( searchContext );
