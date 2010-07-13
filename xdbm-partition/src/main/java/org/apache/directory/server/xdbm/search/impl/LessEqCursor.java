@@ -110,7 +110,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * before() method of the userIdxCursor.
              */
             //noinspection unchecked
-            int compareValue = lessEqEvaluator.getLdapComparator().compare( value,
+            int compareValue = lessEqEvaluator.getComparator().compare( value,
                 lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
@@ -154,7 +154,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * If the element's value is smaller, then we delegate to the
              * before() method of the userIdxCursor.
              */
-            int compareValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
+            int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
                 lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
@@ -185,7 +185,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getLdapComparator().compare( value,
+            int comparedValue = lessEqEvaluator.getComparator().compare( value,
                 lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -221,7 +221,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "after()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
+            int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
                 lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -350,7 +350,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
-                if ( lessEqEvaluator.getLdapComparator().compare( candidate.getValue(),
+                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
                 {
                     return available = true;

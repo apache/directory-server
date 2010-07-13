@@ -26,15 +26,12 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -44,39 +41,13 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApproximateEvaluator<T, ID extends Comparable<ID>> implements Evaluator<ApproximateNode<T>, Entry, ID>
+public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
 {
-    /** The ExprNode to evaluate */
-    private final ApproximateNode<T> node;
-
-    /** The backend */
-    private final Store<Entry, ID> db;
-    
-    /** The SchemaManager instance */
-    private final SchemaManager schemaManager;
-    
-    /** The AttributeType we will use for the evaluation */
-    private final AttributeType attributeType;
-    
-    /** The associated normalizer */
-    private final Normalizer normalizer;
-    
-    /** The associated comparator */
-    private final LdapComparator<? super Object> ldapComparator;
-    
-    /** The index to use if any */
-    private final Index<T, Entry, ID> idx;
-
-
-    @SuppressWarnings("unchecked")
     public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
-        this.db = db;
-        this.node = node;
-        this.schemaManager = schemaManager;
-        this.attributeType = node.getAttributeType();
-
+        super( node, db, schemaManager );
+        
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
@@ -102,7 +73,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> implements Evalu
 
     public ApproximateNode<T> getExpression()
     {
-        return node;
+        return (ApproximateNode<T>)node;
     }
 
 

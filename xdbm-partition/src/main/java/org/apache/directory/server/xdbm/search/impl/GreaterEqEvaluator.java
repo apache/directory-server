@@ -20,21 +20,18 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import java.util.Comparator;
 import java.util.Iterator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -44,42 +41,17 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GreaterEqEvaluator<T, ID extends Comparable<ID>> implements Evaluator<GreaterEqNode<T>, Entry, ID>
+public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
 {
-    /** The ExprNode to evaluate */
-    private final GreaterEqNode<T> node;
-
-    /** The backend */
-    private final Store<Entry, ID> db;
-    
-    /** The SchemaManager instance */
-    private final SchemaManager schemaManager;
-    
-    /** The AttributeType we will use for the evaluation */
-    private final AttributeType attributeType;
-
-    /** The associated normalizer */
-    private final Normalizer normalizer;
-
-    /** The associated comparator */
-    private final Comparator comparator;
-
-    /** The index to use if any */
-    private final Index<Object, Entry, ID> idx;
-
-
     @SuppressWarnings("unchecked")
     public GreaterEqEvaluator( GreaterEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
-        this.db = db;
-        this.node = node;
-        this.schemaManager = schemaManager;
-        this.attributeType = node.getAttributeType();
+        super( node, db, schemaManager );
 
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<Object, Entry, ID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
         }
         else
         {
@@ -105,31 +77,13 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> implements Evaluat
         }
 
         normalizer = mr.getNormalizer();
-        comparator = mr.getLdapComparator();
+        ldapComparator = mr.getLdapComparator();
     }
 
 
     public GreaterEqNode getExpression()
     {
-        return node;
-    }
-
-
-    public AttributeType getAttributeType()
-    {
-        return attributeType;
-    }
-
-
-    public Normalizer getNormalizer()
-    {
-        return normalizer;
-    }
-
-
-    public Comparator getComparator()
-    {
-        return comparator;
+        return (GreaterEqNode)node;
     }
 
 
@@ -262,7 +216,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> implements Evaluat
             value.normalize( normalizer );
 
             //noinspection unchecked
-            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) >= 0 )
+            if ( ldapComparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) >= 0 )
             {
                 if ( indexEntry != null )
                 {

@@ -583,7 +583,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getLdapComparator() );
+        assertNotNull( evaluator.getComparator() );
 
         indexEntry.setId( 1L );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -629,7 +629,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getLdapComparator() );
+        assertNotNull( evaluator.getComparator() );
 
         DN dn = new DN( "cn=jane doe,o=good times co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
@@ -658,7 +658,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getLdapComparator() );
+        assertNotNull( evaluator.getComparator() );
 
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
@@ -676,7 +676,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getLdapComparator() );
+        assertNotNull( evaluator.getComparator() );
 
         indexEntry.setId( 1L );
         assertTrue( evaluator.evaluate( indexEntry ) );

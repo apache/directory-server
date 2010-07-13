@@ -26,15 +26,12 @@ import java.util.Iterator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
@@ -48,50 +45,26 @@ import org.apache.directory.shared.ldap.util.StringTools;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluator<EqualityNode<T>, Entry, ID>
+public class EqualityEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
 {
-    /** The ExprNode to evaluate */
-    private final EqualityNode<T> node;
-
-    /** The backend */
-    private final Store<Entry, ID> db;
-    
-    /** The SchemaManager instance */
-    private final SchemaManager schemaManager;
-
-    /** The AttributeType we will use for the evaluation */
-    private final AttributeType attributeType;
-
-    /** The associated normalizer */
-    private final Normalizer normalizer;
-
-    /** The comparator to use */
-    private final LdapComparator<?> comparator;
-
     /** The default byte[] comparator if no comparator has been defined */
     private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
 
     /** The default String comparator if no comparator has been defined */
     private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
 
-    /** The index to use if any */
-    private final Index<T, Entry, ID> idx;
-
 
     @SuppressWarnings("unchecked")
     public EqualityEvaluator( EqualityNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
-        this.db = db;
-        this.node = node;
-        this.schemaManager = schemaManager;
-        this.attributeType = node.getAttributeType();
+        super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
             normalizer = null;
-            comparator = null;
+            ldapComparator = null;
         }
         else
         {
@@ -102,12 +75,12 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
             if ( mr == null )
             {
                 normalizer = new NoOpNormalizer( attributeType.getOid() );
-                comparator = null;
+                ldapComparator = null;
             }
             else
             {
                 normalizer = mr.getNormalizer();
-                comparator = mr.getLdapComparator();
+                ldapComparator = mr.getLdapComparator();
             }
         }
     }
@@ -115,7 +88,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
 
     public EqualityNode<T> getExpression()
     {
-        return node;
+        return (EqualityNode<T>)node;
     }
 
 
@@ -210,9 +183,9 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
                 byte[] serverValue = ( ( Value<byte[]> ) value ).getNormalizedValue();
                 byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue();
 
-                if ( comparator != null )
+                if ( ldapComparator != null )
                 {
-                    if ( ( ( ( LdapComparator<byte[]> ) comparator ).compare( serverValue, nodeValue ) == 0 ) )
+                    if ( ldapComparator.compare( (Object)serverValue, (Object)nodeValue ) == 0 )
                     {
                         return true;
                     }
@@ -240,9 +213,9 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluato
                     nodeValue = ( ( Value<String> ) node.getValue() ).getNormalizedValue();
                 }
 
-                if ( comparator != null )
+                if ( ldapComparator != null )
                 {
-                    if ( ( ( LdapComparator<String> ) comparator ).compare( serverValue, nodeValue ) == 0 )
+                    if ( ldapComparator.compare( serverValue, nodeValue ) == 0 )
                     {
                         return true;
                     }
