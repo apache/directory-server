@@ -95,6 +95,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.executor.UnorderedThreadPoolExecutor;
 import org.apache.mina.handler.demux.MessageHandler;
+import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -595,6 +596,9 @@ public class LdapServer extends DirectoryBackedService
             // Inject the protocol handler
             acceptor.setHandler( getHandler() );
             
+            ((AbstractSocketSessionConfig)acceptor.getSessionConfig()).setReadBufferSize( 64*1024 );
+            ((AbstractSocketSessionConfig)acceptor.getSessionConfig()).setSendBufferSize( 64*1024 );
+
             // Bind to the configured address
             acceptor.bind();
             
