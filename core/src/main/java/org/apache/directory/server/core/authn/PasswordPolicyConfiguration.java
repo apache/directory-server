@@ -438,7 +438,7 @@ public class PasswordPolicyConfiguration
             sb.append( ++errCount ).append( ". password maximum length cannot be negative\n" );
         }
 
-        if ( pwdMaxLength < pwdMinLength )
+        if ( ( pwdMaxLength > 0 ) && ( pwdMaxLength < pwdMinLength ) )
         {
             sb.append( ++errCount ).append( ". password maximum length should be greater than minimum length\n" );
         }
