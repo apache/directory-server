@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
+public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     @SuppressWarnings("unchecked")
     public GreaterEqEvaluator( GreaterEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )

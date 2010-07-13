@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
+public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     @SuppressWarnings("unchecked")
     public LessEqEvaluator( LessEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )

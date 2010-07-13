@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EqualityEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
+public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     /** The default byte[] comparator if no comparator has been defined */
     private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );

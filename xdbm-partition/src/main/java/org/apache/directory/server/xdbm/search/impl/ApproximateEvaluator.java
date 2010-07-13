@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends SimpleEvaluator<T, ID>
+public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
