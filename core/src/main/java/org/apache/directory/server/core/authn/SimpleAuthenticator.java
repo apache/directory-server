@@ -38,6 +38,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -55,6 +56,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -187,7 +189,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws Exception If we have a problem during the lookup operation
      */
-    private LdapPrincipal getStoredPassword( BindOperationContext bindContext ) throws LdapAuthenticationException
+    private LdapPrincipal getStoredPassword( BindOperationContext bindContext ) throws LdapException
     {
         LdapPrincipal principal = null;
 
@@ -268,7 +270,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *  The stored password is always using the unsalted form, and is stored as a bytes array.
      *  </p>
      */
-    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
+    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -296,7 +298,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
 
         // Let's see if the stored password was encrypted
-        LdapSecurityConstants algorithm = findAlgorithm( storedPassword );
+        LdapSecurityConstants algorithm = PasswordUtil.findAlgorithm( storedPassword );
 
         if ( algorithm != null )
         {
@@ -311,7 +313,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             // Reuse the saltedPassword informations to construct the encrypted
             // password given by the user.
-            byte[] userPassword = encryptPassword( credentials, encryptionMethod );
+            byte[] userPassword = PasswordUtil.encryptPassword( credentials, encryptionMethod.algorithm, encryptionMethod.salt );
 
             // Now, compare the two passwords.
             if ( Arrays.equals( userPassword, encryptedStored ) )
@@ -447,144 +449,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
 
     /**
-     * Get the algorithm from the stored password. 
-     * It can be found on the beginning of the stored password, between 
-     * curly brackets.
-     * @param credentials the credentials of the user
-     * @return the name of the algorithm to use
-     * TODO use an enum for the algorithm
-     */
-    private LdapSecurityConstants findAlgorithm( byte[] credentials )
-    {
-        if ( ( credentials == null ) || ( credentials.length == 0 ) )
-        {
-            return null;
-        }
-
-        if ( credentials[0] == '{' )
-        {
-            // get the algorithm
-            int pos = 1;
-
-            while ( pos < credentials.length )
-            {
-                if ( credentials[pos] == '}' )
-                {
-                    break;
-                }
-
-                pos++;
-            }
-
-            if ( pos < credentials.length )
-            {
-                if ( pos == 1 )
-                {
-                    // We don't have an algorithm : return the credentials as is
-                    return null;
-                }
-
-                String algorithm = new String( credentials, 1, pos - 1 ).toLowerCase();
-
-                return LdapSecurityConstants.getAlgorithm( algorithm );
-            }
-            else
-            {
-                // We don't have an algorithm
-                return null;
-            }
-        }
-        else
-        {
-            // No '{algo}' part
-            return null;
-        }
-    }
-
-
-    /**
-     * Compute the hashed password given an algorithm, the credentials and 
-     * an optional salt.
-     *
-     * @param algorithm the algorithm to use
-     * @param password the credentials
-     * @param salt the optional salt
-     * @return the digested credentials
-     */
-    private static byte[] digest( LdapSecurityConstants algorithm, byte[] password, byte[] salt )
-    {
-        MessageDigest digest;
-
-        try
-        {
-            digest = MessageDigest.getInstance( algorithm.getName() );
-        }
-        catch ( NoSuchAlgorithmException e1 )
-        {
-            return null;
-        }
-
-        if ( salt != null )
-        {
-            digest.update( password );
-            digest.update( salt );
-            return digest.digest();
-        }
-        else
-        {
-            return digest.digest( password );
-        }
-    }
-
-
-    private byte[] encryptPassword( byte[] credentials, EncryptionMethod encryptionMethod )
-    {
-        byte[] salt = encryptionMethod.salt;
-
-        switch ( encryptionMethod.algorithm )
-        {
-            case HASH_METHOD_SHA:
-            case HASH_METHOD_SSHA:
-                return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
-
-            case HASH_METHOD_SHA256:
-                return digest( LdapSecurityConstants.HASH_METHOD_SHA256, credentials, salt );
-                
-            case HASH_METHOD_MD5:
-            case HASH_METHOD_SMD5:
-                return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
-
-            case HASH_METHOD_CRYPT:
-                if ( salt == null )
-                {
-                    salt = new byte[2];
-                    SecureRandom sr = new SecureRandom();
-                    int i1 = sr.nextInt( 64 );
-                    int i2 = sr.nextInt( 64 );
-
-                    salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
-                    salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
-                }
-
-                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools
-                    .utf8ToString( salt ) );
-                String crypted = saltWithCrypted.substring( 2 );
-
-                return StringTools.getBytesUtf8( crypted );
-
-            default:
-                return credentials;
-        }
-    }
-
-
-    /**
      * Local function which request the password from the backend
      * @param bindContext the Bind operation context
      * @return the credentials from the backend
      * @throws Exception if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( BindOperationContext bindContext ) throws LdapAuthenticationException
+    private byte[] lookupUserPassword( BindOperationContext bindContext ) throws LdapException
     {
         // ---- lookup the principal entry's userPassword attribute
         Entry userEntry;
@@ -601,6 +471,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
                 bindContext.getDn() );
             lookupContext.setByPassed( USERLOOKUP_BYPASS );
+            lookupContext.setAttrsId( new String[]{ "+" } );
+            
             userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
@@ -619,10 +491,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw e;
         }
 
+        checkPwdPolicy( userEntry );
+
         Value<?> userPassword;
 
         EntryAttribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 
+        bindContext.setEntry( new ClonedServerEntry( userEntry ) );
+        
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
