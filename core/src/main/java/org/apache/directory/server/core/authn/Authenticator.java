@@ -27,6 +27,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -84,4 +85,19 @@ public interface Authenticator
      * Performs authentication and returns the principal if succeeded.
      */
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
+    
+    
+    /**
+     * @param policyConfig the password policy configuration to be used while authenticating
+     */
+    void setPwdPolicyConfig( PasswordPolicyConfiguration pPolicyConfig );
+    
+    
+    /**
+     *  performs checks on the given entry based on the specified password policy configuration
+     *
+     * @param userEntry the user entry to be checked for authentication
+     * @throws PasswordPolicyException
+     */
+    void checkPwdPolicy( Entry userEntry ) throws LdapException;
 }
