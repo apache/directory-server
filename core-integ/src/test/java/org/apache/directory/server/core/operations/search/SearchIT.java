@@ -71,7 +71,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -412,7 +411,6 @@ public class SearchIT extends AbstractLdapTestUnit
      * result in exceptions.
      */
     @Test
-    @Ignore( "Fix DIRSERVER-1525/955" )
     public void testBogusAttributeInSearchFilter() throws Exception
     {
         boolean oldSetAllowAnnonymousAccess = service.isAllowAnonymousAccess();
@@ -1886,7 +1884,6 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore( "Fix DIRSERVER-1525/955" )
     public void testSearchFilterWithBadAttributeType() throws Exception
     {
         SearchControls controls = new SearchControls();
@@ -1911,7 +1908,6 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore( "Fix DIRSERVER-1525/955" )
     public void testSearchFilterBadAttributeType() throws Exception
     {
         SearchControls controls = new SearchControls();
