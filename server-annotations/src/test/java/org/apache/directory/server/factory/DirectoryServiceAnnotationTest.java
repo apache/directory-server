@@ -49,6 +49,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 
 
@@ -229,7 +230,7 @@ public class DirectoryServiceAnnotationTest
         assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
 
         // Now, get the server
-        LdapServer ldapServer = ServerAnnotationProcessor.getLdapServer( service, 1024 );
+        LdapServer ldapServer = ServerAnnotationProcessor.getLdapServer( service, AvailablePortFinder.getNextAvailable( 1024 ) );
 
         // Check that the server is running
         assertTrue( ldapServer.isStarted() );

@@ -160,7 +160,6 @@ public class CursorBuilder<ID extends Comparable<ID>>
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
-        //noinspection UnusedAssignment
         long value = Long.MAX_VALUE;
 
         /*
@@ -170,20 +169,22 @@ public class CursorBuilder<ID extends Comparable<ID>>
          */
         final List<ExprNode> children = node.getChildren();
 
-        for ( int ii = 0; ii < children.size(); ii++ )
+        for ( int i = 0; i < children.size(); i++ )
         {
-            ExprNode child = children.get( ii );
+            ExprNode child = children.get( i );
             Object count = child.get( "count" );
+            
             if ( count == null )
             {
                 continue;
             }
+            
             value = ( Long ) count;
             minValue = Math.min( minValue, value );
 
             if ( minValue == value )
             {
-                minIndex = ii;
+                minIndex = i;
             }
         }
 
@@ -191,6 +192,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
         ExprNode minChild = children.get( minIndex );
         List<Evaluator<? extends ExprNode, Entry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             children.size() - 1 );
+        
         for ( ExprNode child : children )
         {
             if ( child == minChild )
@@ -203,6 +205,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
 
         // Do recursive call to build min child Cursor then create AndCursor
         IndexCursor<?, Entry, ID> childCursor = build( minChild );
+        
         return new AndCursor( childCursor, childEvaluators );
     }
 }

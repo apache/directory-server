@@ -60,12 +60,15 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
-    /** The SchemaManager */
+    /** The SchemaManager instance */
     private SchemaManager schemaManager;
 
     private PartitionNexus nexus;
 
     private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
+    
+    /** The CollectiveAttributeSubentries AttributeType */
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
 
     /**
      * the search result filter to use for collective attribute injection
@@ -94,6 +97,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
         nexus = directoryService.getPartitionNexus();
         collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, schemaManager );
+        
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
     }
 
 
@@ -112,7 +117,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
         EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         /*
          * If there are no collective attribute subentries referenced then we 

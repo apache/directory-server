@@ -28,6 +28,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 
 /**
@@ -54,7 +55,7 @@ public class CreateKdcServerAnnotationTest
         
         assertEquals( "CreateKdcServerAnnotationTest-class", directoryService.getInstanceId() );
         
-        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService, 1024 );
+        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService, AvailablePortFinder.getNextAvailable( 1024 ) );
 
         assertEquals( 2, server.getTransports().length );
         
