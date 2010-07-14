@@ -454,8 +454,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
-            if ( !cursor.next() && !base.isEmpty()
-                && !( subschemSubentryDn.getNormName() ).equalsIgnoreCase( base.getNormName() ) )
+            // Check that if the cursor is empty, it's not because the DN is invalid.
+            if ( !cursor.available() && !base.isEmpty() && !subschemSubentryDn.equals( base ) )
             {
                 // We just check that the entry exists only if we didn't found any entry
                 assertHasEntry( searchContext, "Attempt to search under non-existant entry:", searchContext.getDn() );
