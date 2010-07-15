@@ -79,6 +79,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void beforeValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.beforeValue( id, value );

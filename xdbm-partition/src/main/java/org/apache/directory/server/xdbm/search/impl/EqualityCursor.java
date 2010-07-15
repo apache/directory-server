@@ -95,6 +95,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );

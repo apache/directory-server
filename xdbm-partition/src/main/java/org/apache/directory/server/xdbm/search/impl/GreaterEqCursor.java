@@ -95,6 +95,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -166,6 +167,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( userIdxCursor != null )
         {
             /*

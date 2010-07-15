@@ -25,11 +25,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -139,6 +139,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         {
             checkNotClosed( "next()" );
             IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            
             if ( matches( candidate ) )
             {
                 return available = true;

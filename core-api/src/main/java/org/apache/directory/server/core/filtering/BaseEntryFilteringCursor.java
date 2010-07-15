@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -497,11 +496,13 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
         
         ClonedServerEntry tempResult = null;
+        
         outer: while ( wrapped.next() )
         {
             boolean accepted = true;
             
             Entry tempEntry = wrapped.get();
+            
             if ( tempEntry instanceof ClonedServerEntry )
             {
                 tempResult = ( ClonedServerEntry ) tempEntry;
@@ -526,7 +527,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 return true;
             }
             
-            if ( filters.size() == 1 &&  filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+            if ( ( filters.size() == 1 ) &&  filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
@@ -534,7 +535,6 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             }
             
             /* E N D   O P T I M I Z A T I O N */
-            
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
@@ -549,6 +549,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              */
             prefetched = tempResult;
             filterContents( prefetched );
+            
             return true;
         }
         
@@ -573,6 +574,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
         
         ClonedServerEntry tempResult = null;
+        
         outer: while ( wrapped.previous() )
         {
             boolean accepted = true;
@@ -593,7 +595,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 return true;
             }
             
-            if ( filters.size() == 1 && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
@@ -620,6 +622,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
         
         prefetched = null;
+        
         return false;
     }
 

@@ -94,6 +94,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
+        
         if ( userIdxCursor != null )
         {
             /*
