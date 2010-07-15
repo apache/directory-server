@@ -193,9 +193,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         LdapPrincipal principal = null;
 
-        synchronized ( credentialCache )
+        // use cache only if pwdpolicy is not enabled
+        if( getPwdPolicyConfig() == null )
         {
-            principal = ( LdapPrincipal ) credentialCache.get( bindContext.getDn().getNormName() );
+            synchronized ( credentialCache )
+            {
+                principal = ( LdapPrincipal ) credentialCache.get( bindContext.getDn().getNormName() );
+            }
         }
 
         byte[] storedPassword;
@@ -218,10 +222,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             // Create the new principal before storing it in the cache
             principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
 
-            // Now, update the local cache.
-            synchronized ( credentialCache )
+            // Now, update the local cache ONLY if pwdpolicy is not enabled.
+            if( getPwdPolicyConfig() == null )
             {
-                credentialCache.put( bindContext.getDn().getNormName(), principal );
+                synchronized ( credentialCache )
+                {
+                    credentialCache.put( bindContext.getDn().getNormName(), principal );
+                }
             }
         }
 
