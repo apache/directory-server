@@ -264,5 +264,13 @@ public abstract class AbstractAuthenticator implements Authenticator
     {
         this.pPolicyConfig = pPolicyConfig;
     }
-    
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public PasswordPolicyConfiguration getPwdPolicyConfig()
+    {
+        return pPolicyConfig;
+    }
 }
