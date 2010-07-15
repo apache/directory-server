@@ -809,9 +809,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = renameContext.getEntry().getClonedEntry();
 
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
             Subentry subentry = subentryCache.removeSubentry( oldDn );
@@ -894,9 +892,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -909,6 +905,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.normalize( schemaManager.getNormalizerMapping() );
 
             subentryCache.addSubentry( newName, subentry );
+            
             next.moveAndRename( moveAndRenameContext );
 
             subentry = subentryCache.getSubentry( newName );
@@ -981,9 +978,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveContext.getOriginalEntry();
 
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -995,6 +990,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.normalize( schemaManager.getNormalizerMapping() );
 
             subentryCache.addSubentry( newName, subentry );
+            
             next.move( moveContext );
 
             subentry = subentryCache.getSubentry( newName );
@@ -1013,6 +1009,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             try
             {
+                // Modify all the entries under this subentry
                 while ( subentries.next() )
                 {
                     Entry candidate = subentries.get();
