@@ -23,11 +23,9 @@ package org.apache.directory.server.core.subtree;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
@@ -113,19 +111,14 @@ public class SubentryCache
      * @param adminRoles The administrative roles for this Subentry
      * @return The old Subentry, if any
      */
-    final Subentry addSubentry( DN dn, SubtreeSpecification ss, Set<AdministrativeRole> adminRoles )
+    /* No qualifier */ Subentry addSubentry( DN dn, Subentry subentry )
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
             // TODO : Throw an exception here
         }
         
-        Subentry oldSubentry = cache.get( dn.getNormName() );
-        
-        Subentry subentry = new Subentry();
-        subentry.setSubtreeSpecification( ss );
-        subentry.setAdministrativeRoles( adminRoles );
-        cache.put( dn.getNormName(), subentry );
+        Subentry oldSubentry = cache.put( dn.getNormName(), subentry );
         
         if ( oldSubentry == null )
         {
@@ -141,7 +134,7 @@ public class SubentryCache
      * @param dn The DN
      * @return True if a Subentry is found
      */
-    final boolean hasSubentry( DN dn )
+    /* No qualifier */ boolean hasSubentry( DN dn )
     {
         return cache.containsKey( dn.getNormName() );
     }

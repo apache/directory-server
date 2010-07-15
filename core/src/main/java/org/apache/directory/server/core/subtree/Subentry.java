@@ -113,4 +113,13 @@ public class Subentry
     {
         return administrativeRoles.contains( AdministrativeRole.TRIGGERS_ADMIN_ROLE );
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Subentry[" + administrativeRoles + ", " + ss + "]";
+    }
 }

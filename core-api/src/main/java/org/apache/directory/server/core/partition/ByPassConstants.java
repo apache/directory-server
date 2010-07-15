@@ -84,10 +84,13 @@ public class ByPassConstants
         c.add( "org.apache.directory.server.core.authn.AuthenticationInterceptor" );
         c.add( "org.apache.directory.server.core.authz.AciAuthorizationInterceptor" );
         c.add( "org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor" );
+        c.add( "org.apache.directory.server.core.referral.ReferralInterceptor" );
+        c.add( "org.apache.directory.server.core.changelog.ChangeLogInterceptor" );
         c.add( "org.apache.directory.server.core.operational.OperationalAttributeInterceptor" );
         c.add( "org.apache.directory.server.core.schema.SchemaInterceptor" );
         c.add( "org.apache.directory.server.core.subtree.SubentryInterceptor" );
         c.add( "org.apache.directory.server.core.event.EventInterceptor" );
+        c.add( "org.apache.directory.server.core.trigger.TriggerInterceptor" );
         c.add( "org.apache.directory.server.core.journal.JournalInterceptor" );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
 

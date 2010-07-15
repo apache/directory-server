@@ -127,8 +127,11 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the ObjectClass AT */
     private static AttributeType OBJECT_CLASS_AT;
     
-    /** A reference to the AdmiistrativeRole AT */
+    /** A reference to the AdministrativeRole AT */
     private static AttributeType ADMINISTRATIVE_ROLE_AT;
+    
+    /** A reference to the SubtreeSpecification AT */
+    private static AttributeType SUBTREE_SPECIFICATION_AT;
 
 
     /**
@@ -146,6 +149,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // setup various attribute type values
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+        SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
@@ -159,15 +163,15 @@ public class SubentryInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
+
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
             DN suffixDn = new DN( suffix );
             suffixDn.normalize( schemaManager.getNormalizerMapping() );
 
-            DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-            adminDn.normalize( schemaManager.getNormalizerMapping() );
-            
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
@@ -184,9 +188,9 @@ public class SubentryInterceptor extends BaseInterceptor
                 while ( subentries.next() )
                 {
                     Entry subentry = subentries.get();
-                    DN dnName = subentry.getDn();
+                    DN subentryDn = subentry.getDn();
     
-                    String subtree = subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
+                    String subtree = subentry.get( SUBTREE_SPECIFICATION_AT ).getString();
                     SubtreeSpecification ss;
     
                     try
@@ -195,12 +199,16 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed while parsing subtreeSpecification for " + dnName );
+                        LOG.warn( "Failed while parsing subtreeSpecification for " + subentryDn );
                         continue;
                     }
-    
-                    dnName.normalize( schemaManager.getNormalizerMapping() );
-                    subentryCache.addSubentry( dnName, ss, getSubentryAdminRoles( subentry ) );
+                        
+                    Subentry newSubentry = new Subentry();
+                    
+                    newSubentry.setAdministrativeRoles( getSubentryAdminRoles( subentry ) );
+                    newSubentry.setSubtreeSpecification( ss );
+                    
+                    subentryCache.addSubentry( subentryDn, newSubentry );
                 }
                 
                 subentries.close();
@@ -417,16 +425,14 @@ public class SubentryInterceptor extends BaseInterceptor
         DN name = addContext.getDn();
         ClonedServerEntry entry = addContext.getEntry();
 
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains(  OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
             DN apName = name.getParent();
-            Entry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
+            Entry administrationPoint = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
             
             // The administrativeRole AT must exist and not be null
-            EntryAttribute administrativeRole = ap.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+            EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
 
             // check that administrativeRole has something valid in it for us
             if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
@@ -453,7 +459,7 @@ public class SubentryInterceptor extends BaseInterceptor
              * to modify the subentry operational attributes of.
              * ----------------------------------------------------------------
              */
-            String subtree = entry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
+            String subtree = entry.get( SUBTREE_SPECIFICATION_AT ).getString();
             SubtreeSpecification ss;
 
             try
@@ -466,8 +472,10 @@ public class SubentryInterceptor extends BaseInterceptor
                 LOG.warn( msg );
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
+            
+            subentry.setSubtreeSpecification( ss );
 
-            subentryCache.addSubentry( name, ss, getSubentryAdminRoles( entry ) );
+            subentryCache.addSubentry( name, subentry );
 
             next.add( addContext );
 
@@ -482,6 +490,17 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
+            /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ///   <Ugly-disgusting>
+            ///     We loop on *all* the entries under this subtree
+            ///     and we will add some operational attribute in each
+            ///     one of them. This is *utter crap* !!!
+            ///   </Ugly-disgusting>
+            /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            /// What we should do :
+            ///   have a filter to process each entry when they are manipulated
+            /// instead of doing such a killing modification... This simply does 
+            /// not scale when we have more than a few hundred entries !
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -499,12 +518,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 while ( subentries.next() )
                 {
                     Entry candidate = subentries.get();
-                    DN dn = candidate.getDn();
-                    dn.normalize( schemaManager.getNormalizerMapping() );
-    
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    DN candidateDn = candidate.getDn();
+                    
+                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( addContext.getSession(), dn, getOperationalModsForAdd(
+                        nexus.modify( new ModifyOperationContext( addContext.getSession(), candidateDn, getOperationalModsForAdd(
                             candidate, operational ) ) );
                     }
                 }
@@ -602,20 +620,20 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     // -----------------------------------------------------------------------
-    // Methods dealing subentry deletion
+    // Methods dealing with subentry deletion
     // -----------------------------------------------------------------------
-
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         DN name = deleteContext.getDn();
         Entry entry = deleteContext.getEntry();
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
 
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+        // If the entry has a "subentry" Objectclass, we can process the entry.
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             next.delete( deleteContext );
 
-            SubtreeSpecification ss = subentryCache.removeSubentry( name ).getSubtreeSpecification();
+            Subentry removedSubentry = subentryCache.removeSubentry( name );
+            SubtreeSpecification ss = removedSubentry.getSubtreeSpecification();
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -646,12 +664,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 while ( subentries.next() )
                 {
                     Entry candidate = subentries.get();
-                    DN dn = new DN( candidate.getDn() );
-                    dn.normalize( schemaManager.getNormalizerMapping() );
+                    DN candidateDn = candidate.getDn();
     
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), dn, getOperationalModsForRemove(
+                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), candidateDn, getOperationalModsForRemove(
                             name, candidate ) ) );
                     }
                 }
@@ -797,7 +814,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
-            Subentry subentry = subentryCache.getSubentry( oldDn );
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = ( DN ) apName.clone();
@@ -807,7 +824,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( renameContext.getNewRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
-            subentryCache.addSubentry( newName, ss, subentry.getAdministrativeRoles() );
+            subentryCache.addSubentry( newName, subentry );
             next.rename( renameContext );
 
             subentry = subentryCache.getSubentry( newName );
@@ -881,7 +898,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.getSubentry( oldDn );
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = ( DN ) apName.clone();
@@ -891,7 +908,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( moveAndRenameContext.getNewRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
-            subentryCache.addSubentry( newName, ss, subentry.getAdministrativeRoles() );
+            subentryCache.addSubentry( newName, subentry );
             next.moveAndRename( moveAndRenameContext );
 
             subentry = subentryCache.getSubentry( newName );
@@ -968,7 +985,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.getSubentry( oldDn );
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = ( DN ) apName.clone();
@@ -977,7 +994,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.add( oldDn.getRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
-            subentryCache.addSubentry( newName, ss, subentry.getAdministrativeRoles() );
+            subentryCache.addSubentry( newName, subentry );
             next.move( moveContext );
 
             subentry = subentryCache.getSubentry( newName );
@@ -1094,24 +1111,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = modifyContext.getEntry();
 
-        EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
 
         // Find the subtreeSpecification
         for ( Modification mod : mods )
         {
-            if ( SchemaConstants.SUBTREE_SPECIFICATION_AT.equalsIgnoreCase( mod.getAttribute().getId() ) )
+            if ( mod.getAttribute().getAttributeType().equals( SUBTREE_SPECIFICATION_AT ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mod;
                 break;
             }
         }
+        
+        boolean containsSubentryOC = entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
 
-        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) && isSubtreeSpecificationModification )
+        if ( containsSubentryOC && isSubtreeSpecificationModification )
         {
-            SubtreeSpecification ssOld = subentryCache.removeSubentry( dn ).getSubtreeSpecification();
+            Subentry subentry = subentryCache.removeSubentry( dn );
+            SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -1125,13 +1144,17 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
-            subentryCache.addSubentry( dn, ssNew, getSubentryTypes( entry, mods ) );
+            subentry.setSubtreeSpecification( ssNew );
+            subentry.setAdministrativeRoles( getSubentryTypes( entry, mods ) );
+            subentryCache.addSubentry( dn, subentry );
+            
             next.modify( modifyContext );
 
             // search for all entries selected by the old SS and remove references to subentry
             DN apName = dn.getParent();
             DN oldBaseDn = ( DN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
+            
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -1150,7 +1173,6 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     DN candidateDn = candidate.getDn();
-                    candidateDn.normalize( schemaManager.getNormalizerMapping() );
     
                     if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
                     {
@@ -1165,7 +1187,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // search for all selected entries by the new SS and add references to subentry
-            Subentry subentry = subentryCache.getSubentry( dn );
+            subentry = subentryCache.getSubentry( dn );
             Entry operational = getSubentryOperationalAttributes( dn, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
@@ -1181,7 +1203,6 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     DN candidateDn = candidate.getDn();
-                    candidateDn.normalize( schemaManager.getNormalizerMapping() );
     
                     if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
                     {
@@ -1199,7 +1220,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             next.modify( modifyContext );
 
-            if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
+            if ( !containsSubentryOC )
             {
                 Entry newEntry = modifyContext.getAlteredEntry(); 
 
@@ -1466,14 +1487,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-            if ( objectClasses != null )
-            {
-                return !objectClasses.contains( SchemaConstants.SUBENTRY_OC );
-            }
-            
-            return false;
+            return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
         }
     }
 
@@ -1492,14 +1506,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = entry.get( OBJECT_CLASS_AT );
-
-            if ( objectClasses != null )
-            {
-                return objectClasses.contains( SchemaConstants.SUBENTRY_OC );
-            }
-
-            return false;
+            return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
         }
     }
 
