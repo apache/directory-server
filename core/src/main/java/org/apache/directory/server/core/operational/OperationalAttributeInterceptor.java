@@ -286,6 +286,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                     modifiedTimeAtPresent = true;
                 }
             }
+            
+            if( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
+            {
+                String message = I18n.err( I18n.ERR_32 );
+                LOG.error( message );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+            }
         }
 
         if ( !modifierAtPresent )

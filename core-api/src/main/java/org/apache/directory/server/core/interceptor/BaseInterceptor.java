@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.naming.Context;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -43,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
@@ -54,6 +58,10 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  */
 public abstract class BaseInterceptor implements Interceptor
 {
+    
+    /** set of operational attribute types used for representing the password policy state of a user entry */
+    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+    
     /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
      * instances differently
