@@ -39,7 +39,6 @@ import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.PasswordUtil;
@@ -54,12 +53,14 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -75,7 +76,6 @@ import org.junit.runner.RunWith;
         @CreateTransport( protocol = "LDAP" ), 
         @CreateTransport( protocol = "LDAPS" ) 
     })
-@CreateDS( enableChangeLog=false )
 public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
@@ -86,7 +86,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Before
-    public void setPwdPolicy()
+    public void setPwdPolicy() throws LdapException
     {
         policyConfig = new PasswordPolicyConfiguration();
         
@@ -104,6 +104,8 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) service
             .getInterceptor( AuthenticationInterceptor.class.getName() );
         authInterceptor.setPwdPolicyConfig( policyConfig );
+        
+        authInterceptor.loadPwdPolicyStateAtributeTypes();
     }
 
 
@@ -191,7 +193,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
-    
+
     
     @Test
     public void testPwdMinAge() throws Exception
@@ -200,11 +202,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
         
-        DN userDn = new DN( "cn=user,ou=system" );
+        DN userDn = new DN( "cn=userMinAge,ou=system" );
         Entry userEntry = new DefaultEntry( userDn );
         userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
-        userEntry.add( SchemaConstants.CN_AT, "user" );
-        userEntry.add( SchemaConstants.SN_AT, "user_sn" );
+        userEntry.add( SchemaConstants.CN_AT, "userMinAge" );
+        userEntry.add( SchemaConstants.SN_AT, "userMinAge_sn" );
         userEntry.add( SchemaConstants.USER_PASSWORD_AT, "12345".getBytes() );
 
         AddRequest addReq = new AddRequest( userEntry );
