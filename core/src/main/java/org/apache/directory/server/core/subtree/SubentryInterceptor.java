@@ -22,7 +22,6 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -133,7 +132,64 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the SubtreeSpecification AT */
     private static AttributeType SUBTREE_SPECIFICATION_AT;
 
+    /** A reference to the AccessControlSubentries AT */
+    private static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
+    
+    /** A reference to the AccessControlSubentries AT */
+    private static AttributeType SUBSCHEMA_SUBENTRY_AT;
 
+    /** A reference to the CollectiveAttributeSubentries AT */
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+
+    /** A reference to the TriggerExecutionSubentries AT */
+    private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+
+
+    //-------------------------------------------------------------------------------------------
+    // Search filter methods
+    //-------------------------------------------------------------------------------------------
+    /**
+     * SearchResultFilter used to filter out subentries based on objectClass values.
+     */
+    public class HideSubentriesFilter implements EntryFilter
+    {
+        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
+        {
+            // See if the requested entry is a subentry
+            if ( subentryCache.hasSubentry( entry.getDn() ) )
+            {
+                return false;
+            }
+
+            // see if we can use objectclass if present
+            return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+        }
+    }
+
+
+    /**
+     * SearchResultFilter used to filter out normal entries but shows subentries based on 
+     * objectClass values.
+     */
+    public class HideEntriesFilter implements EntryFilter
+    {
+        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
+        {
+            // See if the requested entry is a subentry
+            if ( subentryCache.hasSubentry( entry.getDn() ) )
+            {
+                return true;
+            }
+
+            // see if we can use objectclass if present
+            return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+        }
+    }
+
+    
+    //-------------------------------------------------------------------------------------------
+    // Interceptor initialization
+    //-------------------------------------------------------------------------------------------
     /**
      * Initialize the Subentry Interceptor
      * 
@@ -150,6 +206,10 @@ public class SubentryInterceptor extends BaseInterceptor
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
+        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
@@ -221,6 +281,12 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    //-------------------------------------------------------------------------------------------
+    // Helper methods
+    //-------------------------------------------------------------------------------------------
+    /**
+     * Return the list of AdministrativeRole for a subentry
+     */
     private Set<AdministrativeRole> getSubentryAdminRoles( Entry subentry ) throws LdapException
     {
         Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
@@ -256,49 +322,6 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    // -----------------------------------------------------------------------
-    // Methods/Code dealing with Subentry Visibility
-    // -----------------------------------------------------------------------
-
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
-
-        if ( !isSubentryVisible( listContext ) )
-        {
-            cursor.addEntryFilter( new HideSubentriesFilter() );
-        }
-
-        return cursor;
-    }
-
-
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
-
-        // object scope searches by default return subentries
-        if ( searchContext.getScope() == SearchScope.OBJECT )
-        {
-            return cursor;
-        }
-
-        // for subtree and one level scope we filter
-        if ( !isSubentryVisible( searchContext ) )
-        {
-            cursor.addEntryFilter( new HideSubentriesFilter() );
-        }
-        else
-        {
-            cursor.addEntryFilter( new HideEntriesFilter() );
-        }
-
-        return cursor;
-    }
-
-
     /**
      * Checks to see if subentries for the search and list operations should be
      * made visible based on the availability of the search request control
@@ -318,378 +341,103 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
             SubentriesControl subentriesControl = ( SubentriesControl ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            
             return subentriesControl.isVisible();
         }
 
         return false;
     }
 
-
-    // -----------------------------------------------------------------------
-    // Methods dealing with entry and subentry addition
-    // -----------------------------------------------------------------------
-
     /**
-     * Evaluates the set of subentry subtrees upon an entry and returns the
-     * operational subentry attributes that will be added to the entry if
-     * added at the dn specified.
-     *
-     * @param dn the normalized distinguished name of the entry
-     * @param entryAttrs the entry attributes are generated for
-     * @return the set of subentry op attrs for an entry
-     * @throws Exception if there are problems accessing entry information
+     * Update all the entries under an AP adding the 
      */
-    public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws LdapException
+    private void updateEntries( CoreSession session, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> modifications  ) throws LdapException
     {
-        Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
-        Iterator<String> list = subentryCache.nameIterator();
+        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-        while ( list.hasNext() )
+        SearchOperationContext searchOperationContext = new SearchOperationContext( session,
+            baseDn, filter, controls );
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+        EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+        try
         {
-            String subentryDnStr = list.next();
-            DN subentryDn = new DN( subentryDnStr );
-            subentryDn.normalize( schemaManager.getNormalizerMapping() );
-            DN apDn = subentryDn.getParent();
-            Subentry subentry = subentryCache.getSubentry( subentryDn );
-            SubtreeSpecification ss = subentry.getSubtreeSpecification();
-
-            if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
+            while ( subentries.next() )
             {
-                EntryAttribute operational;
-
-                if ( subentry.isAccessControlAdminRole() )
-                {
-                    operational = subentryAttrs.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultEntryAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT,
-                            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
+                Entry candidate = subentries.get();
+                DN candidateDn = candidate.getDn();
                 
-                if ( subentry.isSchemaAdminRole() )
+                if ( evaluator.evaluate( ss, apDn, candidateDn, candidate ) )
                 {
-                    operational = subentryAttrs.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultEntryAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
-                            .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-                
-                if ( subentry.isCollectiveAdminRole() )
-                {
-                    operational = subentryAttrs.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultEntryAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                            schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-                
-                if ( subentry.isTriggersAdminRole() )
-                {
-                    operational = subentryAttrs.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultEntryAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT,
-                            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
+                    nexus.modify( new ModifyOperationContext( session, candidateDn, 
+                        getOperationalModsForAdd(
+                        candidate, modifications ) ) );
                 }
             }
         }
-
-        return subentryAttrs;
-    }
-
-
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
-    {
-        DN name = addContext.getDn();
-        ClonedServerEntry entry = addContext.getEntry();
-
-        if ( entry.contains(  OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        catch ( Exception e )
         {
-            // get the name of the administrative point and its administrativeRole attributes
-            DN apName = name.getParent();
-            Entry administrationPoint = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
-            
-            // The administrativeRole AT must exist and not be null
-            EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
-
-            // check that administrativeRole has something valid in it for us
-            if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
-            {
-                throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apName ) );
-            }
-
-            /* ----------------------------------------------------------------
-             * Build the set of operational attributes to be injected into
-             * entries that are contained within the subtree represented by this
-             * new subentry.  In the process we make sure the proper roles are
-             * supported by the administrative point to allow the addition of
-             * this new subentry.
-             * ----------------------------------------------------------------
-             */
-            Subentry subentry = new Subentry();
-            subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
-            Entry operational = getSubentryOperationalAttributes( name, subentry );
-
-            /* ----------------------------------------------------------------
-             * Parse the subtreeSpecification of the subentry and add it to the
-             * SubtreeSpecification cache.  If the parse succeeds we continue
-             * to add the entry to the DIT.  Thereafter we search out entries
-             * to modify the subentry operational attributes of.
-             * ----------------------------------------------------------------
-             */
-            String subtree = entry.get( SUBTREE_SPECIFICATION_AT ).getString();
-            SubtreeSpecification ss;
-
-            try
-            {
-                ss = ssParser.parse( subtree );
-            }
-            catch ( Exception e )
-            {
-                String msg = I18n.err( I18n.ERR_307, name.getName() );
-                LOG.warn( msg );
-                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-            }
-            
-            subentry.setSubtreeSpecification( ss );
-
-            subentryCache.addSubentry( name, subentry );
-
-            next.add( addContext );
-
-            /* ----------------------------------------------------------------
-             * Find the baseDn for the subentry and use that to search the tree
-             * while testing each entry returned for inclusion within the
-             * subtree of the subentry's subtreeSpecification.  All included
-             * entries will have their operational attributes merged with the
-             * operational attributes calculated above.
-             * ----------------------------------------------------------------
-             */
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-
-            /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ///   <Ugly-disgusting>
-            ///     We loop on *all* the entries under this subtree
-            ///     and we will add some operational attribute in each
-            ///     one of them. This is *utter crap* !!!
-            ///   </Ugly-disgusting>
-            /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            /// What we should do :
-            ///   have a filter to process each entry when they are manipulated
-            /// instead of doing such a killing modification... This simply does 
-            /// not scale when we have more than a few hundred entries !
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( addContext.getSession(),
-                baseDn, filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN candidateDn = candidate.getDn();
-                    
-                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( addContext.getSession(), candidateDn, getOperationalModsForAdd(
-                            candidate, operational ) ) );
-                    }
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOtherException( e.getMessage() );
-            }
-
-            // TODO why are we doing this here if we got the entry from the 
-            // opContext in the first place - got to look into this 
-            addContext.setEntry( entry );
-        }
-        else
-        {
-            Iterator<String> list = subentryCache.nameIterator();
-
-            while ( list.hasNext() )
-            {
-                String subentryDnStr = list.next();
-                DN subentryDn = new DN( subentryDnStr ).normalize( schemaManager.getNormalizerMapping() );
-                DN apDn = subentryDn.getParent();
-                Subentry subentry = subentryCache.getSubentry( subentryDn );
-                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-
-                if ( evaluator.evaluate( ss, apDn, name, entry ) )
-                {
-                    EntryAttribute operational;
-
-                    if ( subentry.isAccessControlAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-
-                        if ( operational == null )
-                        {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
-                            entry.put( operational );
-                        }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isSchemaAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-
-                        if ( operational == null )
-                        {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
-                            entry.put( operational );
-                        }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isCollectiveAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
-                        if ( operational == null )
-                        {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
-                            entry.put( operational );
-                        }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isTriggersAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-
-                        if ( operational == null )
-                        {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
-                            entry.put( operational );
-                        }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-                }
-            }
-
-            // TODO why are we doing this here if we got the entry from the 
-            // opContext in the first place - got to look into this 
-            addContext.setEntry( entry );
-
-            next.add( addContext );
+            throw new LdapOtherException( e.getMessage() );
         }
     }
 
-
-    // -----------------------------------------------------------------------
-    // Methods dealing with subentry deletion
-    // -----------------------------------------------------------------------
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
-    {
-        DN name = deleteContext.getDn();
-        Entry entry = deleteContext.getEntry();
-
-        // If the entry has a "subentry" Objectclass, we can process the entry.
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
-        {
-            next.delete( deleteContext );
-
-            Subentry removedSubentry = subentryCache.removeSubentry( name );
-            SubtreeSpecification ss = removedSubentry.getSubtreeSpecification();
-
-            /* ----------------------------------------------------------------
-             * Find the baseDn for the subentry and use that to search the tree
-             * for all entries included by the subtreeSpecification.  Then we
-             * check the entry for subentry operational attribute that contain
-             * the DN of the subentry.  These are the subentry operational
-             * attributes we remove from the entry in a modify operation.
-             * ----------------------------------------------------------------
-             */
-            DN apName = name.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( deleteContext.getSession(), baseDn,
-                filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN candidateDn = candidate.getDn();
     
-                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), candidateDn, getOperationalModsForRemove(
-                            name, candidate ) ) );
-                    }
-                }
-                
-                subentries.close();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage() );
-            }
-        }
-        else
+    /**
+     * Checks if the given DN is a namingContext
+     */
+    private boolean isNamingContext( DN dn ) throws LdapException
+    {
+        DN namingContext = nexus.findSuffix( dn );
+        
+        return dn.equals( namingContext );
+    }
+    
+    
+    /**
+     * Get the administrativePoint role
+     */
+    private void checkAdministrativeRole( OperationContext opContext, DN apDn ) throws LdapException
+    {
+        Entry administrationPoint = opContext.lookup( apDn, ByPassConstants.LOOKUP_BYPASS );
+        
+        // The administrativeRole AT must exist and not be null
+        EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
+
+        // check that administrativeRole has something valid in it for us
+        if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
         {
-            next.delete( deleteContext );
+            throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apDn ) );
         }
     }
+    
+    
+    /**
+     * Get the SubtreeSpecification, parse it and stores it into the subentry
+     */
+    private void setSubtreeSpecification( Subentry subentry, Entry entry ) throws LdapException
+    {
+        String subtree = entry.get( SUBTREE_SPECIFICATION_AT ).getString();
+        SubtreeSpecification ss;
 
-
-    // -----------------------------------------------------------------------
-    // Methods dealing subentry name changes
-    // -----------------------------------------------------------------------
+        try
+        {
+            ss = ssParser.parse( subtree );
+        }
+        catch ( Exception e )
+        {
+            String msg = I18n.err( I18n.ERR_307, entry.getDn() );
+            LOG.warn( msg );
+            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
+        }
+        
+        subentry.setSubtreeSpecification( ss );
+    }
+    
 
     /**
      * Checks to see if an entry being renamed has a descendant that is an
@@ -747,12 +495,8 @@ public class SubentryInterceptor extends BaseInterceptor
          * would be caused by chop exclusions. In this case we must add subentry
          * operational attribute values with the dn of this subentry.
          */
-        Iterator<String> subentries = subentryCache.nameIterator();
-
-        while ( subentries.hasNext() )
+        for ( DN subentryDn : subentryCache )
         {
-            String subentryDnStr = subentries.next();
-            DN subentryDn = new DN( subentryDnStr ).normalize( schemaManager.getNormalizerMapping() );
             DN apDn = subentryDn.getParent();
             SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, entry );
@@ -774,7 +518,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( opAttr != null )
                     {
                         opAttr = opAttr.clone();
-                        opAttr.remove( subentryDnStr );
+                        opAttr.remove( subentryDn.getNormName() );
 
                         if ( opAttr.size() < 1 )
                         {
@@ -793,264 +537,13 @@ public class SubentryInterceptor extends BaseInterceptor
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     EntryAttribute opAttr = new DefaultEntryAttribute( aSUBENTRY_OPATTRS, schemaManager
                         .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
-                    opAttr.add( subentryDnStr );
+                    opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
             }
         }
 
         return modList;
-    }
-
-
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        DN oldDn = renameContext.getDn();
-
-        Entry entry = renameContext.getEntry().getClonedEntry();
-
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
-        {
-            // @Todo To be reviewed !!!
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
-            SubtreeSpecification ss = subentry.getSubtreeSpecification();
-            DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-            DN newName = oldDn.getParent();
-
-            newName.add( renameContext.getNewRdn() );
-            newName.normalize( schemaManager.getNormalizerMapping() );
-
-            subentryCache.addSubentry( newName, subentry );
-            next.rename( renameContext );
-
-            subentry = subentryCache.getSubentry( newName );
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( renameContext.getSession(), baseDn,
-                filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN dn = candidate.getDn();
-                    dn.normalize( schemaManager.getNormalizerMapping() );
-    
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( renameContext.getSession(), dn, getOperationalModsForReplace(
-                            oldDn, newName, subentry, candidate ) ) );
-                    }
-                }
-                
-                subentries.close();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage() );
-            }
-        }
-        else
-        {
-            if ( hasAdministrativeDescendant( renameContext, oldDn ) )
-            {
-                String msg = I18n.err( I18n.ERR_308 );
-                LOG.warn( msg );
-                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
-            }
-
-            next.rename( renameContext );
-
-            // calculate the new DN now for use below to modify subentry operational
-            // attributes contained within this regular entry with name changes
-            DN newName = renameContext.getNewDn();
-
-            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
-
-            if ( mods.size() > 0 )
-            {
-                nexus.modify( new ModifyOperationContext( renameContext.getSession(), newName, mods ) );
-            }
-        }
-    }
-
-
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        DN oldDn = moveAndRenameContext.getDn();
-        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-
-        Entry entry = moveAndRenameContext.getOriginalEntry();
-
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
-        {
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
-            SubtreeSpecification ss = subentry.getSubtreeSpecification();
-            DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-            DN newName = newSuperiorDn.getParent();
-
-            newName.add( moveAndRenameContext.getNewRdn() );
-            newName.normalize( schemaManager.getNormalizerMapping() );
-
-            subentryCache.addSubentry( newName, subentry );
-            
-            next.moveAndRename( moveAndRenameContext );
-
-            subentry = subentryCache.getSubentry( newName );
-
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( moveAndRenameContext.getSession(), baseDn,
-                filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN dn = candidate.getDn();
-                    dn.normalize( schemaManager.getNormalizerMapping() );
-    
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), dn, getOperationalModsForReplace(
-                            oldDn, newName, subentry, candidate ) ) );
-                    }
-                }
-                
-                subentries.close();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage() );
-            }
-        }
-        else
-        {
-            if ( hasAdministrativeDescendant( moveAndRenameContext, oldDn ) )
-            {
-                String msg = I18n.err( I18n.ERR_308 );
-                LOG.warn( msg );
-                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
-            }
-
-            next.moveAndRename( moveAndRenameContext );
-
-            // calculate the new DN now for use below to modify subentry operational
-            // attributes contained within this regular entry with name changes
-            DN newDn = moveAndRenameContext.getNewDn();
-            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newDn, entry );
-
-            if ( mods.size() > 0 )
-            {
-                nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods ) );
-            }
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
-    {
-        DN oldDn = moveContext.getDn();
-        DN newSuperiorDn = moveContext.getNewSuperior();
-
-        Entry entry = moveContext.getOriginalEntry();
-
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
-        {
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
-            SubtreeSpecification ss = subentry.getSubtreeSpecification();
-            DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-            DN newName = (DN)newSuperiorDn.clone();
-            newName.add( oldDn.getRdn() );
-            newName.normalize( schemaManager.getNormalizerMapping() );
-
-            subentryCache.addSubentry( newName, subentry );
-            
-            next.move( moveContext );
-
-            subentry = subentryCache.getSubentry( newName );
-
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( moveContext.getSession(), baseDn,
-                filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                // Modify all the entries under this subentry
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN dn = candidate.getDn();
-                    dn.normalize( schemaManager.getNormalizerMapping() );
-    
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( moveContext.getSession(), dn, getOperationalModsForReplace(
-                            oldDn, newName, subentry, candidate ) ) );
-                    }
-                }
-                
-                subentries.close();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage() );
-            }
-        }
-        else
-        {
-            if ( hasAdministrativeDescendant( moveContext, oldDn ) )
-            {
-                String msg = I18n.err( I18n.ERR_308 );
-                LOG.warn( msg );
-                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
-            }
-
-            next.move( moveContext );
-
-            // calculate the new DN now for use below to modify subentry operational
-            // attributes contained within this regular entry with name changes
-            DN newName = moveContext.getNewDn();
-            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
-
-            if ( mods.size() > 0 )
-            {
-                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newName, mods ) );
-            }
-        }
     }
 
 
@@ -1095,140 +588,6 @@ public class SubentryInterceptor extends BaseInterceptor
         Entry attrs = new DefaultEntry( schemaManager, DN.EMPTY_DN );
         attrs.put( ocFinalState );
         return getSubentryAdminRoles( attrs );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
-    {
-        DN dn = modifyContext.getDn();
-        List<Modification> mods = modifyContext.getModItems();
-
-        Entry entry = modifyContext.getEntry();
-
-        boolean isSubtreeSpecificationModification = false;
-        Modification subtreeMod = null;
-
-        // Find the subtreeSpecification
-        for ( Modification mod : mods )
-        {
-            if ( mod.getAttribute().getAttributeType().equals( SUBTREE_SPECIFICATION_AT ) )
-            {
-                isSubtreeSpecificationModification = true;
-                subtreeMod = mod;
-                break;
-            }
-        }
-        
-        boolean containsSubentryOC = entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
-
-        if ( containsSubentryOC && isSubtreeSpecificationModification )
-        {
-            Subentry subentry = subentryCache.removeSubentry( dn );
-            SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
-            SubtreeSpecification ssNew;
-
-            try
-            {
-                ssNew = ssParser.parse( subtreeMod.getAttribute().getString() );
-            }
-            catch ( Exception e )
-            {
-                String msg = I18n.err( I18n.ERR_71 );
-                LOG.error( msg, e );
-                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-            }
-
-            subentry.setSubtreeSpecification( ssNew );
-            subentry.setAdministrativeRoles( getSubentryTypes( entry, mods ) );
-            subentryCache.addSubentry( dn, subentry );
-            
-            next.modify( modifyContext );
-
-            // search for all entries selected by the old SS and remove references to subentry
-            DN apName = dn.getParent();
-            DN oldBaseDn = ( DN ) apName.clone();
-            oldBaseDn.addAll( ssOld.getBase() );
-            
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( modifyContext.getSession(),
-                oldBaseDn, filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN candidateDn = candidate.getDn();
-    
-                    if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
-                            getOperationalModsForRemove( dn, candidate ) ) );
-                    }
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationErrorException( e.getMessage() );
-            }
-
-            // search for all selected entries by the new SS and add references to subentry
-            subentry = subentryCache.getSubentry( dn );
-            Entry operational = getSubentryOperationalAttributes( dn, subentry );
-            DN newBaseDn = ( DN ) apName.clone();
-            newBaseDn.addAll( ssNew.getBase() );
-
-            searchOperationContext = new SearchOperationContext( modifyContext.getSession(), newBaseDn, filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN candidateDn = candidate.getDn();
-    
-                    if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
-                            getOperationalModsForAdd( candidate, operational ) ) );
-                    }
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationErrorException( e.getMessage() );
-            }
-        }
-        else
-        {
-            next.modify( modifyContext );
-
-            if ( !containsSubentryOC )
-            {
-                Entry newEntry = modifyContext.getAlteredEntry(); 
-
-                List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
-
-                if ( subentriesOpAttrMods.size() > 0 )
-                {
-                    nexus.modify( new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods ) );
-                }
-            }
-        }
     }
 
 
@@ -1326,64 +685,36 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Gets the subschema operational attributes to be added to or removed from
      * an entry selected by a subentry's subtreeSpecification.
-     *
-     * @param name the normalized distinguished name of the subentry (the value of op attrs)
-     * @param subentry the subentry to get attributes from
-     * @return the set of attributes to be added or removed from entries
      */
-    private Entry getSubentryOperationalAttributes( DN name, Subentry subentry ) throws LdapException
+    private List<EntryAttribute> getSubentryOperationalAttributes( DN dn, Subentry subentry ) throws LdapException
     {
-        Entry operational = new DefaultEntry( schemaManager, name );
+        List<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
 
         if ( subentry.isAccessControlAdminRole() )
         {
-            if ( operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) == null )
-            {
-                operational.put( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, name.getNormName() );
-            }
-            else
-            {
-                operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).add( name.getNormName() );
-            }
+            EntryAttribute accessControlSubentries = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
+            attributes.add( accessControlSubentries );
         }
         
         if ( subentry.isSchemaAdminRole() )
         {
-            if ( operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) == null )
-            {
-                operational.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, name.getNormName() );
-            }
-            else
-            {
-                operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).add( name.getNormName() );
-            }
+            EntryAttribute subschemaSubentry = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
+            attributes.add( subschemaSubentry );
         }
         
         if ( subentry.isCollectiveAdminRole() )
         {
-            if ( operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) == null )
-            {
-                operational.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, name.getNormName() );
-            }
-            else
-            {
-                operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).add( name.getNormName() );
-            }
+            EntryAttribute collectiveAttributeSubentries = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, dn.getNormName() );
+            attributes.add( collectiveAttributeSubentries );
         }
         
         if ( subentry.isTriggersAdminRole() )
         {
-            if ( operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) == null )
-            {
-                operational.put( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, name.getNormName() );
-            }
-            else
-            {
-                operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).add( name.getNormName() );
-            }
+            EntryAttribute tiggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
+            attributes.add( tiggerExecutionSubentries );
         }
 
-        return operational;
+        return attributes;
     }
 
 
@@ -1429,95 +760,43 @@ public class SubentryInterceptor extends BaseInterceptor
      * subentry.  To do so a modify operation must be performed on entries
      * selected by the subtree specification.  This method calculates the
      * modify operation to be performed on the entry.
-     *
-     * @param entry the entry being modified
-     * @param operational the set of operational attributes supported by the AP
-     * of the subentry
-     * @return the set of modifications needed to update the entry
-     * @throws Exception if there are probelms accessing modification items
      */
-    public List<Modification> getOperationalModsForAdd( Entry entry, Entry operational ) throws LdapException
+    private List<Modification> getOperationalModsForAdd( Entry entry, List<EntryAttribute> operationalAttributes ) throws LdapException
     {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<Modification>();
 
-        for ( AttributeType attributeType : operational.getAttributeTypes() )
+        for ( EntryAttribute operationalAttribute : operationalAttributes )
         {
-            ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-            EntryAttribute result = new DefaultEntryAttribute( attributeType );
-            EntryAttribute opAttrAdditions = operational.get( attributeType );
-            EntryAttribute opAttrInEntry = entry.get( attributeType );
-
-            for ( Value<?> value : opAttrAdditions )
-            {
-                result.add( value );
-            }
-
-            if ( opAttrInEntry != null && opAttrInEntry.size() > 0 )
+            EntryAttribute opAttrInEntry = entry.get( operationalAttribute.getAttributeType() );
+            
+            if ( ( opAttrInEntry != null ) && ( opAttrInEntry.size() > 0 ) )
             {
                 for ( Value<?> value : opAttrInEntry )
-                {
-                    result.add( value );
+                {                    
+                    operationalAttribute.add( value );
                 }
+                
+                modifications.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operationalAttribute ) );
             }
             else
             {
-                op = ModificationOperation.ADD_ATTRIBUTE;
+                modifications.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, operationalAttribute ) );
             }
-
-            modList.add( new DefaultModification( op, result ) );
         }
 
-        return modList;
+        return modifications;
     }
+    
 
     /**
-     * SearchResultFilter used to filter out subentries based on objectClass values.
+     * Get the list of modification to apply to all the entries 
      */
-    public class HideSubentriesFilter implements EntryFilter
-    {
-        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
-        {
-            // see if we can get a match without normalization
-            if ( subentryCache.hasSubentry( entry.getDn() ) )
-            {
-                return false;
-            }
-
-            // see if we can use objectclass if present
-            return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
-        }
-    }
-
-    /**
-     * SearchResultFilter used to filter out normal entries but shows subentries based on 
-     * objectClass values.
-     */
-    public class HideEntriesFilter implements EntryFilter
-    {
-        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
-        {
-            // see if we can get a match without normalization
-            if ( subentryCache.hasSubentry( entry.getDn() ) )
-            {
-                return true;
-            }
-
-            // see if we can use objectclass if present
-            return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
-        }
-    }
-
-
     private List<Modification> getModsOnEntryModification( DN name, Entry oldEntry, Entry newEntry ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
 
-        Iterator<String> subentries = subentryCache.nameIterator();
-
-        while ( subentries.hasNext() )
+        for ( DN subentryDn : subentryCache )
         {
-            String subentryDnStr = subentries.next();
-            DN subentryDn = new DN( subentryDnStr ).normalize( schemaManager.getNormalizerMapping() );
             DN apDn = subentryDn.getParent();
             SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldEntrySelected = evaluator.evaluate( ss, apDn, name, oldEntry );
@@ -1539,7 +818,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( opAttr != null )
                     {
                         opAttr = opAttr.clone();
-                        opAttr.remove( subentryDnStr );
+                        opAttr.remove( subentryDn.getNormName() );
 
                         if ( opAttr.size() < 1 )
                         {
@@ -1558,12 +837,746 @@ public class SubentryInterceptor extends BaseInterceptor
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
                     EntryAttribute opAttr = new DefaultEntryAttribute( attribute, type );
-                    opAttr.add( subentryDnStr );
+                    opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
             }
         }
 
         return modList;
+    }
+
+    
+    //-------------------------------------------------------------------------------------------
+    // Interceptor API methods
+    //-------------------------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    {
+        DN dn = addContext.getDn();
+        ClonedServerEntry entry = addContext.getEntry();
+
+        // Check that the added entry is a subentry
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            // get the name of the administrative point and its administrativeRole attributes
+            // The AP must be the parent DN, but we also have to check that the given DN
+            // is not the rootDSE or a NamingContext
+            if ( dn.isRootDSE() || isNamingContext( dn ) )
+            {
+                // Not allowed : we can't get a parent in those cases
+                throw new LdapOtherException( "Cannot find an AdministrativePoint for " + dn );
+            }
+            
+            // Get the administrativePoint role
+            DN apDn = dn.getParent();
+            checkAdministrativeRole( addContext, apDn );
+
+            /* ----------------------------------------------------------------
+             * Build the set of operational attributes to be injected into
+             * entries that are contained within the subtree represented by this
+             * new subentry.  In the process we make sure the proper roles are
+             * supported by the administrative point to allow the addition of
+             * this new subentry.
+             * ----------------------------------------------------------------
+             */
+            Subentry subentry = new Subentry();
+            subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
+            List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+
+            /* ----------------------------------------------------------------
+             * Parse the subtreeSpecification of the subentry and add it to the
+             * SubtreeSpecification cache.  If the parse succeeds we continue
+             * to add the entry to the DIT.  Thereafter we search out entries
+             * to modify the subentry operational attributes of.
+             * ----------------------------------------------------------------
+             */
+            setSubtreeSpecification( subentry, entry );
+            subentryCache.addSubentry( dn, subentry );
+
+            // Now inject the subentry into the backend
+            next.add( addContext );
+
+            /* ----------------------------------------------------------------
+             * Find the baseDn for the subentry and use that to search the tree
+             * while testing each entry returned for inclusion within the
+             * subtree of the subentry's subtreeSpecification.  All included
+             * entries will have their operational attributes merged with the
+             * operational attributes calculated above.
+             * ----------------------------------------------------------------
+             */
+            DN baseDn = ( DN ) apDn.clone();
+            baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
+            
+            updateEntries( addContext.getSession(), apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
+
+            // TODO why are we doing this here if we got the entry from the 
+            // opContext in the first place - got to look into this 
+            addContext.setEntry( entry );
+        }
+        else
+        {
+            // The added entry is not a Subentry
+            // Nevertheless, we have to check if the entry is added into an AdministrativePoint
+            // and is associated with a SubtreeSpecification
+            for ( DN subentryDn : subentryCache )
+            {
+                DN apDn = subentryDn.getParent();
+                Subentry subentry = subentryCache.getSubentry( subentryDn );
+                SubtreeSpecification ss = subentry.getSubtreeSpecification();
+
+                if ( evaluator.evaluate( ss, apDn, dn, entry ) )
+                {
+                    EntryAttribute operational;
+
+                    if ( subentry.isAccessControlAdminRole() )
+                    {
+                        operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+
+                        if ( operational == null )
+                        {
+                            operational = new DefaultEntryAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
+                            entry.put( operational );
+                        }
+
+                        operational.add( subentryDn.getNormName() );
+                    }
+
+                    if ( subentry.isSchemaAdminRole() )
+                    {
+                        operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+
+                        if ( operational == null )
+                        {
+                            operational = new DefaultEntryAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
+                            entry.put( operational );
+                        }
+
+                        operational.add( subentryDn.getNormName() );
+                    }
+
+                    if ( subentry.isCollectiveAdminRole() )
+                    {
+                        operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+
+                        if ( operational == null )
+                        {
+                            operational = new DefaultEntryAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+                            entry.put( operational );
+                        }
+
+                        operational.add( subentryDn.getNormName() );
+                    }
+
+                    if ( subentry.isTriggersAdminRole() )
+                    {
+                        operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+
+                        if ( operational == null )
+                        {
+                            operational = new DefaultEntryAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+                            entry.put( operational );
+                        }
+
+                        operational.add( subentryDn.getNormName() );
+                    }
+                }
+            }
+
+            // TODO why are we doing this here if we got the entry from the 
+            // opContext in the first place - got to look into this 
+            addContext.setEntry( entry );
+
+            next.add( addContext );
+        }
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    {
+        DN name = deleteContext.getDn();
+        Entry entry = deleteContext.getEntry();
+
+        // If the entry has a "subentry" Objectclass, we can process the entry.
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            next.delete( deleteContext );
+
+            Subentry removedSubentry = subentryCache.removeSubentry( name );
+            SubtreeSpecification ss = removedSubentry.getSubtreeSpecification();
+
+            /* ----------------------------------------------------------------
+             * Find the baseDn for the subentry and use that to search the tree
+             * for all entries included by the subtreeSpecification.  Then we
+             * check the entry for subentry operational attribute that contain
+             * the DN of the subentry.  These are the subentry operational
+             * attributes we remove from the entry in a modify operation.
+             * ----------------------------------------------------------------
+             */
+            DN apName = name.getParent();
+            DN baseDn = ( DN ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[]
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( deleteContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN candidateDn = candidate.getDn();
+    
+                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), candidateDn, getOperationalModsForRemove(
+                            name, candidate ) ) );
+                    }
+                }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
+        }
+        else
+        {
+            next.delete( deleteContext );
+        }
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
+        throws LdapException
+    {
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+
+        if ( !isSubentryVisible( listContext ) )
+        {
+            cursor.addEntryFilter( new HideSubentriesFilter() );
+        }
+
+        return cursor;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    {
+        DN dn = modifyContext.getDn();
+        List<Modification> mods = modifyContext.getModItems();
+
+        Entry entry = modifyContext.getEntry();
+
+        boolean isSubtreeSpecificationModification = false;
+        Modification subtreeMod = null;
+
+        // Find the subtreeSpecification
+        for ( Modification mod : mods )
+        {
+            if ( mod.getAttribute().getAttributeType().equals( SUBTREE_SPECIFICATION_AT ) )
+            {
+                isSubtreeSpecificationModification = true;
+                subtreeMod = mod;
+                break;
+            }
+        }
+        
+        boolean containsSubentryOC = entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+
+        if ( containsSubentryOC && isSubtreeSpecificationModification )
+        {
+            Subentry subentry = subentryCache.removeSubentry( dn );
+            SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
+            SubtreeSpecification ssNew;
+
+            try
+            {
+                ssNew = ssParser.parse( subtreeMod.getAttribute().getString() );
+            }
+            catch ( Exception e )
+            {
+                String msg = I18n.err( I18n.ERR_71 );
+                LOG.error( msg, e );
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
+            }
+
+            subentry.setSubtreeSpecification( ssNew );
+            subentry.setAdministrativeRoles( getSubentryTypes( entry, mods ) );
+            subentryCache.addSubentry( dn, subentry );
+            
+            next.modify( modifyContext );
+
+            // search for all entries selected by the old SS and remove references to subentry
+            DN apName = dn.getParent();
+            DN oldBaseDn = ( DN ) apName.clone();
+            oldBaseDn.addAll( ssOld.getBase() );
+            
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[]
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( modifyContext.getSession(),
+                oldBaseDn, filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN candidateDn = candidate.getDn();
+    
+                    if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
+                            getOperationalModsForRemove( dn, candidate ) ) );
+                    }
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage() );
+            }
+
+            // search for all selected entries by the new SS and add references to subentry
+            subentry = subentryCache.getSubentry( dn );
+            List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+            DN newBaseDn = ( DN ) apName.clone();
+            newBaseDn.addAll( ssNew.getBase() );
+
+            searchOperationContext = new SearchOperationContext( modifyContext.getSession(), newBaseDn, filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN candidateDn = candidate.getDn();
+    
+                    if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
+                            getOperationalModsForAdd( candidate, operationalAttributes ) ) );
+                    }
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage() );
+            }
+        }
+        else
+        {
+            next.modify( modifyContext );
+
+            if ( !containsSubentryOC )
+            {
+                Entry newEntry = modifyContext.getAlteredEntry(); 
+
+                List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
+
+                if ( subentriesOpAttrMods.size() > 0 )
+                {
+                    nexus.modify( new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods ) );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    {
+        DN oldDn = moveContext.getDn();
+        DN newSuperiorDn = moveContext.getNewSuperior();
+
+        Entry entry = moveContext.getOriginalEntry();
+
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+            DN apName = oldDn.getParent();
+            DN baseDn = ( DN ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            DN newName = (DN)newSuperiorDn.clone();
+            newName.add( oldDn.getRdn() );
+            newName.normalize( schemaManager.getNormalizerMapping() );
+
+            subentryCache.addSubentry( newName, subentry );
+            
+            next.move( moveContext );
+
+            subentry = subentryCache.getSubentry( newName );
+
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[]
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( moveContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                // Modify all the entries under this subentry
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( moveContext.getSession(), dn, getOperationalModsForReplace(
+                            oldDn, newName, subentry, candidate ) ) );
+                    }
+                }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
+        }
+        else
+        {
+            if ( hasAdministrativeDescendant( moveContext, oldDn ) )
+            {
+                String msg = I18n.err( I18n.ERR_308 );
+                LOG.warn( msg );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
+            }
+
+            next.move( moveContext );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            DN newName = moveContext.getNewDn();
+            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
+
+            if ( mods.size() > 0 )
+            {
+                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newName, mods ) );
+            }
+        }
+    }
+
+
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        DN oldDn = moveAndRenameContext.getDn();
+        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
+
+        Entry entry = moveAndRenameContext.getOriginalEntry();
+
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+            DN apName = oldDn.getParent();
+            DN baseDn = ( DN ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            DN newName = newSuperiorDn.getParent();
+
+            newName.add( moveAndRenameContext.getNewRdn() );
+            newName.normalize( schemaManager.getNormalizerMapping() );
+
+            subentryCache.addSubentry( newName, subentry );
+            
+            next.moveAndRename( moveAndRenameContext );
+
+            subentry = subentryCache.getSubentry( newName );
+
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[]
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( moveAndRenameContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), dn, getOperationalModsForReplace(
+                            oldDn, newName, subentry, candidate ) ) );
+                    }
+                }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
+        }
+        else
+        {
+            if ( hasAdministrativeDescendant( moveAndRenameContext, oldDn ) )
+            {
+                String msg = I18n.err( I18n.ERR_308 );
+                LOG.warn( msg );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
+            }
+
+            next.moveAndRename( moveAndRenameContext );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            DN newDn = moveAndRenameContext.getNewDn();
+            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newDn, entry );
+
+            if ( mods.size() > 0 )
+            {
+                nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods ) );
+            }
+        }
+    }
+
+
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    {
+        DN oldDn = renameContext.getDn();
+
+        Entry entry = renameContext.getEntry().getClonedEntry();
+
+        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            // @Todo To be reviewed !!!
+            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+            DN apName = oldDn.getParent();
+            DN baseDn = ( DN ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            DN newName = oldDn.getParent();
+
+            newName.add( renameContext.getNewRdn() );
+            newName.normalize( schemaManager.getNormalizerMapping() );
+
+            subentryCache.addSubentry( newName, subentry );
+            next.rename( renameContext );
+
+            subentry = subentryCache.getSubentry( newName );
+            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[]
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( renameContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
+
+            try
+            {
+                while ( subentries.next() )
+                {
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( renameContext.getSession(), dn, getOperationalModsForReplace(
+                            oldDn, newName, subentry, candidate ) ) );
+                    }
+                }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
+        }
+        else
+        {
+            if ( hasAdministrativeDescendant( renameContext, oldDn ) )
+            {
+                String msg = I18n.err( I18n.ERR_308 );
+                LOG.warn( msg );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
+            }
+
+            next.rename( renameContext );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            DN newName = renameContext.getNewDn();
+
+            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
+
+            if ( mods.size() > 0 )
+            {
+                nexus.modify( new ModifyOperationContext( renameContext.getSession(), newName, mods ) );
+            }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
+        throws LdapException
+    {
+        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+
+        // object scope searches by default return subentries
+        if ( searchContext.getScope() == SearchScope.OBJECT )
+        {
+            return cursor;
+        }
+
+        // for subtree and one level scope we filter
+        if ( !isSubentryVisible( searchContext ) )
+        {
+            cursor.addEntryFilter( new HideSubentriesFilter() );
+        }
+        else
+        {
+            cursor.addEntryFilter( new HideEntriesFilter() );
+        }
+
+        return cursor;
+    }
+
+
+    //-------------------------------------------------------------------------------------------
+    // Shared method
+    //-------------------------------------------------------------------------------------------
+    /**
+     * Evaluates the set of subentry subtrees upon an entry and returns the
+     * operational subentry attributes that will be added to the entry if
+     * added at the dn specified.
+     *
+     * @param dn the normalized distinguished name of the entry
+     * @param entryAttrs the entry attributes are generated for
+     * @return the set of subentry op attrs for an entry
+     * @throws Exception if there are problems accessing entry information
+     */
+    public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws LdapException
+    {
+        Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
+
+        for ( DN subentryDn : subentryCache )
+        {
+            DN apDn = subentryDn.getParent();
+            Subentry subentry = subentryCache.getSubentry( subentryDn );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+
+            if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
+            {
+                EntryAttribute operational;
+
+                if ( subentry.isAccessControlAdminRole() )
+                {
+                    operational = subentryAttrs.get( ACCESS_CONTROL_SUBENTRIES_AT );
+
+                    if ( operational == null )
+                    {
+                        operational = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
+                        subentryAttrs.put( operational );
+                    }
+
+                    operational.add( subentryDn.getNormName() );
+                }
+                
+                if ( subentry.isSchemaAdminRole() )
+                {
+                    operational = subentryAttrs.get( SUBSCHEMA_SUBENTRY_AT );
+
+                    if ( operational == null )
+                    {
+                        operational = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT );
+                        subentryAttrs.put( operational );
+                    }
+
+                    operational.add( subentryDn.getNormName() );
+                }
+                
+                if ( subentry.isCollectiveAdminRole() )
+                {
+                    operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+
+                    if ( operational == null )
+                    {
+                        operational = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                        subentryAttrs.put( operational );
+                    }
+
+                    operational.add( subentryDn.getNormName() );
+                }
+                
+                if ( subentry.isTriggersAdminRole() )
+                {
+                    operational = subentryAttrs.get( TRIGGER_EXECUTION_SUBENTRIES_AT );
+
+                    if ( operational == null )
+                    {
+                        operational = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
+                        subentryAttrs.put( operational );
+                    }
+
+                    operational.add( subentryDn.getNormName() );
+                }
+            }
+        }
+
+        return subentryAttrs;
     }
 }

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.name.DN;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubentryCache
+public class SubentryCache implements Iterable<DN>
 {
     /** The default cache size limit */
     private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
@@ -48,14 +48,14 @@ public class SubentryCache
     private AtomicInteger cacheSize;
     
     /** The Subentry cache */
-    private final Map<String, Subentry> cache;
+    private final Map<DN, Subentry> cache;
     
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
     public SubentryCache()
     {
-        cache = new HashMap<String, Subentry>();
+        cache = new HashMap<DN, Subentry>();
         cacheSize = new AtomicInteger( 0 );
     }
     
@@ -65,7 +65,7 @@ public class SubentryCache
      */
     public SubentryCache( int maxSize )
     {
-        cache = new HashMap<String, Subentry>();
+        cache = new HashMap<DN, Subentry>();
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
@@ -79,7 +79,7 @@ public class SubentryCache
      */
     final Subentry getSubentry( DN dn )
     {
-        return cache.get( dn.getNormName() );
+        return cache.get( dn );
     }
     
     
@@ -92,7 +92,8 @@ public class SubentryCache
      */
     final Subentry removeSubentry( DN dn )
     {
-        Subentry oldSubentry = cache.remove( dn.getNormName() );
+        int k = dn.hashCode();
+        Subentry oldSubentry = cache.remove( dn );
         
         if ( oldSubentry != null )
         {
@@ -113,12 +114,13 @@ public class SubentryCache
      */
     /* No qualifier */ Subentry addSubentry( DN dn, Subentry subentry )
     {
+        int k = dn.hashCode();
         if ( cacheSize.get() > cacheMaxSize )
         {
             // TODO : Throw an exception here
         }
         
-        Subentry oldSubentry = cache.put( dn.getNormName(), subentry );
+        Subentry oldSubentry = cache.put( dn, subentry );
         
         if ( oldSubentry == null )
         {
@@ -136,14 +138,14 @@ public class SubentryCache
      */
     /* No qualifier */ boolean hasSubentry( DN dn )
     {
-        return cache.containsKey( dn.getNormName() );
+        return cache.containsKey( dn );
     }
     
     
     /**
      * @return An Iterator over the Subentry's DNs 
      */
-    final Iterator<String> nameIterator()
+    public Iterator<DN> iterator()
     {
         return cache.keySet().iterator();
     }
