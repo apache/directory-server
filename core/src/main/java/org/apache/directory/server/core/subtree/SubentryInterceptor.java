@@ -100,13 +100,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
 
     /** The set of Subentry operational attributes */
-    public static final String[] SUBENTRY_OPATTRS =
-        { 
-            SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, 
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT,
-            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, 
-            SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT 
-        };
+    public static AttributeType[] SUBENTRY_OPATTRS;
 
     /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
     private final SubentryCache subentryCache = new SubentryCache();
@@ -143,6 +137,14 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the TriggerExecutionSubentries AT */
     private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+    
+    /** An enum used for the entries update */
+    private enum OperationEnum 
+    {
+        ADD,
+        REMOVE,
+        REPLACE
+    }
 
 
     //-------------------------------------------------------------------------------------------
@@ -210,6 +212,14 @@ public class SubentryInterceptor extends BaseInterceptor
         SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+
+        SUBENTRY_OPATTRS = new AttributeType[]
+            { 
+                ACCESS_CONTROL_SUBENTRIES_AT, 
+                SUBSCHEMA_SUBENTRY_AT,
+                COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, 
+                TRIGGER_EXECUTION_SUBENTRIES_AT 
+            };
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
@@ -351,7 +361,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Update all the entries under an AP adding the 
      */
-    private void updateEntries( CoreSession session, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> modifications  ) throws LdapException
+    private void updateEntries( OperationEnum operation, CoreSession session, DN subentryDn, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> operationalAttributes  ) throws LdapException
     {
         ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
         SearchControls controls = new SearchControls();
@@ -374,9 +384,26 @@ public class SubentryInterceptor extends BaseInterceptor
                 
                 if ( evaluator.evaluate( ss, apDn, candidateDn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( session, candidateDn, 
-                        getOperationalModsForAdd(
-                        candidate, modifications ) ) );
+                    List<Modification> modifications = null;
+                    
+                    switch ( operation )
+                    {
+                        case ADD :
+                            modifications = getOperationalModsForAdd( candidate, operationalAttributes );
+                            break;
+                            
+                        case REMOVE :
+                            modifications = getOperationalModsForRemove( subentryDn, candidate );
+                            break;
+
+                            /*
+                        case REPLACE :
+                            modifications = getOperationalModsForReplace( subentryDn, candidate );
+                            break;
+                            */
+                    }
+                    
+                    nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
         }
@@ -510,10 +537,10 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldNameSelected && !isNewNameSelected )
             {
-                for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    EntryAttribute opAttr = entry.get( aSUBENTRY_OPATTRS );
+                    EntryAttribute opAttr = entry.get( operationalAttribute );
 
                     if ( opAttr != null )
                     {
@@ -532,11 +559,10 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewNameSelected && !isOldNameSelected )
             {
-                for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    EntryAttribute opAttr = new DefaultEntryAttribute( aSUBENTRY_OPATTRS, schemaManager
-                        .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
+                    EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
@@ -733,22 +759,21 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private List<Modification> getOperationalModsForRemove( DN subentryDn, Entry candidate ) throws LdapException
     {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<Modification>();
         String dn = subentryDn.getNormName();
 
-        for ( String opAttrId : SUBENTRY_OPATTRS )
+        for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
         {
-            EntryAttribute opAttr = candidate.get( opAttrId );
+            EntryAttribute opAttr = candidate.get( operationalAttribute );
 
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( opAttrId );
-                EntryAttribute attr = new DefaultEntryAttribute( opAttrId, attributeType, dn );
-                modList.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
+                EntryAttribute attr = new DefaultEntryAttribute( operationalAttribute, dn );
+                modifications.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
 
-        return modList;
+        return modifications;
     }
 
 
@@ -772,7 +797,7 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( ( opAttrInEntry != null ) && ( opAttrInEntry.size() > 0 ) )
             {
                 for ( Value<?> value : opAttrInEntry )
-                {                    
+                {
                     operationalAttribute.add( value );
                 }
                 
@@ -810,10 +835,10 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldEntrySelected && !isNewEntrySelected )
             {
-                for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    EntryAttribute opAttr = oldEntry.get( aSUBENTRY_OPATTRS );
+                    EntryAttribute opAttr = oldEntry.get( operationalAttribute );
 
                     if ( opAttr != null )
                     {
@@ -832,11 +857,10 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewEntrySelected && !isOldEntrySelected )
             {
-                for ( String attribute : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
-                    EntryAttribute opAttr = new DefaultEntryAttribute( attribute, type );
+                    EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
@@ -910,7 +934,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apDn.clone();
             baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
             
-            updateEntries( addContext.getSession(), apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
+            updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
 
             // TODO why are we doing this here if we got the entry from the 
             // opContext in the first place - got to look into this 
@@ -924,75 +948,79 @@ public class SubentryInterceptor extends BaseInterceptor
             for ( DN subentryDn : subentryCache )
             {
                 DN apDn = subentryDn.getParent();
-                Subentry subentry = subentryCache.getSubentry( subentryDn );
-                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-
-                if ( evaluator.evaluate( ss, apDn, dn, entry ) )
+                
+                // No need to evaluate the entry if it's not below an AP.
+                if ( dn.isChildOf( apDn ) )
                 {
-                    EntryAttribute operational;
-
-                    if ( subentry.isAccessControlAdminRole() )
+                    Subentry subentry = subentryCache.getSubentry( subentryDn );
+                    SubtreeSpecification ss = subentry.getSubtreeSpecification();
+    
+                    // Now, evaluate the entry wrt the subentry ss
+                    if ( evaluator.evaluate( ss, apDn, dn, entry ) )
                     {
-                        operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-
-                        if ( operational == null )
+                        
+                        EntryAttribute operational;
+    
+                        if ( subentry.isAccessControlAdminRole() )
                         {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
-                            entry.put( operational );
+                            operational = entry.get( ACCESS_CONTROL_SUBENTRIES_AT );
+    
+                            if ( operational == null )
+                            {
+                                operational = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
+                                entry.put( operational );
+                            }
+    
+                            operational.add( subentryDn.getNormName() );
                         }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isSchemaAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-
-                        if ( operational == null )
+    
+                        if ( subentry.isSchemaAdminRole() )
                         {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
-                            entry.put( operational );
+                            operational = entry.get( SUBSCHEMA_SUBENTRY_AT );
+    
+                            if ( operational == null )
+                            {
+                                operational = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT );
+                                entry.put( operational );
+                            }
+    
+                            operational.add( subentryDn.getNormName() );
                         }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isCollectiveAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
-                        if ( operational == null )
+    
+                        if ( subentry.isCollectiveAdminRole() )
                         {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
-                            entry.put( operational );
+                            operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+    
+                            if ( operational == null )
+                            {
+                                operational = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                                entry.put( operational );
+                            }
+    
+                            operational.add( subentryDn.getNormName() );
                         }
-
-                        operational.add( subentryDn.getNormName() );
-                    }
-
-                    if ( subentry.isTriggersAdminRole() )
-                    {
-                        operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-
-                        if ( operational == null )
+    
+                        if ( subentry.isTriggersAdminRole() )
                         {
-                            operational = new DefaultEntryAttribute( schemaManager
-                                .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
-                            entry.put( operational );
+                            operational = entry.get( TRIGGER_EXECUTION_SUBENTRIES_AT );
+    
+                            if ( operational == null )
+                            {
+                                operational = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
+                                entry.put( operational );
+                            }
+    
+                            operational.add( subentryDn.getNormName() );
                         }
-
-                        operational.add( subentryDn.getNormName() );
                     }
                 }
             }
 
-            // TODO why are we doing this here if we got the entry from the 
-            // opContext in the first place - got to look into this 
+            // Now that the entry has been updated with the operational attributes,
+            // we can update it
             addContext.setEntry( entry );
 
+            // Propagate the addition down to the backend.
             next.add( addContext );
         }
     }
@@ -1003,7 +1031,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN name = deleteContext.getDn();
+        DN dn = deleteContext.getDn();
         Entry entry = deleteContext.getEntry();
 
         // If the entry has a "subentry" Objectclass, we can process the entry.
@@ -1011,8 +1039,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             next.delete( deleteContext );
 
-            Subentry removedSubentry = subentryCache.removeSubentry( name );
-            SubtreeSpecification ss = removedSubentry.getSubtreeSpecification();
+            Subentry removedSubentry = subentryCache.removeSubentry( dn );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -1022,42 +1049,11 @@ public class SubentryInterceptor extends BaseInterceptor
              * attributes we remove from the entry in a modify operation.
              * ----------------------------------------------------------------
              */
-            DN apName = name.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
+            DN apDn = dn.getParent();
+            DN baseDn = ( DN ) apDn.clone();
+            baseDn.addAll( removedSubentry.getSubtreeSpecification().getBase() );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-            SearchOperationContext searchOperationContext = new SearchOperationContext( deleteContext.getSession(), baseDn,
-                filter, controls );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-            try
-            {
-                while ( subentries.next() )
-                {
-                    Entry candidate = subentries.get();
-                    DN candidateDn = candidate.getDn();
-    
-                    if ( evaluator.evaluate( ss, apName, candidateDn, candidate ) )
-                    {
-                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), candidateDn, getOperationalModsForRemove(
-                            name, candidate ) ) );
-                    }
-                }
-                
-                subentries.close();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage() );
-            }
+            updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
         }
         else
         {
