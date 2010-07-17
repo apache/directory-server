@@ -55,13 +55,13 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -124,11 +124,12 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
         DN userDn = new DN( "cn=user,ou=system" );
-        Entry userEntry = new DefaultEntry( userDn );
-        userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
-        userEntry.add( SchemaConstants.CN_AT, "user" );
-        userEntry.add( SchemaConstants.SN_AT, "user_sn" );
-        userEntry.add( SchemaConstants.USER_PASSWORD_AT, "1234".getBytes() );
+        Entry userEntry = LdifUtils.createEntry( userDn, 
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: user",
+            "sn: user_sn",
+            "userPassword: 1234" ); 
 
         AddRequest addReq = new AddRequest( userEntry );
         addReq.add( PP_REQ_CTRL );
@@ -142,7 +143,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         EntryAttribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
-        pwdAt.add( "12345".getBytes() );
+        pwdAt.add( "12345" );
         
         addResp = connection.add( addReq );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
@@ -205,11 +206,12 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
         
         DN userDn = new DN( "cn=userMinAge,ou=system" );
-        Entry userEntry = new DefaultEntry( userDn );
-        userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
-        userEntry.add( SchemaConstants.CN_AT, "userMinAge" );
-        userEntry.add( SchemaConstants.SN_AT, "userMinAge_sn" );
-        userEntry.add( SchemaConstants.USER_PASSWORD_AT, "12345".getBytes() );
+        Entry userEntry = LdifUtils.createEntry( userDn, 
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: userMinAge",
+            "sn: userMinAge_sn",
+            "userPassword: 12345" ); 
 
         AddRequest addReq = new AddRequest( userEntry );
         addReq.add( PP_REQ_CTRL );
