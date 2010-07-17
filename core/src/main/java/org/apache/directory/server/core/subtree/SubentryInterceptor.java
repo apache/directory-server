@@ -507,10 +507,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
     private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, Entry entry ) throws LdapException
     {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<Modification>();
 
         /*
-         * There are two different situations warranting action.  Firt if
+         * There are two different situations warranting action.  First if
          * an ss evalutating to true with the old name no longer evalutates
          * to true with the new name.  This would be caused by specific chop
          * exclusions that effect the new name but did not effect the old
@@ -518,7 +518,7 @@ public class SubentryInterceptor extends BaseInterceptor
          * values associated with the dn of that subentry.
          *
          * In the second case an ss selects the entry with the new name when
-         * it did not previously with the old name.  Again this situation
+         * it did not previously with the old name. Again this situation
          * would be caused by chop exclusions. In this case we must add subentry
          * operational attribute values with the dn of this subentry.
          */
@@ -552,7 +552,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             op = ModificationOperation.REMOVE_ATTRIBUTE;
                         }
 
-                        modList.add( new DefaultModification( op, opAttr ) );
+                        modifications.add( new DefaultModification( op, opAttr ) );
                     }
                 }
             }
@@ -564,12 +564,12 @@ public class SubentryInterceptor extends BaseInterceptor
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
-                    modList.add( new DefaultModification( op, opAttr ) );
+                    modifications.add( new DefaultModification( op, opAttr ) );
                 }
             }
         }
 
-        return modList;
+        return modifications;
     }
 
 
@@ -615,96 +615,43 @@ public class SubentryInterceptor extends BaseInterceptor
         attrs.put( ocFinalState );
         return getSubentryAdminRoles( attrs );
     }
+    
+    
+    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, DN oldDn, DN newDn, List<Modification> modifications )
+    {
+        String oldDnStr = oldDn.getNormName();
+        String newDnStr = newDn.getNormName();
+
+        if ( hasRole )
+        {
+            EntryAttribute operational = entry.get( attributeType ).clone();
+
+            if ( operational == null )
+            {
+                operational = new DefaultEntryAttribute( attributeType, newDnStr );
+            }
+            else
+            {
+                operational.remove( oldDnStr );
+                operational.add( newDnStr );
+            }
+
+            modifications.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
+        }
+    }
 
 
-    // -----------------------------------------------------------------------
-    // Utility Methods
-    // -----------------------------------------------------------------------
-
-    private List<Modification> getOperationalModsForReplace( DN oldName, DN newName, Subentry subentry, Entry entry )
+    private List<Modification> getOperationalModsForReplace( DN oldDn, DN newDn, Subentry subentry, Entry entry )
         throws Exception
     {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<Modification>();
+        
+        getOperationalModForReplace( subentry.isAccessControlAdminRole(), ACCESS_CONTROL_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isAccessControlAdminRole(), SUBSCHEMA_SUBENTRY_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isAccessControlAdminRole(), COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isAccessControlAdminRole(), TRIGGER_EXECUTION_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
 
-        EntryAttribute operational;
-
-        if ( subentry.isAccessControlAdminRole() )
-        {
-            operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).clone();
-
-            if ( operational == null )
-            {
-                operational = new DefaultEntryAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, schemaManager
-                    .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
-                operational.add( newName.toString() );
-            }
-            else
-            {
-                operational.remove( oldName.toString() );
-                operational.add( newName.toString() );
-            }
-
-            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
-        }
-
-        if ( subentry.isSchemaAdminRole() )
-        {
-            operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).clone();
-
-            if ( operational == null )
-            {
-                operational = new DefaultEntryAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
-                    .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
-                operational.add( newName.toString() );
-            }
-            else
-            {
-                operational.remove( oldName.toString() );
-                operational.add( newName.toString() );
-            }
-
-            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
-        }
-
-        if ( subentry.isCollectiveAdminRole() )
-        {
-            operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).clone();
-
-            if ( operational == null )
-            {
-                operational = new DefaultEntryAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
-                operational.add( newName.toString() );
-            }
-            else
-            {
-                operational.remove( oldName.toString() );
-                operational.add( newName.toString() );
-            }
-
-            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
-        }
-
-        if ( subentry.isTriggersAdminRole() )
-        {
-            operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).clone();
-
-            if ( operational == null )
-            {
-                operational = new DefaultEntryAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, schemaManager
-                    .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
-                operational.add( newName.toString() );
-            }
-            else
-            {
-                operational.remove( oldName.toString() );
-                operational.add( newName.toString() );
-            }
-
-            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
-        }
-
-        return modList;
+        return modifications;
     }
 
 
@@ -1085,15 +1032,22 @@ public class SubentryInterceptor extends BaseInterceptor
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         DN dn = modifyContext.getDn();
-        List<Modification> mods = modifyContext.getModItems();
+        List<Modification> modifications = modifyContext.getModItems();
 
         Entry entry = modifyContext.getEntry();
+        
+        // We have three types of modifications :
+        // 1) A modification applied on a normal entry
+        // 2) A modification done on a subentry (the entry will have a 'subentry' ObjectClass)
+        // 3) A modification on a normal entry on whch we add a 'subentry' ObjectClass
+        // The third case is a transformation of a normal entry to a subentry. Not sure if it's
+        // legal ...
 
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
 
         // Find the subtreeSpecification
-        for ( Modification mod : mods )
+        for ( Modification mod : modifications )
         {
             if ( mod.getAttribute().getAttributeType().equals( SUBTREE_SPECIFICATION_AT ) )
             {
@@ -1105,6 +1059,7 @@ public class SubentryInterceptor extends BaseInterceptor
         
         boolean containsSubentryOC = entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
 
+        // Check if we have a modified subentry attribute in a Subentry entry
         if ( containsSubentryOC && isSubtreeSpecificationModification )
         {
             Subentry subentry = subentryCache.removeSubentry( dn );
@@ -1123,7 +1078,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             subentry.setSubtreeSpecification( ssNew );
-            subentry.setAdministrativeRoles( getSubentryTypes( entry, mods ) );
+            subentry.setAdministrativeRoles( getSubentryTypes( entry, modifications ) );
             subentryCache.addSubentry( dn, subentry );
             
             next.modify( modifyContext );
@@ -1225,6 +1180,15 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
+            // This is a subentry. Moving a subentry means we have to:
+            // o Check that there is a new AP where we move the subentry
+            // o Remove the op Attr from all the entry selected by the subentry
+            // o Add the op Attr in all the selected entry by the subentry
+            
+            // If we move it, we have to check that
+            // the new parent is an AP
+            checkAdministrativeRole( moveContext, newSuperiorDn );
+
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
@@ -1277,6 +1241,12 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
+            // A normal entry. It may be part of a SubtreeSpecifciation. In this
+            // case, we have to update the opAttrs (removing old ones and adding the
+            // new ones)
+            
+            // First, an moved entry which has an AP in one of its descendant
+            // can't be moved.
             if ( hasAdministrativeDescendant( moveContext, oldDn ) )
             {
                 String msg = I18n.err( I18n.ERR_308 );
@@ -1284,16 +1254,18 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
+            // Move the entry
             next.move( moveContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
-            DN newName = moveContext.getNewDn();
-            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
+            DN newDn = moveContext.getNewDn();
+            List<Modification> mods = getModsOnEntryRdnChange( oldDn, newDn, entry );
 
+            // Update the entry operational attributes
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newName, mods ) );
+                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newDn, mods ) );
             }
         }
     }
