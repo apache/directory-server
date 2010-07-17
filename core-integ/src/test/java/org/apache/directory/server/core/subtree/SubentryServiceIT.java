@@ -42,6 +42,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
@@ -346,6 +347,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
      * AP-A
      * not-AP
      *   C
+     *   
+     * Then add a subentry under AP-B
+     * The following entries must be modified :
+     *   AP-B
+     *     B1
+     *     B2
+     *     
+     * Then suppress the subentry under AP-B
      */
     public void testSubentryAdd() throws Exception
     {
@@ -372,7 +381,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
         String subEntryAPADn = "2.5.4.3=testsubentrya,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
         
-        String[] modifiedEntries = new String[]
+        String[] modifiedEntriesA = new String[]
             {
                 "dc=AP-A,dc=test,ou=system",
                   "cn=A1,dc=AP-A,dc=test,ou=system",
@@ -385,7 +394,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
                       "cn=B2,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
             };
 
-        for ( String dn : modifiedEntries )
+        for ( String dn : modifiedEntriesA )
         {
             checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryAPADn );
         }
@@ -393,14 +402,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentryA do not have the mark
         // --------------------------------------------------------------------
-        String[] unchangedEntries = new String[]
+        String[] unchangedEntriesA = new String[]
             {
                 "dc=test,ou=system",
                   "dc=not-AP,dc=test,ou=system",
                     "cn=C,dc=not-AP,dc=test,ou=system",
             };
 
-        for ( String dn : unchangedEntries )
+        for ( String dn : unchangedEntriesA )
         {
             checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
         }
@@ -424,7 +433,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // Make sure entries selected by the subentryA do have the mark for
         // the subentry A
         // --------------------------------------------------------------------
-        modifiedEntries = new String[]
+        String[] modifiedEntriesAB = new String[]
             {
                 "dc=AP-A,dc=test,ou=system",
                   "cn=A1,dc=AP-A,dc=test,ou=system",
@@ -434,7 +443,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
                     "cn=A2-1,cn=A2,dc=AP-A,dc=test,ou=system",
             };
 
-        for ( String dn : modifiedEntries )
+        for ( String dn : modifiedEntriesAB )
         {
             checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryAPADn );
         }
@@ -445,14 +454,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
         String subEntryAPBDn = "2.5.4.3=testsubentryb,0.9.2342.19200300.100.1.25=ap-b,2.5.4.3=a2,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
         
-        modifiedEntries = new String[]
+        String[] modifiedEntriesB = new String[]
             {
                 "dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
                   "cn=B1,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
                   "cn=B2,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
             };
 
-        for ( String dn : modifiedEntries )
+        for ( String dn : modifiedEntriesB )
         {
             checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 2, subEntryAPADn, subEntryAPBDn );
         }
@@ -460,14 +469,33 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentryA do not have the mark
         // --------------------------------------------------------------------
-        unchangedEntries = new String[]
+        String[] unchangedEntriesB = new String[]
             {
                 "dc=test,ou=system",
                   "dc=not-AP,dc=test,ou=system",
                     "cn=C,dc=not-AP,dc=test,ou=system",
             };
 
-        for ( String dn : unchangedEntries )
+        for ( String dn : unchangedEntriesB )
+        {
+            checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
+        }
+        
+        // Now delete the AP-B subentry
+        DeleteResponse deleteResponse = connection.delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
+        
+        // --------------------------------------------------------------------
+        // Check that we are back to where we were before the addition of the B
+        // subentry
+        // --------------------------------------------------------------------
+        results = getAllEntries( connection, "dc=test,ou=system" );
+
+        for ( String dn : modifiedEntriesA )
+        {
+            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryAPADn );
+        }
+
+        for ( String dn : unchangedEntriesA )
         {
             checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
         }

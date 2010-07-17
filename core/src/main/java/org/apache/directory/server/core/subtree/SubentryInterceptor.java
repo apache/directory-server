@@ -743,12 +743,14 @@ public class SubentryInterceptor extends BaseInterceptor
             
             if ( ( opAttrInEntry != null ) && ( opAttrInEntry.size() > 0 ) )
             {
+                EntryAttribute newOperationalAttribute = operationalAttribute.clone();
+                
                 for ( Value<?> value : opAttrInEntry )
                 {
-                    operationalAttribute.add( value );
+                    newOperationalAttribute.add( value );
                 }
                 
-                modifications.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operationalAttribute ) );
+                modifications.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newOperationalAttribute ) );
             }
             else
             {
