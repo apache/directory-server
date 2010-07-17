@@ -310,12 +310,16 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
     
-    private void checkHasOpAttr( Entry entry, String opAttr, String subentryDn ) throws Exception
+    private void checkHasOpAttr( Entry entry, String opAttr, int nbOpAttr, String... subentryDns ) throws Exception
     {
         EntryAttribute attribute = entry.get( opAttr );
         assertNotNull( attribute );
-        assertEquals( subentryDn, attribute.getString() );
-        assertEquals( 1, attribute.size() );
+        assertEquals( nbOpAttr, attribute.size() );
+        
+        for ( String subentryDn : subentryDns )
+        {
+            assertTrue( attribute.contains( subentryDn ) );
+        }
     }
 
     
@@ -348,15 +352,15 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         // Add the subentry
-        Entry subEntry = LdifUtils.createEntry( new DN( "cn=testsubentry,dc=AP-A,dc=test,ou=system" ), 
+        Entry subEntryA = LdifUtils.createEntry( new DN( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ), 
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}",  // All the entry from the AP, including the AP
             "c-o: Test Org",
-            "cn: testsubentry" );
+            "cn: testsubentryA" );
 
-        AddResponse response = connection.add( subEntry );
+        AddResponse response = connection.add( subEntryA );
 
         assertTrue( response.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS );
 
@@ -364,9 +368,9 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         Map<String, Entry> results = getAllEntries( connection, "dc=test,ou=system" );
 
         // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
+        // Make sure entries selected by the subentryA do have the mark
         // --------------------------------------------------------------------
-        String subEntryAPADn = "2.5.4.3=testsubentry,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
+        String subEntryAPADn = "2.5.4.3=testsubentrya,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
         
         String[] modifiedEntries = new String[]
             {
@@ -383,13 +387,80 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         for ( String dn : modifiedEntries )
         {
-            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", subEntryAPADn );
+            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryAPADn );
         }
 
         // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
+        // Make sure entries not selected by subentryA do not have the mark
         // --------------------------------------------------------------------
         String[] unchangedEntries = new String[]
+            {
+                "dc=test,ou=system",
+                  "dc=not-AP,dc=test,ou=system",
+                    "cn=C,dc=not-AP,dc=test,ou=system",
+            };
+
+        for ( String dn : unchangedEntries )
+        {
+            checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
+        }
+        
+        // Now add another subentry on AP-B
+        // Add the subentry
+        Entry subEntryB = LdifUtils.createEntry( new DN( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ), 
+            "objectClass: top",
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry",
+            "subtreeSpecification: {}",  // All the entry from the AP, including the AP
+            "c-o: Test Org",
+            "cn: testsubentryB" );
+
+        response = connection.add( subEntryB );
+
+        // Check the resulting modifications
+        results = getAllEntries( connection, "dc=test,ou=system" );
+
+        // --------------------------------------------------------------------
+        // Make sure entries selected by the subentryA do have the mark for
+        // the subentry A
+        // --------------------------------------------------------------------
+        modifiedEntries = new String[]
+            {
+                "dc=AP-A,dc=test,ou=system",
+                  "cn=A1,dc=AP-A,dc=test,ou=system",
+                    "cn=A1-1,cn=A1,dc=AP-A,dc=test,ou=system",
+                    "cn=A1-2,cn=A1,dc=AP-A,dc=test,ou=system",
+                  "cn=A2,dc=AP-A,dc=test,ou=system",
+                    "cn=A2-1,cn=A2,dc=AP-A,dc=test,ou=system",
+            };
+
+        for ( String dn : modifiedEntries )
+        {
+            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryAPADn );
+        }
+
+        // --------------------------------------------------------------------
+        // Make sure entries selected by the subentryB do have the mark for
+        // the two subentries
+        // --------------------------------------------------------------------
+        String subEntryAPBDn = "2.5.4.3=testsubentryb,0.9.2342.19200300.100.1.25=ap-b,2.5.4.3=a2,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
+        
+        modifiedEntries = new String[]
+            {
+                "dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+                  "cn=B1,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+                  "cn=B2,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+            };
+
+        for ( String dn : modifiedEntries )
+        {
+            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 2, subEntryAPADn, subEntryAPBDn );
+        }
+
+        // --------------------------------------------------------------------
+        // Make sure entries not selected by subentryA do not have the mark
+        // --------------------------------------------------------------------
+        unchangedEntries = new String[]
             {
                 "dc=test,ou=system",
                   "dc=not-AP,dc=test,ou=system",
@@ -438,7 +509,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         for ( String dn : modifiedEntries )
         {
-            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", subEntryDn );
+            checkHasOpAttr( results.get( dn ), "collectiveAttributeSubentries", 1, subEntryDn );
         }
 
         // --------------------------------------------------------------------
