@@ -617,6 +617,10 @@ public class SubentryInterceptor extends BaseInterceptor
     }
     
     
+    /**
+     * Update the list of modifications with a modification associated with a specific
+     * role, if it's requested.
+     */
     private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, DN oldDn, DN newDn, List<Modification> modifications )
     {
         String oldDnStr = oldDn.getNormName();
@@ -641,15 +645,19 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Get the list of modifications to be applied on an entry to inject the operational attributes
+     * associated with the administrative roles.
+     */
     private List<Modification> getOperationalModsForReplace( DN oldDn, DN newDn, Subentry subentry, Entry entry )
         throws Exception
     {
         List<Modification> modifications = new ArrayList<Modification>();
         
         getOperationalModForReplace( subentry.isAccessControlAdminRole(), ACCESS_CONTROL_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
-        getOperationalModForReplace( subentry.isAccessControlAdminRole(), SUBSCHEMA_SUBENTRY_AT, entry, oldDn, newDn, modifications );
-        getOperationalModForReplace( subentry.isAccessControlAdminRole(), COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
-        getOperationalModForReplace( subentry.isAccessControlAdminRole(), TRIGGER_EXECUTION_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isSchemaAdminRole(), SUBSCHEMA_SUBENTRY_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isCollectiveAdminRole(), COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isTriggersAdminRole(), TRIGGER_EXECUTION_SUBENTRIES_AT, entry, oldDn, newDn, modifications );
 
         return modifications;
     }
@@ -891,9 +899,9 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            // The added entry is not a Subentry
+            // The added entry is not a Subentry.
             // Nevertheless, we have to check if the entry is added into an AdministrativePoint
-            // and is associated with a SubtreeSpecification
+            // and is associated with some SubtreeSpecification
             for ( DN subentryDn : subentryCache )
             {
                 DN apDn = subentryDn.getParent();
@@ -1171,7 +1179,32 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     /**
-     * {@inheritDoc}
+     * The Move operation for a Subentry will deal with different cases :
+     * 1) we move a normal entry
+     * 2) we move a subentry
+     * 3) we move an administrationPoint
+     * <p>
+     * <u>Case 1 :</u><br>
+     * A normal entry (ie, not a subentry or an AP) may be part of some administrative areas.
+     * We have to remove the references to the associated areas if the entry gets out of them.<br>
+     * This entry can also be moved to some other administrative area, and it should then be 
+     * updated to point to the associated subentries.
+     * <br><br>
+     * There is one preliminary condition : If the entry has a descendant which is an
+     * Administrative Point, then the move cannot be done.
+     * <br><br>
+     * <u>Case 2 :</u><br>
+     * The subentry has to be moved under a new AP, otherwise this is an error. Once moved,
+     * we have to update all the entries selected by the old subtreeSpecification, removing
+     * the references to the subentry from all the selected entry, and update the entries
+     * selected by the new subtreeSpecification by adding a reference to the subentry into them.
+     * <br><br>
+     * <u>Case 3 :</u><br>
+     * 
+     * 
+     * @param next The next interceptor in the chain
+     * @param moveContext The context containing all the needed informations to proceed
+     * @throws LdapException If the move failed
      */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
