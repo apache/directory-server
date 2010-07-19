@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -165,12 +166,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( deleteContext.getDn() );
         
         Entry reverseEntry = new DefaultEntry( serverEntry.getDn() );
+        
+        boolean isCollectiveSubentry = serverEntry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC );
 
         for ( EntryAttribute attribute : serverEntry )
         {
             // filter collective attributes, they can't be added by the revert operation
             AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
-            if ( !at.isCollective() )
+            
+            if ( !at.isCollective() || isCollectiveSubentry )
             {
                 reverseEntry.add( attribute.clone() );
             }

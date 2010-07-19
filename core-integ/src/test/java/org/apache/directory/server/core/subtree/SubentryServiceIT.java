@@ -331,7 +331,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test
     /**
      * Add a subentry under AP-A. 
      * The following entries must be modified :
@@ -356,6 +355,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
      *     
      * Then suppress the subentry under AP-B
      */
+    @Test
     public void testSubentryAdd() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
@@ -812,6 +812,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
@@ -819,6 +820,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
         collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries
@@ -827,6 +829,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
         collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
@@ -834,6 +837,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
         collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
