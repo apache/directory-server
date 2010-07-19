@@ -42,12 +42,13 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,21 +71,29 @@ import org.junit.runner.RunWith;
     "objectClass: top",
     "sn: user1 sn",
     "cn: user1",
-    
+
     // alias to the above entry
     "dn: cn=user1-alias,ou=users,ou=system",
     "objectClass: alias",
     "objectClass: top",
     "objectClass: extensibleObject",
     "aliasedObjectName: cn=user1,ou=users,ou=system",
-    "cn: user1-alias"
+    "cn: user1-alias",
+
+    // Another user
+    "dn: cn=elecharny,ou=users,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "sn:: RW1tYW51ZWwgTMOpY2hhcm55",
+    "cn: elecharny"
+    
 })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
-    private static LdapAsyncConnection connection;
+    private LdapAsyncConnection connection;
 
-    @BeforeClass
-    public static void setup() throws Exception
+    @Before
+    public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         DN bindDn = new DN( "uid=admin,ou=system" );
@@ -95,8 +104,8 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     /**
      * Close the LdapConnection
      */
-    @AfterClass
-    public static void shutdown()
+    @After
+    public void shutdown()
     {
         try
         {
@@ -155,6 +164,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             "+" );
         int count = 0;
         SearchResponse searchResponse = null;
+        
         do
         {
             searchResponse = ( SearchResponse ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
@@ -181,6 +191,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             "+" );
         int count = 0;
         SearchResponse searchResponse = null;
+        
         do
         {
             searchResponse = ( SearchResponse ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
@@ -193,7 +204,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         }
         while ( !( searchResponse instanceof SearchResultDone ) );
 
-        assertEquals(2, count );
+        assertEquals( 3, count );
     }
 
     
@@ -208,22 +219,32 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         
         int count = 0;
         Cursor<SearchResponse> cursor = connection.search( searchRequest );
+        
         while( cursor.next() )
         {
             count++;
         }
         
         // due to dereferencing of aliases we get only one entry
-        assertEquals( 1, count );
+        assertEquals( 2, count );
 
         count = 0;
         searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
         cursor = connection.search( searchRequest );
+        
         while( cursor.next() )
         {
             count++;
         }
         
-        assertEquals( 2, count );
+        assertEquals( 3, count );
+    }
+    
+
+    @Test(expected=LdapException.class)
+    public void testSearchUTF8() throws Exception
+    {
+        connection.search( "ou=system", "(sn=Emmanuel LŽcharny)", SearchScope.ONELEVEL, "*", "+" );
+        fail();
     }
 }
