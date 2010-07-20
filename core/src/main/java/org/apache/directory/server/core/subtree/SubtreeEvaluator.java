@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.subtree;
 
 
-import java.util.Iterator;
-
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -29,7 +27,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -79,50 +76,15 @@ public class SubtreeEvaluator
          * specification.
          * =====================================================================
          */
-
-        /*
-         * First we simply check if the candidate entry is a descendant of the
-         * administrative point.  In the process we calculate the relative
-         * distinguished name relative to the administrative point.
-         */
-        DN apRelativeRdn;
+        // First construct the subtree base, which is the concatenation of the
+        // AP DN and the subentry base
+        DN subentryBaseDn = (DN)apDn.clone();
+        subentryBaseDn.addAll( subtree.getBase() );
         
-        if ( !entryDn.isChildOf( apDn ) )
+        if ( !entryDn.isChildOf( subentryBaseDn ) )
         {
+            // The entry DN is not part of the subtree specification, get out
             return false;
-        }
-        else if ( apDn.equals( entryDn ) )
-        {
-            apRelativeRdn = new DN();
-        }
-        else
-        {
-            apRelativeRdn = NamespaceTools.getRelativeName( apDn, entryDn );
-        }
-
-        /*
-         * We do the same thing with the base as we did with the administrative
-         * point: check if the entry is a descendant of the base and find the
-         * relative name of the entry with respect to the base rdn.  With the
-         * baseRelativeRdn we can later make comparisons with specific exclusions.
-         */
-        DN baseRelativeRdn;
-        
-        if ( subtree.getBase() != null && subtree.getBase().size() == 0 )
-        {
-            baseRelativeRdn = apRelativeRdn;
-        }
-        else if ( apRelativeRdn.equals( subtree.getBase() ) )
-        {
-            baseRelativeRdn = new DN();
-        }
-        else if ( !apRelativeRdn.isChildOf( subtree.getBase() ) )
-        {
-            return false;
-        }
-        else
-        {
-            baseRelativeRdn = NamespaceTools.getRelativeName( subtree.getBase(), apRelativeRdn );
         }
 
         /*
@@ -133,13 +95,15 @@ public class SubtreeEvaluator
          * entries with a baseRelativeRdn size less than the minimum distance
          * are rejected.
          */
-        if ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX &&
-            subtree.getMaxBaseDistance() < baseRelativeRdn.size() )
+        int entryRelativeDnSize = entryDn.size() - subentryBaseDn.size();
+        
+        if ( ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX ) &&
+             ( entryRelativeDnSize > subtree.getMaxBaseDistance() ) )
         {
             return false;
         }
 
-        if ( subtree.getMinBaseDistance() > 0 && baseRelativeRdn.size() < subtree.getMinBaseDistance() )
+        if ( ( subtree.getMinBaseDistance() > 0 ) && ( entryRelativeDnSize < subtree.getMinBaseDistance() ) )
         {
             return false;
         }
@@ -151,27 +115,27 @@ public class SubtreeEvaluator
          * are equal so for chopAfter exclusions we must check for equality
          * as well and reject if the relative names are equal.
          */
-        Iterator<DN> list = subtree.getChopBeforeExclusions().iterator();
+        // Now, get the entry's relative part
         
-        while ( list.hasNext() )
+        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || 
+             ( subtree.getChopAfterExclusions().size() != 0 ) )
         {
-            DN chopBefore = list.next();
+            DN entryRelativeDn = entryDn.getSuffix( apDn.size() + subtree.getBase().size() );
             
-            if ( baseRelativeRdn.isChildOf( chopBefore ) )
+            for ( DN chopBeforeDn : subtree.getChopBeforeExclusions() )
             {
-                return false;
+                if ( entryRelativeDn.isChildOf( chopBeforeDn ) )
+                {
+                    return false;
+                }
             }
-        }
-
-        list = subtree.getChopAfterExclusions().iterator();
-        
-        while ( list.hasNext() )
-        {
-            DN chopAfter = ( DN ) list.next();
-            
-            if ( baseRelativeRdn.isChildOf( chopAfter ) && !chopAfter.equals( baseRelativeRdn ) )
+    
+            for ( DN chopAfterDn : subtree.getChopAfterExclusions() )
             {
-                return false;
+                if ( entryRelativeDn.isChildOf( chopAfterDn ) && !chopAfterDn.equals( entryRelativeDn ) )
+                {
+                    return false;
+                }
             }
         }
 

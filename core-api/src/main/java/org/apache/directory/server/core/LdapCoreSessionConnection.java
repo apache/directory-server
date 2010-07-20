@@ -540,6 +540,33 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    public ModifyResponse modify( DN dn, Modification... modifications ) throws LdapException
+    {
+        ModifyResponse resp = new ModifyResponse();
+        resp.setLdapResult( getDefaultResult() );
+
+        try
+        {
+            List<Modification> mods = new ArrayList<Modification>();
+
+            for ( Modification modification : modifications )
+            {
+                mods.add( modification );
+            }
+            session.modify( dn, mods );
+        }
+        catch ( Exception e )
+        {
+            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
+        }
+
+        return resp;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public ModifyResponse modify( Entry entry, ModificationOperation modOp ) throws LdapException
     {
         ModifyResponse resp = new ModifyResponse();

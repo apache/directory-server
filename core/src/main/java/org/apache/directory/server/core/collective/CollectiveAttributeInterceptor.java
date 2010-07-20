@@ -21,6 +21,7 @@ package org.apache.directory.server.core.collective;
 
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -37,16 +38,24 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,16 +69,21 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
+
     /** The SchemaManager instance */
     private SchemaManager schemaManager;
-
-    private PartitionNexus nexus;
-
-    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
     
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
+
     /** The CollectiveAttributeSubentries AttributeType */
     private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-
+    
+    /** The CollectiveExclusions AttributeType */
+    private static AttributeType COLLECTIVE_EXCLUSIONS_AT;
+    
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -77,31 +91,238 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
-            DN name = result.getDn();
-
-            if ( name.isNormalized() == false )
-            {
-                name = DN.normalize( name, schemaManager.getNormalizerMapping() );
-            }
-
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
             addCollectiveAttributes( operation, result, retAttrs );
+            
             return true;
         }
     };
-
-
+    //-------------------------------------------------------------------------------------
+    // Initialization
+    //-------------------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         schemaManager = directoryService.getSchemaManager();
-        nexus = directoryService.getPartitionNexus();
-        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, schemaManager );
         
+        // Load some AttributeType
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        
+        LOG.debug( "CollectiveAttriute interceptor initilaized" );
     }
 
 
+    // ------------------------------------------------------------------------
+    // Interceptor Method Overrides
+    // ------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    {
+        checkAdd( addContext.getDn(), addContext.getEntry() );
+
+        next.add( addContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
+        throws LdapException
+    {
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        
+        cursor.addEntryFilter( SEARCH_FILTER );
+        
+        return cursor;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    {
+        Entry result = nextInterceptor.lookup( lookupContext );
+
+        if ( result == null )
+        {
+            return null;
+        }
+
+        // Adding the collective attributes if any
+        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+        {
+            addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        }
+        else
+        {
+            addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
+        }
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    {
+        checkModify( modifyContext );
+
+        next.modify( modifyContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
+        throws LdapException
+    {
+        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        
+        cursor.addEntryFilter( SEARCH_FILTER );
+
+        return cursor;
+    }
+
+
+    //-------------------------------------------------------------------------------------
+    // Helper methods
+    //-------------------------------------------------------------------------------------
+    /**
+     * Check if we can add an entry. There are two cases : <br>
+     * <ul>
+     * <li>The entry is a normal entry : it should not contain any 'c-XXX' attributeType</li>
+     * <li>The entry is a collectiveAttributeSubentry
+     * </ul>
+     */
+    private void checkAdd( DN normName, Entry entry ) throws LdapException
+    {
+        if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        {
+            // This is a collectiveAttribute subentry. It must have at least one collective
+            // attribute
+            for ( EntryAttribute attribute : entry )
+            {
+                if ( attribute.getAttributeType().isCollective() )
+                {
+                    return;
+                }
+            }
+            
+            LOG.info( "A CollectiveAttribute subentry *should* have at least one collectiveAttribute" );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
+        }
+
+        if ( containsAnyCollectiveAttributes( entry ) )
+        {
+            /*
+             * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
+             */
+            LOG.info( "Cannot add the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
+                entry );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
+        }
+    }
+
+    
+    /**
+     * Check that we can modify an entry
+     */
+    private void checkModify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        List<Modification> mods = modifyContext.getModItems();
+        Entry originalEntry = modifyContext.getEntry();
+        Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( mods, originalEntry );
+
+        // If the modified entry contains the CollectiveAttributeSubentry, then the modification
+        // is accepted, no matter what
+        if ( targetEntry.contains( OBJECT_CLASS_AT, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        {
+            return;
+        }
+
+        // Check that we don't add any collectve attribute, this is not allowed on normal entries
+        if ( hasCollectiveAttributes( mods ) )
+        {
+            /*
+             * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
+             */
+            LOG.info( "Cannot modify the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
+                targetEntry );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_242 ) );
+        }
+    }
+
+    
+    /**
+     * Check that we have a CollectiveAttribute in the modifications. (CollectiveAttributes
+     * are those with a name starting with 'c-').
+     */
+    private boolean hasCollectiveAttributes( List<Modification> mods ) throws LdapException
+    {
+        for ( Modification mod : mods )
+        {
+            // TODO: handle http://issues.apache.org/jira/browse/DIRSERVER-1198
+            EntryAttribute attr = mod.getAttribute();
+            AttributeType attrType = attr.getAttributeType();
+
+            // Defensive programming. Very unlikely to happen here...
+            if ( attrType == null )
+            {
+                try
+                {
+                    attrType = schemaManager.lookupAttributeTypeRegistry( attr.getUpId() );
+                }
+                catch ( LdapException le )
+                {
+                    throw new LdapInvalidAttributeTypeException();
+                }
+            }
+
+            ModificationOperation modOp = mod.getOperation();
+
+            // If the AT is collective and we don't try to remove it, then we can return.
+            if ( attrType.isCollective() && ( modOp != ModificationOperation.REMOVE_ATTRIBUTE ) )
+            {
+                return true;
+            }
+        }
+
+        // No collective attrbute found
+        return false;
+    }
+
+    
+    /**
+     * Check if the entry contains any collective AttributeType (those starting with 'c-')
+     */
+    private boolean containsAnyCollectiveAttributes( Entry entry ) throws LdapException
+    {
+        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+
+        for ( AttributeType attributeType : attributeTypes )
+        {
+            if ( attributeType.isCollective() )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    
     /**
      * Adds the set of collective attributes requested in the returning attribute list
      * and contained in subentries referenced by the entry. Excludes collective
@@ -135,7 +356,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * variance.
          */
         EntryAttribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+            COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
 
         if ( collectiveExclusions != null )
@@ -295,69 +516,5 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
 
         return allSuperTypes;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Interceptor Method Overrides
-    // ------------------------------------------------------------------------
-
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
-    {
-        Entry result = nextInterceptor.lookup( lookupContext );
-
-        if ( result == null )
-        {
-            return null;
-        }
-
-        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
-        {
-            addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        }
-        else
-        {
-            addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
-        }
-
-        return result;
-    }
-
-
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
-        cursor.addEntryFilter( SEARCH_FILTER );
-        return cursor;
-    }
-
-
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
-        cursor.addEntryFilter( SEARCH_FILTER );
-        return cursor;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Partial Schema Checking
-    // ------------------------------------------------------------------------
-
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
-    {
-        collectiveAttributesSchemaChecker.checkAdd( addContext.getDn(), addContext.getEntry() );
-
-        next.add( addContext );
-    }
-
-
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
-    {
-        collectiveAttributesSchemaChecker.checkModify( modifyContext );
-
-        next.modify( modifyContext );
     }
 }

@@ -274,7 +274,7 @@ public enum I18n
     ERR_238("ERR_238"),
     ERR_239("ERR_239"),
     ERR_240("ERR_240"),
-    ERR_241("ERR_241"),
+    ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY("ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY"),
     ERR_242("ERR_242"),
     ERR_243("ERR_243"),
     ERR_244("ERR_244"),
@@ -290,7 +290,7 @@ public enum I18n
     ERR_254_ADD_EXISTING_VALUE("ERR_254_ADD_EXISTING_VALUE"),
     ERR_255("ERR_255"),
     ERR_256_NO_SUCH_OBJECT("ERR_256_NO_SUCH_OBJECT"),
-    //ERR_257("ERR_257"), --> ERR_250
+    ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT("ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT"),
     ERR_258("ERR_258"),
     ERR_259("ERR_259"),
     ERR_260("ERR_260"),
@@ -768,8 +768,8 @@ public enum I18n
     ERR_732("ERR_732"),
     ERR_733("ERR_733");
 
-    private final static ResourceBundle errBundle = ResourceBundle
-        .getBundle( "org/apache/directory/server/i18n/errors" );
+    private static ResourceBundle errBundle = ResourceBundle
+                .getBundle( "org.apache.directory.server.i18n.errors" );
 
     private final static ResourceBundle msgBundle = ResourceBundle
         .getBundle( "org/apache/directory/server/i18n/messages" );

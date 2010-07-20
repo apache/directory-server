@@ -25,27 +25,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.DN;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,9 +67,12 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class )
 public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
-    private Attributes getTestEntry( String cn ) throws LdapLdifException, LdapException
+    private static LdapConnection connection;
+    
+    private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Attributes subentry = LdifUtils.createAttributes( 
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
             "objectClass: top",
             "objectClass: person",
             "cn", cn ,
@@ -70,9 +82,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry()  throws LdapLdifException, LdapException
+    private Entry getTestSubentry( String dn )  throws LdapLdifException, LdapException
     {
-        Attributes subentry = LdifUtils.createAttributes( 
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -84,9 +97,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry2() throws LdapLdifException, LdapException
+    private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Attributes subentry = LdifUtils.createAttributes( 
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -98,9 +112,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry3() throws LdapLdifException, LdapException
+    private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Attributes subentry = LdifUtils.createAttributes( 
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -114,63 +129,89 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( String role ) throws Exception
     {
-        Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( role );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        getSystemContext( service ).modifyAttributes( "", new ModificationItem[] { item } );
+        EntryAttribute attribute = new DefaultEntryAttribute( "administrativeRole", role );
+        
+        connection.modify( new DN( "ou=system" ), new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute ) );
     }
 
 
-    private Map<String, Attributes> getAllEntries() throws Exception
+    private Map<String, Entry> getAllEntries() throws Exception
     {
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        Map<String, Entry> resultMap = new HashMap<String, Entry>();
+
+        Cursor<SearchResponse> cursor = 
+            connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
         
-        while ( results.hasMore() )
+        while ( cursor.next() )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            SearchResponse result = cursor.get();
+            
+            if ( result instanceof SearchResultEntry )
+            {
+                Entry entry = ((SearchResultEntry)result).getEntry();
+                resultMap.put( entry.getDn().getName(), entry );
+            }
         }
+
         return resultMap;
     }
 
 
-    private Map<String, Attributes> getAllEntriesRestrictAttributes() throws Exception
+    private Map<String, Entry> getAllEntriesRestrictAttributes() throws Exception
     {
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "cn" } );
-        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
-        while ( results.hasMore() )
+        Map<String, Entry> resultMap = new HashMap<String, Entry>();
+
+        Cursor<SearchResponse> cursor = 
+            connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "cn" );
+        
+        while ( cursor.next() )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            SearchResponse result = cursor.get();
+            
+            if ( result instanceof SearchResultEntry )
+            {
+                Entry entry = ((SearchResultEntry)result).getEntry();
+                resultMap.put( entry.getDn().getName(), entry );
+            }
         }
+
         return resultMap;
     }
     
     
-    private Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws Exception
+    private Map<String, Entry> getAllEntriesCollectiveAttributesOnly() throws Exception
     {
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-                                                    { "c-ou", "c-st" } );
-        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        Map<String, Entry> resultMap = new HashMap<String, Entry>();
+
+        Cursor<SearchResponse> cursor = 
+            connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "c-ou", "c-st" );
         
-        while ( results.hasMore() )
+        while ( cursor.next() )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            SearchResponse result = cursor.get();
+            
+            if ( result instanceof SearchResultEntry )
+            {
+                Entry entry = ((SearchResultEntry)result).getEntry();
+                resultMap.put( entry.getDn().getName(), entry );
+            }
         }
+
         return resultMap;
+    }
+
+    
+    @Before
+    public void init() throws Exception
+    {
+        connection = IntegrationUtils.getAdminConnection( service );
+    }
+    
+
+    @After
+    public void shutdown() throws Exception
+    {
+        connection.close();
     }
     
 
@@ -180,25 +221,27 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // Setup the collective attribute specific administration point
         // -------------------------------------------------------------------
-
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
+        Entry subentry = getTestSubentry( "cn=testsubentry,ou=system" );
+        connection.add( subentry );
 
         // -------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
 
-        Attributes attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
-        Attribute c_ou = attributes.get( "c-ou" );
+        SearchResponse response = connection.lookup( "ou=services,ou=configuration,ou=system" );
+        Entry entry = ((SearchResultEntry)response).getEntry();
+        EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
-        assertEquals( "configuration", c_ou.get() );
+        assertEquals( "configuration", c_ou.getString() );
 
         // -------------------------------------------------------------------
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
 
-        attributes = getSystemContext( service ).getAttributes( "ou=users" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=users,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
 
         // -------------------------------------------------------------------
@@ -211,65 +254,77 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
 
         // entry should not show the c-ou collective attribute anymore
-        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
-        getSystemContext( service ).createSubcontext( "cn=testsubentry2", getTestSubentry2() );
+        Entry subentry2 = getTestSubentry2( "cn=testsubentry2,ou=system" );
+        connection.add( subentry2 );
 
-        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
-        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
+
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
         // request the collective attribute specifically
+        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "c-ou" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
         
-        attributes = getSystemContext( service ).getAttributes(
-                "ou=interceptors,ou=configuration", new String[] { "c-ou" } );
-        c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
         
         // unspecify the collective attribute in the returning attribute list
+        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "objectClass" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
 
-        attributes = getSystemContext( service ).getAttributes(
-                "ou=interceptors,ou=configuration", new String[] { "objectClass" } );
-        c_ou = attributes.get( "c-ou" );
         assertNull( "a collective c-ou attribute should not be present", c_ou );
         
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
 
-        getSystemContext( service ).createSubcontext( "cn=testsubentry3", getTestSubentry3() );
+        connection.add( getTestSubentry3( "cn=testsubentry3,ou=system" ) );
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
-        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
-        Attribute c_st = attributes.get( "c-st" );
+        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        EntryAttribute c_st = entry.get( "c-st" );
+
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
-        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
+
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
-        c_st = attributes.get( "c-st" );
+        
+        c_st = entry.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
@@ -283,13 +338,17 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
 
         // none of the attributes should appear any longer
-        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
-        c_ou = attributes.get( "c-ou" );
+        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
+        entry = ((SearchResultEntry)response).getEntry();
+        c_ou = entry.get( "c-ou" );
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
-        c_st = attributes.get( "c-st" );
+
+        c_st = entry.get( "c-st" );
+        
         if ( c_st != null )
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
@@ -305,17 +364,17 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
+        connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
 
         // -------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
 
-        Map<String, Attributes> entries = getAllEntries();
-        Attributes attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        Attribute c_ou = attributes.get( "c-ou" );
+        Map<String, Entry> entries = getAllEntries();
+        Entry entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
-        assertEquals( "configuration", c_ou.get() );
+        assertEquals( "configuration", c_ou.getString() );
 
         
         // ------------------------------------------------------------------
@@ -324,18 +383,18 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // ------------------------------------------------------------------
         
         entries = getAllEntriesCollectiveAttributesOnly();
-        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
-        assertEquals( "configuration", c_ou.get() );   
+        assertEquals( "configuration", c_ou.getString() );   
         
         
         // -------------------------------------------------------------------
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
 
-        attributes = entries.get( "ou=users,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=users,ou=system" );
+        c_ou = entry.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
 
         // -------------------------------------------------------------------
@@ -349,27 +408,29 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
-        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
-        getSystemContext( service ).createSubcontext( "cn=testsubentry2", getTestSubentry2() );
+        connection.add( getTestSubentry2( "cn=testsubentry2,ou=system" ) );
         entries = getAllEntries();
 
-        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
-        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
@@ -378,22 +439,22 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
 
-        getSystemContext( service ).createSubcontext( "cn=testsubentry3", getTestSubentry3() );
+        connection.add( getTestSubentry3( "cn=testsubentry3,ou=system" ) );
         entries = getAllEntries();
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
-        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        Attribute c_st = attributes.get( "c-st" );
+        entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        EntryAttribute c_st = entry.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
-        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
-        c_st = attributes.get( "c-st" );
+        c_st = entry.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
@@ -408,13 +469,16 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
-        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
+        entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
-        c_st = attributes.get( "c-st" );
+        
+        c_st = entry.get( "c-st" );
+        
         if ( c_st != null )
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
@@ -427,71 +491,41 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entries = getAllEntriesRestrictAttributes();
 
         // we should no longer see collective attributes with restricted return attribs
-        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
-        c_st = attributes.get( "c-st" );
+        entry = entries.get( "ou=services,ou=configuration,ou=system" );
+        c_st = entry.get( "c-st" );
         assertNull( "a collective c-st attribute should NOT be present", c_st );
 
-        attributes = entries.get( "ou=partitions,ou=configuration,ou=system" );
-        c_ou = attributes.get( "c-ou" );
-        c_st = attributes.get( "c-st" );
+        entry = entries.get( "ou=partitions,ou=configuration,ou=system" );
+        c_ou = entry.get( "c-ou" );
+        c_st = entry.get( "c-st" );
         assertNull( c_ou );
         assertNull( c_st );
     }
     
     
     @Test
-    public void testAddRegularEntryWithCollectiveAttribute() throws LdapException
+    public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
-        Attributes entry = getTestEntry( "Ersin Er" );
+        Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
         
-        try
-        {
-            getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
-            fail( "Entry addition with collective attribute should have failed." );
-        }
-        catch ( Exception e )
-        {
-            // Intended execution point
-        }
+        AddResponse response = connection.add( entry );
+        
+        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }
     
     
     @Test
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
-        Attributes entry = getTestEntry( "Ersin Er" );
-        getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
-        Attributes changeSet = new BasicAttributes( "c-l", "Turkiye", true );
-        try
-        {
-            
-            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
-            fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
-        }
-        catch ( NamingException e )
-        {
-            // Intended execution point
-        }
-    }
-    
-    
-    @Test
-    public void testModifyRegularEntryAddingCollectiveAttribute2() throws Exception
-    {
-        Attributes entry = getTestEntry( "Ersin Er" );
-        getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
-        Attribute change = new BasicAttribute( "c-l", "Turkiye");
-        ModificationItem mod = new ModificationItem(DirContext.ADD_ATTRIBUTE, change);
-        try
-        {
-            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", new ModificationItem[] { mod } );
-            fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
-        }
-        catch ( NamingException e )
-        {
-            // Intended execution point
-        }
+        Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
+        connection.add( entry );
+        
+        ModifyResponse response = connection.modify( new DN( "cn=Ersin Er,ou=system" ), 
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+                new DefaultEntryAttribute( "c-l", "Turkiye" ) ) );
+        
+        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }
     
     
@@ -501,16 +535,17 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // Setup the collective attribute specific administration point
         // -------------------------------------------------------------------
-    
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
+        Entry subentry = getTestSubentry( "cn=testsubentry,ou=system" );
+        connection.add( subentry );
     
         // request the collective attribute's super type specifically
-        Attributes attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration",
-            new String[] { "ou" } );
-        Attribute c_ou = attributes.get( "c-ou" );
+        SearchResponse response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
+        
+        Entry entry = ((SearchResultEntry)response).getEntry();
+        
+        EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
     }
-    
 }
