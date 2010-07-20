@@ -403,6 +403,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             */
                     }
                     
+                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
                     nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
@@ -438,6 +439,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // check that administrativeRole has something valid in it for us
         if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
         {
+            LOG.error( "The entry on {} is not an AdministrativePoint", apDn );
             throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apDn ) );
         }
     }
@@ -826,6 +828,23 @@ public class SubentryInterceptor extends BaseInterceptor
 
         return modList;
     }
+    
+    
+    /**
+     * Update the Operational Attribute with the reference to the subentry 
+     */
+    private void setOperationalAttribute( Entry entry, DN subentryDn, AttributeType opAttr) throws LdapException
+    {
+        EntryAttribute operational = entry.get( opAttr );
+
+        if ( operational == null )
+        {
+            operational = new DefaultEntryAttribute( opAttr );
+            entry.put( operational );
+        }
+
+        operational.add( subentryDn.getNormName() );
+    }
 
     
     //-------------------------------------------------------------------------------------------
@@ -839,7 +858,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN dn = addContext.getDn();
         ClonedServerEntry entry = addContext.getEntry();
 
-        // Check that the added entry is a subentry
+        // Check if the added entry is a subentry
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
@@ -851,7 +870,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapOtherException( "Cannot find an AdministrativePoint for " + dn );
             }
             
-            // Get the administrativePoint role
+            // Get the administrativePoint role : we must have one immediately
+            // upper
             DN apDn = dn.getParent();
             checkAdministrativeRole( addContext, apDn );
 
@@ -893,8 +913,8 @@ public class SubentryInterceptor extends BaseInterceptor
             
             updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
 
-            // TODO why are we doing this here if we got the entry from the 
-            // opContext in the first place - got to look into this 
+            // Store the newly modified entry into the context for later use in interceptor
+            // just in case
             addContext.setEntry( entry );
         }
         else
@@ -902,6 +922,9 @@ public class SubentryInterceptor extends BaseInterceptor
             // The added entry is not a Subentry.
             // Nevertheless, we have to check if the entry is added into an AdministrativePoint
             // and is associated with some SubtreeSpecification
+            // We brutally check *all* the subentries, as we don't hold a hierarchy
+            // of AP
+            // TODO : add a hierarchy of subentries
             for ( DN subentryDn : subentryCache )
             {
                 DN apDn = subentryDn.getParent();
@@ -913,68 +936,35 @@ public class SubentryInterceptor extends BaseInterceptor
                     SubtreeSpecification ss = subentry.getSubtreeSpecification();
     
                     // Now, evaluate the entry wrt the subentry ss
+                    // and inject a ref to the subentry if it evaluates to true
                     if ( evaluator.evaluate( ss, apDn, dn, entry ) )
                     {
                         
-                        EntryAttribute operational;
-    
                         if ( subentry.isAccessControlAdminRole() )
                         {
-                            operational = entry.get( ACCESS_CONTROL_SUBENTRIES_AT );
-    
-                            if ( operational == null )
-                            {
-                                operational = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
-                                entry.put( operational );
-                            }
-    
-                            operational.add( subentryDn.getNormName() );
+                            setOperationalAttribute( entry, subentryDn, ACCESS_CONTROL_SUBENTRIES_AT );
                         }
     
                         if ( subentry.isSchemaAdminRole() )
                         {
-                            operational = entry.get( SUBSCHEMA_SUBENTRY_AT );
-    
-                            if ( operational == null )
-                            {
-                                operational = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT );
-                                entry.put( operational );
-                            }
-    
-                            operational.add( subentryDn.getNormName() );
+                            setOperationalAttribute( entry, subentryDn, SUBSCHEMA_SUBENTRY_AT );
                         }
     
                         if ( subentry.isCollectiveAdminRole() )
                         {
-                            operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-    
-                            if ( operational == null )
-                            {
-                                operational = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-                                entry.put( operational );
-                            }
-    
-                            operational.add( subentryDn.getNormName() );
+                            setOperationalAttribute( entry, subentryDn, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                         }
     
                         if ( subentry.isTriggersAdminRole() )
                         {
-                            operational = entry.get( TRIGGER_EXECUTION_SUBENTRIES_AT );
-    
-                            if ( operational == null )
-                            {
-                                operational = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
-                                entry.put( operational );
-                            }
-    
-                            operational.add( subentryDn.getNormName() );
+                            setOperationalAttribute( entry, subentryDn, TRIGGER_EXECUTION_SUBENTRIES_AT );
                         }
                     }
                 }
             }
 
             // Now that the entry has been updated with the operational attributes,
-            // we can update it
+            // we can update it into the add context
             addContext.setEntry( entry );
 
             // Propagate the addition down to the backend.
@@ -992,12 +982,11 @@ public class SubentryInterceptor extends BaseInterceptor
         Entry entry = deleteContext.getEntry();
 
         // If the entry has a "subentry" Objectclass, we can process the entry.
+        // We first remove the re
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            next.delete( deleteContext );
-
-            Subentry removedSubentry = subentryCache.removeSubentry( dn );
-
+            Subentry removedSubentry = subentryCache.getSubentry( dn );
+            
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
              * for all entries included by the subtreeSpecification.  Then we
@@ -1010,10 +999,18 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apDn.clone();
             baseDn.addAll( removedSubentry.getSubtreeSpecification().getBase() );
 
+            // Remove all the references to this removed subentry from all the selected entries
             updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
+
+            // Update the cache
+            subentryCache.removeSubentry( dn );
+
+            // Now delete the subentry itself
+            next.delete( deleteContext );
         }
         else
         {
+            // TODO : deal with AP removal.
             next.delete( deleteContext );
         }
     }
