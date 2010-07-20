@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.subtree;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.shared.ldap.name.DN;
@@ -55,7 +55,7 @@ public class SubentryCache implements Iterable<DN>
      */
     public SubentryCache()
     {
-        cache = new HashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<DN, Subentry>();
         cacheSize = new AtomicInteger( 0 );
     }
     
@@ -65,7 +65,7 @@ public class SubentryCache implements Iterable<DN>
      */
     public SubentryCache( int maxSize )
     {
-        cache = new HashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<DN, Subentry>();
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
@@ -92,7 +92,6 @@ public class SubentryCache implements Iterable<DN>
      */
     final Subentry removeSubentry( DN dn )
     {
-        int k = dn.hashCode();
         Subentry oldSubentry = cache.remove( dn );
         
         if ( oldSubentry != null )
@@ -114,7 +113,6 @@ public class SubentryCache implements Iterable<DN>
      */
     /* No qualifier */ Subentry addSubentry( DN dn, Subentry subentry )
     {
-        int k = dn.hashCode();
         if ( cacheSize.get() > cacheMaxSize )
         {
             // TODO : Throw an exception here
