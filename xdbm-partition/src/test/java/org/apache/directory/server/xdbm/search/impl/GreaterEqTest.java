@@ -605,8 +605,7 @@ public class GreaterEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        DN dn = new DN( "cn=jane doe,o=good times co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=jane doe,o=good times co.", schemaManager );
         Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "c-street", "3" );

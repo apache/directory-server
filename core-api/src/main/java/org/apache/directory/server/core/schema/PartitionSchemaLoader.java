@@ -101,45 +101,38 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     {
 
         // Initialize AttributeType Dns
-        DN dn = new DN( SchemaConstants.ATTRIBUTES_TYPE_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        DN dn = new DN( schemaManager, SchemaConstants.ATTRIBUTES_TYPE_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
-        dn = new DN( SchemaConstants.OBJECT_CLASSES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.OBJECT_CLASSES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
-        dn = new DN( SchemaConstants.MATCHING_RULES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.MATCHING_RULES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
         // Initialize Comparators Dns
-        dn = new DN( SchemaConstants.COMPARATORS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.COMPARATORS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticComparatorsDNs.put( schemaName, dn );
 
         // Initialize Normalizers Dns
-        dn = new DN( SchemaConstants.NORMALIZERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.NORMALIZERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
-        dn = new DN( SchemaConstants.SYNTAX_CHECKERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.SYNTAX_CHECKERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
         // Initialize Syntaxes Dns
-        dn = new DN( SchemaConstants.SYNTAXES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( schemaManager, SchemaConstants.SYNTAXES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
-        dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxesDNs.put( schemaName, dn );
 
     }
@@ -154,9 +147,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         if ( dn == null )
         {
-            dn = new DN( path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
+            dn = new DN( schemaManager, path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
 
-            dn.normalize( schemaManager.getNormalizerMapping() );
             staticDNs.put( schema.getSchemaName(), dn );
         }
 

@@ -1729,8 +1729,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ID ancestorId; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
-        normalizedAliasTargetDn = new DN( aliasTarget );
-        normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
+        normalizedAliasTargetDn = new DN( aliasTarget, schemaManager );
 
         /*
          * Check For Cycles
@@ -1868,7 +1867,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected void dropAliasIndices( ID aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
+        ID targetId = getEntryId( new DN( targetDn, schemaManager ) );
 
         if ( targetId == null )
         {
@@ -1940,7 +1939,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected void dropAliasIndices( ID aliasId, DN movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
+        ID targetId = getEntryId( new DN( targetDn, schemaManager ) );
         DN aliasDn = getEntryDn( aliasId );
 
         /*

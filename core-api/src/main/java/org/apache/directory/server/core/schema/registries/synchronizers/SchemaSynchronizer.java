@@ -103,8 +103,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
         
-        ouSchemaDN = new DN( SchemaConstants.OU_SCHEMA );
-        ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        ouSchemaDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
     }
 
 

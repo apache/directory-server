@@ -209,8 +209,7 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        schemaDN = new DN( SchemaConstants.OU_SCHEMA );
-        schemaDN.normalize( schemaManager.getNormalizerMapping() );
+        schemaDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
         
         wrapped.setId( ID );
         wrapped.setSuffix( schemaDN );
@@ -235,8 +234,7 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        schemaModificationDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationDN.normalize( schemaManager.getNormalizerMapping() );
+        schemaModificationDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, schemaManager );
     }
 
 

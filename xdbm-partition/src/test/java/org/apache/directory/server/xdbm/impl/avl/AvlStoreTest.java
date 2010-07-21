@@ -123,8 +123,7 @@ public class AvlStoreTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        EXAMPLE_COM = new DN( "dc=example,dc=com" );
-        EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+        EXAMPLE_COM = new DN( "dc=example,dc=com", schemaManager );
 
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
@@ -409,8 +408,7 @@ public class AvlStoreTest
     @Test
     public void testFreshStore() throws Exception
     {
-        DN dn = new DN( "o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "o=Good Times Co.", schemaManager );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
 
@@ -441,8 +439,7 @@ public class AvlStoreTest
         assertEquals( 10, store.count() );
 
         // add an alias and delete to test dropAliasIndices method
-        DN dn = new DN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
@@ -490,8 +487,7 @@ public class AvlStoreTest
         assertFalse( cursor.next() );
 
         // dn id 12
-        DN martinDn = new DN( "cn=Marting King,ou=Sales,o=Good Times Co." );
-        martinDn.normalize( schemaManager.getNormalizerMapping() );
+        DN martinDn = new DN( "cn=Marting King,ou=Sales,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, martinDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -505,8 +501,7 @@ public class AvlStoreTest
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
 
-        DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co." );
-        newParentDn.normalize( schemaManager.getNormalizerMapping() );
+        DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
 
         DN newDn = ((DN)newParentDn.clone()).add( martinDn.getRdn() );
         store.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
@@ -517,8 +512,7 @@ public class AvlStoreTest
         assertEquals( 12, ( long ) cursor.get().getId() );
 
         // dn id 13
-        DN marketingDn = new DN( "ou=Marketing,ou=Sales,o=Good Times Co." );
-        marketingDn.normalize( schemaManager.getNormalizerMapping() );
+        DN marketingDn = new DN( "ou=Marketing,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, marketingDn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Marketing" );
@@ -527,8 +521,7 @@ public class AvlStoreTest
         store.add( entry );
 
         // dn id 14
-        DN jimmyDn = new DN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        jimmyDn.normalize( schemaManager.getNormalizerMapping() );
+        DN jimmyDn = new DN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, jimmyDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Marketing" );
@@ -585,8 +578,7 @@ public class AvlStoreTest
     @Test(expected = LdapNoSuchObjectException.class)
     public void testAddWithoutParentId() throws Exception
     {
-        DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
@@ -598,8 +590,7 @@ public class AvlStoreTest
     @Test(expected = LdapSchemaViolationException.class)
     public void testAddWithoutObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=Martin King,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Martin King,ou=Sales,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
@@ -610,8 +601,7 @@ public class AvlStoreTest
     @Test
     public void testModifyAddOUAttrib() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -628,8 +618,7 @@ public class AvlStoreTest
     @Test
     public void testRename() throws Exception
     {
-        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -648,8 +637,7 @@ public class AvlStoreTest
     @Test
     public void testRenameEscaped() throws Exception
     {
-        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -663,8 +651,7 @@ public class AvlStoreTest
 
         store.rename( dn, rdn, true );
 
-        DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        dn2.normalize( schemaManager.getNormalizerMapping() );
+        DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co.", schemaManager );
         Long id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id );
@@ -675,8 +662,7 @@ public class AvlStoreTest
     @Test
     public void testMove() throws Exception
     {
-        DN childDn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        childDn.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         DefaultEntry childEntry = new DefaultEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
@@ -686,19 +672,16 @@ public class AvlStoreTest
 
         store.add( childEntry );
 
-        DN parentDn = new DN( "ou=Sales,o=Good Times Co." );
-        parentDn.normalize( schemaManager.getNormalizerMapping() );
+        DN parentDn = new DN( "ou=Sales,o=Good Times Co.", schemaManager );
 
         RDN rdn = new RDN( "cn=Ryan" );
 
         store.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
 
         // to drop the alias indices   
-        childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        childDn.normalize( schemaManager.getNormalizerMapping() );
+        childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
 
-        parentDn = new DN( "ou=Engineering,o=Good Times Co." );
-        parentDn.normalize( schemaManager.getNormalizerMapping() );
+        parentDn = new DN( "ou=Engineering,o=Good Times Co.", schemaManager );
 
         assertEquals( 3, store.getSubAliasIndex().count() );
 
@@ -712,8 +695,7 @@ public class AvlStoreTest
     @Test
     public void testModifyAdd() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, schemaManager
@@ -744,8 +726,7 @@ public class AvlStoreTest
     @Test
     public void testModifyReplace() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
@@ -777,8 +758,7 @@ public class AvlStoreTest
     @Test
     public void testModifyRemove() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
@@ -810,8 +790,7 @@ public class AvlStoreTest
     @Test
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
-        DN dn = new DN( "cn=Tim B,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Tim B,ou=Sales,o=Good Times Co.", schemaManager );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B" );
