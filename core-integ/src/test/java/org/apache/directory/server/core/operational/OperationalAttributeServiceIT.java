@@ -113,15 +113,6 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Object value = ou.getString();
         assertTrue( value instanceof String );
 
-        // test with the property now making ou into a binary value
-        /*
-        sysRoot.addToEnvironment( BINARY_KEY, "ou" );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
-        ou = ctx.getAttributes( "" ).get( "ou" );
-        value = ou.get();
-        assertEquals( "test", value );
-         */
-
         // try jpegPhoto which should be binary automatically - use ou as control
         byte[] keyValue = new byte[]
                                    { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
@@ -137,19 +128,6 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
         assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( ( byte[] ) value ) );
-
-        // try jpegPhoto which should be binary automatically but use String to
-        // create so we should still get back a byte[] - use ou as control
-        /*attributes.remove( "jpegPhoto" );
-        attributes.put( "jpegPhoto", "testing a string" );
-        sysRoot.createSubcontext( "ou=yetanothertest", attributes );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" );
-        ou = ctx.getObject( "" ).get( "ou" );
-        value = ou.get();
-        assertEquals( "yetanothertest", value );
-        jpegPhoto = ctx.getObject( "" ).get( "jpegPhoto" );
-        value = jpegPhoto.get();
-        assertTrue( value instanceof byte[] );*/
     }
 
 
@@ -179,9 +157,6 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertTrue( attribute.contains( "organizationalUnit" ) );
         assertNull( entry.get( "createTimestamp" ) );
         assertNull( entry.get( "creatorsName" ) );
-
-        //sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-        //    AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         Cursor<SearchResponse> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)", SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
         responses.next();
