@@ -297,8 +297,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         system.initialize();
 
         // Add root context entry for system partition
-        DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN );
-        systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
+        DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN, schemaManager );
         Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
@@ -312,8 +311,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ), NamespaceTools
             .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
@@ -368,8 +366,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                adminDn.normalize( schemaManager.getNormalizerMapping() );
+                DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
 
                 removeContextPartition(  new DN( suffix ) );
             }

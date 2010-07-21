@@ -108,8 +108,7 @@ public class TupleCache
 
     private DN parseNormalized( SchemaManager schemaManager, String name ) throws LdapException
     {
-        DN dn = new DN( name );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( name, schemaManager );
         return dn;
     }
 

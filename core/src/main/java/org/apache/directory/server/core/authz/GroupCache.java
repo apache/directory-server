@@ -84,9 +84,9 @@ public class GroupCache
     private AttributeType UNIQUE_MEMBER_AT;
 
     /**
-     * The OIDs normalizer map
+     * the schema manager
      */
-    private Map<String, OidNormalizer> normalizerMap;
+    private SchemaManager schemaManager;
 
     /** the normalized dn of the administrators group */
     private DN administratorsGroupDn;
@@ -102,8 +102,7 @@ public class GroupCache
      */
     public GroupCache( CoreSession session ) throws LdapException
     {
-        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-        normalizerMap = schemaManager.getNormalizerMapping();
+        schemaManager = session.getDirectoryService().getSchemaManager();
         nexus = session.getDirectoryService().getPartitionNexus();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
@@ -118,8 +117,7 @@ public class GroupCache
 
     private DN parseNormalized( String name ) throws LdapException
     {
-        DN dn = new DN( name );
-        dn.normalize( normalizerMap );
+        DN dn = new DN( name, schemaManager );
         return dn;
     }
 
@@ -142,7 +140,7 @@ public class GroupCache
             filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-            DN baseDn = new DN( suffix ).normalize( normalizerMap );
+            DN baseDn = new DN( suffix, schemaManager );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
@@ -156,7 +154,7 @@ public class GroupCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    DN groupDn = result.getDn().normalize( normalizerMap );
+                    DN groupDn = result.getDn().normalize( schemaManager.getNormalizerMapping() );
                     EntryAttribute members = getMemberAttribute( result );
     
                     if ( members != null )

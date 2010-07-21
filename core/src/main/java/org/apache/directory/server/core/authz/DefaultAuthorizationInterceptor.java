@@ -107,14 +107,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        ADMIN_SYSTEM_DN = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        ADMIN_SYSTEM_DN.normalize( schemaManager.getNormalizerMapping() );
+        ADMIN_SYSTEM_DN = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
-        GROUP_BASE_DN = new DN( ServerDNConstants.GROUPS_SYSTEM_DN );
-        GROUP_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
+        GROUP_BASE_DN = new DN( ServerDNConstants.GROUPS_SYSTEM_DN, schemaManager );
 
-        ADMIN_GROUP_DN = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
-        ADMIN_GROUP_DN.normalize( schemaManager.getNormalizerMapping() );
+        ADMIN_GROUP_DN = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN, schemaManager );
 
         uniqueMemberAT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
 
@@ -126,8 +123,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, directoryService.getSchemaManager() );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
@@ -142,8 +138,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value : uniqueMember )
         {
-            DN memberDn = new DN( value.getString() );
-            memberDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+            DN memberDn = new DN( value.getString(), directoryService.getSchemaManager() );
             newAdministrators.add( memberDn.getNormName() );
         }
 

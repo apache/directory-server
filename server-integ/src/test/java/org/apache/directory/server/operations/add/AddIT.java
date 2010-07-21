@@ -744,8 +744,7 @@ public class AddIT extends AbstractLdapTestUnit
             principalDn = "";
         }
         
-        DN userDn = new DN( principalDn );
-        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
+        DN userDn = new DN( principalDn, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
         if ( dn == null )

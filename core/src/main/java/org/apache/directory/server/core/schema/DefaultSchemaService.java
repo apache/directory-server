@@ -89,7 +89,7 @@ public class DefaultSchemaService implements SchemaService
             return true;
         }
 
-        DN dn = new DN( dnString ).normalize( schemaPartition.getSchemaManager().getNormalizerMapping() );
+        DN dn = new DN( dnString, schemaPartition.getSchemaManager() );
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
@@ -375,9 +375,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-            schemaModificationAttributesDN.normalize( 
-                getSchemaManager().getNormalizerMapping() );
+            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
         }
         catch ( LdapException e )
         {

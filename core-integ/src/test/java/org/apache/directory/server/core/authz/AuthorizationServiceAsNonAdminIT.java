@@ -141,8 +141,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         mods.add( mod );
       
-        DN userDn = new DN( "uid=akarasulu,ou=users,ou=system" );
-        userDn.normalize( service.getSchemaManager().getAttributeTypeRegistry().getNormalizerMapping() );
+        DN userDn = new DN( "uid=akarasulu,ou=users,ou=system", service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         CoreSession akarasuluSession = service.getSession( principal );
 

@@ -77,6 +77,8 @@ import org.junit.runner.RunWith;
         @CreateTransport( protocol = "LDAP" ), 
         @CreateTransport( protocol = "LDAPS" ) 
     })
+
+// disable changelog, for more info see DIRSERVER-1528
 @CreateDS( enableChangeLog=false)
 public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
@@ -237,9 +239,9 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
         
-//        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
-//        assertNotNull( userConnection );
-//        assertTrue( userConnection.isAuthenticated() );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
+        assertNotNull( userConnection );
+        assertTrue( userConnection.isAuthenticated() );
     }
 
     private PasswordPolicyResponseControl getPwdRespCtrl( AbstractResponseWithResult resp ) throws Exception
@@ -251,7 +253,6 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         }
 
         PasswordPolicyResponseControl respCtrl = new PasswordPolicyResponseControl();
-        //        System.out.println( StringTools.dumpBytes( ctrl.getValue() ) );
         decoder.decode( ctrl.getValue(), respCtrl );
 
         return respCtrl;
