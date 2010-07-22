@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.collective;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -28,10 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AddResponse;
@@ -46,6 +41,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -247,11 +243,9 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
-
-        ModificationItem[] items = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
-        getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
+        connection.modify( new DN( "ou=services,ou=configuration, ou=system" ), modification );
 
         // entry should not show the c-ou collective attribute anymore
         response = connection.lookup( "ou=services,ou=configuration,ou=system" );
@@ -304,7 +298,6 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
-
         connection.add( getTestSubentry3( "cn=testsubentry3,ou=system" ) );
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
@@ -331,11 +324,9 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
-
-        items = new ModificationItem[]
-            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
-                "excludeAllCollectiveAttributes" ) ) };
-        getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+            new DefaultEntryAttribute( "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
+        connection.modify( new DN( "ou=interceptors,ou=configuration, ou=system" ), modification );
 
         // none of the attributes should appear any longer
         response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
@@ -362,37 +353,31 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // Setup the collective attribute specific administration point
         // -------------------------------------------------------------------
-
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
 
         // -------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
-
         Map<String, Entry> entries = getAllEntries();
         Entry entry = entries.get( "ou=services,ou=configuration,ou=system" );
         EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );
 
-        
         // ------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou, 
         // but restrict returned attributes to c-ou and c-st
         // ------------------------------------------------------------------
-        
         entries = getAllEntriesCollectiveAttributesOnly();
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );   
         
-        
         // -------------------------------------------------------------------
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
-
         entry = entries.get( "ou=users,ou=system" );
         c_ou = entry.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
@@ -400,11 +385,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
+        connection.modify( new DN( "ou=services,ou=configuration, ou=system" ), modification );
 
-        ModificationItem[] items = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
-        getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
@@ -461,11 +445,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+            new DefaultEntryAttribute( "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
+        connection.modify( new DN( "ou=interceptors,ou=configuration, ou=system" ), modification );
 
-        items = new ModificationItem[]
-            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
-                "excludeAllCollectiveAttributes" ) ) };
-        getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
