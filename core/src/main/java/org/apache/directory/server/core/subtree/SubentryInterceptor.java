@@ -365,7 +365,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Update all the entries under an AP adding the 
      */
-    private void updateEntries( OperationEnum operation, CoreSession session, DN subentryDn, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> operationalAttributes  ) throws LdapException
+    private void updateEntries( OperationEnum operation, CoreSession session, String subentryUuid, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> operationalAttributes ) throws LdapException
     {
         ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
         SearchControls controls = new SearchControls();
@@ -397,7 +397,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             break;
                             
                         case REMOVE :
-                            modifications = getOperationalModsForRemove( subentryDn, candidate );
+                            modifications = getOperationalModsForRemove( subentryUuid, candidate );
                             break;
 
                             /*
@@ -407,7 +407,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             */
                     }
                     
-                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
+                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryUuid );
                     nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
@@ -727,18 +727,17 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of modifications required to remove an entry's reference to
      * a subentry
      */
-    private List<Modification> getOperationalModsForRemove( DN subentryDn, Entry candidate ) throws LdapException
+    private List<Modification> getOperationalModsForRemove( String subentryUuid, Entry candidate ) throws LdapException
     {
         List<Modification> modifications = new ArrayList<Modification>();
-        String dn = subentryDn.getNormName();
 
         for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
         {
             EntryAttribute opAttr = candidate.get( operationalAttribute );
 
-            if ( ( opAttr != null ) && opAttr.contains( dn ) )
+            if ( ( opAttr != null ) && opAttr.contains( subentryUuid ) )
             {
-                EntryAttribute attr = new DefaultEntryAttribute( operationalAttribute, dn );
+                EntryAttribute attr = new DefaultEntryAttribute( operationalAttribute, subentryUuid );
                 modifications.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
@@ -925,7 +924,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN baseDn = ( DN ) apDn.clone();
             baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
             
-            updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
+            updateEntries( OperationEnum.ADD, addContext.getSession(), subentryUuid, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
 
             // Store the newly modified entry into the context for later use in interceptor
             // just in case
@@ -1015,7 +1014,7 @@ public class SubentryInterceptor extends BaseInterceptor
             baseDn.addAll( removedSubentry.getSubtreeSpecification().getBase() );
 
             // Remove all the references to this removed subentry from all the selected entries
-            updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
+            updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), subentryUuid, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
 
             // Now delete the subentry itself
             next.delete( deleteContext );

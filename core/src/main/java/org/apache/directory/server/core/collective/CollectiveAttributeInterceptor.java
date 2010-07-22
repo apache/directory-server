@@ -104,10 +104,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
-            addCollectiveAttributes( operation, result, retAttrs );
             
-            // Add the CollectiveAttributeSubentries AT if needed
-            addCollectiveAttributeSubentries( result, retAttrs );
+            if ( addCollectiveAttributes( operation, result, retAttrs ) )
+            {
+                
+                // Add the CollectiveAttributeSubentries AT if needed
+                addCollectiveAttributeSubentries( result, retAttrs );
+            }
 
             return true;
         }
@@ -176,19 +179,24 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             return null;
         }
+        
+        boolean hasCollectiveAttribute = false;
 
         // Adding the collective attributes if any
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
-            addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+            hasCollectiveAttribute = addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {
-            addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
+            hasCollectiveAttribute = addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
         }
         
         // Add the CollectiveAttributeSubentries AT if needed
-        addCollectiveAttributeSubentries( result, lookupContext.getAttrsIdArray() );
+        if ( hasCollectiveAttribute )
+        {
+            addCollectiveAttributeSubentries( result, lookupContext.getAttrsIdArray() );
+        }
 
         return result;
     }
@@ -350,9 +358,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * are added to
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
+     * @return true if the entry has been modified
      * @throws LdapException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
+    private boolean addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
         EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -363,7 +372,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         if ( collectiveAttributeSubentries == null )
         {
-            return;
+            return false;
         }
 
         /*
@@ -385,7 +394,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * This entry does not allow any collective attributes
                  * to be injected into itself.
                  */
-                return;
+                return false;
             }
 
             exclusions = new HashSet<String>();
@@ -507,6 +516,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 }
             }
         }
+        
+        return true;
     }
 
 
@@ -529,25 +540,48 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
     
     
+    /**
+     * Inject the collectiveAttributeSubentries operational attribute into the
+     * entry, as it's not anymore stored in the backend. 
+     */
     private void addCollectiveAttributeSubentries( Entry entry, String[] requestedAttributes ) throws LdapException
     {
         if ( requestedAttributes == null )
         {
-            // Nothing to do
+            // Nothing to do, the uszer hasn't requested the operational attributes
             return;
         }
         
+        // First get the subentry UUID which is stored into the internal
+        // ads-collectiveAttributeSubentries attribute
         EntryAttribute adsCollectiveAttributeSubentries = entry.get( ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         
         if ( adsCollectiveAttributeSubentries == null )
         {
+            // We have none, that means we don't have any collective attribute in the entry
             return;
         }
-            
+        
+        // Now, get the subentry associated with this UUID
         Subentry subentry = subentryInterceptor.getSubentryCache().getSubentry( adsCollectiveAttributeSubentries.getString() );
         
+        if ( subentry == null )
+        {
+            // Ok, the cache has been cleaned up since the attribute has been
+            // added to the entry. Unlikely, but anyway...
+            return;
+        }
+        
+        // Loop on all the requested attributes. We have to deal with the following
+        // special cases :
+        // '1.1' : we can ignore this one
+        // '+' : we can add the requested attribute, the user wants all of them 
+        // '*' : bypass
+        // any attribute : if the collectiveAttributeSubentries is requested, then
+        // add it.
         for ( String requestedAttribute : requestedAttributes )
         {
+            // '+' ? => add the collectiveAttributeSubentries attribute and return
             if ( requestedAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
             {
                 // Add the missing collectiveAttributeSubentries and exit
@@ -556,19 +590,29 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 return;
             }
             
+            // '*' and '1.1' are irrelevant
             if ( requestedAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || requestedAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
             {
                 continue;
             }
             
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( requestedAttribute );
-            
-            if ( attributeType.equals( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) )
+            try
             {
-                // Add the missing collectiveAttributeSubentries and exit
-                entry.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, subentry.getDn().getNormName() );
-
-                return;
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( requestedAttribute );
+                
+                // The user has specifically requested the collectiveAttributeSubentries attribute,
+                // we just have to add it and return.
+                if ( attributeType.equals( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) )
+                {
+                    // Add the missing collectiveAttributeSubentries and exit
+                    entry.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, subentry.getDn().getNormName() );
+    
+                    return;
+                }
+            }
+            catch ( LdapException le )
+            {
+                // The attribute is unknown, no problem, we simply ignore it
             }
         }
         

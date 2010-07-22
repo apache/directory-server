@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -92,7 +91,6 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -806,6 +804,10 @@ public class DefaultDirectoryService implements DirectoryService
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
+                
+                //System.out.println( "------------------------------------------------------------------" );
+                //System.out.println( event );
+                
                 List<LdifEntry> reverses = event.getReverseLdifs();
                 
                 for ( LdifEntry reverse:reverses )
