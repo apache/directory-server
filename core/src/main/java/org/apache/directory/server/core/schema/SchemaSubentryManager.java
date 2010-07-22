@@ -25,14 +25,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -187,14 +186,14 @@ public class SchemaSubentryManager
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext modifyContext, DN name, int modOp, Entry mods, 
+    public void modifySchemaSubentry( ModifyOperationContext modifyContext, DN name, ModificationOperation modOp, Entry mods, 
         Entry subentry, Entry targetSubentry, boolean doCascadeModify ) throws Exception
     {
         Set<AttributeType> attributeTypes = mods.getAttributeTypes();
         
         switch ( modOp )
         {
-            case( DirContext.ADD_ATTRIBUTE ):
+            case ADD_ATTRIBUTE :
                 for ( AttributeType attributeType:attributeTypes )
                 {
                     modifyAddOperation( modifyContext, attributeType.getOid(), 
@@ -203,7 +202,7 @@ public class SchemaSubentryManager
             
                 break;
                 
-            case( DirContext.REMOVE_ATTRIBUTE ):
+            case REMOVE_ATTRIBUTE :
                 for ( AttributeType attributeType:attributeTypes )
                 {
                     modifyRemoveOperation( modifyContext, attributeType.getOid(), 
@@ -212,7 +211,7 @@ public class SchemaSubentryManager
             
                 break;
                 
-            case( DirContext.REPLACE_ATTRIBUTE ):
+            case REPLACE_ATTRIBUTE :
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
                     I18n.err( I18n.ERR_283 ) );
             
