@@ -706,8 +706,7 @@ public class ConfigPartitionReader
 
         if ( webAppsAttr != null )
         {
-            DN webAppsDN = new DN( webAppsAttr.getString() );
-            webAppsDN.normalize( schemaManager.getNormalizerMapping() );
+            DN webAppsDN = new DN( webAppsAttr.getString(), schemaManager );
 
             Set<WebApp> webApps = getWebApps( webAppsDN );
             httpServer.setWebApps( webApps );
@@ -790,8 +789,7 @@ public class ConfigPartitionReader
 
         if ( changeLogAttr != null )
         {
-            DN clDN = new DN( changeLogAttr.getString() );
-            clDN.normalize( schemaManager.getNormalizerMapping() );
+            DN clDN = new DN( changeLogAttr.getString(), schemaManager );
             ChangeLog cl = getChangeLog( clDN );
             dirService.setChangeLog( cl );
         }
@@ -807,8 +805,7 @@ public class ConfigPartitionReader
 
         if ( journalAttr != null )
         {
-            DN journalDN = new DN( journalAttr.getString() );
-            journalDN.normalize( schemaManager.getNormalizerMapping() );
+            DN journalDN = new DN( journalAttr.getString(), schemaManager );
             dirService.setJournal( getJournal( journalDN ) );
         }
 
@@ -1096,8 +1093,7 @@ public class ConfigPartitionReader
         partition.setId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
         partition.setPartitionDir( new File( workDir, partition.getId() ) );
 
-        DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ) );
-        systemDn.normalize( schemaManager.getNormalizerMapping() );
+        DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ), schemaManager );
         partition.setSuffix( systemDn );
 
         EntryAttribute cacheAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_CACHE_SIZE );

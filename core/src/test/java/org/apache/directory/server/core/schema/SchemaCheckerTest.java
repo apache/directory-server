@@ -478,7 +478,7 @@ public class SchemaCheckerTest
     {
         Map<String, OidNormalizer> oidNormalizers = schemaManager.getAttributeTypeRegistry().getNormalizerMapping();
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        DN name = new DN( "ou=user,dc=example,dc=com" ).normalize( oidNormalizers );
+        DN name = new DN( "ou=user,dc=example,dc=com", schemaManager );
         AttributeType cnAt = schemaManager.lookupAttributeTypeRegistry( "cn" );
         AttributeType ouAt = schemaManager.lookupAttributeTypeRegistry( "ou" );
         AttributeType snAt = schemaManager.lookupAttributeTypeRegistry( "sn" );

@@ -162,7 +162,7 @@ public class LdifPartitionTest
     private ClonedServerEntry createEntry( String dn ) throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new DN( dn ).normalize( schemaManager.getNormalizerMapping() ) );
+        entry.setDn( new DN( dn, schemaManager ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         
@@ -183,7 +183,7 @@ public class LdifPartitionTest
     @Test
     public void testLdifAddEntries() throws Exception
     {
-        DN adminDn = new DN( "uid=admin,ou=system" ).normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
         
@@ -227,7 +227,7 @@ public class LdifPartitionTest
     @Test
     public void testLdifAddExistingEntry() throws Exception
     {
-        DN adminDn = new DN( "uid=admin,ou=system" ).normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
         
@@ -280,7 +280,7 @@ public class LdifPartitionTest
     @Test
     public void testLdifDeleteExistingEntry() throws Exception
     {
-        DN adminDn = new DN( "uid=admin,ou=system" ).normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
         
@@ -314,8 +314,7 @@ public class LdifPartitionTest
         
         DeleteOperationContext delCtx = new DeleteOperationContext( session );
 
-        DN dn = new DN( "dc=test1,dc=test,ou=test,ou=system" );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "dc=test1,dc=test,ou=test,ou=system", schemaManager );
         
         delCtx.setDn( dn );
         
@@ -332,15 +331,13 @@ public class LdifPartitionTest
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
 
-        dn = new DN( "dc=test2,dc=test,ou=test,ou=system" );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "dc=test2,dc=test,ou=test,ou=system", schemaManager );
         
         delCtx.setDn( dn );
         
         partition.delete( delCtx );
         
-        dn = new DN( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system", schemaManager );
         
         delCtx.setDn( dn );
         
@@ -366,7 +363,7 @@ public class LdifPartitionTest
     @Test
     public void testLdifSearchExistingEntry() throws Exception
     {
-        DN adminDn = new DN( "uid=admin,ou=system" ).normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
         
@@ -434,8 +431,8 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ) ) );
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system", schemaManager ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system", schemaManager ) ) );
         
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
         partition.move( moveOpCtx );
@@ -460,8 +457,7 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        DN childDn1 = new DN( "dc=child1,ou=test,ou=system" );
-        childDn1.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn1 = new DN( "dc=child1,ou=test,ou=system", schemaManager );
         
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
@@ -486,8 +482,7 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        DN childDn1 = new DN( "dc=child1,ou=test,ou=system" );
-        childDn1.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn1 = new DN( "dc=child1,ou=test,ou=system", schemaManager );
         
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
@@ -517,11 +512,9 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        DN childDn1 = new DN( "dc=child1,ou=test,ou=system" );
-        childDn1.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn1 = new DN( "dc=child1,ou=test,ou=system", schemaManager );
 
-        DN childDn2 = new DN( "dc=child2,ou=test,ou=system" );
-        childDn2.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn2 = new DN( "dc=child2,ou=test,ou=system", schemaManager );
 
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, true );
@@ -546,11 +539,9 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        DN childDn1 = new DN( "dc=child1,ou=test,ou=system" );
-        childDn1.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn1 = new DN( "dc=child1,ou=test,ou=system", schemaManager );
 
-        DN childDn2 = new DN( "dc=child2,ou=test,ou=system" );
-        childDn2.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn2 = new DN( "dc=child2,ou=test,ou=system", schemaManager );
 
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, false );
@@ -578,7 +569,7 @@ public class LdifPartitionTest
     
     private CoreSession injectEntries() throws Exception
     {
-        DN adminDn = new DN( "uid=admin,ou=system" ).normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
         

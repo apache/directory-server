@@ -1877,8 +1877,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttr = subentry.get( "modifiersName" );
         Attribute modifyTimestampAttr = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttr );
-        DN expectedDN = new DN( "uid=admin,ou=system" );
-        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
+        DN expectedDN = new DN( "uid=admin,ou=system", service.getSchemaManager() );
         assertEquals( expectedDN.getName(), modifiersNameAttr.get() );
         assertNotNull( modifyTimestampAttr );
 
@@ -1915,8 +1914,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttrAfter = subentry.get( "modifiersName" );
         Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
-        expectedDN = new DN( "uid=admin,ou=system" );
-        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
+        expectedDN = new DN( "uid=admin,ou=system", service.getSchemaManager() );
         assertEquals( expectedDN.getName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         

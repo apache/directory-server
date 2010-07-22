@@ -60,8 +60,7 @@ public class StoreUtils
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
     {
-        DN suffixDn = new DN( "o=Good Times Co." );
-        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        DN suffixDn = new DN( "o=Good Times Co.", schemaManager );
         store.setSuffixDn( suffixDn );
 
         store.init( schemaManager );
@@ -75,8 +74,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #2
-        DN dn = new DN( "ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
@@ -85,8 +83,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #3
-        dn = new DN( "ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Board of Directors" );
@@ -95,8 +92,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #4
-        dn = new DN( "ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
@@ -105,8 +101,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #5
-        dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -117,8 +112,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #6
-        dn = new DN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "cn=JIM BEAN,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -129,8 +123,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #7
-        dn = new DN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Apache" );
@@ -139,8 +132,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #8
-        dn = new DN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -153,8 +145,7 @@ public class StoreUtils
         // aliases -------------
 
         // Entry #9
-        dn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
@@ -163,8 +154,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #10
-        dn = new DN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
@@ -172,8 +162,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #11
-        dn = new DN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn = new DN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Engineering" );

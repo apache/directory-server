@@ -119,8 +119,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         nexus = directoryService.getPartitionNexus();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = new DN( attr.getString() );
-        subschemSubentryDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        subschemSubentryDn = new DN( attr.getString(), directoryService.getSchemaManager() );
         schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information

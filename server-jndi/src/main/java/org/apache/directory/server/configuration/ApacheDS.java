@@ -389,10 +389,7 @@ public class ApacheDS
         }
 
 
-        DN dn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        
-        // Must normalize the dn or - IllegalStateException!
-        dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        DN dn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
         
         ensureLdifFileBase();
 

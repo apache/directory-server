@@ -191,8 +191,7 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new DN( SchemaConstants.OU_SCHEMA );
-        schemaBaseDN.normalize( schemaManager.getNormalizerMapping() );
+        schemaBaseDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)

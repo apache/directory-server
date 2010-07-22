@@ -126,8 +126,7 @@ public class JdbmStoreTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        EXAMPLE_COM = new DN( "dc=example,dc=com" );
-        EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+        EXAMPLE_COM = new DN( "dc=example,dc=com", schemaManager );
         
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
@@ -206,8 +205,7 @@ public class JdbmStoreTest
         store2.init( schemaManager );
 
         // inject context entry
-        DN suffixDn = new DN( "dc=example,dc=com" );
-        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        DN suffixDn = new DN( "dc=example,dc=com", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, suffixDn );
         entry.add( "objectClass", "top", "domain" );
         entry.add( "dc", "example" );
@@ -479,8 +477,7 @@ public class JdbmStoreTest
     @Test
     public void testFreshStore() throws Exception
     {
-        DN dn = new DN( "o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "o=Good Times Co.", schemaManager );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
@@ -514,8 +511,7 @@ public class JdbmStoreTest
         assertEquals( 10, store.count() );
 
         // add an alias and delete to test dropAliasIndices method
-        DN dn = new DN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
@@ -563,8 +559,7 @@ public class JdbmStoreTest
         assertFalse( cursor.next() );
 
         // dn id 12
-        DN martinDn = new DN( "cn=Marting King,ou=Sales,o=Good Times Co." );
-        martinDn.normalize( schemaManager.getNormalizerMapping() );
+        DN martinDn = new DN( "cn=Marting King,ou=Sales,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, martinDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -578,8 +573,7 @@ public class JdbmStoreTest
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
 
-        DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co." );
-        newParentDn.normalize( schemaManager.getNormalizerMapping() );
+        DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
         
         DN newDn = ((DN)newParentDn.clone()).add( martinDn.getRdn() );
 
@@ -590,8 +584,7 @@ public class JdbmStoreTest
         assertEquals( 12, ( long ) cursor.get().getId() );
 
         // dn id 13
-        DN marketingDn = new DN( "ou=Marketing,ou=Sales,o=Good Times Co." );
-        marketingDn.normalize( schemaManager.getNormalizerMapping() );
+        DN marketingDn = new DN( "ou=Marketing,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, marketingDn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Marketing" );
@@ -600,8 +593,7 @@ public class JdbmStoreTest
         store.add( entry );
 
         // dn id 14
-        DN jimmyDn = new DN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        jimmyDn.normalize( schemaManager.getNormalizerMapping() );
+        DN jimmyDn = new DN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, jimmyDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Marketing" );
@@ -664,8 +656,7 @@ public class JdbmStoreTest
     @Test(expected = LdapNoSuchObjectException.class)
     public void testAddWithoutParentId() throws Exception
     {
-        DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
@@ -677,8 +668,7 @@ public class JdbmStoreTest
     @Test(expected = LdapSchemaViolationException.class)
     public void testAddWithoutObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=Martin King,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Martin King,ou=Sales,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
@@ -689,8 +679,7 @@ public class JdbmStoreTest
     @Test
     public void testModifyAddOUAttrib() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -707,8 +696,7 @@ public class JdbmStoreTest
     @Test
     public void testRename() throws Exception
     {
-        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -727,8 +715,7 @@ public class JdbmStoreTest
     @Test
     public void testRenameEscaped() throws Exception
     {
-        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -742,8 +729,7 @@ public class JdbmStoreTest
 
         store.rename( dn, rdn, true );
 
-        DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        dn2.normalize( schemaManager.getNormalizerMapping() );
+        DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co.", schemaManager );
         Long id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id );
@@ -754,8 +740,7 @@ public class JdbmStoreTest
     @Test
     public void testMove() throws Exception
     {
-        DN childDn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        childDn.normalize( schemaManager.getNormalizerMapping() );
+        DN childDn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co.", schemaManager );
         Entry childEntry = new DefaultEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
@@ -765,19 +750,16 @@ public class JdbmStoreTest
 
         store.add( childEntry );
 
-        DN parentDn = new DN( "ou=Sales,o=Good Times Co." );
-        parentDn.normalize( schemaManager.getNormalizerMapping() );
+        DN parentDn = new DN( "ou=Sales,o=Good Times Co.", schemaManager );
 
         RDN rdn = new RDN( "cn=Ryan" );
 
         store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
 
         // to drop the alias indices   
-        childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        childDn.normalize( schemaManager.getNormalizerMapping() );
+        childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
 
-        parentDn = new DN( "ou=Engineering,o=Good Times Co." );
-        parentDn.normalize( schemaManager.getNormalizerMapping() );
+        parentDn = new DN( "ou=Engineering,o=Good Times Co.", schemaManager );
 
         assertEquals( 3, store.getSubAliasIndex().count() );
 
@@ -792,8 +774,7 @@ public class JdbmStoreTest
     @Test
     public void testModifyAdd() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, SN_AT );
@@ -823,8 +804,7 @@ public class JdbmStoreTest
     @Test
     public void testModifyReplace() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
@@ -855,8 +835,7 @@ public class JdbmStoreTest
     @Test
     public void testModifyRemove() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
@@ -887,8 +866,7 @@ public class JdbmStoreTest
     @Test
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
-        DN dn = new DN( "cn=Tim B,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=Tim B,ou=Sales,o=Good Times Co.", schemaManager );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B" );
@@ -947,8 +925,7 @@ public class JdbmStoreTest
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
 
         
-        DN suffixDn = new DN( "o=Good Times Co." );
-        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        DN suffixDn = new DN( "o=Good Times Co.", schemaManager );
         store.setSuffixDn( suffixDn );
         // init the store to call deleteUnusedIndexFiles() method
         store.init( schemaManager );

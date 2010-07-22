@@ -109,8 +109,7 @@ public class AbstractStoreTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        EXAMPLE_COM = new DN( "dc=example,dc=com" );
-        EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
+        EXAMPLE_COM = new DN( "dc=example,dc=com", schemaManager );
         
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
@@ -174,8 +173,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyAddObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -208,8 +206,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveIndexedAttribute() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -243,8 +240,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveAllIndexedAttribute() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -277,8 +273,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -311,8 +306,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveAllObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -341,8 +335,7 @@ public class AbstractStoreTest
     @Test
     public void testCheckCsnIndexUpdate() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );

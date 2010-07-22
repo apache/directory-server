@@ -6,50 +6,51 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.operational;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,146 +62,109 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class )
+@CreateDS(name = "OperationalDS")
+@ApplyLdifs(
+    {
+        "dn: cn=Kate Bush,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: Bush",
+        "sn: Kate Bush"
+    })
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
-    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
-    private static final String RDN_KATE_BUSH = "cn=Kate Bush";
+    private static final String DN_KATE_BUSH = "cn=Kate Bush,ou=system";
 
-    protected Attributes getPersonAttributes( String sn, String cn )
+    private LdapConnection connection;
+
+    @Before
+    public void setup() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        attrs.put( ocls );
-        attrs.put( "cn", cn );
-        attrs.put( "sn", sn );
-
-        return attrs;
+        connection = IntegrationUtils.getAdminConnection( service );
     }
 
 
-    /**
-     * @todo add this to an LDIF annotation
-     *
-     * @param sysRoot the system root context at ou=system as the admin
-     * @throws NamingException on error
-     */
-    protected void createData( LdapContext sysRoot ) throws NamingException
+    @After
+    public void shutdown() throws Exception
     {
-        // Create an entry for Kate Bush
-        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
-        DirContext ctx = sysRoot.createSubcontext( RDN_KATE_BUSH, attrs );
-        assertNotNull( ctx );
+        connection.close();
     }
 
 
     @Test
     public void testBinaryAttributeFilterExtension() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        Entry entry = LdifUtils.createEntry(
+            new DN( "ou=test,ou=system" ),
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "ou", "test",
+            "cn", "test",
+            "sn", "test" );
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "person" );
-        oc.add( "organizationalPerson" );
-        oc.add( "inetOrgPerson" );
-        attributes.put( oc );
-
-        attributes.put( "ou", "test" );
-        attributes.put( "cn", "test" );
-        attributes.put( "sn", "test" );
-
-        sysRoot.createSubcontext( "ou=test", attributes );
+        connection.add(entry );
 
         // test without turning on the property
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
-        Attribute ou = ctx.getAttributes( "" ).get( "ou" );
-        Object value = ou.get();
+        SearchResultEntry response = (SearchResultEntry)connection.lookup( "ou=test,ou=system" );
+        Entry result = response.getEntry();
+        EntryAttribute ou = result.get( "ou" );
+        Object value = ou.getString();
         assertTrue( value instanceof String );
-
-        // test with the property now making ou into a binary value
-        sysRoot.addToEnvironment( BINARY_KEY, "ou" );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
-        ou = ctx.getAttributes( "" ).get( "ou" );
-        value = ou.get();
-        assertEquals( "test", value );
 
         // try jpegPhoto which should be binary automatically - use ou as control
         byte[] keyValue = new byte[]
-            { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
-        attributes.put( "jpegPhoto", keyValue );
-        sysRoot.createSubcontext( "ou=anothertest", attributes );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" );
-        ou = ctx.getAttributes( "" ).get( "ou" );
-        value = ou.get();
+                                   { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
+        entry.put( "jpegPhoto", keyValue );
+        entry.setDn( new DN( "ou=anothertest,ou=system" ) );
+        entry.set( "ou", "anothertest" );
+        connection.add( entry );
+        response = (SearchResultEntry)connection.lookup( "ou=anothertest,ou=system" );
+        ou = response.getEntry().get( "ou" );
+        value = ou.getString();
         assertEquals( "anothertest", value );
-        Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
-        value = jpegPhoto.get();
+        EntryAttribute jpegPhoto = response.getEntry().get( "jpegPhoto" );
+        value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
         assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( ( byte[] ) value ) );
-
-        // try jpegPhoto which should be binary automatically but use String to
-        // create so we should still get back a byte[] - use ou as control
-        /*attributes.remove( "jpegPhoto" );
-        attributes.put( "jpegPhoto", "testing a string" );
-        sysRoot.createSubcontext( "ou=yetanothertest", attributes );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" );
-        ou = ctx.getObject( "" ).get( "ou" );
-        value = ou.get();
-        assertEquals( "yetanothertest", value );
-        jpegPhoto = ctx.getObject( "" ).get( "jpegPhoto" );
-        value = jpegPhoto.get();
-        assertTrue( value instanceof byte[] );*/
     }
 
 
     @Test
     public void testModifyOperationalOpAttrs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing00" );
-        DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
-        assertNotNull( ctx );
+        Entry entry = LdifUtils.createEntry(
+            new DN( "ou=testing00,ou=system" ),
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", "testing00" );
 
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
+        connection.add(entry );
 
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
+        SearchResultEntry response = (SearchResultEntry)connection.lookup( "ou=testing00,ou=system" );
+        assertNotNull( response );
+
+        entry = response.getEntry();
+        assertNotNull( entry );
+        assertEquals( "testing00", entry.get( "ou" ).getString() );
+        EntryAttribute attribute = entry.get( "objectClass" );
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
-        assertNull( attributes.get( "createTimestamp" ) );
-        assertNull( attributes.get( "creatorsName" ) );
+        assertNull( entry.get( "createTimestamp" ) );
+        assertNull( entry.get( "creatorsName" ) );
 
-        SearchControls ctls = new SearchControls();
-        ctls.setReturningAttributes( new String[]
-            { "ou", "createTimestamp", "creatorsName" } );
+        Cursor<SearchResponse> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)", SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
+        responses.next();
+        SearchResultEntry result = (SearchResultEntry)responses.get();
 
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
-        NamingEnumeration<SearchResult> list;
-        list = sysRoot.search( "", "(ou=testing00)", ctls );
-        SearchResult result = list.next();
-        list.close();
-
-        assertNotNull( result.getAttributes().get( "ou" ) );
-        assertNotNull( result.getAttributes().get( "creatorsName" ) );
-        assertNotNull( result.getAttributes().get( "createTimestamp" ) );
+        assertNotNull( result.getEntry().get( "ou" ) );
+        assertNotNull( result.getEntry().get( "creatorsName" ) );
+        assertNotNull( result.getEntry().get( "createTimestamp" ) );
     }
 
 
@@ -219,30 +183,26 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSystemContextRoot() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
-        NamingEnumeration<SearchResult> list;
-        list = sysRoot.search( "", "(objectClass=*)", controls );
-        SearchResult result = list.next();
+        Cursor<SearchResponse> responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
+        responses.next();
+        SearchResultEntry result = (SearchResultEntry)responses.get();
 
         // test to make sure op attribute do not occur - this is the control
-        Attributes attributes = result.getAttributes();
-        assertNull( attributes.get( "creatorsName" ) );
-        assertNull( attributes.get( "createTimestamp" ) );
+        Entry entry = result.getEntry();
+        assertNull( entry.get( "creatorsName" ) );
+        assertNull( entry.get( "createTimestamp" ) );
 
         // now we ask for all the op attributes and check to get them
-        String[] ids = new String[]
-            { "creatorsName", "createTimestamp" };
-        controls.setReturningAttributes( ids );
-        list = sysRoot.search( "", "(objectClass=*)", controls );
-        result = list.next();
-        attributes = result.getAttributes();
-        assertNotNull( attributes.get( "creatorsName" ) );
-        assertNotNull( attributes.get( "createTimestamp" ) );
+        responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName", "createTimestamp" );
+        responses.next();
+        result = (SearchResultEntry)responses.get();
+
+        entry = result.getEntry();
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+
+        // We should not have any other operational Attribute
+        assertNull( entry.get( "entryUuid" ) );
     }
 
 
@@ -262,20 +222,34 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
-        LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        Entry entry = LdifUtils.createEntry(
+            new DN( "uid=akarasulu,ou=users,ou=system" ),
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "ou: Engineering",
+            "ou: People",
+            "uid: akarasulu",
+            "l", "Bogusville",
+            "cn: Alex Karasulu",
+            "sn: Karasulu",
+            "givenName",
+            "mail: akarasulu@apache.org",
+            "telephoneNumber: +1 408 555 4798",
+            "facsimileTelephoneNumber: +1 408 555 9751",
+            "roomnumber: 4612",
+            "userPassword: test" );
 
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        connection.add(entry );
 
-        Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[]
-            { "creatorsName" } );
+        SearchResultEntry response = (SearchResultEntry)connection.lookup( "uid=akarasulu,ou=users,ou=system", "creatorsName" );
+        Entry result = response.getEntry();
 
-        assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
+        assertFalse( "uid=akarasulu,ou=users,ou=system".equals( result.get( "creatorsName" ).getString() ) );
     }
 
-    
+
     /**
      * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
      *
@@ -284,29 +258,20 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyShouldLeadToModifiersAttributes() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "description", "Singer Songwriter" ) );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description",
-            "Singer Songwriter" ) );
+        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
 
-        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-            { modifyOp } );
+        Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifiersName", "modifyTimestamp" );
+        responses.next();
+        SearchResultEntry result = (SearchResultEntry)responses.get();
 
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        String[] ids = new String[]
-            { "modifiersName", "modifyTimestamp" };
-        controls.setReturningAttributes( ids );
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
-        SearchResult result = list.next();
-        Attributes attributes = result.getAttributes();
-        assertNotNull( attributes.get( "modifiersName" ) );
-        assertNotNull( attributes.get( "modifyTimestamp" ) );
+        assertNotNull( result.getEntry().get( "modifiersName" ) );
+        assertNotNull( result.getEntry().get( "modifyTimestamp" ) );
     }
-    
-    
+
+
     /**
      * Modify an entry and check whether attribute modifyTimestamp changes.
      *
@@ -316,45 +281,39 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         // Add attribute description to entry
-        ModificationItem modifyAddOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
-            "description", "an English singer, songwriter, musician" ) );
-        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-            { modifyAddOp } );
+        Modification modifyAddOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "description", "an English singer, songwriter, musician" ) );
+
+        connection.modify( new DN( DN_KATE_BUSH ), modifyAddOp );
 
         // Determine modifyTimestamp
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        String[] ids = new String[]
-            { "modifyTimestamp" };
-        controls.setReturningAttributes( ids );
-        NamingEnumeration<SearchResult> list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
-        SearchResult result = list.next();
-        Attributes attributes = result.getAttributes();
-        Attribute modifyTimestamp = attributes.get( "modifyTimestamp" );
+        Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
+        responses.next();
+        SearchResultEntry result = (SearchResultEntry)responses.get();
+
+        EntryAttribute modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
-        String oldTimestamp = modifyTimestamp.get().toString();
-        
-        // Wait two seconds
-        Thread.sleep( 2000 );
+        String oldTimestamp = modifyTimestamp.getString();
+
+        // Wait 500 milliseconds
+        Thread.sleep( 500 );
 
         // Change value of attribute description
-        ModificationItem modifyOp = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            "description", "one of England's most successful solo female performers" ) );
-        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-            { modifyOp } );
+        Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            new DefaultEntryAttribute( "description", "one of England's most successful solo female performers" ) );
+
+        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
 
         // Determine modifyTimestamp after modification
-        list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
-        result = list.next();
-        attributes = result.getAttributes();
-        modifyTimestamp = attributes.get( "modifyTimestamp" );
+        responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
+        responses.next();
+        result = (SearchResultEntry)responses.get();
+
+        modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
-        String newTimestamp = modifyTimestamp.get().toString();
-        
+        String newTimestamp = modifyTimestamp.getString();
+
         // assert the value has changed
         assertFalse( oldTimestamp.equals( newTimestamp ) );
     }
@@ -367,15 +326,11 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyOperationalAttributeAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        // Add attribute description to entry
+        Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
-            new BasicAttribute(
-            "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
-
-        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-            { modifyOp } );
+        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
     }
 
 
@@ -387,26 +342,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyOperationalAttributeRemove() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "creatorsName" ) );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
-            "creatorsName" ) );
+        ModifyResponse response = connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
 
-        try
-        {
-            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-                { modifyOp } );
-            fail( "modification of entry should fail" );
-        }
-        catch ( InvalidAttributeValueException e )
-        {
-            // expected
-        }
-        catch ( NoPermissionException e )
-        {
-            // expected
-        }
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }
 
 
@@ -418,25 +359,11 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyOperationalAttributeReplace() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
+        Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            new DefaultEntryAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
+        ModifyResponse response = connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
 
-        try
-        {
-            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-                { modifyOp } );
-            fail( "modification of entry should fail" );
-        }
-        catch ( InvalidAttributeValueException e )
-        {
-            // expected
-        }
-        catch ( NoPermissionException e )
-        {
-            // expected
-        }
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }
 }

@@ -189,8 +189,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         schemaManager = directoryService.getSchemaManager();
@@ -213,8 +212,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        DN subschemaSubentryDnName = new DN( subschemaSubentry.getString() );
-        subschemaSubentryDnName.normalize( schemaManager.getNormalizerMapping() );
+        DN subschemaSubentryDnName = new DN( subschemaSubentry.getString(), schemaManager );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
     }
 

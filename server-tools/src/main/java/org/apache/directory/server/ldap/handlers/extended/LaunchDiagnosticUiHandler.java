@@ -91,8 +91,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         requestor.getIoSession().write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
         PartitionNexus nexus = service.getPartitionNexus();
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( service.getSchemaManager().getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
         Set<String> suffixes = nexus.listSuffixes();
         int launchedWindowCount = 0;

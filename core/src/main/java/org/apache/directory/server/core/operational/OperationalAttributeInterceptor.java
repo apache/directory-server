@@ -137,12 +137,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new DN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
+        subschemaSubentryDn = new DN( subschemaSubentry.getString(), schemaManager );
 
         // Create the Admin DN 
-        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( schemaManager.getNormalizerMapping() );
+        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );

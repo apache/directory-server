@@ -1133,9 +1133,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        Map<String,OidNormalizer> oidsMap = schemaManager.getNormalizerMapping();
-        DN userDn = new DN( ServerDNConstants.USERS_SYSTEM_DN );
-        userDn.normalize( oidsMap );
+        DN userDn = new DN( ServerDNConstants.USERS_SYSTEM_DN, schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
         {
@@ -1160,8 +1158,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system groups area
         // -------------------------------------------------------------------
 
-        DN groupDn = new DN( ServerDNConstants.GROUPS_SYSTEM_DN );
-        groupDn.normalize( oidsMap );
+        DN groupDn = new DN( ServerDNConstants.GROUPS_SYSTEM_DN, schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
         {
@@ -1186,8 +1183,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create administrator group
         // -------------------------------------------------------------------
 
-        DN name = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
-        name.normalize( oidsMap );
+        DN name = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN, schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
         {
@@ -1213,8 +1209,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area
         // -------------------------------------------------------------------
 
-        DN configurationDn = new DN( "ou=configuration,ou=system" );
-        configurationDn.normalize( oidsMap );
+        DN configurationDn = new DN( "ou=configuration,ou=system", schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
         {
@@ -1236,8 +1231,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for partition information
         // -------------------------------------------------------------------
 
-        DN partitionsDn = new DN( "ou=partitions,ou=configuration,ou=system" );
-        partitionsDn.normalize( oidsMap );
+        DN partitionsDn = new DN( "ou=partitions,ou=configuration,ou=system", schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
         {
@@ -1258,8 +1252,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for services
         // -------------------------------------------------------------------
 
-        DN servicesDn = new DN( "ou=services,ou=configuration,ou=system" );
-        servicesDn.normalize( oidsMap );
+        DN servicesDn = new DN( "ou=services,ou=configuration,ou=system", schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
         {
@@ -1281,8 +1274,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for interceptors
         // -------------------------------------------------------------------
 
-        DN interceptorsDn = new DN( "ou=interceptors,ou=configuration,ou=system" );
-        interceptorsDn.normalize( oidsMap );
+        DN interceptorsDn = new DN( "ou=interceptors,ou=configuration,ou=system", schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
         {
@@ -1304,8 +1296,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system preferences area
         // -------------------------------------------------------------------
 
-        DN sysPrefRootDn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
-        sysPrefRootDn.normalize( oidsMap );
+        DN sysPrefRootDn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, schemaManager );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
@@ -1339,8 +1330,7 @@ public class DefaultDirectoryService implements DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( schemaManager.getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
         
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
@@ -1406,8 +1396,7 @@ public class DefaultDirectoryService implements DirectoryService
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffix().normalize( schemaManager.getNormalizerMapping() );
 
-        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( schemaManager.getNormalizerMapping() );
-        adminDn.normalize( schemaManager.getNormalizerMapping() );
+        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN

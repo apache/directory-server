@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,13 +74,10 @@ public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
         
         try
         {
-            DN newRdn = new DN( req.getNewRdn().getName() );
-            newRdn.normalize( session.getCoreSession().getDirectoryService()
-                .getSchemaManager().getNormalizerMapping() );
+            SchemaManager schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
+            DN newRdn = new DN( req.getNewRdn().getName(), schemaManager );
             
-            DN oldRdn = new DN( req.getName().getRdn().getName() );
-            oldRdn.normalize( session.getCoreSession().getDirectoryService()
-                .getSchemaManager().getNormalizerMapping() );
+            DN oldRdn = new DN( req.getName().getRdn().getName(), schemaManager );
             
             boolean rdnChanged = req.getNewRdn() != null && 
                 ! newRdn.getNormName().equals( oldRdn.getNormName() );

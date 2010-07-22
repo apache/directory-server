@@ -78,8 +78,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
     private Entry getTlsEntry() throws Exception
     {
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         CoreSession session = directoryService.getSession( principal );
         return session.lookup( adminDn );
