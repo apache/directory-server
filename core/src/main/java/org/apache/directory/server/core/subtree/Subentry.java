@@ -22,6 +22,7 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -34,46 +35,104 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  */
 public class Subentry
 {
+    /** The subentry DN */
+    private DN subentryDn;
+    
     /** The Subtree Specification associated with this subentry */
     private SubtreeSpecification ss;
     
     /** The administratives roles */
     private Set<AdministrativeRole> administrativeRoles;
     
+    /** The subentry UUID */
+    private String uuid;
+    
+    
+    /**
+     * Creates a new instance of Subentry.
+     */
+    public Subentry()
+    {
+    }
+    
+    
+    /**
+     * Creates a new instance of Subentry.
+     *
+     * @param uuid The subentry UUID
+     */
+    public Subentry( String uuid )
+    {
+        this.uuid = uuid;
+    }
+    
+    
+    /**
+     * Creates a new instance of Subentry.
+     *
+     * @param uuid The subentry UUID
+     * @param subentryDn The subentry DN
+     */
+    public Subentry( DN subentryDn, String uuid )
+    {
+        this.uuid = uuid;
+        this.subentryDn = subentryDn;
+    }
+    
+    
+    /**
+     * @return The subtree specification
+     */
+    public SubtreeSpecification getSubtreeSpecification()
+    {
+        return ss;
+    }
+
     
     /**
      * Stores the subtree
      *
      * @param ss The subtree specification
      */
-    final void setSubtreeSpecification( SubtreeSpecification ss )
+    public void setSubtreeSpecification( SubtreeSpecification ss )
     {
         this.ss = ss;
     }
-    
+
 
     /**
-     * @return The subtree specification
+     * @return the subentry DN
      */
-    final SubtreeSpecification getSubtreeSpecification()
+    public DN getDn()
     {
-        return ss;
+        return subentryDn;
     }
 
 
     /**
-     * 
-     * TODO setAdministrativeRoles.
-     *
-     * @param administrativeRoles
+     * @param subentryDn the subentry DN to set
      */
-    final void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
+    public void setDn( DN subentryDn )
+    {
+        this.subentryDn = subentryDn;
+    }
+
+
+    /**
+     * Set the administrative roles for this subentry
+     *
+     * @param administrativeRoles The set of administrative roles
+     */
+    public void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
     {
         this.administrativeRoles = administrativeRoles;
     }
 
 
-    final Set<AdministrativeRole> getAdministrativeRoles()
+    /**
+     * @return The set of administrative roles for this subentry
+     */
+    public Set<AdministrativeRole> getAdministrativeRoles()
     {
         return administrativeRoles;
     }
@@ -82,7 +141,7 @@ public class Subentry
     /**
      * Tells if the type contains the Collective attribute Administrative Role 
      */
-    final boolean isCollectiveAdminRole()
+    public boolean isCollectiveAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.COLLECTIVE_ADMIN_ROLE );
     }
@@ -91,7 +150,7 @@ public class Subentry
     /**
      * Tells if the type contains the SubSchema Administrative Role 
      */
-    final boolean isSchemaAdminRole()
+    public boolean isSchemaAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.SUB_SCHEMA_ADMIN_ROLE );
     }
@@ -100,7 +159,7 @@ public class Subentry
     /**
      * Tells if the type contains the Access Control Administrative Role 
      */
-    final boolean isAccessControlAdminRole()
+    public boolean isAccessControlAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.ACCESS_CONTROL_ADMIN_ROLE );
     }
@@ -109,17 +168,26 @@ public class Subentry
     /**
      * Tells if the type contains the Triggers Administrative Role 
      */
-    final boolean isTriggersAdminRole()
+    public boolean isTriggersAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.TRIGGERS_ADMIN_ROLE );
     }
-    
-    
+
+
+    /**
+     * @return the uuid
+     */
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "Subentry[" + administrativeRoles + ", " + ss + "]";
+        return "Subentry<" + subentryDn + ", " + uuid + ", " + administrativeRoles + ", " + ss + ">";
     }
 }

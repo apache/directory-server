@@ -780,6 +780,7 @@ public class InterceptorChain
         }
         catch ( LdapException le )
         {
+            le.printStackTrace();
             throw le;
         }
         catch ( Throwable e )

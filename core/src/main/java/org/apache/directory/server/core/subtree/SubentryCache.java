@@ -25,18 +25,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.shared.ldap.name.DN;
-
 
 /**
- * A cache for subtree specifications. It associates a Subentry with a DN,
+ * A cache for subtree specifications. It associates a Subentry with an UUID,
  * representing its position in the DIT.<br>
  * This cache has a size limit set to 1000 at the moment. We should add a configuration
  * parameter to manage its size.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubentryCache implements Iterable<DN>
+public class SubentryCache implements Iterable<Subentry>
 {
     /** The default cache size limit */
     private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
@@ -48,14 +46,14 @@ public class SubentryCache implements Iterable<DN>
     private AtomicInteger cacheSize;
     
     /** The Subentry cache */
-    private final Map<DN, Subentry> cache;
+    private final Map<String, Subentry> cache;
     
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
     public SubentryCache()
     {
-        cache = new ConcurrentHashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<String, Subentry>();
         cacheSize = new AtomicInteger( 0 );
     }
     
@@ -65,34 +63,34 @@ public class SubentryCache implements Iterable<DN>
      */
     public SubentryCache( int maxSize )
     {
-        cache = new ConcurrentHashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<String, Subentry>();
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
     
     
     /**
-     * Retrieve a Subentry given a DN. If there is none, null will be returned.
+     * Retrieve a Subentry given a UUID. If there is none, null will be returned.
      *
-     * @param dn The DN we want to get the Subentry for 
+     * @param uuid The UUID we want to get the Subentry for 
      * @return The found Subentry, or null
      */
-    final Subentry getSubentry( DN dn )
+    public Subentry getSubentry( String uuid )
     {
-        return cache.get( dn );
+        return cache.get(uuid );
     }
     
     
     /**
-     * Remove a Subentry for a given DN 
+     * Remove a Subentry for a given UUID 
      *
-     * @param dn The DN for which we want to remove the 
+     * @param uuid The UUID for which we want to remove the 
      * associated Subentry
      * @return The removed Subentry, if any
      */
-    final Subentry removeSubentry( DN dn )
+    public Subentry removeSubentry( String uuid )
     {
-        Subentry oldSubentry = cache.remove( dn );
+        Subentry oldSubentry = cache.remove( uuid );
         
         if ( oldSubentry != null )
         {
@@ -104,21 +102,19 @@ public class SubentryCache implements Iterable<DN>
     
     
     /**
-     * Stores a new Subentry into the cache, associated with a DN
+     * Stores a new Subentry into the cache
      *
-     * @param dn The Subentry DN
-     * @param ss The SubtreeSpecification
-     * @param adminRoles The administrative roles for this Subentry
+     * @param subentry The Subentry to add
      * @return The old Subentry, if any
      */
-    /* No qualifier */ Subentry addSubentry( DN dn, Subentry subentry )
+    public Subentry addSubentry( Subentry subentry )
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
             // TODO : Throw an exception here
         }
         
-        Subentry oldSubentry = cache.put( dn, subentry );
+        Subentry oldSubentry = cache.put( subentry.getUuid(), subentry );
         
         if ( oldSubentry == null )
         {
@@ -130,22 +126,22 @@ public class SubentryCache implements Iterable<DN>
     
     
     /**
-     * Tells if there is a Subentry associated with a DN
-     * @param dn The DN
+     * Tells if there is a Subentry associated with a UUID
+     * @param uuid The UUID
      * @return True if a Subentry is found
      */
-    /* No qualifier */ boolean hasSubentry( DN dn )
+    public boolean hasSubentry( String uuid )
     {
-        return cache.containsKey( dn );
+        return cache.containsKey( uuid );
     }
     
     
     /**
-     * @return An Iterator over the Subentry's DNs 
+     * @return An Iterator over the Subentry's UUIDs 
      */
-    public Iterator<DN> iterator()
+    public Iterator<Subentry> iterator()
     {
-        return cache.keySet().iterator();
+        return cache.values().iterator();
     }
     
     
@@ -155,5 +151,23 @@ public class SubentryCache implements Iterable<DN>
     public int getCacheSize()
     {
         return cacheSize.get();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "Subentry cache(" ).append( cacheSize ).append( ")\n" );
+        
+        for ( Subentry subentry : this )
+        {
+            sb.append( "    " ).append( subentry ).append(  '\n' );
+        }
+        
+        return sb.toString();
     }
 }

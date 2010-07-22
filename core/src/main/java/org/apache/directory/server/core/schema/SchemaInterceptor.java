@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +52,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -477,16 +474,15 @@ public class SchemaInterceptor extends BaseInterceptor
             try
             {
                 // Check that the attribute is declared
-                if ( schemaManager.getAttributeTypeRegistry().contains( attribute ) )
-                {
-                    String oid = schemaManager.getAttributeTypeRegistry().getOidByName( attribute );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
+                
+                String oid = attributeType.getOid();
 
-                    // The attribute must be an AttributeType
-                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) && !filteredAttrs.containsKey( oid ) )
-                    {
-                        // Ok, we can add the attribute to the list of filtered attributes
-                        filteredAttrs.put( oid, attribute );
-                    }
+                // Don't add the AT twice
+                if ( !filteredAttrs.containsKey( oid ) )
+                {
+                    // Ok, we can add the attribute to the list of filtered attributes
+                    filteredAttrs.put( oid, attribute );
                 }
 
                 hasAttributes = true;

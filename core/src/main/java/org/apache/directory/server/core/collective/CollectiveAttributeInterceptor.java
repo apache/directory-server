@@ -29,6 +29,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -38,6 +39,8 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.subtree.Subentry;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
@@ -75,14 +78,23 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /** The SchemaManager instance */
     private SchemaManager schemaManager;
     
+    /** The subentry interceptor reference */
+    SubentryInterceptor subentryInterceptor;
+    
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
 
+    /** The ADS-CollectiveAttributeSubentries AttributeType */
+    private static AttributeType ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+    
     /** The CollectiveAttributeSubentries AttributeType */
     private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
     
     /** The CollectiveExclusions AttributeType */
     private static AttributeType COLLECTIVE_EXCLUSIONS_AT;
+    
+    /** The EntryUUID AttributeType */
+    private static AttributeType ENTRY_UUID_AT;
     
     /**
      * the search result filter to use for collective attribute injection
@@ -94,6 +106,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
             addCollectiveAttributes( operation, result, retAttrs );
             
+            // Add the CollectiveAttributeSubentries AT if needed
+            addCollectiveAttributeSubentries( result, retAttrs );
+
             return true;
         }
     };
@@ -109,11 +124,16 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
         
         // Load some AttributeType
+        ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         
-        LOG.debug( "CollectiveAttriute interceptor initilaized" );
+        InterceptorChain chain = directoryService.getInterceptorChain();
+        subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        
+        LOG.debug( "CollectiveAttriute interceptor initialized" );
     }
 
 
@@ -166,6 +186,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
         }
+        
+        // Add the CollectiveAttributeSubentries AT if needed
+        addCollectiveAttributeSubentries( result, lookupContext.getAttrsIdArray() );
 
         return result;
     }
@@ -226,9 +249,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
         if ( containsAnyCollectiveAttributes( entry ) )
         {
-            /*
-             * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
-             */
             LOG.info( "Cannot add the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 entry );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
@@ -255,9 +275,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         // Check that we don't add any collectve attribute, this is not allowed on normal entries
         if ( hasCollectiveAttributes( mods ) )
         {
-            /*
-             * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
-             */
             LOG.info( "Cannot modify the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 targetEntry );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_242 ) );
@@ -338,7 +355,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
         EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         /*
          * If there are no collective attribute subentries referenced then we 
@@ -415,19 +432,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         for ( Value<?> value : collectiveAttributeSubentries )
         {
-            String subentryDnStr = value.getString();
-            DN subentryDn = new DN( subentryDnStr );
+            String subentryUuid = value.getString();
+            Subentry subentry = subentryInterceptor.getSubentryCache().getSubentry( subentryUuid );
 
-            /*
-             * TODO - Instead of hitting disk here can't we leverage the 
-             * SubentryService to get us cached sub-entries so we're not
-             * wasting time with a lookup here? It is ridiculous to waste
-             * time looking up this sub-entry. 
-             */
+            Entry subentryEntry = opContext.lookup( subentry.getDn(), ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
 
-            Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
-
-            for ( AttributeType attributeType : subentry.getAttributeTypes() )
+            for ( AttributeType attributeType : subentryEntry.getAttributeTypes() )
             {
                 String attrId = attributeType.getName();
 
@@ -474,7 +484,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                EntryAttribute subentryColAttr = subentry.get( attrId );
+                EntryAttribute subentryColAttr = subentryEntry.get( attrId );
                 EntryAttribute entryColAttr = entry.get( attrId );
 
                 /*
@@ -516,5 +526,52 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
 
         return allSuperTypes;
+    }
+    
+    
+    private void addCollectiveAttributeSubentries( Entry entry, String[] requestedAttributes ) throws LdapException
+    {
+        if ( requestedAttributes == null )
+        {
+            // Nothing to do
+            return;
+        }
+        
+        EntryAttribute adsCollectiveAttributeSubentries = entry.get( ADS_COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        
+        if ( adsCollectiveAttributeSubentries == null )
+        {
+            return;
+        }
+            
+        Subentry subentry = subentryInterceptor.getSubentryCache().getSubentry( adsCollectiveAttributeSubentries.getString() );
+        
+        for ( String requestedAttribute : requestedAttributes )
+        {
+            if ( requestedAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            {
+                // Add the missing collectiveAttributeSubentries and exit
+                entry.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, subentry.getDn().getNormName() );
+
+                return;
+            }
+            
+            if ( requestedAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || requestedAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
+            {
+                continue;
+            }
+            
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( requestedAttribute );
+            
+            if ( attributeType.equals( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) )
+            {
+                // Add the missing collectiveAttributeSubentries and exit
+                entry.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, subentry.getDn().getNormName() );
+
+                return;
+            }
+        }
+        
+        return;
     }
 }

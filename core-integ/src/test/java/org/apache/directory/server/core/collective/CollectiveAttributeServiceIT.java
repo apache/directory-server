@@ -400,7 +400,6 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
-
         ModificationItem[] items = new ModificationItem[]
             { new ModificationItem( DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
