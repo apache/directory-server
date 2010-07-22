@@ -422,7 +422,6 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
-
         connection.add( getTestSubentry3( "cn=testsubentry3,ou=system" ) );
         entries = getAllEntries();
 
