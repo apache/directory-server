@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,6 +37,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.cache.CacheService;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
@@ -92,7 +92,6 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -231,6 +230,9 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the value of last successful add/update operation's CSN */
     private String contextCsn;
+    
+    /** the ehcache based cache service */
+    private CacheService cacheService;
     
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -998,6 +1000,7 @@ public class DefaultDirectoryService implements DirectoryService
         // And shutdown the server
         // --------------------------------------------------------------------
         interceptorChain.destroy();
+        cacheService.destroy();
         started = false;
         setDefaultInterceptorConfigurations();
     }
@@ -1410,6 +1413,9 @@ public class DefaultDirectoryService implements DirectoryService
         
         firstStart = createBootstrapEntries();
 
+        cacheService = new CacheService();
+        cacheService.initialize( this );
+        
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
@@ -1697,5 +1703,11 @@ public class DefaultDirectoryService implements DirectoryService
     public void setContextCsn( String lastKnownCsn )
     {
         this.contextCsn = lastKnownCsn;
+    }
+
+
+    public CacheService getCacheService()
+    {
+        return cacheService;
     }
 }

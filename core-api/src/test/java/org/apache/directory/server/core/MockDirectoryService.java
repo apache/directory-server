@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.cache.CacheService;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -484,5 +485,11 @@ public class MockDirectoryService implements DirectoryService
     {
         // TODO Auto-generated method stub
         
+    }
+    
+
+    public CacheService getCacheService()
+    {
+        return null;
     }
 }

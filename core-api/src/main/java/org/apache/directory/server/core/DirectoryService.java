@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.cache.CacheService;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.event.EventService;
@@ -517,4 +518,9 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the syncPeriodMillis
      */
     long getSyncPeriodMillis();
+
+    /**
+     * @return the cache service
+     */
+    CacheService getCacheService();
 }
