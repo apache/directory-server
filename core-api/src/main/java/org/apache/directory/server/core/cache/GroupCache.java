@@ -31,6 +31,7 @@ import net.sf.ehcache.Element;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -68,9 +69,6 @@ public class GroupCache
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
-//    private final Map<String, Set<String>> groups = new HashMap<String, Set<String>>();
-
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
 
@@ -93,6 +91,7 @@ public class GroupCache
 
     private static final Set<DN> EMPTY_GROUPS = new HashSet<DN>();
 
+    /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
     private Cache ehCache;
 
     /**
@@ -101,10 +100,10 @@ public class GroupCache
      * @param directoryService the directory service core
      * @throws LdapException if there are failures on initialization 
      */
-    protected GroupCache( CoreSession session, Cache ehCache ) throws LdapException
+    public GroupCache( DirectoryService dirService ) throws LdapException
     {
-        schemaManager = session.getDirectoryService().getSchemaManager();
-        nexus = session.getDirectoryService().getPartitionNexus();
+        schemaManager = dirService.getSchemaManager();
+        nexus = dirService.getPartitionNexus();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
         UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
@@ -112,9 +111,9 @@ public class GroupCache
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        this.ehCache = ehCache;
+        this.ehCache = dirService.getCacheService().getCache( "groupCache" );
         
-        initialize( session );
+        initialize( dirService.getAdminSession() );
     }
 
 

@@ -49,12 +49,6 @@ public class CacheService
     /** the ehcache cache manager */
     private CacheManager cacheManager;
 
-    /** directory service */
-    private DirectoryService dirService;
-
-    /** group cache */
-    private GroupCache groupCache;
-
 
     public CacheService()
     {
@@ -81,40 +75,27 @@ public class CacheService
 
             cacheManager = new CacheManager( configFile.getAbsolutePath() );
         }
-
-        this.dirService = dirService;
     }
 
 
     public void destroy()
     {
-        if( cacheManager.getStatus() == Status.STATUS_ALIVE )
+        if ( cacheManager.getStatus() == Status.STATUS_ALIVE )
         {
             LOG.info( "destroying the cache service" );
-            
-            groupCache = null;
-            
+
             cacheManager.removalAll();
-            
+
             cacheManager.shutdown();
         }
     }
 
 
-    public GroupCache getGroupCache() throws LdapException
+    public Cache getCache( String name )
     {
-        if ( groupCache != null )
-        {
-            LOG.info( "returning the old group cache" );
-            return groupCache;
-        }
+        LOG.info( "fetching the cache named {}", name );
 
-        Cache ehCache = cacheManager.getCache( "groupCache" );
-        LOG.info( "creating a new group cache {}", ehCache.getStatus() );
-
-        groupCache = new GroupCache( dirService.getAdminSession(), ehCache );
-
-        return groupCache;
+        return cacheManager.getCache( name );
     }
 
 

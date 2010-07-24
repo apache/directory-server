@@ -198,7 +198,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Create the caches
         tupleCache = new TupleCache( adminSession );
-        groupCache = directoryService.getCacheService().getGroupCache();
+        groupCache = new GroupCache( directoryService );
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
