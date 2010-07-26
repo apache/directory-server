@@ -261,7 +261,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "description", "Singer Songwriter" ) );
 
-        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
+        connection.modify( DN_KATE_BUSH, modifyOp );
 
         Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifiersName", "modifyTimestamp" );
         responses.next();
@@ -285,7 +285,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyAddOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "description", "an English singer, songwriter, musician" ) );
 
-        connection.modify( new DN( DN_KATE_BUSH ), modifyAddOp );
+        connection.modify( DN_KATE_BUSH, modifyAddOp );
 
         // Determine modifyTimestamp
         Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
@@ -296,14 +296,14 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( modifyTimestamp );
         String oldTimestamp = modifyTimestamp.getString();
 
-        // Wait 500 milliseconds
-        Thread.sleep( 500 );
+        // Wait 2000 milliseconds
+        Thread.sleep( 2000 );
 
         // Change value of attribute description
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "description", "one of England's most successful solo female performers" ) );
 
-        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
+        connection.modify( DN_KATE_BUSH, modifyOp );
 
         // Determine modifyTimestamp after modification
         responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
@@ -330,7 +330,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
+        connection.modify( DN_KATE_BUSH, modifyOp );
     }
 
 
@@ -345,7 +345,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "creatorsName" ) );
 
-        ModifyResponse response = connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
+        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }
@@ -362,7 +362,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        ModifyResponse response = connection.modify( new DN( DN_KATE_BUSH ), modifyOp );
+        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }

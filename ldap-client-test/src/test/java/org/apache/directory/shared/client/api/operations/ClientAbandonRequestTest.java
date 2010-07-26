@@ -55,11 +55,11 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer ( 
-    transports = 
+@CreateLdapServer (
+    transports =
     {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
+        @CreateTransport( protocol = "LDAP" ),
+        @CreateTransport( protocol = "LDAPS" )
     })
 public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 {
@@ -67,7 +67,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     private LdapAsyncConnection connection;
 
     private CoreSession session;
-    
+
     @Before
     public void setup() throws Exception
     {
@@ -78,8 +78,8 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
 //        session = ldapServer.getDirectoryService().getSession();
     }
-    
-    
+
+
     /**
      * Close the LdapConnection
      */
@@ -106,7 +106,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         // injecting some values to keep the
         // followed search operation to run for a while
         final int numEntries = 100;
-        
+
         for ( int i = 0; i < numEntries; i++ )
         {
             String s = String.valueOf( i );
@@ -118,7 +118,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
             connection.add( entry );
         }
-        
+
         SearchRequest sr = new SearchRequest();
         sr.setFilter( "(cn=*)" );
         sr.setBaseDn( "ou=system" );
@@ -127,15 +127,15 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
         // Launch the search now
         SearchFuture searchFuture = connection.searchAsync( sr );
-        
+
         SearchResponse searchResponse = null;
         int count = 0;
-        
+
         do
         {
             searchResponse = searchFuture.get();
             count++;
-            
+
             if ( count > 10 )
             {
                 searchFuture.cancel( true );
@@ -143,21 +143,21 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
             }
         }
         while ( !(searchResponse instanceof SearchResultDone ) );
-        
+
         assertTrue( numEntries > count );
         assertTrue( searchFuture.isCancelled() );
 
         // Now do a simple synchronous search
         Cursor<SearchResponse> results = connection.search( sr );
-        
+
         int n = -1;
-        
+
         while ( results.next() )
         {
             results.get();
             n++;
         }
-        
+
         assertEquals( numEntries, n );
     }
 }

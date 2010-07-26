@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.operations.search;
 
@@ -83,7 +83,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "SearchDS")
 @ApplyLdifs(
-    {         
+    {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
         "objectclass: metaAttributeType",
         "objectclass: metaTop",
@@ -280,9 +280,9 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( 
-            "objectClass: top", 
-            "objectClass: posixGroup", 
+        Attributes attrs = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: posixGroup",
             "cn", name,
             "gidNumber", String.valueOf( gid ) );
 
@@ -680,11 +680,11 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
-        Attributes attributes = LdifUtils.createAttributes( 
-            "objectClass: top", 
+        Attributes attributes = LdifUtils.createAttributes(
             "objectClass: top",
-            "objectClass: person", 
-            "cn", cn, 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
             "sn", sn );
 
         return attributes;
@@ -718,7 +718,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         enm = sysRoot.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
         assertTrue( enm.hasMore() );
-        sr = ( SearchResult ) enm.next();
+        sr = enm.next();
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
@@ -947,6 +947,48 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
+     * Search an entry and fetch an attribute and all its subtypes
+     * @throws NamingException if there are errors
+     */
+    @Test
+    public void testSearchFetchAttributeAndSubTypes() throws Exception
+    {
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "name" } );
+
+        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            Attributes attrs = entry.getAttributes();
+
+            // We should have get cn and sn only
+            assertEquals( 2, attrs.size() );
+
+            // Check CN
+            Attribute cn = attrs.get( "cn" );
+
+            assertNotNull( cn );
+            assertEquals( "Heather Nova", cn.get().toString() );
+
+            // Assert SN
+            Attribute sn = attrs.get( "sn" );
+            assertNotNull( sn );
+            assertEquals( "Nova", sn.get().toString() );
+        }
+        else
+        {
+            fail( "entry " + RDN + " not found" );
+        }
+
+        result.close();
+    }
+
+
+    /**
      * Search an entry and fetch an attribute with twice the same attributeType
      * @throws NamingException if there are errors
      */
@@ -985,7 +1027,7 @@ public class SearchIT extends AbstractLdapTestUnit
     //        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
     //        controls.setDerefLinkFlag( false );
     //        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES );
-    //        
+    //
     //        List map = new ArrayList();
     //        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
     //        while ( list.hasMore() )
@@ -994,20 +1036,20 @@ public class SearchIT extends AbstractLdapTestUnit
     //            map.add( result.getName() );
     //        }
     //        assertEquals( "size of results", 14, map.size() );
-    //        assertTrue( "contains ou=testing00,ou=system", map.contains( "ou=testing00,ou=system" ) ); 
-    //        assertTrue( "contains ou=testing01,ou=system", map.contains( "ou=testing01,ou=system" ) ); 
-    //        assertTrue( "contains ou=testing02,ou=system", map.contains( "ou=testing01,ou=system" ) ); 
-    //        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.contains( "uid=akarasulu,ou=users,ou=system" ) ); 
-    //        assertTrue( "contains ou=configuration,ou=system", map.contains( "ou=configuration,ou=system" ) ); 
-    //        assertTrue( "contains ou=groups,ou=system", map.contains( "ou=groups,ou=system" ) ); 
-    //        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.contains( "ou=interceptors,ou=configuration,ou=system" ) ); 
-    //        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map.contains( "ou=partitions,ou=configuration,ou=system" ) ); 
-    //        assertTrue( "contains ou=services,ou=configuration,ou=system", map.contains( "ou=services,ou=configuration,ou=system" ) ); 
-    //        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.contains( "ou=subtest,ou=testing01,ou=system" ) ); 
-    //        assertTrue( "contains ou=system", map.contains( "ou=system" ) ); 
-    //        assertTrue( "contains ou=users,ou=system", map.contains( "ou=users,ou=system" ) ); 
-    //        assertTrue( "contains uid=admin,ou=system", map.contains( "uid=admin,ou=system" ) ); 
-    //        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.contains( "cn=administrators,ou=groups,ou=system" ) ); 
+    //        assertTrue( "contains ou=testing00,ou=system", map.contains( "ou=testing00,ou=system" ) );
+    //        assertTrue( "contains ou=testing01,ou=system", map.contains( "ou=testing01,ou=system" ) );
+    //        assertTrue( "contains ou=testing02,ou=system", map.contains( "ou=testing01,ou=system" ) );
+    //        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.contains( "uid=akarasulu,ou=users,ou=system" ) );
+    //        assertTrue( "contains ou=configuration,ou=system", map.contains( "ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=groups,ou=system", map.contains( "ou=groups,ou=system" ) );
+    //        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map.contains( "ou=partitions,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=services,ou=configuration,ou=system", map.contains( "ou=services,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.contains( "ou=subtest,ou=testing01,ou=system" ) );
+    //        assertTrue( "contains ou=system", map.contains( "ou=system" ) );
+    //        assertTrue( "contains ou=users,ou=system", map.contains( "ou=users,ou=system" ) );
+    //        assertTrue( "contains uid=admin,ou=system", map.contains( "uid=admin,ou=system" ) );
+    //        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.contains( "cn=administrators,ou=groups,ou=system" ) );
     //    }
 
     /**
@@ -1235,11 +1277,11 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes( 
-            "objectClass: top", 
-            "objectClass: person", 
-            "cn: Sid Vicious", 
-            "sn: Vicious", 
+        Attributes vicious = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Sid Vicious",
+            "sn: Vicious",
             "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
@@ -1285,11 +1327,11 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes( 
-            "objectClass: top", 
-            "objectClass: person", 
-            "cn: Sid Vicious", 
-            "sn: Vicious", 
+        Attributes vicious = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Sid Vicious",
+            "sn: Vicious",
             "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
@@ -1337,11 +1379,11 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        Attributes vicious = LdifUtils.createAttributes( 
-            "objectClass: top", 
-            "objectClass: person", 
+        Attributes vicious = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: person",
             "cn: x*y*z*",
-            "sn: x*y*z*", 
+            "sn: x*y*z*",
             "description: (sex*pis\\tols)" );
 
         sysRoot.createSubcontext( "cn=x*y*z*", vicious );
@@ -1393,7 +1435,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Search operation with a base DN with quotes
      * Commented as it's not valid by RFC 5514
     @Test
-    public void testSearchWithQuotesInBase() throws NamingException 
+    public void testSearchWithQuotesInBase() throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -1411,8 +1453,8 @@ public class SearchIT extends AbstractLdapTestUnit
             // Check entry
             NamingEnumeration<SearchResult> result = sysRoot.search( base, filter, ctls );
             assertTrue( result.hasMore() );
-            
-            while ( result.hasMore() ) 
+
+            while ( result.hasMore() )
             {
                 SearchResult sr = result.next();
                 Attributes attrs = sr.getAttributes();
@@ -1420,7 +1462,7 @@ public class SearchIT extends AbstractLdapTestUnit
                 assertNotNull(sn);
                 assertTrue( sn.contains( "Amos" ) );
             }
-        } catch (Exception e) 
+        } catch (Exception e)
         {
             fail( e.getMessage() );
         }
@@ -1431,7 +1473,7 @@ public class SearchIT extends AbstractLdapTestUnit
     * Added to test correct comparison of integer attribute types when searching.
     * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
     * Ref. DIRSERVER-1296
-    * 
+    *
     * @throws Exception
     */
     @Test
@@ -1451,7 +1493,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Added to test correct comparison of integer attribute types when searching.
      * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
      * Ref. DIRSERVER-1296
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -1471,7 +1513,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Added to test correct comparison of integer attribute types when searching.
      * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
      * Ref. DIRSERVER-1296
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -1491,7 +1533,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Added to test correct comparison of integer attribute types when searching.
      * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
      * Ref. DIRSERVER-1296
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -1563,10 +1605,10 @@ public class SearchIT extends AbstractLdapTestUnit
             .getJndiValue() );
 
         // Create an entry which does not match
-        Attributes attrs = LdifUtils.createAttributes( 
-            "objectClass: top", 
-            "objectClass: groupOfUniqueNames", 
-            "cn: testGroup3", 
+        Attributes attrs = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: groupOfUniqueNames",
+            "cn: testGroup3",
             "uniqueMember: uid=admin,ou=system" );
 
         getSystemContext( service ).createSubcontext( "cn=testGroup3,ou=groups", attrs );

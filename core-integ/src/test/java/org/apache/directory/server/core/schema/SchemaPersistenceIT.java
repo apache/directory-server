@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema;
 
@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * An integration test class for testing persistence for various operations 
+ * An integration test class for testing persistence for various operations
  * on the subschemaSubentry with server restarts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -68,7 +68,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests to see if an attributeType is persisted when added, then server 
+     * Tests to see if an attributeType is persisted when added, then server
      * is shutdown, then restarted again.
      *
      * @throws Exception on error
@@ -85,22 +85,22 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
             // test successful add with everything
             // -------------------------------------------------------------------
 
-            descriptions.add( 
+            descriptions.add(
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "  NAME 'type0' " + 
+                "  NAME 'type0' " +
                 "  OBSOLETE SUP 2.5.4.41 " +
-                "  EQUALITY caseExactIA5Match " + 
+                "  EQUALITY caseExactIA5Match " +
                 "  ORDERING octetStringOrderingMatch " +
                 "  SUBSTR caseExactIA5SubstringsMatch " +
-                "  COLLECTIVE " + 
+                "  COLLECTIVE " +
                 "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "  SINGLE-VALUE USAGE userApplications " +
+                "  USAGE userApplications " +
                 "  X-SCHEMA 'nis' )" );
-            
-            descriptions.add( 
+
+            descriptions.add(
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
                 "  NAME ( 'type1' 'altName' ) " +
-                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " + 
+                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
                 "  SUP 2.5.4.41 " +
                 "  USAGE userApplications " +
                 "  X-SCHEMA 'nis' )" );
@@ -131,14 +131,14 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
 
     // -----------------------------------------------------------------------
-    // Private Utility Methods 
+    // Private Utility Methods
     // -----------------------------------------------------------------------
 
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         DN dn = new DN( getSubschemaSubentryDN() );
         Attribute attr = new BasicAttribute( opAttr );
-        
+
         for ( String description : descriptions )
         {
             attr.add( description );
@@ -163,7 +163,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
     /**
      * Get's the subschemaSubentry attribute value from the rootDSE.
-     * 
+     *
      * @return the subschemaSubentry distinguished name
      * @throws NamingException if there are problems accessing the RootDSE
      */
@@ -184,8 +184,8 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
     /**
      * Gets the subschemaSubentry attributes for the global schema.
-     * 
-     * @return all operational attributes of the subschemaSubentry 
+     *
+     * @return all operational attributes of the subschemaSubentry
      * @throws NamingException if there are problems accessing this entry
      */
     private Attributes getSubschemaSubentryAttributes() throws Exception
@@ -212,11 +212,11 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
         AttributeType attributeType = null;
-        
+
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
-            
+
             if ( desc.indexOf( oid ) != -1 )
             {
                 attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER

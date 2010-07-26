@@ -20,14 +20,20 @@
 package org.apache.directory.server.core.operations.lookup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,10 +49,26 @@ import org.junit.runner.RunWith;
     "dn: cn=test,ou=system",
     "objectClass: person",
     "cn: test",
-    "sn: sn_test" 
+    "sn: sn_test"
 })
 public class LookupIT extends AbstractLdapTestUnit
 {
+    /** The ldap connection */
+    private LdapConnection connection;
+
+    @Before
+    public void setup() throws Exception
+    {
+        connection = IntegrationUtils.getAdminConnection( service );
+    }
+
+
+    @After
+    public void shutdown() throws Exception
+    {
+        connection.close();
+    }
+
 
     /**
      * Test a lookup( DN, "*") operation
@@ -54,14 +76,14 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupStar() throws Exception
     {
-        DN dn = new DN( "cn=test,ou=system" );
-        Entry entry = service.getAdminSession().lookup( dn, new String[]{ "*" } );
-        
+        SearchResultEntry result = (SearchResultEntry)connection.lookup( "cn=test,ou=system", "*" );
+        Entry entry = result.getEntry();
+
         assertNotNull( entry );
-        
+
         // Check that we don't have any operational attributes :
         // We should have only 3 attributes : objectClass, cn and sn
-        assertEquals( 3, entry.size() ); 
+        assertEquals( 3, entry.size() );
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );
@@ -77,22 +99,22 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupPlus() throws Exception
     {
         service.setDenormalizeOpAttrsEnabled( true );
-        DN dn = new DN( "cn=test,ou=system" );
-        Entry entry = service.getAdminSession().lookup( dn, new String[]{ "+" } );
-        
+        SearchResultEntry result = (SearchResultEntry)connection.lookup( "cn=test,ou=system", "+" );
+        Entry entry = result.getEntry();
+
         assertNotNull( entry );
-        
+
         // We should have 5 attributes
-        assertEquals( 7, entry.size() ); 
+        assertEquals( 7, entry.size() );
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );
         assertEquals( "sn_test", entry.get( "sn" ).getString() );
         assertTrue( entry.contains( "objectClass", "top", "person" ) );
-        
+
         // Check that we have all the operational attributes :
         // We should have 3 users attributes : objectClass, cn and sn
-        // and 2 operational attributes : createTime and createUser 
+        // and 2 operational attributes : createTime and createUser
         assertNotNull( entry.get( "createTimestamp" ).getString() );
         assertEquals( "uid=admin,ou=system", entry.get( "creatorsName" ).getString() );
     }
@@ -104,13 +126,13 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupEmptyAtrid() throws Exception
     {
-        DN dn = new DN( "cn=test,ou=system" );
-        Entry entry = service.getAdminSession().lookup( dn, new String[]{} );
-        
+        SearchResultEntry result = (SearchResultEntry)connection.lookup( "cn=test,ou=system", (String[])null );
+        Entry entry = result.getEntry();
+
         assertNotNull( entry );
-        
+
         // We should have 3 attributes
-        assertEquals( 3, entry.size() ); 
+        assertEquals( 3, entry.size() );
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );
@@ -125,17 +147,39 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        DN dn = new DN( "cn=test,ou=system" );
-        Entry entry = service.getAdminSession().lookup( dn );
-        
+        SearchResultEntry result = (SearchResultEntry)connection.lookup( "cn=test,ou=system" );
+        Entry entry = result.getEntry();
+
         assertNotNull( entry );
-        
+
         // We should have 3 attributes
-        assertEquals( 3, entry.size() ); 
+        assertEquals( 3, entry.size() );
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );
         assertEquals( "sn_test", entry.get( "sn" ).getString() );
         assertTrue( entry.contains( "objectClass", "top", "person" ) );
+    }
+
+
+    /**
+     * Test a lookup( DN ) operation with a list of attributes
+     */
+    @Test
+    @Ignore
+    public void testLookupWithAttrs() throws Exception
+    {
+        SearchResultEntry result = (SearchResultEntry)connection.lookup( "cn=test,ou=system", "name" );
+        Entry entry = result.getEntry();
+
+        assertNotNull( entry );
+
+        // We should have 3 attributes
+        assertEquals( 2, entry.size() );
+
+        // Check that all the user attributes are present
+        assertEquals( "test", entry.get( "cn" ).getString() );
+        assertEquals( "sn_test", entry.get( "sn" ).getString() );
+        assertFalse( entry.containsAttribute( "objectClass" ) );
     }
 }
