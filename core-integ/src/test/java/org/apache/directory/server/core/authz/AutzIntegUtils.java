@@ -6,28 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz;
 
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-
-import java.util.Hashtable;
-
-import javax.naming.Name;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AddResponse;
@@ -82,42 +73,6 @@ public class AutzIntegUtils
     public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
     {
         return IntegrationUtils.getNetworkConnectionAs( host, port, dn, password );
-    }
-
-
-    /**
-     * Gets a context at ou=system as the admin user.
-     *
-     * @return the admin context at ou=system
-     * @throws Exception if there are problems creating the context
-     */
-    public static DirContext getContextAsAdmin() throws Exception
-    {
-        return getSystemContext( service );
-    }
-
-
-    /**
-     * Gets a context at some dn within the directory as the admin user.
-     * Should be a dn of an entry under ou=system since no other partitions
-     * are enabled.
-     *
-     * @param dn the DN of the context to get
-     * @return the context for the DN as the admin user
-     * @throws Exception if is a problem initializing or getting the context
-     */
-    @SuppressWarnings("unchecked")
-    public static DirContext getContextAsAdmin( String dn ) throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
-        env.put( DirContext.PROVIDER_URL, dn );
-        env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin, ou=system" );
-        env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
-        env.put( DirContext.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.put( DirectoryService.JNDI_KEY, service );
-        return new InitialDirContext( env );
     }
 
 
@@ -186,7 +141,7 @@ public class AutzIntegUtils
 
     /**
      * Creates a simple groupOfUniqueNames under the ou=groups,ou=system
-     * container.  The admin user is always a member of this newly created 
+     * container.  The admin user is always a member of this newly created
      * group.
      *
      * @param groupName the name of the cgroup to create
@@ -243,44 +198,6 @@ public class AutzIntegUtils
     }
 
 
-    /**
-     * Gets the context at ou=system as a specific user.
-     *
-     * @param user the DN of the user to get the context as
-     * @param password the password of the user
-     * @return the context as the user
-     * @throws Exception if the user does not exist or authx fails
-     */
-    public static DirContext getContextAs( Name user, String password ) throws Exception
-    {
-        return getContextAs( user, password, ServerDNConstants.SYSTEM_DN );
-    }
-
-
-    /**
-     * Gets the context at any DN under ou=system as a specific user.
-     *
-     * @param user the DN of the user to get the context as
-     * @param password the password of the user
-     * @param dn the distinguished name of the entry to get the context for
-     * @return the context representing the entry at the dn as a specific user
-     * @throws Exception if the does not exist or authx fails
-     */
-    @SuppressWarnings("unchecked")
-    public static DirContext getContextAs( Name user, String password, String dn ) throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
-        env.put( DirContext.PROVIDER_URL, dn );
-        env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, user.toString() );
-        env.put( DirContext.SECURITY_CREDENTIALS, password );
-        env.put( DirContext.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.put( DirectoryService.JNDI_KEY, service );
-        return new InitialDirContext( env );
-    }
-
-
     public static void deleteAccessControlSubentry( String cn ) throws Exception
     {
         getAdminConnection().delete( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN );
@@ -320,7 +237,7 @@ public class AutzIntegUtils
 
         // modify ou=system to be an AP for an A/C AA if it is not already
         EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
-        
+
         if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
             ModifyRequest modReq = new ModifyRequest( systemEntry.getDn() );
