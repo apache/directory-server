@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.collective;
 
@@ -64,23 +64,23 @@ import org.junit.runner.RunWith;
 public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
-    
+
     private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( 
-            new DN( dn ), 
+        Entry subentry = LdifUtils.createEntry(
+            new DN( dn ),
             "objectClass: top",
             "objectClass: person",
             "cn", cn ,
             "sn: testentry" );
-        
+
         return subentry;
     }
 
 
     private Entry getTestSubentry( String dn )  throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( 
+        Entry subentry = LdifUtils.createEntry(
             new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
@@ -88,14 +88,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             "c-ou: configuration",
             "subtreeSpecification: { base \"ou=configuration\" }",
             "cn: testsubentry" );
-        
+
         return subentry;
     }
 
 
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( 
+        Entry subentry = LdifUtils.createEntry(
             new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
@@ -103,14 +103,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             "c-ou: configuration2",
             "subtreeSpecification: { base \"ou=configuration\" }",
             "cn: testsubentry2" );
-        
+
         return subentry;
     }
 
 
     private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( 
+        Entry subentry = LdifUtils.createEntry(
             new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
@@ -118,7 +118,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             "c-st: FL",
             "subtreeSpecification: { base \"ou=configuration\" }",
             "cn: testsubentry3" );
-        
+
         return subentry;
     }
 
@@ -126,8 +126,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     private void addAdministrativeRole( String role ) throws Exception
     {
         EntryAttribute attribute = new DefaultEntryAttribute( "administrativeRole", role );
-        
-        connection.modify( new DN( "ou=system" ), new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute ) );
+
+        connection.modify( "ou=system", new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute ) );
     }
 
 
@@ -135,13 +135,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<SearchResponse> cursor = 
+        Cursor<SearchResponse> cursor =
             connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
-        
+
         while ( cursor.next() )
         {
             SearchResponse result = cursor.get();
-            
+
             if ( result instanceof SearchResultEntry )
             {
                 Entry entry = ((SearchResultEntry)result).getEntry();
@@ -157,13 +157,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<SearchResponse> cursor = 
+        Cursor<SearchResponse> cursor =
             connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "cn" );
-        
+
         while ( cursor.next() )
         {
             SearchResponse result = cursor.get();
-            
+
             if ( result instanceof SearchResultEntry )
             {
                 Entry entry = ((SearchResultEntry)result).getEntry();
@@ -173,19 +173,19 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         return resultMap;
     }
-    
-    
+
+
     private Map<String, Entry> getAllEntriesCollectiveAttributesOnly() throws Exception
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<SearchResponse> cursor = 
+        Cursor<SearchResponse> cursor =
             connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "c-ou", "c-st" );
-        
+
         while ( cursor.next() )
         {
             SearchResponse result = cursor.get();
-            
+
             if ( result instanceof SearchResultEntry )
             {
                 Entry entry = ((SearchResultEntry)result).getEntry();
@@ -196,20 +196,20 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         return resultMap;
     }
 
-    
+
     @Before
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( service );
     }
-    
+
 
     @After
     public void shutdown() throws Exception
     {
         connection.close();
     }
-    
+
 
     @Test
     public void testLookup() throws Exception
@@ -243,9 +243,9 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
-        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
-        connection.modify( new DN( "ou=services,ou=configuration, ou=system" ), modification );
+        connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
         // entry should not show the c-ou collective attribute anymore
         response = connection.lookup( "ou=services,ou=configuration,ou=system" );
@@ -283,18 +283,18 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "c-ou" );
         entry = ((SearchResultEntry)response).getEntry();
         c_ou = entry.get( "c-ou" );
-        
+
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
-        
+
         // unspecify the collective attribute in the returning attribute list
         response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "objectClass" );
         entry = ((SearchResultEntry)response).getEntry();
         c_ou = entry.get( "c-ou" );
 
         assertNull( "a collective c-ou attribute should not be present", c_ou );
-        
+
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
@@ -316,7 +316,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
-        
+
         c_st = entry.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
@@ -324,9 +324,9 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
-        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
-        connection.modify( new DN( "ou=interceptors,ou=configuration, ou=system" ), modification );
+        connection.modify( "ou=interceptors,ou=configuration, ou=system" , modification );
 
         // none of the attributes should appear any longer
         response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
@@ -339,7 +339,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         }
 
         c_st = entry.get( "c-st" );
-        
+
         if ( c_st != null )
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
@@ -365,16 +365,34 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );
 
+        // -------------------------------------------------------------------
+        // Test searching for subtypes
+        // -------------------------------------------------------------------
+        Cursor<SearchResponse> responses = connection.search( "ou=services,ou=configuration,ou=system", "(ObjectClass=*)",
+            SearchScope.OBJECT, "ou" );
+
+        while ( responses.next() )
+        {
+            SearchResultEntry resultEntry = (SearchResultEntry)responses.get();
+            entry = resultEntry.getEntry();
+
+            assertEquals( 2, entry.size() );
+            assertTrue( entry.containsAttribute( "ou" ) );
+            assertTrue( entry.containsAttribute( "c-ou" ) );
+            assertTrue( entry.contains( "ou", "services" ) );
+            assertTrue( entry.contains( "c-ou", "configuration" ) );
+        }
+
         // ------------------------------------------------------------------
-        // test an entry that should show the collective attribute c-ou, 
+        // test an entry that should show the collective attribute c-ou,
         // but restrict returned attributes to c-ou and c-st
         // ------------------------------------------------------------------
         entries = getAllEntriesCollectiveAttributesOnly();
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
-        assertEquals( "configuration", c_ou.getString() );   
-        
+        assertEquals( "configuration", c_ou.getString() );
+
         // -------------------------------------------------------------------
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
@@ -385,16 +403,16 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
-        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
-        connection.modify( new DN( "ou=services,ou=configuration, ou=system" ), modification );
+        connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -406,7 +424,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -445,23 +463,23 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
-        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
-        connection.modify( new DN( "ou=interceptors,ou=configuration, ou=system" ), modification );
+        connection.modify( "ou=interceptors,ou=configuration, ou=system", modification );
 
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
         entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
-        
+
         c_st = entry.get( "c-st" );
-        
+
         if ( c_st != null )
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
@@ -484,34 +502,34 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( c_ou );
         assertNull( c_st );
     }
-    
-    
+
+
     @Test
     public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
-        
+
         AddResponse response = connection.add( entry );
-        
+
         assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }
-    
-    
+
+
     @Test
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
         connection.add( entry );
-        
-        ModifyResponse response = connection.modify( new DN( "cn=Ersin Er,ou=system" ), 
-            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+
+        ModifyResponse response = connection.modify( "cn=Ersin Er,ou=system",
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
                 new DefaultEntryAttribute( "c-l", "Turkiye" ) ) );
-        
+
         assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }
-    
-    
+
+
     @Test
     public void testPolymorphicReturnAttrLookup() throws Exception
     {
@@ -521,12 +539,12 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         Entry subentry = getTestSubentry( "cn=testsubentry,ou=system" );
         connection.add( subentry );
-    
+
         // request the collective attribute's super type specifically
         SearchResponse response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
-        
+
         Entry entry = ((SearchResultEntry)response).getEntry();
-        
+
         EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
