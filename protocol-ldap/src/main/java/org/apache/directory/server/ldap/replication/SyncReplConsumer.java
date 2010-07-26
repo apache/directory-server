@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.replication;
 
@@ -65,6 +65,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -89,11 +90,11 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
+ *
  * Implementation of syncrepl slave a.k.a consumer.
- * 
+ *
  * TODO write test cases
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SyncReplConsumer implements ConnectionClosedEventListener
@@ -250,11 +251,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
 
     /**
-     * 
+     *
      *  prepares a SearchRequest for syncing DIT content.
      *
      */
-    public void prepareSyncSearchRequest()
+    public void prepareSyncSearchRequest() throws LdapException
     {
         String baseDn = config.getBaseDn();
 
@@ -442,7 +443,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
             // if refreshDeletes set to true then delete all the entries with entryUUID
-            // present in the syncIdSet 
+            // present in the syncIdSet
             if ( syncInfoValue.isRefreshDeletes() )
             {
                 deleteEntries( uuidList, false );
@@ -536,7 +537,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );
-        
+
         if ( syncCookie != null )
         {
             LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncCookie ) );
@@ -569,7 +570,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         }
 
         ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
-        
+
         LOG.debug( "sync operation returned result code {}", resultCode );
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
@@ -593,7 +594,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 LOG.error( "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer", e );
                 disconnet();
             }
-            
+
             removeCookie();
             doSyncSearch( syncType, true );
         }
@@ -854,8 +855,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
     /**
      * deletes the entries having the UUID given in the list
-     * 
-     * @param uuidList the list of UUIDs 
+     *
+     * @param uuidList the list of UUIDs
      * @throws Exception in case of any problems while deleting the entries
      */
     public void deleteEntries( List<byte[]> uuidList, boolean isRefreshPresent ) throws Exception
@@ -872,7 +873,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         // if it is refreshPresent list then send all the UUIDs for
         // filtering, otherwise breaking the list will cause the
-        // other present entries to be deleted from DIT 
+        // other present entries to be deleted from DIT
         if ( isRefreshPresent )
         {
             LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
@@ -1021,28 +1022,28 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
     /**
      * removes all child entries present under the given DN and finally the DN itself
-     * 
+     *
      * Working:
      *          This is a recursive function which maintains a Map<DN,Cursor>.
-     *          The way the cascade delete works is by checking for children for a 
+     *          The way the cascade delete works is by checking for children for a
      *          given DN(i.e opening a search cursor) and if the cursor is empty
      *          then delete the DN else for each entry's DN present in cursor call
      *          deleteChildren() with the DN and the reference to the map.
-     *          
+     *
      *          The reason for opening a search cursor is based on an assumption
      *          that an entry *might* contain children, consider the below DIT fragment
-     *          
+     *
      *          parent
      *          /     \
      *        child1   child2
      *                 /     \
      *               grand21  grand22
-     *               
-     *           The below method works better in the case where the tree depth is >1 
-     *          
+     *
+     *           The below method works better in the case where the tree depth is >1
+     *
      *   In the case of passing a non-null DeleteListener, the return value will always be null, cause the
      *   operation is treated as asynchronous and response result will be sent using the listener callback
-     *   
+     *
      * @param rootDn the DN which will be removed after removing its children
      * @param map a map to hold the Cursor related to a DN
      * @throws Exception If the DN is not valid or if the deletion failed
