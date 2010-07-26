@@ -22,13 +22,16 @@ package org.apache.directory.server.core;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -92,7 +95,6 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -231,6 +233,11 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the value of last successful add/update operation's CSN */
     private String contextCsn;
+    
+    /** lock file for directory service's working directory */
+    private RandomAccessFile lockFile = null;
+    
+    private static final String LOCK_FILE_NAME = ".dirservice.lock";
     
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -876,6 +883,8 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
+        lockWorkDir();
+        
         if ( shutdownHookEnabled )
         {
             Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
@@ -998,6 +1007,20 @@ public class DefaultDirectoryService implements DirectoryService
         // And shutdown the server
         // --------------------------------------------------------------------
         interceptorChain.destroy();
+        
+        if ( lockFile != null )
+        {
+            try
+            {
+                lockFile.close();
+                // no need to delete the lock file
+            }
+            catch( IOException e )
+            {
+                LOG.warn( "couldn't delete the lock file {}", LOCK_FILE_NAME );
+            }
+        }
+        
         started = false;
         setDefaultInterceptorConfigurations();
     }
@@ -1697,5 +1720,46 @@ public class DefaultDirectoryService implements DirectoryService
     public void setContextCsn( String lastKnownCsn )
     {
         this.contextCsn = lastKnownCsn;
+    }
+    
+    
+    /**
+     * checks if the working directory is already in use by some other directory service, if yes
+     * then throws a runtime exception else will obtain the lock on the working directory
+     */
+    private void lockWorkDir()
+    {
+        FileLock fileLock = null;
+        
+        try
+        {
+            lockFile = new RandomAccessFile( workingDirectory.getAbsolutePath() + File.separator + LOCK_FILE_NAME, "rw" );
+            try
+            {
+                fileLock = lockFile.getChannel().tryLock( 0, 1, false );
+            }
+            catch ( IOException e )
+            {
+                // shoudn't happen, but log
+                LOG.error( "failed to lock the work directory", e );
+            }
+            catch ( OverlappingFileLockException e ) // thrown if we can't get a lock
+            {
+                fileLock = null;
+            }
+        }
+        catch ( FileNotFoundException e )
+        {
+            // shouldn't happen, but log anyway
+            LOG.error( "failed to lock the work directory", e );
+        }
+        
+        if ( ( fileLock == null ) || ( !fileLock.isValid() ) )
+        {
+            String message = "the working directory " + workingDirectory + " has been locked by another directory service.";
+            LOG.error( message );
+            throw new RuntimeException( message );
+        }
+        
     }
 }
