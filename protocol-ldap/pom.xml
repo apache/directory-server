@@ -54,17 +54,22 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-kerberos-shared</artifactId>
+      <artifactId>apacheds-protocol-shared</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-xdbm-tools</artifactId>
+      <artifactId>apacheds-kerberos-shared</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
     </dependency>
     
     <dependency>
