@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -111,8 +112,8 @@ public class RelatedProtectedItemFilterTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
-        USER_NAME = new DN( "ou=test, ou=users, ou=system" );
+        GROUP_NAME = DNFactory.create( "ou=test,ou=groups,ou=system" );
+        USER_NAME = DNFactory.create( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
@@ -392,11 +393,11 @@ public class RelatedProtectedItemFilterTest
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "cn" ) ) );
 
         Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null,
-            new DN( "ou=testEntry" ), null, null, entry, null ).size() );
+            DNFactory.create( "ou=testEntry" ), null, null, entry, null ).size() );
 
         entry.remove( "cn" );
         Assert.assertEquals( 0, filterA.filter( service.getRegistries(), tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, new DN( "ou=testEntry" ), null, null, entry, null ).size() );
+            null, null, DNFactory.create( "ou=testEntry" ), null, null, entry, null ).size() );
     }
     */
 

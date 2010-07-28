@@ -30,6 +30,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -117,7 +118,7 @@ public class GroupCache
 
     private DN parseNormalized( String name ) throws LdapException
     {
-        DN dn = new DN( name, schemaManager );
+        DN dn = DNFactory.create( name, schemaManager );
         return dn;
     }
 
@@ -140,7 +141,7 @@ public class GroupCache
             filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-            DN baseDn = new DN( suffix, schemaManager );
+            DN baseDn = DNFactory.create( suffix, schemaManager );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             

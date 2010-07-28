@@ -30,6 +30,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -233,12 +234,12 @@ public class SubentryInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
-            DN suffixDn = new DN( suffix, schemaManager );
+            DN suffixDn = DNFactory.create( suffix, schemaManager );
 
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );

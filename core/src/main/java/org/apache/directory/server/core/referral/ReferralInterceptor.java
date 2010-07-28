@@ -22,6 +22,7 @@ package org.apache.directory.server.core.referral;
 
 import javax.naming.Context;
 
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.ReferralManagerImpl;
@@ -211,7 +212,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new DN( subschemaSubentry.getString(), schemaManager );
+        subschemaSubentryDn = DNFactory.create( subschemaSubentry.getString(), schemaManager );
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );

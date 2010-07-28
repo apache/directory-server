@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -54,7 +55,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     protected DN getOperationPrincipal() throws LdapInvalidDnException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
-        DN userName = new DN( principal.getName() );
+        DN userName = DNFactory.create( principal.getName() );
         return userName;
     }
     

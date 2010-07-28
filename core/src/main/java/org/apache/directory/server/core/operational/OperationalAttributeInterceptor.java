@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -137,10 +138,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new DN( subschemaSubentry.getString(), schemaManager );
+        subschemaSubentryDn = DNFactory.create( subschemaSubentry.getString(), schemaManager );
 
         // Create the Admin DN 
-        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
@@ -483,7 +484,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN creatorsName = new DN( attr.getString() );
+                DN creatorsName = DNFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -493,7 +494,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = new DN( attr.getString() );
+                DN modifiersName = DNFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -503,7 +504,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = new DN( attr.getString() );
+                DN modifiersName = DNFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -53,7 +54,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return new DN( addedEntryName.getName() );
+            return DNFactory.create( addedEntryName.getName() );
         }
     };
     

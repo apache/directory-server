@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -194,16 +195,16 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        schemaBaseDN = DNFactory.create( SchemaConstants.OU_SCHEMA, schemaManager );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new DN( subschemaSubentry.getString() );
+        subschemaSubentryDn = DNFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDN = DNFactory.create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDN.normalize( schemaManager.getNormalizerMapping() );
 
         computeSuperiors();

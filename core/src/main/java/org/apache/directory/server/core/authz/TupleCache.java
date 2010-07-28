@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -108,7 +109,7 @@ public class TupleCache
 
     private DN parseNormalized( SchemaManager schemaManager, String name ) throws LdapException
     {
-        DN dn = new DN( name, schemaManager );
+        DN dn = DNFactory.create( name, schemaManager );
         return dn;
     }
 

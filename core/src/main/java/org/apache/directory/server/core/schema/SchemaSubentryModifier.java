@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -133,14 +134,14 @@ public class SchemaSubentryModifier
         }
 
         buf.append( ",cn=" ).append( obj.getSchemaName() ).append( ",ou=schema" );
-        return new DN( buf.toString() );
+        return DNFactory.create( buf.toString() );
     }
     
 
     public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );   
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
@@ -155,7 +156,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH , 
             "cn=" + schemaName,
@@ -170,7 +171,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + syntaxCheckerDescription.getOid(),
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName, 
@@ -202,7 +203,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH,
             "cn=" + schemaName, 
@@ -215,7 +216,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + syntaxCheckerDescription.getOid(), 
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
@@ -227,7 +228,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
-        DN dn = new DN( 
+        DN dn = DNFactory.create( 
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
