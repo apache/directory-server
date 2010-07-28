@@ -41,7 +41,14 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
     </dependency>
-    
+ 
+    <!-- dependency:analyze reports this as 'unused declared', however it is used. 
+         This is a know issue, see http://jira.codehaus.org/browse/MDEP-124  -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-constants</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
