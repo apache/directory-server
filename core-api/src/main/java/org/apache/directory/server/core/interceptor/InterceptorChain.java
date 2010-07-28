@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.interceptor;
 
@@ -549,8 +549,8 @@ public class InterceptorChain
 
 
     /**
-     * Eagerly populates fields of operation contexts so multiple Interceptors 
-     * in the processing pathway can reuse this value without performing a 
+     * Eagerly populates fields of operation contexts so multiple Interceptors
+     * in the processing pathway can reuse this value without performing a
      * redundant lookup operation.
      *
      * @param opContext the operation context to populate with cached fields
@@ -559,19 +559,19 @@ public class InterceptorChain
     @SuppressWarnings("PMD.EmptyCatchBlock")
     private void eagerlyPopulateFields( OperationContext opContext ) throws LdapException
     {
-        // If the entry field is not set for ops other than add for example 
+        // If the entry field is not set for ops other than add for example
         // then we set the entry but don't freak if we fail to do so since it
         // may not exist in the first place
 
         if ( opContext.getEntry() == null )
         {
             // We have to use the admin session here, otherwise we may have
-            // trouble reading the entry due to insufficient access rights 
+            // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
-            
+
             Entry foundEntry = adminSession.lookup( opContext.getDn(),
                 SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
-            
+
             if ( foundEntry != null )
             {
                 if ( foundEntry instanceof DefaultEntry )
@@ -597,12 +597,12 @@ public class InterceptorChain
     private Entry getOriginalEntry( OperationContext opContext ) throws LdapException
     {
         // We have to use the admin session here, otherwise we may have
-        // trouble reading the entry due to insufficient access rights 
+        // trouble reading the entry due to insufficient access rights
         CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
-        
+
         Entry foundEntry = adminSession.lookup( opContext.getDn(),
             SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
-        
+
         if ( foundEntry != null )
         {
             return foundEntry;
@@ -616,7 +616,7 @@ public class InterceptorChain
         }
     }
 
-    
+
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -818,7 +818,7 @@ public class InterceptorChain
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( renameContext );
-        
+
         try
         {
             head.rename( next, renameContext );
@@ -840,7 +840,7 @@ public class InterceptorChain
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         Entry originalEntry = getOriginalEntry( moveContext );
-        
+
         moveContext.setOriginalEntry( originalEntry );
 
         try
@@ -924,14 +924,14 @@ public class InterceptorChain
                     }
 
                     OperationContext opContext = InvocationStack.getInstance().peek();
-                    
+
                     if ( !opContext.hasBypass() )
                     {
                         return Element.this.nextEntry;
                     }
 
                     Element next = Element.this.nextEntry;
-                    
+
                     while ( next != tail )
                     {
                         if ( opContext.isBypassed( next.getName() ) )

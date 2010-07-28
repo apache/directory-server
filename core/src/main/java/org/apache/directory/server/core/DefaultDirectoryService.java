@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core;
 
@@ -38,6 +38,7 @@ import java.util.UUID;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.admin.AdministrativeInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -103,22 +104,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link DirectoryService}.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DefaultDirectoryService implements DirectoryService
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
-    
+
     private SchemaService schemaService;
-    
+
     /** A reference on the SchemaManager */
     private SchemaManager schemaManager;
-    
+
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
-    
+
     /** whether or not server is started for the first time */
     private boolean firstStart;
 
@@ -130,34 +131,34 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the change log service */
     private ChangeLog changeLog;
-    
+
     /** the journal service */
     private Journal journal;
-    
-    /** 
-     * the interface used to perform various operations on this 
+
+    /**
+     * the interface used to perform various operations on this
      * DirectoryService
      */
     private OperationManager operationManager = new DefaultOperationManager( this );
 
     /** the distinguished name of the administrative user */
     private DN adminDn;
-    
+
     /** session used as admin for internal operations */
     private CoreSession adminSession;
-    
+
     /** The referral manager */
     private ReferralManager referralManager;
-    
+
     /** A flag to tell if the userPassword attribute's value must be hidden */
     private boolean passwordHidden = false;
-    
+
     /** The service's CSN factory */
     private CsnFactory csnFactory;
-    
+
     /** The directory instance replication ID */
     private int replicaId;
-    
+
     /** The replication configuration structure */
     private ReplicationConfiguration replicationConfig;
 
@@ -168,20 +169,20 @@ public class DefaultDirectoryService implements DirectoryService
             "changes are made by the admin user.\n Furthermore the used controls are not at " +
             "all taken into account";
 
-    
+
     /** The delay to wait between each sync on disk */
     private long syncPeriodMillis;
-    
+
     /** The default delay to wait between sync on disk : 15 seconds */
     private static final long DEFAULT_SYNC_PERIOD = 15000;
 
     /** */
     private Thread workerThread;
-    
+
     /** The sync worker thread */
     private SynchWorker worker = new SynchWorker();
 
-   
+
     /** The default timeLimit : 100 entries */
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
 
@@ -190,62 +191,62 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The instance Id */
     private String instanceId;
-    
+
     /** The server working directory */
     private File workingDirectory = new File( "server-work" );
-    
-    /** 
+
+    /**
      * A flag used to shutdown the VM when stopping the server. Useful
      * when the server is standalone. If the server is embedded, we don't
      * want to shutdown the VM
      */
     private boolean exitVmOnShutdown = true; // allow by default
-    
+
     /** A flag used to indicate that a shutdown hook has been installed */
     private boolean shutdownHookEnabled = true; // allow by default
-    
+
     /** Manage anonymous access to entries other than the RootDSE */
     private boolean allowAnonymousAccess = true; // allow by default
-    
+
     /** Manage the basic access control checks */
     private boolean accessControlEnabled; // off by default
-    
+
     /** Manage the operational attributes denormalization */
     private boolean denormalizeOpAttrsEnabled; // off by default
-    
+
     /** The list of declared interceptors */
     private List<Interceptor> interceptors;
-    
+
     /** The System partition */
     private Partition systemPartition;
-    
+
     /** The set of all declared partitions */
     private Set<Partition> partitions = new HashSet<Partition>();
-    
+
     /** A list of LDIF entries to inject at startup */
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
-    
+
     /** The event service */
     private EventService eventService;
-    
+
     /** The maximum size for an incoming PDU */
     private int maxPDUSize = Integer.MAX_VALUE;
 
     /** the value of last successful add/update operation's CSN */
     private String contextCsn;
-    
+
     /** lock file for directory service's working directory */
     private RandomAccessFile lockFile = null;
-    
+
     private static final String LOCK_FILE_NAME = ".dirservice.lock";
-    
+
     /**
      * The synchronizer thread. It flush data on disk periodically.
      */
     class SynchWorker implements Runnable
     {
         final Object lock = new Object();
-        
+
         /** A flag to stop the thread */
         boolean stop;
 
@@ -280,13 +281,13 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    
-    
+
+
     /**
      * Creates a new instance of the directory service.
      */
@@ -304,8 +305,8 @@ public class DefaultDirectoryService implements DirectoryService
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-    
-    
+
+
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -341,16 +342,16 @@ public class DefaultDirectoryService implements DirectoryService
         Set<Partition> cloned = new HashSet<Partition>();
         cloned.addAll( partitions );
         Set<String> names = new HashSet<String>();
-        
+
         for ( Partition partition : cloned )
         {
             String id = partition.getId();
-            
+
             if ( names.contains( id ) )
             {
                 LOG.warn( "Encountered duplicate partition {} identifier.", id );
             }
-            
+
             names.add( id );
         }
 
@@ -425,14 +426,14 @@ public class DefaultDirectoryService implements DirectoryService
      *
      * @param interceptors the interceptors to be used in the server.
      */
-    public void setInterceptors( List<Interceptor> interceptors ) 
+    public void setInterceptors( List<Interceptor> interceptors )
     {
         Set<String> names = new HashSet<String>();
-        
+
         for ( Interceptor interceptor : interceptors )
         {
             String name = interceptor.getName();
-            
+
             if ( names.contains( name ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
@@ -630,6 +631,7 @@ public class DefaultDirectoryService implements DirectoryService
         list.add( new ReferralInterceptor() );
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
+        list.add( new AdministrativeInterceptor() );
         list.add( new ExceptionInterceptor() );
         list.add( new ChangeLogInterceptor() );
         list.add( new OperationalAttributeInterceptor() );
@@ -643,25 +645,25 @@ public class DefaultDirectoryService implements DirectoryService
         setInterceptors( list );
     }
 
-    
+
     public CoreSession getAdminSession()
     {
         return adminSession;
     }
-    
-    
-    public CoreSession getSession() 
+
+
+    public CoreSession getSession()
     {
         return new DefaultCoreSession( new LdapPrincipal(), this );
     }
-    
-    
+
+
     public CoreSession getSession( LdapPrincipal principal )
     {
         return new DefaultCoreSession( principal, this );
     }
-    
-    
+
+
     public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
     {
         if ( ! started )
@@ -673,12 +675,12 @@ public class DefaultDirectoryService implements DirectoryService
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn );
         operationManager.bind( bindContext );
-        
+
         return bindContext.getSession();
     }
-    
-    
-    public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+
+
+    public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
     {
         if ( ! started )
@@ -691,7 +693,7 @@ public class DefaultDirectoryService implements DirectoryService
         bindContext.setDn( principalDn );
         bindContext.setSaslMechanism( saslMechanism );
         operationManager.bind( bindContext );
-        
+
         return bindContext.getSession();
     }
 
@@ -704,7 +706,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Tag latest = changeLog.getLatest();
-        
+
         if ( null != latest )
         {
             if ( latest.getRevision() < changeLog.getCurrentRevision() )
@@ -723,7 +725,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * We handle the ModDN/ModRDN operation for the revert here. 
+     * We handle the ModDN/ModRDN operation for the revert here.
      */
     private void moddn( DN oldDn, DN newDn, boolean delOldRdn ) throws LdapException
     {
@@ -747,7 +749,7 @@ public class DefaultDirectoryService implements DirectoryService
          * RDN name change or a move operation.  If the two names are the same
          * except for the RDN then it is a simple modifyRdn operation.  If the
          * names differ in size or have a different baseDN then the operation is
-         * a move operation.  Furthermore if the RDN in the move operation 
+         * a move operation.  Furthermore if the RDN in the move operation
          * changes it is both an RDN change and a move operation.
          */
         if ( ( oldDn.size() == newDn.size() ) && oldBase.equals( newBase ) )
@@ -769,8 +771,8 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
     }
-    
-    
+
+
     public long revert( long revision ) throws LdapException
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
@@ -801,7 +803,7 @@ public class DefaultDirectoryService implements DirectoryService
          *
          * First of all just stop using JNDI and construct the operations to
          * feed into the interceptor pipeline.
-         * 
+         *
          * TODO review this code.
          */
 
@@ -809,42 +811,42 @@ public class DefaultDirectoryService implements DirectoryService
         {
             LOG.warn( PARTIAL_IMPL_WARNING );
             cursor.afterLast();
-            
+
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
                 List<LdifEntry> reverses = event.getReverseLdifs();
-                
+
                 for ( LdifEntry reverse:reverses )
                 {
                     switch( reverse.getChangeType().getChangeType() )
                     {
                         case ChangeType.ADD_ORDINAL :
-                            adminSession.add( 
-                                new DefaultEntry( schemaManager, reverse.getEntry() ), true ); 
+                            adminSession.add(
+                                new DefaultEntry( schemaManager, reverse.getEntry() ), true );
                             break;
-                            
+
                         case ChangeType.DELETE_ORDINAL :
                             adminSession.delete( reverse.getDn(), true );
                             break;
-                            
+
                         case ChangeType.MODIFY_ORDINAL :
                             List<Modification> mods = reverse.getModificationItems();
-    
+
                             adminSession.modify( reverse.getDn(), mods, true );
                             break;
-                            
+
                         case ChangeType.MODDN_ORDINAL :
                             // NO BREAK - both ModDN and ModRDN handling is the same
-                        
+
                         case ChangeType.MODRDN_ORDINAL :
                             DN forwardDn = event.getForwardLdif().getDn();
                             DN reverseDn = reverse.getDn();
-                            
+
                             moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
-    
+
                             break;
-                            
+
                         default:
                             LOG.error( I18n.err( I18n.ERR_75 ) );
                             throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
@@ -860,18 +862,19 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new LdapOperationException( e.getMessage() );
         }
 
         return changeLog.getCurrentRevision();
     }
 
-    
+
     public OperationManager getOperationManager()
     {
         return operationManager;
     }
-    
+
 
     /**
      * @throws Exception if the LDAP server cannot be started
@@ -884,7 +887,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         lockWorkDir();
-        
+
         if ( shutdownHookEnabled )
         {
             Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
@@ -913,7 +916,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         initialize();
         showSecurityWarnings();
-        
+
         // Start the sync thread if required
         if ( syncPeriodMillis > 0 )
         {
@@ -926,7 +929,7 @@ public class DefaultDirectoryService implements DirectoryService
         loc.setDn( systemPartition.getSuffix() );
         loc.setAttrsId( new String[]{ "+" } );
         ClonedServerEntry entry = systemPartition.lookup( loc );
-        
+
         EntryAttribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
         if( cntextCsnAt != null )
         {
@@ -967,7 +970,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         changeLog.sync();
         changeLog.destroy();
-        
+
         // --------------------------------------------------------------------
         // Shutdown the journal if enabled
         // --------------------------------------------------------------------
@@ -982,19 +985,19 @@ public class DefaultDirectoryService implements DirectoryService
 
         partitionNexus.sync();
         partitionNexus.destroy();
-        
+
         // --------------------------------------------------------------------
         // Shutdown the sync thread
         // --------------------------------------------------------------------
         if ( workerThread != null )
         {
             worker.stop = true;
-            
+
             synchronized ( worker.lock )
             {
                 worker.lock.notify();
             }
-    
+
             while ( workerThread.isAlive() )
             {
                 LOG.info( "Waiting for SynchWorkerThread to die." );
@@ -1002,12 +1005,12 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
-        
+
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
         interceptorChain.destroy();
-        
+
         if ( lockFile != null )
         {
             try
@@ -1020,12 +1023,12 @@ public class DefaultDirectoryService implements DirectoryService
                 LOG.warn( "couldn't delete the lock file {}", LOCK_FILE_NAME );
             }
         }
-        
+
         started = false;
         setDefaultInterceptorConfigurations();
     }
 
-    
+
     /**
      * @return The referral manager
      */
@@ -1042,8 +1045,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         this.referralManager = referralManager;
     }
-    
-    
+
+
     /**
      * @return the SchemaManager
      */
@@ -1051,8 +1054,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return schemaManager;
     }
-    
-    
+
+
     /**
      * Set the SchemaManager instance.
      *
@@ -1100,11 +1103,11 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public Entry newEntry( DN dn ) 
+    public Entry newEntry( DN dn )
     {
         return new DefaultEntry( schemaManager, dn );
     }
-    
+
 
     /**
      * Returns true if we had to create the bootstrap entries on the first
@@ -1117,7 +1120,7 @@ public class DefaultDirectoryService implements DirectoryService
     private boolean createBootstrapEntries() throws Exception
     {
         boolean firstStart = false;
-        
+
         // -------------------------------------------------------------------
         // create admin entry
         // -------------------------------------------------------------------
@@ -1130,8 +1133,8 @@ public class DefaultDirectoryService implements DirectoryService
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, adminDn );
-            
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
                                 SchemaConstants.TOP_OC,
                                 SchemaConstants.PERSON_OC,
                                 SchemaConstants.ORGANIZATIONAL_PERSON_OC,
@@ -1157,14 +1160,14 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN userDn = new DN( ServerDNConstants.USERS_SYSTEM_DN, schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, userDn );
-            
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
                                 SchemaConstants.TOP_OC,
                                 SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
@@ -1182,14 +1185,14 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN groupDn = new DN( ServerDNConstants.GROUPS_SYSTEM_DN, schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, groupDn );
-            
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
                                 SchemaConstants.TOP_OC,
                                 SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
@@ -1207,14 +1210,14 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN name = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN, schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, name );
-            
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
                                 SchemaConstants.TOP_OC,
                                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
 
@@ -1233,7 +1236,7 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN configurationDn = new DN( "ou=configuration,ou=system", schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
         {
             firstStart = true;
@@ -1255,7 +1258,7 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN partitionsDn = new DN( "ou=partitions,ou=configuration,ou=system", schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
         {
             firstStart = true;
@@ -1276,7 +1279,7 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN servicesDn = new DN( "ou=services,ou=configuration,ou=system", schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
         {
             firstStart = true;
@@ -1298,7 +1301,7 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN interceptorsDn = new DN( "ou=interceptors,ou=configuration,ou=system", schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
         {
             firstStart = true;
@@ -1320,14 +1323,14 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         DN sysPrefRootDn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, schemaManager );
-        
+
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, sysPrefRootDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
-                SchemaConstants.TOP_OC, 
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                SchemaConstants.TOP_OC,
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
@@ -1354,11 +1357,11 @@ public class DefaultDirectoryService implements DirectoryService
         boolean needToChangeAdminPassword = false;
 
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
-        
+
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
-        
+
         if ( needToChangeAdminPassword )
         {
             LOG.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
@@ -1371,7 +1374,7 @@ public class DefaultDirectoryService implements DirectoryService
      * Adds test entries into the core.
      *
      * @todo this may no longer be needed when JNDI is not used for bootstrapping
-     * 
+     *
      * @throws Exception if the creation of test entries fails.
      */
     private void createTestEntries() throws Exception
@@ -1386,7 +1389,7 @@ public class DefaultDirectoryService implements DirectoryService
 
                 try
                 {
-                    getAdminSession().add( new DefaultEntry( schemaManager, entry ) ); 
+                    getAdminSession().add( new DefaultEntry( schemaManager, entry ) );
                 }
                 catch ( Exception e )
                 {
@@ -1421,7 +1424,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
-        
+
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, DN.EMPTY_DN ) );
         partitionNexus.setDirectoryService( this );
@@ -1430,7 +1433,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
         // --------------------------------------------------------------------
-        
+
         firstStart = createBootstrapEntries();
 
         interceptorChain = new InterceptorChain();
@@ -1439,18 +1442,18 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Initialize the changeLog if it's enabled
         // --------------------------------------------------------------------
-        
+
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );
-            
+
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix().getName();
                 partitionNexus.getRootDSE( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
-        
+
         // --------------------------------------------------------------------
         // Initialize the journal if it's enabled
         // --------------------------------------------------------------------
@@ -1464,11 +1467,11 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "<--- DefaultDirectoryService initialized" );
         }
     }
-    
-    
+
+
     /**
      * Read an entry (without DN)
-     * 
+     *
      * @param text The ldif format file
      * @return An entry.
      */
@@ -1534,10 +1537,10 @@ public class DefaultDirectoryService implements DirectoryService
         return entry;
     }
 
-    
+
     /**
      * Create a new Entry
-     * 
+     *
      * @param ldif The String representing the attributes, as a LDIF file
      * @param dn The DN for this new entry
      */
@@ -1547,9 +1550,9 @@ public class DefaultDirectoryService implements DirectoryService
         {
             Entry entry = readEntry( ldif );
             DN newDn = new DN( dn );
-            
+
             entry.setDn( newDn );
-            
+
             // TODO Let's get rid of this Attributes crap
             Entry serverEntry = new DefaultEntry( schemaManager, entry );
             return serverEntry;
@@ -1573,8 +1576,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         this.eventService = eventService;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1582,8 +1585,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return passwordHidden;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1603,7 +1606,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Set the maximum allowed size for an incoming PDU 
+     * Set the maximum allowed size for an incoming PDU
      * @param maxPDUSize A positive number of bytes for the PDU. A negative or
      * null value will be transformed to {@link Integer#MAX_VALUE}
      */
@@ -1613,11 +1616,11 @@ public class DefaultDirectoryService implements DirectoryService
         {
             maxPDUSize = Integer.MAX_VALUE;
         }
-        
+
         this.maxPDUSize = maxPDUSize;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1630,7 +1633,7 @@ public class DefaultDirectoryService implements DirectoryService
                 return interceptor;
             }
         }
-        
+
         return null;
     }
 
@@ -1674,10 +1677,10 @@ public class DefaultDirectoryService implements DirectoryService
     public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
     {
         this.replicationConfig = replicationConfig;
-        
+
     }
-    
-    
+
+
     /**
      * @return the replication configuration for this DirectoryService
      */
@@ -1685,8 +1688,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return replicationConfig;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1721,8 +1724,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         this.contextCsn = lastKnownCsn;
     }
-    
-    
+
+
     /**
      * checks if the working directory is already in use by some other directory service, if yes
      * then throws a runtime exception else will obtain the lock on the working directory
@@ -1730,7 +1733,7 @@ public class DefaultDirectoryService implements DirectoryService
     private void lockWorkDir()
     {
         FileLock fileLock = null;
-        
+
         try
         {
             lockFile = new RandomAccessFile( workingDirectory.getAbsolutePath() + File.separator + LOCK_FILE_NAME, "rw" );
@@ -1753,13 +1756,13 @@ public class DefaultDirectoryService implements DirectoryService
             // shouldn't happen, but log anyway
             LOG.error( "failed to lock the work directory", e );
         }
-        
+
         if ( ( fileLock == null ) || ( !fileLock.isValid() ) )
         {
             String message = "the working directory " + workingDirectory + " has been locked by another directory service.";
             LOG.error( message );
             throw new RuntimeException( message );
         }
-        
+
     }
 }

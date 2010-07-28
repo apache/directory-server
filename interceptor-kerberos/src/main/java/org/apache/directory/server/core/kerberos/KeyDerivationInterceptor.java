@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.kerberos;
 
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.admin.AdministrativeInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -81,7 +82,7 @@ import org.slf4j.LoggerFactory;
  * 'userPassword' is added or modified, the 'userPassword' and 'krb5PrincipalName'
  * are used to derive Kerberos keys.  If the 'userPassword' is the special keyword
  * 'randomKey', a random key is generated and used as the Kerberos key.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KeyDerivationInterceptor extends BaseInterceptor
@@ -104,6 +105,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativeInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
@@ -127,7 +129,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) && 
+        if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) &&
             ( entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) != null ) )
         {
             log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
@@ -145,7 +147,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
 
             Value<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
-            
+
             String principalName = principalNameValue.getString();
 
             log.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
@@ -170,10 +172,10 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * existing principal name and key version number (kvno).  If a 'krb5PrincipalName' is not in
      * the modify request, attempt to use an existing 'krb5PrincipalName' attribute.  If a kvno
      * exists, increment the kvno; otherwise, set the kvno to '0'.
-     * 
+     *
      * If both a 'userPassword' and 'krb5PrincipalName' can be found, use the 'userPassword' and
      * 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.
-     * 
+     *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
     public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws LdapException
@@ -221,11 +223,11 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     case ADD_ATTRIBUTE:
                         operation = "Adding";
                         break;
-                        
+
                     case REMOVE_ATTRIBUTE:
                         operation = "Removing";
                         break;
-                        
+
                     case REPLACE_ATTRIBUTE:
                         operation = "Replacing";
                         break;
@@ -285,13 +287,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
         lookupContext.setByPassed( USERLOOKUP_BYPASS );
-        lookupContext.setAttrsId( new String[] 
-        { 
-            SchemaConstants.OBJECT_CLASS_AT, 
-            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
-            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT 
+        lookupContext.setAttrsId( new String[]
+        {
+            SchemaConstants.OBJECT_CLASS_AT,
+            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
+            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT
         } );
-        
+
         Entry userEntry = modContext.lookup( lookupContext );
 
         if ( userEntry == null )
@@ -300,7 +302,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
 
         EntryAttribute objectClass = ((ClonedServerEntry)userEntry).getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
-        
+
         if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
             return;
@@ -338,7 +340,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
     /**
      * Use the 'userPassword' and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.
-     * 
+     *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      *
      * @param modContext
@@ -363,26 +365,26 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         {
             newModsList.add( mod );
         }
-        
+
         SchemaManager schemaManager = modContext.getSession()
             .getDirectoryService().getSchemaManager();
 
         // Add our modification items.
-        newModsList.add( 
-            new DefaultModification( 
-                ModificationOperation.REPLACE_ATTRIBUTE, 
+        newModsList.add(
+            new DefaultModification(
+                ModificationOperation.REPLACE_ATTRIBUTE,
                 new DefaultEntryAttribute(
-                    KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+                    KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
                     principalName ) ) );
-        newModsList.add( 
-            new DefaultModification( 
-                ModificationOperation.REPLACE_ATTRIBUTE, 
+        newModsList.add(
+            new DefaultModification(
+                ModificationOperation.REPLACE_ATTRIBUTE,
                 new DefaultEntryAttribute(
-                    KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
+                    KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT,
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
-        
+
         EntryAttribute attribute = getKeyAttribute( modContext.getSession()
             .getDirectoryService().getSchemaManager(), keys );
         newModsList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
@@ -393,8 +395,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
     private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws LdapException
     {
-        EntryAttribute keyAttribute = 
-            new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT, 
+        EntryAttribute keyAttribute =
+            new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT,
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 
         Iterator<EncryptionKey> it = keys.values().iterator();

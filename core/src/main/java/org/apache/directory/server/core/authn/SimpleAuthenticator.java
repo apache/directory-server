@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authn;
 
@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authn;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +34,7 @@ import javax.naming.Context;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.admin.AdministrativeInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
@@ -68,9 +68,9 @@ import org.apache.directory.shared.ldap.util.UnixCrypt;
  * contained within the <code>userPassword</code> attribute in DIT. If the
  * password is stored with a one-way encryption applied (e.g. SHA), the password
  * is hashed the same way before comparison.
- * 
+ *
  * We use a cache to speedup authentication, where the DN/password are stored.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
@@ -86,19 +86,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
-     * 
-     * Note that the backend also use a cache mechanism, but for performance gain, it's good 
+     *
+     * Note that the backend also use a cache mechanism, but for performance gain, it's good
      * to manage a cache here. The main problem is that when a user modify his password, we will
      * have to update it at three different places :
      * - in the backend,
      * - in the partition cache,
      * - in this cache.
-     * 
+     *
      * The update of the backend and partition cache is already correctly handled, so we will
      * just have to offer an access to refresh the local cache.
-     * 
+     *
      * We need to be sure that frequently used passwords be always in cache, and not discarded.
-     * We will use a LRU cache for this purpose. 
+     * We will use a LRU cache for this purpose.
      */
     private final LRUMap credentialCache;
 
@@ -118,6 +118,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         c.add( AuthenticationInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativeInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
@@ -154,19 +155,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * A private class to store all informations about the existing
      * password found in the cache or get from the backend.
-     * 
+     *
      * This is necessary as we have to compute :
      * - the used algorithm
      * - the salt if any
      * - the password itself.
-     * 
-     * If we have a on-way encrypted password, it is stored using this 
+     *
+     * If we have a on-way encrypted password, it is stored using this
      * format :
      * {<algorithm>}<encrypted password>
      * where the encrypted password format can be :
      * - MD5/SHA : base64([<salt (4 or 8 bytes)>]<password>)
-     * - crypt : <salt (2 btytes)><password> 
-     * 
+     * - crypt : <salt (2 btytes)><password>
+     *
      * Algorithm are currently MD5, SMD5, SHA, SSHA, CRYPT and empty
      */
     private class EncryptionMethod
@@ -360,10 +361,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Decompose the stored password in an algorithm, an eventual salt
      * and the password itself.
-     * 
+     *
      * If the algorithm is SHA, SSHA, MD5 or SMD5, the part following the algorithm
      * is base64 encoded
-     * 
+     *
      * @param encryptionMethod The structure to feed
      * @return The password
      * @param credentials the credentials to split
@@ -387,14 +388,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    // do nothing 
+                    // do nothing
                     return credentials;
                 }
 
             case HASH_METHOD_SMD5:
                 try
                 {
-                    // The password is associated with a salt. Decompose it 
+                    // The password is associated with a salt. Decompose it
                     // in two parts, after having decoded the password.
                     // The salt will be stored into the EncryptionMethod structure
                     // The salt is at the end of the credentials, and is 8 bytes long
@@ -410,14 +411,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    // do nothing 
+                    // do nothing
                     return credentials;
                 }
 
             case HASH_METHOD_SSHA:
                 try
                 {
-                    // The password is associated with a salt. Decompose it 
+                    // The password is associated with a salt. Decompose it
                     // in two parts, after having decoded the password.
                     // The salt will be stored into the EncryptionMethod structure
                     // The salt is at the end of the credentials, and is 8 bytes long
@@ -433,12 +434,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    // do nothing 
+                    // do nothing
                     return credentials;
                 }
 
             case HASH_METHOD_CRYPT:
-                // The password is associated with a salt. Decompose it 
+                // The password is associated with a salt. Decompose it
                 // in two parts, storing the salt into the EncryptionMethod structure.
                 // The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
                 encryptionMethod.salt = new byte[2];
@@ -469,7 +470,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         try
         {
             /*
-             * NOTE: at this point the BindOperationContext does not has a 
+             * NOTE: at this point the BindOperationContext does not has a
              * null session since the user has not yet authenticated so we
              * cannot use lookup() yet.  This is a very special
              * case where we cannot rely on the bindContext to perform a new
@@ -479,7 +480,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 bindContext.getDn() );
             lookupContext.setByPassed( USERLOOKUP_BYPASS );
             lookupContext.setAttrsId( new String[]{ "+" } );
-            
+
             userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
@@ -505,7 +506,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         EntryAttribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 
         bindContext.setEntry( new ClonedServerEntry( userEntry ) );
-        
+
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
@@ -525,7 +526,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * The method returns null, if the argument is not in this form. It returns
      * XYZ, if XYZ is an algorithm known to the MessageDigest class of
      * java.security.
-     * 
+     *
      * @param password a byte[]
      * @return included message digest alorithm, if any
      * @throws IllegalArgumentException if the algorithm cannot be identified
@@ -568,16 +569,16 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * encoded. The method returns a String which looks like "{XYZ}bbbbbbb",
      * whereas XYZ is the name of the algorithm, and bbbbbbb is the Base64
      * encoded value of XYZ applied to the password.
-     * 
+     *
      * @param algorithm
      *            an algorithm which is supported by
      *            java.security.MessageDigest, e.g. SHA
      * @param password
      *            password value, a byte[]
-     * 
+     *
      * @return a digested password, which looks like
      *         {SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=
-     * 
+     *
      * @throws IllegalArgumentException
      *             if password is neither a String nor a byte[], or algorithm is
      *             not known to java.security.MessageDigest class

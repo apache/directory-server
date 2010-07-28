@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz.support;
 
@@ -27,6 +27,7 @@ import java.util.Iterator;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.core.admin.AdministrativeInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -70,7 +71,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     public MaxImmSubFilter( SchemaManager schemaManager )
     {
         AttributeType objectClassAt = null;
-        
+
         try
         {
             objectClassAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -79,7 +80,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         {
             // Do nothing
         }
-        
+
         childrenFilter = new PresenceNode( objectClassAt );
         childrenSearchControls = new SearchControls();
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -111,7 +112,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = aciContext.getAciTuples().iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
-            
+
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -127,7 +128,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                     }
 
                     MaxImmSubItem mis = ( MaxImmSubItem ) item;
-                    
+
                     if ( immSubCount >= mis.getValue() )
                     {
                         i.remove();
@@ -148,6 +149,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         c.add( AuthenticationInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativeInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
@@ -160,14 +162,14 @@ public class MaxImmSubFilter implements ACITupleFilter
     {
         int cnt = 0;
         EntryFilteringCursor results = null;
-        
+
         try
         {
-            SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(), 
-                ( DN ) entryName.getPrefix( 1 ), childrenFilter, childrenSearchControls );
+            SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(),
+                entryName.getPrefix( 1 ), childrenFilter, childrenSearchControls );
             searchContext.setByPassed( SEARCH_BYPASS );
             searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             results = opContext.getSession().getDirectoryService().getOperationManager().search( searchContext );
 
             try

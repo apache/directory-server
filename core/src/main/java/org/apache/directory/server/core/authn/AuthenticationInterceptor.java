@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authn;
 
@@ -51,6 +51,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.admin.AdministrativeInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
@@ -128,10 +129,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private Set<Authenticator> authenticators;
     private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
 
+    /** A reference to the DirectoryService instance */
     private DirectoryService directoryService;
 
     private PasswordPolicyConfiguration policyConfig;
 
+    /** A reference to the SchemaManager instance */
     private SchemaManager schemaManager;
 
     private CoreSession adminSession;
@@ -164,7 +167,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativeInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativeInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
@@ -341,7 +346,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     addContext.addResponseControl( responseControl );
                 }
 
-                // throw exception if userPassword quality checks fail 
+                // throw exception if userPassword quality checks fail
                 throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage() );
             }
 
@@ -564,7 +569,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                         modifyContext.addResponseControl( responseControl );
                     }
 
-                    // throw exception if userPassword quality checks fail 
+                    // throw exception if userPassword quality checks fail
                     throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage() );
                 }
             }
@@ -1216,7 +1221,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     /**
      * The password does not contain three letter (or more) tokens from the user's account name.
-     * 
+     *
      * If the account name is less than three characters long, this check is not performed
      * because the rate at which passwords would be rejected is too high. For each token that is
      * three or more characters long, that token is searched for in the password; if it is present,
@@ -1282,7 +1287,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     /**
      * checks if the password is too young
-     * 
+     *
      * @param userEntry the user's entry
      * @return true if the password is young, false otherwise
      * @throws LdapException
