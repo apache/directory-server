@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.subtree;
 
@@ -173,7 +173,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         subentry.put( "sn", "testentry" );
         return subentry;
     }
-    
+
 
     public Attributes getTestSubentry()
     {
@@ -192,14 +192,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getSubentry( String dn ) throws Exception
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), 
+        Entry subentry = LdifUtils.createEntry( new DN( dn ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: { base \"ou=configuration\" }",
             "c-o: Test Org",
             "cn: testsubentry" );
-        
+
         return subentry;
     }
 
@@ -248,13 +248,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
-        
+
         return resultMap;
     }
 
@@ -264,19 +264,19 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         Map<String, Entry> results = new HashMap<String, Entry>();
 
         Cursor<SearchResponse> responses = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
-        
+
         while ( responses.next() )
         {
             SearchResponse response = responses.get();
-            
+
             if ( response instanceof SearchResultEntry )
             {
                 Entry entry = ((SearchResultEntry)response).getEntry();
-                
+
                 results.put(  entry.getDn().getName(), entry );
             }
         }
-        
+
         return results;
     }
 
@@ -285,7 +285,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testEntryAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -310,20 +310,20 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
     }
 
-    
+
     private void checkHasOpAttr( Entry entry, String opAttr, int nbOpAttr, String... subentryDns ) throws Exception
     {
         EntryAttribute attribute = entry.get( opAttr );
         assertNotNull( attribute );
         assertEquals( nbOpAttr, attribute.size() );
-        
+
         for ( String subentryDn : subentryDns )
         {
             assertTrue( attribute.contains( subentryDn ) );
         }
     }
 
-    
+
     private void checkDoesNotHaveOpAttr( Entry entry, String opAttr ) throws Exception
     {
         EntryAttribute attribute = entry.get( opAttr );
@@ -332,11 +332,11 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     /**
-     * Add a subentry under AP-A. 
+     * Add a subentry under AP-A.
      * The following entries must be modified :
-     * A1 
-     *   A1-1 
-     *   A1-2 
+     * A1
+     *   A1-1
+     *   A1-2
      * A2
      *   A2-1
      *   AP-B
@@ -346,13 +346,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
      * AP-A
      * not-AP
      *   C
-     *   
+     *
      * Then add a subentry under AP-B
      * The following entries must be modified :
      *   AP-B
      *     B1
      *     B2
-     *     
+     *
      * Then suppress the subentry under AP-B
      */
     @Test
@@ -361,7 +361,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         // Add the subentry
-        Entry subEntryA = LdifUtils.createEntry( new DN( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ), 
+        Entry subEntryA = LdifUtils.createEntry( new DN( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -380,7 +380,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // Make sure entries selected by the subentryA do have the mark
         // --------------------------------------------------------------------
         String subEntryAPADn = "2.5.4.3=testsubentrya,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
-        
+
         String[] modifiedEntriesA = new String[]
             {
                 "dc=AP-A,dc=test,ou=system",
@@ -413,10 +413,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         {
             checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
         }
-        
+
         // Now add another subentry on AP-B
         // Add the subentry
-        Entry subEntryB = LdifUtils.createEntry( new DN( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ), 
+        Entry subEntryB = LdifUtils.createEntry( new DN( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -453,7 +453,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // the two subentries
         // --------------------------------------------------------------------
         String subEntryAPBDn = "2.5.4.3=testsubentryb,0.9.2342.19200300.100.1.25=ap-b,2.5.4.3=a2,0.9.2342.19200300.100.1.25=ap-a,0.9.2342.19200300.100.1.25=test,2.5.4.11=system";
-        
+
         String[] modifiedEntriesB = new String[]
             {
                 "dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
@@ -480,10 +480,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         {
             checkDoesNotHaveOpAttr( results.get( dn ), "collectiveAttributeSubentries" );
         }
-        
+
         // Now delete the AP-B subentry
         DeleteResponse deleteResponse = connection.delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
-        
+
         // --------------------------------------------------------------------
         // Check that we are back to where we were before the addition of the B
         // subentry
@@ -507,16 +507,16 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testSubentryAddOld() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
-        
+
         Entry subEntry = getSubentry( "cn=testsubentry,ou=system" );
         AddResponse response = connection.add( subEntry );
 
         assertTrue( "should never get here: cannot create subentry under regular entries", response.getLdapResult().getResultCode() == ResultCodeEnum.NO_SUCH_ATTRIBUTE );
 
-        addAdministrativeRole( connection, "ou=system", "collectiveArributeSpecificArea" );
+        addAdministrativeRole( connection, "ou=system", "collectiveAttributeSpecificArea" );
         connection.add( subEntry );
-        
-        // All the entries under ou=configuration,ou=system will have a 
+
+        // All the entries under ou=configuration,ou=system will have a
         // collectiveAttributeSubentries = "cn=testsubentry, ou=system"
         // operational attribute
         Map<String, Entry> results = getAllEntries( connection, "ou=system" );
@@ -525,7 +525,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // Make sure entries selected by the subentry do have the mark
         // --------------------------------------------------------------------
         String subEntryDn = "2.5.4.3=testsubentry,2.5.4.11=system";
-        
+
         String[] modifiedEntries = new String[]
             {
                 "ou=configuration,ou=system",
@@ -560,12 +560,12 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         connection.close();
     }
 
-    
+
     @Test
     public void testSubentryModify() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
 
@@ -683,7 +683,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testSubentryModify2() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
 
@@ -800,7 +800,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testSubentryDelete() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.destroySubcontext( "cn=testsubentry" );
 
@@ -812,7 +812,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        
+
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
@@ -820,7 +820,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
         collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        
+
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries
@@ -829,7 +829,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
         collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        
+
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
@@ -837,7 +837,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
         collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        
+
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
@@ -864,7 +864,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testSubentryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.rename( "cn=testsubentry", "cn=newname" );
         Map<String, Attributes> results = getAllEntries();
@@ -924,7 +924,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testEntryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -1022,7 +1022,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testEntryMoveWithRdnChange() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificAreaSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -1120,7 +1120,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public void testEntryMove() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -1218,46 +1218,46 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // perform the search without the control
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
         NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", searchControls );
-        
+
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             entries.put( result.getName(), result );
         }
-        
+
         assertTrue( entries.size() > 1 );
         assertNull( entries.get( "cn=testsubentry,ou=system" ) );
 
-        // now add the control with visibility set to true where all entries 
+        // now add the control with visibility set to true where all entries
         // except subentries disappear
         SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
         sysRoot.setRequestControls( JndiUtils.toJndiControls( new Control[] { ctl } ) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
-        SearchResult result = ( SearchResult ) list.next();
+        SearchResult result = list.next();
         assertFalse( list.hasMore() );
         assertEquals( "cn=testsubentry,ou=system", result.getName() );
     }
-    
+
 
     @Test
     public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
         NamingEnumeration<SearchResult> list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
-        
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
             entries.put( result.getName(), result );
         }
-        
+
         assertEquals( 1, entries.size() );
         assertNotNull( entries.get( "cn=testsubentry,ou=system" ) );
     }
