@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -66,6 +67,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     }
 
 
+    // -------------------------------------------------------------------
+    // Test the Add operation
+    // -------------------------------------------------------------------
     /**
      * Test the addition of an autonomous area
      * @throws Exception
@@ -73,9 +77,6 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddAutonomousArea() throws Exception
     {
-        // -------------------------------------------------------------------
-        // Inject an AA alone
-        // -------------------------------------------------------------------
         Entry autonomousArea = LdifUtils.createEntry(
             "ou=autonomousArea, ou=system",
             "ObjectClass: top",
@@ -84,7 +85,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "administrativeRole: autonomousArea"
             );
 
-        // It should fail, as we haven't injected all the roles
+        // It should succeed
         AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -102,9 +103,6 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertFalse( result.contains( "administrativeRole", "2.5.23.4" ) );
         assertFalse( result.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
-        // -------------------------------------------------------------------
-        // Inject a AA with specific A
-        // -------------------------------------------------------------------
         autonomousArea = LdifUtils.createEntry(
             "ou=autonomousArea2, ou=system",
             "ObjectClass: top",
@@ -231,6 +229,93 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             );
 
         AddResponse response = connection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+
+
+    // -------------------------------------------------------------------
+    // Test the Modify operation
+    // -------------------------------------------------------------------
+    // -------------------------------------------------------------------
+    // Test the Move operation
+    // -------------------------------------------------------------------
+    /**
+     * Test the move of an autonomous area
+     * @throws Exception
+     */
+    @Test
+    public void testMoveAutonomousArea() throws Exception
+    {
+        // Inject an AAA
+        Entry autonomousArea = LdifUtils.createEntry(
+            "ou=autonomousArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: autonomousArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        connection.add( autonomousArea );
+
+        // It should fail, as we haven't injected all the roles
+        ModifyDnResponse response = connection.move( "ou=autonomousArea, ou=system", "uid=admin, ou=system" );
+
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+
+
+    // -------------------------------------------------------------------
+    // Test the Move And Rename operation
+    // -------------------------------------------------------------------
+    /**
+     * Test the move and rename of an autonomous area
+     * @throws Exception
+     */
+    @Test
+    public void testMoveAndRenameAutonomousArea() throws Exception
+    {
+        // Inject an AAA
+        Entry autonomousArea = LdifUtils.createEntry(
+            "ou=autonomousArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: autonomousArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        connection.add( autonomousArea );
+
+        // It should fail, as we haven't injected all the roles
+        ModifyDnResponse response = connection.moveAndRename( "ou=autonomousArea, ou=system", "ou=new autonomousArea, uid=admin, ou=system" );
+
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+
+
+    // -------------------------------------------------------------------
+    // Test the Rename operation
+    // -------------------------------------------------------------------
+    /**
+     * Test the renaming of an autonomous area
+     * @throws Exception
+     */
+    @Test
+    public void testRenameAutonomousArea() throws Exception
+    {
+        // Inject an AAA
+        Entry autonomousArea = LdifUtils.createEntry(
+            "ou=autonomousArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: autonomousArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        connection.add( autonomousArea );
+
+        // It should fail, as we haven't injected all the roles
+        ModifyDnResponse response = connection.rename( "ou=autonomousArea, ou=system", "ou=new autonomousArea" );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }

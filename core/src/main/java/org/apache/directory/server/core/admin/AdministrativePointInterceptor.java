@@ -316,7 +316,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                  adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
         {
             // This is inconsistant
-            String message = "Cannot add a specific Administratve Point and the same" +
+            String message = "Cannot add a specific Administrative Point and the same" +
                 " inner Administrative point at the same time : " + adminPoint;
             LOG.error( message );
             throw new LdapUnwillingToPerformException( message );
@@ -494,7 +494,25 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( moveContext );
+        Entry entry = moveContext.getOriginalEntry();
+
+        // Check if we are moving an Administrative Point
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        if ( adminPoint == null )
+        {
+            // Nope, go on.
+            next.move( moveContext );
+
+            LOG.debug( "Exit from Administrative Interceptor" );
+
+            return;
+        }
+
+        // Else throw an UnwillingToPerform exception ATM
+        String message = "Cannot move an Administrative Point in the current version";
+        LOG.error( message );
+        throw new LdapUnwillingToPerformException( message );
     }
 
 
@@ -504,7 +522,25 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        next.moveAndRename( moveAndRenameContext );
+        Entry entry = moveAndRenameContext.getOriginalEntry();
+
+        // Check if we are moving and renaming an Administrative Point
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        if ( adminPoint == null )
+        {
+            // Nope, go on.
+            next.moveAndRename( moveAndRenameContext );
+
+            LOG.debug( "Exit from Administrative Interceptor" );
+
+            return;
+        }
+
+        // Else throw an UnwillingToPerform exception ATM
+        String message = "Cannot move and rename an Administrative Point in the current version";
+        LOG.error( message );
+        throw new LdapUnwillingToPerformException( message );
     }
 
 
@@ -514,6 +550,24 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameContext )
         throws LdapException
     {
-        next.rename( renameContext );
+        Entry entry = renameContext.getEntry();
+
+        // Check if we are renaming an Administrative Point
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        if ( adminPoint == null )
+        {
+            // Nope, go on.
+            next.rename( renameContext );
+
+            LOG.debug( "Exit from Administrative Interceptor" );
+
+            return;
+        }
+
+        // Else throw an UnwillingToPerform exception ATM
+        String message = "Cannot rename an Administrative Point in the current version";
+        LOG.error( message );
+        throw new LdapUnwillingToPerformException( message );
     }
 }
