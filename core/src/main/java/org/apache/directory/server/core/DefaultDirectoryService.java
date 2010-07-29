@@ -38,7 +38,7 @@ import java.util.UUID;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.admin.AdministrativeInterceptor;
+import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -631,7 +631,7 @@ public class DefaultDirectoryService implements DirectoryService
         list.add( new ReferralInterceptor() );
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
-        list.add( new AdministrativeInterceptor() );
+        list.add( new AdministrativePointInterceptor() );
         list.add( new ExceptionInterceptor() );
         list.add( new ChangeLogInterceptor() );
         list.add( new OperationalAttributeInterceptor() );

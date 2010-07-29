@@ -34,7 +34,7 @@ import javax.naming.Context;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.admin.AdministrativeInterceptor;
+import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
@@ -118,7 +118,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         c.add( AuthenticationInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
-        c.add( AdministrativeInterceptor.class.getName() );
+        c.add( AdministrativePointInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );

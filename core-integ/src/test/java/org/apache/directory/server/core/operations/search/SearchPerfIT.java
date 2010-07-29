@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.operations.search;
 
@@ -53,26 +53,26 @@ public class SearchPerfIT extends AbstractLdapTestUnit
        Cursor<SearchResponse> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
 
        int i = 0;
-       
+
        while ( cursor.next() )
        {
            SearchResponse response = cursor.get();
            ++i;
        }
-       
+
        cursor.close();
 
        assertEquals( 1, i );
 
-       int nbIterations = 150000;
+       int nbIterations = 1500000;
 
        long t0 = System.currentTimeMillis();
        long t00 = 0L;
        long tt0 = System.currentTimeMillis();
-       
+
        for ( i = 0; i < nbIterations; i++ )
        {
-           if ( i % 1000 == 0 )
+           if ( i % 100000 == 0 )
            {
                long tt1 = System.currentTimeMillis();
 
@@ -84,11 +84,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
            {
                t00 = System.currentTimeMillis();
            }
-           
+
            cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
            cursor.close();
        }
-       
+
        long t1 = System.currentTimeMillis();
 
        Long deltaWarmed = ( t1 - t00 );
