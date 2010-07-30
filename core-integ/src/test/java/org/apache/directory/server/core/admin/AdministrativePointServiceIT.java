@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -362,6 +363,183 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS, response.getLdapResult().getResultCode() );
+    }
+
+
+    /**
+     * Test the deletion of all the roles
+     * @throws Exception
+     */
+    @Test
+    public void testModifyDeleteAll() throws Exception
+    {
+        // Inject an CASA
+        Entry caArea = LdifUtils.createEntry(
+            "ou=caArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: caArea",
+            "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea"
+            );
+
+        connection.add( caArea );
+
+        // Add another specific area
+        Modification modification = new DefaultModification(
+                                            ModificationOperation.REMOVE_ATTRIBUTE,
+                                            new DefaultEntryAttribute( "administrativeRole" ) );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        Entry entry = getAdminRole( "ou=caArea, ou=system" );
+
+        assertFalse( entry.contains( "administrativeRole" ) );
+    }
+
+
+    /**
+     * Test the deletion of all the roles
+     * @throws Exception
+     */
+    @Test
+    public void testModifyDeleteAll2() throws Exception
+    {
+        // Inject an CASA
+        Entry caArea = LdifUtils.createEntry(
+            "ou=caArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: caArea",
+            "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea"
+            );
+
+        connection.add( caArea );
+
+        // Add another specific area
+        Modification modification = new DefaultModification(
+                                            ModificationOperation.REMOVE_ATTRIBUTE,
+                                            new DefaultEntryAttribute(
+                                                "administrativeRole",
+                                                    "collectiveAttributeSpecificArea", "accessControlSpecificArea" ) );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        Entry entry = getAdminRole( "ou=caArea, ou=system" );
+
+        assertFalse( entry.contains( "administrativeRole" ) );
+    }
+
+
+    /**
+     * Test the deletion of some role
+     * @throws Exception
+     */
+    @Test
+    public void testModifyDeleteSomeRole() throws Exception
+    {
+        // Inject an CASA
+        Entry caArea = LdifUtils.createEntry(
+            "ou=caArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: caArea",
+            "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea"
+            );
+
+        connection.add( caArea );
+
+        // Add another specific area
+        Modification modification = new DefaultModification(
+                                            ModificationOperation.REMOVE_ATTRIBUTE,
+                                            new DefaultEntryAttribute(
+                                                "administrativeRole",
+                                                    "accessControlSpecificArea" ) );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        Entry entry = getAdminRole( "ou=caArea, ou=system" );
+
+        assertTrue( entry.contains( "administrativeRole" ) );
+        assertTrue( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+        assertFalse( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
+    }
+
+
+    /**
+     * Test the deletion of some role
+     * @throws Exception
+     */
+    @Test
+    public void testModifyDeleteSomeInexistingRole() throws Exception
+    {
+        // Inject an CASA
+        Entry caArea = LdifUtils.createEntry(
+            "ou=caArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: caArea",
+            "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea"
+            );
+
+        connection.add( caArea );
+
+        // Add another specific area
+        Modification modification = new DefaultModification(
+                                            ModificationOperation.REMOVE_ATTRIBUTE,
+                                            new DefaultEntryAttribute(
+                                                "administrativeRole",
+                                                    "triggerExecutionSpecificArea" ) );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+
+        assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, response.getLdapResult().getResultCode() );
+    }
+
+
+    /**
+     * Test the a combined operation
+     * @throws Exception
+     */
+    @Test
+    @Ignore // Until the ExceptionInterceptor to be fixed
+    public void testModifyCombined() throws Exception
+    {
+        // Inject an CASA
+        Entry caArea = LdifUtils.createEntry(
+            "ou=caArea, ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: caArea",
+            "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea"
+            );
+
+        connection.add( caArea );
+
+        // Add another specific area
+        Modification modification1 = new DefaultModification(
+            ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute(
+                "administrativeRole",
+                    "triggerExecutionSpecificArea" ) );
+        Modification modification2 = new DefaultModification(
+            ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute(
+                "administrativeRole",
+                    "triggerExecutionSpecificArea" ) );
+
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2, modification1);
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        Entry entry = getAdminRole( "ou=caArea, ou=system" );
+
+        assertTrue( entry.contains( "administrativeRole" ) );
+        assertTrue( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
     }
 
 
