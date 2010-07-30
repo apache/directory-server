@@ -103,7 +103,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         
         // Inject the AT
         DN dn = new DN( "ou=attributeTypes,cn=apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
+        dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
         
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
         
@@ -141,7 +141,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         
         // Inject the OC
         dn = new DN( "ou=objectClasses,cn=apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
+        dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
         
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
     }
@@ -180,7 +180,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         attributes.put( "m-name", "http://example.com/users/accounts/L0" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
+        dn = dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
         
         try
         {
@@ -215,7 +215,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         attributes.put( "m-name", "no-objectClasses" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
+        dn = dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
         
         try
         {

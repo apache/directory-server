@@ -135,8 +135,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         for ( int i = 0; ( i < children.length ) && ( count[0] < sizeLimit ); i++ )
         {
             DN childRdn = new DN();
-            childRdn.addAll( parent );
-            childRdn.add( "ou=" + i );
+            childRdn = childRdn.addAll( parent );
+            childRdn = childRdn.add( "ou=" + i );
             childRdns[i] = childRdn;
             children[i].setDn( childRdn );
             reusableAdminCon.add( children[i] );

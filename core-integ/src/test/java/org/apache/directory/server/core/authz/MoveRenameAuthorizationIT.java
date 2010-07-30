@@ -164,7 +164,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         {
             if( isMoved )
             {
-                entryDN.add( 1, newParentRdn );
+                entryDN = entryDN.add( 1, newParentRdn );
                 adminConnection.delete( entryDN );
             }
             

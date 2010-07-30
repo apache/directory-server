@@ -64,9 +64,14 @@ public class DNFactory
      */
     public static DN create( String dn, SchemaManager schemaManager ) throws LdapInvalidDnException
     {
-        if ( dn == null || dn.trim().length() == 0 )
+        if ( dn == null )
         {
             return null;
+        }
+        
+        if( dn.trim().length() == 0 )
+        {
+            return DN.EMPTY_DN;
         }
 
         DN cachedDN = DN_CACHE.get( dn );
@@ -91,8 +96,8 @@ public class DNFactory
         }
 
         LOG.debug( "DN {} found in the cache", dn );
-        System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
-            + cachedDN.isNormalized() );
+//        System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
+//            + cachedDN.isNormalized() );
         return cachedDN;
     }
 

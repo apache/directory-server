@@ -135,8 +135,8 @@ public class TriggerInterceptor extends BaseInterceptor
          */
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            DN parentDn = ( DN ) dn.clone();
-            parentDn.remove( dn.size() - 1 );
+            DN parentDn = dn;
+            parentDn = parentDn.remove( dn.size() - 1 );
 
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
@@ -387,12 +387,12 @@ public class TriggerInterceptor extends BaseInterceptor
 
         // @TODO : To be completely reviewed !!!
         RDN oldRDN = name.getRdn();
-        DN oldSuperiorDN = ( DN ) name.clone();
-        oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
+        DN oldSuperiorDN = ( DN ) name;
+        oldSuperiorDN = oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         DN newSuperiorDN = oldSuperiorDN;
         DN oldDN = name;
-        DN newDN = ( DN ) name.clone();
-        newDN.add( newRdn );
+        DN newDN = name;
+        newDN = newDN.add( newRdn );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( renameContext,
             deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
@@ -432,8 +432,8 @@ public class TriggerInterceptor extends BaseInterceptor
         Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
         RDN oldRDN = oldDn.getRdn();
-        DN oldSuperiorDN = ( DN ) oldDn.clone();
-        oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
+        DN oldSuperiorDN = oldDn;
+        oldSuperiorDN = oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         DN oldDN = oldDn;
         DN newDN = moveAndRenameContext.getNewDn();
 

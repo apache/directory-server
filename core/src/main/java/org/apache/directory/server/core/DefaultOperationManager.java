@@ -106,7 +106,7 @@ public class DefaultOperationManager implements OperationManager
                 // So we have to take the RDN one by one, and create a 
                 // new DN with the type and value UP form
     
-                DN urlDn = ( DN ) ldapUrl.getDn().addAll( childDn );
+                DN urlDn = ldapUrl.getDn().addAll( childDn );
     
                 ldapUrl.setDn( urlDn );
                 urls.add( ldapUrl.toString() );
@@ -160,7 +160,7 @@ public class DefaultOperationManager implements OperationManager
                     // So we have to take the RDN one by one, and create a 
                     // new DN with the type and value UP form
 
-                    DN urlDn = ( DN ) ldapUrl.getDn().addAll( childDn );
+                    DN urlDn = ldapUrl.getDn().addAll( childDn );
 
                     ldapUrl.setDn( urlDn );
                 }
@@ -871,9 +871,9 @@ public class DefaultOperationManager implements OperationManager
             // Inject the new DN into the context
             if ( !dn.isEmpty() )
             {
-                DN newDn = ( DN ) dn.clone();
-                newDn.remove( dn.size() - 1 );
-                newDn.add( renameContext.getNewRdn() );
+                DN newDn = dn;
+                newDn = newDn.remove( dn.size() - 1 );
+                newDn = newDn.add( renameContext.getNewRdn() );
                 renameContext.setNewDn( newDn );
             }
 

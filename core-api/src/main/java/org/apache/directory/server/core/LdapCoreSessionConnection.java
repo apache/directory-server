@@ -174,6 +174,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -197,6 +198,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -233,6 +235,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -254,6 +257,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -275,6 +279,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -314,6 +319,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -345,6 +351,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -366,6 +373,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -460,6 +468,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             // do nothing
             LOG.warn( e.getMessage(), e );
         }
@@ -492,6 +501,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             // do nothing
             LOG.warn( e.getMessage(), e );
         }
@@ -529,6 +539,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -565,6 +576,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -595,6 +607,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -622,6 +635,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -643,6 +657,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -673,6 +688,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -694,6 +710,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -780,6 +797,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
@@ -830,6 +848,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            //e.printStackTrace();
             LOG.warn( e.getMessage(), e );
         }
 

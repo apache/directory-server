@@ -1416,10 +1416,11 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             DN reqUnnormalizedDn = new DN( req.getBase().getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
-                extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
             }
 
-            ldapUrl.getDn().addAll( extra );
+            urlDn = urlDn.addAll( extra );
+            ldapUrl.setDn( urlDn );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
             ldapUrl.setScope( req.getScope().getScope() );
@@ -1503,10 +1504,10 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             DN reqUnnormalizedDn = new DN( reqTargetDn.getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
-                extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
             }
 
-            urlDn.addAll( extra );
+            urlDn = urlDn.addAll( extra );
 
             StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
@@ -1604,11 +1605,11 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     {
         Entry entry;
         Entry farthestReferralAncestor = null;
-        DN dn = ( DN ) target.clone();
+        DN dn = target;
         
         try
         {
-            dn.remove( dn.size() - 1 );
+            dn = dn.remove( dn.size() - 1 );
         }
         catch ( LdapInvalidDnException e2 )
         {
@@ -1630,7 +1631,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
                     farthestReferralAncestor = entry;
                 }
 
-                dn.remove( dn.size() - 1 );
+                dn = dn.remove( dn.size() - 1 );
             }
             catch ( LdapException e )
             {
@@ -1639,7 +1640,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
                 // update the DN as we strip last component 
                 try
                 {
-                    dn.remove( dn.size() - 1 );
+                    dn = dn.remove( dn.size() - 1 );
                 }
                 catch ( LdapInvalidDnException e1 )
                 {

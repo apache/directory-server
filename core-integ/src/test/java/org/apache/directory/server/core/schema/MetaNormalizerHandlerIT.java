@@ -93,7 +93,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test normalizer" );
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
@@ -117,7 +117,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is by default inactive
         DN dn = getNormalizerContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
@@ -139,7 +139,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is by default inactive
         DN dn = getNormalizerContainer( "notloaded" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         try
         {
@@ -178,7 +178,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test normalizer" );
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
@@ -210,7 +210,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test normalizer" );
         
         DN dn = getNormalizerContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) );
@@ -222,7 +222,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteNormalizerFromEnabledSchema() throws Exception
     {
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddNormalizerToEnabledSchema();
         
         assertTrue( "normalizer should be removed from the registry after being deleted", 
@@ -251,7 +251,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteNormalizerFromDisabledSchema() throws Exception
     {
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddNormalizerToEnabledSchema();
 
         assertTrue( "normalizer should be removed from the registry after being deleted", 
@@ -281,11 +281,11 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameNormalizer() throws Exception
     {
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddNormalizerToEnabledSchema();
         
         DN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old normalizer OID should be removed from the registry after being renamed", 
@@ -314,10 +314,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getNormalizerContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -339,10 +339,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getNormalizerContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -367,7 +367,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-fqcn", DeepTrimNormalizer.class.getName() );
@@ -392,7 +392,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-fqcn", DeepTrimNormalizer.class.getName() );
@@ -416,7 +416,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteNormalizerWhenInUse() throws Exception
     {
         DN nDn = getNormalizerContainer( "apachemeta" );
-        nDn.add( "m-oid" + "=" + OID );
+        nDn = nDn.add( "m-oid" + "=" + OID );
 
         // Create a new Normalizer
         testAddNormalizerToEnabledSchema();
@@ -433,7 +433,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: test" );
 
         DN mrDn = getMatchingRuleContainer( "apachemeta" );
-        mrDn.add( "m-oid" + "=" + OID );
+        mrDn = mrDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
         assertFalse( isOnDisk( mrDn ) );
@@ -468,10 +468,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getNormalizerContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -497,10 +497,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getNormalizerContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -523,12 +523,12 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddNormalizerToEnabledSchema();
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
         
         DN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -558,10 +558,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN top = new DN();
-        top.add( "m-oid" + "=" + OID );
+        top = top.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -585,10 +585,10 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = new DN( "ou=comparators,cn=apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -612,11 +612,11 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
         
         DN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         DN newdn = getNormalizerContainer( "nis" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -633,13 +633,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is inactive by default
         DN dn = getNormalizerContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "normalizer OID should NOT be present when added to disabled nis schema", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
 
         DN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 

@@ -87,7 +87,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test comparator" );
         
         DN dn = getComparatorContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         // Addition
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
@@ -116,7 +116,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description", DESCRIPTION0 );
 
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
@@ -146,7 +146,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description", DESCRIPTION0 );
         
         DN dn = getMatchingRuleContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertFalse( "adding new matchingRule to disabled schema should not register it into the registries", 
@@ -169,7 +169,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description", DESCRIPTION0 );
         
         DN dn = getMatchingRuleContainer( "notloaded" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -194,7 +194,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteMatchingRuleFromEnabledSchema() throws Exception
     {
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddMatchingRuleToEnabledSchema();
         
         assertTrue( "matchingRule should be removed from the registry after being deleted", 
@@ -223,7 +223,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteMatchingRuleFromDisabledSchema() throws Exception
     {
         DN dn = getMatchingRuleContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddMatchingRuleToDisabledSchema();
         
         assertFalse( "matchingRule should be removed from the registry after being deleted", 
@@ -252,7 +252,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[2];
         Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
@@ -284,7 +284,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
@@ -311,11 +311,11 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameMatchingRule() throws Exception
     {
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddMatchingRuleToEnabledSchema();
         
         DN newdn = getMatchingRuleContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old matchingRule OID should be removed from the registry after being renamed", 
@@ -344,10 +344,10 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getMatchingRuleContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -366,10 +366,10 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getMatchingRuleContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -420,7 +420,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //        dn.add( "m-oid" + "=" + OID );
 //
 //        DN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( "m-oid" + "=" + OID );
+//        newdn = newdn.add( "m-oid" + "=" + OID );
 //        
 //        try
 //        {
@@ -446,7 +446,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //        dn.add( "m-oid" + "=" + OID );s
 //
 //        DN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( "m-oid" + "=" + NEW_OID );
+//        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 //        
 //        try
 //        {
@@ -480,7 +480,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //        addDependeeMatchingRule();
 //        
 //        DN newdn = getSyntaxContainer( "apachemeta" );
-//        newdn.add( "m-oid" + "=" + NEW_OID );
+//        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 //        
 //        try
 //        {
@@ -509,10 +509,10 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN top = new DN();
-        top.add( "m-oid" + "=" + OID );
+        top = top.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -536,10 +536,10 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = new DN( "ou=comparators,cn=apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -563,11 +563,11 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         DN newdn = getMatchingRuleContainer( "nis" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -584,13 +584,13 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is inactive by default
         DN dn = getMatchingRuleContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "matchingRule OID should NOT be present when added to disabled nis schema", 
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
         DN newdn = getMatchingRuleContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 

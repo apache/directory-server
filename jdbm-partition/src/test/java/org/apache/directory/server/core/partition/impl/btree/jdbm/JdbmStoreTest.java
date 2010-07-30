@@ -575,7 +575,7 @@ public class JdbmStoreTest
 
         DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
         
-        DN newDn = ((DN)newParentDn.clone()).add( martinDn.getRdn() );
+        DN newDn = newParentDn.add( martinDn.getRdn() );
 
         store.move( martinDn, newParentDn, newDn, entry );
         cursor = idx.forwardCursor( 3L );
@@ -602,7 +602,7 @@ public class JdbmStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
-        newDn = ((DN)newParentDn.clone()).add( marketingDn.getRdn() );
+        newDn = newParentDn.add( marketingDn.getRdn() );
 
         store.move( marketingDn, newParentDn, newDn, entry );
 
@@ -763,7 +763,7 @@ public class JdbmStoreTest
 
         assertEquals( 3, store.getSubAliasIndex().count() );
 
-        DN newDn = ((DN)parentDn.clone()).add( childDn.getRdn() );
+        DN newDn = parentDn.add( childDn.getRdn() );
         
         store.move( childDn, parentDn, newDn, childEntry );
 

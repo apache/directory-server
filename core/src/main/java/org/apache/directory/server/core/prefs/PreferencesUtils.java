@@ -51,7 +51,7 @@ class PreferencesUtils
         {
             if ( comps[ii] != null && !comps[ii].trim().equals( "" ) )
             {
-                dn.add( "prefNodeName=" + comps[ii] );
+                dn = dn.add( "prefNodeName=" + comps[ii] );
             }
         }
 

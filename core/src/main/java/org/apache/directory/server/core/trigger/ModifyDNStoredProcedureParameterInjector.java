@@ -48,10 +48,10 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         this.deleteOldRn = deleteOldRn;
         this.oldRDN = (RDN)oldRDN.clone();
         this.newRDN = (RDN)newRDN.clone();
-        this.oldSuperiorDN = (DN)oldSuperiorDN.clone();
-        this.newSuperiorDN = (DN)newSuperiorDN.clone();
-        this.oldDN = (DN)oldDN.clone();
-        this.newDN = (DN)newDN.clone();
+        this.oldSuperiorDN = oldSuperiorDN;
+        this.newSuperiorDN = newSuperiorDN;
+        this.oldDN = oldDN;
+        this.newDN = newDN;
         
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );

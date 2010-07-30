@@ -163,8 +163,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             return;
         }
 
-        DN parentDn = ( DN ) name.clone();
-        parentDn.remove( name.size() - 1 );
+        DN parentDn = name;
+        parentDn = parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
         boolean notAnAlias;

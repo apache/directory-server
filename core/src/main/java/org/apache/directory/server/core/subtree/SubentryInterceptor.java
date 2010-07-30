@@ -907,8 +907,8 @@ public class SubentryInterceptor extends BaseInterceptor
              * operational attributes calculated above.
              * ----------------------------------------------------------------
              */
-            DN baseDn = ( DN ) apDn.clone();
-            baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
+            DN baseDn = apDn;
+            baseDn = baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
             
             updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
 
@@ -995,8 +995,8 @@ public class SubentryInterceptor extends BaseInterceptor
              * ----------------------------------------------------------------
              */
             DN apDn = dn.getParent();
-            DN baseDn = ( DN ) apDn.clone();
-            baseDn.addAll( removedSubentry.getSubtreeSpecification().getBase() );
+            DN baseDn = apDn;
+            baseDn = baseDn.addAll( removedSubentry.getSubtreeSpecification().getBase() );
 
             // Remove all the references to this removed subentry from all the selected entries
             updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
@@ -1091,8 +1091,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // search for all entries selected by the old SS and remove references to subentry
             DN apName = dn.getParent();
-            DN oldBaseDn = ( DN ) apName.clone();
-            oldBaseDn.addAll( ssOld.getBase() );
+            DN oldBaseDn = apName;
+            oldBaseDn = oldBaseDn.addAll( ssOld.getBase() );
             
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
@@ -1128,8 +1128,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // search for all selected entries by the new SS and add references to subentry
             subentry = subentryCache.getSubentry( dn );
             List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
-            DN newBaseDn = ( DN ) apName.clone();
-            newBaseDn.addAll( ssNew.getBase() );
+            DN newBaseDn = apName;
+            newBaseDn = newBaseDn.addAll( ssNew.getBase() );
 
             searchOperationContext = new SearchOperationContext( modifyContext.getSession(), newBaseDn, filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
@@ -1223,10 +1223,10 @@ public class SubentryInterceptor extends BaseInterceptor
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
-            DN newName = (DN)newSuperiorDn.clone();
-            newName.add( oldDn.getRdn() );
+            DN baseDn = apName;
+            baseDn = baseDn.addAll( ss.getBase() );
+            DN newName = newSuperiorDn;
+            newName = newName.add( oldDn.getRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
             subentryCache.addSubentry( newName, subentry );
@@ -1314,11 +1314,11 @@ public class SubentryInterceptor extends BaseInterceptor
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
+            DN baseDn = apName;
+            baseDn = baseDn.addAll( ss.getBase() );
             DN newName = newSuperiorDn.getParent();
 
-            newName.add( moveAndRenameContext.getNewRdn() );
+            newName = newName.add( moveAndRenameContext.getNewRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
             subentryCache.addSubentry( newName, subentry );
@@ -1397,11 +1397,11 @@ public class SubentryInterceptor extends BaseInterceptor
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
-            DN baseDn = ( DN ) apName.clone();
-            baseDn.addAll( ss.getBase() );
+            DN baseDn = apName;
+            baseDn = baseDn.addAll( ss.getBase() );
             DN newName = oldDn.getParent();
 
-            newName.add( renameContext.getNewRdn() );
+            newName = newName.add( renameContext.getNewRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
 
             subentryCache.addSubentry( newName, subentry );

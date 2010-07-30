@@ -322,7 +322,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             system.add( addOperationContext );
         }
 
-        String key = system.getSuffix().getName();
+        String key = system.getSuffix().getNormName();
 
         if ( partitions.containsKey( key ) )
         {
@@ -367,8 +367,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
-
                 removeContextPartition(  DNFactory.create( suffix ) );
             }
             catch ( Exception e )

@@ -530,14 +530,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             RDN rdn = dn.getRdn( ii );
             if ( rdn.size() == 0 )
             {
-                newDn.add( new RDN() );
+                newDn = newDn.add( new RDN() );
                 continue;
             }
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 String value = rdn.getAtav().getNormValue().getString();
-                newDn.add( new RDN( name, name, value, value ) );
+                newDn = newDn.add( new RDN( name, name, value, value ) );
                 continue;
             }
 
@@ -556,7 +556,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            newDn.add( new RDN( buf.toString() ) );
+            newDn = newDn.add( new RDN( buf.toString() ) );
         }
 
         return newDn;
