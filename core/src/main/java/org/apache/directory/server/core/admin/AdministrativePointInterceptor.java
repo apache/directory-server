@@ -119,6 +119,85 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
+    /** The possible inner area roles */
+    private static final Set<String> INNER_AREA_ROLES = new HashSet<String>();
+
+    static
+    {
+        INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+    /** The possible specific area roles */
+    private static final Set<String> SPECIFIC_AREA_ROLES = new HashSet<String>();
+
+    static
+    {
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the given role is a InnerArea role
+     */
+    private boolean isInnerArea( String role )
+    {
+        return INNER_AREA_ROLES.contains( StringTools.toLowerCase( StringTools.trim( role ) ) );
+    }
+
+
+    /**
+     * Tells if the AdministrativeRole attribute contains the same Specific Area role
+     * than the given Inner Area role
+     */
+    private boolean hasSpecificArea( String role, EntryAttribute modifiedAdminRole )
+    {
+        // Check if the associated specific area role is already present
+        if ( role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() ) ||
+             role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+        {
+            if ( modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() ) ||
+                 modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
+            {
+                // Not a valid role : we will throw an exception
+                return true;
+            }
+        }
+        else if ( role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() ) ||
+                 role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+        {
+            if ( modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+                 modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+            {
+                // Not a valid role : we will throw an exception
+                return true;
+            }
+        }
+        else if ( role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() ) ||
+                  role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+        {
+            if ( modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() ) ||
+                 modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            {
+                // Not a valid role : we will throw an exception
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Creates an Administrative service interceptor.
      */
@@ -341,6 +420,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
+     * Only the add and remove modifications are fully supported.
      * {@inheritDoc}
      */
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
@@ -373,10 +453,12 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                     for ( Value<?> value : attribute )
                     {
-                        if ( !isValidRole( value.getString() ) )
+                        String role = StringTools.toLowerCase( StringTools.trim( value.getString() ) );
+
+                        if ( !isValidRole( role ) )
                         {
                             // Not a valid role : we will throw an exception
-                            String msg = "Invalid role : " + value.getString();
+                            String msg = "Invalid role : " + value;
                             LOG.error( msg );
                             throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
                         }
@@ -390,6 +472,16 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                             String msg = I18n.err( I18n.ERR_54, value );
                             LOG.error( msg );
                             throw new LdapAttributeInUseException( msg );
+                        }
+
+                        // Forbid the addition of an InnerArea if the same SpecificArea
+                        // already exists
+                        if ( isInnerArea( role ) && hasSpecificArea( role, modifiedAdminRole ) )
+                        {
+                            // Not a valid role : we will throw an exception
+                            String msg = "Cannot add an Inner Area ole to an AdministrativePoint which already has the same Specific Area role " + value;
+                            LOG.error( msg );
+                            throw new LdapUnwillingToPerformException( msg );
                         }
 
                         // Add the role to the modified attribute
@@ -440,48 +532,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                     break;
 
                 case REPLACE_ATTRIBUTE :
-                    if ( modifiedAdminRole == null )
-                    {
-                        // We have to create the attribute
-                        // We can't remove a value when the attribute does not exist.
-                        String msg = "Cannot remove the administrative role, it does not exist";
-                        LOG.error( msg );
-                        throw new LdapNoSuchAttributeException( msg );
-                    }
-
-                    // It may be a complete removal
-                    if ( attribute.size() == 0 )
-                    {
-                        // Complete removal
-                        modifiedAdminRole = null;
-                        break;
-                    }
-
-                    // Now replace the existing attributes with the new ones if they are valid
-                    modifiedAdminRole.clear();
-
-                    for ( Value<?> value : attribute )
-                    {
-                        if ( !isValidRole( value.getString() ) )
-                        {
-                            // Not a valid role : we will throw an exception
-                            String msg = "Invalid role : " + value.getString();
-                            LOG.error( msg );
-                            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-                        }
-
-                        if ( modifiedAdminRole.contains( value ) )
-                        {
-                            // We can't add a value if it already exists !
-                            String msg = "Cannot add the administrative role value" + value + ", it already exists";
-                            LOG.error( msg );
-                            throw new LdapAttributeInUseException( msg );
-                        }
-
-                        modifiedAdminRole.add( value );
-                    }
-
-                    break;
+                    // Not supported
+                    String msg = "Cannot replace an administrative role, the opertion is not supported";
+                    LOG.error( msg );
+                    throw new LdapUnwillingToPerformException( msg );
             }
         }
 
