@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -101,7 +102,7 @@ public class SchemaCheckerTest
     @Test
     public void testPreventStructuralClassRemovalOnModifyReplace() throws Exception
     {
-        DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        DN name = DNFactory.create( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         Entry modifyAttributes = new DefaultEntry( schemaManager );
         AttributeType atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
@@ -160,7 +161,7 @@ public class SchemaCheckerTest
      *
     public void testPreventStructuralClassRemovalOnModifyRemove() throws Exception
     {
-        DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        DN name = DNFactory.create( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REMOVE_ATTRIBUTE;
         Attributes modifyAttributes = new AttributesImpl( true );
         Attribute entryObjectClasses = new AttributeImpl( "objectClass" );
@@ -226,7 +227,7 @@ public class SchemaCheckerTest
     public void testPreventRdnChangeOnModifyRemove() throws Exception
     {
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        DN name = new DN( "ou=user,dc=example,dc=com" );
+        DN name = DNFactory.create( "ou=user,dc=example,dc=com" );
         Entry attributes = new DefaultEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
@@ -248,7 +249,7 @@ public class SchemaCheckerTest
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
+        name = DNFactory.create( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new DefaultEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
@@ -296,7 +297,7 @@ public class SchemaCheckerTest
     public void testPreventRdnChangeOnModifyReplace() throws Exception
     {
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
-        DN name = new DN( "ou=user,dc=example,dc=com" );
+        DN name = DNFactory.create( "ou=user,dc=example,dc=com" );
         Entry attributes = new DefaultEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
@@ -317,7 +318,7 @@ public class SchemaCheckerTest
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
+        name = DNFactory.create( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new DefaultEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
@@ -372,7 +373,7 @@ public class SchemaCheckerTest
         AttributeType CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
 
         // this should pass
-        DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        DN name = DNFactory.create( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod,
             new DefaultEntryAttribute( "cn", CN_AT ) );
@@ -420,7 +421,7 @@ public class SchemaCheckerTest
     @Test
     public void testPreventStructuralClassRemovalOnModifyRemoveAttribute() throws Exception
     {
-        DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        DN name = DNFactory.create( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
 
@@ -478,7 +479,7 @@ public class SchemaCheckerTest
     {
         Map<String, OidNormalizer> oidNormalizers = schemaManager.getAttributeTypeRegistry().getNormalizerMapping();
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        DN name = new DN( "ou=user,dc=example,dc=com", schemaManager );
+        DN name = DNFactory.create( "ou=user,dc=example,dc=com", schemaManager );
         AttributeType cnAt = schemaManager.lookupAttributeTypeRegistry( "cn" );
         AttributeType ouAt = schemaManager.lookupAttributeTypeRegistry( "ou" );
         AttributeType snAt = schemaManager.lookupAttributeTypeRegistry( "sn" );
@@ -500,7 +501,7 @@ public class SchemaCheckerTest
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
+        name = DNFactory.create( "ou=users+cn=system users,dc=example,dc=com" );
         name.normalize( oidNormalizers );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new DefaultEntryAttribute( "sn", snAt,
             "does not matter" ), schemaManager );
@@ -542,7 +543,7 @@ public class SchemaCheckerTest
     //    public void testPreventRdnChangeOnModifyReplaceAttribute() throws Exception
     //    {
     //        int mod = DirContext.REPLACE_ATTRIBUTE;
-    //        DN name = new DN( "ou=user,dc=example,dc=com" );
+    //        DN name = DNFactory.create( "ou=user,dc=example,dc=com" );
     //
     //        // postive test which should pass
     //        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, new AttributeImpl( "cn", "does not matter" ), registries.getOidRegistry() );
@@ -559,7 +560,7 @@ public class SchemaCheckerTest
     //        }
     //
     //        // test success using more than one attribute for the Rdn but not modifying rdn attribute
-    //        name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
+    //        name = DNFactory.create( "ou=users+cn=system users,dc=example,dc=com" );
     //        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, new AttributeImpl( "sn", "does not matter" ), registries.getOidRegistry() );
     //
     //        // test for failure when modifying Rdn attribute in multi attribute Rdn

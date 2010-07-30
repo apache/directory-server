@@ -39,6 +39,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.i18n.I18n;
@@ -78,7 +79,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
     private Entry getTlsEntry() throws Exception
     {
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
+        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         CoreSession session = directoryService.getSession( principal );
         return session.lookup( adminDn );

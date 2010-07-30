@@ -21,6 +21,7 @@ package org.apache.directory.server.core.exception;
 
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -114,7 +115,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         nexus = directoryService.getPartitionNexus();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = new DN( attr.getString(), directoryService.getSchemaManager() );
+        subschemSubentryDn = DNFactory.create( attr.getString(), directoryService.getSchemaManager() );
         schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information
@@ -157,8 +158,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             return;
         }
 
-        DN parentDn = ( DN ) name.clone();
-        parentDn.remove( name.size() - 1 );
+        DN parentDn = name;
+        parentDn = parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
         boolean notAnAlias;
@@ -192,7 +193,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_252, name.getName() );
                 LdapAliasException e = new LdapAliasException( msg );
-                //e.setResolvedName( new DN( parentDn.getName() ) );
+                //e.setResolvedName( DNFactory.create( parentDn.getName() ) );
                 throw e;
             }
             else
@@ -338,7 +339,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-            //e.setResolvedName( new DN( newDn.getName() ) );
+            //e.setResolvedName( DNFactory.create( newDn.getName() ) );
             throw e;
         }
 

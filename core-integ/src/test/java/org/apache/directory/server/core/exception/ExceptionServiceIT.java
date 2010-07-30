@@ -72,8 +72,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
     private AddResponse createSubContext( DN parent, String type, String value ) throws Exception
     {
-        DN dn = ( DN ) parent.clone();
-        dn.add( "ou=" + value );
+        DN dn = parent;
+        dn = dn.add( "ou=" + value );
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalPerson" );

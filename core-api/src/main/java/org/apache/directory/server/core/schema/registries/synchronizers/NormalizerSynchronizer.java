@@ -99,8 +99,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         DN dn = entry.getDn();
-        DN parentDn = ( DN ) dn.clone();
-        parentDn.remove( parentDn.size() - 1 );
+        DN parentDn = dn;
+        parentDn = parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
@@ -157,8 +157,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         DN dn = entry.getDn();
-        DN parentDn = ( DN ) dn.clone();
-        parentDn.remove( parentDn.size() - 1 );
+        DN parentDn = dn;
+        parentDn = parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
@@ -220,8 +220,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
             // Inject the new DN
             DN newDn = new DN( targetEntry.getDn() );
-            newDn.remove( newDn.size() - 1 );
-            newDn.add( newRdn );
+            newDn = newDn.remove( newDn.size() - 1 );
+            newDn = newDn.add( newRdn );
             targetEntry.setDn( newDn );
 
             Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(),

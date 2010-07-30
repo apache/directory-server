@@ -37,6 +37,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -222,7 +223,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         // Initialize and normalize the localy used DNs
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
 
         initializeSystemPartition( directoryService );
@@ -297,7 +298,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         system.initialize();
 
         // Add root context entry for system partition
-        DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN, schemaManager );
+        DN systemSuffixDn = DNFactory.create( ServerDNConstants.SYSTEM_DN, schemaManager );
         Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
@@ -311,7 +312,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ), NamespaceTools
             .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
+        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
@@ -321,7 +322,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             system.add( addOperationContext );
         }
 
-        String key = system.getSuffix().getName();
+        String key = system.getSuffix().getNormName();
 
         if ( partitions.containsKey( key ) )
         {
@@ -366,9 +367,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
-
-                removeContextPartition(  new DN( suffix ) );
+                removeContextPartition(  DNFactory.create( suffix ) );
             }
             catch ( Exception e )
             {

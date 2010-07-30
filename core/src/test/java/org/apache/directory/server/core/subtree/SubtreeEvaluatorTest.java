@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -118,16 +119,16 @@ public class SubtreeEvaluatorTest
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=abc" );
+        entryDn = DNFactory.create( "ou=abc" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 
@@ -136,18 +137,18 @@ public class SubtreeEvaluatorTest
     public void testWithBase() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 
@@ -158,27 +159,27 @@ public class SubtreeEvaluatorTest
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 
@@ -188,32 +189,32 @@ public class SubtreeEvaluatorTest
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         Set<DN> chopAfter = new HashSet<DN>();
-        chopAfter.add( new DN( "uid=Tori Amos" ) );
-        chopAfter.add( new DN( "ou=twolevels,uid=akarasulu" ) );
+        chopAfter.add( DNFactory.create( "uid=Tori Amos" ) );
+        chopAfter.add( DNFactory.create( "ou=twolevels,uid=akarasulu" ) );
         modifier.setChopAfterExclusions( chopAfter );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 
@@ -223,32 +224,32 @@ public class SubtreeEvaluatorTest
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         Set<DN> chopBefore = new HashSet<DN>();
-        chopBefore.add( new DN( "uid=Tori Amos" ) );
-        chopBefore.add( new DN( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
+        chopBefore.add( DNFactory.create( "uid=Tori Amos" ) );
+        chopBefore.add( DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
         modifier.setChopBeforeExclusions( chopBefore );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 
@@ -263,28 +264,28 @@ public class SubtreeEvaluatorTest
         modifier.setRefinement( refinement );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the refinement so the entry is rejected
@@ -293,19 +294,19 @@ public class SubtreeEvaluatorTest
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=system" );
+        entryDn = DNFactory.create( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = DNFactory.create( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
     }
@@ -321,10 +322,10 @@ public class SubtreeEvaluatorTest
         modifier.setRefinement( filter );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new DN( "ou=users" ) );
+        modifier.setBase( DNFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = new DN( "ou=system" );
-        DN entryDn = new DN( "ou=users,ou=system" );
+        DN apDn = DNFactory.create( "ou=system" );
+        DN entryDn = DNFactory.create( "ou=users,ou=system" );
 
         Entry entry = new DefaultEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );
@@ -332,7 +333,7 @@ public class SubtreeEvaluatorTest
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "cn=Ersin,ou=users,ou=system" );
+        entryDn = DNFactory.create( "cn=Ersin,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the filter so the entry is rejected
@@ -342,7 +343,7 @@ public class SubtreeEvaluatorTest
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
-        entryDn = new DN( "cn=Alex,ou=users,ou=system" );
+        entryDn = DNFactory.create( "cn=Alex,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
     }
 }

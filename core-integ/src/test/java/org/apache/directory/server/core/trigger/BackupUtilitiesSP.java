@@ -53,7 +53,7 @@ public class BackupUtilitiesSP
         DN backupDn = new DN ( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntry.getDn().get( deletedEntry.getDn().size() - 1 );
         Entry entry = ( Entry ) deletedEntry.getOriginalEntry().clone();
-        backupDn.add( deletedEntryRdn );
+        backupDn = backupDn.add( deletedEntryRdn );
         entry.setDn( backupDn );
         session.add( deletedEntry );
         LOG.info( "Backed up deleted entry to \"" + backupDn + "\"" );

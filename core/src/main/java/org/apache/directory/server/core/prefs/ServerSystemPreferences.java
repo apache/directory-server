@@ -29,6 +29,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -85,7 +86,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         
         try
         {
-            dn = new DN( "prefNodeName=sysPrefRoot,ou=system" );
+            dn = DNFactory.create( "prefNodeName=sysPrefRoot,ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -115,7 +116,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         DN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = new DN( "prefNodeName=" + name + "," + parentDn.getName(), directoryService.getSchemaManager() );
+            dn = DNFactory.create( "prefNodeName=" + name + "," + parentDn.getName(), directoryService.getSchemaManager() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {

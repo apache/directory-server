@@ -78,8 +78,8 @@ public class SubtreeEvaluator
          */
         // First construct the subtree base, which is the concatenation of the
         // AP DN and the subentry base
-        DN subentryBaseDn = (DN)apDn.clone();
-        subentryBaseDn.addAll( subtree.getBase() );
+        DN subentryBaseDn = apDn;
+        subentryBaseDn = subentryBaseDn.addAll( subtree.getBase() );
         
         if ( !entryDn.isChildOf( subentryBaseDn ) )
         {

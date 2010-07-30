@@ -102,7 +102,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description", DESCRIPTION0 );
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         createDummySyntaxChecker( OID, "apachemeta" );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
@@ -125,7 +125,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is by default inactive
         DN dn = getSyntaxContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         createDummySyntaxChecker( OID, "nis" );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
@@ -147,7 +147,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is by default inactive
         DN dn = getSyntaxContainer( "notloaded" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         createDummySyntaxChecker( OID, "nis" );
         
         try
@@ -170,7 +170,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteSyntaxFromEnabledSchema() throws Exception
     {
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToEnabledSchema();
         
         assertTrue( isOnDisk( dn ) );
@@ -199,7 +199,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteSyntaxFromDisabledSchema() throws Exception
     {
         DN dn = getSyntaxContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToDisabledSchema();
 
         assertTrue( isOnDisk( dn ) );
@@ -229,11 +229,11 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameSyntax() throws Exception
     {
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToEnabledSchema();
         
         DN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old syntax OID should be removed from the registry after being renamed", 
@@ -260,10 +260,10 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getSyntaxContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -282,10 +282,10 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getSyntaxContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -310,7 +310,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
@@ -338,7 +338,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
@@ -364,7 +364,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteSyntaxWhenInUse() throws Exception
     {
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
@@ -390,10 +390,10 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         addDependeeMatchingRule( OID );
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getSyntaxContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -418,10 +418,10 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         addDependeeMatchingRule( OID );
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getSyntaxContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -449,7 +449,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description", MR_DESCRIPTION );
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + MR_OID );
+        dn = dn.add( "m-oid" + "=" + MR_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( schemaManager.getMatchingRuleRegistry().contains( MR_OID ) );
@@ -462,12 +462,12 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
         DN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -496,7 +496,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN top = new DN();
         top.add( "m-oid" + "=" + OID );
@@ -523,10 +523,10 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = new DN( "ou=comparators,cn=apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -550,11 +550,11 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
         
         DN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         DN newdn = getSyntaxContainer( "nis" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -571,13 +571,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is inactive by default
         DN dn = getSyntaxContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "syntax OID should NOT be present when added to disabled nis schema", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
         DN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 

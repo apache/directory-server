@@ -202,7 +202,7 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, LdapPrincipal principal, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = (DN)(DN.fromName( name ).clone());
+        this.dn = DN.fromName( name );
 
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
@@ -225,7 +225,7 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, CoreSession session, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = (DN)(DN.fromName( name ).clone());
+        this.dn = DN.fromName( name );
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
@@ -1042,22 +1042,22 @@ public abstract class ServerContext implements EventContext
         }
 
         // calculate parents
-        DN oldParent = (DN)oldDn.clone();
+        DN oldParent = oldDn;
         
         try
         {
-            oldParent.remove( oldDn.size() - 1 );
+            oldParent = oldParent.remove( oldDn.size() - 1 );
         }
         catch ( LdapInvalidDnException lide )
         {
             throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
         }
         
-        DN newParent = ( DN ) newDn.clone();
+        DN newParent = newDn;
         
         try
         {
-            newParent.remove( newDn.size() - 1 );
+            newParent = newParent.remove( newDn.size() - 1 );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -1459,7 +1459,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    fqn.remove( 0 );
+                    fqn = fqn.remove( 0 );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
@@ -1556,12 +1556,12 @@ public abstract class ServerContext implements EventContext
      */
     DN buildTarget( DN relativeName ) throws NamingException
     {
-        DN target = ( DN ) dn.clone();
+        DN target = dn;
 
         // Add to left hand side of cloned DN the relative name arg
         try
         {
-            target.addAllNormalized( target.size(), relativeName );
+            target = target.addAllNormalized( target.size(), relativeName );
         }
         catch (LdapInvalidDnException lide )
         {

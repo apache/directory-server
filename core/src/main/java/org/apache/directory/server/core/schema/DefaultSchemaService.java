@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -89,7 +90,7 @@ public class DefaultSchemaService implements SchemaService
             return true;
         }
 
-        DN dn = new DN( dnString, schemaPartition.getSchemaManager() );
+        DN dn = DNFactory.create( dnString, schemaPartition.getSchemaManager() );
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
@@ -375,7 +376,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
+            schemaModificationAttributesDN = DNFactory.create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
         }
         catch ( LdapException e )
         {

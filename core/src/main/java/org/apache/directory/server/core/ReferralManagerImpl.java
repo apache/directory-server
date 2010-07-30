@@ -161,7 +161,7 @@ public class ReferralManagerImpl implements ReferralManager
         for ( String suffix:suffixes )
         {
             // We will store each entry's DN into the Referral tree
-            DN suffixDn = new DN( suffix, directoryService.getSchemaManager() );
+            DN suffixDn = DNFactory.create( suffix, directoryService.getSchemaManager() );
             
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, referralFilter, searchControl );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );

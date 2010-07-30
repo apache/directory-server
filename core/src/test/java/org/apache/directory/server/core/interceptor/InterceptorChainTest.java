@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -86,7 +87,7 @@ public class InterceptorChainTest
     @Test
     public void testNoBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
@@ -112,7 +113,7 @@ public class InterceptorChainTest
     @Test
     public void testSingleBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
@@ -139,7 +140,7 @@ public class InterceptorChainTest
     @Test
     public void testAdjacentDoubleBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
@@ -169,7 +170,7 @@ public class InterceptorChainTest
     @Test
     public void testFrontAndBackDoubleBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
@@ -198,7 +199,7 @@ public class InterceptorChainTest
     @Test
     public void testDoubleBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
@@ -227,7 +228,7 @@ public class InterceptorChainTest
     @Test
     public void testCompleteBypass() throws Exception
     {
-        DN dn = new DN( "ou=system" );
+        DN dn = DNFactory.create( "ou=system" );
         DirectoryService ds = new MockDirectoryService( 0 );
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );

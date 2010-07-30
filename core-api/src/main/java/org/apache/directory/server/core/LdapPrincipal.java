@@ -129,7 +129,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public DN getDN()
     {
-        return ( DN ) dn.clone();
+        return dn;
     }
 
 

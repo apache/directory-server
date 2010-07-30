@@ -100,8 +100,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         DN dn = entry.getDn();
-        DN parentDn = ( DN ) dn.clone();
-        parentDn.remove( parentDn.size() - 1 );
+        DN parentDn = dn;
+        parentDn = parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=syntaxes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX );
@@ -200,8 +200,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         DN dn = entry.getDn();
-        DN parentDn = ( DN ) dn.clone();
-        parentDn.remove( parentDn.size() - 1 );
+        DN parentDn = dn;
+        parentDn = parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=syntaxes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX );

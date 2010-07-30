@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
@@ -74,7 +75,7 @@ public class LdapClassLoader extends ClassLoader
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
-        defaultSearchDn = new DN( DEFAULT_SEARCH_CONTEXTS_CONFIG, directoryService.getSchemaManager() );
+        defaultSearchDn = DNFactory.create( DEFAULT_SEARCH_CONTEXTS_CONFIG, directoryService.getSchemaManager() );
         
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
@@ -162,7 +163,7 @@ public class LdapClassLoader extends ClassLoader
                 
                 for ( Value<?> val : attr )
                 {
-                    DN dn = new DN( val.getString(), directoryService.getSchemaManager() );
+                    DN dn = DNFactory.create( val.getString(), directoryService.getSchemaManager() );
                     searchContexts.add( dn );
                 }
                 
@@ -186,7 +187,7 @@ public class LdapClassLoader extends ClassLoader
 
                 for ( String suffix:suffixes )
                 {
-                    DN dn = new DN( suffix, directoryService.getSchemaManager() );
+                    DN dn = DNFactory.create( suffix, directoryService.getSchemaManager() );
                     namingContexts.add( dn );
                 }
                 

@@ -89,7 +89,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-may: ou" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         return dn;
@@ -136,7 +136,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-may: ou" );
 
         DN dn = getObjectClassContainer( "notloaded" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -158,7 +158,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteObjectClassFromEnabledSchema() throws Exception
     {
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         addObjectClass();
 
         assertTrue( "objectClass should be removed from the registry after being deleted", 
@@ -187,7 +187,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteObjectClassFromDisabledSchema() throws Exception
     {
         DN dn = getObjectClassContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         addObjectClassToDisabledSchema();
         
         assertFalse( "objectClass should be removed from the registry after being deleted", 
@@ -217,11 +217,11 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameObjectClassType() throws Exception
     {
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         addObjectClass();
         
         DN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed", 
@@ -248,10 +248,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getObjectClassContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -270,10 +270,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getObjectClassContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -299,7 +299,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( oc.getName(), NAME );
 
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[2];
         Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
@@ -331,7 +331,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( oc.getName(), NAME );
 
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
@@ -369,7 +369,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( "m-supObjectClass", OID );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + DEPENDEE_OID );
+        dn = dn.add( "m-oid" + "=" + DEPENDEE_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( DEPENDEE_OID ) );
@@ -381,7 +381,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteObjectClassWhenInUse() throws Exception
     {
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         addObjectClass();
         addDependeeObjectClass();
         
@@ -407,10 +407,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addDependeeObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getObjectClassContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -434,10 +434,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addDependeeObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = getObjectClassContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -458,12 +458,12 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRenameObjectClassWhenInUse() throws Exception
     {
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         addObjectClass();
         addDependeeObjectClass();
         
         DN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
+        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -489,7 +489,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN top = new DN();
         top.add( "m-oid" + "=" + OID );
@@ -515,10 +515,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         DN newdn = new DN( "ou=comparators,cn=apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -548,7 +548,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-may: ou" );
 
         DN dn = getObjectClassContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         return dn;
@@ -562,11 +562,11 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         DN newdn = getObjectClassContainer( "nis" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -583,13 +583,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         
         // nis is inactive by default
         DN dn = getObjectClassContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "objectClass OID should NOT be present when added to disabled nis schema", 
             getObjectClassRegistry().contains( OID ) );
 
         DN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + OID );
+        newdn = newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
@@ -624,7 +624,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( "m-may", "ou" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( OID ) );
@@ -657,7 +657,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -696,7 +696,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -731,7 +731,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( "m-may", "ou" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + NEW_OID );
+        dn = dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
@@ -764,7 +764,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
 
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + NEW_OID );
+        dn = dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
@@ -797,7 +797,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        dn = dn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -832,7 +832,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( "m-may", "ou" );
         
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + NEW_OID );
+        dn = dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
@@ -865,7 +865,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
 
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + NEW_OID );
+        dn = dn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -904,7 +904,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         attrs.put( sup );
 
         DN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + NEW_OID );
+        dn = dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
