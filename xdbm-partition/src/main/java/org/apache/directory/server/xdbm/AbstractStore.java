@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1290,7 +1291,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw nse;
         }
         
-        DN newDn = ((DN)newSuperiorDn.clone()).add( newRdn );
+        DN newDn = newSuperiorDn.add( newRdn );
         
         // Now check that the new entry does not exist
         ID newId = getEntryId( newDn );
@@ -1427,10 +1428,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     protected DN buildEntryDn( ID id ) throws Exception
     {
-        DN dn = new DN();
-
         ID parentId = id;
 
+        List<RDN> rdnList = new ArrayList<RDN>();
+        String upName = "";
+        String normName = "";
+        
         do
         {
             ParentIdAndRdn<ID> cur = rdnIdx.reverseLookup( parentId );
@@ -1438,13 +1441,26 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             for ( RDN rdn : rdns )
             {
-                dn.addNormalizedInOrder( rdn );
+                if ( rdnList.isEmpty() )
+                {
+                    normName = rdn.getNormName();
+                    upName = rdn.getName();
+                }
+                else
+                {
+                    normName = normName + "," + rdn.getNormName();
+                    upName = upName + "," + rdn.getName();
+                }
+                
+                rdnList.add( rdn );
             }
 
             parentId = cur.getParentId();
         }
         while ( !parentId.equals( getRootId() ) );
 
+        DN dn = new DN( upName, normName, StringTools.getBytesUtf8( normName ), rdnList );
+        
         return dn;
     }
 
@@ -1819,13 +1835,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * index.  If the target is not a sibling of the alias then we add the
          * index entry maping the parent's id to the aliased target id.
          */
-        ancestorDn = ( DN ) aliasDn.clone();
-        ancestorDn.remove( aliasDn.size() - 1 );
+        ancestorDn = aliasDn;
+        ancestorDn = ancestorDn.remove( aliasDn.size() - 1 );
         ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
-        DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
-        normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
+        DN normalizedAliasTargetParentDn = normalizedAliasTargetDn;
+        normalizedAliasTargetParentDn = normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
 
         if ( !aliasDn.isChildOf( normalizedAliasTargetParentDn ) )
         {
@@ -1849,7 +1865,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 subAliasIdx.add( ancestorId, targetId );
             }
 
-            ancestorDn.remove( ancestorDn.size() - 1 );
+            ancestorDn = ancestorDn.remove( ancestorDn.size() - 1 );
             ancestorId = getEntryId( ancestorDn );
         }
     }
@@ -1878,8 +1894,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         DN aliasDN = getEntryDn( aliasId );
 
-        DN ancestorDn = ( DN ) aliasDN.clone();
-        ancestorDn.remove( aliasDN.size() - 1 );
+        DN ancestorDn = aliasDN;
+        ancestorDn = ancestorDn.remove( aliasDN.size() - 1 );
         ID ancestorId = getEntryId( ancestorDn );
 
         /*

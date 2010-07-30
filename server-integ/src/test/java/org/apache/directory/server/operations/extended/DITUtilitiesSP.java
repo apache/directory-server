@@ -56,7 +56,7 @@ public class DITUtilitiesSP
         {
             ClonedServerEntry result = results.get();
             DN childRdn = result.getDn();
-            childRdn.remove( 0 );
+            childRdn = childRdn.remove( 0 );
             deleteSubtree( session, childRdn );
         }
         
