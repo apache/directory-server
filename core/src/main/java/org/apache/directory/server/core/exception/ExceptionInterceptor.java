@@ -6,21 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.exception;
 
-
-import java.util.List;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
@@ -48,11 +46,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
-import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
@@ -78,22 +73,22 @@ public class ExceptionInterceptor extends BaseInterceptor
     private DN subschemSubentryDn;
 
     /**
-     * A cache to store entries which are not aliases. 
+     * A cache to store entries which are not aliases.
      * It's a speedup, we will be able to avoid backend lookups.
-     * 
-     * Note that the backend also use a cache mechanism, but for performance gain, it's good 
+     *
+     * Note that the backend also use a cache mechanism, but for performance gain, it's good
      * to manage a cache here. The main problem is that when a user modify the parent, we will
      * have to update it at three different places :
      * - in the backend,
      * - in the partition cache,
      * - in this cache.
-     * 
+     *
      * The update of the backend and partition cache is already correctly handled, so we will
-     * just have to offer an access to refresh the local cache. This should be done in 
+     * just have to offer an access to refresh the local cache. This should be done in
      * delete, modify and move operations.
-     * 
+     *
      * We need to be sure that frequently used DNs are always in cache, and not discarded.
-     * We will use a LRU cache for this purpose. 
+     * We will use a LRU cache for this purpose.
      */
     private final LRUMap notAliasCache = new LRUMap( DEFAULT_CACHE_SIZE );
 
@@ -148,7 +143,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( new EntryOperationContext( addContext.getSession(), name ) ) )
         {
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
                 I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, name.getName() ) );
             throw ne;
         }
@@ -175,7 +170,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( !notAnAlias )
         {
-            // We don't know if the parent is an alias or not, so we will launch a 
+            // We don't know if the parent is an alias or not, so we will launch a
             // lookup, and update the cache if it's not an alias
             Entry attrs;
 
@@ -185,7 +180,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( 
+                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException(
                     I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
                 throw e2;
             }
@@ -305,32 +300,6 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Check that the entry we read at the beginning exists. If
         // not, we will throw an exception here
         assertHasEntry( modifyContext, msg );
-
-        Entry entry = modifyContext.getEntry();
-
-        List<Modification> items = modifyContext.getModItems();
-
-        // Check that we aren't adding a value that already exists in the current entry
-        for ( Modification item : items )
-        {
-            if ( item.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
-            {
-                EntryAttribute modAttr = item.getAttribute();
-                EntryAttribute entryAttr = entry.get( modAttr.getId() );
-
-                if ( entryAttr != null )
-                {
-                    for ( Value<?> value : modAttr )
-                    {
-                        if ( entryAttr.contains( value ) )
-                        {
-                            throw new LdapAttributeInUseException( I18n.err( I18n.ERR_254_ADD_EXISTING_VALUE, value,
-                                modAttr.getId() ) );
-                        }
-                    }
-                }
-            }
-        }
 
         // Let's assume that the new modified entry may be an alias,
         // but we don't want to check that now...

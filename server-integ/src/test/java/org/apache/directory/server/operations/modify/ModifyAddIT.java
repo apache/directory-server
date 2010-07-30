@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.operations.modify;
 
@@ -60,10 +60,10 @@ import org.junit.runner.RunWith;
  * Test case with different modify operations on a person entry. Each includes a
  * single add op only. Created to demonstrate DIREVE-241 ("Adding an already
  * existing attribute value with a modify operation does not cause an error.").
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=Tori Amos,ou=system",
@@ -73,7 +73,7 @@ import org.junit.runner.RunWith;
     "objectClass: top",
     "description: an American singer-songwriter",
     "cn: Tori Amos",
-    "sn: Amos", 
+    "sn: Amos",
     // Entry # 2
     "dn: cn=Debbie Harry,ou=system",
     "objectClass: inetOrgPerson",
@@ -81,12 +81,12 @@ import org.junit.runner.RunWith;
     "objectClass: person",
     "objectClass: top",
     "cn: Debbie Harry",
-    "sn: Harry" 
+    "sn: Harry"
     }
 )
 //@CreateDS( allowAnonAccess=true, name="BindIT-class")
-@CreateLdapServer ( 
-    transports = 
+@CreateLdapServer (
+    transports =
     {
         @CreateTransport( protocol = "LDAP" )
     })
@@ -96,14 +96,14 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
-    
+
 
     /**
      * Creation of required attributes of a person entry.
      */
     protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
-        Attributes attributes = LdifUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes(
             "objectClass: top",
             "objectClass: person",
             "objectClass: organizationalperson",
@@ -122,7 +122,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddNewAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Add telephoneNumber attribute
         String newValue = "1234567890";
         Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, true );
@@ -147,7 +147,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddNewAttributeValues() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
@@ -178,7 +178,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddAdditionalAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
@@ -198,7 +198,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
 
     /**
      * Try to add an already existing attribute value.
-     * 
+     *
      * Expected behaviour: Modify operation fails with an
      * AttributeInUseException. Original LDAP Error code: 20 (Indicates that the
      * attribute value specified in a modify or add operation already exists as
@@ -208,10 +208,10 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddExistingAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
-        
+
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
@@ -230,43 +230,43 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         assertEquals( 1, attr.size() );
     }
 
-    
+
     /**
      * Try to add an already existing attribute value.
-     * 
+     *
      * Expected behaviour: Modify operation fails with an
      * AttributeInUseException. Original LDAP Error code: 20 (Indicates that the
      * attribute value specified in a modify or add operation already exists as
      * a value for that attribute).
-     * 
+     *
      * Check for bug DIR_SERVER664
      */
     @Test
     public void testAddExistingNthAttributesDirServer664() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 1" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 2" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 3" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 4" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 5" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 6" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 7" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 8" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 9" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 10" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 11" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 12" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 13" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber", "attr 14" ) );
-        
+        attrs.put( new BasicAttribute( "telephoneNumber", "1" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "2" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "3" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "4" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "5" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "6" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "7" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "8" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "9" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "10" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "11" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "12" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "13" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "14" ) );
+
         Attribute attr = new BasicAttribute( "description", PERSON_DESCRIPTION );
 
         attrs.put( attr );
-        
+
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
@@ -285,7 +285,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         assertEquals( 1, attr.size() );
     }
 
-    
+
     /**
      * Check for DIR_SERVER_643
      */
@@ -293,13 +293,13 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testTwoDescriptionDirServer643() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
         Attribute attr = new BasicAttribute( "description", "a British singer-songwriter with an expressive four-octave voice" );
         attr.add( "one of the most influential female artists of the twentieth century" );
         attrs.put( attr );
-        
+
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute is still there, and is the only one
@@ -322,7 +322,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddDuplicateValueToExistingAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // modify object classes, add a new value twice
         Attribute ocls = new BasicAttribute( "objectClass", "organizationalPerson" );
         ModificationItem[] modItems = new ModificationItem[2];
@@ -355,7 +355,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddDuplicateValueToNewAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // add the same description value twice
         Attribute desc = new BasicAttribute( "description", "another description value besides songwriter" );
         ModificationItem[] modItems = new ModificationItem[2];
@@ -377,13 +377,13 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
 
 
     /**
-     * Modify the entry with a bad attribute : this should fail 
+     * Modify the entry with a bad attribute : this should fail
      */
     @Test
     public void testSearchBadAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Add a not existing attribute
         String newValue = "unbelievable";
         Attributes attrs = new BasicAttributes( "voice", newValue, true );
@@ -401,17 +401,17 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
 
         fail( "Cannot reach this point" );
     }
-    
-    
+
+
     /**
      * Create a person entry and perform a modify op, in which
      * we modify an attribute two times.
      */
     @Test
-    public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception 
+    public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";
@@ -444,7 +444,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         // Check entry
         NamingEnumeration<SearchResult> enm = ctx.search(base, filter, sctls);
         assertTrue(enm.hasMore());
-        
+
         while (enm.hasMore()) {
             SearchResult sr = enm.next();
             attrs = sr.getAttributes();
@@ -457,7 +457,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         ctx.destroySubcontext(rdn);
     }
 
-    
+
     /**
      * Try to add subschemaSubentry attribute to an entry
      */
@@ -465,7 +465,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "subschemaSubentry", "cn=anotherSchema" ) );
 
@@ -490,14 +490,14 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     /**
      * Create a person entry and perform a modify op on an
      * attribute which is part of the DN. This is not allowed.
-     * 
+     *
      * A JIRA has been created for this bug : DIRSERVER_687
      */
     @Test
-    public void testDNAttributeMemberModificationDIRSERVER_687() throws Exception 
+    public void testDNAttributeMemberModificationDIRSERVER_687() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-         
+
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";
@@ -520,7 +520,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
             // Remove the person entry
             ctx.destroySubcontext(rdn);
         }
-        catch ( NamingException ne ) 
+        catch ( NamingException ne )
         {
             assertTrue( true );
             // Remove the person entry
@@ -528,17 +528,17 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
-     * 
+     *
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     @Test
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         Attributes attrs = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
@@ -547,14 +547,14 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
         ctx.createSubcontext( "cn=Fiona Apple", attrs );
-        
+
         // add two displayNames to an inetOrgPerson
         attrs = new BasicAttributes( true );
         Attribute displayName = new BasicAttribute( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
-        
+
         try
         {
             ctx.modifyAttributes( "cn=Fiona Apple", DirContext.ADD_ATTRIBUTE, attrs );
@@ -562,7 +562,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         }
         catch ( InvalidAttributeValueException e )
         {
-            
+
         }
     }
 
@@ -574,7 +574,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddNewBinaryAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Add a binary attribute
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
@@ -589,8 +589,8 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Add a new attribute to a person entry.
      */
@@ -598,7 +598,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     public void testAddNewBinaryAttributeValueAbove0x80() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         // Add a binary attribute
         byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
@@ -627,19 +627,19 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-        
+
         // Search entry an request ;binary attribute
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope(SearchControls.OBJECT_SCOPE);
         sctls.setReturningAttributes( new String[]{ "userCertificate;binary" } );
         String filter = "(objectClass=*)";
         String base = RDN_TORI_AMOS;
-   
+
         // Test that ;binary attribute is present
         NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls);
         assertTrue(enm.hasMore());
-        
-        while (enm.hasMore()) 
+
+        while (enm.hasMore())
         {
             SearchResult sr = enm.next();
             attrs = sr.getAttributes();
@@ -650,10 +650,10 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
             assertTrue( Arrays.equals( newValue, certificate ) );
             assertEquals( 1, attr.size() );
         }
-        
+
     }
-    
-    
+
+
     /**
      * Add a new ;binary attribute with bytes greater than 0x80
      * to a person entry.
@@ -669,7 +669,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-        
+
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "userCertificate" );

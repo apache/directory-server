@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -504,7 +503,6 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    @Ignore // Until the ExceptionInterceptor to be fixed
     public void testModifyCombined() throws Exception
     {
         // Inject an CASA
