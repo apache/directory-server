@@ -6,28 +6,29 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.subtree;
 
 
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
  * An operational view of a subentry within the system. A Subentry can have
- * many types (Collective, Schema, AccessControl or Trigger) but only one 
+ * many types (Collective, Schema, AccessControl or Trigger) but only one
  * Subtree Specification.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -36,11 +37,11 @@ public class Subentry
 {
     /** The Subtree Specification associated with this subentry */
     private SubtreeSpecification ss;
-    
+
     /** The administratives roles */
     private Set<AdministrativeRole> administrativeRoles;
-    
-    
+
+
     /**
      * Stores the subtree
      *
@@ -50,7 +51,7 @@ public class Subentry
     {
         this.ss = ss;
     }
-    
+
 
     /**
      * @return The subtree specification
@@ -62,7 +63,7 @@ public class Subentry
 
 
     /**
-     * 
+     *
      * TODO setAdministrativeRoles.
      *
      * @param administrativeRoles
@@ -77,44 +78,47 @@ public class Subentry
     {
         return administrativeRoles;
     }
-    
-    
+
+
     /**
-     * Tells if the type contains the Collective attribute Administrative Role 
+     * Tells if the type contains the Collective attribute Administrative Role
      */
     final boolean isCollectiveAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.COLLECTIVE_ADMIN_ROLE );
+        return administrativeRoles.contains( AdministrativeRole.CollectiveAttributeInnerArea ) ||
+        administrativeRoles.contains( AdministrativeRole.CollectiveAttributeSpecificArea );
     }
-    
-    
+
+
     /**
-     * Tells if the type contains the SubSchema Administrative Role 
+     * Tells if the type contains the SubSchema Administrative Role
      */
     final boolean isSchemaAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.SUB_SCHEMA_ADMIN_ROLE );
+        return administrativeRoles.contains( AdministrativeRole.SubSchemaSpecificArea );
     }
-    
-    
+
+
     /**
-     * Tells if the type contains the Access Control Administrative Role 
+     * Tells if the type contains the Access Control Administrative Role
      */
     final boolean isAccessControlAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.ACCESS_CONTROL_ADMIN_ROLE );
+        return administrativeRoles.contains( AdministrativeRole.AccessControlSpecificArea ) ||
+               administrativeRoles.contains( AdministrativeRole.AccessControlInnerArea );
     }
-    
-    
+
+
     /**
-     * Tells if the type contains the Triggers Administrative Role 
+     * Tells if the type contains the Triggers Administrative Role
      */
     final boolean isTriggersAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.TRIGGERS_ADMIN_ROLE );
+        return administrativeRoles.contains( AdministrativeRole.TriggerExecutionSpecificArea ) ||
+               administrativeRoles.contains( AdministrativeRole.TriggerExecutionInnerArea );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

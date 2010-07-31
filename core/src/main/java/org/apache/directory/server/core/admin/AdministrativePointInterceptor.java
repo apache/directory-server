@@ -65,6 +65,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     /** A reference to the AdministrativeRole AT */
     private static AttributeType ADMINISTRATIVE_ROLE_AT;
+
+    /** A reference to the EntryUUID AT */
+    private static AttributeType ENTRY_UUID_AT;
 
     /** The possible roles */
     private static final Set<String> ROLES = new HashSet<String>();
@@ -205,6 +209,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
     }
 
+
     //-------------------------------------------------------------------------------------------
     // Helper methods
     //-------------------------------------------------------------------------------------------
@@ -278,7 +283,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
         nexus = directoryService.getPartitionNexus();
 
+        // Init the At we use locally
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
 
         // Load all the AdministratvePoint :
         // Autonomous Administrative Point first, then Specific
@@ -403,6 +410,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         // Ok, we are golden.
         next.add( addContext );
+
+        // Now, update the cache
+        String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
+        AdministrativeRole adminRole = null;
+
 
         LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
 
