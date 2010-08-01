@@ -3898,7 +3898,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        assertEquals( "Entry\n    dn: dc=example,dc=com\n", entry.toString() );
+        assertEquals( "Entry\n    dn[n]: dc=example,dc=com\n", entry.toString() );
 
         Value<String> strValueTop = new StringValue( "top" );
         Value<String> strValuePerson = new StringValue( "person" );
@@ -3911,7 +3911,7 @@ public class SchemaAwareEntryTest
         entry.put( "ObjectClass", atOC, strValueTop, strValuePerson, strNullValue );
         entry.put( "UserPassword", atPwd, binValue1, binValue2, binNullValue );
 
-        String expected = "Entry\n" + "    dn: dc=example,dc=com\n" + "    ObjectClass: top\n"
+        String expected = "Entry\n" + "    dn[n]: dc=example,dc=com\n" + "    ObjectClass: top\n"
             + "    ObjectClass: person\n" + "    ObjectClass: ''\n" + "    UserPassword: '0x61 0x62 '\n"
             + "    UserPassword: '0x62 '\n" + "    UserPassword: ''\n";
 
