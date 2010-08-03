@@ -384,7 +384,7 @@ public class SchemaChecker
         
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            String id = attributeType.getName();
+            String id = attributeType.getOid();
 
             if ( rdnAttributes.contains( id ) )
             {
@@ -533,7 +533,7 @@ public class SchemaChecker
         
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            String id = attributeType.getName();
+            String id = attributeType.getOid();
 
             if ( rdnAttributes.contains( id ) )
             {
