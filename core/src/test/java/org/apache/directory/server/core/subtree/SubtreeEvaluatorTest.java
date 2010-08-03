@@ -92,6 +92,8 @@ public class SubtreeEvaluatorTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
+        DNFactory.setSchemaManager( schemaManager );
+        
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );

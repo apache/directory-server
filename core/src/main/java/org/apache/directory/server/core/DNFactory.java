@@ -45,6 +45,8 @@ public class DNFactory
 
     private static final Logger LOG = LoggerFactory.getLogger( DNFactory.class );
 
+    private static SchemaManager schemaManager;
+    
     // stat counters
     private static int hitCount = 0;
     private static int missCount = 0;
@@ -75,13 +77,13 @@ public class DNFactory
         }
 
         DN cachedDN = DN_CACHE.get( dn );
-
+        
         if ( cachedDN == null )
         {
             LOG.debug( "DN {} not found in the cache, creating", dn );
-
+            
             cachedDN = new DN( dn, schemaManager );
-
+            
             DN_CACHE.put( dn, cachedDN );
             missCount++;
         }
@@ -91,11 +93,12 @@ public class DNFactory
             {
                 cachedDN.normalize( schemaManager.getNormalizerMapping() );
             }
-
+            
             hitCount++;
         }
-
+        
         LOG.debug( "DN {} found in the cache", dn );
+//        System.out.println( "DN '" + cachedDN + "' found in the cache and isNormalized " + cachedDN.isNormalized() );
 //        System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
 //            + cachedDN.isNormalized() );
         return cachedDN;
@@ -104,7 +107,7 @@ public class DNFactory
 
     public static DN create( String... upRdns ) throws LdapInvalidDnException
     {
-        return create( null, upRdns );
+        return create( schemaManager, upRdns );
     }
 
 
@@ -124,7 +127,7 @@ public class DNFactory
 
     public static DN create( DN dn ) throws LdapInvalidDnException
     {
-        return create( dn.getName(), null );
+        return create( dn.getName(), schemaManager );
     }
 
 
@@ -136,7 +139,13 @@ public class DNFactory
 
     public static DN create( String dn ) throws LdapInvalidDnException
     {
-        return create( dn, null );
+        return create( dn, schemaManager );
     }
 
+
+    public static void setSchemaManager( SchemaManager schemaManager )
+    {
+        DNFactory.schemaManager = schemaManager;
+    }
+    
 }

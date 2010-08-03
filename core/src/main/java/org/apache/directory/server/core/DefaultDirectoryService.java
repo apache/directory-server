@@ -1416,6 +1416,8 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
 
+        DNFactory.setSchemaManager( schemaManager );
+        
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
         schemaService.getSchemaPartition().initialize();
