@@ -575,7 +575,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( rdn.size() == 1 )
         {
             String rdnAttribute = rdn.getUpType();
-            String rdnValue = rdn.getNormValue().getString();
+            String rdnValue = rdn.getUpValue().getString();
 
             // Add the RDN attribute
             boolean doRdnPut = attributes.get( rdnAttribute ) == null;
@@ -604,7 +604,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
                 if ( doRdnPut )
                 {
-                    attributes.put( atav.getNormType(), atav.getNormValue().get() );
+                    attributes.put( atav.getNormType(), atav.getUpValue().get() );
                 }
             }
         }

@@ -756,7 +756,7 @@ public abstract class ServerContext implements EventContext
 
         if ( rdn != null )
         {
-            if ( SchemaConstants.CN_AT.equals( rdn.getNormType() ) )
+            if ( SchemaConstants.CN_AT_OID.equals( rdn.getNormType() ) )
             {
                 serverEntry.put( rdn.getUpType(), rdn.getUpValue() );
             }
@@ -1561,6 +1561,7 @@ public abstract class ServerContext implements EventContext
         // Add to left hand side of cloned DN the relative name arg
         try
         {
+            relativeName.normalize( schemaManager.getNormalizerMapping() );
             target = target.addAllNormalized( target.size(), relativeName );
         }
         catch (LdapInvalidDnException lide )
