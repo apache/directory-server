@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core;
 
@@ -38,13 +38,13 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
 /**
  * Implement a referral Manager, handling the requests from the LDAP protocol.
  * <br>
- * Referrals are stored in a tree, where leaves are the referrals. We are using 
+ * Referrals are stored in a tree, where leaves are the referrals. We are using
  * the very same structure than for the partition manager.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 public class ReferralManagerImpl implements ReferralManager
 {
     /** The referrals tree */
-    private DnBranchNode<Entry> referrals;
+    private DnNode<Entry> referrals;
 
     /** A lock to guarantee the manager consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
@@ -60,9 +60,9 @@ public class ReferralManagerImpl implements ReferralManager
     /** A storage for the ObjectClass attributeType */
     private AttributeType OBJECT_CLASS_AT;
 
-    
+
     /**
-     * 
+     *
      * Creates a new instance of ReferralManagerImpl.
      *
      * @param directoryService The directory service
@@ -71,8 +71,8 @@ public class ReferralManagerImpl implements ReferralManager
     public ReferralManagerImpl( DirectoryService directoryService ) throws LdapException
     {
         lockWrite();
-        
-        referrals = new DnBranchNode<Entry>();
+
+        referrals = new DnNode<Entry>();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
         Set<String> suffixes = nexus.listSuffixes();
@@ -82,10 +82,10 @@ public class ReferralManagerImpl implements ReferralManager
 
         unlock();
     }
-    
-    
+
+
     /**
-     * Get a read-lock on the referralManager. 
+     * Get a read-lock on the referralManager.
      * No read operation can be done on the referralManager if this
      * method is not called before.
      */
@@ -93,10 +93,10 @@ public class ReferralManagerImpl implements ReferralManager
     {
         mutex.readLock().lock();
     }
-    
-    
+
+
     /**
-     * Get a write-lock on the referralManager. 
+     * Get a write-lock on the referralManager.
      * No write operation can be done on the referralManager if this
      * method is not called before.
      */
@@ -105,9 +105,9 @@ public class ReferralManagerImpl implements ReferralManager
         mutex.writeLock().lock();
     }
 
-    
+
     /**
-     * Release the read-write lock on the referralManager. 
+     * Release the read-write lock on the referralManager.
      * This method must be called after having read or modified the
      * ReferralManager
      */
@@ -122,8 +122,8 @@ public class ReferralManagerImpl implements ReferralManager
             mutex.readLock().unlock();
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -133,7 +133,7 @@ public class ReferralManagerImpl implements ReferralManager
     {
         try
         {
-            ((DnBranchNode<Entry>)referrals).add( entry.getDn(), entry );
+            referrals.add( entry.getDn(), entry );
         }
         catch ( LdapException ne )
         {
@@ -147,14 +147,14 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public void init( DirectoryService directoryService, String... suffixes ) throws LdapException
     {
-        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT, 
+        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();
         searchControl.setReturningObjFlag( false );
         searchControl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        
+
         CoreSession adminSession = directoryService.getAdminSession();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
@@ -162,30 +162,30 @@ public class ReferralManagerImpl implements ReferralManager
         {
             // We will store each entry's DN into the Referral tree
             DN suffixDn = DNFactory.create( suffix, directoryService.getSchemaManager() );
-            
+
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, referralFilter, searchControl );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             EntryFilteringCursor cursor = nexus.search( searchOperationContext );
-            
+
             try
             {
                 // Move to the first entry in the cursor
                 cursor.beforeFirst();
-                
-                while ( cursor.next() ) 
+
+                while ( cursor.next() )
                 {
                     Entry entry = cursor.get();
-    
+
                     // Lock the referralManager
                     lockWrite();
-                    
+
                     // Add it at the right place
                     addReferral( entry );
-                    
+
                     // Unlock the referralManager
                     unlock();
                 }
-                
+
                 cursor.close();
             }
             catch ( Exception e )
@@ -194,21 +194,21 @@ public class ReferralManagerImpl implements ReferralManager
             }
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void remove( DirectoryService directoryService, DN suffix ) throws Exception
     {
-        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT, 
+        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();
         searchControl.setReturningObjFlag( false );
         searchControl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        
+
         CoreSession adminSession = directoryService.getAdminSession();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
@@ -217,26 +217,28 @@ public class ReferralManagerImpl implements ReferralManager
             referralFilter, searchControl );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         EntryFilteringCursor cursor = nexus.search( searchOperationContext );
-        
+
         // Move to the first entry in the cursor
         cursor.beforeFirst();
-        
-        while ( cursor.next() ) 
+
+        while ( cursor.next() )
         {
             Entry entry = cursor.get();
-            
+
             // Add it at the right place
             removeReferral( entry );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean hasParentReferral( DN dn )
     {
-        return referrals.hasParentElement( dn );
+        DnNode<Entry> referral = referrals.getNode( dn );
+
+        return ( referral != null ) && referral.isLeaf();
     }
 
 
@@ -249,18 +251,18 @@ public class ReferralManagerImpl implements ReferralManager
         {
             return null;
         }
-        
-        return referrals.getParentElement( dn );
+
+        return referrals.getElement( dn );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isReferral( DN dn )
     {
-        Entry parent = referrals.getParentElement( dn );
-        
+        Entry parent = referrals.getElement( dn );
+
         if ( parent != null )
         {
             return dn.equals( parent.getDn() );
@@ -275,8 +277,8 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void removeReferral( Entry entry )
+    public void removeReferral( Entry entry ) throws LdapException
     {
-        referrals.remove( entry );
+        referrals.remove( entry.getDn() );
     }
 }

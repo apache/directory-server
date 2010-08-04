@@ -34,7 +34,7 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    protected AutonomousAdministrativePoint( DN dn, String uuid )
+    public AutonomousAdministrativePoint( DN dn, String uuid )
     {
         super( dn, uuid, AdministrativeRole.AutonomousArea );
     }
@@ -46,14 +46,5 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     public boolean isAutonomous()
     {
         return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public AdministrativeRole getRole()
-    {
-        return AdministrativeRole.AutonomousArea;
     }
 }

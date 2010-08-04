@@ -35,7 +35,7 @@ public class InnerAdministrativePoint extends AbstractAdministrativePoint
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected InnerAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    public InnerAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
     {
         super( dn, uuid, role );
     }
@@ -47,15 +47,6 @@ public class InnerAdministrativePoint extends AbstractAdministrativePoint
     public boolean isInner()
     {
         return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public AdministrativeRole getRole()
-    {
-        return role;
     }
 
 

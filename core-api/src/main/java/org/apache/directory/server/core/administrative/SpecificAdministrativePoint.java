@@ -35,7 +35,7 @@ public class SpecificAdministrativePoint extends AbstractAdministrativePoint
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected SpecificAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    public SpecificAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
     {
         super( dn, uuid, role );
     }
@@ -47,15 +47,6 @@ public class SpecificAdministrativePoint extends AbstractAdministrativePoint
     public boolean isSpecific()
     {
         return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public AdministrativeRole getRole()
-    {
-        return role;
     }
 
 

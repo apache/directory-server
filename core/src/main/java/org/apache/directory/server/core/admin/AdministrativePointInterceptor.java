@@ -31,6 +31,10 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.AutonomousAdministrativePoint;
+import org.apache.directory.server.core.administrative.InnerAdministrativePoint;
+import org.apache.directory.server.core.administrative.SpecificAdministrativePoint;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -67,6 +71,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,6 +156,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
+    private DnNode<List<AdministrativePoint>> adminPointCache;
+
 
     /**
      * Tells if the given role is a InnerArea role
@@ -200,6 +207,204 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         return false;
+    }
+
+
+    /**
+     * Create the list of AP for a given entry
+     */
+    private List<AdministrativePoint> createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid )
+    {
+        List<AdministrativePoint> adminPoints = new ArrayList<AdministrativePoint> ();
+
+        for ( Value<?> value : adminPoint )
+        {
+            String role = value.getString();
+
+            // Deal with Autonomous AP
+            if ( role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA_OID ) )
+            {
+                AdministrativePoint aap = new AutonomousAdministrativePoint( dn, uuid );
+                adminPoints.add( aap );
+
+                // If it's an AAP, we can get out immediately
+                return adminPoints;
+            }
+
+            // Deal with AccessControl AP
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.AccessControlSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.AccessControlInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+
+            // Deal with CollectveAttribute AP
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.CollectiveAttributeSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.CollectiveAttributeInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+
+            // Deal with SubSchema AP
+            if ( role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.SubSchemaSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            // Deal with TriggerExecution AP
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.TriggerExecutionSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+                 role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.TriggerExecutionInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+        }
+
+        return adminPoints;
+    }
+
+
+    private AdministrativePoint getParent( AdministrativePoint ap, List<AdministrativePoint> aps, AdministrativeRole role, DnNode<List<AdministrativePoint>> currentNode )
+    {
+        AdministrativePoint parent = null;
+
+        for ( AdministrativePoint adminPoint : aps )
+        {
+            if ( adminPoint.isAutonomous() || ( adminPoint.getRole() == ap.getRole() ) )
+            {
+                // Same role or AP : this is the parent
+                return adminPoint;
+            }
+            else if ( adminPoint.getRole() == role )
+            {
+                parent = adminPoint;
+            }
+        }
+
+        if ( parent != null )
+        {
+            return parent;
+        }
+
+        // We have to go down one level
+        if ( currentNode.hasParent() )
+        {
+            return findParent( ap, currentNode );
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+
+    private AdministrativePoint findParent( AdministrativePoint ap, DnNode<List<AdministrativePoint>> currentNode )
+    {
+        List<AdministrativePoint> aps = currentNode.getElement();
+
+        if ( aps != null )
+        {
+            // Check if the current element is a valid parent
+            switch ( ap.getRole() )
+            {
+                case AutonomousArea :
+                    AdministrativePoint currentAp = aps.get( 0 );
+
+                    if ( currentAp.isAutonomous() )
+                    {
+                        return currentAp;
+                    }
+                    else
+                    {
+                        // We have to go down one level, as an AAP
+                        // must have another AAP as a parent
+                        if ( currentNode.hasParent() )
+                        {
+                            return findParent( ap, currentNode );
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+
+                case AccessControlInnerArea :
+                    return getParent( ap, aps, AdministrativeRole.AccessControlSpecificArea, currentNode );
+
+                case CollectiveAttributeInnerArea :
+                    return getParent( ap, aps, AdministrativeRole.CollectiveAttributeSpecificArea, currentNode );
+
+                case TriggerExecutionInnerArea :
+                    return getParent( ap, aps, AdministrativeRole.TriggerExecutionSpecificArea, currentNode );
+
+                case AccessControlSpecificArea :
+                    return getParent( ap, aps, AdministrativeRole.AccessControlSpecificArea, currentNode );
+
+                case CollectiveAttributeSpecificArea :
+                    return getParent( ap, aps, AdministrativeRole.CollectiveAttributeSpecificArea, currentNode );
+
+                case SubSchemaSpecificArea :
+                    return getParent( ap, aps, AdministrativeRole.SubSchemaSpecificArea, currentNode );
+
+                case TriggerExecutionSpecificArea :
+                    return getParent( ap, aps, AdministrativeRole.TriggerExecutionSpecificArea, currentNode );
+
+                default :
+                    return null;
+            }
+        }
+        else
+        {
+            if ( currentNode.hasParent() )
+            {
+                return findParent( ap, currentNode.getParent() );
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     /**
@@ -312,6 +517,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         List<Entry> accessControlIAPs = getAdministrativePoints( SchemaConstants.ACCESS_CONTROL_INNER_AREA );
         List<Entry> collectiveAttributeIAPs = getAdministrativePoints( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA );
         List<Entry> triggerExecutionIAPs = getAdministrativePoints( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA );
+
+        // Create the root AdministrativePoint cache. The first DN
+        adminPointCache = new DnNode<List<AdministrativePoint>>();
     }
 
 
@@ -413,8 +621,29 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         // Now, update the cache
         String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
-        AdministrativeRole adminRole = null;
 
+        // Construct the AdministrativePoint objects
+        List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPoint, addContext.getDn(), uuid );
+
+        for ( AdministrativePoint ap : administrativePoints )
+        {
+            if ( ap.isAutonomous() )
+            {
+                // Find the parent
+                AdministrativePoint parent = findParent( ap, adminPointCache );
+                ap.setParent( parent );
+
+                // We won't have any children as the entry has just been added
+            }
+            else
+            {
+                // Find the parent
+                AdministrativePoint parent = findParent( ap,  adminPointCache );
+                ap.setParent( parent );
+
+                // We won't have any children as the entry has just been added
+            }
+        }
 
         LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
 

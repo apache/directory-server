@@ -22,6 +22,7 @@ package org.apache.directory.server.core.administrative;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 /**
  *
@@ -93,4 +94,10 @@ public interface AdministrativePoint
      * @param children the AdministrativePoint children
      */
     void setChildren( Map<String, AdministrativePoint> children );
+
+
+    /**
+     * @return The administrativeRole
+     */
+    AdministrativeRole getRole();
 }

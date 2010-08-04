@@ -6,20 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core;
 
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -30,40 +31,40 @@ import org.apache.directory.shared.ldap.name.DN;
 public interface ReferralManager
 {
     /**
-     * Get a read-lock on the referralManager. 
+     * Get a read-lock on the referralManager.
      * No read operation can be done on the referralManager if this
      * method is not called before.
      */
     void lockRead();
-    
-    
+
+
     /**
-     * Get a write-lock on the referralManager. 
+     * Get a write-lock on the referralManager.
      * No write operation can be done on the referralManager if this
      * method is not called before.
      */
     void lockWrite();
-    
-    
+
+
     /**
-     * Release the read-write lock on the referralManager. 
+     * Release the read-write lock on the referralManager.
      * This method must be called after having read or modified the
      * ReferralManager
      */
     void unlock();
-    
-    
+
+
     /**
      * Tells if a DN is a referral (its associated entry contains the Referral ObjectClass).
-     * 
+     *
      * It does not check that the associated entry inherits from a referral.
      *
      * @param dn The entry's DN we want to check
      * @return <code>true</code> if the DN is associated with a referral
      */
     boolean isReferral( DN dn );
-    
-    
+
+
     /**
      * Tells if this DN has a parent which is a referral.
      * <br>
@@ -74,8 +75,8 @@ public interface ReferralManager
      * @return <code>true</code> if there is a parent referral
      */
     boolean hasParentReferral( DN dn );
-    
-    
+
+
     /**
      * Get the DN of the parent referral for a specific DN
      *
@@ -83,24 +84,24 @@ public interface ReferralManager
      * @return The parent referral of null if none is found
      */
     Entry getParentReferral( DN dn );
-    
-    
+
+
     /**
      * Add a referral to the manager.
      *
      * @param dn The referral to add
      */
     void addReferral( Entry entry );
-    
-    
+
+
     /**
      * Remove a referral from the manager.
-     * 
+     *
      * @param dn The referral to remove
      */
-    void removeReferral( Entry entry );
-    
-    
+    void removeReferral( Entry entry ) throws LdapException;
+
+
     /**
      * Initialize the manager, reading all the referrals from the base.
      * The manager will search for every entries having a Referral ObjectClass.
@@ -111,7 +112,7 @@ public interface ReferralManager
      */
     void init( DirectoryService directoryService, String... suffixes ) throws Exception;
 
-    
+
     /**
      * Remove a partition from the manager, reading all the referrals from the base.
      * The manager will search for every entries having a Referral ObjectClass, and

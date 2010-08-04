@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition;
 
@@ -100,7 +100,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +137,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
 
     /** A structure to hold all the partitions */
-    private DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
+    private DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
     /** the system partition */
     private Partition system;
@@ -689,10 +689,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         // Get the current partition
         Partition backend = getPartition( moveContext.getDn() );
-        
+
         // We also have to get the new partition as it can be different
         //Partition newBackend = getPartition( opContext.getNewDn() );
-        
+
         backend.move( moveContext );
     }
 
@@ -807,7 +807,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         ExprNode filter = searchContext.getFilter();
 
         // TODO since we're handling the *, and + in the EntryFilteringCursor
-        // we may not need this code: we need see if this is actually the 
+        // we may not need this code: we need see if this is actually the
         // case and remove this code.
         if ( base.size() == 0 )
         {
@@ -844,7 +844,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else if ( isOnelevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-                
+
                 for ( Partition partition : partitions.values() )
                 {
                     searchContext.setDn( partition.getSuffix() );
@@ -857,12 +857,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else if ( isSublevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-                
+
                 for ( Partition partition : partitions.values() )
                 {
                     ClonedServerEntry entry = partition.lookup( new LookupOperationContext( directoryService.getAdminSession(),
                         partition.getSuffix() ) );
-                    
+
                     if ( entry != null )
                     {
                         Partition backend = getPartition( entry.getDn() );
@@ -871,7 +871,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                     }
                 }
 
-                // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition 
+                // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition
                 return new CursorList( cursors, searchContext );
             }
 
@@ -885,7 +885,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( base );
-        
+
         return backend.search( searchContext );
     }
 
@@ -995,9 +995,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         // Update the partition tree
-        partitionLookupTree.remove( partition );
+        partitionLookupTree.remove( partition.getSuffix() );
         partitions.remove( key );
-        
+
         try
         {
             partition.destroy();
@@ -1023,7 +1023,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public Partition getPartition( DN dn ) throws LdapException
     {
-        Partition parent = partitionLookupTree.getParentElement( dn );
+        Partition parent = partitionLookupTree.getElement( dn );
 
         if ( parent == null )
         {
@@ -1042,11 +1042,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public DN findSuffix( DN dn ) throws LdapException
     {
         Partition backend = getPartition( dn );
-        
+
         return backend.getSuffix();
     }
-    
-    
+
+
     public DN getSuffix()
     {
         return null;

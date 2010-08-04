@@ -55,9 +55,12 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     }
 
     /**
-     * @return The administrativeRole
+     * {@inheritDoc}
      */
-    public abstract AdministrativeRole getRole();
+    public AdministrativeRole getRole()
+    {
+        return role;
+    }
 
 
     /**
