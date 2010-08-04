@@ -36,6 +36,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -378,10 +379,12 @@ public class IntegrationUtils
     {
         Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
         
-        byte[] passwdBytes = password == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( password );
-        ( ( LdapCoreSessionConnection ) connectionObj ).setSession( dirService.getSession( dn, passwdBytes ) );
+        LdapCoreSessionConnection coreConnection = ( LdapCoreSessionConnection ) connectionObj;
+        coreConnection.setDirectoryService( dirService );
+        
+        coreConnection.bind( dn, password );
 
-        return ( LdapConnection )connectionObj;
+        return coreConnection;
     }
 
 

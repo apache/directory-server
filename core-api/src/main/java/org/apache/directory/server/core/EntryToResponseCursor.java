@@ -23,12 +23,15 @@ package org.apache.directory.server.core;
 
 import java.util.Iterator;
 
+import org.apache.directory.ldap.client.api.message.LdapResult;
+import org.apache.directory.ldap.client.api.message.SearchResultDone;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
@@ -40,10 +43,14 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchResponse>
 {
     /** the underlying cursor */
-    private EntryFilteringCursor wrapped;
+    private Cursor wrapped;
 
-
-    public EntryToResponseCursor( EntryFilteringCursor wrapped )
+    /** a reference to hold the SearchResultDone response */
+    private SearchResultDone searchDoneResp;
+    
+    private boolean done;
+    
+    public EntryToResponseCursor( Cursor wrapped )
     {
         this.wrapped = wrapped;
     }
@@ -105,11 +112,22 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
 
     public SearchResponse get() throws Exception
     {
-        ClonedServerEntry entry = wrapped.get();
+        ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
         SearchResultEntry se = new SearchResultEntry();
         se.setEntry( entry );
 
         return ( SearchResponse ) se;
+    }
+
+    
+    /**
+     * gives the SearchResultDone message received at the end of search results
+     * 
+     * @return the SearchResultDone message, null if the search operation fails for any reason 
+     */
+    public SearchResultDone getSearchDone()
+    {
+        return searchDoneResp;
     }
 
 
@@ -133,7 +151,16 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
 
     public boolean next() throws Exception
     {
-        return wrapped.next();
+        done = wrapped.next();
+        if( !done )
+        {
+            searchDoneResp = new SearchResultDone();
+            LdapResult ldapResult = new LdapResult();
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+            searchDoneResp.setLdapResult( ldapResult );
+        }
+        
+        return done;
     }
 
 

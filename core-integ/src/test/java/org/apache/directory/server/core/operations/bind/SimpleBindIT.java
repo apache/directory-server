@@ -41,6 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -49,6 +50,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -367,29 +369,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        try
-        {
-            LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", null );
-            
-            // We should have failed wilh an LdapUnwillingToPerformException
-            fail();
-        }
-        catch ( LdapUnwillingToPerformException lutpe )
-        {
-            // expected
-        }
+        LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", null );
+        assertFalse( connection.isAuthenticated() );
 
-        LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
+        connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
 
-        try
-        {
-            connection.bind( "uid=admin,ou=system", null );
-            fail();
-        }
-        catch ( LdapUnwillingToPerformException lutpe )
-        {
-            // expected
-        }
+        BindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, bindResp.getLdapResult().getResultCode() );
     }
 
 
