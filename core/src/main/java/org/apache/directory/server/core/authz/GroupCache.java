@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz;
 
@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +98,7 @@ public class GroupCache
      * Creates a static group cache.
      *
      * @param directoryService the directory service core
-     * @throws LdapException if there are failures on initialization 
+     * @throws LdapException if there are failures on initialization
      */
     public GroupCache( CoreSession session ) throws LdapException
     {
@@ -144,7 +143,7 @@ public class GroupCache
             DN baseDn = DNFactory.create( suffix, schemaManager );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            
+
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
@@ -155,9 +154,9 @@ public class GroupCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    DN groupDn = result.getDn().normalize( schemaManager.getNormalizerMapping() );
+                    DN groupDn = result.getDn().normalize( schemaManager );
                     EntryAttribute members = getMemberAttribute( result );
-    
+
                     if ( members != null )
                     {
                         Set<String> memberSet = new HashSet<String>( members.size() );
@@ -169,7 +168,7 @@ public class GroupCache
                         LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
                     }
                 }
-    
+
                 results.close();
             }
             catch ( Exception e )
@@ -468,7 +467,7 @@ public class GroupCache
     /**
      * An optimization.  By having this method here we can directly access the group
      * membership information and lookup to see if the principalDn is contained within.
-     * 
+     *
      * @param principalDn the normalized DN of the user to check if they are an admin
      * @return true if the principal is an admin or the admin
      */

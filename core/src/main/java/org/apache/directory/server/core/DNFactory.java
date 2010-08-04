@@ -46,7 +46,7 @@ public class DNFactory
     private static final Logger LOG = LoggerFactory.getLogger( DNFactory.class );
 
     private static SchemaManager schemaManager;
-    
+
     // stat counters
     private static int hitCount = 0;
     private static int missCount = 0;
@@ -56,7 +56,7 @@ public class DNFactory
      * searches the cache first for a possible DN value based on the given 'upName' match.
      * If a DN is present in the cache will return it (after normalizing if required)
      * otherwise will create a new DN instance and stores in the cache before returning it
-     * 
+     *
      * Note that the DN cache is maintained by using user provided DN name as key
      *
      * @param dn the upName of the DN
@@ -70,20 +70,20 @@ public class DNFactory
         {
             return null;
         }
-        
+
         if( dn.trim().length() == 0 )
         {
             return DN.EMPTY_DN;
         }
 
         DN cachedDN = DN_CACHE.get( dn );
-        
+
         if ( cachedDN == null )
         {
             LOG.debug( "DN {} not found in the cache, creating", dn );
-            
+
             cachedDN = new DN( dn, schemaManager );
-            
+
             DN_CACHE.put( dn, cachedDN );
             missCount++;
         }
@@ -91,12 +91,12 @@ public class DNFactory
         {
             if ( !cachedDN.isNormalized() && ( schemaManager != null ) )
             {
-                cachedDN.normalize( schemaManager.getNormalizerMapping() );
+                cachedDN.normalize( schemaManager );
             }
-            
+
             hitCount++;
         }
-        
+
         LOG.debug( "DN {} found in the cache", dn );
 //        System.out.println( "DN '" + cachedDN + "' found in the cache and isNormalized " + cachedDN.isNormalized() );
 //        System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
@@ -147,5 +147,5 @@ public class DNFactory
     {
         DNFactory.schemaManager = schemaManager;
     }
-    
+
 }

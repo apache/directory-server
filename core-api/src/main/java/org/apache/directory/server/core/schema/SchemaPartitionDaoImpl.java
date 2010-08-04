@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema;
 
@@ -72,19 +72,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A specialized data access object for managing schema objects in the
- * schema partition.  
- * 
+ * schema partition.
+ *
  * WARNING:
  * This dao operates directly on a partition.  Hence no interceptors are available
  * to perform the various expected services of respective interceptors.  Take care
  * to normalize all filters and distinguished names.
- * 
+ *
  * A single write operation exists for enabling schemas needed for operating indices
- * in partitions and enabling schemas that are dependencies of other schemas that 
+ * in partitions and enabling schemas that are dependencies of other schemas that
  * are enabled.  In both these limited cases there is no need to worry about issues
  * with a lack of replication propagation because these same updates will take place
  * on replicas when the original operation is propagated or when replicas start up.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SchemaPartitionDaoImpl implements SchemaPartitionDao
@@ -93,7 +93,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     private final Logger LOG = LoggerFactory.getLogger( getClass() );
     private static final NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[]
-        { SchemaConstants.CREATORS_NAME_AT_OID, "m-dependencies", SchemaConstants.OBJECT_CLASS_AT_OID, 
+        { SchemaConstants.CREATORS_NAME_AT_OID, "m-dependencies", SchemaConstants.OBJECT_CLASS_AT_OID,
           SchemaConstants.CN_AT_OID, "m-disabled" };
 
     private final Partition partition;
@@ -121,7 +121,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
     /**
      * Creates a schema dao object backing information within a schema partition.
-     * 
+     *
      * @param partition the schema partition
      * @param registries the bootstrap registries that were used to start up the schema partition
      * @throws NamingException if there are problems initializing this schema partion dao
@@ -147,7 +147,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         this.M_OC_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OC_AT );
         this.M_SUP_OBJECT_CLASS_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
         this.M_DEPENDENCIES_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT );
-        
+
         for ( String attrId : SCHEMA_ATTRIBUTES )
         {
             AttributeTypeOptions ato = new AttributeTypeOptions( schemaManager.lookupAttributeTypeRegistry( attrId ) );
@@ -245,7 +245,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -297,7 +297,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -328,7 +328,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasObjectClass( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
@@ -349,7 +349,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -380,7 +380,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasSyntax( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
                 new StringValue( MetaSchemaConstants.META_SYNTAX_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
@@ -401,7 +401,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -432,7 +432,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public boolean hasSyntaxChecker( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
@@ -453,7 +453,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -490,7 +490,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         }
 
         RDN rdn = dn.getRdn( 1 );
-        
+
         if ( !rdn.getNormType().equalsIgnoreCase( SchemaConstants.CN_AT_OID ) )
         {
             throw new NamingException( I18n.err( I18n.ERR_434, dn.getNormName(), SchemaConstants.CN_AT_OID, rdn.getNormType() ) );
@@ -507,7 +507,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         Entry sr = find( entityName );
         DN dn = sr.getDn();
-        dn.normalize( schemaManager.getNormalizerMapping() );
+        dn.normalize( schemaManager );
         return dn;
     }
 
@@ -518,9 +518,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public Entry find( String entityName ) throws Exception
     {
         BranchNode filter = new OrNode();
-        SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_AT, 
+        SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_AT,
             new StringValue( entityName.toLowerCase() ) );
-        SimpleNode<String> oidAVA = new EqualityNode<String>( M_OID_AT, 
+        SimpleNode<String> oidAVA = new EqualityNode<String>( M_OID_AT,
             new StringValue( entityName.toLowerCase() ) );
         filter.addNode( nameAVA );
         filter.addNode( oidAVA );
@@ -533,7 +533,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             if ( !cursor.next() )
@@ -542,7 +542,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             }
 
             Entry sr = cursor.get();
-            
+
             if ( cursor.next() )
             {
                 throw new NamingException( I18n.err( I18n.ERR_435, entityName ) );
@@ -577,7 +577,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         }
 
         boolean isDisabled = disabledAttr.contains( "TRUE" );
-        
+
         if ( !isDisabled )
         {
             LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
@@ -607,11 +607,11 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
-        // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
+        // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
 
         filter.addNode( or );
@@ -626,9 +626,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
-            
+
             while ( cursor.next() )
             {
                 set.add( cursor.get() );
@@ -665,7 +665,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         filter.addNode( or );
 
         List<String> names = mr.getNames();
-        
+
         if ( ( names != null ) && ( names.size() > 0 ) )
         {
             for ( String name : names )
@@ -685,9 +685,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
-            
+
             while ( cursor.next() )
             {
                 set.add( cursor.get() );
@@ -721,7 +721,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
             filter, searchControls );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-        
+
         return partition.search( searchOperationContext );
     }
 
@@ -733,16 +733,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         /*
          * Right now the following inefficient filter is being used:
-         * 
-         * ( & 
+         *
+         * ( &
          *      ( | ( objectClass = metaAttributeType ) ( objectClass = metaObjectClass ) )
          *      ( | ( m-oid = $oid ) ( m-must = $oid ) ( m-supAttributeType = $oid ) )
          * )
-         * 
+         *
          * the reason why this is inefficient is because the or terms have large scan counts
          * and several loops are going to be required.  The following search is better because
          * it constrains the results better:
-         * 
+         *
          * ( |
          *      ( & ( objectClass = metaAttributeType ) ( m-supAttributeType = $oid ) )
          *      ( & ( objectClass = metaObjectClass ) ( | ( m-may = $oid ) ( m-must = $oid ) ) )
@@ -754,9 +754,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         // ( objectClass = metaAttributeType )
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
-        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        or.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
@@ -775,9 +775,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
-            
+
             while ( cursor.next() )
             {
                 set.add( cursor.get() );
@@ -802,16 +802,16 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         /*
          * The following filter is being used:
-         * 
+         *
          * ( & ( objectClass = metaSchema ) ( m-dependencies = $schemaName ) )
          */
 
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
-        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT, 
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT,
             new StringValue( schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
@@ -823,9 +823,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
-            
+
             while ( cursor.next() )
             {
                 set.add( cursor.get() );
@@ -851,9 +851,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
-        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT, new StringValue( 
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_AT, new StringValue(
             schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
@@ -865,7 +865,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
 
             while ( cursor.next() )
@@ -902,21 +902,21 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         /*
          * Right now the following inefficient filter is being used:
-         * 
-         * ( & 
-         *      ( | ( objectClass = metaObjectClass ) ( objectClass = metaDITContentRule ) 
+         *
+         * ( &
+         *      ( | ( objectClass = metaObjectClass ) ( objectClass = metaDITContentRule )
          *          ( objectClass = metaNameForm ) )
          *      ( | ( m-oc = $oid ) ( m-aux = $oid ) ( m-supObjectClass = $oid ) )
          * )
-         * 
+         *
          * The reason why this is inefficient is because the or terms have large scan counts
-         * and several loops are going to be required.  For example all the objectClasses and 
-         * all the metaDITContentRules and all the metaNameForm candidates will be a massive 
-         * number.  This is probably going to be bigger than the 2nd term where a candidate 
+         * and several loops are going to be required.  For example all the objectClasses and
+         * all the metaDITContentRules and all the metaNameForm candidates will be a massive
+         * number.  This is probably going to be bigger than the 2nd term where a candidate
          * satisfies one of the terms.
-         * 
+         *
          * The following search is better because it constrains the results better:
-         * 
+         *
          * ( |
          *      ( & ( objectClass = metaNameForm ) ( m-oc = $oid ) )
          *      ( & ( objectClass = metaObjectClass ) ( m-supObjectClass = $oid ) )
@@ -951,9 +951,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             cursor = partition.search( searchOperationContext );
-            
+
             while ( cursor.next() )
             {
                 set.add( cursor.get() );

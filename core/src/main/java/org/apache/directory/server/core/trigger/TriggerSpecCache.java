@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.trigger;
 
@@ -107,7 +107,7 @@ public class TriggerSpecCache
                     return schemaManager.getNormalizerMapping();
                 }
             });
-        
+
         initialize( directoryService );
     }
 
@@ -118,47 +118,46 @@ public class TriggerSpecCache
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
         Set<String> suffixes = nexus.listSuffixes();
-        
+
         AttributeType objectClassAt = directoryService.getSchemaManager().
             getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        
+
         for ( String suffix:suffixes )
         {
             DN baseDn = DNFactory.create( suffix );
-            ExprNode filter = new EqualityNode<String>( objectClassAt, 
+            ExprNode filter = new EqualityNode<String>( objectClassAt,
                     new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            
+
             DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, directoryService.getSchemaManager() );
-            CoreSession adminSession = new DefaultCoreSession( 
+            CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            
+
             EntryFilteringCursor results = nexus.search( searchOperationContext );
-            
+
             try
-            { 
+            {
                 while ( results.next() )
                 {
                     ClonedServerEntry resultEntry = results.get();
                     DN subentryDn = resultEntry.getDn();
                     EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
-                    
+
                     if ( triggerSpec == null )
                     {
                         LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
                         continue;
                     }
-    
-                    DN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager()
-                        .getNormalizerMapping() );
+
+                    DN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager() );
                     subentryAdded( normSubentryName, resultEntry );
                 }
-                
+
                 results.close();
             }
             catch ( Exception e )
@@ -182,14 +181,14 @@ public class TriggerSpecCache
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
-        
+
         if ( triggerSpec == null )
         {
             return;
         }
-        
+
         List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
-        
+
         for ( Value<?> value:triggerSpec )
         {
             TriggerSpecification item = null;
@@ -204,9 +203,9 @@ public class TriggerSpecCache
                 String msg = I18n.err( I18n.ERR_73, item );
                 LOG.error( msg, e );
             }
-            
+
         }
-        
+
         triggerSpecs.put( normName.getNormName(), subentryTriggerSpecs );
     }
 
@@ -238,7 +237,7 @@ public class TriggerSpecCache
         {
             isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }
-        
+
         if ( isTriggerSpecModified )
         {
             subentryDeleted( normName, entry );

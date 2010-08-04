@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.interceptor.context;
 
@@ -70,12 +70,12 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );
         this.newSuperiorDn = modifyDnRequest.getNewSuperior();
-        
+
         if ( newSuperiorDn == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
         }
-        
+
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
             ignoreReferral();
@@ -84,13 +84,13 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         {
             throwReferral();
         }
-        
+
         newDn = newSuperiorDn.add(newRdn);
-        
+
         try
         {
             newDn.normalize( session.getDirectoryService()
-                .getSchemaManager().getNormalizerMapping() );
+                .getSchemaManager() );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -118,7 +118,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         this.newSuperiorDn = newSuperiorDn;
     }
 
-    
+
     /**
      * @see Object#toString()
      */

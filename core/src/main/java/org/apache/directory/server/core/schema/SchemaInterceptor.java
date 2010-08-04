@@ -6,21 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema;
 
-
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -55,7 +53,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -172,7 +169,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-    
+
 
     /**
      * Initialize the Schema Service
@@ -201,11 +198,11 @@ public class SchemaInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = DNFactory.create( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDN = DNFactory.create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationAttributesDN.normalize( schemaManager.getNormalizerMapping() );
+        schemaModificationAttributesDN.normalize( schemaManager );
 
         computeSuperiors();
 
@@ -215,7 +212,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "SchemaInterceptor Initialized !" );
@@ -398,7 +395,7 @@ public class SchemaInterceptor extends BaseInterceptor
         return cursor;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -417,7 +414,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         boolean result = next.compare( compareContext );
-        
+
         return result;
     }
 
@@ -590,9 +587,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( ( filter instanceof SubstringNode ) || 
-                      ( filter instanceof PresenceNode ) || 
-                      ( filter instanceof AssertionNode ) || 
+            else if ( ( filter instanceof SubstringNode ) ||
+                      ( filter instanceof PresenceNode ) ||
+                      ( filter instanceof AssertionNode ) ||
                       ( filter instanceof ScopeNode ) )
             {
                 // Nothing to do
@@ -891,13 +888,13 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     /**
-     * Given the objectClasses for an entry, this method adds missing ancestors 
+     * Given the objectClasses for an entry, this method adds missing ancestors
      * in the hierarchy except for top which it removes.  This is used for this
      * solution to DIREVE-276.  More information about this solution can be found
      * <a href="http://docs.safehaus.org:8080/x/kBE">here</a>.
-     * 
+     *
      * @param objectClassAttr the objectClass attribute to modify
-     * @throws Exception if there are problems 
+     * @throws Exception if there are problems
      */
     private void alterObjectClasses( EntryAttribute objectClassAttr ) throws LdapException
     {
@@ -988,7 +985,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
         }
-        
+
         for ( AVA atav : newRdn )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
@@ -1037,7 +1034,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // - The value is syntaxically correct
         //
         // While doing that, we will apply the modification to a copy of the current entry
-        Entry tempEntry = ( Entry ) currentEntry.clone();
+        Entry tempEntry = currentEntry.clone();
 
         // Now, apply each mod one by one
         for ( Modification mod : mods )
@@ -1047,7 +1044,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We don't allow modification of operational attributes
             if ( !attributeType.isUserModifiable()
-                && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) 
+                && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE )
                 && ( !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
                 && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
@@ -1077,11 +1074,11 @@ public class SchemaInterceptor extends BaseInterceptor
                         for ( Value<?> value : attribute )
                         {
                             // At this point, we know that the attribute's syntax is correct
-                            // We just have to check that the current attribute does not 
+                            // We just have to check that the current attribute does not
                             // contains the value already
                             if ( currentAttribute.contains( value ) )
                             {
-                                // This is an error. 
+                                // This is an error.
                                 String msg = I18n.err( I18n.ERR_54, value );
                                 LOG.error( msg );
                                 throw new LdapAttributeInUseException( msg );
@@ -1093,7 +1090,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     else
                     {
                         // We don't check if the attribute is not in the MUST or MAY at this
-                        // point, as one of the following modification can change the 
+                        // point, as one of the following modification can change the
                         // ObjectClasses.
                         EntryAttribute newAttribute = createNewAttribute( attribute );
 
@@ -1190,7 +1187,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
-        // Ok, we have created the modified entry. We now have to check that it's a valid 
+        // Ok, we have created the modified entry. We now have to check that it's a valid
         // entry wrt the schema.
         // We have to check that :
         // - the rdn values are present in the entry
@@ -1351,7 +1348,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Filters objectClass attribute to inject top when not present.
      */
@@ -1367,7 +1364,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     /**
      * Check that all the attributes exist in the schema for this entry.
-     * 
+     *
      * We also check the syntaxes
      */
     private void check( DN dn, Entry entry ) throws LdapException
@@ -1659,7 +1656,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
 
         /*
-         * Since the number of ocs present in an entry is small it's not 
+         * Since the number of ocs present in an entry is small it's not
          * so expensive to take two passes while determining correctness
          * since it will result in clear simple code instead of a deep nasty
          * for loop with nested loops.  Plus after the first pass we can
@@ -1691,7 +1688,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // --------------------------------------------------------------------
         // Put all structural object classes into new remaining container and
         // start removing any which are superiors of others in the set.  What
-        // is left in the remaining set will be unrelated structural 
+        // is left in the remaining set will be unrelated structural
         /// objectClasses.  If there is more than one then we have a problem.
         // --------------------------------------------------------------------
 
@@ -1783,7 +1780,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     /**
      * Check a String attribute to see if there is some byte[] value in it.
-     * 
+     *
      * If this is the case, try to change it to a String value.
      */
     private boolean checkHumanReadable( EntryAttribute attribute ) throws LdapException
@@ -1825,7 +1822,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     /**
      * Check a binary attribute to see if there is some String value in it.
-     * 
+     *
      * If this is the case, try to change it to a binary value.
      */
     private boolean checkNotHumanReadable( EntryAttribute attribute ) throws LdapException
@@ -1902,7 +1899,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 if ( clonedEntry == null )
                 {
-                    clonedEntry = ( Entry ) entry.clone();
+                    clonedEntry = entry.clone();
                 }
 
                 // Switch the attributes

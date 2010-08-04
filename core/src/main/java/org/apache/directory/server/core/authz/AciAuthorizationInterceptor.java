@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz;
 
@@ -92,7 +92,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AciAuthorizationInterceptor.class );
-    
+
     /** the dedicated logger for ACI */
     private static final Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
 
@@ -256,7 +256,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         throws LdapException
     {
         Entry originalEntry = null;
-        
+
         if ( entry instanceof ClonedServerEntry )
         {
             originalEntry = ((ClonedServerEntry)entry).getOriginalEntry();
@@ -265,7 +265,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             originalEntry = entry;
         }
-        
+
         EntryAttribute oc = originalEntry.get( OBJECT_CLASS_AT );
 
         /*
@@ -435,7 +435,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             ACI_LOG.debug( "Addition done by the administartor : no check" );
-            
+
             next.add( addContext );
             tupleCache.subentryAdded( dn, serverEntry );
             groupCache.groupAdded( dn, serverEntry );
@@ -470,7 +470,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         entryAciCtx.setMicroOperations( ADD_PERMS );
         entryAciCtx.setAciTuples( tuples );
         entryAciCtx.setEntry( subentry );
-        
+
         engine.checkPermission( entryAciCtx );
 
         // now we must check if attribute type and value scope permission is granted
@@ -616,7 +616,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine.checkPermission( entryAciContext );
 
         Collection<MicroOperation> perms = null;
-        Entry entryView = ( Entry ) entry.clone();
+        Entry entryView = entry.clone();
 
         for ( Modification mod : mods )
         {
@@ -688,7 +688,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              * value of the attribute. However as we do not have that much granularity in our
              * implementation (we consider an Attribute Addition itself a Micro Operation,
              * not the individual Value Additions) we just handle this when the first value of an
-             * attribute is being checked for relevant permissions below. 
+             * attribute is being checked for relevant permissions below.
              */
             entryView = ServerEntryUtils.getTargetEntry( mod, entryView, schemaManager );
 
@@ -705,7 +705,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 aciContext.setAciTuples( tuples );
                 aciContext.setEntry( entry );
                 aciContext.setEntryView( entryView );
-                
+
                 engine.checkPermission( aciContext );
             }
         }
@@ -734,15 +734,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // no checks on the RootDSE
         if ( dn.isRootDSE() )
         {
-            // No need to go down to the stack, if the dn is empty 
-            // It's the rootDSE, and it exists ! 
+            // No need to go down to the stack, if the dn is empty
+            // It's the rootDSE, and it exists !
             return answer;
         }
 
         // TODO - eventually replace this with a check on session.isAnAdministrator()
         LdapPrincipal principal = hasEntryContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
-        
+
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             return answer;
@@ -789,7 +789,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         DN dn = lookupContext.getDn();
-        
+
         // no permissions checks on the RootDSE
         if ( dn.isRootDSE() )
         {
@@ -832,7 +832,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 valueAciContext.setMicroOperations( READ_PERMS );
                 valueAciContext.setAciTuples( tuples );
                 valueAciContext.setEntry( entry );
-                
+
                 engine.checkPermission( valueAciContext );
             }
         }
@@ -852,7 +852,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( !principalDn.isNormalized() )
         {
-            principalDn.normalize( schemaManager.getNormalizerMapping() );
+            principalDn.normalize( schemaManager );
         }
 
         // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
@@ -1196,9 +1196,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         aciContext.setEntry( entry );
 
         engine.checkPermission( aciContext );
-        
+
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-        
+
         aciContext = new AciContext( schemaManager, compareContext );
         aciContext.setUserGroupNames( userGroups );
         aciContext.setUserDn( principalDn );
@@ -1330,7 +1330,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
-            DN normName = entry.getDn().normalize( schemaManager.getNormalizerMapping() );
+            DN normName = entry.getDn().normalize( schemaManager );
             return filter( searchContext, normName, entry );
         }
     }

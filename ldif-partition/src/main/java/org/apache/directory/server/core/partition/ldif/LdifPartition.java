@@ -82,10 +82,10 @@ import org.slf4j.LoggerFactory;
  *           +--> cn=another test.ldif
  *                ...
  * </pre>
- * <br><br>            
- * In this exemple, the partition's suffix is <b>ou=example,ou=system</b>. 
- * <br>   
- *  
+ * <br><br>
+ * In this exemple, the partition's suffix is <b>ou=example,ou=system</b>.
+ * <br>
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifPartition extends BTreePartition<Long>
@@ -177,7 +177,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         if ( !suffix.isNormalized() )
         {
-            suffix.normalize( schemaManager.getNormalizerMapping() );
+            suffix.normalize( schemaManager );
         }
 
         String suffixDirName = getFileName( suffix );
@@ -378,7 +378,7 @@ public class LdifPartition extends BTreePartition<Long>
         DN oldDn = renameContext.getDn();
         Long id = getEntryId( oldDn );
 
-        // Create the new entry 
+        // Create the new entry
         wrappedPartition.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
@@ -410,11 +410,11 @@ public class LdifPartition extends BTreePartition<Long>
         try
         {
             IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
-    
+
             while ( cursor.next() )
             {
                 IndexEntry<Long, Entry, Long> entry = cursor.get();
-    
+
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )
                 {
@@ -447,16 +447,16 @@ public class LdifPartition extends BTreePartition<Long>
      * loads the configuration into the DIT from the file system
      * Note that it assumes the presence of a directory with the partition suffix's upname
      * under the partition's base dir
-     * 
+     *
      * for ex. if 'config' is the partition's id and 'ou=config' is its suffix it looks for the dir with the path
-     * 
+     *
      * <directory-service-working-dir>/config/ou=config
      * e.x example.com/config/ou=config
-     * 
-     * NOTE: this dir setup is just to ease the testing of this partition, this needs to be 
+     *
+     * NOTE: this dir setup is just to ease the testing of this partition, this needs to be
      * replaced with some kind of bootstrapping the default config from a jar file and
      * write to the FS in LDIF format
-     * 
+     *
      * @throws Exception
      */
     private void loadEntries( File entryDir ) throws Exception
@@ -527,7 +527,7 @@ public class LdifPartition extends BTreePartition<Long>
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        DN baseDn = ( DN ) entryDn.getSuffix( suffix.size() );
+        DN baseDn = entryDn.getSuffix( suffix.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
@@ -537,9 +537,9 @@ public class LdifPartition extends BTreePartition<Long>
         }
 
         String rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
-        
+
         String parentDir = null;
-        
+
         if( entryDn.equals( suffix ) )
         {
             parentDir = suffixDirectory.getParent() + File.separator;
@@ -570,9 +570,9 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     /**
-     * Compute the real name based on the RDN, assuming that depending on the underlying 
+     * Compute the real name based on the RDN, assuming that depending on the underlying
      * OS, some characters are not allowed.
-     * 
+     *
      * We don't allow filename which length is > 255 chars.
      */
     private String getFileName( RDN rdn ) throws LdapException
@@ -606,9 +606,9 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     /**
-     * Compute the real name based on the DN, assuming that depending on the underlying 
+     * Compute the real name based on the DN, assuming that depending on the underlying
      * OS, some characters are not allowed.
-     * 
+     *
      * We don't allow filename which length is > 255 chars.
      */
     private String getFileName( DN dn ) throws LdapException
@@ -650,7 +650,7 @@ public class LdifPartition extends BTreePartition<Long>
     {
         if ( SystemUtils.IS_OS_WINDOWS )
         {
-            // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']', 
+            // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']',
             // '*', [0x00-0x1F], '?'
             StringBuilder sb = new StringBuilder();
 
@@ -765,8 +765,8 @@ public class LdifPartition extends BTreePartition<Long>
     }
 
 
-    /** 
-     * Recursively delete an entry and all of its children. If the entry is a directory, 
+    /**
+     * Recursively delete an entry and all of its children. If the entry is a directory,
      * then get into it, call the same method on each of the contained files,
      * and delete the directory.
      */

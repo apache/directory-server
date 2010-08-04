@@ -224,7 +224,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Initialize and normalize the localy used DNs
         DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( schemaManager.getNormalizerMapping() );
+        adminDn.normalize( schemaManager );
 
         initializeSystemPartition( directoryService );
 
@@ -881,7 +881,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( !base.isNormalized() )
         {
-            base.normalize( schemaManager.getNormalizerMapping() );
+            base.normalize( schemaManager );
         }
 
         Partition backend = getPartition( base );

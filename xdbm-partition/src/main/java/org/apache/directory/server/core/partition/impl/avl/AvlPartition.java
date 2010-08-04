@@ -88,7 +88,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
 
         // initialize the store
         store.setId( getId() );
-        suffix.normalize( schemaManager.getNormalizerMapping() );
+        suffix.normalize( schemaManager );
         store.setSuffixDn( suffix );
 
         for ( AvlIndex<?, Entry> index : indexedAttributes )
@@ -119,10 +119,10 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
 
 
     /*
-     * TODO requires review 
-     * 
+     * TODO requires review
+     *
      * This getter deviates from the norm. all the partitions
-     * so far written never return a reference to store but I think that in this 
+     * so far written never return a reference to store but I think that in this
      * case the presence of this method gives significant ease and advantage to perform
      * add/delete etc. operations without creating a operation context.
      */

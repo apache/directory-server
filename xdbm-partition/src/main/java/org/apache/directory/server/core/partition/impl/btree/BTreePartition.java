@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree;
 
@@ -218,7 +218,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     /**
      * Gets the DefaultSearchEngine used by this ContextPartition to search the
-     * Database. 
+     * Database.
      *
      * @return the search engine
      */
@@ -280,9 +280,9 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             DN dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
-    
+
             underlying = searchEngine.cursor( dn, derefMode, filter, searchCtls );
-    
+
             return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }
         catch ( Exception e )
@@ -308,7 +308,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return entry;
         }
 
-        for ( AttributeType attributeType : ( ( Entry ) entry.getOriginalEntry() ).getAttributeTypes() )
+        for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
         {
             if ( !lookupContext.getAttrsId().contains( attributeType.getOid() ) )
             {
@@ -342,7 +342,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     // public abstract methods
 
     // ------------------------------------------------------------------------
-    // Index Operations 
+    // Index Operations
     // ------------------------------------------------------------------------
 
     public abstract void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception;
@@ -358,7 +358,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
 
     /**
-     * Gets the Index mapping the primary keys of parents to the 
+     * Gets the Index mapping the primary keys of parents to the
      * primary keys of their children.
      *
      * @return the one level Index
@@ -367,7 +367,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
 
     /**
-     * Gets the Index mapping the primary keys of ancestors to the 
+     * Gets the Index mapping the primary keys of ancestors to the
      * primary keys of their descendants.
      *
      * @return the sub tree level Index
@@ -376,20 +376,20 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
 
     /**
-     * Gets the alias index mapping parent entries with scope expanding aliases 
+     * Gets the alias index mapping parent entries with scope expanding aliases
      * children one level below them; this system index is used to dereference
      * aliases on one/single level scoped searches.
-     * 
+     *
      * @return the one alias index
      */
     public abstract Index<ID, Entry, ID> getOneAliasIndex();
 
 
     /**
-     * Gets the alias index mapping relative entries with scope expanding 
-     * alias descendents; this system index is used to dereference aliases on 
+     * Gets the alias index mapping relative entries with scope expanding
+     * alias descendents; this system index is used to dereference aliases on
      * subtree scoped searches.
-     * 
+     *
      * @return the sub alias index
      */
     public abstract Index<ID, Entry, ID> getSubAliasIndex();
@@ -398,7 +398,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * Gets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
-     * 
+     *
      * @return the index on the ALIAS_ATTRIBUTE
      */
     public abstract Index<String, Entry, ID> getAliasIndex();
@@ -410,10 +410,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public void setSuffix( DN suffix ) throws LdapInvalidDnException
     {
         this.suffix = suffix;
-        
+
         if ( schemaManager != null )
         {
-            this.suffix.normalize( schemaManager.getNormalizerMapping() );
+            this.suffix.normalize( schemaManager );
         }
     }
 
@@ -432,7 +432,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     public abstract Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
 
-    
+
     public abstract ID getEntryId( DN dn ) throws LdapException;
 
 
@@ -466,9 +466,9 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * Gets the count of the total number of entries in the database.
      *
-     * TODO shouldn't this be a BigInteger instead of an int? 
-     * 
-     * @return the number of entries in the database 
+     * TODO shouldn't this be a BigInteger instead of an int?
+     *
+     * @return the number of entries in the database
      * @throws Exception if there is a failure to read the count
      */
     public abstract int count() throws Exception;

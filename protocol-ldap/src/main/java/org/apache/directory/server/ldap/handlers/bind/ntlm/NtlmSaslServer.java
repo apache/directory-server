@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
@@ -47,14 +47,14 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class NtlmSaslServer extends AbstractSaslServer
 {
-    /** The different states during a NTLM negotiation */ 
+    /** The different states during a NTLM negotiation */
     enum NegotiationState { INITIALIZED, TYPE_1_RECEIVED, TYPE_2_SENT, TYPE_3_RECEIVED, COMPLETED }
 
     /** The current state */
     private NegotiationState state = NegotiationState.INITIALIZED;
     private final NtlmProvider provider;
 
-    
+
     public NtlmSaslServer( NtlmProvider provider, InternalBindRequest bindRequest, LdapSession ldapSession )
     {
         super( ldapSession, null, bindRequest );
@@ -78,17 +78,17 @@ public class NtlmSaslServer extends AbstractSaslServer
             case INITIALIZED:
                 state = NegotiationState.TYPE_1_RECEIVED;
                 break;
-                
+
             case TYPE_1_RECEIVED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_660 ) );
-                
+
             case TYPE_2_SENT:
                 state = NegotiationState.TYPE_3_RECEIVED;
                 break;
-                
+
             case TYPE_3_RECEIVED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_661 ) );
-                
+
             case COMPLETED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
         }
@@ -101,18 +101,18 @@ public class NtlmSaslServer extends AbstractSaslServer
         {
             case INITIALIZED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_663 ) );
-                
+
             case TYPE_1_RECEIVED:
                 state = NegotiationState.TYPE_2_SENT;
                 break;
-                
+
             case TYPE_2_SENT:
                 throw new IllegalStateException( I18n.err( I18n.ERR_664 ) );
-                
+
             case TYPE_3_RECEIVED:
                 state = NegotiationState.COMPLETED;
                 break;
-                
+
             case COMPLETED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
         }
@@ -148,17 +148,17 @@ public class NtlmSaslServer extends AbstractSaslServer
                 {
                     throw new SaslException( I18n.err( I18n.ERR_668 ), e );
                 }
-                
+
                 break;
-                
+
             case TYPE_3_RECEIVED:
                 boolean result;
                 try
                 {
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
                     DN dn = getBindRequest().getName();
-                    dn.normalize( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager().getNormalizerMapping() );
-                    LdapPrincipal ldapPrincipal = new LdapPrincipal( dn, AuthenticationLevel.STRONG ); 
+                    dn.normalize( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager() );
+                    LdapPrincipal ldapPrincipal = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
                     getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
                     getLdapSession().putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }
@@ -171,10 +171,10 @@ public class NtlmSaslServer extends AbstractSaslServer
                 {
                     throw new SaslException( I18n.err( I18n.ERR_670 ) );
                 }
-                
+
                 break;
         }
-        
+
         responseSent();
         return retval;
     }
@@ -188,13 +188,13 @@ public class NtlmSaslServer extends AbstractSaslServer
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new DN( user ) );
         bindContext.setCredentials( StringTools.getBytesUtf8( password ) );
-        
+
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
-        
+
         return bindContext.getSession();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

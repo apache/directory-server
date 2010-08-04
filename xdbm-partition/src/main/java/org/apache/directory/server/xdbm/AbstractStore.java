@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.xdbm;
 
@@ -137,7 +137,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** the relative distinguished name index */
     protected Index<ParentIdAndRdn<ID>, E, ID> rdnIdx;
 
-    
+
     public void init( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
@@ -368,10 +368,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
     /**
      * Convert and initialize an index for a specific store implementation.
-     * 
+     *
      * @param index the index
      * @return the converted and initialized index
-     * @throws Exception 
+     * @throws Exception
      */
     protected abstract Index<?, E, ID> convertAndInit( Index<?, E, ID> index ) throws Exception;
 
@@ -748,7 +748,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Just to be sure that the DN is normalized
         if ( !dn.isNormalized() )
         {
-            dn.normalize( schemaManager.getNormalizerMapping() );
+            dn.normalize( schemaManager );
         }
 
         int dnSize = dn.size();
@@ -763,7 +763,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             key = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( i ) );
             curEntryId = rdnIdx.forwardLookup( key );
-            
+
             if ( curEntryId == null )
             {
                 break;
@@ -835,7 +835,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
     /**
      * {@inheritDoc}
-     * TODO : We should be able to revert all the changes made to index 
+     * TODO : We should be able to revert all the changes made to index
      * if something went wrong. Also the index should auto-repair : if
      * an entry does not exist in the Master table, then the index must be updated to reflect this.
      */
@@ -851,8 +851,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ID id = master.getNextId( entry );
 
         //
-        // Suffix entry cannot have a parent since it is the root so it is 
-        // capped off using the zero value which no entry can have since 
+        // Suffix entry cannot have a parent since it is the root so it is
+        // capped off using the zero value which no entry can have since
         // entry sequences start at 1.
         //
         DN entryDn = entry.getDn();
@@ -953,7 +953,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             {
                 Index<Object, E, ID> idx = ( Index<Object, E, ID> ) getUserIndex( attributeOid );
 
-                // here lookup by attributeId is OK since we got attributeId from 
+                // here lookup by attributeId is OK since we got attributeId from
                 // the entry via the enumeration - it's in there as is for sure
 
                 for ( Value<?> value : attribute )
@@ -1099,7 +1099,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             {
                 Index<?, E, ID> index = getUserIndex( attributeOid );
 
-                // here lookup by attributeId is ok since we got attributeId from 
+                // here lookup by attributeId is ok since we got attributeId from
                 // the entry via the enumeration - it's in there as is for sure
                 for ( Value<?> value : attribute )
                 {
@@ -1127,21 +1127,21 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         ID id = getEntryId( dn );
         boolean hasEntry = true;
-        
+
         if ( entry == null )
         {
             hasEntry = false;
             entry = lookup( id );
         }
-        
+
         DN updn = entry.getDn();
 
         newRdn.normalize( schemaManager.getNormalizerMapping() );
 
-        /* 
+        /*
          * H A N D L E   N E W   R D N
          * ====================================================================
-         * Add the new RDN attribute to the entry.  If an index exists on the 
+         * Add the new RDN attribute to the entry.  If an index exists on the
          * new RDN attribute we add the index for this attribute value pair.
          * Also we make sure that the presence index shows the existence of the
          * new RDN attribute within this entry.
@@ -1151,11 +1151,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().get();
-            
+
             if ( ! hasEntry )
             {
                 AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-    
+
                 entry.add( newRdnAttrType, newAtav.getUpValue() );
             }
 
@@ -1175,16 +1175,16 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         /*
          * H A N D L E   O L D   R D N
          * ====================================================================
-         * If the old RDN is to be removed we need to get the attribute and 
-         * value for it.  Keep in mind the old RDN need not be based on the 
+         * If the old RDN is to be removed we need to get the attribute and
+         * value for it.  Keep in mind the old RDN need not be based on the
          * same attr as the new one.  We remove the RDN value from the entry
          * and remove the value/id tuple from the index on the old RDN attr
-         * if any.  We also test if the delete of the old RDN index tuple 
+         * if any.  We also test if the delete of the old RDN index tuple
          * removed all the attribute values of the old RDN using a reverse
-         * lookup.  If so that means we blew away the last value of the old 
-         * RDN attribute.  In this case we need to remove the attrName/id 
+         * lookup.  If so that means we blew away the last value of the old
+         * RDN attribute.  In this case we need to remove the attrName/id
          * tuple from the presence index.
-         * 
+         *
          * We only remove an ATAV of the old RDN if it is not included in the
          * new RDN.
          */
@@ -1233,7 +1233,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
-        
+
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
@@ -1271,36 +1271,36 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
     	// Check that the old entry exists
         ID oldId = getEntryId( oldDn );
-        
+
         if ( oldId == null )
         {
             // This is not allowed : the old entry must exist
-        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException( 
+        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
                 I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, oldDn ) );
             throw nse;
         }
-        
+
         // Check that the new superior exist
         ID newSuperiorId = getEntryId( newSuperiorDn );
-        
+
         if ( newSuperiorId == null )
         {
             // This is not allowed : the new superior must exist
-        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException( 
+        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
                 I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
             throw nse;
         }
-        
+
         DN newDn = newSuperiorDn.add( newRdn );
-        
+
         // Now check that the new entry does not exist
         ID newId = getEntryId( newDn );
-        
+
         if ( newId != null )
         {
             // This is not allowed : we should not be able to move an entry
             // to an existing position
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
                 I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
             throw ne;
         }
@@ -1322,8 +1322,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         move( oldDn, newSuperiorDn, newDn, null );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1331,23 +1331,23 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         // Check that the parent DN exists
         ID newParentId = getEntryId( newSuperiorDn );
-        
+
         if ( newParentId == null )
         {
             // This is not allowed : the parent must exist
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
                 I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
             throw ne;
         }
-        
+
         // Now check that the new entry does not exist
         ID newId = getEntryId( newDn );
-        
+
         if ( newId != null )
         {
             // This is not allowed : we should not be able to move an entry
             // to an existing position
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
                 I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
             throw ne;
         }
@@ -1359,7 +1359,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         /*
          * All aliases including and below oldChildDn, will be affected by
          * the move operation with respect to one and subtree userIndices since
-         * their relationship to ancestors above oldChildDn will be 
+         * their relationship to ancestors above oldChildDn will be
          * destroyed.  For each alias below and including oldChildDn we will
          * drop the index tuples mapping ancestor ids above oldChildDn to the
          * respective target ids of the aliases.
@@ -1380,15 +1380,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
         rdnIdx.add( key, entryId );
 
-        
-        /* 
+
+        /*
          * Read Alias Index Tuples
-         * 
+         *
          * If this is a name change due to a move operation then the one and
          * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.  
-         * 
-         * aliasTarget is used as a marker to tell us if we're moving an 
+         * moved.  Now we must add them for each alias entry we have moved.
+         *
+         * aliasTarget is used as a marker to tell us if we're moving an
          * alias.  If it is null then the moved entry is not an alias.
          */
         String aliasTarget = aliasIdx.reverseLookup( entryId );
@@ -1397,7 +1397,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
         }
-        
+
         // Update the master table with the modified entry
         // Warning : this test is an hack. As we may call the Store API directly
         // we may not have a modified entry to update. For instance, if the ModifierName
@@ -1433,7 +1433,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         List<RDN> rdnList = new ArrayList<RDN>();
         String upName = "";
         String normName = "";
-        
+
         do
         {
             ParentIdAndRdn<ID> cur = rdnIdx.reverseLookup( parentId );
@@ -1451,7 +1451,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                     normName = normName + "," + rdn.getNormName();
                     upName = upName + "," + rdn.getName();
                 }
-                
+
                 rdnList.add( rdn );
             }
 
@@ -1460,19 +1460,19 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         while ( !parentId.equals( getRootId() ) );
 
         DN dn = new DN( upName, normName, StringTools.getBytesUtf8( normName ), rdnList );
-        
+
         return dn;
     }
 
 
     /**
      * Adds a set of attribute values while affecting the appropriate userIndices.
-     * The entry is not persisted: it is only changed in anticipation for a put 
+     * The entry is not persisted: it is only changed in anticipation for a put
      * into the master table.
      *
      * @param id the primary key of the entry
      * @param entry the entry to alter
-     * @param mods the attribute and values to add 
+     * @param mods the attribute and values to add
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
@@ -1533,7 +1533,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the replacement attribute and values
-     * @throws Exception if index alteration or attribute modification 
+     * @throws Exception if index alteration or attribute modification
      * fails.
      */
     @SuppressWarnings("unchecked")
@@ -1549,7 +1549,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Special case for the ObjectClass index
         if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
         {
-            // if the id exists in the index drop all existing attribute 
+            // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
             if ( objectClassIdx.reverse( id ) )
             {
@@ -1565,7 +1565,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             Index<?, E, ID> index = getUserIndex( modsOid );
 
-            // if the id exists in the index drop all existing attribute 
+            // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
             if ( index.reverse( id ) )
             {
@@ -1577,7 +1577,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 ( ( Index<Object, E, ID> ) index ).add( value.get(), id );
             }
 
-            /* 
+            /*
              * If no attribute values exist for this entryId in the index then
              * we remove the presence index entry for the removed attribute.
              */
@@ -1615,10 +1615,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * Completely removes the set of values for an attribute having the values 
+     * Completely removes the set of values for an attribute having the values
      * supplied while affecting the appropriate userIndices.  The entry is not
-     * persisted: it is only changed in anticipation for a put into the master 
-     * table.  Note that an empty attribute w/o values will remove all the 
+     * persisted: it is only changed in anticipation for a put into the master
+     * table.  Note that an empty attribute w/o values will remove all the
      * values within the entry where as an attribute w/ values will remove those
      * attribute values it contains.
      *
@@ -1641,7 +1641,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
         {
             /*
-             * If there are no attribute values in the modifications then this 
+             * If there are no attribute values in the modifications then this
              * implies the complete removal of the attribute from the index. Else
              * we remove individual tuples from the index.
              */
@@ -1662,7 +1662,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             Index<?, E, ID> index = getUserIndex( modsOid );
 
             /*
-             * If there are no attribute values in the modifications then this 
+             * If there are no attribute values in the modifications then this
              * implies the complete removal of the attribute from the index. Else
              * we remove individual tuples from the index.
              */
@@ -1678,7 +1678,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 }
             }
 
-            /* 
+            /*
              * If no attribute values exist for this entryId in the index then
              * we remove the presence index entry for the removed attribute.
              */
@@ -1689,11 +1689,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
-        
+
         /*
-         * If there are no attribute values in the modifications then this 
+         * If there are no attribute values in the modifications then this
          * implies the complete removal of the attribute from the entry. Else
-         * we remove individual attribute values from the entry in mods one 
+         * we remove individual attribute values from the entry in mods one
          * at a time.
          */
         if ( mods.size() == 0 )
@@ -1729,7 +1729,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Adds userIndices for an aliasEntry to be added to the database while checking
      * for constrained alias constructs like alias cycles and chaining.
-     * 
+     *
      * @param aliasDn normalized distinguished name for the alias entry
      * @param aliasTarget the user provided aliased entry dn as a string
      * @param aliasId the id of alias entry to add
@@ -1744,17 +1744,17 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         DN ancestorDn; // Name of an alias entry relative
         ID ancestorId; // Id of an alias entry relative
 
-        // Access aliasedObjectName, normalize it and generate the Name 
+        // Access aliasedObjectName, normalize it and generate the Name
         normalizedAliasTargetDn = new DN( aliasTarget, schemaManager );
 
         /*
          * Check For Cycles
-         * 
+         *
          * Before wasting time to lookup more values we check using the target
          * dn to see if we have the possible formation of an alias cycle.  This
-         * happens when the alias refers back to a target that is also a 
+         * happens when the alias refers back to a target that is also a
          * relative of the alias entry.  For detection we test if the aliased
-         * entry Dn starts with the target Dn.  If it does then we know the 
+         * entry Dn starts with the target Dn.  If it does then we know the
          * aliased target is a relative and we have a perspecitive cycle.
          */
         if ( aliasDn.isChildOf( normalizedAliasTargetDn ) )
@@ -1775,8 +1775,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         /*
          * Check For Aliases External To Naming Context
-         * 
-         * id may be null but the alias may be to a valid entry in 
+         *
+         * id may be null but the alias may be to a valid entry in
          * another namingContext.  Such aliases are not allowed and we
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
@@ -1794,7 +1794,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         /*
          * Check For Target Existence
-         * 
+         *
          * We do not allow the creation of inconsistent aliases.  Aliases should
          * not be broken links.  If the target does not exist we start screaming
          */
@@ -1809,13 +1809,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         /*
          * Detect Direct Alias Chain Creation
-         * 
+         *
          * Rather than resusitate the target to test if it is an alias and fail
          * due to chaing creation we use the alias index to determine if the
          * target is an alias.  Hence if the alias we are about to create points
-         * to another alias as its target in the aliasedObjectName attribute, 
-         * then we have a situation where an alias chain is being created.  
-         * Alias chaining is not allowed so we throw and exception. 
+         * to another alias as its target in the aliasedObjectName attribute,
+         * then we have a situation where an alias chain is being created.
+         * Alias chaining is not allowed so we throw and exception.
          */
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
@@ -1830,7 +1830,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         /*
          * Handle One Level Scope Alias Index
-         * 
+         *
          * The first relative is special with respect to the one level alias
          * index.  If the target is not a sibling of the alias then we add the
          * index entry maping the parent's id to the aliased target id.
@@ -1850,12 +1850,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         /*
          * Handle Sub Level Scope Alias Index
-         * 
+         *
          * Walk the list of relatives from the parents up to the upSuffix, testing
          * to see if the alias' target is a descendant of the relative.  If the
          * alias target is not a descentant of the relative it extends the scope
          * and is added to the sub tree scope alias index.  The upSuffix node is
-         * ignored since everything is under its scope.  The first loop 
+         * ignored since everything is under its scope.  The first loop
          * iteration shall handle the parents.
          */
         while ( !ancestorDn.equals( suffixDn ) && null != ancestorId )
@@ -1874,8 +1874,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Removes the index entries for an alias before the entry is deleted from
      * the master table.
-     * 
-     * @todo Optimize this by walking the hierarchy index instead of the name 
+     *
+     * @todo Optimize this by walking the hierarchy index instead of the name
      * @param aliasId the id of the alias entry in the master table
      * @throws LdapException if we cannot parse ldap names
      * @throws Exception if we cannot delete index values in the database
@@ -1903,8 +1903,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * linking baseIds to the targetId.  If more than one alias refers to
          * the target then droping all tuples with a value of targetId would
          * make all other aliases to the target inconsistent.
-         * 
-         * We need to walk up the path of alias ancestors until we reach the 
+         *
+         * We need to walk up the path of alias ancestors until we reach the
          * upSuffix, deleting each ( ancestorId, targetId ) tuple in the
          * subtree scope alias.  We only need to do this for the direct parent
          * of the alias on the one level subtree.
@@ -1914,7 +1914,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
-            ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
+            ancestorDn = ancestorDn.getPrefix( ancestorDn.size() - 1 );
             ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
@@ -1929,7 +1929,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * For all aliases including and under the moved base, this method removes
      * one and subtree alias index tuples for old ancestors above the moved base
      * that will no longer be ancestors after the move.
-     * 
+     *
      * @param movedBase the base at which the move occured - the moved node
      * @throws Exception if system userIndices fail
      */
@@ -1945,10 +1945,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * For the alias id all ancestor one and subtree alias tuples are moved 
+     * For the alias id all ancestor one and subtree alias tuples are moved
      * above the moved base.
-     * 
-     * @param aliasId the id of the alias 
+     *
+     * @param aliasId the id of the alias
      * @param movedBase the base where the move occured
      * @throws Exception if userIndices fail
      */
@@ -1959,10 +1959,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         DN aliasDn = getEntryDn( aliasId );
 
         /*
-         * Start droping index tuples with the first ancestor right above the 
+         * Start droping index tuples with the first ancestor right above the
          * moved base.  This is the first ancestor effected by the move.
          */
-        DN ancestorDn = ( DN ) movedBase.getPrefix( 1 );
+        DN ancestorDn = movedBase.getPrefix( 1 );
         ID ancestorId = getEntryId( ancestorDn );
 
         /*
@@ -1970,10 +1970,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * linking baseIds to the targetId.  If more than one alias refers to
          * the target then droping all tuples with a value of targetId would
          * make all other aliases to the target inconsistent.
-         * 
-         * We need to walk up the path of alias ancestors right above the moved 
+         *
+         * We need to walk up the path of alias ancestors right above the moved
          * base until we reach the upSuffix, deleting each ( ancestorId,
-         * targetId ) tuple in the subtree scope alias.  We only need to do 
+         * targetId ) tuple in the subtree scope alias.  We only need to do
          * this for the direct parent of the alias on the one level subtree if
          * the moved base is the alias.
          */
@@ -1986,7 +1986,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         while ( !ancestorDn.equals( suffixDn ) )
         {
-            ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
+            ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
@@ -1996,13 +1996,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
     /**
      * Moves an entry under a new parent.  The operation causes a shift in the
-     * parent child relationships between the old parent, new parent and the 
+     * parent child relationships between the old parent, new parent and the
      * child moved.  All other descendant entries under the child never change
      * their direct parent child relationships.  Hence after the parent child
      * relationship changes are broken at the old parent and set at the new
-     * parent a modifyDn operation is conducted to handle name changes 
+     * parent a modifyDn operation is conducted to handle name changes
      * propagating down through the moved child and its descendants.
-     * 
+     *
      * @param oldChildDn the normalized dn of the child to be moved
      * @param childId the id of the child being moved
      * @param newParentDn the normalized dn of the new parent for the child
@@ -2017,7 +2017,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         /*
          * All aliases including and below oldChildDn, will be affected by
          * the move operation with respect to one and subtree userIndices since
-         * their relationship to ancestors above oldChildDn will be 
+         * their relationship to ancestors above oldChildDn will be
          * destroyed.  For each alias below and including oldChildDn we will
          * drop the index tuples mapping ancestor ids above oldChildDn to the
          * respective target ids of the aliases.
@@ -2040,14 +2040,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, newRdn );
         rdnIdx.add( key, childId );
 
-        /* 
+        /*
          * Read Alias Index Tuples
-         * 
+         *
          * If this is a name change due to a move operation then the one and
          * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.  
-         * 
-         * aliasTarget is used as a marker to tell us if we're moving an 
+         * moved.  Now we must add them for each alias entry we have moved.
+         *
+         * aliasTarget is used as a marker to tell us if we're moving an
          * alias.  If it is null then the moved entry is not an alias.
          */
         String aliasTarget = aliasIdx.reverseLookup( childId );

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
@@ -63,20 +63,20 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     /** The global SchemaManager */
     protected final SchemaManager schemaManager;
-    
+
     /** The m-oid AttributeType */
     protected final AttributeType m_oidAT;
-    
+
     /** The Schema objetc factory */
     protected final SchemaEntityFactory factory;
-    
+
     /** A map associating a SchemaObject type with its path on the partition*/
     private final static Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
 
     static
     {
         // Removed the starting 'ou=' from the paths
-        OBJECT_TYPE_TO_PATH.put( SchemaConstants.ATTRIBUTE_TYPE, SchemaConstants.ATTRIBUTES_TYPE_PATH.substring( 3 ) ); 
+        OBJECT_TYPE_TO_PATH.put( SchemaConstants.ATTRIBUTE_TYPE, SchemaConstants.ATTRIBUTES_TYPE_PATH.substring( 3 ) );
         OBJECT_TYPE_TO_PATH.put( SchemaConstants.COMPARATOR, SchemaConstants.COMPARATORS_PATH.substring( 3 ) );
         OBJECT_TYPE_TO_PATH.put( SchemaConstants.DIT_CONTENT_RULE, SchemaConstants.DIT_CONTENT_RULES_PATH.substring( 3 ) );
         OBJECT_TYPE_TO_PATH.put( SchemaConstants.DIT_STRUCTURE_RULE, SchemaConstants.DIT_STRUCTURE_RULES_PATH.substring( 3 ) );
@@ -88,20 +88,20 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         OBJECT_TYPE_TO_PATH.put( SchemaConstants.SYNTAX, SchemaConstants.SYNTAXES_PATH.substring( 3 ) );
         OBJECT_TYPE_TO_PATH.put( SchemaConstants.SYNTAX_CHECKER, SchemaConstants.SYNTAX_CHECKERS_PATH.substring( 3 ) );
     }
-    
-    
+
+
     protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
         m_oidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
     }
-    
-    
+
+
     /**
      * Tells if the schema the DN references is loaded or not
      *
-     * @param dn The SchemaObject's DN 
+     * @param dn The SchemaObject's DN
      * @return true if the schema is loaded
      * @throws Exception If The DN is not a SchemaObject DN
      */
@@ -109,8 +109,8 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         return schemaManager.isSchemaLoaded( getSchemaName( dn ) );
     }
-    
-    
+
+
     /**
      * Tells if the schemaName is loaded or not
      *
@@ -121,10 +121,10 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         return schemaManager.isSchemaLoaded( schemaName );
     }
-    
-    
+
+
     /**
-     * Tells if a schema is loaded and enabled 
+     * Tells if a schema is loaded and enabled
      *
      * @param schemaName The schema we want to check
      * @return true if the schema is loaded and enabled, false otherwise
@@ -132,13 +132,13 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected boolean isSchemaEnabled( String schemaName )
     {
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        
+
         return ( ( schema != null ) && schema.isEnabled() );
     }
-    
-    
+
+
     /**
-     * Exctract the schema name from the DN. It is supposed to be the 
+     * Exctract the schema name from the DN. It is supposed to be the
      * second RDN in the dn :
      * <pre>
      * ou=schema, cn=MySchema, ...
@@ -155,7 +155,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             throw new LdapInvalidDnException( I18n.err( I18n.ERR_276 ) );
         }
-        
+
         RDN rdn = dn.getRdn( 1 );
         return rdn.getNormValue().getString();
     }
@@ -171,7 +171,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
     }
 
-    
+
     /**
      * Check that a SchemaObject exists in the global OidRegsitry, and if so,
      * return it.
@@ -191,7 +191,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
     }
 
-    
+
     /**
      * Checks that the parent DN is a valid DN
      */
@@ -201,18 +201,18 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_337 ) );
         }
-        
+
         RDN rdn = newParent.getRdn();
-        
+
         if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, 
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_338, objectType ) );
         }
-        
+
         if ( !rdn.getNormValue().getString().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, 
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_339, objectType,  OBJECT_TYPE_TO_PATH.get( objectType ) ) );
         }
     }
@@ -238,7 +238,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
     }
 
-    
+
     /**
      * Add a new SchemaObject to the schema content, assuming that
      * it has an associated schema and that this schema is loaded
@@ -249,23 +249,23 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             // Get the set of all the SchemaObjects associated with this schema
             Set<SchemaObjectWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
-            
+
             if ( schemaObjects == null )
             {
                 // TODO : this should never happen...
                 schemaObjects = schemaManager.getRegistries().addSchema( schemaName );
             }
-            
+
             SchemaObjectWrapper schemaObjectWrapper = new SchemaObjectWrapper( schemaObject );
-            
+
             if ( schemaObjects.contains( schemaObjectWrapper ) )
             {
                 String msg = I18n.err( I18n.ERR_341, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
-            
+
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
-            
+
             schemaObjects.add( schemaObjectWrapper );
             LOG.debug( "The SchemaObject {} has been added to the schema {}", schemaObject, schemaName   );
         }
@@ -273,14 +273,14 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
-        
+
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }
     }
 
-    
-    
-    
+
+
+
     /**
      * Delete a SchemaObject from the schema registry, assuming that
      * it has an associated schema and that this schema is loaded
@@ -292,15 +292,15 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             Set<SchemaObjectWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
 
             SchemaObjectWrapper schemaObjectWrapper = new SchemaObjectWrapper( schemaObject );
-            
+
             if ( !schemaObjects.contains( schemaObjectWrapper ) )
             {
                 String msg = I18n.err( I18n.ERR_343, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
-            
+
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
-            
+
             schemaObjects.remove( schemaObjectWrapper );
             LOG.debug(  "The SchemaObject {} has been removed from the schema {}", schemaObject, schemaName );
         }
@@ -308,50 +308,50 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
-        
+
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public abstract boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) 
+    public abstract boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException;
-    
-    
+
+
     protected Set<String> getOids( Set<Entry> results ) throws Exception
     {
         Set<String> oids = new HashSet<String>( results.size() );
-        
+
         for ( Entry result : results )
         {
             DN dn = result.getDn();
-            dn.normalize( schemaManager.getNormalizerMapping() );
+            dn.normalize( schemaManager );
             oids.add( dn.getRdn().getNormValue().getString() );
         }
-        
+
         return oids;
     }
-    
-    
+
+
     protected String getOid( Entry entry ) throws LdapException
     {
         EntryAttribute oid = entry.get( m_oidAT );
-        
+
         if ( oid == null )
         {
             return null;
         }
-        
+
         return oid.getString();
     }
-    
-    
+
+
     /**
      * Unregister a SchemaObject's OID from the associated oidRegistry
-     * 
+     *
      * @param obj The SchemaObject to unregister
      * @throws Exception If the unregistering failed
      */
@@ -359,11 +359,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         schemaManager.getGlobalOidRegistry().unregister( obj.getOid() );
     }
-    
-    
+
+
     /**
      * Register a SchemaObject's OID in the associated oidRegistry
-     * 
+     *
      * @param obj The SchemaObject to register
      * @throws Exception If the registering failed
      */
@@ -371,10 +371,10 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         schemaManager.getGlobalOidRegistry().register( obj );
     }
-    
-    
+
+
     /**
-     * Get a String containing the SchemaObjects referencing the 
+     * Get a String containing the SchemaObjects referencing the
      * given ShcemaObject
      *
      * @param schemaObject The SchemaObject we want the referencing SchemaObjects for
@@ -383,15 +383,15 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected String getReferenced( SchemaObject schemaObject )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         Set<SchemaObjectWrapper> useds = schemaManager.getRegistries().getUsedBy( schemaObject );
-        
+
         for ( SchemaObjectWrapper used:useds )
         {
             sb.append( used );
             sb.append( '\n' );
         }
-        
+
         return sb.toString();
     }
 }

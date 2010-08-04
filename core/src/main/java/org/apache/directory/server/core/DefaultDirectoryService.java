@@ -1417,12 +1417,12 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         DNFactory.setSchemaManager( schemaManager );
-        
+
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
         schemaService.getSchemaPartition().initialize();
         partitions.add( schemaService.getSchemaPartition() );
-        systemPartition.getSuffix().normalize( schemaManager.getNormalizerMapping() );
+        systemPartition.getSuffix().normalize( schemaManager );
 
         adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );

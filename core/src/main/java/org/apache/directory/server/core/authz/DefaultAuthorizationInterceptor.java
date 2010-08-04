@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz;
 
@@ -262,7 +262,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( !isAnAdministrator( principalDn ) )
         {
-            // allow self modifications 
+            // allow self modifications
             if ( dn.equals( getPrincipal() ) )
             {
                 return;
@@ -498,7 +498,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( !dn.isNormalized() )
         {
-            dn.normalize( opContext.getSession().getDirectoryService().getSchemaManager().getNormalizerMapping() );
+            dn.normalize( opContext.getSession().getDirectoryService().getSchemaManager() );
         }
 
         // Admin users gets full access to all entries
@@ -518,7 +518,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // Block off reads to anything under ou=users and ou=groups if not a self read
         if ( dn.size() > 2 )
         {
-            // stuff this if in here instead of up in outer if to prevent 
+            // stuff this if in here instead of up in outer if to prevent
             // constant needless reexecution for all entries in other depths
 
             if ( dn.isChildOf( ADMIN_SYSTEM_DN ) || dn.isChildOf( GROUP_BASE_DN ) )

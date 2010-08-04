@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.jndi;
 
@@ -112,10 +112,10 @@ public abstract class ServerContext implements EventContext
 
     /** The directory service which owns this context **/
     private final DirectoryService service;
-    
+
     /** The SchemManager instance */
     protected SchemaManager schemaManager;
-    
+
     /** A reference to the ObjectClass AT */
     protected AttributeType OBJECT_CLASS_AT;
 
@@ -126,7 +126,7 @@ public abstract class ServerContext implements EventContext
     private final DN dn;
 
     /** The set of registered NamingListeners */
-    private final Map<NamingListener,DirectoryListener> listeners = 
+    private final Map<NamingListener,DirectoryListener> listeners =
         new HashMap<NamingListener,DirectoryListener>();
 
     /** The request controls to set on operations before performing them */
@@ -137,7 +137,7 @@ public abstract class ServerContext implements EventContext
 
     /** Connection level controls associated with the session */
     protected Control[] connectControls = EMPTY_CONTROLS;
-    
+
     private final CoreSession session;
 
 
@@ -152,10 +152,10 @@ public abstract class ServerContext implements EventContext
      * of the newly created context.  It also checks to make sure the
      * referenced name actually exists within the system.  This constructor
      * is used for all InitialContext requests.
-     * 
+     *
      * @param service the parent service that manages this context
      * @param env the environment properties used by this context.
-     * @throws NamingException if the environment parameters are not set 
+     * @throws NamingException if the environment parameters are not set
      * correctly.
      */
     protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
@@ -163,32 +163,32 @@ public abstract class ServerContext implements EventContext
         this.service = service;
 
         this.env = env;
-        
+
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
 
         /*
-         * Need do bind operation here, and bindContext returned contains the 
+         * Need do bind operation here, and bindContext returned contains the
          * newly created session.
          */
-        BindOperationContext bindContext = doBindOperation( props.getBindDn(), props.getCredentials(), 
+        BindOperationContext bindContext = doBindOperation( props.getBindDn(), props.getCredentials(),
             props.getSaslMechanism(), props.getSaslAuthId() );
 
         session = bindContext.getSession();
         OperationManager operationManager = service.getOperationManager();
-        
+
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
-        
+
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
-    
-    
+
+
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.  This
@@ -209,12 +209,12 @@ public abstract class ServerContext implements EventContext
         this.env.put( DirectoryService.JNDI_KEY, service );
         session = new DefaultCoreSession( principal, service );
         OperationManager operationManager = service.getOperationManager();
-        
+
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
-        
+
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
@@ -231,12 +231,12 @@ public abstract class ServerContext implements EventContext
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.session = session;
         OperationManager operationManager = service.getOperationManager();
-        
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( DN ) dn ) ) )
+
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
-        
+
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
@@ -260,7 +260,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            // TODO : handle the 'follow' referral option 
+            // TODO : handle the 'follow' referral option
             opCtx.throwReferral();
         }
     }
@@ -268,9 +268,9 @@ public abstract class ServerContext implements EventContext
     // Protected Methods for Operations
     // ------------------------------------------------------------------------
     // Use these methods instead of manually calling the nexusProxy so we can
-    // add request controls to operation contexts before the call and extract 
-    // response controls from the contexts after the call.  NOTE that the 
-    // JndiUtils.fromJndiControls( requestControls ) must be cleared after each operation.  This makes a 
+    // add request controls to operation contexts before the call and extract
+    // response controls from the contexts after the call.  NOTE that the
+    // JndiUtils.fromJndiControls( requestControls ) must be cleared after each operation.  This makes a
     // context not thread safe.
     // ------------------------------------------------------------------------
 
@@ -285,15 +285,15 @@ public abstract class ServerContext implements EventContext
         AddOperationContext opCtx = new AddOperationContext( session, entry );
 
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-        
+
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
-        
+
         // execute add operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.add( opCtx );
-    
-        // clear the request controls and set the response controls 
+
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
@@ -317,7 +317,7 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         operationManager.delete( opCtx );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
@@ -336,18 +336,18 @@ public abstract class ServerContext implements EventContext
     {
         OperationManager operationManager = service.getOperationManager();
         EntryFilteringCursor results = null;
-        
+
         Object typesOnlyObj = getEnvironment().get( "java.naming.ldap.typesOnly" );
         boolean typesOnly = false;
-        
+
         if( typesOnlyObj != null )
         {
             typesOnly = Boolean.parseBoolean( typesOnlyObj.toString() );
         }
-        
+
         SearchOperationContext searchContext = null;
 
-        // We have to check if it's a compare operation or a search. 
+        // We have to check if it's a compare operation or a search.
         // A compare operation has a OBJECT scope search, the filter must
         // be of the form (object=value) (no wildcards), and no attributes
         // should be asked to be returned.
@@ -357,7 +357,7 @@ public abstract class ServerContext implements EventContext
             && ( filter instanceof EqualityNode ) )
         {
             CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
-            
+
             // Inject the referral handling into the operation context
             injectReferralControl( compareContext );
 
@@ -369,12 +369,12 @@ public abstract class ServerContext implements EventContext
                 searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-            
+
             searchContext.setTypesOnly(  typesOnly );
-            
+
             if ( result )
             {
-                Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
+                Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), DN.EMPTY_DN );
                 return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), searchContext );
             }
             else
@@ -385,13 +385,13 @@ public abstract class ServerContext implements EventContext
         else
         {
             // It's a Search
-            
+
             // setup the op context and populate with request controls
             searchContext = new SearchOperationContext( session, dn, filter, searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             searchContext.setTypesOnly(  typesOnly );
-            
+
             // Inject the referral handling into the operation context
             injectReferralControl( searchContext );
 
@@ -399,7 +399,7 @@ public abstract class ServerContext implements EventContext
             results = operationManager.search( searchContext );
         }
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( searchContext.getResponseControls() );
 
@@ -420,7 +420,7 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         EntryFilteringCursor results = operationManager.list( listContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( listContext.getResponseControls() );
 
@@ -433,7 +433,7 @@ public abstract class ServerContext implements EventContext
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
         getRootDseContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
-        // do not reset request controls since this is not an external 
+        // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
         return operationManager.getRootDSE( getRootDseContext );
@@ -452,7 +452,7 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         Entry serverEntry = operationManager.lookup( lookupContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
         return serverEntry;
@@ -471,7 +471,7 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         Entry serverEntry = operationManager.lookup( lookupContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
 
@@ -490,7 +490,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
-    protected BindOperationContext doBindOperation( DN bindDn, byte[] credentials, String saslMechanism, 
+    protected BindOperationContext doBindOperation( DN bindDn, byte[] credentials, String saslMechanism,
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
@@ -505,7 +505,7 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         operationManager.bind( bindContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( bindContext.getResponseControls() );
         return bindContext;
@@ -525,12 +525,12 @@ public abstract class ServerContext implements EventContext
 
         // Inject the referral handling into the operation context
         injectReferralControl( moveAndRenameContext );
-        
+
         // execute moveAndRename operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.moveAndRename( moveAndRenameContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( moveAndRenameContext.getResponseControls() );
     }
@@ -547,12 +547,12 @@ public abstract class ServerContext implements EventContext
 
         // Inject the referral handling into the operation context
         injectReferralControl( modifyContext );
-        
+
         // execute modify operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.modify( modifyContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( modifyContext.getResponseControls() );
     }
@@ -569,12 +569,12 @@ public abstract class ServerContext implements EventContext
 
         // Inject the referral handling into the operation context
         injectReferralControl( moveContext );
-        
+
         // execute move operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.move( moveContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( moveContext.getResponseControls() );
     }
@@ -591,29 +591,29 @@ public abstract class ServerContext implements EventContext
 
         // Inject the referral handling into the operation context
         injectReferralControl( renameContext );
-        
+
         // execute rename operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.rename( renameContext );
 
-        // clear the request controls and set the response controls 
+        // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( renameContext.getResponseControls() );
     }
 
-    
+
     public CoreSession getSession()
     {
         return session;
     }
-    
-    
+
+
     public DirectoryService getDirectoryService()
     {
         return service;
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // New Impl Specific Public Methods
     // ------------------------------------------------------------------------
@@ -642,10 +642,10 @@ public abstract class ServerContext implements EventContext
     // Protected Accessor Methods
     // ------------------------------------------------------------------------
 
-    
+
     /**
      * Gets the distinguished name of the entry associated with this Context.
-     * 
+     *
      * @return the distinguished name of this Context's entry.
      */
     protected DN getDn()
@@ -674,7 +674,7 @@ public abstract class ServerContext implements EventContext
                 JndiUtils.wrap( e );
             }
         }
-        
+
         listeners.clear();
     }
 
@@ -698,7 +698,7 @@ public abstract class ServerContext implements EventContext
 
 
     /**
-     * @see javax.naming.Context#addToEnvironment(java.lang.String, 
+     * @see javax.naming.Context#addToEnvironment(java.lang.String,
      * java.lang.Object)
      */
     public Object addToEnvironment( String propName, Object propVal ) throws NamingException
@@ -732,7 +732,7 @@ public abstract class ServerContext implements EventContext
     {
         DN target = buildTarget( DN.fromName( name ) );
         Entry serverEntry = null;
-        
+
         try
         {
             serverEntry = service.newEntry( target );
@@ -741,7 +741,7 @@ public abstract class ServerContext implements EventContext
         {
             throw new NamingException( le.getMessage() );
         }
-        
+
         try
         {
             serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
@@ -773,10 +773,10 @@ public abstract class ServerContext implements EventContext
         }
 
         /*
-         * Add the new context to the server which as a side effect adds 
+         * Add the new context to the server which as a side effect adds
          * operational attributes to the serverEntry refering instance which
          * can them be used to initialize a new ServerLdapContext.  Remember
-         * we need to copy over the controls as well to propagate the complete 
+         * we need to copy over the controls as well to propagate the complete
          * environment besides what's in the hashtable for env.
          */
         try
@@ -787,9 +787,9 @@ public abstract class ServerContext implements EventContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         ServerLdapContext ctx = null;
-        
+
         try
         {
             ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
@@ -798,7 +798,7 @@ public abstract class ServerContext implements EventContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         return ctx;
     }
 
@@ -875,7 +875,7 @@ public abstract class ServerContext implements EventContext
 
         // let's be sure that the Attributes is case insensitive
         Entry outServerEntry = null;
-        
+
         try
         {
             outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
@@ -925,7 +925,7 @@ public abstract class ServerContext implements EventContext
         {
             // Serialize and add outAttrs
             Entry serverEntry = null;
-            
+
             try
             {
                 serverEntry = service.newEntry( target );
@@ -955,14 +955,14 @@ public abstract class ServerContext implements EventContext
 
             // Serialize object into entry attributes and add it.
             try
-            { 
+            {
                 JavaLdapSupport.serialize( serverEntry, obj, service.getSchemaManager() );
             }
             catch ( LdapException le )
             {
                 throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
             }
-            
+
             try
             {
                 doAddOperation( target, serverEntry );
@@ -976,9 +976,9 @@ public abstract class ServerContext implements EventContext
         {
             // Grab attributes and merge with outAttrs
             Entry serverEntry = null;
-            
+
             try
-            { 
+            {
                 serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
                     target, service.getSchemaManager() );
             }
@@ -992,7 +992,7 @@ public abstract class ServerContext implements EventContext
                 for ( EntryAttribute serverAttribute : outServerEntry )
                 {
                     try
-                    {                 
+                    {
                         serverEntry.put( serverAttribute );
                     }
                     catch ( LdapException le )
@@ -1043,7 +1043,7 @@ public abstract class ServerContext implements EventContext
 
         // calculate parents
         DN oldParent = oldDn;
-        
+
         try
         {
             oldParent = oldParent.remove( oldDn.size() - 1 );
@@ -1052,9 +1052,9 @@ public abstract class ServerContext implements EventContext
         {
             throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
         }
-        
+
         DN newParent = newDn;
-        
+
         try
         {
             newParent = newParent.remove( newDn.size() - 1 );
@@ -1071,7 +1071,7 @@ public abstract class ServerContext implements EventContext
 
         /*
          * Attempt to use the java.naming.ldap.deleteRDN environment property
-         * to get an override for the deleteOldRdn option to modifyRdn.  
+         * to get an override for the deleteOldRdn option to modifyRdn.
          */
         if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
@@ -1085,7 +1085,7 @@ public abstract class ServerContext implements EventContext
          * RDN name change or a move operation.  If the two names are the same
          * except for the RDN then it is a simple modifyRdn operation.  If the
          * names differ in size or have a different baseDN then the operation is
-         * a move operation.  Furthermore if the RDN in the move operation 
+         * a move operation.  Furthermore if the RDN in the move operation
          * changes it is both an RDN change and a move operation.
          */
         if ( oldParent.equals( newParent ) )
@@ -1143,7 +1143,7 @@ public abstract class ServerContext implements EventContext
     {
         DN target = buildTarget( DN.fromName( name ) );
         OperationManager operationManager = service.getOperationManager();
-        
+
         try
         {
             if ( operationManager.hasEntry( new EntryOperationContext( session, target ) ) )
@@ -1229,7 +1229,7 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            obj = DirectoryManager.getObjectInstance( null, name, this, env, 
+            obj = DirectoryManager.getObjectInstance( null, name, this, env,
                 ServerEntryUtils.toBasicAttributes( serverEntry ) );
         }
         catch ( Exception e )
@@ -1254,7 +1254,7 @@ public abstract class ServerContext implements EventContext
 
         // Initialize and return a context since the entry is not a java object
         ServerLdapContext ctx = null;
-        
+
         try
         {
             ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
@@ -1263,7 +1263,7 @@ public abstract class ServerContext implements EventContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         return ctx;
     }
 
@@ -1287,11 +1287,11 @@ public abstract class ServerContext implements EventContext
 
 
     /**
-     * Non-federated implementation presuming the name argument is not a 
-     * composite name spanning multiple namespaces but a compound name in 
+     * Non-federated implementation presuming the name argument is not a
+     * composite name spanning multiple namespaces but a compound name in
      * the same LDAP namespace.  Hence the parser returned is always the
-     * same as calling this method with the empty String. 
-     * 
+     * same as calling this method with the empty String.
+     *
      * @see javax.naming.Context#getNameParser(java.lang.String)
      */
     public NameParser getNameParser( String name ) throws NamingException
@@ -1314,11 +1314,11 @@ public abstract class ServerContext implements EventContext
 
 
     /**
-     * Non-federated implementation presuming the name argument is not a 
-     * composite name spanning multiple namespaces but a compound name in 
+     * Non-federated implementation presuming the name argument is not a
+     * composite name spanning multiple namespaces but a compound name in
      * the same LDAP namespace.  Hence the parser returned is always the
      * same as calling this method with the empty String Name.
-     * 
+     *
      * @see javax.naming.Context#getNameParser(javax.naming.Name)
      */
     public NameParser getNameParser( final Name name ) throws NamingException
@@ -1431,13 +1431,13 @@ public abstract class ServerContext implements EventContext
          * Example: This context is ou=people and say name is the relative
          * name of uid=jwalker and the prefix is dc=domain.  Then we must
          * compose the name relative to prefix which would be:
-         * 
+         *
          * uid=jwalker,ou=people,dc=domain.
-         * 
+         *
          * The following general algorithm generates the right name:
          *      1). Find the Dn for name and walk it from the head to tail
          *          trying to match for the head of prefix.
-         *      2). Remove name components from the Dn until a match for the 
+         *      2). Remove name components from the Dn until a match for the
          *          head of the prefix is found.
          *      3). Return the remainder of the fqn or Dn after chewing off some
          */
@@ -1455,7 +1455,7 @@ public abstract class ServerContext implements EventContext
                 return DN.toName( fqn );
             }
             else
-            // 2). Remove name components from the Dn until a match 
+            // 2). Remove name components from the Dn until a match
             {
                 try
                 {
@@ -1489,7 +1489,7 @@ public abstract class ServerContext implements EventContext
             criteria.setScope( SearchScope.getSearchScope( scope ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
             criteria.setBase( buildTarget( DN.fromName( name ) ) );
-            
+
             service.getEventService().addListener( listener );
             listeners.put( namingListener, listener );
         }
@@ -1511,7 +1511,7 @@ public abstract class ServerContext implements EventContext
         try
         {
             DirectoryListener listener = listeners.remove( namingListener );
-            
+
             if ( listener != null )
             {
                 service.getEventService().removeListener( listener );
@@ -1546,9 +1546,9 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
 
     /**
-     * Clones this context's DN and adds the components of the name relative to 
-     * this context to the left hand side of this context's cloned DN. 
-     * 
+     * Clones this context's DN and adds the components of the name relative to
+     * this context to the left hand side of this context's cloned DN.
+     *
      * @param relativeName a name relative to this context.
      * @return the name of the target
      * @throws InvalidNameException if relativeName is not a valid name in
@@ -1561,14 +1561,14 @@ public abstract class ServerContext implements EventContext
         // Add to left hand side of cloned DN the relative name arg
         try
         {
-            relativeName.normalize( schemaManager.getNormalizerMapping() );
+            relativeName.normalize( schemaManager );
             target = target.addAllNormalized( target.size(), relativeName );
         }
         catch (LdapInvalidDnException lide )
         {
             throw new InvalidNameException( lide.getMessage() );
         }
-        
+
         return target;
     }
 }

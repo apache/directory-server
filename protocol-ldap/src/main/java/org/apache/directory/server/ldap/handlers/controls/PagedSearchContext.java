@@ -35,28 +35,28 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * The structure which stores the informations relative to the pagedSearch control.
- * They are associated to a cookie, stored into the session and associated to an 
+ * They are associated to a cookie, stored into the session and associated to an
  * instance of this class.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class PagedSearchContext
 {
     /** The previous search request */
     private InternalSearchRequest previousSearchRequest;
-    
+
     /** The current position in the cursor */
     private int currentPosition;
-    
+
     /** The cookie key */
     private byte[] cookie;
-    
+
     /** The integer value for the cookie */
     private AtomicInteger cookieValue;
-    
+
     /** The associated cursor for the current search request */
     private EntryFilteringCursor cursor;
-    
+
     /**
      * Creates a new instance of this class, storing the SearchRequest into it.
      */
@@ -64,21 +64,21 @@ public class PagedSearchContext
     {
         previousSearchRequest = searchRequest;
         currentPosition = 0;
-        
+
         // We compute a key for this cookie. It combines the search request
         // and some time seed, in order to avoid possible collisions, as
         // a user may send more than one PagedSearch on the same session.
         cookieValue = new AtomicInteger( searchRequest.getMessageId() << 16 );
-        
+
         cookie = Value.getBytes( cookieValue.get() );
     }
-    
-    
+
+
     /**
-     * Compute a new key for this cookie, based on the current searchRequest 
+     * Compute a new key for this cookie, based on the current searchRequest
      * hashCode and the current position. This value will be stored into the
      * session, and will permit the retrieval of this instance.
-     * 
+     *
      * @return The new cookie's key
      */
     public byte[] getCookie()
@@ -86,35 +86,35 @@ public class PagedSearchContext
         return cookie;
     }
 
-    
+
     public int getCookieValue()
     {
         return cookieValue.get();
     }
-    
-    
+
+
     /**
      * Compute a new cookie, if the previous one already exists. This
-     * is unlikely, as we are based on some time seed, but just in case, 
+     * is unlikely, as we are based on some time seed, but just in case,
      * this method will generate a new one.
      * @return The new cookie
      */
     public byte[] getNewCookie()
     {
         cookie = Value.getBytes( cookieValue.incrementAndGet() );
-        
+
         return cookie;
     }
-    
-    
+
+
     /**
      * Build a set of OIDs from the list of attributes we have in the search request
      */
-    private Set<String> buildAttributeSet( InternalSearchRequest request, 
+    private Set<String> buildAttributeSet( InternalSearchRequest request,
         SchemaManager schemaManager )
     {
         Set<String> requestSet = new HashSet<String>();
-        
+
         // Build the set of attributeType from the attributes
         for ( String attribute:request.getAttributes() )
         {
@@ -132,18 +132,18 @@ public class PagedSearchContext
                 {
                     requestSet.add( attribute );
                 }
-                
+
                 // Otherwise, don't add the attribute to the set
             }
         }
-        
+
         return requestSet;
     }
-    
+
     /**
-     * Compare the previous search request and the new one, and return 
+     * Compare the previous search request and the new one, and return
      * true if they are equal. We compare every field but the MessageID.
-     * 
+     *
      * @param request The new SearchRequest
      * @return true if both request are equal.
      */
@@ -154,7 +154,7 @@ public class PagedSearchContext
         {
             return false;
         }
-        
+
         // Compares the sizeLimit
         if ( request.getSizeLimit() != previousSearchRequest.getSizeLimit() )
         {
@@ -166,20 +166,20 @@ public class PagedSearchContext
         {
             return false;
         }
-        
+
         // Compares the TypesOnly
         if ( request.getTypesOnly() != previousSearchRequest.getTypesOnly() )
         {
             return false;
         }
-        
+
         // Compares the deref aliases mode
         if ( request.getDerefAliases() != previousSearchRequest.getDerefAliases() )
         {
             return false;
         }
-        
-        SchemaManager schemaManager = 
+
+        SchemaManager schemaManager =
             session.getLdapServer().getDirectoryService().getSchemaManager();
 
         // Compares the attributes
@@ -203,23 +203,23 @@ public class PagedSearchContext
                 {
                     return false;
                 }
-                
+
                 // Build the set of attributeType from both requests
                 Set<String> requestSet = buildAttributeSet( request, schemaManager );
                 Set<String> previousRequestSet = buildAttributeSet( previousSearchRequest, schemaManager );
-                
+
                 // Check that both sets have the same size again after having converted
                 // the attributes to OID
                 if ( requestSet.size() != previousRequestSet.size() )
                 {
                     return false;
                 }
-                
+
                 for ( String attribute:requestSet )
                 {
                     previousRequestSet.remove( attribute );
                 }
-                
+
                 // The other set must be empty
                 if ( !previousRequestSet.isEmpty() )
                 {
@@ -227,17 +227,17 @@ public class PagedSearchContext
                 }
             }
         }
-        
+
         // Compare the baseDN
         try
         {
-            request.getBase().normalize( schemaManager.getNormalizerMapping() );
-            
+            request.getBase().normalize( schemaManager );
+
             if ( !previousSearchRequest.getBase().isNormalized() )
             {
-                previousSearchRequest.getBase().normalize( schemaManager.getNormalizerMapping() );
+                previousSearchRequest.getBase().normalize( schemaManager );
             }
-            
+
             if ( !request.getBase().equals( previousSearchRequest.getBase() ) )
             {
                 return false;
@@ -247,7 +247,7 @@ public class PagedSearchContext
         {
             return false;
         }
-        
+
         // Compare the filters
         // Here, we assume the user hasn't changed the filter's order or content,
         // as the filter is not normalized. This is a real problem, as the normalization
@@ -256,21 +256,21 @@ public class PagedSearchContext
         return true; //request.getFilter().equals( previousSearchRequest.getFilter() );
     }
 
-    
+
     /**
      * @return The current position in the cursor. This value is updated
-     * after each successful search request. 
+     * after each successful search request.
      */
     public int getCurrentPosition()
     {
         return currentPosition;
     }
 
-    
+
     /**
-     * Set the new current position, incrementing it with the 
+     * Set the new current position, incrementing it with the
      * number of returned entries.
-     * 
+     *
      * @param returnedEntries The number of returned entries
      */
     public void incrementCurrentPosition( int returnedEntries )
@@ -278,7 +278,7 @@ public class PagedSearchContext
         this.currentPosition += returnedEntries;
     }
 
-    
+
     /**
      * @return The previous search request
      */
@@ -305,21 +305,21 @@ public class PagedSearchContext
     {
         this.cursor = cursor;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "PagedSearch context : <" );
         sb.append( StringTools.dumpBytes( cookie ) );
         sb.append( ", " );
         sb.append( currentPosition );
         sb.append( ">" );
-        
+
         return sb.toString();
     }
 }

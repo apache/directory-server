@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authz;
 
@@ -124,11 +124,11 @@ public class TupleCache
         for ( String suffix:suffixes )
         {
             DN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
-            ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, 
+            ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            
+
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
@@ -140,20 +140,19 @@ public class TupleCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
-                            getNormalizerMapping() );
+                    DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager() );
                     EntryAttribute aci = result.get( PRESCRIPTIVE_ACI_AT );
-    
+
                     if ( aci == null )
                     {
                         LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any "
                             + SchemaConstants.PRESCRIPTIVE_ACI_AT );
                         continue;
                     }
-    
+
                     subentryAdded( subentryDn, result );
                 }
-    
+
                 results.close();
             }
             catch ( Exception e )
@@ -164,8 +163,8 @@ public class TupleCache
     }
 
 
-    /** 
-     * Check if the Entry contains a prescriptiveACI 
+    /**
+     * Check if the Entry contains a prescriptiveACI
      */
     private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
