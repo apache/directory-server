@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.client.api;
 
@@ -49,7 +49,6 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,15 +57,15 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
+@RunWith ( FrameworkRunner.class )
+@CreateLdapServer (
+    transports =
     {
         @CreateTransport( protocol = "LDAP" ),
         @CreateTransport( protocol = "LDAPS" )
     },
     saslHost="localhost",
-    saslMechanisms = 
+    saslMechanisms =
     {
         @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
         @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
@@ -75,15 +74,15 @@ import org.junit.runner.RunWith;
         @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
         @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
     },
-    extendedOpHandlers = 
+    extendedOpHandlers =
     {
         StoredProcedureExtendedOperationHandler.class
     })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
     private static LdapConnectionConfig config;
-    
-    
+
+
     @Before
     public void setup()
     {
@@ -109,8 +108,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         config.setLdapPort( ldapServer.getPortSSL() );
         config.setTrustManagers( new TrustManager[]{ X509 } );
     }
-    
-    
+
+
     /**
      * Test a successful bind request
      *
@@ -124,9 +123,9 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         {
             connection = new LdapNetworkConnection( config );
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
-            
+
             assertNotNull( bindResponse );
-            
+
             connection.unBind();
         }
         catch ( Exception le )
@@ -135,8 +134,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     @Test
     public void testGetSupportedControls() throws Exception
     {
@@ -144,7 +143,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
         DN dn = new DN( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
-        
+
         List<String> controlList = connection.getSupportedControls();
         assertNotNull( controlList );
         assertFalse( controlList.isEmpty() );

@@ -36,7 +36,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -57,7 +56,6 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +102,7 @@ public class IntegrationUtils
      * Inject an ldif String into the server. DN must be relative to the
      * root.
      *
-     * @param service the directory service to use 
+     * @param service the directory service to use
      * @param ldif the ldif containing entries to add to the server.
      * @throws NamingException if there is a problem adding the entries from the LDIF
      */
@@ -117,12 +115,12 @@ public class IntegrationUtils
         {
             if ( entry.isChangeAdd() )
             {
-                service.getAdminSession().add( 
+                service.getAdminSession().add(
                     new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
             }
             else if ( entry.isChangeModify() )
             {
-                service.getAdminSession().modify( 
+                service.getAdminSession().modify(
                     entry.getDn(), entry.getModificationItems() );
             }
             else
@@ -132,7 +130,7 @@ public class IntegrationUtils
                 throw new NamingException( message );
             }
         }
-        
+
         // And close the reader
         reader.close();
     }
@@ -173,15 +171,15 @@ public class IntegrationUtils
         {
             principalDn = "";
         }
-        
+
         DN userDn = new DN( principalDn, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
-        
+
         if ( dn == null )
         {
             dn = "";
         }
-        
+
         CoreSession session = service.getSession( principal );
         return session;
     }
@@ -213,25 +211,25 @@ public class IntegrationUtils
         switch( entry.getChangeType().getChangeType() )
         {
             case( ChangeType.ADD_ORDINAL ):
-                session.add( 
-                    new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) ); 
+                session.add(
+                    new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
                 break;
-                
+
             case( ChangeType.DELETE_ORDINAL ):
                 session.delete( dn );
                 break;
-                
+
             case( ChangeType.MODDN_ORDINAL ):
             case( ChangeType.MODRDN_ORDINAL ):
                 RDN newRdn = new RDN( entry.getNewRdn() );
-            
+
                 if ( entry.getNewSuperior() != null )
                 {
                     // It's a move. The superior have changed
                     // Let's see if it's a rename too
                     RDN oldRdn = dn.getRdn();
                     DN newSuperior = new DN( entry.getNewSuperior() );
-                    
+
                     if ( dn.size() == 0 )
                     {
                         throw new IllegalStateException( I18n.err( I18n.ERR_475 ) );
@@ -243,7 +241,7 @@ public class IntegrationUtils
                     }
                     else
                     {
-                        // it's a move and rename 
+                        // it's a move and rename
                         session.moveAndRename( dn, newSuperior, newRdn, entry.isDeleteOldRdn() );
                     }
                 }
@@ -252,7 +250,7 @@ public class IntegrationUtils
                     // it's a rename
                     session.rename( dn, newRdn, entry.isDeleteOldRdn() );
                 }
-                
+
                 break;
 
             case( ChangeType.MODIFY_ORDINAL ):
@@ -273,7 +271,7 @@ public class IntegrationUtils
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 
-        EntryAttribute attr = new DefaultEntryAttribute( "objectClass", 
+        EntryAttribute attr = new DefaultEntryAttribute( "objectClass",
             "top", "person", "organizationalPerson", "inetOrgPerson" );
         ldif.addAttribute( attr );
 
@@ -312,8 +310,8 @@ public class IntegrationUtils
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
-    
-    
+
+
     public static void disableSchema( DirectoryService service, String schemaName ) throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
@@ -324,30 +322,30 @@ public class IntegrationUtils
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
-    
-    
+
+
     /**
      * A helper method which tells if a schema is disabled.
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
         Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
-        
+
         return ( schema == null ) || schema.isDisabled();
     }
-    
-    
+
+
     /**
      * A helper method which tells if a schema is loaded.
      */
     public static boolean isLoaded( DirectoryService service, String schemaName )
     {
         Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
-        
+
         return ( schema != null );
     }
-    
-    
+
+
     /**
      * A helper method which tells if a schema is enabled. A shema must be
      * loaded and enabled.
@@ -355,11 +353,11 @@ public class IntegrationUtils
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
         Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
-        
+
         return ( schema != null ) && schema.isEnabled();
     }
-    
-    
+
+
     /**
      * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
      */
@@ -378,10 +376,10 @@ public class IntegrationUtils
     public static LdapConnection getConnectionAs( DirectoryService dirService, DN dn, String password ) throws Exception
     {
         Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
-        
+
         LdapCoreSessionConnection coreConnection = ( LdapCoreSessionConnection ) connectionObj;
         coreConnection.setDirectoryService( dirService );
-        
+
         coreConnection.bind( dn, password );
 
         return coreConnection;
@@ -390,14 +388,14 @@ public class IntegrationUtils
 
     public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
     {
-        LdapConnection connection = ( LdapConnection) LdapConnectionFactory.getNetworkConnection( host, port );
-        
+        LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
+
         connection.bind( dn, password );
         openConnections.add( connection );
         return connection;
     }
 
-    
+
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
@@ -410,23 +408,23 @@ public class IntegrationUtils
         return connection;
     }
 
-    
+
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
     {
         return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
     }
 
-    
+
     public static void closeConnections()
     {
-        
+
         for( LdapConnection con : openConnections )
         {
             if( con == null )
             {
                 continue;
             }
-            
+
             try
             {
                 if( con.isConnected() )
@@ -440,7 +438,7 @@ public class IntegrationUtils
                 e.printStackTrace();
             }
         }
-        
+
         openConnections.clear();
     }
 }

@@ -48,7 +48,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
@@ -85,7 +84,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * try to connect using a known user/password and read an entry.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -128,7 +127,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * try to connect using a known user but with a bad password: we should get a invalidCredentials error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -167,7 +166,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -206,7 +205,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * try to connect using a unknown user: we should get a invalidCredentials error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -247,7 +246,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -279,7 +278,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             fail();
         }
 
-        // We should be anonymous here. 
+        // We should be anonymous here.
         // Check that we can read the rootDSE
         try
         {
@@ -325,7 +324,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -363,7 +362,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -381,7 +380,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * not allowed by the server. We should get a invalidCredentials error.
-     * 
+     *
      * @throws Exception on error
      */
     @Test
@@ -419,7 +418,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
     /**
      * try to connect using a known user/password and read an entry.
-     * 
+     *
      * @throws Exception on error
      */
     @Test

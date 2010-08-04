@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -477,7 +476,6 @@ public class SchemaCheckerTest
     @Test
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
-        Map<String, OidNormalizer> oidNormalizers = schemaManager.getAttributeTypeRegistry().getNormalizerMapping();
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         DN name = DNFactory.create( "ou=user,dc=example,dc=com", schemaManager );
         AttributeType cnAt = schemaManager.lookupAttributeTypeRegistry( "cn" );

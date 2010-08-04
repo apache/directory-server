@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.authn;
 
@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authn;
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -38,7 +38,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -78,8 +77,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Check the creation of the admin account and persistence across restarts.
      *

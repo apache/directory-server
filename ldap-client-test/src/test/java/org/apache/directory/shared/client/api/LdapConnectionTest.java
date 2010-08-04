@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.client.api;
 
@@ -48,9 +48,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,28 +58,28 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class )
-@CreateLdapServer ( 
-    transports = 
+@CreateLdapServer (
+    transports =
     {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
+        @CreateTransport( protocol = "LDAP" ),
+        @CreateTransport( protocol = "LDAPS" )
     })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
-    
+
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
     private static LdapConnection connection;
-    
-    
+
+
     @Before
     public void bindConnection() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         connection.bind( ADMIN_DN, "secret" );
     }
-    
-    
+
+
     @After
     public void unbindConnection() throws Exception
     {
@@ -90,8 +88,8 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             connection.close();
         }
     }
-    
-    
+
+
     /**
      * Test a successful bind request
      *
@@ -104,9 +102,9 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         try
         {
             BindResponse bindResponse = connection.bind( ADMIN_DN, "secret" );
-            
+
             assertNotNull( bindResponse );
-            
+
             //connection.unBind();
         }
         catch ( LdapException le )
@@ -129,8 +127,8 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             }
         }
     }
-    
-    
+
+
     @Test
     public void testGetSupportedControls() throws Exception
     {
@@ -138,14 +136,14 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertNotNull( controlList );
         assertFalse( controlList.isEmpty() );
     }
-    
-    
+
+
     @Test
     public void testLookup() throws Exception
     {
         SearchResponse resp = connection.lookup( ADMIN_DN );
         assertNotNull( resp );
-        
+
         Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
         assertNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
 
@@ -154,28 +152,28 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         entry = ( ( SearchResultEntry ) resp ).getEntry();
         assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
     }
-    
+
 
     @Test
     public void searchByEntryUuid() throws Exception
     {
         SearchResponse resp = connection.lookup( ADMIN_DN, "+" );
         Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
-        
+
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
-        
+
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new StringValue( uuid ) );
-        
+
         Cursor<SearchResponse> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
 
         Entry readEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
         assertEquals( uuid, readEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
-        
+
         cursor.close();
     }
 
-    
+
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
@@ -183,12 +181,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
 
         connection.loadSchema();
-        
+
         entry = ( ( SearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
     }
 
-    
+
     @Test
     public void testLoadSchema() throws Exception
     {
@@ -200,17 +198,17 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
     }
 
-    
+
     /**
      * this test is intended to test the behavior of CursorList when the RootDSE searchrequest was sent over
-     *  wire 
+     *  wire
      */
     @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
         Cursor<SearchResponse> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
         HashMap<String, Entry> map = new HashMap<String, Entry>();
-        
+
         while ( cursor.next() )
         {
             Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
@@ -218,7 +216,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         }
 
         assertEquals( 2, map.size() );
-        
+
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=schema" ) );
     }

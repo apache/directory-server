@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -125,12 +124,12 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         this.session = session;
         setDirectoryService( session.getDirectoryService() );
-        
+
         // treat the session was already bound, hence increment the message ID
         messageId.incrementAndGet();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -180,7 +179,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public AddResponse add( AddRequest addRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         InternalAddRequest iadd = new AddRequestImpl( newId );
         iadd.setEntry( addRequest.getEntry() );
 
@@ -195,7 +194,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
@@ -220,11 +219,11 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         CompareResponse resp = new CompareResponse();
         resp.setLdapResult( getDefaultCompareResult() );
         resp.setMessageId( newId );
-        
+
         InternalCompareRequest icompare = new CompareRequestImpl( newId );
 
         try
@@ -247,7 +246,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
@@ -266,7 +265,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( attributeName );
         compareRequest.setValue( value );
-        
+
         return compare( compareRequest );
     }
 
@@ -280,7 +279,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( attributeName );
         compareRequest.setValue( value );
-        
+
         return compare( compareRequest );
     }
 
@@ -312,7 +311,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( attributeName );
         compareRequest.setValue( value.get() );
-        
+
         return compare( compareRequest );
     }
 
@@ -332,11 +331,11 @@ public class LdapCoreSessionConnection implements LdapConnection
     public DeleteResponse delete( DeleteRequest deleteRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         DeleteResponse resp = new DeleteResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
-        
+
         InternalDeleteRequest idelete = new DeleteRequestImpl( newId );
 
         try
@@ -347,7 +346,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
@@ -447,15 +446,15 @@ public class LdapCoreSessionConnection implements LdapConnection
         return _lookup( dn, attributes );
     }
 
-    
+
     /*
      * this method exists solely for the purpose of calling from
-     * lookup(DN dn) avoiding the varargs, 
+     * lookup(DN dn) avoiding the varargs,
      */
     private SearchResponse _lookup( DN dn, String... attributes )
     {
         int newId = messageId.incrementAndGet();
-        
+
         SearchResultEntry resp = null;
 
         try
@@ -469,7 +468,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             {
                 entry = session.lookup( dn, attributes );
             }
-            
+
             resp = new SearchResultEntry();
             resp.setEntry( entry );
             resp.setMessageId( newId );
@@ -482,7 +481,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         return resp;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -516,13 +515,13 @@ public class LdapCoreSessionConnection implements LdapConnection
     public ModifyResponse modify( DN dn, Modification... modifications ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         ModifyResponse resp = new ModifyResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
-        
+
         InternalModifyRequest iModReq = new ModifyRequestImpl( newId );
-        
+
         try
         {
             iModReq.setName( dn );
@@ -531,13 +530,13 @@ public class LdapCoreSessionConnection implements LdapConnection
             {
                 iModReq.addModification( modification );
             }
-            
+
             session.modify( iModReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
@@ -565,29 +564,29 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyResponse resp = new ModifyResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
-        
+
         InternalModifyRequest iModReq = new ModifyRequestImpl( newId );
-        
+
         try
         {
             iModReq.setName( entry.getDn() );
-            
+
             Iterator<EntryAttribute> itr = entry.iterator();
             while ( itr.hasNext() )
             {
                 iModReq.addModification( new DefaultModification( modOp, itr.next() ) );
             }
-            
+
             session.modify( iModReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
-        
+
         addResponseControls( iModReq, resp );
         return resp;
     }
@@ -599,7 +598,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public ModifyResponse modify( ModifyRequest modRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         ModifyResponse resp = new ModifyResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
@@ -621,7 +620,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
@@ -635,12 +634,12 @@ public class LdapCoreSessionConnection implements LdapConnection
      * {@inheritDoc}
      * WARNING: this method is not in compatible with CoreSession API in some cases
      *          cause this we call {@link CoreSession#move(InternalModifyDnRequest)} always from this method.
-     *          Instead use other specific modifyDn operations like {@link #move(DN, DN)}, {@link #rename(DN, RDN)} etc.. 
+     *          Instead use other specific modifyDn operations like {@link #move(DN, DN)}, {@link #rename(DN, RDN)} etc..
      */
     public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
@@ -653,17 +652,17 @@ public class LdapCoreSessionConnection implements LdapConnection
             iModDnReq.setName( modDnRequest.getEntryDn() );
             iModDnReq.setNewRdn( modDnRequest.getNewRdn() );
             iModDnReq.setNewSuperior( modDnRequest.getNewSuperior() );
-            
+
             session.move( iModDnReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
-        
+
         addResponseControls( iModDnReq, resp );
         return resp;
     }
@@ -685,17 +684,17 @@ public class LdapCoreSessionConnection implements LdapConnection
         {
             iModDnReq.setName( entryDn );
             iModDnReq.setNewSuperior( newSuperiorDn );
-            
+
             session.move( iModDnReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
-        
+
         addResponseControls( iModDnReq, resp );
         return resp;
     }
@@ -716,7 +715,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public ModifyDnResponse rename( DN entryDn, RDN newRdn, boolean deleteOldRdn ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
-        
+
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
@@ -728,17 +727,17 @@ public class LdapCoreSessionConnection implements LdapConnection
             iModDnReq.setName( entryDn );
             iModDnReq.setNewRdn( newRdn );
             iModDnReq.setDeleteOldRdn( deleteOldRdn );
-            
+
             session.rename( iModDnReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
-        
+
         addResponseControls( iModDnReq, resp );
         return resp;
     }
@@ -824,7 +823,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         int newId = messageId.incrementAndGet();
-        
+
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
         resp.setMessageId( newId );
@@ -836,17 +835,17 @@ public class LdapCoreSessionConnection implements LdapConnection
             iModDnReq.setName( entryDn );
             iModDnReq.setNewSuperior( newDn );
             iModDnReq.setDeleteOldRdn( deleteOldRdn );
-            
+
             session.moveAndRename( iModDnReq );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
-            
+
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
-        
+
         addResponseControls( iModDnReq, resp );
         return resp;
     }
@@ -873,7 +872,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         try
         {
             int newId = messageId.incrementAndGet();
-            
+
             InternalSearchRequest iSearchReq = new SearchRequestImpl( newId );
             iSearchReq.setBase( new DN( searchRequest.getBaseDn() ) );
             iSearchReq.setDerefAliases( searchRequest.getDerefAliases() );
@@ -901,7 +900,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         {
             LOG.warn( e.getMessage(), e );
         }
-        
+
         return new EntryToResponseCursor<SearchResponse>( new EmptyCursor<SearchResponse>() );
     }
 
@@ -1031,7 +1030,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         BindRequest bindReq = new BindRequest();
         bindReq.setName( "" );
         bindReq.setCredentials( ( byte[] ) null );
-        
+
         return bind( bindReq );
     }
 
@@ -1083,11 +1082,11 @@ public class LdapCoreSessionConnection implements LdapConnection
     public BindResponse bind( DN name, String credentials ) throws LdapException, IOException
     {
         byte[] credBytes = ( credentials == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( credentials ) );
-        
+
         BindRequest bindReq = new BindRequest();
         bindReq.setName( name.getName() );
         bindReq.setCredentials( credBytes );
-        
+
         return bind( bindReq );
     }
 
@@ -1099,12 +1098,12 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         return bind( new DN( name ), credentials );
     }
-    
-    
+
+
     private void addResponseControls( InternalResultResponseRequest iReq, AbstractMessage clientResp )
     {
         Collection<Control> ctrlSet = iReq.getResultResponse().getControls().values();
-        
+
         for( Control c : ctrlSet )
         {
             clientResp.add( c );
@@ -1123,6 +1122,6 @@ public class LdapCoreSessionConnection implements LdapConnection
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
     }
-    
-    
+
+
 }

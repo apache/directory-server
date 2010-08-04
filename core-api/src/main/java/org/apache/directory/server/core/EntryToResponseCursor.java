@@ -27,7 +27,6 @@ import org.apache.directory.ldap.client.api.message.LdapResult;
 import org.apache.directory.ldap.client.api.message.SearchResultDone;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -35,8 +34,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * A cursor to get SearchResponses after setting the underlying cursor's 
- * ServerEntry object in SearchResultEnty object 
+ * A cursor to get SearchResponses after setting the underlying cursor's
+ * ServerEntry object in SearchResultEnty object
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -47,9 +46,9 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
 
     /** a reference to hold the SearchResultDone response */
     private SearchResultDone searchDoneResp;
-    
+
     private boolean done;
-    
+
     public EntryToResponseCursor( Cursor wrapped )
     {
         this.wrapped = wrapped;
@@ -119,11 +118,11 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
         return ( SearchResponse ) se;
     }
 
-    
+
     /**
      * gives the SearchResultDone message received at the end of search results
-     * 
-     * @return the SearchResultDone message, null if the search operation fails for any reason 
+     *
+     * @return the SearchResultDone message, null if the search operation fails for any reason
      */
     public SearchResultDone getSearchDone()
     {
@@ -159,7 +158,7 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
             ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
             searchDoneResp.setLdapResult( ldapResult );
         }
-        
+
         return done;
     }
 

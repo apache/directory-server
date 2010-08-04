@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema;
 
@@ -29,7 +29,6 @@ import java.io.File;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -44,8 +43,8 @@ import org.junit.Test;
 
 /**
  * Tests the partition schema loader.
- * 
- * TODO move this to core-integ does not belong here and get rid of all the static 
+ *
+ * TODO move this to core-integ does not belong here and get rid of all the static
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -60,14 +59,14 @@ public class PartitionSchemaLoaderTest
         // setup working directory
         directoryService = new DefaultDirectoryService();
         File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
-        
+
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
-        
+
         directoryService.setWorkingDirectory( workingDirectory );
-        
+
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
         // --------------------------------------------------------------------
@@ -91,12 +90,12 @@ public class PartitionSchemaLoaderTest
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         directoryService.setSchemaManager( schemaManager );
     }
-    
-    
-    @Test 
+
+
+    @Test
     public void testGetSchemas() throws Exception
     {
         SchemaLoader loader = directoryService.getSchemaManager().getLoader();
@@ -106,26 +105,26 @@ public class PartitionSchemaLoaderTest
         assertEquals( schema.getSchemaName(), "mozilla" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "core" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "core" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "apachedns" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachedns" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "autofs" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "autofs" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "apache" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apache" );
@@ -139,65 +138,65 @@ public class PartitionSchemaLoaderTest
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "krb5kdc" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "krb5kdc" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "samba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "samba" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "collective" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "collective" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "java" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "java" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "dhcp" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "dhcp" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "corba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "corba" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "nis" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "nis" );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "inetorgperson" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "inetorgperson" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "system" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "system" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-        
+
         schema = loader.getSchema( "apachemeta" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachemeta" );
