@@ -41,6 +41,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,39 +60,39 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         //--------------------------------------------------------------------
         Attributes attributes = new BasicAttributes( true );
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
         objectClassAttribute.add( "metaAttributeType" );
-        
+
         attributes.put( objectClassAttribute );
-        
+
         attributes.put( "m-oid", "2.16.840.1.113730.3.2.22.249" );
-        
+
         // The name
         attributes.put( "m-name", "accountStatus" );
-        
+
         // The Obsolete flag
         attributes.put( "m-obsolete", "FALSE" );
-        
+
         // The single value flag
         attributes.put( "m-singleValue", "TRUE" );
-        
+
         // The collective flag
         attributes.put( "m-collective", "FALSE" );
-        
+
         // The noUserModification flag
         attributes.put( "m-noUserModification", "FALSE" );
 
         // The usage
         attributes.put( "m-usage", "USER_APPLICATIONS" );
-        
+
         // The equality matching rule
         attributes.put( "m-equality", "caseIgnoreMatch" );
-        
+
         // The substr matching rule
         attributes.put( "m-substr", "caseIgnoreSubstringsMatch" );
-        
+
         // The syntax
         attributes.put( "m-syntax", "1.3.6.1.4.1.1466.115.121.1.15" );
 
@@ -100,33 +101,33 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
 
         // The description
         attributes.put( "m-description", "Account Status" );
-        
+
         // Inject the AT
         DN dn = new DN( "ou=attributeTypes,cn=apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
-        
-        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
-        
+
+        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
+
         //--------------------------------------------------------------------
         // The extendPerson OC
         //--------------------------------------------------------------------
         attributes = new BasicAttributes( true );
          objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
         objectClassAttribute.add( "metaObjectClass" );
-        
+
         attributes.put( objectClassAttribute );
-        
+
         attributes.put( "m-oid", "2.16.840.1.113730.3.2.22" );
-        
+
         // The name
         attributes.put( "m-name", "extendPerson" );
-        
+
         // The Obsolete flag
         attributes.put( "m-obsolete", "FALSE" );
-        
+
         // The Type list
         attributes.put( "m-typeObjectClass", "STRUCTURAL" );
 
@@ -135,15 +136,15 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
 
         // The description
         attributes.put( "m-description", "Extended InetOrgPerson" );
-        
+
         // The MAY list
         attributes.put( "m-may", "accountStatus" );
-        
+
         // Inject the OC
         dn = new DN( "ou=objectClasses,cn=apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
-        
-        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
+
+        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
     }
 
     /**
@@ -167,24 +168,24 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
     {
         Attributes attributes = new BasicAttributes( true );
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
         objectClassAttribute.add( "metaObjectClass" );
-        
+
         attributes.put( objectClassAttribute );
-        
+
         attributes.put( "m-oid", "testOID" );
-        
+
         // This name is invalid
         attributes.put( "m-name", "http://example.com/users/accounts/L0" );
-        
+
         DN dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
-        
+
         try
         {
-            getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
+            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -201,25 +202,25 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
     {
         Attributes attributes = new BasicAttributes( true );
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
         objectClassAttribute.add( "metaObjectClass" );
-        
+
         // Don't put the objectclasses in the entry : this is on purpose !
         // attributes.put( objectClassAttribute );
-        
+
         attributes.put( "m-oid", "testOID" );
-        
+
         // This name is invalid
         attributes.put( "m-name", "no-objectClasses" );
-        
+
         DN dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
-        
+
         try
         {
-            getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
+            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -227,8 +228,8 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
-    
-    
+
+
     /**
      * Test that if we create an OC with a superior OC then the AT are correctly
      * inherited.
@@ -237,29 +238,29 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
     public void testCreateOCWithSuperior() throws Exception
     {
         injectSchema();
-        
+
         // Now, check that we can add entries with this new OC
         Attributes entry = new BasicAttributes( true );
         Attribute objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         // The ObjectClass
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "extendPerson" );
-        
+
         entry.put( objectClassAttribute );
-        
+
         // Mandatory attributes -- required in MUST list
         entry.put( "uid", "test" );
-        entry.put( "sn", "test" ); 
+        entry.put( "sn", "test" );
         entry.put( "givenName", "test" );
-        entry.put( "cn", "test" ); 
+        entry.put( "cn", "test" );
         entry.put( "displayName", "test-test" );
         entry.put( "initials", "tt" );
         entry.put(  "accountStatus", "test" );
-        
+
         // Create the context
         DirContext system = getSystemContext( service );
-        
+
         try
         {
             system.createSubcontext( "cn=test", entry );
@@ -268,41 +269,41 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         {
             fail();
         }
-        
+
     }
-    
-    
+
+
     /**
-     * Test that if we create an AT with an ancestor, we can search and 
+     * Test that if we create an AT with an ancestor, we can search and
      * get back the entry using its ancestor
      */
     @Test
     public void testCreateATWithSuperior() throws Exception
     {
         injectSchema();
-        
+
         // Now, check that we can add entries with this new AT
         Attributes entry = new BasicAttributes( true );
         Attribute objectClassAttribute = new BasicAttribute( "objectClass" );
-        
+
         // The ObjectClass
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "extendPerson" );
-        
+
         entry.put( objectClassAttribute );
-        
+
         // Mandatory attributes -- required in MUST list
         entry.put( "uid", "test" );
-        entry.put( "sn", "test" ); 
+        entry.put( "sn", "test" );
         entry.put( "givenName", "test" );
-        entry.put( "cn", "test" ); 
+        entry.put( "cn", "test" );
         entry.put( "displayName", "test-test" );
         entry.put( "initials", "tt" );
         entry.put( "accountStatus", "accountStatusValue" );
-        
+
         // Create the context
         DirContext system = getSystemContext( service );
-        
+
         try
         {
             system.createSubcontext( "cn=test", entry );
@@ -311,12 +312,12 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         {
             fail();
         }
-        
+
         SearchControls sc = new SearchControls();
         NamingEnumeration<SearchResult> result = system.search( "", "(name=accountStatusValue)", sc );
 
         boolean found = false;
-        
+
         while ( result.hasMore() )
         {
             assertFalse( found );

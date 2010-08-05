@@ -46,6 +46,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
@@ -147,7 +148,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         Attributes mods = new BasicAttributes( true );
         mods.put( attr );
 
-        getRootContext( service ).modifyAttributes( DN.toName( dn ), op, mods );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
     }
 
 
