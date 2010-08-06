@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.jndi;
 
@@ -75,7 +75,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param principal the directory user principal that is propagated
      * @param dn the distinguished name of this context
      * @param service the directory service core
-     * @throws NamingException if there are problems instantiating 
+     * @throws NamingException if there are problems instantiating
      */
     public ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
@@ -106,16 +106,16 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public LdapContext newInstance( Control[] requestControls ) throws NamingException
     {
         ServerLdapContext ctx = null;
-        
+
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), DN.toName( getDn() ) );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), JndiUtils.toName( getDn() ) );
         }
         catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
-        
+
         ctx.setRequestControls( requestControls );
         return ctx;
     }
@@ -187,9 +187,9 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public boolean compare( DN name, String oid, Object value ) throws NamingException
     {
         Value<?> val = null;
-        
+
         AttributeType attributeType = null;
-        
+
         try
         {
             attributeType = getService().getSchemaManager().lookupAttributeTypeRegistry( oid );
@@ -198,7 +198,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             throw new InvalidAttributeIdentifierException( le.getMessage() );
         }
-        
+
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )
         {
@@ -230,11 +230,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
                 throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
-        
-        
+
+
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-        
+
         // Inject the Referral flag
         injectReferralControl( opCtx );
 
@@ -248,7 +248,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         // extract the response controls from the operation and return
         responseControls = getResponseControls();
         requestControls = EMPTY_CONTROLS;
@@ -257,11 +257,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
 
 
     /**
-     * Calling this method tunnels an unbind call down into the partition holding 
+     * Calling this method tunnels an unbind call down into the partition holding
      * the bindDn.  The bind() counter part is not exposed because it is automatically
-     * called when you create a new initial context for a new connection (on wire) or 
+     * called when you create a new initial context for a new connection (on wire) or
      * (programatic) caller.
-     * 
+     *
      * @throws NamingException if there are failures encountered while unbinding
      */
     public void ldapUnbind() throws NamingException
@@ -277,7 +277,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
         requestControls = EMPTY_CONTROLS;
     }
@@ -286,7 +286,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerContext getRootContext() throws NamingException
     {
         ServerContext ctx = null;
-        
+
         try
         {
             ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new LdapName( "" ) );
@@ -295,7 +295,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             JndiUtils.wrap( e );
         }
-        
+
         return ctx;
     }
 }

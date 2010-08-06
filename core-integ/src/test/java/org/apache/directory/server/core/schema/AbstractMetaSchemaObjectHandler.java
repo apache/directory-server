@@ -6,21 +6,20 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.schema;
 
 import java.io.File;
-import java.util.Enumeration;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.shared.ldap.name.DN;
@@ -42,8 +41,8 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         workingDir = service.getWorkingDirectory().getAbsolutePath();
     }
-    
-    
+
+
     /**
      * Get the path on disk where a specific SchemaObject is stored
      *
@@ -52,23 +51,21 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     protected String getSchemaPath( DN dn )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( workingDir ).append( '/' ).append( service.getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
-        
-        Enumeration<RDN> rdns = dn.getAllRdn();
-        
-        while ( rdns.hasMoreElements() )
+
+        for ( RDN rdn : dn )
         {
             sb.append( '/' );
-            sb.append( StringTools.toLowerCase( rdns.nextElement().getName() ) );
+            sb.append( StringTools.toLowerCase( rdn.getName() ) );
         }
-        
+
         sb.append( ".ldif" );
-        
+
         return sb.toString();
     }
 
-    
+
     /**
      * Check that a specific SchemaObject is stored on the disk at the
      * correct position in the Ldif partition
@@ -82,11 +79,11 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
         String schemaObjectFileName = getSchemaPath( dn );
 
         File file = new File( schemaObjectFileName );
-     
+
         return file.exists();
     }
-    
-    
+
+
     /**
      * Gets relative DN to ou=schema.
      *
@@ -98,8 +95,8 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         return new DN( "cn=" + schemaName );
     }
-    
-    
+
+
     /**
      * Gets relative DN to ou=schema.
      *
@@ -125,7 +122,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
         return new DN( "ou=comparators,cn=" + schemaName );
     }
 
-    
+
     /**
      * Get relative DN to ou=schema for MatchingRules
      *
@@ -137,8 +134,8 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         return new DN( "ou=matchingRules,cn=" + schemaName );
     }
-    
-   
+
+
     /**
      * Gets relative DN to ou=schema.
      *
@@ -177,8 +174,8 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         return new DN( "ou=syntaxes,cn=" + schemaName );
     }
-    
-    
+
+
     /**
      * Get relative DN to ou=schema for SyntaxCheckers
      *

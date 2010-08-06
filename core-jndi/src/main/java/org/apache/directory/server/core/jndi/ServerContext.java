@@ -202,7 +202,7 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, LdapPrincipal principal, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = DN.fromName( name );
+        this.dn = JndiUtils.fromName( name );
 
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
@@ -225,7 +225,7 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, CoreSession session, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = DN.fromName( name );
+        this.dn = JndiUtils.fromName( name );
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
@@ -730,7 +730,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
         Entry serverEntry = null;
 
         try
@@ -792,7 +792,7 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), JndiUtils.toName( target ) );
         }
         catch ( Exception e )
         {
@@ -817,7 +817,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         if ( target.size() == 0 )
         {
@@ -871,7 +871,7 @@ public abstract class ServerContext implements EventContext
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         // let's be sure that the Attributes is case insensitive
         Entry outServerEntry = null;
@@ -1033,8 +1033,8 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( Name oldName, Name newName ) throws NamingException
     {
-        DN oldDn = buildTarget( DN.fromName( oldName ) );
-        DN newDn = buildTarget( DN.fromName( newName ) );
+        DN oldDn = buildTarget( JndiUtils.fromName( oldName ) );
+        DN newDn = buildTarget( JndiUtils.fromName( newName ) );
 
         if ( oldDn.size() == 0 )
         {
@@ -1141,7 +1141,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( Name name, Object obj ) throws NamingException
     {
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
         OperationManager operationManager = service.getOperationManager();
 
         try
@@ -1176,7 +1176,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            doDeleteOperation( buildTarget( DN.fromName( name ) ) );
+            doDeleteOperation( buildTarget( JndiUtils.fromName( name ) ) );
         }
         catch ( Exception e )
         {
@@ -1207,7 +1207,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         Entry serverEntry = null;
 
@@ -1257,7 +1257,7 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), JndiUtils.toName( target ) );
         }
         catch ( Exception e )
         {
@@ -1302,7 +1302,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    return DN.toName( new DN( name ) );
+                    return JndiUtils.toName( new DN( name ) );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
@@ -1329,7 +1329,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    return DN.toName( new DN( name.toString() ) );
+                    return JndiUtils.toName( new DN( name.toString() ) );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
@@ -1360,7 +1360,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            return new NamingEnumerationAdapter( doListOperation( buildTarget( DN.fromName( name ) ) ) );
+            return new NamingEnumerationAdapter( doListOperation( buildTarget( JndiUtils.fromName( name ) ) ) );
         }
         catch ( Exception e )
         {
@@ -1389,7 +1389,7 @@ public abstract class ServerContext implements EventContext
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        DN base = buildTarget( DN.fromName( name ) );
+        DN base = buildTarget( JndiUtils.fromName( name ) );
         PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1443,7 +1443,7 @@ public abstract class ServerContext implements EventContext
          */
 
         // 1). Find the Dn for name and walk it from the head to tail
-        DN fqn = buildTarget( DN.fromName( name ) );
+        DN fqn = buildTarget( JndiUtils.fromName( name ) );
         String head = prefix.get( 0 );
 
         // 2). Walk the fqn trying to match for the head of the prefix
@@ -1452,7 +1452,7 @@ public abstract class ServerContext implements EventContext
             // match found end loop
             if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
             {
-                return DN.toName( fqn );
+                return JndiUtils.toName( fqn );
             }
             else
             // 2). Remove name components from the Dn until a match
@@ -1488,7 +1488,7 @@ public abstract class ServerContext implements EventContext
             criteria.setFilter( filter );
             criteria.setScope( SearchScope.getSearchScope( scope ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
-            criteria.setBase( buildTarget( DN.fromName( name ) ) );
+            criteria.setBase( buildTarget( JndiUtils.fromName( name ) ) );
 
             service.getEventService().addListener( listener );
             listeners.put( namingListener, listener );

@@ -66,6 +66,7 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1411,7 +1412,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
             new BasicAttribute( "attributeTypes", substrate ) );
 
-        getRootContext( service ).modifyAttributes( DN.toName( dn ), mods );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
@@ -1465,7 +1466,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
             new BasicAttribute( "attributeTypes", substrate ) );
 
-        getRootContext( service ).modifyAttributes( DN.toName( dn ), mods );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
@@ -1898,7 +1899,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
             new BasicAttribute( "attributeTypes", substrate ) );
 
-        getRootContext( service ).modifyAttributes( DN.toName( dn ), mods );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         // now check the modification timestamp and the modifiers name
 
@@ -1952,7 +1953,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
             new BasicAttribute( "attributeTypes", substrate ) );
-        ctx.modifyAttributes( DN.toName( dn ), mods );
+        ctx.modifyAttributes( JndiUtils.toName( dn ), mods );
 
         // now let's verify the new values for the modification attributes
 
@@ -1997,7 +1998,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modifications[i++] = new ModificationItem( op, new BasicAttribute( opAttr, description ) );
         }
 
-        getRootContext( service ).modifyAttributes( DN.toName( dn ), modifications );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), modifications );
     }
 
 

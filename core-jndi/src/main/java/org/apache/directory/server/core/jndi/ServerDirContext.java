@@ -149,7 +149,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( DN.fromName( name ) ) ) );
+            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( JndiUtils.fromName( name ) ) ) );
         }
         catch ( Exception e )
         {
@@ -179,7 +179,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attributes attrs = null;
         try
         {
-            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( DN.fromName( name ) ), attrIds ) );
+            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( JndiUtils.fromName( name ) ), attrIds ) );
         }
         catch ( Exception e )
         {
@@ -238,7 +238,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
+            doModifyOperation( buildTarget( JndiUtils.fromName( name ) ), newMods );
         }
         catch( Exception e )
         {
@@ -277,7 +277,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
+            doModifyOperation( buildTarget( JndiUtils.fromName( name ) ), newMods );
         }
         catch ( Exception e )
         {
@@ -306,7 +306,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
+            doModifyOperation( buildTarget( JndiUtils.fromName( name ) ), newMods );
         }
         catch ( Exception e )
         {
@@ -343,7 +343,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return;
         }
 
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         Entry serverEntry = null;
 
@@ -526,7 +526,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void rebind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         try
         {
@@ -566,7 +566,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return ( DirContext ) super.createSubcontext( name );
         }
 
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
         RDN rdn = target.getRdn( target.size() - 1 );
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
@@ -626,7 +626,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), DN.toName( target ) );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), JndiUtils.toName( target ) );
         }
         catch ( Exception e )
         {
@@ -717,7 +717,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         throws NamingException
     {
         SearchControls ctls = new SearchControls();
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         // If we need to return specific attributes add em to the SearchControls
         if ( null != attributesToReturn )
@@ -861,7 +861,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons )
         throws NamingException
     {
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         try
         {
@@ -883,7 +883,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         throws NamingException
     {
         ExprNode filterNode;
-        DN target = buildTarget( DN.fromName( name ) );
+        DN target = buildTarget( JndiUtils.fromName( name ) );
 
         try
         {
@@ -1020,7 +1020,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             criteria.setFilter( filter );
             criteria.setScope( SearchScope.getSearchScope( searchControls.getSearchScope() ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( getEnvironment() ) );
-            criteria.setBase( buildTarget( DN.fromName( name ) ) );
+            criteria.setBase( buildTarget( JndiUtils.fromName( name ) ) );
 
             getDirectoryService().getEventService().addListener( listener );
             getListeners().put( namingListener, listener );

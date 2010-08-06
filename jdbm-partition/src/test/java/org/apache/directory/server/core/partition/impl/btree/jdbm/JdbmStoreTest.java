@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
@@ -87,7 +87,7 @@ public class JdbmStoreTest
     private static SchemaManager schemaManager = null;
     private static LdifSchemaLoader loader;
     private static DN EXAMPLE_COM;
-    
+
     /** The OU AttributeType instance */
     private static AttributeType OU_AT;
 
@@ -127,7 +127,7 @@ public class JdbmStoreTest
         }
 
         EXAMPLE_COM = new DN( "dc=example,dc=com", schemaManager );
-        
+
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
@@ -216,7 +216,7 @@ public class JdbmStoreTest
         // lookup the context entry
         Long id = store2.getEntryId( suffixDn );
         Entry lookup = store2.lookup( id );
-        assertEquals( 2, lookup.getDn().getRdns().size() );
+        assertEquals( 2, lookup.getDn().size() );
     }
 
 
@@ -400,7 +400,7 @@ public class JdbmStoreTest
 
         assertFalse( systemIndices.hasNext() );
         assertNotNull( store.getSystemIndex( APACHE_ALIAS_AT ) );
-        
+
         try
         {
             store.getSystemIndex( "bogus" );
@@ -574,7 +574,7 @@ public class JdbmStoreTest
         assertEquals( 12, ( long ) cursor.get().getId() );
 
         DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
-        
+
         DN newDn = newParentDn.add( martinDn.getRdn() );
 
         store.move( martinDn, newParentDn, newDn, entry );
@@ -641,7 +641,7 @@ public class JdbmStoreTest
         // so this gets cleaned up automatically
         File testSpecificDir = new File( wkdir, "testConvertIndex" );
         testSpecificDir.mkdirs();
-        
+
         Index nonJdbmIndex = new GenericIndex( "ou", 10,  testSpecificDir );
 
         Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
@@ -756,7 +756,7 @@ public class JdbmStoreTest
 
         store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
 
-        // to drop the alias indices   
+        // to drop the alias indices
         childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
 
         parentDn = new DN( "ou=Engineering,o=Good Times Co.", schemaManager );
@@ -764,7 +764,7 @@ public class JdbmStoreTest
         assertEquals( 3, store.getSubAliasIndex().count() );
 
         DN newDn = parentDn.add( childDn.getRdn() );
-        
+
         store.move( childDn, parentDn, newDn, childEntry );
 
         assertEquals( 4, store.getSubAliasIndex().count() );
@@ -891,8 +891,8 @@ public class JdbmStoreTest
         store.modify( dn, mods );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
-    
-    
+
+
     @Test
     public void testDeleteUnusedIndexFiles() throws Exception
     {
@@ -900,22 +900,22 @@ public class JdbmStoreTest
         File ouIndexTxtFile = new File( wkdir, SchemaConstants.OU_AT_OID + "-ou.txt" );
         File uuidIndexDbFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + ".db" );
         File uuidIndexTxtFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + "-entryUUID.txt" );
-        
+
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
-        
+
         // destroy the store to manually start the init phase
         // by keeping the same work dir
         store.destroy();
-        
+
         // just assert again that ou and entryUUID files exist even after destroying the store
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
-        
+
         store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
@@ -924,7 +924,7 @@ public class JdbmStoreTest
         // do not add ou index this time
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
 
-        
+
         DN suffixDn = new DN( "o=Good Times Co.", schemaManager );
         store.setSuffixDn( suffixDn );
         // init the store to call deleteUnusedIndexFiles() method
@@ -936,5 +936,5 @@ public class JdbmStoreTest
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
     }
-    
+
 }
