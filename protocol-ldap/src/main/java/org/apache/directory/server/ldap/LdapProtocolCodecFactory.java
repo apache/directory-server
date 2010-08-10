@@ -22,9 +22,8 @@ package org.apache.directory.server.ldap;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
-import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
+import org.apache.directory.shared.ldap.codec.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
-import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -44,9 +43,9 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
 {
     /** the directory service for which this factor generates codecs */
     final private DirectoryService directoryService;
-    
+
     /** The tag stored into the session if we want to set a max PDU size */
-    public final static String MAX_PDU_SIZE = "MAX_PDU_SIZE"; 
+    public final static String MAX_PDU_SIZE = "MAX_PDU_SIZE";
 
 
     /**
@@ -61,19 +60,17 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getEncoder()
+    /**
+     * {@inheritDoc}
      */
     public ProtocolEncoder getEncoder( IoSession session )
     {
-        return new Asn1CodecEncoder( new MessageEncoder() );
+        return new LdapProtocolEncoder();
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getDecoder()
+    /**
+     * {@inheritDoc}
      */
     public ProtocolDecoder getDecoder( IoSession session )
     {
@@ -82,11 +79,11 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
             public boolean isBinary( String id )
             {
                 SchemaManager schemaManager = directoryService.getSchemaManager();
-                
+
                 try
                 {
                     AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
-                    return ! type.getSyntax().isHumanReadable();
+                    return !type.getSyntax().isHumanReadable();
                 }
                 catch ( Exception e )
                 {
@@ -94,11 +91,10 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
                     {
                         return false;
                     }
-                    
+
                     return id.endsWith( ";binary" );
                 }
             }
-        },
-        directoryService.getMaxPDUSize() ) );
+        }, directoryService.getMaxPDUSize() ) );
     }
 }
