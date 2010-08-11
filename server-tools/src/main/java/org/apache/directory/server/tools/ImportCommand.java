@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
-import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
@@ -62,6 +61,8 @@ import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -166,24 +167,34 @@ public class ImportCommand extends ToolCommand
 
                 if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
-                    messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-
-                    if ( messageResp instanceof BindResponseCodec )
+                    if ( ( ( LdapMessageContainer ) ldapMessageContainer ).isInternal() )
                     {
-                        BindResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getBindResponse();
+                        InternalMessage message = ( ( LdapMessageContainer ) ldapMessageContainer )
+                            .getInternalMessage();
 
-                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                        if ( message instanceof InternalBindResponse )
                         {
-                            System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
+                            InternalBindResponse resp = ( InternalBindResponse ) message;
+
+                            if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                            {
+                                System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
+                            }
                         }
                     }
-                    else if ( messageResp instanceof ExtendedResponseCodec )
+                    else
                     {
-                        ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getExtendedResponse();
+                        messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                        if ( messageResp instanceof ExtendedResponseCodec )
                         {
-                            System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
+                            ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer )
+                                .getExtendedResponse();
+
+                            if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                            {
+                                System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
+                            }
                         }
                     }
 
@@ -228,11 +239,11 @@ public class ImportCommand extends ToolCommand
         addRequest.setEntryDn( new DN( dn ) );
 
         // Copy the attributes
-        for ( EntryAttribute attribute:entry )
+        for ( EntryAttribute attribute : entry )
         {
             addRequest.addAttributeType( attribute.getId() );
 
-            for ( Value<?> value: attribute )
+            for ( Value<?> value : attribute )
             {
                 addRequest.addAttributeValue( value );
             }
@@ -251,7 +262,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
+        LdapResultCodec result = ( ( LdapResponseCodec ) response ).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -307,7 +318,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
+        LdapResultCodec result = ( ( LdapResponseCodec ) response ).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -369,7 +380,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
+        LdapResultCodec result = ( ( LdapResponseCodec ) response ).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -396,7 +407,7 @@ public class ImportCommand extends ToolCommand
      * @param msgId message id number
      */
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-         LdapInvalidDnException, EncoderException
+        LdapInvalidDnException, EncoderException
     {
         ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
 
@@ -410,12 +421,12 @@ public class ImportCommand extends ToolCommand
         modifyRequest.setObject( new DN( dn ) );
         modifyRequest.initModifications();
 
-        for ( Modification modification: entry.getModificationItems() )
+        for ( Modification modification : entry.getModificationItems() )
         {
             modifyRequest.setCurrentOperation( modification.getOperation() );
             modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getId() );
 
-            for ( Value<?> value:modification.getAttribute() )
+            for ( Value<?> value : modification.getAttribute() )
             {
                 modifyRequest.addAttributeValue( value );
             }
@@ -434,7 +445,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
+        LdapResultCodec result = ( ( LdapResponseCodec ) response ).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -462,8 +473,8 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-        LdapException, EncoderException
+    private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, LdapException,
+        EncoderException
     {
         switch ( entry.getChangeType().getChangeType() )
         {
@@ -521,7 +532,7 @@ public class ImportCommand extends ToolCommand
         // Get the bind response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
+        LdapResultCodec result = ( ( LdapResponseCodec ) response ).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -603,13 +614,13 @@ public class ImportCommand extends ToolCommand
             long t0 = System.currentTimeMillis();
             int nbAdd = 0;
 
-            for ( LdifEntry entry:ldifReader )
+            for ( LdifEntry entry : ldifReader )
             {
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {
-                    System.err
-                        .println( "Found an error while persing an entry : " + ldifReader.getError().getLocalizedMessage() );
+                    System.err.println( "Found an error while persing an entry : "
+                        + ldifReader.getError().getLocalizedMessage() );
 
                     if ( ignoreErrors == false )
                     {
@@ -652,13 +663,13 @@ public class ImportCommand extends ToolCommand
             long t0 = System.currentTimeMillis();
             int nbMod = 0;
 
-            for ( LdifEntry entry:ldifReader )
+            for ( LdifEntry entry : ldifReader )
             {
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {
-                    System.err
-                        .println( "Found an error while persing an entry : " + ldifReader.getError().getLocalizedMessage() );
+                    System.err.println( "Found an error while persing an entry : "
+                        + ldifReader.getError().getLocalizedMessage() );
 
                     if ( ignoreErrors == false )
                     {
@@ -695,7 +706,7 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Done!" );
             System.out.println( nbMod + " entries changed in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
         }
-        
+
         ldifReader.close();
 
         // Logout to the server
