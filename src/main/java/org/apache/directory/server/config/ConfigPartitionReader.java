@@ -289,6 +289,12 @@ public class ConfigPartitionReader
         
         cursor.close();
         
+        EntryAttribute keyStoreAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_KEYSTORE_FILE );
+        if( keyStoreAttr != null )
+        {
+            server.setKeystoreFile( keyStoreAttr.getString() );
+        }
+        
         return server;
     }
 
@@ -702,15 +708,10 @@ public class ConfigPartitionReader
             httpServer.setConfFile( confFileAttr.getString() );
         }
 
-        EntryAttribute webAppsAttr = httpEntry.get( ConfigSchemaConstants.ADS_HTTP_WEBAPPS );
+        DN webAppsDN = new DN( httpEntry.getDn().getName(), schemaManager );
 
-        if ( webAppsAttr != null )
-        {
-            DN webAppsDN = new DN( webAppsAttr.getString(), schemaManager );
-
-            Set<WebApp> webApps = getWebApps( webAppsDN );
-            httpServer.setWebApps( webApps );
-        }
+        Set<WebApp> webApps = getWebApps( webAppsDN );
+        httpServer.setWebApps( webApps );
 
         return httpServer;
     }
@@ -1373,7 +1374,7 @@ public class ConfigPartitionReader
         AttributeType adsHttpWarFileAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_HTTP_WARFILE );
         PresenceNode filter = new PresenceNode( adsHttpWarFileAt );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         IndexCursor<Long, Entry, Long> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
             controls );
 
