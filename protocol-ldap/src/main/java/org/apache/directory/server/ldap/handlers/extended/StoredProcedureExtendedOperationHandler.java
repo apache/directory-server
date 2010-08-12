@@ -60,8 +60,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
-    
-    
+
+
     public StoredProcedureExtendedOperationHandler()
     {
         super();
@@ -78,37 +78,38 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         StoredProcedure spBean = decodeBean( req.getPayload() );
-        
+
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
         ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
-        
+
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
-        
-        for ( StoredProcedureParameter pPojo:spBean.getParameters() )
+
+        for ( StoredProcedureParameter pPojo : spBean.getParameters() )
         {
             byte[] serializedValue = pPojo.getValue();
             Object value = SerializationUtils.deserialize( serializedValue );
-            
+
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
                 value = session.getCoreSession().lookup( new DN( paramCtx ) );
             }
-            
+
             valueList.add( value );
         }
-        
+
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
-        
+
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
-        
+
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( InternalExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
+        ( ( InternalExtendedResponse ) ( req.getResultResponse() ) ).setEncodedValue( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
-        
+
     }
-    
+
+
     private StoredProcedure decodeBean( byte[] payload )
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -125,19 +126,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         }
 
         StoredProcedure spBean = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
-        
+
         return spBean;
     }
 
-    
+
     public String getOid()
     {
         return StoredProcedureRequest.EXTENSION_OID;
     }
 
-
     private static final Set<String> EXTENSION_OIDS;
-    
+
     static
     {
         Set<String> s = new HashSet<String>();
@@ -145,8 +145,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         s.add( StoredProcedureResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( s );
     }
-    
-    
+
+
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;

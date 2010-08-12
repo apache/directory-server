@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
@@ -62,6 +61,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -181,24 +181,20 @@ public class ImportCommand extends ToolCommand
                                 System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                             }
                         }
-                    }
-                    else
-                    {
-                        messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-
-                        if ( messageResp instanceof ExtendedResponseCodec )
+                        else if ( message instanceof InternalExtendedResponse )
                         {
-                            ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer )
-                                .getExtendedResponse();
+                            InternalExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
+                                .getInternalExtendedResponse();
 
-                            if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                            if ( response.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                             {
-                                System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
+                                System.out.println( "Error : " + response.getLdapResult().getErrorMessage() );
                             }
                         }
                     }
 
                     ( ( LdapMessageContainer ) ldapMessageContainer ).clean();
+
                     break;
                 }
                 else
