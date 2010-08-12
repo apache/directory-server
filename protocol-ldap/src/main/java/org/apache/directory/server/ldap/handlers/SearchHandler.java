@@ -59,16 +59,16 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
-import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
+import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultReference;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -838,8 +838,8 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         if ( ( ref != null ) && ! hasManageDsaItControl )
         {
             // The entry is a referral.
-            InternalSearchResponseReference respRef;
-            respRef = new SearchResponseReferenceImpl( req.getMessageId() );
+            InternalSearchResultReference respRef;
+            respRef = new SearchResultReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
 
             for ( Value<?> val : ref )
@@ -884,8 +884,8 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         else
         {
             // The entry is not a referral, or the ManageDsaIt control is set
-            InternalSearchResponseEntry respEntry;
-            respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+            InternalSearchResultEntry respEntry;
+            respEntry = new SearchResultEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
 
