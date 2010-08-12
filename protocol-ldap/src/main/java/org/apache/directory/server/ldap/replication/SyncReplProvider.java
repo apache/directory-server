@@ -81,7 +81,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalIntermediateRes
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseDone;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -334,7 +334,7 @@ public class SyncReplProvider implements ReplicationProvider
         }
         else
         {
-            InternalSearchResponseDone searchDoneResp = ( InternalSearchResponseDone ) req.getResultResponse();
+            InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             SyncDoneValueControl syncDone = new SyncDoneValueControl();
             syncDone.setCookie( cookie );
@@ -404,7 +404,7 @@ public class SyncReplProvider implements ReplicationProvider
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
         req.setFilter( initialContentFilter );
 
-        InternalSearchResponseDone searchDoneResp = doSimpleSearch( session, req );
+        InternalSearchResultDone searchDoneResp = doSimpleSearch( session, req );
         
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -457,10 +457,10 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private InternalSearchResponseDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
+    private InternalSearchResultDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
         throws Exception
     {
-        InternalSearchResponseDone searchDoneResp = ( InternalSearchResponseDone ) req.getResultResponse();
+        InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
         InternalLdapResult ldapResult = searchDoneResp.getLdapResult();
 
         // A normal search
@@ -981,7 +981,7 @@ public class SyncReplProvider implements ReplicationProvider
     
     private void sendESyncRefreshRequired( LdapSession session, InternalSearchRequest req ) throws Exception
     {
-        InternalSearchResponseDone searchDoneResp = ( InternalSearchResponseDone ) req.getResultResponse();
+        InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
         SyncDoneValueControl syncDone = new SyncDoneValueControl();
         searchDoneResp.add( syncDone );

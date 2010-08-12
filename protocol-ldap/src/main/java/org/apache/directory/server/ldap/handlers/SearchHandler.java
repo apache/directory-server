@@ -66,7 +66,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseDone;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
 import org.apache.directory.shared.ldap.name.DN;
@@ -136,7 +136,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
          */
         if ( ! psearchControl.isChangesOnly() )
         {
-            InternalSearchResponseDone done = doSimpleSearch( session, req );
+            InternalSearchResultDone done = doSimpleSearch( session, req );
 
             // ok if normal search beforehand failed somehow quickly abandon psearch
             if ( done.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -500,7 +500,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
      * Manage the abandoned Paged Search (when paged size = 0). We have to
      * remove the cookie and its associated cursor from the session.
      */
-    private InternalSearchResponseDone abandonPagedSearch( LdapSession session, InternalSearchRequest req )
+    private InternalSearchResultDone abandonPagedSearch( LdapSession session, InternalSearchRequest req )
         throws Exception
     {
         PagedResultsControl pagedResultsControl = null;
@@ -539,7 +539,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
         req.getResultResponse().add( pagedResultsControl );
-        return ( InternalSearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResultDone ) req.getResultResponse();
     }
 
 
@@ -562,7 +562,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     /**
      * Handle a Paged Search request.
      */
-    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedResultsControl control )
+    private InternalSearchResultDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedResultsControl control )
         throws Exception
     {
         PagedResultsControl pagedSearchControl = control;
@@ -638,7 +638,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
-                return ( InternalSearchResponseDone ) req.getResultResponse();
+                return ( InternalSearchResultDone ) req.getResultResponse();
             }
             else
             {
@@ -677,7 +677,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
                 ldapResult.setErrorMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
 
-                return ( InternalSearchResponseDone ) req.getResultResponse();
+                return ( InternalSearchResultDone ) req.getResultResponse();
             }
 
             if ( pagedContext.hasSameRequest( req, session ) )
@@ -742,7 +742,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             }
         }
 
-        return ( InternalSearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResultDone ) req.getResultResponse();
     }
 
 
@@ -757,7 +757,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
      * @return the result done
      * @throws Exception if there are failures while processing the request
      */
-    private InternalSearchResponseDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
+    private InternalSearchResultDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
         throws Exception
     {
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
@@ -814,7 +814,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             }
         }
 
-        return ( InternalSearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResultDone ) req.getResultResponse();
     }
 
 
@@ -1040,7 +1040,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             // ===============================================================
 
             //long t0 = System.nanoTime();
-            InternalSearchResponseDone done = doSimpleSearch( session, req );
+            InternalSearchResultDone done = doSimpleSearch( session, req );
             //long t1 = System.nanoTime();
             session.getIoSession().write( done );
             //.print( "Handler;" + ((t1-t0)/1000) + ";" );
