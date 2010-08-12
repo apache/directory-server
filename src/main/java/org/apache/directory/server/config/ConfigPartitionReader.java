@@ -112,6 +112,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 ;
@@ -293,7 +294,14 @@ public class ConfigPartitionReader
         if( keyStoreAttr != null )
         {
             server.setKeystoreFile( keyStoreAttr.getString() );
+            
+            EntryAttribute certPwdAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_CERT_PASSWORD );
+            if( certPwdAttr != null )
+            {
+                server.setCertificatePassword( certPwdAttr.getString() );
+            }
         }
+        
         
         return server;
     }

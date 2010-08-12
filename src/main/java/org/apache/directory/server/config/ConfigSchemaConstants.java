@@ -224,4 +224,6 @@ public interface ConfigSchemaConstants
     String ADS_LDAP_SERVER_EXT_OP_HANDLER_FQCN = "ads-ldapServerExtendedOpHandlerClass";
     
     String ADS_LDAP_SERVER_KEYSTORE_FILE = "ads-ldapserverkeystorefile";
+    
+    String ADS_LDAP_SERVER_CERT_PASSWORD = "ads-ldapServerCertificatePassword";
 }
