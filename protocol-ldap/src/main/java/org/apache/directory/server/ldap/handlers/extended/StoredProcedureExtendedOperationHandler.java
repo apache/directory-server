@@ -77,7 +77,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 
     public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
-        StoredProcedure spBean = decodeBean( req.getPayload() );
+        StoredProcedure spBean = decodeBean( req.getEncodedValue() );
 
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
         ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );

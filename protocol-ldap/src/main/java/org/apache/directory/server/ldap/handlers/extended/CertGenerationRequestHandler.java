@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
+
 /**
  * An extended handler for digital certificate generation
  * 
@@ -74,26 +75,27 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
 
     public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
-        ByteBuffer bb = ByteBuffer.wrap( req.getPayload() );
+        ByteBuffer bb = ByteBuffer.wrap( req.getEncodedValue() );
         Asn1Decoder decoder = new CertGenerationDecoder();
         CertGenerationContainer container = new CertGenerationContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
         }
-        catch( DecoderException e )
+        catch ( DecoderException e )
         {
             throw e;
         }
-        
+
         CertGenerationObject certGenObj = container.getCertGenerationObject();
-        
+
         Entry entry = session.getCoreSession().lookup( new DN( certGenObj.getTargetDN() ) );
-        
+
         if ( entry != null )
         {
-            TlsKeyGenerator.addKeyPair( ((ClonedServerEntry)entry).getOriginalEntry(), certGenObj.getIssuerDN(), certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
+            TlsKeyGenerator.addKeyPair( ( ( ClonedServerEntry ) entry ).getOriginalEntry(), certGenObj.getIssuerDN(),
+                certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
         }
     }
 

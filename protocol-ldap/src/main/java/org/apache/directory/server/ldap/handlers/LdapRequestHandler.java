@@ -80,8 +80,8 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     {
         this.ldapServer = ldapServer;
     }
-    
-    
+
+
     /**
      * Checks to see if confidentiality requirements are met.  If the 
      * LdapServer requires confidentiality and the SSLFilter is engaged
@@ -98,24 +98,25 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
      */
     public final boolean isConfidentialityRequirementSatisfied( IoSession session )
     {
-       
-       if ( ! ldapServer.isConfidentialityRequired() )
-       {
-           return true;
-       }
-       
+
+        if ( !ldapServer.isConfidentialityRequired() )
+        {
+            return true;
+        }
+
         IoFilterChain chain = session.getFilterChain();
         return chain.contains( "sslFilter" );
     }
 
-    
-    public void rejectWithoutConfidentiality( IoSession session, InternalResultResponse resp ) 
+
+    public void rejectWithoutConfidentiality( IoSession session, InternalResultResponse resp )
     {
         InternalLdapResult result = resp.getLdapResult();
         result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
         session.write( resp );
     }
+
 
     /**
      *{@inheritDoc} 
@@ -125,24 +126,23 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
-        
-        if( ldapSession == null )
+
+        if ( ldapSession == null )
         {
             // in some cases the session is becoming null though the client is sending the UnbindRequest
             // before closing
-            LOG.info( "ignoring the message {} received from null session", message  );
+            LOG.info( "ignoring the message {} received from null session", message );
             return;
         }
-        
+
         // First check that the client hasn't issued a previous BindRequest, unless it
         // was a SASL BindRequest
         if ( ldapSession.isAuthPending() )
         {
             // Only SASL BinRequest are allowed if we already are handling a 
             // SASL BindRequest
-            if ( !( message instanceof BindRequestImpl ) || 
-                 ((BindRequestImpl)message).isSimple() ||
-                 ldapSession.isSimpleAuthPending() )
+            if ( !( message instanceof BindRequestImpl ) || ( ( BindRequestImpl ) message ).isSimple()
+                || ldapSession.isSimpleAuthPending() )
             {
                 LOG.error( I18n.err( I18n.ERR_732 ) );
                 InternalBindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
@@ -153,35 +153,37 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
                 return;
             }
         }
-        
+
         // TODO - session you get from LdapServer should have the ldapServer 
         // member already set no?  Should remove these lines where ever they
         // may be if that's the case.
         ldapSession.setLdapServer( ldapServer );
-        
+
         // protect against insecure conns when confidentiality is required 
-        if ( ! isConfidentialityRequirementSatisfied( session ) )
+        if ( !isConfidentialityRequirementSatisfied( session ) )
         {
             if ( message instanceof InternalExtendedRequest )
             {
                 // Reject all extended operations except StartTls  
                 InternalExtendedRequest req = ( InternalExtendedRequest ) message;
-                
-                if ( ! req.getOid().equals( StartTlsHandler.EXTENSION_OID ) )
+
+                if ( !req.getID().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
                     rejectWithoutConfidentiality( session, req.getResultResponse() );
                     return;
                 }
-                
+
                 // Allow StartTls extended operations to go through
             }
             else if ( message instanceof InternalResultResponseRequest )
             {
                 // Reject all other operations that have a result response  
-                rejectWithoutConfidentiality( session, ( ( InternalResultResponseRequest ) message ).getResultResponse() );
+                rejectWithoutConfidentiality( session, ( ( InternalResultResponseRequest ) message )
+                    .getResultResponse() );
                 return;
             }
-            else // Just return from unbind, and abandon immediately
+            else
+            // Just return from unbind, and abandon immediately
             {
                 return;
             }
@@ -196,7 +198,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         else
         {
             CoreSession coreSession = null;
-            
+
             /*
              * All requests except bind automatically presume the authentication 
              * is anonymous if the session has not been authenticated.  Hence a
@@ -208,7 +210,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
                 handle( ldapSession, message );
                 return;
             }
-            
+
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
 
@@ -216,12 +218,13 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             {
                 return;
             }
-            
+
             handle( ldapSession, message );
             return;
         }
     }
-    
+
+
     /**
      * Handle a Ldap message associated with a session
      * 
@@ -230,8 +233,8 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
      * @throws Exception If there is an error during the processing of this message
      */
     public abstract void handle( LdapSession session, T message ) throws Exception;
-    
-    
+
+
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
@@ -251,7 +254,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         {
             code = ResultCodeEnum.getBestEstimate( e, req.getType() );
         }
-        
+
         result.setResultCode( code );
 
         /*
@@ -264,10 +267,10 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         if ( LOG.isDebugEnabled() )
         {
             LOG.debug( msg, e );
-        
+
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
-        
+
         result.setErrorMessage( msg );
 
         if ( e instanceof LdapOperationException )
@@ -275,29 +278,26 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             LdapOperationException ne = ( LdapOperationException ) e;
 
             // Add the matchedDN if necessary
-            boolean setMatchedDn = 
-                code == ResultCodeEnum.NO_SUCH_OBJECT             || 
-                code == ResultCodeEnum.ALIAS_PROBLEM              ||
-                code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
-                code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-            
+            boolean setMatchedDn = code == ResultCodeEnum.NO_SUCH_OBJECT || code == ResultCodeEnum.ALIAS_PROBLEM
+                || code == ResultCodeEnum.INVALID_DN_SYNTAX || code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
                 result.setMatchedDn( ( DN ) ne.getResolvedDn() );
             }
-            
+
             // Add the referrals if necessary
             if ( e instanceof LdapReferralException )
             {
                 InternalReferral referrals = new ReferralImpl();
-                
+
                 do
                 {
-                    String ref = ((LdapReferralException)e).getReferralInfo();
+                    String ref = ( ( LdapReferralException ) e ).getReferralInfo();
                     referrals.addLdapUrl( ref );
                 }
-                while ( ((LdapReferralException)e).skipReferral() );
-                
+                while ( ( ( LdapReferralException ) e ).skipReferral() );
+
                 result.setReferral( referrals );
             }
         }

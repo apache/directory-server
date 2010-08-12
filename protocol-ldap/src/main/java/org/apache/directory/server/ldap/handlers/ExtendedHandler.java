@@ -38,13 +38,13 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
 {
     public void handle( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
-        ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getOid() );
+        ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getID() );
 
         if ( handler == null )
         {
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
-            String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
+            String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getID();
             InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
@@ -61,7 +61,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
             InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
             result.setErrorMessage( ResultCodeEnum.OTHER
-                + ": Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
+                + ": Extended operation handler for the specified EXTENSION_OID (" + req.getID()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
             InternalExtendedResponse resp = ( InternalExtendedResponse ) req.getResultResponse();
             resp.setEncodedValue( new byte[0] );
