@@ -191,7 +191,7 @@ public class ConfigPartitionReader
      * @return the LdapServer instance without a DirectoryService
      * @throws Exception
      */
-    public LdapServer getLdapServer() throws Exception
+    public LdapServer createLdapServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_OC ) );
@@ -222,7 +222,7 @@ public class ConfigPartitionReader
         LdapServer server = new LdapServer();
         server.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ldapServerEntry ) );
 
-        Transport[] transports = getTransports( ldapServerEntry.getDn() );
+        Transport[] transports = createTransports( ldapServerEntry.getDn() );
         server.setTransports( transports );
 
         EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
@@ -242,7 +242,7 @@ public class ConfigPartitionReader
             }
         }
         
-        server.setReplProviderConfigs( getReplProviderConfigs() );
+        server.setReplProviderConfigs( createReplProviderConfigs() );
         
         EntryAttribute searchBaseAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
         if( searchBaseAttr != null )
@@ -262,7 +262,7 @@ public class ConfigPartitionReader
             if( isEnabled( saslMechHandlerEntry ) )
             {
                 String mechanism = getString( ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_NAME, saslMechHandlerEntry );
-                server.addSaslMechanismHandler( mechanism, getSaslMechHandler( saslMechHandlerEntry ) );
+                server.addSaslMechanismHandler( mechanism, createSaslMechHandler( saslMechHandlerEntry ) );
             }
         }
         
@@ -307,7 +307,7 @@ public class ConfigPartitionReader
     }
 
 
-    public KdcServer getKdcServer() throws Exception
+    public KdcServer createKdcServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC ) );
@@ -339,7 +339,7 @@ public class ConfigPartitionReader
 
         kdcServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
 
-        Transport[] transports = getTransports( kdcEntry.getDn() );
+        Transport[] transports = createTransports( kdcEntry.getDn() );
         kdcServer.setTransports( transports );
 
         // MAY attributes
@@ -454,7 +454,7 @@ public class ConfigPartitionReader
     }
 
 
-    public DnsServer getDnsServer() throws Exception
+    public DnsServer createDnsServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DNS_SERVER_OC ) );
@@ -486,7 +486,7 @@ public class ConfigPartitionReader
 
         dnsServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
 
-        Transport[] transports = getTransports( dnsEntry.getDn() );
+        Transport[] transports = createTransports( dnsEntry.getDn() );
         dnsServer.setTransports( transports );
 
         return dnsServer;
@@ -494,7 +494,7 @@ public class ConfigPartitionReader
 
 
     //TODO making this method invisible cause there is no DhcpServer exists as of now
-    private DhcpService getDhcpServer() throws Exception
+    private DhcpService createDhcpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DHCP_SERVER_OC ) );
@@ -529,7 +529,7 @@ public class ConfigPartitionReader
     }
 
 
-    public NtpServer getNtpServer() throws Exception
+    public NtpServer createNtpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_NTP_SERVER_OC ) );
@@ -561,14 +561,14 @@ public class ConfigPartitionReader
 
         ntpServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
 
-        Transport[] transports = getTransports( ntpEntry.getDn() );
+        Transport[] transports = createTransports( ntpEntry.getDn() );
         ntpServer.setTransports( transports );
 
         return ntpServer;
     }
 
     
-    public ChangePasswordServer getChangePwdServer() throws Exception
+    public ChangePasswordServer createChangePwdServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_CHANGEPWD_SERVER_OC ) );
@@ -599,7 +599,7 @@ public class ConfigPartitionReader
 
         chgPwdServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, chgPwdEntry ) );
 
-        Transport[] transports = getTransports( chgPwdEntry.getDn() );
+        Transport[] transports = createTransports( chgPwdEntry.getDn() );
         chgPwdServer.setTransports( transports );
 
         // MAY attributes
@@ -672,7 +672,7 @@ public class ConfigPartitionReader
     }
 
     
-    public HttpServer getHttpServer() throws Exception
+    public HttpServer createHttpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_HTTP_SERVER_OC ) );
@@ -718,7 +718,7 @@ public class ConfigPartitionReader
 
         DN webAppsDN = new DN( httpEntry.getDn().getName(), schemaManager );
 
-        Set<WebApp> webApps = getWebApps( webAppsDN );
+        Set<WebApp> webApps = createWebApps( webAppsDN );
         httpServer.setWebApps( webApps );
 
         return httpServer;
@@ -731,7 +731,7 @@ public class ConfigPartitionReader
      *
      * @throws Exception
      */
-    public DirectoryService getDirectoryService() throws Exception
+    public DirectoryService createDirectoryService() throws Exception
     {
         AttributeType adsDirectoryServiceidAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
         PresenceNode filter = new PresenceNode( adsDirectoryServiceidAt );
@@ -761,13 +761,13 @@ public class ConfigPartitionReader
         dirService.setInstanceId( getString( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID, dsEntry ) );
         dirService.setReplicaId( getInt( ConfigSchemaConstants.ADS_DS_REPLICA_ID, dsEntry ) );
 
-        List<Interceptor> interceptors = getInterceptors( dsEntry.getDn() );
+        List<Interceptor> interceptors = createInterceptors( dsEntry.getDn() );
         dirService.setInterceptors( interceptors );
         
         AuthenticationInterceptor authnInterceptor = ( AuthenticationInterceptor ) dirService.getInterceptor( AuthenticationInterceptor.class.getName() );
-        authnInterceptor.setPwdPolicyConfig( getPwdPolicyConfig( dsEntry.getDn() ) );
+        authnInterceptor.setPwdPolicyConfig( createPwdPolicyConfig( dsEntry.getDn() ) );
 
-        Map<String, Partition> partitions = getPartitions( dsEntry.getDn() );
+        Map<String, Partition> partitions = createPartitions( dsEntry.getDn() );
 
         Partition systemPartition = partitions.remove( "system" );
 
@@ -799,7 +799,7 @@ public class ConfigPartitionReader
         if ( changeLogAttr != null )
         {
             DN clDN = new DN( changeLogAttr.getString(), schemaManager );
-            ChangeLog cl = getChangeLog( clDN );
+            ChangeLog cl = createChangeLog( clDN );
             dirService.setChangeLog( cl );
         }
 
@@ -815,7 +815,7 @@ public class ConfigPartitionReader
         if ( journalAttr != null )
         {
             DN journalDN = new DN( journalAttr.getString(), schemaManager );
-            dirService.setJournal( getJournal( journalDN ) );
+            dirService.setJournal( createJournal( journalDN ) );
         }
 
         EntryAttribute maxPduAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_MAXPDU_SIZE );
@@ -851,7 +851,7 @@ public class ConfigPartitionReader
         if ( testEntryAttr != null )
         {
             String entryFilePath = testEntryAttr.getString();
-            dirService.setTestEntries( getTestEntries( entryFilePath ) );
+            dirService.setTestEntries( createTestEntries( entryFilePath ) );
         }
 
         if ( !isEnabled( dsEntry ) )
@@ -865,7 +865,7 @@ public class ConfigPartitionReader
     }
 
 
-    private List<SyncreplConfiguration> getReplProviderConfigs() throws Exception
+    private List<SyncreplConfiguration> createReplProviderConfigs() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_REPL_PROVIDER_OC ) );
@@ -1002,7 +1002,7 @@ public class ConfigPartitionReader
      * @return a list of instantiated Interceptor objects
      * @throws Exception
      */
-    private List<Interceptor> getInterceptors( DN dirServiceDN ) throws Exception
+    private List<Interceptor> createInterceptors( DN dirServiceDN ) throws Exception
     {
         AttributeType adsInterceptorIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
         PresenceNode filter = new PresenceNode( adsInterceptorIdAt );
@@ -1054,7 +1054,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Map<String, Partition> getPartitions( DN dirServiceDN ) throws Exception
+    private Map<String, Partition> createPartitions( DN dirServiceDN ) throws Exception
     {
         AttributeType adsPartitionIdeAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_PARTITION_ID );
         PresenceNode filter = new PresenceNode( adsPartitionIdeAt );
@@ -1079,7 +1079,7 @@ public class ConfigPartitionReader
 
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMPARTITION ) )
             {
-                JdbmPartition partition = getJdbmPartition( partitionEntry );
+                JdbmPartition partition = createJdbmPartition( partitionEntry );
                 partitions.put( partition.getId(), partition );
             }
             else
@@ -1094,7 +1094,7 @@ public class ConfigPartitionReader
     }
 
 
-    private JdbmPartition getJdbmPartition( Entry partitionEntry ) throws Exception
+    public JdbmPartition createJdbmPartition( Entry partitionEntry ) throws Exception
     {
         JdbmPartition partition = new JdbmPartition();
         partition.setSchemaManager( schemaManager );
@@ -1126,14 +1126,14 @@ public class ConfigPartitionReader
             partition.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
         }
 
-        Set<Index<?, Entry, Long>> indexedAttributes = getIndexes( partitionEntry.getDn() );
+        Set<Index<?, Entry, Long>> indexedAttributes = createIndexes( partitionEntry.getDn() );
         partition.setIndexedAttributes( indexedAttributes );
 
         return partition;
     }
 
 
-    private Set<Index<?, Entry, Long>> getIndexes( DN partitionDN ) throws Exception
+    private Set<Index<?, Entry, Long>> createIndexes( DN partitionDN ) throws Exception
     {
         AttributeType adsIndexAttributeIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
         PresenceNode filter = new PresenceNode( adsIndexAttributeIdAt );
@@ -1159,7 +1159,7 @@ public class ConfigPartitionReader
 
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMINDEX ) )
             {
-                indexes.add( getJdbmIndex( indexEntry ) );
+                indexes.add( createJdbmIndex( indexEntry ) );
             }
             else
             {
@@ -1171,7 +1171,7 @@ public class ConfigPartitionReader
     }
 
 
-    private JdbmIndex<?, Entry> getJdbmIndex( Entry indexEntry ) throws Exception
+    public JdbmIndex<?, Entry> createJdbmIndex( Entry indexEntry ) throws Exception
     {
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         index.setAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
@@ -1193,7 +1193,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Transport[] getTransports( DN adsServerDN ) throws Exception
+    private Transport[] createTransports( DN adsServerDN ) throws Exception
     {
         AttributeType adsTransportIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_TRANSPORT_ID );
         PresenceNode filter = new PresenceNode( adsTransportIdAt );
@@ -1215,7 +1215,7 @@ public class ConfigPartitionReader
                 continue;
             }
 
-            transports.add( getTransport( transportEntry ) );
+            transports.add( createTransport( transportEntry ) );
         }
 
         return transports.toArray( new Transport[]
@@ -1225,7 +1225,7 @@ public class ConfigPartitionReader
 
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    private Transport getTransport( Entry transportEntry ) throws Exception
+    public Transport createTransport( Entry transportEntry ) throws Exception
     {
         Transport transport = null;
 
@@ -1277,7 +1277,7 @@ public class ConfigPartitionReader
     }
 
 
-    private ChangeLog getChangeLog( DN changelogDN ) throws Exception
+    public ChangeLog createChangeLog( DN changelogDN ) throws Exception
     {
         long id = configPartition.getEntryId( changelogDN );
         Entry clEntry = configPartition.lookup( id );
@@ -1301,7 +1301,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Journal getJournal( DN journalDN ) throws Exception
+    public Journal createJournal( DN journalDN ) throws Exception
     {
         long id = configPartition.getEntryId( journalDN );
         Entry jlEntry = configPartition.lookup( id );
@@ -1337,7 +1337,7 @@ public class ConfigPartitionReader
     }
 
 
-    private List<LdifEntry> getTestEntries( String entryFilePath ) throws Exception
+    private List<LdifEntry> createTestEntries( String entryFilePath ) throws Exception
     {
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
@@ -1377,7 +1377,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Set<WebApp> getWebApps( DN webAppsDN ) throws Exception
+    private Set<WebApp> createWebApps( DN webAppsDN ) throws Exception
     {
         AttributeType adsHttpWarFileAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_HTTP_WARFILE );
         PresenceNode filter = new PresenceNode( adsHttpWarFileAt );
@@ -1418,7 +1418,7 @@ public class ConfigPartitionReader
      * @return an instance of the MechanismHandler type
      * @throws Exception
      */
-    private MechanismHandler getSaslMechHandler( Entry saslMechHandlerEntry ) throws Exception
+    public MechanismHandler createSaslMechHandler( Entry saslMechHandlerEntry ) throws Exception
     {
         String mechClassName = saslMechHandlerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_CLASS_NAME ).getString();
         
@@ -1448,7 +1448,7 @@ public class ConfigPartitionReader
      * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
      * @throws Exception
      */
-    private PasswordPolicyConfiguration getPwdPolicyConfig( DN dirServiceDN ) throws Exception
+    public PasswordPolicyConfiguration createPwdPolicyConfig( DN dirServiceDN ) throws Exception
     {
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<String> filter = new EqualityNode<String>( ocAt, new StringValue( PWD_POLICY_OC ) );
