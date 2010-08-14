@@ -113,7 +113,7 @@ public class ConfigPartitionReaderTest
         configPartition.initialize();
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        dirService = cpReader.getDirectoryService();
+        dirService = cpReader.createDirectoryService();
 
         SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
 
@@ -127,7 +127,7 @@ public class ConfigPartitionReaderTest
         dirService.setSchemaManager( schemaManager );
         dirService.startup();
 
-        server = cpReader.getLdapServer();
+        server = cpReader.createLdapServer();
         server.setDirectoryService( dirService );
 
         // this is a hack to use a different port than the one
