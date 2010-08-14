@@ -34,8 +34,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -48,6 +46,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -62,17 +62,14 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
 
     private CoreSession session;
+
 
     @Before
     public void setup() throws Exception
@@ -100,7 +97,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
@@ -194,7 +191,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
+            InternalModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( response );
 
@@ -225,7 +222,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( dn );
         modReq.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        InternalModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
 
         modReq = new ModifyRequest( dn );
@@ -251,10 +248,10 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         modReq.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
         modReq.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        InternalModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        Entry loadedEntry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
 
         assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
         assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );

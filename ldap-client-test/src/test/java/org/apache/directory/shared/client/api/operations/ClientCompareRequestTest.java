@@ -32,7 +32,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
 import org.apache.directory.ldap.client.api.message.CompareRequest;
-import org.apache.directory.ldap.client.api.message.CompareResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -40,11 +39,13 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalCompareResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * Tests the compare operation
@@ -52,29 +53,26 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientCompareRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
-    
+
     private CoreSession session;
-    
+
+
     @Before
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
-        
+
         session = ldapServer.getDirectoryService().getSession();
     }
 
-    
+
     /**
      * Close the LdapConnection
      */
@@ -88,28 +86,28 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
     }
-    
-    
+
+
     @Test
     public void testCompare() throws Exception
     {
         DN dn = new DN( "uid=admin,ou=system" );
-        
-        CompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
+
+        InternalCompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
         assertNotNull( response );
         assertTrue( response.isTrue() );
-        
+
         response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
         assertNotNull( response );
         assertTrue( response.isTrue() );
     }
 
-    
+
     @Test
     public void testCompareAsync() throws Exception
     {
@@ -119,17 +117,17 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( SchemaConstants.UID_AT );
         compareRequest.setValue( "admin" );
-        
-        connection.compare( compareRequest);
+
+        connection.compare( compareRequest );
 
         assertTrue( session.exists( dn ) );
 
         CompareFuture compareFuture = connection.compareAsync( compareRequest );
-        
+
         try
         {
-            CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
-            
+            InternalCompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
+
             assertNotNull( compareResponse );
             assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );
         }

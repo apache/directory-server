@@ -34,9 +34,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.ldap.client.api.message.AddRequest;
-import org.apache.directory.ldap.client.api.message.AddResponse;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -48,6 +45,9 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -55,23 +55,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Tests the add operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientAddRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
     private CoreSession session;
-    
+
+
     @Before
     public void setup() throws Exception
     {
@@ -79,11 +77,11 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         connection.setTimeOut( 0 );
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
-        
+
         session = ldapServer.getDirectoryService().getSession();
     }
 
-    
+
     /**
      * Close the LdapConnection
      */
@@ -97,49 +95,49 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
     }
-    
-    
+
+
     @Test
     public void testAdd() throws Exception
     {
         DN dn = new DN( "cn=testadd,ou=system" );
-        Entry entry = new DefaultEntry( dn ); 
+        Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testadd_cn" );
         entry.add( SchemaConstants.SN_AT, "testadd_sn" );
-        
+
         assertFalse( session.exists( dn ) );
-        
-        AddResponse response = connection.add( entry );
+
+        InternalAddResponse response = connection.add( entry );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-        
+
         assertTrue( session.exists( dn ) );
     }
 
-    
+
     @Test
     public void testAddAsync() throws Exception
     {
         DN dn = new DN( "cn=testAsyncAdd,ou=system" );
-        Entry entry = new DefaultEntry( dn ); 
+        Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testAsyncAdd_cn" );
         entry.add( SchemaConstants.SN_AT, "testAsyncAdd_sn" );
-        
+
         assertFalse( session.exists( dn ) );
 
-        AddFuture addFuture = connection.addAsync( new AddRequest( entry ));
+        AddFuture addFuture = connection.addAsync( new AddRequest( entry ) );
 
         try
         {
-            AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
-            
+            InternalAddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
+
             assertNotNull( addResponse );
             assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
             assertTrue( connection.isAuthenticated() );
@@ -150,18 +148,11 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     @ApplyLdifs(
-        {
-            "dn: cn=kayyagari,ou=system",
-            "objectClass: person",
-            "objectClass: top",
-            "cn: kayyagari",
-            "description: dbugger",
-            "sn: dbugger",
-            "userPassword: secret"
-        })
+        { "dn: cn=kayyagari,ou=system", "objectClass: person", "objectClass: top", "cn: kayyagari",
+            "description: dbugger", "sn: dbugger", "userPassword: secret" })
     @Test
     /**
      * tests adding entryUUID, entryCSN, creatorsName and createTimestamp attributes
@@ -174,7 +165,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         String csn = new CsnFactory( 0 ).newInstance().toString();
         String creator = dn.getName();
         String createdTime = DateUtils.getGeneralizedTime();
-        
+
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "x" );
@@ -183,26 +174,26 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         entry.add( SchemaConstants.ENTRY_CSN_AT, csn );
         entry.add( SchemaConstants.CREATORS_NAME_AT, creator );
         entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, createdTime );
-        
+
         connection.add( entry );
-        
-        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
-        
+
+        Entry loadedEntry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+
         // successful for admin
         assertEquals( uuid, loadedEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
         assertEquals( csn, loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
         assertEquals( creator, loadedEntry.get( SchemaConstants.CREATORS_NAME_AT ).getString() );
         assertEquals( createdTime, loadedEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString() );
-        
+
         connection.delete( dn );
         connection.unBind();
-        
+
         // connect as non admin user and try to add entry with uuid and csn
-        BindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
+        InternalBindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
         assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
-        
-        AddResponse resp = connection.add( entry );
+
+        InternalAddResponse resp = connection.add( entry );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
     }
-    
+
 }

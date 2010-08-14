@@ -23,7 +23,6 @@ package org.apache.directory.server.core.operations.search;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -34,6 +33,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,88 +44,30 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS(
-        name="AddPerfDS",
-        partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
-                    entryLdif =
-                        "dn: dc=example,dc=com\n" +
-                        "dc: example\n" +
-                        "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass", cacheSize = 1000 ),
-                    @CreateIndex( attribute = "sn", cacheSize = 1000 ),
-                    @CreateIndex(attribute = "cn", cacheSize = 1000),
-                    @CreateIndex( attribute = "userCertificate", cacheSize = 1000 )
-                } )
-                
-        },
-        enableChangeLog = false )
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "AddPerfDS", partitions =
+    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
+        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
+        { @CreateIndex(attribute = "objectClass", cacheSize = 1000), @CreateIndex(attribute = "sn", cacheSize = 1000),
+            @CreateIndex(attribute = "cn", cacheSize = 1000),
+            @CreateIndex(attribute = "userCertificate", cacheSize = 1000) })
+
+    }, enableChangeLog = false)
 @ApplyLdifs(
-    {
-        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
-        "objectclass: metaAttributeType",
-        "objectclass: metaTop",
-        "objectclass: top",
-        "m-oid: 2.2.0",
-        "m-name: binaryAttribute",
-        "m-description: an attribute storing binary values",
-        "m-equality: octetStringMatch",
-        "m-ordering: octetStringOrderingMatch",
-        "m-substr: octetStringSubstringsMatch",
-        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.40",
-        "m-length: 0",
-        "",
-        "dn: ou=testingBin,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testingBin",
-        "binaryAttribute:: AQIDBA==",
-        "",
-        "dn: cn=testing00,ou=system",
-        "objectClass: top",
-        "objectClass: person", 
-        "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", 
-        "cn: testing00", 
-        "sn: Testing 0", 
-        "userCertificate:: AQIDBA==",
-        "",
-        "dn: cn=testing01,ou=system",
-        "objectClass: top",
-        "objectClass: person", 
-        "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", 
-        "cn: testing01", 
-        "sn: Testing 1", 
-        "",
-        "dn: cn=testing02,ou=system",
-        "objectClass: top",
-        "objectClass: person", 
-        "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", 
-        "cn: testing02", 
-        "sn: Testing 2", 
-        "userCertificate:: CQoLD==",
-        "",
-        "dn: cn=testing03,ou=system",
-        "objectClass: top",
-        "objectClass: person", 
-        "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", 
-        "cn: testing03", 
-        "sn: Testing 3", 
-        "userCertificate:: AQIDBA=="
-    }
-    )
+    { "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema", "objectclass: metaAttributeType",
+        "objectclass: metaTop", "objectclass: top", "m-oid: 2.2.0", "m-name: binaryAttribute",
+        "m-description: an attribute storing binary values", "m-equality: octetStringMatch",
+        "m-ordering: octetStringOrderingMatch", "m-substr: octetStringSubstringsMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.40", "m-length: 0", "", "dn: ou=testingBin,ou=system",
+        "objectClass: top", "objectClass: organizationalUnit", "objectClass: extensibleObject", "ou: testingBin",
+        "binaryAttribute:: AQIDBA==", "", "dn: cn=testing00,ou=system", "objectClass: top", "objectClass: person",
+        "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "cn: testing00", "sn: Testing 0",
+        "userCertificate:: AQIDBA==", "", "dn: cn=testing01,ou=system", "objectClass: top", "objectClass: person",
+        "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "cn: testing01", "sn: Testing 1", "",
+        "dn: cn=testing02,ou=system", "objectClass: top", "objectClass: person", "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson", "cn: testing02", "sn: Testing 2", "userCertificate:: CQoLD==", "",
+        "dn: cn=testing03,ou=system", "objectClass: top", "objectClass: person", "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson", "cn: testing03", "sn: Testing 3", "userCertificate:: AQIDBA==" })
 public class SearchBinaryIT extends AbstractLdapTestUnit
 {
     /**
@@ -137,8 +79,8 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         // Do a search with a filter based on certificate, get back all the entries
-        Cursor<SearchResponse> responses = connection.search( "ou=system", "(userCertificate=*)", SearchScope.SUBTREE,
-            "*" );
+        Cursor<InternalResponse> responses = connection.search( "ou=system", "(userCertificate=*)",
+            SearchScope.SUBTREE, "*" );
 
         int i = 0;
 
@@ -154,8 +96,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         assertEquals( 4, i );
 
         // Now, filter the entry with a cn starting with testing, and a certificate 
-        responses = connection.search( "ou=system", "(&(cn=testing*)(userCertificate=*))",
-            SearchScope.SUBTREE, "*" );
+        responses = connection.search( "ou=system", "(&(cn=testing*)(userCertificate=*))", SearchScope.SUBTREE, "*" );
 
         i = 0;
 
@@ -202,17 +143,20 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         connection.close();
     }
 
+
     /**
      * Test search on a binary attribute
      */
     @Test
-    @Ignore // This test fails atm. Cf DIRSERVER-1389
+    @Ignore
+    // This test fails atm. Cf DIRSERVER-1389
     public void testSearchSubstrOnBinaryAttribute() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         // Check that searching for an entry using a valid SUBSTR filter works
-        Cursor<SearchResponse> responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)",
+            SearchScope.SUBTREE, "*" );
 
         int i = 0;
 

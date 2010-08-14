@@ -30,10 +30,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -44,6 +42,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,32 +57,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( 
-    name = "ClientApiPerfTestDS",
-    partitions =
-    {
-        @CreatePartition(
-            name = "example",
-            suffix = "dc=example,dc=com",
-            contextEntry = @ContextEntry( 
-                entryLdif =
-                    "dn: dc=example,dc=com\n" +
-                    "dc: example\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes = 
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" )
-            } )
-    } )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
+@CreateDS(name = "ClientApiPerfTestDS", partitions =
+    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
+        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
+        { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class TestClientApiPerf extends AbstractLdapTestUnit
 {
 
@@ -97,12 +77,12 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
 
         long t2 = System.currentTimeMillis();
 
-        Cursor<SearchResponse> cursor = connection.search( "dc=example,dc=com", "(objectClass=*)", SearchScope.SUBTREE,
-            "*" );
+        Cursor<InternalResponse> cursor = connection.search( "dc=example,dc=com", "(objectClass=*)",
+            SearchScope.SUBTREE, "*" );
         while ( cursor.next() )
         {
-            SearchResponse sr = cursor.get();
-            SearchResultEntry sre = ( SearchResultEntry ) sr;
+            InternalResponse sr = cursor.get();
+            InternalSearchResultEntry sre = ( InternalSearchResultEntry ) sr;
         }
 
         cursor.close();

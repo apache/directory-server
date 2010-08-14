@@ -19,19 +19,20 @@
  */
 package org.apache.directory.server.core.operations.lookup;
 
+
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.authz.AutzIntegUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -44,14 +45,11 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@ApplyLdifs( {
+@RunWith(FrameworkRunner.class)
+@ApplyLdifs(
+    {
     // Entry # 1
-    "dn: cn=test,ou=system",
-    "objectClass: person",
-    "cn: test",
-    "sn: sn_test" 
-})
+        "dn: cn=test,ou=system", "objectClass: person", "cn: test", "sn: sn_test" })
 public class LookupPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -63,17 +61,17 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        SearchResponse response = connection.lookup( "cn=test,ou=system", "+" );
+        InternalResponse response = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( response );
-        assertTrue( response instanceof SearchResultEntry );
-        
-        SearchResultEntry result = (SearchResultEntry)response;
+        assertTrue( response instanceof InternalSearchResultEntry );
+
+        InternalSearchResultEntry result = ( InternalSearchResultEntry ) response;
 
         assertNotNull( result );
-        
+
         Entry entry = result.getEntry();
-        
+
         assertNotNull( entry );
 
         int nbIterations = 150000;
@@ -99,11 +97,12 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
             connection.lookup( "cn=test,ou=system", "+" );
         }
-        
+
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 
@@ -114,7 +113,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         AutzIntegUtils.service = service;
     }
 
-    
+
     /**
      * Test a lookup( DN ) operation with the ACI subsystem enabled
      */
@@ -124,37 +123,25 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         service.setAccessControlEnabled( true );
         DN dn = new DN( "cn=test,ou=system" );
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
-        
-        createAccessControlSubentry( 
-            "anybodySearch", 
-            "{ " + 
-            "  identificationTag \"searchAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
-        
-        SearchResponse response = connection.lookup( "cn=test,ou=system", "+" );
+
+        createAccessControlSubentry( "anybodySearch", "{ " + "  identificationTag \"searchAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
+            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
+
+        InternalResponse response = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( response );
-        assertTrue( response instanceof SearchResultEntry );
-        
-        SearchResultEntry result = (SearchResultEntry)response;
+        assertTrue( response instanceof InternalSearchResultEntry );
+
+        InternalSearchResultEntry result = ( InternalSearchResultEntry ) response;
 
         assertNotNull( result );
-        
+
         Entry entry = result.getEntry();
-        
+
         assertNotNull( entry );
 
         int nbIterations = 1500000;
@@ -180,13 +167,14 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
             connection.lookup( "cn=test,ou=system", "+" );
         }
-        
+
         assertNotNull( entry );
-        
+
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta Authz : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta Authz : " + deltaWarmed + "( "
+            + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

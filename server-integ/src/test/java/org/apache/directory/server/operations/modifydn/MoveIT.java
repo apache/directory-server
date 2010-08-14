@@ -32,13 +32,13 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -122,7 +122,7 @@ public class MoveIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         //now do something bad: make the parent a child of its own child 
-        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
+        InternalModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
     }
 
@@ -134,7 +134,7 @@ public class MoveIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         //now do something bad: try to move the entry to the same DN
-        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
+        InternalModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
     }
 }

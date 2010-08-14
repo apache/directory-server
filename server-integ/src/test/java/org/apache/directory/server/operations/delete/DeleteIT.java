@@ -39,13 +39,13 @@ import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -57,44 +57,33 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
-    })
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: person",
-    "objectClass: top",
-    "uid: akarasulu",
-    "cn: Alex Karasulu",
-    "sn: karasulu", 
-    
-    // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: computers",
-    "description: Computers for Alex",
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
-    
-    // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "uid: akarasuluref",
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" 
-    }
-)
+        // Entry # 1
+        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "objectClass: top",
+        "uid: akarasulu",
+        "cn: Alex Karasulu",
+        "sn: karasulu",
+
+        // Entry # 2
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "ou: computers",
+        "description: Computers for Alex",
+        "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
+
+        // Entry # 3
+        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
+        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class DeleteIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
+
 
     /**
      * Tests normal delete operation on normal non-referral entries without 
@@ -104,15 +93,15 @@ public class DeleteIT extends AbstractLdapTestUnit
     public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
         LdapConnection conn = getClientApiConnection( ldapServer );
-        
+
         // delete failure on non-leaf entry
-        DeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
+        InternalDeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
     }
-    
-    
+
+
     /**
      * Tests normal delete operation on normal non-referral entries without 
      * the ManageDsaIT control.
@@ -121,18 +110,18 @@ public class DeleteIT extends AbstractLdapTestUnit
     public void testNormalDelete() throws Exception
     {
         LdapConnection conn = getClientApiConnection( ldapServer );
-        
+
         // delete success
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
 
         // delete failure non-existant entry
-        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        InternalDeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
-        
+
         conn.unBind();
     }
-    
-    
+
+
     /**
      * Tests normal delete operation on non-existent entries without 
      * the ManageDsaIT control.
@@ -141,15 +130,15 @@ public class DeleteIT extends AbstractLdapTestUnit
     public void testDeleteNonExistent() throws Exception
     {
         LdapConnection conn = getClientApiConnection( ldapServer );
-        
+
         // delete failure non-existent entry
-        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        InternalDeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
-        
+
         conn.unBind();
     }
-    
-    
+
+
     /**
      * Tests delete operation on referral entry with the ManageDsaIT control.
      */
@@ -161,10 +150,10 @@ public class DeleteIT extends AbstractLdapTestUnit
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         conn.setConstraints( constraints );
-        
+
         // delete success
         conn.delete( "uid=akarasuluref,ou=users,ou=system", constraints );
-        
+
         try
         {
             conn.read( "uid=akarasuluref,ou=users,ou=system", ( LDAPSearchConstraints ) constraints );
@@ -174,11 +163,11 @@ public class DeleteIT extends AbstractLdapTestUnit
         {
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
         }
-        
+
         conn.disconnect();
     }
-    
-    
+
+
     /**
      * Tests delete operation on normal and referral entries without the 
      * ManageDsaIT control. Referrals are sent back to the client with a
@@ -191,7 +180,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
-        
+
         // referrals failure
         LDAPResponseListener listener = null;
         LDAPResponse response = null;
@@ -206,8 +195,8 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         conn.disconnect();
     }
-    
-    
+
+
     /**
      * Tests delete operation on normal and referral entries without the 
      * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
@@ -217,10 +206,10 @@ public class DeleteIT extends AbstractLdapTestUnit
     public void testThrowOnReferralWithJndi() throws Exception
     {
         LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
-        
+
         // delete success
         ctx.destroySubcontext( "ou=computers,uid=akarasulu,ou=users,ou=system" );
-        
+
         try
         {
             ctx.lookup( "ou=computers,uid=akarasulu,ou=users,ou=system" );
@@ -244,12 +233,12 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         ctx.close();
     }
-    
-    
+
+
     /**
      * Tests referral handling when an ancestor is a referral.
      */
-    @Test 
+    @Test
     public void testAncestorReferral() throws Exception
     {
         LOG.debug( "" );
@@ -266,30 +255,30 @@ public class DeleteIT extends AbstractLdapTestUnit
         response = listener.getResponse();
         assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
 
-        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
+        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system",
+            response.getReferrals()[0] );
         assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
         assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
 
         conn.disconnect();
     }
-    
-    
+
 
     /**
      * Try to delete an entry with invalid DN. The operation fails
      * during parsing the given DN
      */
     @Test
-    public void testDeleteWithIllegalName() throws Exception 
+    public void testDeleteWithIllegalName() throws Exception
     {
         LdapConnection conn = getClientApiConnection( ldapServer );
-        
-        try 
+
+        try
         {
-            conn.delete("This is an illegal name,dc=example,dc=com" );
+            conn.delete( "This is an illegal name,dc=example,dc=com" );
             fail( "deletion should fail" );
-        } 
-        catch ( Exception e ) 
+        }
+        catch ( Exception e )
         {
             // expected
         }

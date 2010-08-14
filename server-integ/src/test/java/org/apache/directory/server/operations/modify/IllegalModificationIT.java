@@ -32,8 +32,6 @@ import netscape.ldap.LDAPModification;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -41,6 +39,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,25 +66,18 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
+@RunWith(FrameworkRunner.class)
 //@CreateDS( name="IllegalModificationIT-class", enableChangeLog=false )
-@CreateLdapServer ( 
-    transports = 
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
-    })
-@ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Kate Bush,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Kate Bush",
-    "sn: Bush" 
-    }
-)
+        "dn: cn=Kate Bush,ou=system", "objectClass: person", "objectClass: top", "cn: Kate Bush", "sn: Bush" })
 public class IllegalModificationIT extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=Kate Bush,ou=system";
+
 
     @Test
     public void testIllegalModification() throws Exception
@@ -94,15 +87,15 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( new DN( DN ) );
         modReq.add( "description", "" );
 
-        ModifyResponse resp = con.modify( modReq );
+        InternalModifyResponse resp = con.modify( modReq );
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, resp.getLdapResult().getResultCode() );
 
         // Check whether entry is unmodified, i.e. no description
-        Entry entry = ( ( SearchResultEntry )con.lookup( DN ) ).getEntry();
+        Entry entry = ( ( InternalSearchResultEntry ) con.lookup( DN ) ).getEntry();
         assertEquals( "description exists?", null, entry.get( "description" ) );
     }
-    
-    
+
+
     @Test
     public void testIllegalModification2() throws Exception
     {
@@ -117,7 +110,8 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
 
         try
         {
-            con.modify( "cn=Kate Bush,ou=system", new LDAPModification[] { mod, mod2 } );
+            con.modify( "cn=Kate Bush,ou=system", new LDAPModification[]
+                { mod, mod2 } );
             fail( "error expected due to empty attribute value" );
         }
         catch ( LDAPException e )

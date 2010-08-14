@@ -47,8 +47,6 @@ import netscape.ldap.LDAPUrl;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.LdapResult;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -56,6 +54,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,29 +65,20 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=hnelson,ou=users,ou=system",
-    "objectClass: inetOrgPerson",
-    "objectClass: organizationalPerson",
-    "objectClass: person",
-    "objectClass: top",
-    "userPassword: secret",
-    "uid: hnelson",
-    "cn: Horatio Nelson",
-    "sn: Nelson"
-    }
-)
-@CreateDS( allowAnonAccess=true, name="SimpleBindIT-class")
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
-    })
+        // Entry # 1
+        "dn: uid=hnelson,ou=users,ou=system", "objectClass: inetOrgPerson", "objectClass: organizationalPerson",
+        "objectClass: person", "objectClass: top", "userPassword: secret", "uid: hnelson", "cn: Horatio Nelson",
+        "sn: Nelson" })
+@CreateDS(allowAnonAccess = true, name = "SimpleBindIT-class")
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class SimpleBindIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=users,ou=system";
+
 
     /**
      * Convenience method for creating a person.
@@ -191,7 +182,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
      */
@@ -221,7 +212,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * try to connect using a unknown user: we should get a invalidCredentials error.
      */
@@ -244,11 +235,11 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            fail( "Expected AuthenticationException with error code 49 for invalidate credentials instead got: " 
+            fail( "Expected AuthenticationException with error code 49 for invalidate credentials instead got: "
                 + e.getMessage() );
         }
     }
-    
+
 
     /**
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
@@ -267,28 +258,30 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
-        String[] attrIDs = { "*", "+" };
-        
+        String[] attrIDs =
+            { "*", "+" };
+
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
             fail();
         }
         catch ( NamingException ne )
         {
             // Expected, as the server forbid anonymous access
         }
-        
+
         // Check that we can read the rootDSE
         try
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]
+                { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
-            if ( results.hasMoreElements() ) 
+            if ( results.hasMoreElements() )
             {
                 LDAPEntry entry = results.next();
 
@@ -318,8 +311,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), 
-                "uid=admin,ou=system", attrIDs, 0, "(ObjectClass=*)" );
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "uid=admin,ou=system", attrIDs, 0,
+                "(ObjectClass=*)" );
             LDAPConnection.search( url );
 
             fail();
@@ -327,14 +320,14 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         catch ( LDAPException e )
         {
             // Expected
-            assertTrue( true);
+            assertTrue( true );
         }
-        
+
         ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
         ldapServer.setAllowAnonymousAccess( oldValue );
     }
-    
-    
+
+
     /**
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
      */
@@ -351,7 +344,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
         }
         catch ( OperationNotSupportedException onse )
         {
@@ -362,9 +355,9 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             fail();
         }
-    }    
-    
-    
+    }
+
+
     /**
      * not allowed by the server. We should get a invalidCredentials error.
      */
@@ -382,7 +375,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
         }
         catch ( AuthenticationException ae )
         {
@@ -391,7 +384,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             fail( "Expected AuthenticationException but instead got: " + ne.getMessage() );
         }
-    }    
+    }
 
 
     /**
@@ -401,7 +394,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testAnonymousRootDSESearch()
     {
-        
+
         boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
 
@@ -409,10 +402,11 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]
+                { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
-            if ( results.hasMoreElements() ) 
+            if ( results.hasMoreElements() )
             {
                 LDAPEntry entry = results.next();
 
@@ -442,7 +436,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * Tests bind operation on referral entry.
      */
@@ -450,9 +444,9 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     public void testBindWithDoubleQuote() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        
-        BindResponse response = connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
-        LdapResult ldapResult = response.getLdapResult();
+
+        InternalBindResponse response = connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
+        InternalLdapResult ldapResult = response.getLdapResult();
         assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
         assertEquals( 1, response.getMessageId() );
         assertTrue( connection.isAuthenticated() );

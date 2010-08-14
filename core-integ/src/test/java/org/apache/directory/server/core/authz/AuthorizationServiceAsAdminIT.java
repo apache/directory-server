@@ -29,11 +29,7 @@ import java.util.HashSet;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.DeleteResponse;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -42,6 +38,10 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -73,8 +73,8 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Makes sure the admin cannot delete the admin account.
      *
@@ -83,7 +83,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     @Test
     public void testNoDeleteOnAdminByAdmin() throws Exception
     {
-        DeleteResponse delResp = getAdminConnection().delete( "uid=admin,ou=system" );
+        InternalDeleteResponse delResp = getAdminConnection().delete( "uid=admin,ou=system" );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, delResp.getLdapResult().getResultCode() );
     }
 
@@ -96,7 +96,8 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     @Test
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        ModifyDnResponse resp = getAdminConnection().rename( new DN( "uid=admin,ou=system" ), new RDN( "uid=alex" ) );
+        InternalModifyDnResponse resp = getAdminConnection().rename( new DN( "uid=admin,ou=system" ),
+            new RDN( "uid=alex" ) );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
     }
 
@@ -118,7 +119,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
         connection.close();
 
         connection = getConnectionAs( adminDN, newPwd );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( adminDN.getName() ) ).getEntry();
+        Entry entry = ( ( InternalSearchResultEntry ) connection.lookup( adminDN.getName() ) ).getEntry();
         assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
             .getBytes() ) );
     }
@@ -136,11 +137,11 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 
         HashSet<String> set = new HashSet<String>();
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             set.add( result.getDn().getName() );
         }
 

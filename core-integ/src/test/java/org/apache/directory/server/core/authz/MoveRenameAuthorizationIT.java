@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.authz;
 
+
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
@@ -31,7 +32,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -51,44 +52,45 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 {
 
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
-       service.setAccessControlEnabled( true );
+        AutzIntegUtils.service = service;
+        service.setAccessControlEnabled( true );
     }
-    
+
+
     @After
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newNameRdn ) throws Exception
     {
         DN entryDN = new DN( entryRdn + ",ou=system" );
         boolean result;
-        
+
         Entry testEntry = new DefaultEntry( entryDN );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
-        
+
         LdapConnection adminConnection = getAdminConnection();
 
         // create the new entry as the admin user
         adminConnection.add( testEntry );
-        
+
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-        
+
         LdapConnection userConnection = getConnectionAs( userName, password );
-        ModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
-        
-        if( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        InternalModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
+
+        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             userConnection.delete( newNameRdn + ",ou=system" );
             result = true;
@@ -98,11 +100,11 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             adminConnection.delete( entryDN );
             result = false;
         }
-        
+
         return result;
     }
-    
-    
+
+
     /**
      * Checks if a simple entry (organizationalUnit) can be renamed at an RDN relative
      * to ou=system by a specific non-admin user.  If a permission exception
@@ -119,28 +121,28 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * @return true if the entry can be renamed by the user at the specified location, false otherwise
      * @throws Exception if there are problems conducting the test
      */
-    public boolean checkCanMoveAndRenameAs( String uid, String password, String entryRdn, String newNameRdn, String newParentRdn )
-        throws Exception
+    public boolean checkCanMoveAndRenameAs( String uid, String password, String entryRdn, String newNameRdn,
+        String newParentRdn ) throws Exception
     {
         DN entryDN = new DN( entryRdn + ",ou=system" );
         boolean result;
-        
+
         Entry testEntry = new DefaultEntry( entryDN );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
-        
+
         LdapConnection adminConnection = getAdminConnection();
 
         // create the new entry as the admin user
         adminConnection.add( testEntry );
-        
+
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-        
+
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         boolean isMoved = false;
-        ModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
-        
+        InternalModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
+
         if ( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             isMoved = true;
@@ -150,11 +152,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             adminConnection.delete( entryDN );
             return false;
         }
-        
-        ModifyDnResponse resp = userConnection.rename( entryRdn + "," + newParentRdn + ",ou=system", newNameRdn );
-        
+
+        InternalModifyDnResponse resp = userConnection
+            .rename( entryRdn + "," + newParentRdn + ",ou=system", newNameRdn );
+
         ResultCodeEnum code = resp.getLdapResult().getResultCode();
-        
+
         if ( ( code == ResultCodeEnum.SUCCESS ) || ( code == ResultCodeEnum.ENTRY_ALREADY_EXISTS ) )
         {
             userConnection.delete( newNameRdn + "," + newParentRdn + ",ou=system" );
@@ -162,15 +165,15 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         }
         else
         {
-            if( isMoved )
+            if ( isMoved )
             {
                 entryDN = entryDN.add( 1, newParentRdn );
                 adminConnection.delete( entryDN );
             }
-            
+
             result = false;
         }
-        
+
         // delete the renamed context as the admin user
         return result;
     }
@@ -196,27 +199,11 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
 
         // Gives grantRename perm to all users in the Administrators group for entries
-        createAccessControlSubentry( 
-            "grantRenameByAdmin", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameByAdmin", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } "
+            + "    }, " + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantRename, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
 
         // see if we can now rename that test entry which we could not before
         // rename op should still fail since billyd is not in the admin group
@@ -245,27 +232,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantRename, grantImport, grantExport perm to all users in the Administrators
         // group for entries - browse is needed just to read navigate the tree at root
-        createAccessControlSubentry( 
-            "grantRenameMoveByAdmin", 
-            "{ " + 
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameMoveByAdmin", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } "
+            + "    }, " + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // see if we can move and rename the test entry which we could not before
         // op should still fail since billyd is not in the admin group
@@ -293,27 +265,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm to all users in the Administrators group for entries
-        createAccessControlSubentry( 
-            "grantMoveByAdmin", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantExport, grantImport, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantMoveByAdmin", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } "
+            + "    }, " + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
 
         // see if we can now move that test entry which we could not before
         // op should still fail since billyd is not in the admin group
@@ -352,24 +309,11 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
 
         // Gives grantRename perm specifically to the billyd user
-        createAccessControlSubentry( 
-            "grantRenameByName", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameByName", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantRename, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
 
         // try a rename operation which should succeed with ACI
         assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
@@ -389,24 +333,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport perm to billyd user on entries
-        createAccessControlSubentry( 
-            "grantRenameMoveByName", 
-            "{ " + 
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameMoveByName", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move w/ rdn change which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
@@ -426,24 +358,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm to billyd user for entries
-        createAccessControlSubentry( 
-            "grantMoveByName", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantMoveByName", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
+            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
@@ -474,27 +394,11 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
 
         // Gives grantRename perm for entries to those users selected by the subtree
-        createAccessControlSubentry( 
-            "grantRenameByTree", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      subtree { { base \"ou=users,ou=system\" } } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameByTree", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, "
+            + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantRename, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
 
         // try a rename operation which should succeed with ACI
         assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
@@ -514,26 +418,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport for entries to users selected by subtree
-        createAccessControlSubentry( 
-            "grantRenameMoveByTree", 
-            "{ " + 
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: { " +
-            "    userClasses " +
-            "    { " +
-            "      subtree { { base \"ou=users,ou=system\" } } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameMoveByTree", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: { "
+            + "    userClasses " + "    { " + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, "
+            + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move w/ rdn change which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
@@ -553,27 +443,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm for entries to subtree selected users
-        createAccessControlSubentry( 
-            "grantMoveByTree", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      subtree { { base \"ou=users,ou=system\" } } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry}, " + 
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantMoveByTree", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
+            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { " + "    userClasses " + "    { "
+            + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
@@ -604,24 +479,11 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
 
         // Gives grantRename perm for entries to any user
-        createAccessControlSubentry( 
-            "grantRenameByAny", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameByAny", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
+            + "        protectedItems {entry}, " + "        grantsAndDenials { grantRename, grantBrowse } "
+            + "      } " + "    } " + "  } " + "}" );
 
         // try a rename operation which should succeed with ACI
         assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou", "ou=newname" ) );
@@ -641,24 +503,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport for entries to any user
-        createAccessControlSubentry( 
-            "grantRenameMoveByAny", 
-            "{ " + 
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { allUsers }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantRenameMoveByAny", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
+            + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move w/ rdn change which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
@@ -678,24 +528,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm for entries to any user
-        createAccessControlSubentry( 
-            "grantMoveByAny", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry}, " +
-            "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantMoveByAny", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
+            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
+            + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } " + "      } "
+            + "    } " + "  } " + "}" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
@@ -704,8 +542,8 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteAccessControlSubentry( "grantMoveByAny" );
         deleteUser( "billyd" );
     }
-    
-    
+
+
     /**
      * Checks to make sure Export and Import permissions work correctly
      * when they are defined on seperate contexts.
@@ -725,73 +563,33 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         // try an move w/ rdn change which should fail without any ACI
         assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
-        
         // Gives grantBrowse perm to all users in the Administrators
         // group for entries
         // It's is needed just to read navigate the tree at root
-        createAccessControlSubentry(
-            "grantBrowseForTheWholeNamingContext",
-            "{ }",
-            "{ " + 
-            "  identificationTag \"browseACI\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems { entry }, " +
-            "        grantsAndDenials { grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
-        
+        createAccessControlSubentry( "grantBrowseForTheWholeNamingContext", "{ }", "{ "
+            + "  identificationTag \"browseACI\", " + "  precedence 14, " + "  authenticationLevel none, "
+            + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "    userPermissions "
+            + "    { " + "      { " + "        protectedItems { entry }, "
+            + "        grantsAndDenials { grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+
         // Gives grantExport, grantRename perm to all users in the Administrators
         // group for entries
-        createAccessControlSubentry(
-            "grantExportFromASubtree",
-            "{ base \"ou=users\" }", 
-            "{ " + 
-            "  identificationTag \"exportACI\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems { entry }, " +
-            "        grantsAndDenials { grantExport, grantRename } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
-        
+        createAccessControlSubentry( "grantExportFromASubtree", "{ base \"ou=users\" }", "{ "
+            + "  identificationTag \"exportACI\", " + "  precedence 14, " + "  authenticationLevel none, "
+            + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "    userPermissions "
+            + "    { " + "      { " + "        protectedItems { entry }, "
+            + "        grantsAndDenials { grantExport, grantRename } " + "      } " + "    } " + "  } " + "}" );
+
         // Gives grantImport perm to all users in the Administrators
         // group for the target context
-        createAccessControlSubentry(
-            "grantImportToASubtree",
-            "{ base \"ou=groups\" }", 
-            "{ " + 
-            "  identificationTag \"importACI\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + 
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems { entry }, " +
-            "        grantsAndDenials { grantImport } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "grantImportToASubtree", "{ base \"ou=groups\" }", "{ "
+            + "  identificationTag \"importACI\", " + "  precedence 14, " + "  authenticationLevel none, "
+            + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "    userPermissions "
+            + "    { " + "      { " + "        protectedItems { entry }, "
+            + "        grantsAndDenials { grantImport } " + "      } " + "    } " + "  } " + "}" );
 
         // see if we can move and rename the test entry which we could not before
         // op should still fail since billyd is not in the admin group

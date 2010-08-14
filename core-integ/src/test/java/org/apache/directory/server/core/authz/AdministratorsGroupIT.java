@@ -27,11 +27,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -45,33 +45,34 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class AdministratorsGroupIT extends AbstractLdapTestUnit
 {
-    
+
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.service = service;
     }
-    
-    
+
+
     @After
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     boolean canReadAdministrators( LdapConnection connection ) throws Exception
     {
-        SearchResultEntry res = ( SearchResultEntry ) connection.lookup( "cn=Administrators,ou=groups,ou=system" );
-        
-        if( res == null )
+        InternalSearchResultEntry res = ( InternalSearchResultEntry ) connection
+            .lookup( "cn=Administrators,ou=groups,ou=system" );
+
+        if ( res == null )
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -86,7 +87,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
      * @throws Exception on failures
      */
     @Test
-    @CreateDS ( enableAccessControl=true, name="testNonAdminReadAccessToGroups-method" )
+    @CreateDS(enableAccessControl = true, name = "testNonAdminReadAccessToGroups-method")
     public void testNonAdminReadAccessToGroups() throws Exception
     {
         DN billydDn = createUser( "billyd", "s3kr3t" );
@@ -96,7 +97,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( billydDn, "s3kr3t" );
         assertTrue( connection.isAuthenticated() );
         assertFalse( canReadAdministrators( connection ) );
-        
+
         // add billyd to administrators and try again
         addUserToGroup( "billyd", "Administrators" );
 
@@ -114,7 +115,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
      * @throws Exception on failure
      */
     @Test
-    @CreateDS ( name="testDefaultNonAdminReadAccessToGroups-method" )
+    @CreateDS(name = "testDefaultNonAdminReadAccessToGroups-method")
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
         DN billydDn = createUser( "billyd", "s3kr3t" );

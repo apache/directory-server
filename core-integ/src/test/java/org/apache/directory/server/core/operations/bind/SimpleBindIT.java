@@ -41,7 +41,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -50,6 +49,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -373,7 +373,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
         connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
 
-        BindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
+        InternalBindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, bindResp.getLdapResult().getResultCode() );
     }
 

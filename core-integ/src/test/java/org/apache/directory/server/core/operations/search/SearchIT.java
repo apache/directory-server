@@ -47,8 +47,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -68,6 +66,8 @@ import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Before;
@@ -83,83 +83,25 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "SearchDS")
 @ApplyLdifs(
-    {
-        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
-        "objectclass: metaAttributeType",
-        "objectclass: metaTop",
-        "objectclass: top",
-        "m-oid: 2.2.0",
-        "m-name: integerAttribute",
-        "m-description: the precursor for all integer attributes",
-        "m-equality: integerMatch",
-        "m-ordering: integerOrderingMatch",
-        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
-        "m-length: 0",
-        "",
-        "dn: ou=testing00,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing00",
-        "integerAttribute: 0",
-        "",
-        "dn: ou=testing01,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing01",
-        "integerAttribute: 1",
-        "",
-        "dn: ou=testing02,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing02",
-        "integerAttribute: 2",
-        "",
-        "dn: ou=testing03,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing03",
-        "integerAttribute: 3",
-        "",
-        "dn: ou=testing04,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing04",
-        "integerAttribute: 4",
-        "",
-        "dn: ou=testing05,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "objectClass: extensibleObject",
-        "ou: testing05",
-        "integerAttribute: 5",
-        "",
-        "dn: ou=subtest,ou=testing01,ou=system",
-        "objectClass: top",
-        "objectClass: organizationalUnit",
-        "ou: subtest",
-        "",
-        "dn: cn=Heather Nova, ou=system",
-        "objectClass: top",
-        "objectClass: person",
-        "cn: Heather Nova",
-        "sn: Nova",
-        "telephoneNumber: 1 801 555 1212 ",
-        "",
-        "dn: cn=with-dn, ou=system",
-        "objectClass: top",
-        "objectClass: person",
-        "objectClass: organizationalPerson",
-        "objectClass: inetorgPerson",
-        "cn: singer",
-        "sn: manager",
-        "telephoneNumber: 1 801 555 1212 ",
-        "manager: cn=Heather Nova, ou=system"
- })
+    { "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema", "objectclass: metaAttributeType",
+        "objectclass: metaTop", "objectclass: top", "m-oid: 2.2.0", "m-name: integerAttribute",
+        "m-description: the precursor for all integer attributes", "m-equality: integerMatch",
+        "m-ordering: integerOrderingMatch", "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27", "m-length: 0", "",
+        "dn: ou=testing00,ou=system", "objectClass: top", "objectClass: organizationalUnit",
+        "objectClass: extensibleObject", "ou: testing00", "integerAttribute: 0", "", "dn: ou=testing01,ou=system",
+        "objectClass: top", "objectClass: organizationalUnit", "objectClass: extensibleObject", "ou: testing01",
+        "integerAttribute: 1", "", "dn: ou=testing02,ou=system", "objectClass: top", "objectClass: organizationalUnit",
+        "objectClass: extensibleObject", "ou: testing02", "integerAttribute: 2", "", "dn: ou=testing03,ou=system",
+        "objectClass: top", "objectClass: organizationalUnit", "objectClass: extensibleObject", "ou: testing03",
+        "integerAttribute: 3", "", "dn: ou=testing04,ou=system", "objectClass: top", "objectClass: organizationalUnit",
+        "objectClass: extensibleObject", "ou: testing04", "integerAttribute: 4", "", "dn: ou=testing05,ou=system",
+        "objectClass: top", "objectClass: organizationalUnit", "objectClass: extensibleObject", "ou: testing05",
+        "integerAttribute: 5", "", "dn: ou=subtest,ou=testing01,ou=system", "objectClass: top",
+        "objectClass: organizationalUnit", "ou: subtest", "", "dn: cn=Heather Nova, ou=system", "objectClass: top",
+        "objectClass: person", "cn: Heather Nova", "sn: Nova", "telephoneNumber: 1 801 555 1212 ", "",
+        "dn: cn=with-dn, ou=system", "objectClass: top", "objectClass: person", "objectClass: organizationalPerson",
+        "objectClass: inetorgPerson", "cn: singer", "sn: manager", "telephoneNumber: 1 801 555 1212 ",
+        "manager: cn=Heather Nova, ou=system" })
 public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
@@ -280,10 +222,7 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: posixGroup",
-            "cn", name,
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: posixGroup", "cn", name,
             "gidNumber", String.valueOf( gid ) );
 
         return getSystemContext( service ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
@@ -680,12 +619,8 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
-        Attributes attributes = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: top",
-            "objectClass: person",
-            "cn", cn,
-            "sn", sn );
+        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: top",
+            "objectClass: person", "cn", cn, "sn", sn );
 
         return attributes;
     }
@@ -1277,12 +1212,8 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: person",
-            "cn: Sid Vicious",
-            "sn: Vicious",
-            "description: (sex*pis\\tols)" );
+        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
+            "sn: Vicious", "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
@@ -1327,12 +1258,8 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: person",
-            "cn: Sid Vicious",
-            "sn: Vicious",
-            "description: (sex*pis\\tols)" );
+        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
+            "sn: Vicious", "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
@@ -1379,12 +1306,8 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        Attributes vicious = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: person",
-            "cn: x*y*z*",
-            "sn: x*y*z*",
-            "description: (sex*pis\\tols)" );
+        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: x*y*z*",
+            "sn: x*y*z*", "description: (sex*pis\\tols)" );
 
         sysRoot.createSubcontext( "cn=x*y*z*", vicious );
 
@@ -1605,11 +1528,8 @@ public class SearchIT extends AbstractLdapTestUnit
             .getJndiValue() );
 
         // Create an entry which does not match
-        Attributes attrs = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: groupOfUniqueNames",
-            "cn: testGroup3",
-            "uniqueMember: uid=admin,ou=system" );
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: groupOfUniqueNames",
+            "cn: testGroup3", "uniqueMember: uid=admin,ou=system" );
 
         getSystemContext( service ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
 
@@ -1863,8 +1783,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         connection.add( entry2 );
 
-        entry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
-        entry2 = ( ( SearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
+        entry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        entry2 = ( ( InternalSearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
 
         String lowerCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
         String higherCsn = entry2.get( SchemaConstants.ENTRY_CSN_AT ).getString();
@@ -1907,11 +1827,11 @@ public class SearchIT extends AbstractLdapTestUnit
         Entry loadedEntry = null;
 
         Set<String> csnSet = new HashSet<String>( expectedCsns.length );
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*",
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*",
             "+" );
         while ( cursor.next() )
         {
-            loadedEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            loadedEntry = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
         }
         cursor.close();

@@ -35,14 +35,7 @@ import java.util.Set;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.LdapResult;
-import org.apache.directory.ldap.client.api.message.SearchIntermediateResponse;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultDone;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.ldap.client.api.message.SearchResultReference;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -79,6 +72,13 @@ import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalIntermediateResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultReference;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -220,7 +220,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             // Do a bind
-            BindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
+            InternalBindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
 
             // Check that it' not null and valid
             if ( bindResponse == null )
@@ -230,7 +230,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             // Now get the result
-            LdapResult ldapResult = bindResponse.getLdapResult();
+            InternalLdapResult ldapResult = bindResponse.getLdapResult();
 
             if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
             {
@@ -279,11 +279,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    public ResultCodeEnum handleSearchDone( SearchResultDone searchDone )
+    public ResultCodeEnum handleSearchDone( InternalSearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        Control ctrl = searchDone.getControl( SyncDoneValueControl.CONTROL_OID );
+        Control ctrl = searchDone.getControls().get( SyncDoneValueControl.CONTROL_OID );
         SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
         try
         {
@@ -310,14 +310,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    public void handleSearchReference( SearchResultReference searchRef )
+    public void handleSearchReference( InternalSearchResultReference searchRef )
     {
         // this method won't be called cause the provider will serve the referrals as
         // normal entry objects due to the usage of ManageDsaITControl in the search request
     }
 
 
-    public void handleSearchResult( SearchResultEntry syncResult )
+    public void handleSearchResult( InternalSearchResultEntry syncResult )
     {
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
@@ -328,7 +328,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             Entry remoteEntry = syncResult.getEntry();
 
-            Control ctrl = syncResult.getControl( SyncStateValueControl.CONTROL_OID );
+            Control ctrl = syncResult.getControls().get( SyncStateValueControl.CONTROL_OID );
 
             try
             {
@@ -380,7 +380,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControl( SyncModifyDnControl.CONTROL_OID );
+                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDnControl.CONTROL_OID );
                     //Apache Directory Server's special control
                     SyncModifyDnControl syncModDnControl = new SyncModifyDnControl();
 
@@ -422,7 +422,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( SearchIntermediateResponse syncInfoResp )
+    public void handleSyncInfo( InternalIntermediateResponse syncInfoResp )
     {
         try
         {
@@ -549,34 +549,34 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         // Do the search
         SearchFuture sf = connection.searchAsync( searchRequest );
 
-        SearchResponse resp = sf.get();
+        InternalResponse resp = sf.get();
 
-        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
+        while ( !( resp instanceof InternalSearchResultDone ) && !sf.isCancelled() )
         {
-            if ( resp instanceof SearchResultEntry )
+            if ( resp instanceof InternalSearchResultEntry )
             {
-                handleSearchResult( ( SearchResultEntry ) resp );
+                handleSearchResult( ( InternalSearchResultEntry ) resp );
             }
-            else if ( resp instanceof SearchResultReference )
+            else if ( resp instanceof InternalSearchResultReference )
             {
-                handleSearchReference( ( SearchResultReference ) resp );
+                handleSearchReference( ( InternalSearchResultReference ) resp );
             }
-            else if ( resp instanceof SearchIntermediateResponse )
+            else if ( resp instanceof InternalIntermediateResponse )
             {
-                handleSyncInfo( ( SearchIntermediateResponse ) resp );
+                handleSyncInfo( ( InternalIntermediateResponse ) resp );
             }
 
             resp = sf.get();
         }
 
-        ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
+        ResultCodeEnum resultCode = handleSearchDone( ( InternalSearchResultDone ) resp );
 
         LOG.debug( "sync operation returned result code {}", resultCode );
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
             // log the error and handle it appropriately
             LOG.warn( "given replication base DN {} is not found on provider", config.getBaseDn() );
-            if( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
+            if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
                 disconnet();
@@ -589,9 +589,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 deleteRecursive( new DN( config.getBaseDn() ), null );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
-                LOG.error( "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer", e );
+                LOG
+                    .error(
+                        "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
+                        e );
                 disconnet();
             }
 

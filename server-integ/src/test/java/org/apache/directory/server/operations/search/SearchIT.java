@@ -49,7 +49,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -65,6 +64,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -79,11 +79,8 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(
-    transports =
-      { 
-        @CreateTransport(protocol = "LDAP") 
-      })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
 
@@ -1603,7 +1600,8 @@ public class SearchIT extends AbstractLdapTestUnit
             }
 
             // Searches for all the entries in ou=system
-            Cursor<SearchResponse> cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+            Cursor<InternalResponse> cursor = asyncCnx
+                .search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
@@ -1662,9 +1660,9 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setScope( SearchScope.SUBTREE );
         req.setSizeLimit( sizeLimit );
 
-        Cursor<SearchResponse> cursor = connection.search( req );
+        Cursor<InternalResponse> cursor = connection.search( req );
         long i = 0;
-        
+
         while ( cursor.next() )
         {
             ++i;
@@ -1675,7 +1673,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore( "This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem" )
+    @Ignore("This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem")
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
@@ -1684,20 +1682,20 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setFilter( "(objectClass=*)" );
         req.setScope( SearchScope.SUBTREE );
 
-        Cursor<SearchResponse> cursor = connection.search( req );
+        Cursor<InternalResponse> cursor = connection.search( req );
         int count = 0;
-        
+
         while ( cursor.next() )
         {
             ++count;
         }
-        
+
         cursor.close();
 
         req.setTimeLimit( 1 );
         cursor = connection.search( req );
         int newCount = 0;
-        
+
         while ( cursor.next() )
         {
             ++newCount;

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.client.api;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,9 +33,6 @@ import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -46,24 +44,24 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the LdapConnection class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    })
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
 
@@ -101,7 +99,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         try
         {
-            BindResponse bindResponse = connection.bind( ADMIN_DN, "secret" );
+            InternalBindResponse bindResponse = connection.bind( ADMIN_DN, "secret" );
 
             assertNotNull( bindResponse );
 
@@ -121,7 +119,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             {
                 connection.close();
             }
-            catch( IOException ioe )
+            catch ( IOException ioe )
             {
                 fail();
             }
@@ -141,15 +139,15 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        SearchResponse resp = connection.lookup( ADMIN_DN );
+        InternalResponse resp = connection.lookup( ADMIN_DN );
         assertNotNull( resp );
 
-        Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
+        Entry entry = ( ( InternalSearchResultEntry ) resp ).getEntry();
         assertNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
 
         // perform lookup with operational attributes
         resp = connection.lookup( ADMIN_DN, "+", "*" );
-        entry = ( ( SearchResultEntry ) resp ).getEntry();
+        entry = ( ( InternalSearchResultEntry ) resp ).getEntry();
         assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
     }
 
@@ -157,17 +155,17 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void searchByEntryUuid() throws Exception
     {
-        SearchResponse resp = connection.lookup( ADMIN_DN, "+" );
-        Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
+        InternalResponse resp = connection.lookup( ADMIN_DN, "+" );
+        Entry entry = ( ( InternalSearchResultEntry ) resp ).getEntry();
 
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
 
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new StringValue( uuid ) );
 
-        Cursor<SearchResponse> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
+        Cursor<InternalResponse> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
 
-        Entry readEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+        Entry readEntry = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
         assertEquals( uuid, readEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
 
         cursor.close();
@@ -177,12 +175,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
+        Entry entry = ( ( InternalSearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
 
         connection.loadSchema();
 
-        entry = ( ( SearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
+        entry = ( ( InternalSearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
     }
 
@@ -206,12 +204,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
+        Cursor<InternalResponse> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
         HashMap<String, Entry> map = new HashMap<String, Entry>();
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             map.put( result.getDn().getName(), result );
         }
 

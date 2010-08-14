@@ -29,8 +29,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultDone;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -42,6 +40,8 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -55,18 +55,15 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 {
 
     private LdapAsyncConnection connection;
 
     private CoreSession session;
+
 
     @Before
     public void setup() throws Exception
@@ -76,7 +73,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         connection.setTimeOut( 0L );
         connection.bind( bindDn.getName(), "secret" );
 
-//        session = ldapServer.getDirectoryService().getSession();
+        //        session = ldapServer.getDirectoryService().getSession();
     }
 
 
@@ -93,7 +90,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
@@ -128,7 +125,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         // Launch the search now
         SearchFuture searchFuture = connection.searchAsync( sr );
 
-        SearchResponse searchResponse = null;
+        InternalResponse searchResponse = null;
         int count = 0;
 
         do
@@ -142,13 +139,13 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
                 break;
             }
         }
-        while ( !(searchResponse instanceof SearchResultDone ) );
+        while ( !( searchResponse instanceof InternalSearchResultDone ) );
 
         assertTrue( numEntries > count );
         assertTrue( searchFuture.isCancelled() );
 
         // Now do a simple synchronous search
-        Cursor<SearchResponse> results = connection.search( sr );
+        Cursor<InternalResponse> results = connection.search( sr );
 
         int n = -1;
 

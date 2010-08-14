@@ -24,8 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -38,6 +36,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,12 +49,9 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith( FrameworkRunner.class )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
-    })
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
     private Entry getPersonEntry( String sn, String cn ) throws LdapException
@@ -63,7 +60,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
         entry.add( SchemaConstants.CN_AT, cn );
         entry.add( SchemaConstants.SN_AT, sn );
-        
+
         return entry;
     }
 
@@ -73,7 +70,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         Entry entry = new DefaultEntry();
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.add( SchemaConstants.OU_AT, ou );
-        
+
         return entry;
     }
 
@@ -93,20 +90,20 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         personEntry.setDn( new DN( dn ) );
         connection.add( personEntry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
-            
+
             assertTrue( personEntry.getDn().equals( sr.getDn() ) );
             EntryAttribute cn = sr.get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Kate#Bush" ) );
         }
-        
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -128,18 +125,18 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
-            
+
             assertTrue( entry.getDn().equals( sr.getDn() ) );
             EntryAttribute cn = sr.get( "cn" );
             assertNotNull( cn );
-            
+
             assertTrue( cn.contains( "Bush, Kate" ) );
         }
 
@@ -156,18 +153,18 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddingWithQuotesInRdn() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
-        
+
         Entry entry = getPersonEntry( "Messer", "Mackie \"The Knife\" Messer" );
         String dn = "cn=Mackie \\\"The Knife\\\" Messer,ou=system";
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
+            SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
             EntryAttribute cn = sr.get( "cn" );
@@ -176,7 +173,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         }
 
         assertTrue( "entry found", entryFound );
-        
+
         connection.delete( dn );
     }
 
@@ -188,21 +185,21 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddingWithBackslashInRdn() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
-        
+
         Entry entry = getOrgUnitEntry( "AC\\DC" );
         String dn = "ou=AC\\\\DC,ou=system";
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
-        boolean entryFound= false;
-        
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
+        boolean entryFound = false;
+
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            
+
             EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
@@ -222,18 +219,19 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddingWithGreaterSignInRdn() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
-        
+
         Entry entry = getOrgUnitEntry( "East -> West" );
         String dn = "ou=East -\\> West,ou=system";
         entry.setDn( new DN( dn ) );
-        connection.add(  entry );
+        connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection
+            .search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -261,23 +259,23 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         Entry entry = getOrgUnitEntry( "Scissors 8<" );
         String dn = "ou=Scissors 8\\<,ou=system";
         entry.setDn( new DN( dn ) );
-        connection.add(  entry );
+        connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
-            
+
             assertTrue( entry.getDn().equals( sr.getDn() ) );
 
             EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "Scissors 8<" ) );
         }
-        
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -293,18 +291,19 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddingWithSemicolonInRdn() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
-        
+
         Entry entry = getOrgUnitEntry( "semicolon group;" );
         String dn = "ou=semicolon group\\;,ou=system";
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE, "*" );
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE,
+            "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -312,7 +311,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "semicolon group;" ) );
         }
-        
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -328,19 +327,19 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddingWithEqualsInRdn() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
-        
+
         Entry entry = getOrgUnitEntry( "nomen=omen" );
         String dn = "ou=nomen\\=omen,ou=system";
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );
-        
+        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );
+
         boolean entryFound = false;
 
         while ( cursor.next() )
         {
-            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -348,9 +347,9 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "nomen=omen" ) );
         }
-        
+
         assertTrue( "entry found", entryFound );
-        
+
         connection.delete( dn );
     }
 }

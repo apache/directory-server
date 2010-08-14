@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -34,6 +33,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,14 +46,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(
-    transports =
-      { 
-        @CreateTransport(protocol = "LDAP") 
-      })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
     public static LdapServer ldapServer;
+
 
     /**
      * test a search request perf.
@@ -73,23 +71,26 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             connection.bind( "uid=admin,ou=system", "secret" );
 
             // Searches for all the entries in ou=system
-            Cursor<SearchResponse> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
-            
+            Cursor<InternalResponse> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
+                SearchScope.OBJECT, "*" );
+
             int i = 0;
-            
+
             while ( cursor.next() )
             {
                 cursor.get();
                 ++i;
             }
-            
+
             cursor.close();
             assertEquals( 1, i );
 
             for ( int j = 0; j < 10000; j++ )
             {
                 cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
-                while ( cursor.next() ){}
+                while ( cursor.next() )
+                {
+                }
                 cursor.close();
             }
 
@@ -100,18 +101,21 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             {
                 if ( j % 10000 == 0 )
                 {
-                    System.out.println(j);
+                    System.out.println( j );
                 }
 
                 cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
-                while ( cursor.next() ){}
+                while ( cursor.next() )
+                {
+                }
                 cursor.close();
             }
-            
+
             long t1 = System.currentTimeMillis();
-            
+
             Long deltaWarmed = ( t1 - t0 );
-            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( nbIterations * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( nbIterations * 1000 ) / deltaWarmed )
+                + " per s ) /" + ( t1 - t0 ) );
         }
         catch ( LdapException e )
         {
