@@ -93,8 +93,8 @@ public class StartTlsHandler implements ExtendedOperationHandler
         InternalExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
         InternalLdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
-        res.setID( EXTENSION_OID );
-        res.setEncodedValue( new byte[0] );
+        res.setResponseName( EXTENSION_OID );
+        res.setResponseValue( new byte[0] );
 
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );

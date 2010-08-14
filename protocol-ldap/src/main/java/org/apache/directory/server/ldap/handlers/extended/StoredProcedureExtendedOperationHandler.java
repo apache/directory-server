@@ -104,7 +104,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
 
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( InternalExtendedResponse ) ( req.getResultResponse() ) ).setEncodedValue( serializedResponse );
+        ( ( InternalExtendedResponse ) ( req.getResultResponse() ) ).setResponseValue( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
 
     }

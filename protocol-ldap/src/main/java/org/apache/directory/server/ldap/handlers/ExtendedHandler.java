@@ -64,7 +64,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getID()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
             InternalExtendedResponse resp = ( InternalExtendedResponse ) req.getResultResponse();
-            resp.setEncodedValue( new byte[0] );
+            resp.setResponseValue( new byte[0] );
             session.getIoSession().write( req.getResultResponse() );
         }
     }

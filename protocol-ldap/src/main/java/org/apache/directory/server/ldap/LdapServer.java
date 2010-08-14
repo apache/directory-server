@@ -122,7 +122,7 @@ public class LdapServer extends DirectoryBackedService
 
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
-    
+
     /** The default maximum size limit. */
     private static final long MAX_SIZE_LIMIT_DEFAULT = 100;
 
@@ -137,7 +137,7 @@ public class LdapServer extends DirectoryBackedService
 
     /** the session manager for this LdapServer */
     private LdapSessionManager ldapSessionManager = new LdapSessionManager();
-    
+
     /** a set of supported controls */
     private Set<String> supportedControls;
 
@@ -145,17 +145,17 @@ public class LdapServer extends DirectoryBackedService
      * The maximum size limit. 
      * @see {@link LdapServer#MAX_SIZE_LIMIT_DEFAULT }
      */
-    private long maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; 
+    private long maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT;
 
     /** 
      * The maximum time limit.
      * @see {@link LdapServer#MAX_TIME_LIMIT_DEFAULT }
      */
-    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; 
+    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT;
 
     /** If LDAPS is activated : the external Keystore file, if defined */
     private String keystoreFile;
-    
+
     /** If LDAPS is activated : the certificate password */
     private String certificatePassword;
 
@@ -163,12 +163,10 @@ public class LdapServer extends DirectoryBackedService
     private boolean allowAnonymousAccess = true;
 
     /** The extended operation handlers. */
-    private final Collection<ExtendedOperationHandler> extendedOperationHandlers =
-        new ArrayList<ExtendedOperationHandler>();
+    private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
 
     /** The supported authentication mechanisms. */
-    private Map<String, MechanismHandler> saslMechanismHandlers =
-        new HashMap<String, MechanismHandler>();
+    private Map<String, MechanismHandler> saslMechanismHandlers = new HashMap<String, MechanismHandler>();
 
     /** The name of this host, validated during SASL negotiation. */
     private String saslHost = "ldap.example.com";
@@ -178,7 +176,7 @@ public class LdapServer extends DirectoryBackedService
 
     /** The quality of protection (QoP), used by DIGEST-MD5 and GSSAPI. */
     private Set<String> saslQop;
-    private String      saslQopString;
+    private String saslQopString;
 
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
@@ -195,12 +193,11 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<InternalSearchRequest> searchHandler;
     private LdapRequestHandler<InternalUnbindRequest> unbindHandler;
 
-
     /** the underlying provider codec factory */
     private ProtocolCodecFactory codecFactory;
 
     /** the MINA protocol handler */
-    private final LdapProtocolHandler handler = new LdapProtocolHandler(this);
+    private final LdapProtocolHandler handler = new LdapProtocolHandler( this );
 
     /** tracks start state of the server */
     private boolean started;
@@ -211,17 +208,17 @@ public class LdapServer extends DirectoryBackedService
      */
     private boolean confidentialityRequired;
 
-    
     private KeyStore keyStore = null;
 
     private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
-    
+
     private ReplicationProvider replicationProvider;
-    
+
     private List<SyncreplConfiguration> providerConfigs;
-    
+
     private List<SyncReplConsumer> replConsumers;
-    
+
+
     /**
      * Creates an LDAP protocol provider.
      */
@@ -264,56 +261,55 @@ public class LdapServer extends DirectoryBackedService
         {
             setAbandonHandler( new AbandonHandler() );
         }
-        
+
         if ( getAddHandler() == null )
         {
             setAddHandler( new AddHandler() );
         }
-        
+
         if ( getBindHandler() == null )
         {
             BindHandler handler = new BindHandler();
             handler.setSaslMechanismHandlers( saslMechanismHandlers );
             setBindHandler( handler );
         }
-        
+
         if ( getCompareHandler() == null )
         {
             setCompareHandler( new CompareHandler() );
         }
-        
+
         if ( getDeleteHandler() == null )
         {
             setDeleteHandler( new DeleteHandler() );
         }
-        
+
         if ( getExtendedHandler() == null )
         {
             setExtendedHandler( new ExtendedHandler() );
         }
-        
+
         if ( getModifyHandler() == null )
         {
             setModifyHandler( new ModifyHandler() );
         }
-        
+
         if ( getModifyDnHandler() == null )
         {
             setModifyDnHandler( new ModifyDnHandler() );
         }
-        
+
         if ( getSearchHandler() == null )
         {
             setSearchHandler( new SearchHandler() );
         }
-        
+
         if ( getUnbindHandler() == null )
         {
             setUnbindHandler( new UnbindHandler() );
         }
     }
 
-    
     private class AdsKeyStore extends KeyStore
     {
         public AdsKeyStore( KeyStoreSpi keyStoreSpi, Provider provider, String type )
@@ -322,7 +318,7 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
-    
+
     /**
      * loads the digital certificate either from a keystore file or from the admin entry in DIT
      */
@@ -335,8 +331,10 @@ public class LdapServer extends DirectoryBackedService
             Provider provider = Security.getProvider( "SUN" );
             LOG.debug( "provider = {}", provider );
             CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
-            keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
-            
+            keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
+            {
+            };
+
             try
             {
                 keyStore.load( null, null );
@@ -352,7 +350,7 @@ public class LdapServer extends DirectoryBackedService
             FileInputStream fis = null;
             try
             {
-                fis = new FileInputStream( keystoreFile );          
+                fis = new FileInputStream( keystoreFile );
                 keyStore.load( fis, null );
             }
             finally
@@ -365,7 +363,7 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
-    
+
     /**
      * reloads the SSL context by replacing the existing SslFilter
      * with a new SslFilter after reloading the keystore.
@@ -374,7 +372,7 @@ public class LdapServer extends DirectoryBackedService
      */
     public void reloadSslContext() throws Exception
     {
-        if( !started )
+        if ( !started )
         {
             return;
         }
@@ -397,7 +395,7 @@ public class LdapServer extends DirectoryBackedService
         }
 
         StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
-        if( handler != null )
+        if ( handler != null )
         {
             //FIXME dirty hack. IMO StartTlsHandler's code requires a cleanup
             // cause the keystore loading and sslcontext creation code is duplicated
@@ -408,28 +406,28 @@ public class LdapServer extends DirectoryBackedService
         LOG.info( "reloaded SSL context successfully" );
     }
 
-    
+
     /**
      * @throws IOException if we cannot bind to the specified port
      * @throws Exception if the LDAP server cannot be started
      */
     public void start() throws Exception
     {
-        if ( ! isEnabled() )
+        if ( !isEnabled() )
         {
             return;
         }
 
-        for ( Transport transport:transports )
+        for ( Transport transport : transports )
         {
-            if ( !(transport instanceof TcpTransport ) )
+            if ( !( transport instanceof TcpTransport ) )
             {
                 LOG.warn( "Cannot listen on an UDP transport : {}", transport );
                 continue;
             }
-            
+
             IoFilterChainBuilder chain;
-            
+
             if ( transport.isSSLEnabled() )
             {
                 loadKeyStore();
@@ -439,39 +437,37 @@ public class LdapServer extends DirectoryBackedService
             {
                 chain = new DefaultIoFilterChainBuilder();
             }
-            
+
             // Inject the codec into the chain
-            ((DefaultIoFilterChainBuilder)chain).addLast( "codec", 
-                    new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
-            
+            ( ( DefaultIoFilterChainBuilder ) chain ).addLast( "codec", new ProtocolCodecFilter( this
+                .getProtocolCodecFactory() ) );
+
             // Now inject an ExecutorFilter for the write operations
             // We use the same number of thread than the number of IoProcessor
             // (NOTE : this has to be double checked)
-            ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
-                    new ExecutorFilter( 
-                        new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
-                        IoEventType.MESSAGE_RECEIVED ) );
+            ( ( DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(
+                new UnorderedThreadPoolExecutor( transport.getNbThreads() ), IoEventType.MESSAGE_RECEIVED ) );
 
             /*
              * The server is now initialized, we can
              * install the default requests handlers, which need 
              * access to the DirectoryServer instance.
-             */ 
-            installDefaultHandlers();      
-            
+             */
+            installDefaultHandlers();
+
             startNetwork( transport, chain );
         }
-        
-        if( replicationProvider != null )
+
+        if ( replicationProvider != null )
         {
             replicationProvider.init( this );
             ( ( SearchHandler ) getSearchHandler() ).setReplicationProvider( replicationProvider );
         }
-        
+
         startConsumers();
 
         started = true;
-        
+
         LOG.info( "Ldap service started." );
     }
 
@@ -483,66 +479,65 @@ public class LdapServer extends DirectoryBackedService
     {
         try
         {
-            for ( Transport transport:transports )
+            for ( Transport transport : transports )
             {
-                if ( !(transport instanceof TcpTransport ) )
+                if ( !( transport instanceof TcpTransport ) )
                 {
                     continue;
                 }
-                
+
                 // we should unbind the service before we begin sending the notice
                 // of disconnect so new connections are not formed while we process
                 List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
-    
+
                 // If the socket has already been unbound as with a successful
                 // GracefulShutdownRequest then this will complain that the service
                 // is not bound - this is ok because the GracefulShutdown has already
                 // sent notices to to the existing active sessions
                 List<IoSession> sessions;
-    
+
                 try
                 {
-                    sessions = new ArrayList<IoSession>(
-                            getSocketAcceptor( transport ).getManagedSessions().values() );
+                    sessions = new ArrayList<IoSession>( getSocketAcceptor( transport ).getManagedSessions().values() );
                 }
                 catch ( IllegalArgumentException e )
                 {
                     LOG.warn( "Seems like the LDAP service (" + getPort() + ") has already been unbound." );
                     return;
                 }
-    
+
                 getSocketAcceptor( transport ).dispose();
-    
+
                 if ( LOG.isInfoEnabled() )
                 {
                     LOG.info( "Unbind of an LDAP service (" + getPort() + ") is complete." );
                     LOG.info( "Sending notice of disconnect to existing clients sessions." );
                 }
-    
+
                 // Send Notification of Disconnection messages to all connected clients.
                 if ( sessions != null )
                 {
-                    for ( IoSession session:sessions )
+                    for ( IoSession session : sessions )
                     {
                         writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
                     }
                 }
-    
+
                 // And close the connections when the NoDs are sent.
                 Iterator<IoSession> sessionIt = sessions.iterator();
-    
-                for ( WriteFuture future:writeFutures )
+
+                for ( WriteFuture future : writeFutures )
                 {
                     future.await( 1000L );
                     sessionIt.next().close( true );
                 }
 
-                if( replicationProvider != null )
+                if ( replicationProvider != null )
                 {
                     replicationProvider.stop();
                 }
             }
-            
+
             stopConsumers();
         }
         catch ( Exception e )
@@ -554,10 +549,9 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    private void startNetwork( Transport transport, IoFilterChainBuilder chainBuilder )
-        throws Exception
+    private void startNetwork( Transport transport, IoFilterChainBuilder chainBuilder ) throws Exception
     {
-        if ( transport.getBackLog() < 0 ) 
+        if ( transport.getBackLog() < 0 )
         {
             // Set the backlog to the default value when it's below 0
             transport.setBackLog( 50 );
@@ -579,29 +573,29 @@ public class LdapServer extends DirectoryBackedService
         try
         {
             SocketAcceptor acceptor = getSocketAcceptor( transport );
-            
+
             // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
             acceptor.setCloseOnDeactivation( false );
-            
+
             // Allow the port to be reused even if the socket is in TIME_WAIT state
             acceptor.setReuseAddress( true );
-            
+
             // No Nagle's algorithm
             acceptor.getSessionConfig().setTcpNoDelay( true );
-            
+
             // Inject the chain
             acceptor.setFilterChainBuilder( chainBuilder );
-            
+
             // Inject the protocol handler
             acceptor.setHandler( getHandler() );
-            
-            ((AbstractSocketSessionConfig)acceptor.getSessionConfig()).setReadBufferSize( 64*1024 );
-            ((AbstractSocketSessionConfig)acceptor.getSessionConfig()).setSendBufferSize( 64*1024 );
+
+            ( ( AbstractSocketSessionConfig ) acceptor.getSessionConfig() ).setReadBufferSize( 64 * 1024 );
+            ( ( AbstractSocketSessionConfig ) acceptor.getSessionConfig() ).setSendBufferSize( 64 * 1024 );
 
             // Bind to the configured address
             acceptor.bind();
-            
+
             // We are done !
             started = true;
 
@@ -626,11 +620,11 @@ public class LdapServer extends DirectoryBackedService
      */
     private void startConsumers() throws Exception
     {
-        if( providerConfigs != null )
+        if ( providerConfigs != null )
         {
             replConsumers = new ArrayList<SyncReplConsumer>( providerConfigs.size() );
-            
-            for( final SyncreplConfiguration config : providerConfigs )
+
+            for ( final SyncreplConfiguration config : providerConfigs )
             {
                 Runnable consumerTask = new Runnable()
                 {
@@ -645,14 +639,14 @@ public class LdapServer extends DirectoryBackedService
                             replConsumers.add( consumer );
                             consumer.startSync();
                         }
-                        catch( Exception e )
+                        catch ( Exception e )
                         {
                             LOG.error( "Failed to start the consumer with config {}", config );
                             throw new RuntimeException( e );
                         }
                     }
                 };
-                
+
                 Thread consumerThread = new Thread( consumerTask );
                 consumerThread.setDaemon( true );
                 consumerThread.start();
@@ -666,17 +660,17 @@ public class LdapServer extends DirectoryBackedService
      */
     private void stopConsumers()
     {
-        if( replConsumers != null )
+        if ( replConsumers != null )
         {
-            for( SyncReplConsumer consumer : replConsumers )
+            for ( SyncReplConsumer consumer : replConsumers )
             {
                 LOG.info( "stopping the consumer with id {}", consumer.getConfig().getReplicaId() );
                 consumer.disconnet();
             }
         }
     }
-    
-    
+
+
     public String getName()
     {
         return SERVICE_NAME;
@@ -687,24 +681,23 @@ public class LdapServer extends DirectoryBackedService
     {
         return handler;
     }
-    
-    
+
+
     public LdapSessionManager getLdapSessionManager()
     {
         return ldapSessionManager;
     }
-    
-    
+
+
     public ProtocolCodecFactory getProtocolCodecFactory()
     {
         return codecFactory;
     }
 
-    
+
     // ------------------------------------------------------------------------
     // Configuration Methods
     // ------------------------------------------------------------------------
-
 
     /**
      * Registeres the specified {@link ExtendedOperationHandler} to this
@@ -800,7 +793,7 @@ public class LdapServer extends DirectoryBackedService
         return confidentialityRequired;
     }
 
-    
+
     /**
      * Returns <tt>true</tt> if LDAPS is enabled.
      *
@@ -995,6 +988,7 @@ public class LdapServer extends DirectoryBackedService
     {
         return saslMechanismHandlers;
     }
+
 
     public void setSaslMechanismHandlers( Map<String, MechanismHandler> saslMechanismHandlers )
     {
@@ -1214,8 +1208,8 @@ public class LdapServer extends DirectoryBackedService
     {
         return unbindHandler;
     }
-    
-    
+
+
     /**
      * @return The underlying TCP transport port, or -1 if no transport has been 
      * initialized
@@ -1226,20 +1220,20 @@ public class LdapServer extends DirectoryBackedService
         {
             return -1;
         }
-        
-        for ( Transport transport:transports )
+
+        for ( Transport transport : transports )
         {
             if ( transport instanceof UdpTransport )
             {
                 continue;
             }
-            
+
             if ( !transport.isSSLEnabled() )
             {
                 return transport.getPort();
             }
         }
-        
+
         return -1;
     }
 
@@ -1254,22 +1248,23 @@ public class LdapServer extends DirectoryBackedService
         {
             return -1;
         }
-        
-        for ( Transport transport:transports )
+
+        for ( Transport transport : transports )
         {
             if ( transport instanceof UdpTransport )
             {
                 continue;
             }
-            
+
             if ( transport.isSSLEnabled() )
             {
                 return transport.getPort();
             }
         }
-        
+
         return -1;
     }
+
 
     /**
      * @param abandonHandler The UnbindRequest handler
@@ -1353,17 +1348,17 @@ public class LdapServer extends DirectoryBackedService
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "LdapServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }
