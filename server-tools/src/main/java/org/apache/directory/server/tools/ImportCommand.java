@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
-import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -59,10 +58,13 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
+import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -556,10 +558,10 @@ public class ImportCommand extends ToolCommand
      */
     private void unbind( int messageId ) throws EncoderException, DecoderException, IOException
     {
-        UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
+        InternalUnbindRequest unbindRequest = new UnbindRequestImpl( messageId );
+        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
 
-        unbindRequest.setMessageId( messageId );
-        ByteBuffer bb = unbindRequest.encode();
+        ByteBuffer bb = encoder.encodeMessage( unbindRequest );
         bb.flip();
 
         sendMessage( bb );
