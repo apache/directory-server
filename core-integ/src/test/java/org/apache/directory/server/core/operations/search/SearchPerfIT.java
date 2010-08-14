@@ -29,7 +29,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,14 +51,14 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        Cursor<InternalResponse> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
+        Cursor<Response> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
             SearchScope.OBJECT, "*" );
 
         int i = 0;
 
         while ( cursor.next() )
         {
-            InternalResponse response = cursor.get();
+            Response response = cursor.get();
             ++i;
         }
 

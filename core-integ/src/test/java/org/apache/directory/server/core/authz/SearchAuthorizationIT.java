@@ -48,8 +48,8 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -191,12 +191,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private void recursivelyDelete( DN rdn ) throws Exception
     {
-        Cursor<InternalResponse> results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
+        Cursor<Response> results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
 
         while ( results.next() )
         {
-            InternalSearchResultEntry result = ( InternalSearchResultEntry ) results.get();
+            SearchResultEntry result = ( SearchResultEntry ) results.get();
             DN childRdn = result.getEntry().getDn();
             recursivelyDelete( childRdn );
         }
@@ -277,12 +277,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         DN userDn = new DN( "uid=" + uid + ",ou=users,ou=system" );
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
-        Cursor<InternalResponse> cursor = userCtx.search( base.getName(), filter, scope, "*" );
+        Cursor<Response> cursor = userCtx.search( base.getName(), filter, scope, "*" );
         int counter = 0;
 
         while ( cursor.next() )
         {
-            Entry result = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             results.put( result.getDn().getName(), result );
             counter++;
         }
@@ -317,12 +317,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
-        Cursor<InternalResponse> cursor = userCtx.search( base.getName(), "(objectClass=*)", scope, "*" );
+        Cursor<Response> cursor = userCtx.search( base.getName(), "(objectClass=*)", scope, "*" );
         int counter = 0;
 
         while ( cursor.next() )
         {
-            Entry result = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             results.put( result.getDn().getName(), result );
             counter++;
         }
@@ -346,7 +346,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection connection = getAdminConnection();
         DN base = addSearchData( new DN( "ou=system" ), 3, 10 );
 
-        Cursor<InternalResponse> results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
+        Cursor<Response> results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
             "+" );
         int counter = 0;
 
@@ -359,7 +359,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertEquals( 10, counter );
         recursivelyDelete( base );
 
-        InternalSearchResultEntry entry = ( InternalSearchResultEntry ) connection.lookup( base.getName() );
+        SearchResultEntry entry = ( SearchResultEntry ) connection.lookup( base.getName() );
         assertNull( entry );
     }
 
@@ -777,16 +777,16 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return the single search result if access is allowed or null
      * @throws Exception if the search fails w/ exception other than no permission
      */
-    private InternalSearchResultEntry checkCanSearhSubentryAs( String uid, String password, DN dn ) throws Exception
+    private SearchResultEntry checkCanSearhSubentryAs( String uid, String password, DN dn ) throws Exception
     {
         LdapConnection userCtx = getConnectionAs( new DN( "uid=" + uid + ",ou=users,ou=system" ), password );
-        InternalSearchResultEntry result = null;
-        Cursor<InternalResponse> list = null;
+        SearchResultEntry result = null;
+        Cursor<Response> list = null;
 
         list = userCtx.search( dn.getName(), "(objectClass=*)", SearchScope.OBJECT, "*" );
         if ( list.next() )
         {
-            result = ( InternalSearchResultEntry ) list.get();
+            result = ( SearchResultEntry ) list.get();
         }
 
         list.close();
@@ -844,7 +844,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection userCtx = getConnectionAs( "uid=billyd,ou=users,ou=system", "billyd" );
 
         // we should not see ou=groups,ou=system for the remaining name
-        InternalSearchResultEntry entry = ( InternalSearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
+        SearchResultEntry entry = ( SearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
         assertNull( entry );
 
         // now delete and replace subentry with one that does not excluse ou=groups,ou=system
@@ -857,7 +857,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "          grantDiscloseOnError " + "        } " + "      } " + "    } " + "  } " + "}" );
 
         // now try a lookup of a non-existant entry under ou=groups,ou=system again
-        entry = ( InternalSearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
+        entry = ( SearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
         assertNull( entry );
     }
 

@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -125,7 +125,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         // Launch the search now
         SearchFuture searchFuture = connection.searchAsync( sr );
 
-        InternalResponse searchResponse = null;
+        Response searchResponse = null;
         int count = 0;
 
         do
@@ -139,13 +139,13 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
                 break;
             }
         }
-        while ( !( searchResponse instanceof InternalSearchResultDone ) );
+        while ( !( searchResponse instanceof SearchResultDone ) );
 
         assertTrue( numEntries > count );
         assertTrue( searchFuture.isCancelled() );
 
         // Now do a simple synchronous search
-        Cursor<InternalResponse> results = connection.search( sr );
+        Cursor<Response> results = connection.search( sr );
 
         int n = -1;
 

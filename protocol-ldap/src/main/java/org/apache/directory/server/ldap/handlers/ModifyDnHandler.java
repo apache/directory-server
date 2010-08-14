@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -59,7 +59,7 @@ public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
      */
     public void handle( LdapSession session, InternalModifyDnRequest req )
     {
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
         LOG.debug( "Handling modify dn request while ignoring referrals: {}", req );
 
         if ( req.getName().isEmpty() )

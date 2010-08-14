@@ -60,8 +60,8 @@ import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -172,18 +172,18 @@ public class ImportCommand extends ToolCommand
                         InternalMessage message = ( ( LdapMessageContainer ) ldapMessageContainer )
                             .getInternalMessage();
 
-                        if ( message instanceof InternalBindResponse )
+                        if ( message instanceof BindResponse )
                         {
-                            InternalBindResponse resp = ( InternalBindResponse ) message;
+                            BindResponse resp = ( BindResponse ) message;
 
                             if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                             {
                                 System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                             }
                         }
-                        else if ( message instanceof InternalExtendedResponse )
+                        else if ( message instanceof ExtendedResponse )
                         {
-                            InternalExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
+                            ExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
                                 .getInternalExtendedResponse();
 
                             if ( response.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )

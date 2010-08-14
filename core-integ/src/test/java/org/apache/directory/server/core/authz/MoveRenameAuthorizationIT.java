@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +88,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
 
         LdapConnection userConnection = getConnectionAs( userName, password );
-        InternalModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
+        ModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -141,7 +141,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         boolean isMoved = false;
-        InternalModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
+        ModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
 
         if ( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -153,7 +153,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             return false;
         }
 
-        InternalModifyDnResponse resp = userConnection
+        ModifyDnResponse resp = userConnection
             .rename( entryRdn + "," + newParentRdn + ",ou=system", newNameRdn );
 
         ResultCodeEnum code = resp.getLdapResult().getResultCode();

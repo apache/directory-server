@@ -45,9 +45,9 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -113,7 +113,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         assertFalse( session.exists( dn ) );
 
-        InternalAddResponse response = connection.add( entry );
+        AddResponse response = connection.add( entry );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -136,7 +136,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalAddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
+            AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( addResponse );
             assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
@@ -177,7 +177,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        Entry loadedEntry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
 
         // successful for admin
         assertEquals( uuid, loadedEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
@@ -189,10 +189,10 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         connection.unBind();
 
         // connect as non admin user and try to add entry with uuid and csn
-        InternalBindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
+        BindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
         assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
 
-        InternalAddResponse resp = connection.add( entry );
+        AddResponse resp = connection.add( entry );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
     }
 

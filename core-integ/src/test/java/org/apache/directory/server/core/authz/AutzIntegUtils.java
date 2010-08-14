@@ -30,8 +30,8 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -233,7 +233,7 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry systemEntry = ( ( InternalSearchResultEntry ) connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" ) )
+        Entry systemEntry = ( ( SearchResultEntry ) connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" ) )
             .getEntry();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
@@ -253,7 +253,7 @@ public class AutzIntegUtils
         subEntry.add( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtree );
         subEntry.add( SchemaConstants.PRESCRIPTIVE_ACI_AT, aciItem );
 
-        InternalAddResponse addResp = connection.add( subEntry );
+        AddResponse addResp = connection.add( subEntry );
 
         return addResp.getLdapResult().getResultCode();
     }

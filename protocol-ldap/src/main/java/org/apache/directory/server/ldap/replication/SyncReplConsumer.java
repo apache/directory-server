@@ -72,13 +72,13 @@ import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalIntermediateResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultReference;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultReference;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -220,7 +220,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             // Do a bind
-            InternalBindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
+            BindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
 
             // Check that it' not null and valid
             if ( bindResponse == null )
@@ -230,7 +230,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             // Now get the result
-            InternalLdapResult ldapResult = bindResponse.getLdapResult();
+            LdapResult ldapResult = bindResponse.getLdapResult();
 
             if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
             {
@@ -279,7 +279,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    public ResultCodeEnum handleSearchDone( InternalSearchResultDone searchDone )
+    public ResultCodeEnum handleSearchDone( SearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
@@ -310,14 +310,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    public void handleSearchReference( InternalSearchResultReference searchRef )
+    public void handleSearchReference( SearchResultReference searchRef )
     {
         // this method won't be called cause the provider will serve the referrals as
         // normal entry objects due to the usage of ManageDsaITControl in the search request
     }
 
 
-    public void handleSearchResult( InternalSearchResultEntry syncResult )
+    public void handleSearchResult( SearchResultEntry syncResult )
     {
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
@@ -549,17 +549,17 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         // Do the search
         SearchFuture sf = connection.searchAsync( searchRequest );
 
-        InternalResponse resp = sf.get();
+        Response resp = sf.get();
 
-        while ( !( resp instanceof InternalSearchResultDone ) && !sf.isCancelled() )
+        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
         {
-            if ( resp instanceof InternalSearchResultEntry )
+            if ( resp instanceof SearchResultEntry )
             {
-                handleSearchResult( ( InternalSearchResultEntry ) resp );
+                handleSearchResult( ( SearchResultEntry ) resp );
             }
-            else if ( resp instanceof InternalSearchResultReference )
+            else if ( resp instanceof SearchResultReference )
             {
-                handleSearchReference( ( InternalSearchResultReference ) resp );
+                handleSearchReference( ( SearchResultReference ) resp );
             }
             else if ( resp instanceof InternalIntermediateResponse )
             {
@@ -569,7 +569,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             resp = sf.get();
         }
 
-        ResultCodeEnum resultCode = handleSearchDone( ( InternalSearchResultDone ) resp );
+        ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
 
         LOG.debug( "sync operation returned result code {}", resultCode );
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )

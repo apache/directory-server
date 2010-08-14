@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +105,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
     
     
-    private void setECResponseControl( InternalSearchResultEntry response, ChangeOperationContext opContext, ChangeType type )
+    private void setECResponseControl( SearchResultEntry response, ChangeOperationContext opContext, ChangeType type )
     {
         if ( control.isReturnECs() )
         {
@@ -134,7 +134,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
     
-        InternalSearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( addContext.getDn() );
         respEntry.setEntry( addContext.getEntry() );
         setECResponseControl( respEntry, addContext, ChangeType.ADD );
@@ -149,7 +149,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
     
-        InternalSearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( deleteContext.getDn() );
         respEntry.setEntry( deleteContext.getEntry() );
         setECResponseControl( respEntry, deleteContext, ChangeType.DELETE );
@@ -164,7 +164,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
     
-        InternalSearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
         respEntry.setEntry( modifyContext.getAlteredEntry() );
         setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
@@ -179,7 +179,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
     
-        InternalSearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( moveContext.getDn() );
         respEntry.setEntry( moveContext.getEntry() );
         setECResponseControl( respEntry, moveContext, ChangeType.MODDN );
@@ -200,7 +200,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
     
-        InternalSearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( renameContext.getModifiedEntry().getDn() );
         respEntry.setEntry( renameContext.getModifiedEntry() );
         setECResponseControl( respEntry, renameContext, ChangeType.MODDN );

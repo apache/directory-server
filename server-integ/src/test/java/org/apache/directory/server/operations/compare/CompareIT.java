@@ -49,7 +49,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareResponse;
+import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -97,7 +97,7 @@ public class CompareIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( ldapServer );
 
         // comparison success
-        InternalCompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
+        CompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
         assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
 
         // comparison failure

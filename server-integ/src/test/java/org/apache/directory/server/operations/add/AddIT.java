@@ -86,7 +86,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
@@ -269,7 +269,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( InternalSearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -309,7 +309,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( InternalSearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -350,7 +350,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( InternalSearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -1205,7 +1205,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( entry );
 
         // Analyze entry and description attribute
-        InternalSearchResultEntry resp = ( InternalSearchResultEntry ) con.lookup( dn, "*", "+" );
+        SearchResultEntry resp = ( SearchResultEntry ) con.lookup( dn, "*", "+" );
         Entry addedEntry = resp.getEntry();
         assertNotNull( addedEntry );
 

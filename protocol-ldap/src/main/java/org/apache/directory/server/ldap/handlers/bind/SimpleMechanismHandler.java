@@ -32,8 +32,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class SimpleMechanismHandler implements MechanismHandler
             ldapSession.setCoreSession( bindContext.getSession() );
             
             // Return the successful response
-            InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
+            BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             LdapProtocolUtils.setResponseControls( bindContext, response );
             
@@ -87,7 +87,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
-            InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
+            LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
             if ( e instanceof LdapOperationException )
             {

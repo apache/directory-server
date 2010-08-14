@@ -34,12 +34,12 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponse;
+import org.apache.directory.shared.ldap.message.internal.ResultResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -109,9 +109,9 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     }
 
 
-    public void rejectWithoutConfidentiality( IoSession session, InternalResultResponse resp )
+    public void rejectWithoutConfidentiality( IoSession session, ResultResponse resp )
     {
-        InternalLdapResult result = resp.getLdapResult();
+        LdapResult result = resp.getLdapResult();
         result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
         session.write( resp );
@@ -145,8 +145,8 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
                 || ldapSession.isSimpleAuthPending() )
             {
                 LOG.error( I18n.err( I18n.ERR_732 ) );
-                InternalBindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
-                InternalLdapResult bindResult = bindResponse.getLdapResult();
+                BindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
+                LdapResult bindResult = bindResponse.getLdapResult();
                 bindResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
                 bindResult.setErrorMessage( I18n.err( I18n.ERR_732 ) );
                 ldapSession.getIoSession().write( bindResponse );
@@ -240,7 +240,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
      */
     public void handleException( LdapSession session, InternalResultResponseRequest req, Exception e )
     {
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
 
         /*
          * Set the result code or guess the best option.

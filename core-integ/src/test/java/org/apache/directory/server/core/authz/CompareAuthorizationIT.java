@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareResponse;
+import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -110,7 +110,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
-        InternalCompareResponse resp = userConnection.compare( entryDN, "telephoneNumber", number );
+        CompareResponse resp = userConnection.compare( entryDN, "telephoneNumber", number );
 
         // don't set based on compare result success/failure but based on whether the op was permitted or not
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
@@ -258,7 +258,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         adminCtx.add( user );
 
-        InternalCompareResponse resp = adminCtx.compare( userDN, "userPassword", "bobspassword" );
+        CompareResponse resp = adminCtx.compare( userDN, "userPassword", "bobspassword" );
         assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
     }
 

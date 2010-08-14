@@ -43,9 +43,9 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -120,7 +120,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             count++;
         }
 
-        InternalSearchResultDone done = cursor.getSearchDone();
+        SearchResultDone done = cursor.getSearchDone();
 
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
@@ -131,12 +131,12 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEquality() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
+        Cursor<Response> cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
             SearchScope.ONELEVEL, "*", "+" );
         int count = 0;
         while ( cursor.next() )
         {
-            Entry entry = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             assertNotNull( entry );
             count++;
         }
@@ -151,18 +151,18 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
             "+" );
         int count = 0;
-        InternalResponse searchResponse = null;
+        Response searchResponse = null;
 
         do
         {
-            searchResponse = ( InternalResponse ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
+            searchResponse = ( Response ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
             assertNotNull( searchResponse );
-            if ( !( searchResponse instanceof InternalSearchResultDone ) )
+            if ( !( searchResponse instanceof SearchResultDone ) )
             {
                 count++;
             }
         }
-        while ( !( searchResponse instanceof InternalSearchResultDone ) );
+        while ( !( searchResponse instanceof SearchResultDone ) );
 
         assertEquals( 5, count );
     }
@@ -178,19 +178,19 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE,
             "*", "+" );
         int count = 0;
-        InternalResponse searchResponse = null;
+        Response searchResponse = null;
 
         do
         {
-            searchResponse = ( InternalResponse ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
+            searchResponse = ( Response ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
             assertNotNull( searchResponse );
 
-            if ( !( searchResponse instanceof InternalSearchResultDone ) )
+            if ( !( searchResponse instanceof SearchResultDone ) )
             {
                 count++;
             }
         }
-        while ( !( searchResponse instanceof InternalSearchResultDone ) );
+        while ( !( searchResponse instanceof SearchResultDone ) );
 
         assertEquals( 3, count );
     }
@@ -206,7 +206,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         searchRequest.addAttributes( "*" );
 
         int count = 0;
-        Cursor<InternalResponse> cursor = connection.search( searchRequest );
+        Cursor<Response> cursor = connection.search( searchRequest );
 
         while ( cursor.next() )
         {

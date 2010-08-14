@@ -30,8 +30,8 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultDoneImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 
 
 /**
@@ -46,7 +46,7 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
     private Cursor<InternalResponse> wrapped;
 
     /** a reference to hold the SearchResultDone response */
-    private InternalSearchResultDone searchDoneResp;
+    private SearchResultDone searchDoneResp;
 
     private boolean done;
 
@@ -117,7 +117,7 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
     public InternalResponse get() throws Exception
     {
         ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
-        InternalSearchResultEntry se = new SearchResultEntryImpl( messageId );
+        SearchResultEntry se = new SearchResultEntryImpl( messageId );
         se.setEntry( entry );
 
         return ( InternalResponse ) se;
@@ -129,7 +129,7 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
      *
      * @return the SearchResultDone message, null if the search operation fails for any reason
      */
-    public InternalSearchResultDone getSearchDone()
+    public SearchResultDone getSearchDone()
     {
         return searchDoneResp;
     }

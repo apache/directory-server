@@ -31,8 +31,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -61,12 +61,12 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        InternalResponse response = connection.lookup( "cn=test,ou=system", "+" );
+        Response response = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
+        assertTrue( response instanceof SearchResultEntry );
 
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) response;
+        SearchResultEntry result = ( SearchResultEntry ) response;
 
         assertNotNull( result );
 
@@ -131,12 +131,12 @@ public class LookupPerfIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
             + "}" );
 
-        InternalResponse response = connection.lookup( "cn=test,ou=system", "+" );
+        Response response = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
+        assertTrue( response instanceof SearchResultEntry );
 
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) response;
+        SearchResultEntry result = ( SearchResultEntry ) response;
 
         assertNotNull( result );
 

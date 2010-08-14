@@ -39,7 +39,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareResponse;
+import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -98,7 +98,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
 
-        InternalCompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
+        CompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
         assertNotNull( response );
         assertTrue( response.isTrue() );
 
@@ -126,7 +126,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalCompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
+            CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( compareResponse );
             assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );

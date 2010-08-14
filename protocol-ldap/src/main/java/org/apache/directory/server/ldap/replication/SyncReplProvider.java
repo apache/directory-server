@@ -78,12 +78,12 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalIntermediateResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultDone;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultReference;
+import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultReference;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -334,7 +334,7 @@ public class SyncReplProvider implements ReplicationProvider
         }
         else
         {
-            InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
+            SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             SyncDoneValueControl syncDone = new SyncDoneValueControl();
             syncDone.setCookie( cookie );
@@ -404,7 +404,7 @@ public class SyncReplProvider implements ReplicationProvider
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
         req.setFilter( initialContentFilter );
 
-        InternalSearchResultDone searchDoneResp = doSimpleSearch( session, req );
+        SearchResultDone searchDoneResp = doSimpleSearch( session, req );
         
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -457,11 +457,11 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private InternalSearchResultDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
+    private SearchResultDone doSimpleSearch( LdapSession session, InternalSearchRequest req )
         throws Exception
     {
-        InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
-        InternalLdapResult ldapResult = searchDoneResp.getLdapResult();
+        SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
+        LdapResult ldapResult = searchDoneResp.getLdapResult();
 
         // A normal search
         // Check that we have a cursor or not. 
@@ -509,7 +509,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void readResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,
+    private void readResults( LdapSession session, InternalSearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
@@ -569,7 +569,7 @@ public class SyncReplProvider implements ReplicationProvider
             entry.add( uuid );
         }
         
-        InternalResponse resp = generateResponse( session, req, entry );
+        Response resp = generateResponse( session, req, entry );
         resp.add( syncStateControl );
 
         session.getIoSession().write( resp );
@@ -586,7 +586,7 @@ public class SyncReplProvider implements ReplicationProvider
         syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
         syncStateControl.setEntryUUID( StringTools.uuidToBytes( uuid.getString() ) );
 
-        InternalResponse resp = generateResponse( session, req, entry );
+        Response resp = generateResponse( session, req, entry );
         resp.add( syncStateControl );
         resp.add( modDnControl );
         
@@ -595,7 +595,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
     
-    private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, Entry entry )
+    private Response generateResponse( LdapSession session, InternalSearchRequest req, Entry entry )
         throws Exception
     {
         EntryAttribute ref = entry.get( SchemaConstants.REF_AT );
@@ -604,7 +604,7 @@ public class SyncReplProvider implements ReplicationProvider
         if ( ( ref != null ) && !hasManageDsaItControl )
         {
             // The entry is a referral.
-            InternalSearchResultReference respRef;
+            SearchResultReference respRef;
             respRef = new SearchResultReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
 
@@ -650,7 +650,7 @@ public class SyncReplProvider implements ReplicationProvider
         else
         {
             // The entry is not a referral, or the ManageDsaIt control is set
-            InternalSearchResultEntry respEntry;
+            SearchResultEntry respEntry;
             respEntry = new SearchResultEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
@@ -981,7 +981,7 @@ public class SyncReplProvider implements ReplicationProvider
     
     private void sendESyncRefreshRequired( LdapSession session, InternalSearchRequest req ) throws Exception
     {
-        InternalSearchResultDone searchDoneResp = ( InternalSearchResultDone ) req.getResultResponse();
+        SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
         SyncDoneValueControl syncDone = new SyncDoneValueControl();
         searchDoneResp.add( syncDone );

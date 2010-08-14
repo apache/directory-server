@@ -49,7 +49,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -373,7 +373,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
         connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
 
-        InternalBindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
+        BindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, bindResp.getLdapResult().getResultCode() );
     }
 

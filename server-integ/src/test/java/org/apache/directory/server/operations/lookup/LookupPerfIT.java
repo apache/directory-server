@@ -41,8 +41,8 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,11 +68,11 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
 
-        InternalResponse response = connection.lookup( "uid=admin,ou=system" );;
+        Response response = connection.lookup( "uid=admin,ou=system" );;
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
+        assertTrue( response instanceof SearchResultEntry );
 
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) response;
+        SearchResultEntry result = ( SearchResultEntry ) response;
 
         assertNotNull( result );
 

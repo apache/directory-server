@@ -66,8 +66,8 @@ import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Before;
@@ -1783,8 +1783,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         connection.add( entry2 );
 
-        entry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
-        entry2 = ( ( InternalSearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
+        entry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        entry2 = ( ( SearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
 
         String lowerCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
         String higherCsn = entry2.get( SchemaConstants.ENTRY_CSN_AT ).getString();
@@ -1827,11 +1827,11 @@ public class SearchIT extends AbstractLdapTestUnit
         Entry loadedEntry = null;
 
         Set<String> csnSet = new HashSet<String>( expectedCsns.length );
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*",
+        Cursor<Response> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*",
             "+" );
         while ( cursor.next() )
         {
-            loadedEntry = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            loadedEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
         }
         cursor.close();

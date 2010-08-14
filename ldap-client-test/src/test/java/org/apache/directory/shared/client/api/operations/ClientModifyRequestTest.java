@@ -46,8 +46,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -191,7 +191,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
+            ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( response );
 
@@ -222,7 +222,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( dn );
         modReq.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        InternalModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
 
         modReq = new ModifyRequest( dn );
@@ -248,10 +248,10 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         modReq.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
         modReq.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
 
-        InternalModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        Entry loadedEntry = ( ( InternalSearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
 
         assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
         assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );

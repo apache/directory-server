@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -106,7 +106,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
 
         // delete the newly created context as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
-        InternalDeleteResponse resp = userConnection.delete( entryDN );
+        DeleteResponse resp = userConnection.delete( entryDN );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {

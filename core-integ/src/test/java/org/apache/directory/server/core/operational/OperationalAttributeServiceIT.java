@@ -44,9 +44,9 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
@@ -97,7 +97,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         // test without turning on the property
-        InternalSearchResultEntry response = ( InternalSearchResultEntry ) connection.lookup( "ou=test,ou=system" );
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=test,ou=system" );
         Entry result = response.getEntry();
         EntryAttribute ou = result.get( "ou" );
         Object value = ou.getString();
@@ -111,7 +111,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         entry.setDn( new DN( "ou=anothertest,ou=system" ) );
         entry.set( "ou", "anothertest" );
         connection.add( entry );
-        response = ( InternalSearchResultEntry ) connection.lookup( "ou=anothertest,ou=system" );
+        response = ( SearchResultEntry ) connection.lookup( "ou=anothertest,ou=system" );
         ou = response.getEntry().get( "ou" );
         value = ou.getString();
         assertEquals( "anothertest", value );
@@ -134,7 +134,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        InternalSearchResultEntry response = ( InternalSearchResultEntry ) connection.lookup( "ou=testing00,ou=system" );
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=testing00,ou=system" );
         assertNotNull( response );
 
         entry = response.getEntry();
@@ -147,10 +147,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "createTimestamp" ) );
         assertNull( entry.get( "creatorsName" ) );
 
-        Cursor<InternalResponse> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)",
+        Cursor<Response> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)",
             SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
         responses.next();
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         assertNotNull( result.getEntry().get( "ou" ) );
         assertNotNull( result.getEntry().get( "creatorsName" ) );
@@ -173,10 +173,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSystemContextRoot() throws Exception
     {
-        Cursor<InternalResponse> responses = connection
+        Cursor<Response> responses = connection
             .search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
         responses.next();
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         // test to make sure op attribute do not occur - this is the control
         Entry entry = result.getEntry();
@@ -187,7 +187,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName",
             "createTimestamp" );
         responses.next();
-        result = ( InternalSearchResultEntry ) responses.get();
+        result = ( SearchResultEntry ) responses.get();
 
         entry = result.getEntry();
         assertNotNull( entry.get( "creatorsName" ) );
@@ -222,7 +222,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        InternalSearchResultEntry response = ( InternalSearchResultEntry ) connection.lookup(
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup(
             "uid=akarasulu,ou=users,ou=system", "creatorsName" );
         Entry result = response.getEntry();
 
@@ -243,10 +243,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.modify( DN_KATE_BUSH, modifyOp );
 
-        Cursor<InternalResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
+        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
             "modifiersName", "modifyTimestamp" );
         responses.next();
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         assertNotNull( result.getEntry().get( "modifiersName" ) );
         assertNotNull( result.getEntry().get( "modifyTimestamp" ) );
@@ -269,10 +269,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( DN_KATE_BUSH, modifyAddOp );
 
         // Determine modifyTimestamp
-        Cursor<InternalResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
+        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
             "modifyTimestamp" );
         responses.next();
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         EntryAttribute modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
@@ -290,7 +290,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // Determine modifyTimestamp after modification
         responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
         responses.next();
-        result = ( InternalSearchResultEntry ) responses.get();
+        result = ( SearchResultEntry ) responses.get();
 
         modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
@@ -327,7 +327,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "creatorsName" ) );
 
-        InternalModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
+        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }
@@ -344,7 +344,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        InternalModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
+        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }

@@ -42,8 +42,8 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -155,12 +155,12 @@ public class ReplicaDitStoreUtil
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
-        Cursor<InternalResponse> cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
+        Cursor<Response> cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
             SearchScope.ONELEVEL, "+", "*" );
 
         while ( cursor.next() )
         {
-            Entry entry = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             ReplicaEventLog replica = convertEntryToReplica( entry );
             replicas.add( replica );
         }

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareResponse;
+import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,7 +87,7 @@ public class ComparePerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            InternalCompareResponse response = connection.compare( dn, "sn", "TEST" );
+            CompareResponse response = connection.compare( dn, "sn", "TEST" );
 
             //assertEquals( ResultCodeEnum.COMPARE_TRUE, response.getLdapResult().getResultCode() );
         }

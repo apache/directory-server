@@ -33,7 +33,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,7 +71,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             connection.bind( "uid=admin,ou=system", "secret" );
 
             // Searches for all the entries in ou=system
-            Cursor<InternalResponse> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
+            Cursor<Response> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
                 SearchScope.OBJECT, "*" );
 
             int i = 0;

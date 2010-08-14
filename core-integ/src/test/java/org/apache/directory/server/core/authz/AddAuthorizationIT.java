@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -93,7 +93,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
             entry.add( SchemaConstants.OU_AT, "testou" );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
 
-            InternalAddResponse resp = connection.add( entry );
+            AddResponse resp = connection.add( entry );
 
             if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {

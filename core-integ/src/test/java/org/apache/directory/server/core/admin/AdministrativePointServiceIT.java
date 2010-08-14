@@ -35,11 +35,11 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,11 +74,11 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
     private Entry getAdminRole( String dn ) throws Exception
     {
-        InternalResponse lookup = connection.lookup( dn, "administrativeRole" );
+        Response lookup = connection.lookup( dn, "administrativeRole" );
 
-        assertTrue( lookup instanceof InternalSearchResultEntry );
+        assertTrue( lookup instanceof SearchResultEntry );
 
-        Entry entry = ( ( InternalSearchResultEntry ) lookup ).getEntry();
+        Entry entry = ( ( SearchResultEntry ) lookup ).getEntry();
 
         return entry;
     }
@@ -98,7 +98,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: autonomousArea" );
 
         // It should succeed
-        InternalAddResponse response = connection.add( autonomousArea );
+        AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -135,7 +135,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlSpecificArea",
             "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA" );
 
-        InternalAddResponse response = connection.add( autonomousArea );
+        AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -161,7 +161,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlINNERArea",
             "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
-        InternalAddResponse response = connection.add( autonomousArea );
+        AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -185,7 +185,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlBadArea",
             "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
-        InternalAddResponse response = connection.add( autonomousArea );
+        AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -202,7 +202,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlSpecificArea",
             "administrativeRole: accessControlInnerArea" );
 
-        InternalAddResponse response = connection.add( autonomousArea );
+        AddResponse response = connection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -227,7 +227,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -253,7 +253,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "accessControlInnerArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -279,7 +279,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeInnerArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -301,7 +301,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS, response.getLdapResult().getResultCode() );
     }
@@ -324,7 +324,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -351,7 +351,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea",
                 "accessControlSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -377,7 +377,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -405,7 +405,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, response.getLdapResult().getResultCode() );
     }
@@ -431,7 +431,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         Modification modification2 = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2,
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2,
             modification1 );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -460,7 +460,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         // Try to modify it to an InnerArea
         Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
-        InternalModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         // Should fail
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
@@ -484,7 +484,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         connection.add( autonomousArea );
 
         // It should fail, as we haven't injected all the roles
-        InternalModifyDnResponse response = connection.move( "ou=autonomousArea, ou=system", "uid=admin, ou=system" );
+        ModifyDnResponse response = connection.move( "ou=autonomousArea, ou=system", "uid=admin, ou=system" );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -507,7 +507,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         connection.add( autonomousArea );
 
         // It should fail, as we haven't injected all the roles
-        InternalModifyDnResponse response = connection.moveAndRename( "ou=autonomousArea, ou=system",
+        ModifyDnResponse response = connection.moveAndRename( "ou=autonomousArea, ou=system",
             "ou=new autonomousArea, uid=admin, ou=system" );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
@@ -531,7 +531,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         connection.add( autonomousArea );
 
         // It should fail, as we haven't injected all the roles
-        InternalModifyDnResponse response = connection.rename( "ou=autonomousArea, ou=system", "ou=new autonomousArea" );
+        ModifyDnResponse response = connection.rename( "ou=autonomousArea, ou=system", "ou=new autonomousArea" );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }

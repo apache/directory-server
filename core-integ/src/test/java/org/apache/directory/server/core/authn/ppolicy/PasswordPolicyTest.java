@@ -55,9 +55,9 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
@@ -128,7 +128,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddRequest addReq = new AddRequest( userEntry );
         addReq.add( PP_REQ_CTRL );
 
-        InternalAddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
@@ -170,7 +170,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddRequest addReq = new AddRequest( userEntry );
         addReq.add( PP_REQ_CTRL );
 
-        InternalAddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
@@ -208,7 +208,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddRequest addReq = new AddRequest( userEntry );
         addReq.add( PP_REQ_CTRL );
 
-        InternalAddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addReq );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
@@ -218,7 +218,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         modReq.add( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
 
-        InternalModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
 
         respCtrl = getPwdRespCtrl( modResp );
@@ -235,7 +235,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     }
 
 
-    private PasswordPolicyResponseControl getPwdRespCtrl( InternalResponse resp ) throws Exception
+    private PasswordPolicyResponseControl getPwdRespCtrl( Response resp ) throws Exception
     {
         Control ctrl = resp.getControls().get( PP_REQ_CTRL.getOid() );
 

@@ -43,8 +43,8 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;
@@ -90,8 +90,8 @@ public class StartTlsHandler implements ExtendedOperationHandler
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        InternalExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
-        InternalLdapResult result = res.getLdapResult();
+        ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
+        LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
         res.setResponseValue( new byte[0] );

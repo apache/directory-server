@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class CompareHandler extends LdapRequestHandler<InternalCompareRequest>
     public void handle( LdapSession session, InternalCompareRequest req )
     {
         LOG.debug( "Handling compare request while ignoring referrals: {}", req );
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
         
         try
         {

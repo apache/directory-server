@@ -47,7 +47,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,7 +116,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         try
         {
             connection = new LdapNetworkConnection( config );
-            InternalBindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
 
             assertNotNull( bindResponse );
 

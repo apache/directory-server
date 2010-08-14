@@ -58,10 +58,10 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalAddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.AddResponse;
+import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -234,15 +234,15 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> results = new HashMap<String, Entry>();
 
-        Cursor<InternalResponse> responses = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
+        Cursor<Response> responses = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
 
         while ( responses.next() )
         {
-            InternalResponse response = responses.get();
+            Response response = responses.get();
 
-            if ( response instanceof InternalSearchResultEntry )
+            if ( response instanceof SearchResultEntry )
             {
-                Entry entry = ( ( InternalSearchResultEntry ) response ).getEntry();
+                Entry entry = ( ( SearchResultEntry ) response ).getEntry();
 
                 results.put( entry.getDn().getName(), entry );
             }
@@ -337,7 +337,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
             "c-o: Test Org", "cn: testsubentryA" );
 
-        InternalAddResponse response = connection.add( subEntryA );
+        AddResponse response = connection.add( subEntryA );
 
         assertTrue( response.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS );
 
@@ -425,7 +425,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         // Now delete the AP-B subentry
-        InternalDeleteResponse deleteResponse = connection
+        DeleteResponse deleteResponse = connection
             .delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
 
         // --------------------------------------------------------------------
@@ -453,7 +453,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         Entry subEntry = getSubentry( "cn=testsubentry,ou=system" );
-        InternalAddResponse response = connection.add( subEntry );
+        AddResponse response = connection.add( subEntry );
 
         assertTrue( "should never get here: cannot create subentry under regular entries", response.getLdapResult()
             .getResultCode() == ResultCodeEnum.NO_SUCH_ATTRIBUTE );

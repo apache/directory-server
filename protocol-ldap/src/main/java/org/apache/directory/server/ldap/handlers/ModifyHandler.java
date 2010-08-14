@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class ModifyHandler extends LdapRequestHandler<InternalModifyRequest>
     public void handle( LdapSession session, InternalModifyRequest req )
     {
         LOG.debug( "Handling request : {}", req );
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {

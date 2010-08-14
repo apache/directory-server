@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.session.IoSession;
@@ -232,7 +232,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      */
     protected LdapContext getContext( IoSession session, InternalBindRequest bindRequest, Hashtable<String, Object> env )
     {
-        InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
+        LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
         LdapContext ctx = null;
 

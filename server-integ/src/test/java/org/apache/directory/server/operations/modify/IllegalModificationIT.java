@@ -39,8 +39,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,11 +87,11 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( new DN( DN ) );
         modReq.add( "description", "" );
 
-        InternalModifyResponse resp = con.modify( modReq );
+        ModifyResponse resp = con.modify( modReq );
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, resp.getLdapResult().getResultCode() );
 
         // Check whether entry is unmodified, i.e. no description
-        Entry entry = ( ( InternalSearchResultEntry ) con.lookup( DN ) ).getEntry();
+        Entry entry = ( ( SearchResultEntry ) con.lookup( DN ) ).getEntry();
         assertEquals( "description exists?", null, entry.get( "description" ) );
     }
 

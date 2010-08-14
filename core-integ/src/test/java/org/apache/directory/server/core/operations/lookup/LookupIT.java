@@ -31,7 +31,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -75,7 +75,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupStar() throws Exception
     {
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) connection.lookup( "cn=test,ou=system", "*" );
+        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system", "*" );
         Entry entry = result.getEntry();
 
         assertNotNull( entry );
@@ -98,7 +98,7 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupPlus() throws Exception
     {
         service.setDenormalizeOpAttrsEnabled( true );
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) connection.lookup( "cn=test,ou=system", "+" );
+        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system", "+" );
         Entry entry = result.getEntry();
 
         assertNotNull( entry );
@@ -125,7 +125,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupEmptyAtrid() throws Exception
     {
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) connection.lookup( "cn=test,ou=system",
+        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system",
             ( String[] ) null );
         Entry entry = result.getEntry();
 
@@ -147,7 +147,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) connection.lookup( "cn=test,ou=system" );
+        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system" );
         Entry entry = result.getEntry();
 
         assertNotNull( entry );
@@ -169,7 +169,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Ignore
     public void testLookupWithAttrs() throws Exception
     {
-        InternalSearchResultEntry result = ( InternalSearchResultEntry ) connection
+        SearchResultEntry result = ( SearchResultEntry ) connection
             .lookup( "cn=test,ou=system", "name" );
         Entry entry = result.getEntry();
 

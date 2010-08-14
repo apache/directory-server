@@ -25,8 +25,8 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 
 
 /**
@@ -45,7 +45,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getID();
-            InternalLdapResult result = req.getResultResponse().getLdapResult();
+            LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
@@ -58,12 +58,12 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
         }
         catch ( Exception e )
         {
-            InternalLdapResult result = req.getResultResponse().getLdapResult();
+            LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
             result.setErrorMessage( ResultCodeEnum.OTHER
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getID()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-            InternalExtendedResponse resp = ( InternalExtendedResponse ) req.getResultResponse();
+            ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
             resp.setResponseValue( new byte[0] );
             session.getIoSession().write( req.getResultResponse() );
         }

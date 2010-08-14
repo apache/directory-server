@@ -42,8 +42,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -77,12 +77,12 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
 
         long t2 = System.currentTimeMillis();
 
-        Cursor<InternalResponse> cursor = connection.search( "dc=example,dc=com", "(objectClass=*)",
+        Cursor<Response> cursor = connection.search( "dc=example,dc=com", "(objectClass=*)",
             SearchScope.SUBTREE, "*" );
         while ( cursor.next() )
         {
-            InternalResponse sr = cursor.get();
-            InternalSearchResultEntry sre = ( InternalSearchResultEntry ) sr;
+            Response sr = cursor.get();
+            SearchResultEntry sre = ( SearchResultEntry ) sr;
         }
 
         cursor.close();

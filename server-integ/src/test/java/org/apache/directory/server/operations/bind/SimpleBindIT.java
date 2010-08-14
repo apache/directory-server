@@ -54,8 +54,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -445,8 +445,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        InternalBindResponse response = connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
-        InternalLdapResult ldapResult = response.getLdapResult();
+        BindResponse response = connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
+        LdapResult ldapResult = response.getLdapResult();
         assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
         assertEquals( 1, response.getMessageId() );
         assertTrue( connection.isAuthenticated() );

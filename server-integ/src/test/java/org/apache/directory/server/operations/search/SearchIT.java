@@ -64,7 +64,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1600,7 +1600,7 @@ public class SearchIT extends AbstractLdapTestUnit
             }
 
             // Searches for all the entries in ou=system
-            Cursor<InternalResponse> cursor = asyncCnx
+            Cursor<Response> cursor = asyncCnx
                 .search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
@@ -1660,7 +1660,7 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setScope( SearchScope.SUBTREE );
         req.setSizeLimit( sizeLimit );
 
-        Cursor<InternalResponse> cursor = connection.search( req );
+        Cursor<Response> cursor = connection.search( req );
         long i = 0;
 
         while ( cursor.next() )
@@ -1682,7 +1682,7 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setFilter( "(objectClass=*)" );
         req.setScope( SearchScope.SUBTREE );
 
-        Cursor<InternalResponse> cursor = connection.search( req );
+        Cursor<Response> cursor = connection.search( req );
         int count = 0;
 
         while ( cursor.next() )

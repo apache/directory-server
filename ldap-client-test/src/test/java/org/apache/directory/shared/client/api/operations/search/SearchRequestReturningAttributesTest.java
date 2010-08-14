@@ -36,8 +36,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -101,10 +101,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAll() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "*", "+" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -115,8 +115,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 7, entry.size() );
@@ -138,10 +138,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllUsers() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "*" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -152,8 +152,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 3, entry.size() );
@@ -171,10 +171,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllOperationals() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "+" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -185,8 +185,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 4, entry.size() );
@@ -205,10 +205,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllUsersAndSomeOperationals() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "*", "entryCSN", "entryUUID" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -219,8 +219,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 5, entry.size() );
@@ -240,10 +240,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllOperationalAndSomeUsers() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "+", "cn", "sn" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -254,8 +254,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 6, entry.size() );
@@ -276,10 +276,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchSomeOpsAndUsers() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "cn", "entryUUID", "sn", "entryCSN" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -290,8 +290,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 4, entry.size() );
@@ -310,10 +310,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithDuplicatedAttrs() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "cn", "entryUUID", "cn", "sn", "entryCSN", "entryUUID" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -324,8 +324,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 4, entry.size() );
@@ -344,10 +344,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithOIDAndtext() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "cn", "1.3.6.1.1.16.4", "surName", "entryCSN", "entryUUID" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -358,8 +358,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 4, entry.size() );
@@ -378,10 +378,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithMissingAttributes() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "cn", "1.3.6.1.1.16.4", "gn", "entryCSN", "entryUUID" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -392,8 +392,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 3, entry.size() );
@@ -411,10 +411,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributes() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "1.1" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -425,8 +425,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 0, entry.size() );
@@ -441,10 +441,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributesAndAttributes() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "1.1", "cn" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -455,8 +455,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 1, entry.size() );
@@ -472,10 +472,10 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributesAllAttributes() throws Exception
     {
-        Cursor<InternalResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
             SearchScope.OBJECT, "1.1", "*", "+" );
         int count = 0;
-        InternalResponse response = null;
+        Response response = null;
 
         while ( cursor.next() )
         {
@@ -486,8 +486,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNotNull( response );
-        assertTrue( response instanceof InternalSearchResultEntry );
-        InternalSearchResultEntry resultEntry = ( InternalSearchResultEntry ) response;
+        assertTrue( response instanceof SearchResultEntry );
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 7, entry.size() );

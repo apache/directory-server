@@ -46,7 +46,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -129,7 +129,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        InternalDeleteResponse response = connection.delete( dn.getName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -143,7 +143,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "cn=child1,cn=parent,ou=system" ); // has children
         assertTrue( session.exists( dn ) );
 
-        InternalDeleteResponse response = connection.delete( dn.getName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
 
@@ -161,7 +161,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
-            InternalDeleteResponse response = connection.deleteTree( dn );
+            DeleteResponse response = connection.deleteTree( dn );
             assertNotNull( response );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -193,7 +193,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
             DeleteListener.class );
         deleteChildrenMethod.setAccessible( true );
 
-        InternalDeleteResponse response = ( InternalDeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null,
+        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null,
             null );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -221,7 +221,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         DeleteListener listener = new DeleteListener()
         {
-            public void entryDeleted( LdapAsyncConnection connection, InternalDeleteResponse response )
+            public void entryDeleted( LdapAsyncConnection connection, DeleteResponse response )
                 throws LdapException
             {
                 assertNotNull( response );
@@ -253,7 +253,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalDeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
+            DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( deleteResponse );
             assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -120,7 +120,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // modify the entry as the user
         ModifyRequest modReq = new ModifyRequest( entryDN );
         modReq.addModification( mods );
-        InternalModifyResponse resp = userConnection.modify( modReq );
+        ModifyResponse resp = userConnection.modify( modReq );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -180,7 +180,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( entryDN );
         modReq.addModification( attr, modOp );
 
-        InternalModifyResponse resp = userConnection.modify( modReq );
+        ModifyResponse resp = userConnection.modify( modReq );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -219,7 +219,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( userDN );
         modReq.addModification( mods );
 
-        InternalModifyResponse resp = connection.modify( modReq );
+        ModifyResponse resp = connection.modify( modReq );
 
         return resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS;
     }

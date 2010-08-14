@@ -36,8 +36,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResultEntry;
+import org.apache.directory.shared.ldap.message.internal.Response;
+import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,12 +90,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         personEntry.setDn( new DN( dn ) );
         connection.add( personEntry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( personEntry.getDn().equals( sr.getDn() ) );
@@ -125,12 +125,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -159,12 +159,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
+        Cursor<Response> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
             SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
             EntryAttribute cn = sr.get( "cn" );
@@ -191,12 +191,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
 
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
 
@@ -225,13 +225,13 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection
+        Cursor<Response> cursor = connection
             .search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -261,12 +261,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -297,13 +297,13 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE,
+        Cursor<Response> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE,
             "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
@@ -333,13 +333,13 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<InternalResponse> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
 
         while ( cursor.next() )
         {
-            Entry sr = ( ( InternalSearchResultEntry ) cursor.get() ).getEntry();
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );

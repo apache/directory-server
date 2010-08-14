@@ -40,7 +40,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.After;
@@ -103,7 +103,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testRename() throws Exception
     {
-        InternalModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString" );
+        ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString" );
         assertNotNull( resp );
         assertFalse( session.exists( new DN( dn ) ) );
         assertTrue( session.exists( new DN( "cn=modifyDnWithString,ou=system" ) ) );
@@ -113,7 +113,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testRenameWithoutDeleteOldRdn() throws Exception
     {
-        InternalModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString", false );
+        ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString", false );
         assertNotNull( resp );
 
         DN oldDn = new DN( dn );
@@ -130,7 +130,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testMove() throws Exception
     {
-        InternalModifyDnResponse resp = connection.move( dn, "ou=users,ou=system" );
+        ModifyDnResponse resp = connection.move( dn, "ou=users,ou=system" );
         assertNotNull( resp );
 
         DN oldDn = new DN( dn );
@@ -155,7 +155,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
+            ModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( response );
 

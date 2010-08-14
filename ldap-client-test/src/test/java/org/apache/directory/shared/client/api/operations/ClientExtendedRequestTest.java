@@ -41,7 +41,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -98,7 +98,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     @Test
     public void testExtended() throws Exception
     {
-        InternalExtendedResponse response = connection.extended( StartTlsRequest.OID );
+        ExtendedResponse response = connection.extended( StartTlsRequest.OID );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
@@ -113,7 +113,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            InternalExtendedResponse extendedResponse = ( InternalExtendedResponse ) extendedFuture.get( 1000,
+            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000,
                 TimeUnit.MILLISECONDS );
 
             assertNotNull( extendedResponse );

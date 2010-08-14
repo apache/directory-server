@@ -45,7 +45,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( ldapServer );
 
         // delete failure on non-leaf entry
-        InternalDeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
+        DeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
@@ -115,7 +115,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
 
         // delete failure non-existant entry
-        InternalDeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
@@ -132,7 +132,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( ldapServer );
 
         // delete failure non-existent entry
-        InternalDeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
