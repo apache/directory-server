@@ -37,7 +37,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.ldap.client.api.listener.DeleteListener;
-import org.apache.directory.ldap.client.api.message.DeleteRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -45,8 +44,10 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -193,8 +194,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
             DeleteListener.class );
         deleteChildrenMethod.setAccessible( true );
 
-        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null,
-            null );
+        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, null );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -221,8 +221,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         DeleteListener listener = new DeleteListener()
         {
-            public void entryDeleted( LdapAsyncConnection connection, DeleteResponse response )
-                throws LdapException
+            public void entryDeleted( LdapAsyncConnection connection, DeleteResponse response ) throws LdapException
             {
                 assertNotNull( response );
                 assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -249,7 +248,10 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        DeleteFuture deleteFuture = connection.deleteAsync( new DeleteRequest( dn ) );
+        InternalDeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( dn );
+
+        DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );
 
         try
         {

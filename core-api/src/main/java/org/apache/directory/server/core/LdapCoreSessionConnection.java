@@ -31,7 +31,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AbandonRequest;
 import org.apache.directory.ldap.client.api.message.AddRequest;
 import org.apache.directory.ldap.client.api.message.CompareRequest;
-import org.apache.directory.ldap.client.api.message.DeleteRequest;
 import org.apache.directory.ldap.client.api.message.ExtendedRequest;
 import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
@@ -335,19 +334,16 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public DeleteResponse delete( DeleteRequest deleteRequest ) throws LdapException
+    public DeleteResponse delete( InternalDeleteRequest deleteRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
         DeleteResponse resp = new DeleteResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalDeleteRequest idelete = new DeleteRequestImpl( newId );
-
         try
         {
-            idelete.setName( deleteRequest.getTargetDn() );
-            session.delete( idelete );
+            session.delete( deleteRequest );
         }
         catch ( LdapException e )
         {
@@ -357,7 +353,8 @@ public class LdapCoreSessionConnection implements LdapConnection
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
 
-        addResponseControls( idelete, resp );
+        addResponseControls( deleteRequest, resp );
+
         return resp;
     }
 
@@ -367,8 +364,10 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public DeleteResponse delete( DN dn ) throws LdapException
     {
-        DeleteRequest delReq = new DeleteRequest( dn );
-        return delete( delReq );
+        InternalDeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( dn );
+
+        return delete( deleteRequest );
     }
 
 
