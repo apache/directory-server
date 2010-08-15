@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AbandonRequest;
 import org.apache.directory.ldap.client.api.message.AddRequest;
 import org.apache.directory.ldap.client.api.message.CompareRequest;
 import org.apache.directory.ldap.client.api.message.ExtendedRequest;
@@ -73,6 +72,7 @@ import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
@@ -1005,7 +1005,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public void abandon( AbandonRequest abandonRequest )
+    public void abandon( InternalAbandonRequest abandonRequest )
     {
         throw new UnsupportedOperationException( "abandon operation is not supported" );
     }
