@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
-import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -54,6 +53,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
@@ -61,6 +61,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
@@ -223,7 +224,7 @@ public class ImportCommand extends ToolCommand
     private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, LdapException,
         EncoderException
     {
-        AddRequestCodec addRequest = new AddRequestCodec();
+        InternalAddRequest addRequest = new AddRequestImpl();
 
         String dn = ldifEntry.getDn().getName();
 
@@ -250,7 +251,8 @@ public class ImportCommand extends ToolCommand
         addRequest.setMessageId( messageId );
 
         // Encode and send the addRequest message
-        ByteBuffer bb = addRequest.encode();
+        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        ByteBuffer bb = encoder.encodeMessage( addRequest );
         bb.flip();
 
         sendMessage( bb );

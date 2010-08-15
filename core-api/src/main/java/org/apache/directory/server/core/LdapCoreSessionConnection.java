@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AddRequest;
 import org.apache.directory.ldap.client.api.message.CompareRequest;
 import org.apache.directory.ldap.client.api.message.ExtendedRequest;
 import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
@@ -184,19 +183,18 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public AddResponse add( AddRequest addRequest ) throws LdapException
+    public AddResponse add( InternalAddRequest addRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
-        InternalAddRequest iadd = new AddRequestImpl( newId );
-        iadd.setEntry( addRequest.getEntry() );
+        addRequest.setMessageId( newId );
 
         AddResponse resp = new AddResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
         try
         {
-            session.add( iadd );
+            session.add( addRequest );
         }
         catch ( LdapException e )
         {
@@ -206,7 +204,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
 
-        addResponseControls( iadd, resp );
+        addResponseControls( addRequest, resp );
         return resp;
     }
 
@@ -216,7 +214,10 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public AddResponse add( Entry entry ) throws LdapException
     {
-        return add( new AddRequest( entry ) );
+        InternalAddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( entry );
+
+        return add( addRequest );
     }
 
 

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
-import org.apache.directory.ldap.client.api.message.AddRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -44,9 +43,11 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -131,8 +132,10 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         entry.add( SchemaConstants.SN_AT, "testAsyncAdd_sn" );
 
         assertFalse( session.exists( dn ) );
+        InternalAddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( entry );
 
-        AddFuture addFuture = connection.addAsync( new AddRequest( entry ) );
+        AddFuture addFuture = connection.addAsync( addRequest );
 
         try
         {
