@@ -186,7 +186,7 @@ public class ImportCommand extends ToolCommand
                         else if ( message instanceof ExtendedResponse )
                         {
                             ExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
-                                .getInternalExtendedResponse();
+                                .getExtendedResponse();
 
                             if ( response.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                             {
