@@ -1,7 +1,6 @@
 version: 1
 dn: ads-serverId=ldapServer,ou=servers,ou=config
 ads-ldapserverallowanonymousaccess: false
-ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-serverid: ldapServer
 ads-ldapserversaslrealms: example.com
 ads-ldapserversaslrealms: apache.org
