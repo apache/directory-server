@@ -667,6 +667,13 @@ public class ConfigPartitionReader
         {
             chgPwdServer.setServicePrincipal( servicePrincipal.getString() );
         }
+
+        EntryAttribute searchBaseAttr = chgPwdEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
+
+        if ( searchBaseAttr != null )
+        {
+            chgPwdServer.setSearchBaseDn( searchBaseAttr.getString() );
+        }
         
         return chgPwdServer;
     }

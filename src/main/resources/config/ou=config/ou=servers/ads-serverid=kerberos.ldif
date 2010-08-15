@@ -1,6 +1,5 @@
 version: 1
 dn: ads-serverId=kerberos,ou=servers,ou=config
-ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-serverid: kerberos
 ads-enabled: false
 objectclass: ads-server
