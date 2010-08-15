@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.AbandonRequest;
 import org.apache.directory.ldap.client.api.message.AddRequest;
-import org.apache.directory.ldap.client.api.message.BindRequest;
 import org.apache.directory.ldap.client.api.message.CompareRequest;
 import org.apache.directory.ldap.client.api.message.DeleteRequest;
 import org.apache.directory.ldap.client.api.message.ExtendedRequest;
@@ -55,6 +54,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
@@ -69,23 +69,24 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.internal.CompareResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.LdapResult;
+import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
-import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.LdapResult;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
+import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
+import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -856,8 +857,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      * @param newDn The new Entry DN
      * @param deleteOldRdn Tells if the old RDN must be removed
      */
-    public ModifyDnResponse moveAndRename( String entryDn, String newDn, boolean deleteOldRdn )
-        throws LdapException
+    public ModifyDnResponse moveAndRename( String entryDn, String newDn, boolean deleteOldRdn ) throws LdapException
     {
         return moveAndRename( new DN( entryDn ), new DN( newDn ), deleteOldRdn );
     }
@@ -1026,8 +1026,8 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind() throws LdapException, IOException
     {
-        BindRequest bindReq = new BindRequest();
-        bindReq.setName( "" );
+        InternalBindRequest bindReq = new BindRequestImpl();
+        bindReq.setName( DN.EMPTY_DN );
         bindReq.setCredentials( ( byte[] ) null );
 
         return bind( bindReq );
@@ -1037,7 +1037,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
+    public BindResponse bind( InternalBindRequest bindRequest ) throws LdapException, IOException
     {
         int newId = messageId.incrementAndGet();
 
@@ -1060,7 +1060,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             operationManager.bind( bindContext );
             session = bindContext.getSession();
 
-            bindResp.addAll( bindContext.getResponseControls() );
+            bindResp.addAllControls( bindContext.getResponseControls() );
         }
         catch ( LdapOperationException e )
         {
@@ -1081,8 +1081,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         byte[] credBytes = ( credentials == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( credentials ) );
 
-        BindRequest bindReq = new BindRequest();
-        bindReq.setName( name.getName() );
+        InternalBindRequest bindReq = new BindRequestImpl();
+        bindReq.setName( name );
         bindReq.setCredentials( credBytes );
 
         return bind( bindReq );
@@ -1104,7 +1104,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         for ( Control c : ctrlSet )
         {
-            clientResp.add( c );
+            clientResp.addControl( c );
         }
     }
 

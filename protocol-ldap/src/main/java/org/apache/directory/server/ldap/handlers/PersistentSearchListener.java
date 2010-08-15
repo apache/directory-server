@@ -91,7 +91,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
          */
     }
 
-    
+
     public void requestAbandoned( InternalAbandonableRequest req )
     {
         try
@@ -103,37 +103,37 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             LOG.error( I18n.err( I18n.ERR_164 ), e );
         }
     }
-    
-    
+
+
     private void setECResponseControl( SearchResultEntry response, ChangeOperationContext opContext, ChangeType type )
     {
         if ( control.isReturnECs() )
         {
             EntryChangeControl ecControl = new EntryChangeControl();
             ecControl.setChangeType( type );
-            
+
             if ( opContext.getChangeLogEvent() != null )
             {
                 ecControl.setChangeNumber( opContext.getChangeLogEvent().getRevision() );
             }
-         
+
             if ( opContext instanceof RenameOperationContext || opContext instanceof MoveOperationContext )
             {
-                ecControl.setPreviousDn( opContext.getDn() ); 
+                ecControl.setPreviousDn( opContext.getDn() );
             }
-            
-            response.add( ecControl );
+
+            response.addControl( ecControl );
         }
     }
 
 
     public void entryAdded( AddOperationContext addContext )
     {
-        if ( ! control.isNotificationEnabled( ChangeType.ADD ) )
+        if ( !control.isNotificationEnabled( ChangeType.ADD ) )
         {
             return;
         }
-    
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( addContext.getDn() );
         respEntry.setEntry( addContext.getEntry() );
@@ -144,11 +144,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryDeleted( DeleteOperationContext deleteContext )
     {
-        if ( ! control.isNotificationEnabled( ChangeType.DELETE ) )
+        if ( !control.isNotificationEnabled( ChangeType.DELETE ) )
         {
             return;
         }
-    
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( deleteContext.getDn() );
         respEntry.setEntry( deleteContext.getEntry() );
@@ -159,11 +159,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryModified( ModifyOperationContext modifyContext )
     {
-        if ( ! control.isNotificationEnabled( ChangeType.MODIFY ) )
+        if ( !control.isNotificationEnabled( ChangeType.MODIFY ) )
         {
             return;
         }
-    
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
         respEntry.setEntry( modifyContext.getAlteredEntry() );
@@ -174,11 +174,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryMoved( MoveOperationContext moveContext )
     {
-        if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }
-    
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( moveContext.getDn() );
         respEntry.setEntry( moveContext.getEntry() );
@@ -195,11 +195,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryRenamed( RenameOperationContext renameContext )
     {
-        if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }
-    
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( renameContext.getModifiedEntry().getDn() );
         respEntry.setEntry( renameContext.getModifiedEntry() );

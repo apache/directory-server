@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -105,7 +105,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
-        
+
         // Stores the DN of the user to check, and its password
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
@@ -153,7 +153,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 return;
             }
 
-            if ( ((ClonedServerEntry)principalEntry).getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
+            if ( ( ( ClonedServerEntry ) principalEntry ).getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
                 SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );
@@ -186,9 +186,9 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             {
                 ldapSession.setAnonymous();
             }
-            
+
             // Return the successful response
-            bindRequest.getResultResponse().addAll( bindContext.getResponseControls() ); 
+            bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
             sendBindSuccess( ldapSession, bindRequest, null );
         }
         catch ( Exception e )
@@ -209,7 +209,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 code = ResultCodeEnum.INVALID_DN_SYNTAX;
                 result.setResultCode( code );
             }
-            else 
+            else
             {
                 code = ResultCodeEnum.INVALID_CREDENTIALS;
                 result.setResultCode( code );
@@ -238,7 +238,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             }
 
             result.setErrorMessage( msg );
-            bindRequest.getResultResponse().addAll( bindContext.getResponseControls() );
+            bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
     }
@@ -306,8 +306,8 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 {
                     DirectoryService ds = ldapSession.getLdapServer().getDirectoryService();
                     String saslMechanism = bindRequest.getSaslMechanism();
-                    CoreSession userSession = ds.getSession( ldapPrincipal.getDN(), ldapPrincipal
-                        .getUserPassword(), saslMechanism, null );
+                    CoreSession userSession = ds.getSession( ldapPrincipal.getDN(), ldapPrincipal.getUserPassword(),
+                        saslMechanism, null );
 
                     // Set the user session into the ldap session 
                     ldapSession.setCoreSession( userSession );
@@ -439,8 +439,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     }
 
 
-    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest )
-        throws Exception
+    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();

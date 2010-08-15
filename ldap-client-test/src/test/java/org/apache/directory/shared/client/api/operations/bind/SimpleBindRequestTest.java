@@ -33,7 +33,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.BindFuture;
-import org.apache.directory.ldap.client.api.message.BindRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -43,9 +42,12 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -128,8 +130,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         for ( ; i < nbLoop; i++ )
         {
-            BindRequest bindRequest = new BindRequest();
-            bindRequest.setName( "uid=admin,ou=system" );
+            InternalBindRequest bindRequest = new BindRequestImpl();
+            bindRequest.setName( new DN( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );
@@ -351,8 +353,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
             } );
 
             // Send another BindRequest
-            BindRequest bindRequest = new BindRequest();
-            bindRequest.setName( "uid=admin,ou=system" );
+            InternalBindRequest bindRequest = new BindRequestImpl();
+            bindRequest.setName( new DN( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );

@@ -85,15 +85,15 @@ public class MockCoreSession implements CoreSession
     private DirectoryService directoryService;
     private final LdapPrincipal authenticatedPrincipal;
     private LdapPrincipal authorizedPrincipal;
-    
-    
+
+
     public MockCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         this.authenticatedPrincipal = principal;
     }
 
-    
+
     /**
      * Set the ignoreRefferal flag for the current operationContext.
      *
@@ -111,8 +111,8 @@ public class MockCoreSession implements CoreSession
             opContext.throwReferral();
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc} 
      */
@@ -139,7 +139,7 @@ public class MockCoreSession implements CoreSession
         AddOperationContext addContext = new AddOperationContext( this, entry );
 
         addContext.setLogChange( log );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.add( addContext );
     }
@@ -154,7 +154,7 @@ public class MockCoreSession implements CoreSession
 
         addContext.setLogChange( log );
         setReferralHandling( addContext, ignoreReferral );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.add( addContext );
     }
@@ -168,7 +168,7 @@ public class MockCoreSession implements CoreSession
         add( addRequest, LogChange.TRUE );
     }
 
-    
+
     /**
      * {@inheritDoc} 
      */
@@ -177,29 +177,29 @@ public class MockCoreSession implements CoreSession
         AddOperationContext addContext = new AddOperationContext( this, addRequest );
 
         addContext.setLogChange( log );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.add( addContext );
-        addRequest.getResultResponse().addAll( addContext.getResponseControls() );
+        addRequest.getResultResponse().addAllControls( addContext.getResponseControls() );
     }
 
-    
+
     private Value<?> convertToValue( String oid, Object value ) throws LdapException
     {
         Value<?> val = null;
-        
+
         AttributeType attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
-        
+
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )
         {
             if ( value instanceof String )
             {
-                val = new StringValue( attributeType, (String)value );
+                val = new StringValue( attributeType, ( String ) value );
             }
             else if ( value instanceof byte[] )
             {
-                val = new StringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
+                val = new StringValue( attributeType, StringTools.utf8ToString( ( byte[] ) value ) );
             }
             else
             {
@@ -210,20 +210,21 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new BinaryValue( attributeType, StringTools.getBytesUtf8( (String)value ) );
+                val = new BinaryValue( attributeType, StringTools.getBytesUtf8( ( String ) value ) );
             }
             else if ( value instanceof byte[] )
             {
-                val = new BinaryValue( attributeType, (byte[])value );
+                val = new BinaryValue( attributeType, ( byte[] ) value );
             }
             else
             {
                 throw new LdapException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
-        
+
         return val;
     }
+
 
     /**
      * {@inheritDoc}
@@ -231,10 +232,8 @@ public class MockCoreSession implements CoreSession
     public boolean compare( DN dn, String oid, Object value ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        
-        return operationManager.compare( 
-            new CompareOperationContext( this, dn, oid, 
-                convertToValue( oid, value ) ) );
+
+        return operationManager.compare( new CompareOperationContext( this, dn, oid, convertToValue( oid, value ) ) );
     }
 
 
@@ -243,12 +242,11 @@ public class MockCoreSession implements CoreSession
      */
     public boolean compare( DN dn, String oid, Object value, boolean ignoreReferral ) throws LdapException
     {
-        CompareOperationContext compareContext =  
-                new CompareOperationContext( this, dn, oid, 
-                    convertToValue( oid, value ) );
-        
+        CompareOperationContext compareContext = new CompareOperationContext( this, dn, oid,
+            convertToValue( oid, value ) );
+
         setReferralHandling( compareContext, ignoreReferral );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         return operationManager.compare( compareContext );
     }
@@ -280,7 +278,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( DN dn, boolean ignoreReferral  ) throws LdapException
+    public void delete( DN dn, boolean ignoreReferral ) throws LdapException
     {
         delete( dn, ignoreReferral, LogChange.TRUE );
     }
@@ -292,7 +290,7 @@ public class MockCoreSession implements CoreSession
     public void delete( DN dn, boolean ignoreReferral, LogChange log ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( this, dn );
-        
+
         deleteContext.setLogChange( log );
         setReferralHandling( deleteContext, ignoreReferral );
 
@@ -357,7 +355,7 @@ public class MockCoreSession implements CoreSession
         {
             return authenticatedPrincipal;
         }
-        
+
         return authorizedPrincipal;
     }
 
@@ -400,8 +398,8 @@ public class MockCoreSession implements CoreSession
         // TODO Auto-generated method stub
         return true;
     }
-    
-    
+
+
     /**
      * TODO - perhaps we should just use a flag that is calculated on creation
      * of this session
@@ -410,7 +408,7 @@ public class MockCoreSession implements CoreSession
      */
     public boolean isAdministrator()
     {
-        String normName = getEffectivePrincipal().getName(); 
+        String normName = getEffectivePrincipal().getName();
         return normName.equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
 
@@ -431,7 +429,7 @@ public class MockCoreSession implements CoreSession
         {
             return true;
         }
-        
+
         // TODO fix this so it checks groups
         return false;
     }
@@ -444,10 +442,10 @@ public class MockCoreSession implements CoreSession
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        
+
         ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
         listContext.setAliasDerefMode( aliasDerefMode );
-        
+
         return operationManager.list( listContext );
     }
 
@@ -464,7 +462,7 @@ public class MockCoreSession implements CoreSession
         listContext.setSizeLimit( sizeLimit );
         listContext.setTimeLimit( timeLimit );
         listContext.setAliasDerefMode( aliasDerefMode );
-     
+
         return operationManager.list( listContext );
     }
 
@@ -485,8 +483,7 @@ public class MockCoreSession implements CoreSession
     public Entry lookup( DN dn, String[] attrId ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( 
-            new LookupOperationContext( this, dn, attrId ) );
+        return operationManager.lookup( new LookupOperationContext( this, dn, attrId ) );
     }
 
 
@@ -508,14 +505,14 @@ public class MockCoreSession implements CoreSession
         {
             return;
         }
-        
+
         List<Modification> serverModifications = new ArrayList<Modification>( mods.size() );
-        
-        for ( Modification mod:mods )
+
+        for ( Modification mod : mods )
         {
             serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
-        
+
         ModifyOperationContext modifyContext = new ModifyOperationContext( this, dn, serverModifications );
 
         modifyContext.setLogChange( log );
@@ -543,16 +540,16 @@ public class MockCoreSession implements CoreSession
         {
             return;
         }
-        
+
         List<Modification> serverModifications = new ArrayList<Modification>( mods.size() );
-        
-        for ( Modification mod:mods )
+
+        for ( Modification mod : mods )
         {
             serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
 
         ModifyOperationContext modifyContext = new ModifyOperationContext( this, dn, serverModifications );
-        
+
         setReferralHandling( modifyContext, ignoreReferral );
         modifyContext.setLogChange( log );
 
@@ -576,7 +573,7 @@ public class MockCoreSession implements CoreSession
     public void move( DN dn, DN newParent, LogChange log ) throws LdapException
     {
         MoveOperationContext moveContext = new MoveOperationContext( this, dn, newParent );
-        
+
         moveContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -600,7 +597,7 @@ public class MockCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveOperationContext moveContext = new MoveOperationContext( this, dn, newParent );
-        
+
         setReferralHandling( moveContext, ignoreReferral );
         moveContext.setLogChange( log );
 
@@ -620,11 +617,12 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log )
+        throws LdapException
     {
-        MoveAndRenameOperationContext moveAndRenameContext = 
-            new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
-        
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, dn, newParent,
+            newRdn, deleteOldRdn );
+
         moveAndRenameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -635,7 +633,8 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral )
+        throws LdapException
     {
         moveAndRename( dn, newParent, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
     }
@@ -644,11 +643,13 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral,
+        LogChange log ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
-        
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, dn, newParent,
+            newRdn, deleteOldRdn );
+
         moveAndRenameContext.setLogChange( log );
         setReferralHandling( moveAndRenameContext, ignoreReferral );
 
@@ -671,7 +672,7 @@ public class MockCoreSession implements CoreSession
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
     {
         RenameOperationContext renameContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
-        
+
         renameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -691,11 +692,12 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log )
+        throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
         RenameOperationContext renameContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
-        
+
         renameContext.setLogChange( log );
         setReferralHandling( renameContext, ignoreReferral );
 
@@ -719,24 +721,24 @@ public class MockCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
         ExprNode filterNode = null;
-        
+
         try
         {
-            FilterParser.parse( directoryService.getSchemaManager(), filter ); 
+            FilterParser.parse( directoryService.getSchemaManager(), filter );
         }
         catch ( ParseException pe )
         {
             throw new LdapInvalidSearchFilterException( pe.getMessage() );
         }
-        
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, 
-            filterNode, null );
+
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, filterNode,
+            null );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         setReferralHandling( searchContext, ignoreReferrals );
 
         return operationManager.search( searchContext );
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
@@ -745,9 +747,8 @@ public class MockCoreSession implements CoreSession
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, 
-            filter, returningAttributes );
+
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, returningAttributes );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
         return operationManager.search( searchContext );
@@ -761,7 +762,7 @@ public class MockCoreSession implements CoreSession
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        
+
         SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, returningAttributes );
         searchContext.setSizeLimit( sizeLimit );
         searchContext.setTimeLimit( timeLimit );
@@ -785,7 +786,7 @@ public class MockCoreSession implements CoreSession
         CompareOperationContext compareContext = new CompareOperationContext( this, compareRequest );
         OperationManager operationManager = directoryService.getOperationManager();
         boolean result = operationManager.compare( compareContext );
-        compareRequest.getResultResponse().addAll( compareContext.getResponseControls() );
+        compareRequest.getResultResponse().addAllControls( compareContext.getResponseControls() );
         return result;
     }
 
@@ -805,12 +806,12 @@ public class MockCoreSession implements CoreSession
     public void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( this, deleteRequest );
-        
+
         deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
-        deleteRequest.getResultResponse().addAll( deleteContext.getResponseControls() );
+        deleteRequest.getResultResponse().addAllControls( deleteContext.getResponseControls() );
     }
 
 
@@ -842,7 +843,7 @@ public class MockCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.modify( modifyContext );
-        modifyRequest.getResultResponse().addAll( modifyContext.getResponseControls() );
+        modifyRequest.getResultResponse().addAllControls( modifyContext.getResponseControls() );
     }
 
 
@@ -861,12 +862,12 @@ public class MockCoreSession implements CoreSession
     public void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
         MoveOperationContext moveContext = new MoveOperationContext( this, modifyDnRequest );
-        
+
         moveContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.move( moveContext );
-        modifyDnRequest.getResultResponse().addAll( moveContext.getResponseControls() );
+        modifyDnRequest.getResultResponse().addAllControls( moveContext.getResponseControls() );
     }
 
 
@@ -890,7 +891,7 @@ public class MockCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.moveAndRename( moveAndRenameContext );
-        modifyDnRequest.getResultResponse().addAll( moveAndRenameContext.getResponseControls() );
+        modifyDnRequest.getResultResponse().addAllControls( moveAndRenameContext.getResponseControls() );
     }
 
 
@@ -914,7 +915,7 @@ public class MockCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.rename( renameContext );
-        modifyDnRequest.getResultResponse().addAll( renameContext.getResponseControls() );
+        modifyDnRequest.getResultResponse().addAllControls( renameContext.getResponseControls() );
     }
 
 
@@ -923,8 +924,8 @@ public class MockCoreSession implements CoreSession
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
         EntryFilteringCursor cursor = operationManager.search( searchContext );
-        searchRequest.getResultResponse().addAll( searchContext.getResponseControls() );
-        
+        searchRequest.getResultResponse().addAllControls( searchContext.getResponseControls() );
+
         return cursor;
     }
 
@@ -939,7 +940,7 @@ public class MockCoreSession implements CoreSession
     public void unbind( InternalUnbindRequest unbindRequest )
     {
         // TODO Auto-generated method stub
-        
+
     }
 
 

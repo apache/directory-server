@@ -43,10 +43,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
-import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
-import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
-import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -58,11 +54,15 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
@@ -292,7 +292,8 @@ public class ImportCommand extends ToolCommand
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
-        DelRequestCodec delRequest = new DelRequestCodec();
+        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        InternalDeleteRequest delRequest = new DeleteRequestImpl( messageId );
 
         String dn = entry.getDn().getName();
 
@@ -301,12 +302,10 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Deleting entry " + dn );
         }
 
-        delRequest.setEntry( new DN( dn ) );
-
-        delRequest.setMessageId( messageId );
+        delRequest.setName( new DN( dn ) );
 
         // Encode and send the delete request
-        ByteBuffer bb = delRequest.encode();
+        ByteBuffer bb = encoder.encodeMessage( delRequest );
         bb.flip();
 
         sendMessage( bb );
@@ -503,23 +502,20 @@ public class ImportCommand extends ToolCommand
      */
     private void bind( int messageId ) throws LdapInvalidDnException, EncoderException, DecoderException, IOException
     {
-        BindRequestCodec bindRequest = new BindRequestCodec();
-        LdapAuthentication authentication = null;
+        InternalBindRequest bindRequest = new BindRequestImpl( messageId );
 
         if ( "simple".equals( auth ) )
         {
-            authentication = new SimpleAuthentication();
-            ( ( SimpleAuthentication ) authentication ).setSimple( StringTools.getBytesUtf8( password ) );
+            bindRequest.setCredentials( StringTools.getBytesUtf8( password ) );
+            bindRequest.setSimple( true );
         }
 
-        bindRequest.setAuthentication( authentication );
         bindRequest.setName( new DN( user ) );
-        bindRequest.setVersion( 3 );
-
-        bindRequest.setMessageId( messageId );
 
         // Encode and send the bind request
-        ByteBuffer bb = bindRequest.encode();
+        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+
+        ByteBuffer bb = encoder.encodeMessage( bindRequest );
         bb.flip();
 
         connect();

@@ -55,14 +55,12 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
-import org.apache.directory.shared.ldap.codec.LdapTransformer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
@@ -484,8 +482,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
             } );
 
             // Send encoded request to server
-            LdapMessageCodec ldapRequest = ( LdapMessageCodec ) LdapTransformer.transform( ( InternalMessage ) request );
-            ByteBuffer bb = ldapRequest.encode();
+            LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+            ByteBuffer bb = encoder.encodeMessage( request );
+
             bb.flip();
 
             _output_.write( bb.array() );
@@ -526,8 +525,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             } );
 
             // Send encoded request to server
-            LdapMessageCodec ldapRequest = ( LdapMessageCodec ) LdapTransformer.transform( ( InternalMessage ) request );
-            ByteBuffer bb = ldapRequest.encode();
+            LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+            ByteBuffer bb = encoder.encodeMessage( request );
             bb.flip();
 
             _output_.write( bb.array() );

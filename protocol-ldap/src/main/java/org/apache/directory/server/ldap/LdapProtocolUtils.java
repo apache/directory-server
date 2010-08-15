@@ -43,7 +43,7 @@ public class LdapProtocolUtils implements LdapProtocolConstants
     {
         if ( request.getControls() != null )
         {
-            request.addAll( request.getControls().values().toArray( EMPTY_CONTROLS ) );
+            request.addAllControls( request.getControls().values().toArray( EMPTY_CONTROLS ) );
         }
     }
 
