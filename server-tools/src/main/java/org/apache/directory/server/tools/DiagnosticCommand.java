@@ -21,6 +21,7 @@ package org.apache.directory.server.tools;
 
 
 import java.util.Hashtable;
+
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -30,6 +31,7 @@ import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -81,7 +83,7 @@ public class DiagnosticCommand extends ToolCommand
         {
             System.out.println( "Connection to the server established.\n" + "Sending extended request ... " );
         }
-        ctx.extendedOperation( new LaunchDiagnosticUiRequest( 3 ) );
+        ctx.extendedOperation( AttributeUtils.toJndiExtendedRequest( new LaunchDiagnosticUiRequest( 3 ) ) );
         ctx.close();
     }
 
