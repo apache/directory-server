@@ -30,6 +30,10 @@ under the License.
   <artifactId>user-guides</artifactId>
   <name>ApacheDS User Guides</name>
 
+  <properties>
+    <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds</distMgmtSiteUrl>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -75,14 +79,14 @@ under the License.
             <configuration>
               <!-- per execution configuration -->
               <sourceDirectory>${basedir}/src/basic-user-guide</sourceDirectory>
-              <targetDirectory>${project.build.directory}/basic-user-guide/html</targetDirectory>
+              <targetDirectory>${project.build.directory}/user-guides/basic-${pom.version}/html</targetDirectory>
               <postProcess>
                 <!-- Copy the images -->
-                <copy todir="${project.build.directory}/basic-user-guide/html/images">
+                <copy todir="${project.build.directory}/user-guides/basic-${pom.version}/html/images">
                   <fileset dir="${basedir}/src/basic-user-guide/images" />
                 </copy>
                 <!-- Copy the data -->
-                <copy todir="${project.build.directory}/basic-user-guide/html/data">
+                <copy todir="${project.build.directory}/user-guides/basic-${pom.version}/html/data">
                   <fileset dir="${basedir}/src/basic-user-guide/data" />
                 </copy>
               </postProcess>
@@ -97,7 +101,7 @@ under the License.
             <configuration>
               <!-- per execution configuration -->
               <sourceDirectory>${basedir}/src/basic-user-guide</sourceDirectory>
-              <targetDirectory>${project.build.directory}/basic-user-guide/pdf</targetDirectory>
+              <targetDirectory>${project.build.directory}/user-guides/basic-${pom.version}/pdf</targetDirectory>
               <imgSrcPath>${basedir}/src/basic-user-guide/</imgSrcPath>
             </configuration>
           </execution>
@@ -110,14 +114,14 @@ under the License.
             <configuration>
               <!-- per execution configuration -->
               <sourceDirectory>${basedir}/src/advanced-user-guide</sourceDirectory>
-              <targetDirectory>${project.build.directory}/advanced-user-guide/html</targetDirectory>
+              <targetDirectory>${project.build.directory}/user-guides/advanced-${pom.version}/html</targetDirectory>
               <postProcess>
                 <!-- Copy the images -->
-                <copy todir="${project.build.directory}/advanced-user-guide/html/images">
+                <copy todir="${project.build.directory}/user-guides/advanced-${pom.version}/html/images">
                   <fileset dir="${basedir}/src/advanced-user-guide/images" />
                 </copy>
                 <!-- Copy the data -->
-                <copy todir="${project.build.directory}/advanced-user-guide/html/data">
+                <copy todir="${project.build.directory}/user-guides/advanced-${pom.version}/html/data">
                   <fileset dir="${basedir}/src/advanced-user-guide/data" />
                 </copy>
               </postProcess>
@@ -132,13 +136,21 @@ under the License.
             <configuration>
               <!-- per execution configuration -->
               <sourceDirectory>${basedir}/src/advanced-user-guide</sourceDirectory>
-              <targetDirectory>${project.build.directory}/advanced-user-guide/pdf</targetDirectory>
+              <targetDirectory>${project.build.directory}/user-guides/advanced-${pom.version}/pdf</targetDirectory>
               <imgSrcPath>${basedir}/src/advanced-user-guide/</imgSrcPath>
             </configuration>
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <generateReports>false</generateReports>
+          <inputDirectory>target/user-guides</inputDirectory>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
+  <reporting />
 </project>
