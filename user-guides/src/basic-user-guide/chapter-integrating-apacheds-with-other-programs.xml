@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<chapter
+  version="5.0"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:ns5="http://www.w3.org/2000/svg"
+  xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+  xmlns:ns3="http://www.w3.org/1999/xhtml"
+  xml:lang="en">
+  <title>Integrating ApacheDS with other programs</title>
+  <section>
+    <title>Mozilla Thunderbird</title>
+    <para>In this section you will learn how to integrate Apache Directory Server into a mail client in order to use the
+      data as an address book. Mozilla Thunderbird is used as an example.</para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="E-Mail clients and Mozilla Thunderbird" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Prerequisites Thunderbird" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Define Apache Directory Server as an address book" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Searching your new address book" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Resources Thunderbird" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="E-Mail clients and Mozilla Thunderbird">
+      <title>E-Mail clients and Mozilla Thunderbird</title>
+      <para>
+        Integrating an LDAP server in an E-Mail client is a very traditionally task, because directories are
+        commonly
+        used as user repositories within companies and organizations. Contact data is stored for all users of
+        the
+        enterprise, and it is quite common to build the companies online phone/address book on this directory. These
+        address books are often web based application within the intranet. But many E-Mail clients allow to connect to
+        an LDAP based directory directly and use its data as an address book. This seamless integration provides better
+        user experience. One of these clients is Mozilla Thunderbird. Other E-Mail clients that support LDAP integration
+        for address books include
+        <link
+          xlink:href="http://www.microsoft.com/windows/oe/">Microsoft Outlook Expess</link>
+        ,
+        <link
+          xlink:href="http://www.eudora.com/">Eudora Email</link>
+        and
+        <link
+          xlink:href="http://www.ibm.com/software/lotus/">IBM Lotus Notes</link>
+        .
+      </para>
+      <para>Technically, a mail program acts as a normal LDAP client, as described in earlier sections (i.e. the client
+        connects to the server and performs LDAP search operations). Therefore the parameters you have to specify are
+        the same. Main difference between searches with E-Mail clients and searches with LDAP Browsers like Softerra or
+        JXplorer is that most of the complexity of the LDAP search is hidden to the user. Hence these tools are easier
+        to use, but less powerful.</para>
+      <section
+        id="Mozilla Thunderbird">
+        <title>Mozilla Thunderbird</title>
+        <para>
+          Mozilla Thunderbird is a popular open source E-Mail client which supports many platforms. Actually it is more
+          than just an E-Mail client (e.g. a news client as well). Features include junk mail control and RSS reading.
+          Learn more about this software at the projects Homepage:
+          <link
+            xlink:href="http://www.mozilla.org/products/thunderbird/">Mozilla Thunderbird</link>
+          .
+        </para>
+        <para>Within this lesson we use Thunderbird primarily because of its broad support for different operation
+          systems and hardware platforms (and because it allows the integration of LDAP servers as address books, of
+          course). You may use other E-Mail clients as well. It is likely that that allow the integration of LDAP
+          directories as well, and even that the configuration is similar to Thunderbird. Check your product
+          documentation for details.</para>
+      </section>
+    </section>
+    <section
+      id="Prerequisites Thunderbird">
+      <title>Prerequisites</title>
+      <para>
+        We assume that you have Mozilla Thunderbird installed on your system (or you use another E-Mail client and are
+        willing to assimilate the instructions to your situation). You may wish to download the software at the homepage
+        (
+        <link
+          xlink:href="http://www.mozilla.org/products/thunderbird/">Mozilla Thunderbird</link>
+        ) and install it, before proceed with this lesson.
+      </para>
+      <para>
+        Furthermore you need an LDAP server up and running, which address data should be used as an address book
+        within
+        your E-Mail client. For the instructions it is assumed that you have installed Apache Directory Server as
+        described in the first trail and loaded our sample data. To sum it up the following is assumed for the
+        environment:
+        <itemizedlist>
+          <listitem>
+            <para>
+              Apache Directory runs on host
+              <emphasis
+                role="bold">zanzibar</emphasis>
+              . LDAP and listens to port
+              <emphasis
+                role="bold">10389</emphasis>
+            </para>
+          </listitem>
+          <listitem>
+            <para>Anonymous access to the directory is allowed</para>
+          </listitem>
+          <listitem>
+            <para>
+              Data is imported as described in section 2, Base DN is
+              <emphasis
+                role="bold">o=sevenSeas</emphasis>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>
+        You may use this lesson as a blueprint to integrate other directory servers as well. At least you need the data
+        given above in
+        <emphasis
+          role="bold">bold.</emphasis>
+      </para>
+    </section>
+    <section
+      id="Define Apache Directory Server as an address book">
+      <title>Define Apache Directory Server as an address book</title>
+      <section
+        id="Open the address book">
+        <title>Open the address book</title>
+        <para>After starting Mozilla Thunderbird on your workstation, go to the address book by</para>
+        <itemizedlist>
+          <listitem>
+            <para>clicking the adress book icon or</para>
+          </listitem>
+          <listitem>
+            <para>activation of the corresponding menu item ("Tools" – "Address Book") or</para>
+          </listitem>
+          <listitem>
+            <para>pressing Ctrl+2</para>
+          </listitem>
+        </itemizedlist>
+        <figure
+          id="Thunderbird open Adressbook figure">
+          <title>Thunderbird open Adressbook</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/thunderbird_open_adressbook.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </section>
+      <section
+        id="Define a new LDAP directory">
+        <title>Define a new LDAP directory</title>
+        <para>Within the adress book window open the dialog to define a new LDAP directory by</para>
+        <itemizedlist>
+          <listitem>
+            <para>activation of the corresponding menu item ("File" – "New" – "LDAP Directory...")</para>
+          </listitem>
+        </itemizedlist>
+        <figure
+          id="Thunderbird LDAP Directory menu figure">
+          <title>Thunderbird LDAP Directory menu</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/thunderbird_new_ldap_directory_menu.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>Thunderbird opens a dialog with three tabbed panes to provide the data of the directory.</para>
+      </section>
+      <section
+        id="Provide connection data">
+        <title>Provide connection data</title>
+        <para>
+          Within the "General" tab, enter basic connection data to your directory:
+          <itemizedlist>
+            <listitem>
+              <para>Name: A name which is used by Thunderbird within the UI, e.g. "Seven Seas"</para>
+            </listitem>
+            <listitem>
+              <para>Hostname: th hostname or IP address of the server, "zanzibar" in our case</para>
+            </listitem>
+            <listitem>
+              <para>Base DN: Search base for looking up people, we choose "ou=people,o=sevenSeas"</para>
+            </listitem>
+            <listitem>
+              <para>Port number: The port the LDAP provider of Apache Directory Server is listening on, "10389" in our
+                case</para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <figure
+          id="Thunderbrid new LDAP Connection 1 figure">
+          <title>Thunderbrid new LDAP Connection 1</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/thunderbird_new_ldap_1.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>In this example we do not provide a Bind DN but let Thunderbird look up the users within our directory
+          anonymously. Apache Directory Server should be appropriately configured for that, or you have to provide a
+          user here.</para>
+        <para>The advance tab of the dialog provides input fields for result set limits, search scope and search filter.
+          In our example we perform a search with subtree scope and a maximum number of 100 entries within the result
+          set. The search filter restricts the results to person entries only.</para>
+        <figure
+          id="Thunderbrid new LDAP Connection 2 figure">
+          <title>Thunderbrid new LDAP Connection 2</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/thunderbird_new_ldap_2.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          You probably have noticed that the input fields in the two tabbed panes corresponds exactly to the
+          parameters
+          for an LDAP search operation as described in lesson
+          <link
+            xlink:href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=DIRxSRVx11&amp;title=Search%20the%20directory&amp;linkCreation=true&amp;fromPageId=55542">Search the directory</link>
+          of this trail.
+        </para>
+      </section>
+    </section>
+    <section
+      id="Searching your new address book">
+      <title>Searching your new address book</title>
+      <figure
+        id="Thunderbird Adressbook figure">
+        <title>Thunderbird Adressbook</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/thunderbird_adressbook.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </section>
+    <section
+      id="Resources Thunderbird">
+      <title>Resources</title>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://opensourcearticles.com/articles/introduction_to_thunderbird">An introduction to Thunderbird</link>
+            , Open Source Articles
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://www.mozilla.org/projects/thunderbird/specs/ldap.html">LDAP Attribute Mapping</link>
+            for Mozilla Thunderbird
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+</chapter>

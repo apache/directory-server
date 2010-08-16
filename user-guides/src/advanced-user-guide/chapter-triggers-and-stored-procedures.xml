@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file 
+  distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under 
+  the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may 
+  obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to 
+  in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+  ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
+  the License. -->
+<chapter
+  version="5.0"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:ns5="http://www.w3.org/2000/svg"
+  xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+  xmlns:ns3="http://www.w3.org/1999/xhtml"
+  xml:lang="en">
+  <title>Triggers &amp; Stored Procedures</title>
+  <important>
+    <para>Work in progress</para>
+  </important>
+  <section
+    id="Stored Procedures">
+    <title>Stored Procedures</title>
+    <important>
+      <title>Work in progress</title>
+      <para>This site is in the process of being reviewed and updated.</para>
+    </important>
+    <section
+      id="What are Stored Procedures in LDAP?">
+      <title>What are Stored Procedures in LDAP?</title>
+      <para>The closest thing to a Stored Procedure in LDAP is an Extended Operation. This is how the outside world
+        would have access to procedures defined within the server. From this we can infer something: stored procedures
+        are static operations. They can also have return values.</para>
+      <section
+        id="Java as the Native SP Language">
+        <title>Java as the Native SP Language</title>
+        <para>Rather than complicate things with scripting languages and frameworks like BSF to implement stored
+          procedures we'll keep this first round really simple. Java is a natural fit for us too so I'm not going to
+          worry about leaving scripting languages out of the picture. Also with ClassLoaders we can dynamically install
+          and load new Java classes carrying stored procedures.</para>
+      </section>
+      <section
+        id="Storing Classes within the DIT">
+        <title>Storing Classes within the DIT</title>
+        <para>Classes will be stored within entries in the DIT. These entries like others can be protected by ACI to
+          prevent exposure. All classes stored in the DIT will not be for stored proc entry points. Some classes will be
+          supporting classes, and some used to form libraries. So before we start talking about stored procedures we
+          need to consider code in the DIT and how it might be used.</para>
+        <para>We already defined a simplistic objectClass and attributeTypes for representing a class within an entry. A
+          very primitive ClassLoader (CL) was able to load classes on demand by searching for them within the DIT. We
+          need to go a step further though. Every user will have their own view of the DIT with ACI in effect, so every
+          user will need to execute procedures in their own CL. A user's CL needs to pull in all classes in the DIT
+          visible to the user. This CL can be used to execute stored procedures.</para>
+        <para>Thus the user specific CL needs to load the visible classes (seen by a user) as they are needed to execute
+          procedures. This could really slow things down though. Some caching may be in order here but how that's to be
+          done properly and efficiently is yet to be determined.</para>
+      </section>
+      <section
+        id="Code Security and Class Conflicts">
+        <title>Code Security and Class Conflicts</title>
+        <para>As we pointed out code is stored in the DIT and ACIs are used to control the code entries visible to
+          users. Hence this changes the classes loaded into different user CLs. Note that multiple versions or copies of
+          the same class may exist within the server. This is ok. Conflicts can result as they do with standard fs based
+          classloaders. The fact that each user has its own CL helps limit the collisions.</para>
+        <para>
+          We proposed some ACIItem extensions to make sure we can easily and efficiently isolate code across users.
+          The
+          new creator and notCreator userClasses have been proposed here:
+          <xref
+            linkend="ACIItem Extensions" />
+          . With these userClasses
+          we can define a single ACIItem in a subentry at each ACSA with a subtreeSpecification
+          refinement that makes
+          javaClass entries only visible to their creators.
+        </para>
+        <para>Code reuse will also come into the picture here. The administrator may expose some classes as libraries
+          that users can build on. Making these classes visible to all users may in turn result in some conflicts. For
+          example users may load libraries of a newer version. What will be our policy here? Should this policy be
+          something that should be decided by the Administrator? Should users be able to override this policy?</para>
+      </section>
+      <section
+        id="Searching and Search Order for Classes">
+        <title>Searching and Search Order for Classes</title>
+        <para>We are not going to constrain users and administrators to have to maintain classes within a specific
+          region of the DIT. javaClass entries can reside anywhere within the DIT, within any namingContext. This makes
+          searching for these entries a bit inefficient since the RootDSE must be used and multiple searches must be
+          conducted on each namingContext until a javaClass is found.</para>
+        <para>Convensions are good but admins should have options. By default the java subsystem will exhaust the
+          possibilities. We will allow administrators to configure the java subsystem by specifying a specific search
+          order for classes. This search order is a list of search operations. Under the ou=configuration,ou=system area
+          we can manage this list of operations. Basically the admin can specify each search operation as a LDAP URL to
+          search under for javaClasses. Perhaps each URL can be prefixed with an 'insert' directive that defines how it
+          is inserted into the list of search operations.</para>
+        <para>User profiles can also manage this configuration by inserting their own search operations into the list.
+          The resultant list of search operations is used by the user's ClassLoader to discover classes within the DIT.
+          Users should be able to see the search order of the system so they can override or inject their own bypass.
+          This may be a good mechanism for users to control situations where libraries and classes in the system might
+          conflict with their own version. Perhaps the CL search order for the system should be published either in the
+          RootDSE or exposed in the ou=system configuration area.</para>
+      </section>
+      <section
+        id="Stored Procedure Call Specification">
+        <title>Stored Procedure Call Specification</title>
+        <warning>
+          <title>Not longer valid</title>
+          <para>This is no longer valid</para>
+        </warning>
+        <para>As stated before, a stored procedure is close to an LDAP extended operation. However, we will not register
+          a new extended operation for each stored procedure. Instead of that, we'll have a generic Stored Procedure
+          extended operation where the stored procedure to be called will be specified in the parameter list of the
+          extended operation. (Of course this does not prevent some stored procedures to be published as standalone
+          extended operations.) Here is the proposed stored procedure specification in ASN.1 format:</para>
+        <programlisting><![CDATA[
+StoredProcedure ::= SEQUENCE {
+  language OCTETSTRING,
+  procedure OCTETSTRING,
+  parameters SEQUENCE OF Parameter
+}
+
+Parameter ::= SEQUENCE OF {
+  type OCTETSTRING,
+  value OCTETSTRING
+}
+          ]]></programlisting>
+      </section>
+      <section
+        id="Stored Procedure Execution Request Value">
+        <title>Stored Procedure Execution Request Value</title>
+        <para>??? The wiki is wrong ???</para>
+        <section
+          id="BER Stored Procedure Execution Request Value">
+          <title>BER</title>
+          <para>0x30 LL 0x04 LL abcd [ [ 0x31 LL 0x12 LL abcd 0x30 LL ( 0xc04 LL abcd... [ 0x0A 0x01 0x0[0..2] ] ) [
+            0x30 LL 0x30 LL [ 0x04 LL abcd ] 0x84 LL abcd ] | [ 0x30 LL 0x30 LL [ 0x04 LL abcd ] 0x84 LL abcd ] ]</para>
+        </section>
+        <section
+          id="The State Machine Stored Procedure Execution Request Value">
+          <title>The State Machine</title>
+          <para>??? The wiki is wrong ???</para>
+        </section>
+      </section>
+      <section
+        id="Explanations What are Stored Procedures in LDAP">
+        <title>Explanations</title>
+        <para>
+          The
+          <emphasis
+            role="bold">language</emphasis>
+          field is used to specify the implementation language of stored procedure to be called. This
+          field allows the
+          server to provide any kind or more than one kind of stored procedure implementations. We'll
+          support compiled
+          Java SPs as default and support forJython is scheduled for after 1.0 release.
+        </para>
+        <para>
+          The
+          <emphasis
+            role="bold">procedure</emphasis>
+          field is used to specify the fully qualified name of the procedure to be called. An example
+          can be
+          "For.Bar.proc".
+        </para>
+        <para>
+          The
+          <emphasis
+            role="bold">parameters</emphasis>
+          field is used to specify a list of parameters (with their
+          <emphasis
+            role="bold">types</emphasis>
+          and
+          <emphasis
+            role="bold">values</emphasis>
+          ) to be given to
+          the procedure to be called. Type information is needed to enable maximum implementation
+          generalization.
+          Encoding these fields with OCTETSTRING also helps generalization. Interpreting these fields'
+          values are up to
+          the server. By default we'll require type field to include fully qualified class name of a
+          Java type and we'll
+          require value field to include a string representation of the parameter value if it's a
+          primitive one and as
+          byte[] if it's a complex Java object.
+        </para>
+        <para>The return value of stored procedures will be provided by extended operation responses with same semantics
+          mentioned above.</para>
+        <para>As an implementation tip, what we're doing here is like adding reflection capability to our server to call
+          stored procedures. Thinking in terms of Java reflection mechanish helps us better design the system here.
+        </para>
+        <para>According to definitions here, stored procedures in our server will enable users to define and use their
+          own standard extended operations. We'll explore new usage scenarios of stored procedures like Triggers, Task
+          Scheduling in the near future.</para>
+        <para>Our approach provides independence of any client, any server and any language implementation which will
+          make us write a good IETF RFC about the enhancement.</para>
+      </section>
+      <section
+        id="Security What are Stored Procedures in LDAP">
+        <title>Security</title>
+        <para>
+          <link
+            xlink:href="http://www.oracle.com/technology/oramag/oracle/03-jul/o43devjvm.html">http://www.oracle.com/technology/oramag/oracle/03-jul/o43devjvm.html</link>
+        </para>
+      </section>
+    </section>
+  </section>
+  <section
+    id="LDAP Triggers">
+    <title>LDAP Triggers</title>
+    <section
+      id="Introduction LDAP Triggers">
+      <title>Introduction</title>
+      <para>This guide serves as an introduction to architectural concepts related to and administration of Triggers in
+        ApacheDS. ApacheDS is the first server to provide Triggers for LDAP like their counterparts in RDBMS world. The
+        Trigger Model in ApacheDS has been carefully designed to be LDAP standards compliant and to take advantage of
+        powerful aspects of ApacheDS like The Administrative Model. A Trigger basically provides a mechanism to register
+        some sort of action to be fired upon an event. To restate this considering ApacheDS Triggers, Triggers allow you
+        to register Stored Procedure invocations to be fired upon any change-inducing LDAP operations on some set of
+        selected entries. Triggers also provides some facilities to make them even more usable like allowing to pass
+        request parameters to stored procedures. To make the most sense of this powerful construct you need to first
+        understand The Administrative Model and have a look at Stored Procedures.</para>
+    </section>
+    <section
+      id="Trigger Specification">
+      <title>Trigger Specification</title>
+      <para>
+        A Trigger can be specified with three basic components:
+        <emphasis
+          role="bold">Action Time</emphasis>
+        ,
+        <emphasis
+          role="bold">Trigger Event</emphasis>
+        and
+        <emphasis
+          role="bold">Triggered Action</emphasis>
+        .
+        According to a Trigger specification, when a tracked Event occurs an Action gets invoked with respect to the
+        Action Time. For example if an Add operation (Event) is performed, information related to it may be logged with
+        a Stored Procedure (Triggered Action), just After (Action Time) the Add operation ended. Here is a sample
+        Trigger Specification:
+      </para>
+      <programlisting><![CDATA[
+AFTER Add CALL "Logger.logAddOperation" ($entry,$attributes,$operationPrincipal);
+      ]]></programlisting>
+      <para>In this example a Stored Procedure named "Logger.logAddOperation" is executed with three operation specific
+        arguments After an LDAP Add operation is performed. The operation specific arguments will be discussed later as
+        well as the not-yet-specified set of entries the Trigger is defined on.</para>
+    </section>
+    <section
+      id="Action Time for Triggers">
+      <title>Action Time for Triggers</title>
+      <para>ApacheDS LDAP Triggers currently support only AFTER action time scheme. An AFTER Triggers is executed just
+        after the tracked event occurs but before the end of request. So before invoking a Triggered Action with respect
+        to a tracked LDAP operation as a Trigger Event, the operation is executed essentially. After the Triggered
+        Action is invoked the operation end completely.</para>
+      <para>
+        <emphasis>TODO: Order of execution of Triggered Actions when there are more than one Triggered Actions with
+          respect to an Event.</emphasis>
+      </para>
+    </section>
+    <section
+      id="Trigger Events: LDAP Operations">
+      <title>Trigger Events: LDAP Operations</title>
+      <para>
+        Change inducing LDAP operations can be specified as Trigger Events in a Trigger Specification. The following are
+        valid identifiers as Trigger Events:
+        <itemizedlist>
+          <listitem>
+            <para>Modify</para>
+          </listitem>
+          <listitem>
+            <para>Add</para>
+          </listitem>
+          <listitem>
+            <para>Delete</para>
+          </listitem>
+          <listitem>
+            <para>ModifyDN.Rename</para>
+          </listitem>
+          <listitem>
+            <para>ModifyDN.Export:Base</para>
+          </listitem>
+          <listitem>
+            <para>ModifyDN.Export:Subtree</para>
+          </listitem>
+          <listitem>
+            <para>ModifyDN.Import:Base</para>
+          </listitem>
+          <listitem>
+            <para>ModifyDN.Import:Subtree</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+    </section>
+    <section
+      id="Triggered Actions: LDAP Stored Procedures">
+      <title>Triggered Actions: LDAP Stored Procedures</title>
+    </section>
+    <section
+      id="Planned New Features for Triggers">
+      <title>Planned New Features for Triggers</title>
+      <para>LDAP Triggers support change inducing LDAP operations as Triggering Events. A more granular approach can be
+        leveraging operation details, especially for the Modify operation.</para>
+      <para>An Extended Trigger Specification can be as follows:</para>
+      <programlisting><![CDATA[
+AFTER Modify
+   WHEN ChangedAttributes or:{ userPassword, sambaNTPassword }
+      CALL "com.mycompany.ldap.utils.sp.Logger:logModifiedEntry" ( $object, $modification );
+      ]]></programlisting>
+    </section>
+  </section>
+</chapter>

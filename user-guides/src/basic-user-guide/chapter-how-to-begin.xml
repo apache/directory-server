@@ -1,0 +1,1830 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file 
+  distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under 
+  the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may 
+  obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to 
+  in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+  ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
+  the License. -->
+<chapter
+  version="5.0"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:ns5="http://www.w3.org/2000/svg"
+  xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+  xmlns:ns3="http://www.w3.org/1999/xhtml"
+  xml:lang="en">
+  <title>How to begin</title>
+
+  <section
+    id="What Apache Directory Server is">
+    <title>What Apache Directory Server is</title>
+    <para>
+      This section describes what Apache Directory Server (abbreviated ApacheDS) is, and where it comes from.
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="System vision" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Origin and Motives" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Resources" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="System vision">
+      <title>
+        System vision</title>
+      <para>
+        ApacheDS 1.5 is an embeddable, extendable, standards compliant, modern LDAP server written entirely in Java,
+        and available
+        under the Apache Software License. Other network protocols like Kerberos and NTP are supported as
+        well (and even
+        more may be added), but basically (and especially for this introduction guide) ApacheDS is an LDAP
+        server.</para>
+      <para>
+        <emphasis>Embeddable</emphasis>
+        means that it is possible to configure, start and stop ApacheDS from other Java components,
+        especially
+        application servers, and the server runs within the same VM. The solution has already been
+        successfully embedded
+        in Apache Geronimo, JBoss, and others. The fact that the server is embeddable is quite
+        interesting, nevertheless
+        you also have the deployment option to run the server standalone, for instance as a
+        Windows service. Perhaps you
+        know this situation from other LDAP servers – open source (like OpenLDAP) as well
+        as commercial ones (like Sun
+        Java System Directory Server). This guide is dedicated to people that are new to
+        ApacheDS. The guide concentrates
+        on installing, configuring and running ApacheDS in a standalone configuration.
+      </para>
+      <para>
+        <emphasis>Extendable</emphasis>
+        means that the modern architecture of the solution provides many extension points. Write your own
+        partitions to
+        store directory data, interceptors to add functionality, etc. by implementing certain interfaces
+        and plugging
+        them in using Spring.
+      </para>
+      <para>
+        <emphasis>Standard</emphasis>
+        compliant means that ApacheDS 1.5 adheres to all RFCs relevant to
+        LDAPv3. Please note that version 1.0 of the
+        server has been successfully certified by the Open Group in September
+        2006 ("LDAP certified"). Thus LDAP clients
+        may rightly expect that ApacheDS behaves like they expect.
+      </para>
+      <para>
+        <emphasis>Modern</emphasis>
+        means
+        that ApacheDS aims modernize the LDAP territory, as well as it favors standards compliance. New rich
+        integration
+        tier constructs like LDAP Stored Procedures and Triggers are being built on top of existing
+        standards.
+      </para>
+      <para>
+        <emphasis>Entirely</emphasis>
+        written in Java means that the software compiles and runs on a huge number of hardware and software platforms.
+        Native installers are available for Windows, MacOS and Solaris (both SPARC and intel platform), but in fact the
+        set of possible targets is by far more extensive.
+      </para>
+      <section
+        id="Architectural overview">
+        <title>Architectural overview</title>
+        <figure
+          id="50k FT Architecture">
+          <title>50k FT Architecture</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/50k-ft-architecture.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </section>
+    </section>
+    <section
+      id="Origin and Motives">
+      <title>Origin and Motives</title>
+      <para>
+        Through his experiences with enterprise LDAP directories, Alex Karasulu, realized there is a great need
+        for
+        rich integration tier constructs like LDAP Stored Procedures, Triggers, and Views. In 2001 he set out to
+        alter
+        the OpenLDAP server to offer support for these useful facilities which are present in relational databases
+        but
+        missing in the LDAP world. Alex's attempts failed due to the complexity of the software which was brittle,
+        and
+        difficult to manage. As C code ported to several platforms, the OpenLDAP code base, had several #IFDEF
+        conditional pre-compiler directives that made it difficult to change the code. At this point Alex thought about
+        implementing a new LDAP server in pure Java. Thanks to NIO this was finally possible using the 1.4 JDK.
+      </para>
+      <para>
+        In October 2002 Alex Karasulu founded and registered the
+        <link
+          xlink:href="http://sourceforge.net/projects/ldapd">LDAPd</link>
+        project at SourceForge.net. LDAPd was a a
+        pure Java embeddable LDAP v3 protocol daemon built on the Avalon
+        framework. Alex donated the code to the Apache
+        Software Foundation and the code entered the
+        <link
+          xlink:href="http://incubator.apache.org/">Apache Incubator</link>
+        in October 2003. One year later in October of
+        2004,
+        the Apache Directory Top Level Project (TLP) was formed after
+        a successful incubation with the now called
+        Apache
+        Directory Server as its flagship product. After 4 years of
+        development, in October 2006, Apache Directory
+        Server
+        1.0 was released as an Open Group certified LDAPv3 protocol
+        server. The certification has been renewed in
+        September 2007.
+      </para>
+      <para>Having a standards compliant and modern LDAP server, Apache Directory Team is now working on Identity and
+        Access Management solutions leveraging the directory technology.
+      </para>
+    </section>
+    <section
+      id="Resources">
+      <title>Resources</title>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://directory.apache.org/community%26resources/proposal-for-an-apache-directory-project.html">Proposal for an Apache Directory Project</link>
+            the original proposal for incubation, September 2003.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://directory.apache.org/community%26resources/ldap-renaissance.html">Architecting the Modern LDAP Renaissance: The Apache Directory Vision</link>
+            , Paper for 1st International Conference on LDAP, September 2007.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <section
+    id="Some Background. Directories, directory services and LDAP">
+    <title>Some Background. Directories, directory services and LDAP</title>
+    <para>This section provides a brief overview about directories, directory services and LDAP. Furthermore you find
+      links to different resources (books, online resources, ...), which may act as introduction to the topic. If you
+      are
+      already an LDAP expert, you'll probably skip this section.</para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="directoriesAndDirectoryServices" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="ldapTheLightWeightDirectoryAccessProtocol" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="ldapResources" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="directoriesAndDirectoryServices">
+      <title>Directories and directory services</title>
+      <para>Generally speaking, a directory is a collection or list of data. Real world examples are telephone books
+        (public or within organizations), church/land registers and listings of works (e.g. the Koechel-index, which
+        lists
+        all compositions of Mozart). All these examples have the purpose to preserve information and to make it
+        available
+        on demand to whom it may concern.</para>
+      <para>
+        Within information technology the term
+        <emphasis
+          role="bold">directory</emphasis>
+        is used for a special kind of data storage. It allows the
+        structured storage and efficient retrieval of objects
+        which are often derived from the real world (e.g. persons,
+        IT equipment). Characteristic:
+        <itemizedlist>
+          <listitem>
+            <para>
+              all data is stored in so called
+              <emphasis
+                role="bold">entries</emphasis>
+            </para>
+          </listitem>
+          <listitem>
+            <para>the set of entries within a directory forms a tree (hierarchical database)</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>
+        A
+        <emphasis
+          role="bold">directory service</emphasis>
+        is a solution which offers users access to the information stored in the directory. A
+        directory assistance (call
+        center agent) is a good real world example for such a service. Within information
+        technologies, such services are
+        normally provided by software components. Directory services provide access to
+        the content of a directory via a
+        well-defined interface. If a network is used, an appropriate protocol has to be
+        defined. LDAP (see below) is such
+        a
+        protocol.
+      </para>
+      <para>
+        The real world examples mentioned above may be stored in such a directory, although other types of storage
+        systems
+        can be more appropriate (this depends on circumstance/requirements). At first sight directories compete
+        thereby as
+        data storage with the established relational data bases. However in the most large enterprises and
+        organizations
+        both directory services and relational databases are actually used. Read how Vikas Mahajan
+        describes directories
+        and databases as complementary, not competitive, solutions in his excellent article
+        <link
+          xlink:href="http://support.novell.com/techcenter/articles/ana20011101.html">"Should I Use a Directory, a Database, or Both?"</link>
+        .
+      </para>
+    </section>
+    <section
+      id="ldapTheLightWeightDirectoryAccessProtocol">
+      <title>LDAP – the Lightweight Directory Access Protocol</title>
+      <section
+        id="What is it? Some history">
+        <title>What is it? Some history</title>
+        <para>
+          The comprehensive standard
+          <emphasis
+            role="bold">X.500</emphasis>
+          , finalized in 1988, builds the foundation for many of today's directory
+          solutions. Within this standard, the
+          client accesses the server via the Directory Access Protocol (
+          <emphasis
+            role="bold">DAP</emphasis>
+          ), which
+          is OSI protocol stack based. With the Internet boom in the nineties, the accessibility of directories
+          via
+          TCP/IP
+          became more and more important. Hence a TCP/IP-based access method, which in functionality was a
+          subset
+          of DAP,
+          was standardized in 1993: the
+          <emphasis
+            role="bold">Lightweight Directory Access Protocol (LDAP)</emphasis>
+          . First LDAP implementations
+          were
+          gateway solutions, they mediated between LDAP clients and X.500 servers. In
+          1995
+          the University of
+          Michigan
+          presented the first native LDAP server; in the meantime the work is continued by
+          the
+          OpenLDAP project.
+          1996
+          Netscape followed with the first commercial LDAP server (Netscape Directory Server,
+          foundation of several
+          later
+          LDAP servers). Other examples (among many others) include Microsoft Active Directory
+          and Novell
+          eDirectory. The
+          figure below shows the development of directory protocols from X.500/DAP to LDAP.
+        </para>
+        <figure
+          id="From X500 to LDAP">
+          <title>From X500 to LDAP</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/fromX500toLDAP.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </section>
+      <section
+        id="Information model primer">
+        <title>Information model primer</title>
+        <para>
+          Within the information model of LDAP, data is stored in entries, which build up a hierarchical, tree like
+          structure. Each entry has a unique name (
+          <emphasis
+            role="bold">DN, Distinguished Name</emphasis>
+          ), which depicts its position within the tree.
+          An
+          entry consists of key/value pairs, the
+          <emphasis
+            role="bold">attributes</emphasis>
+          . Some attributes may occur more than once within an entry
+          (single or multi valued, e.g. a person can have more
+          than one telephone number). So called
+          <emphasis
+            role="bold">object classes</emphasis>
+          define, which attributes an entry may have, and which of them are required. The classes build up a hierarchy
+          with
+          <emphasis
+            role="bold">top</emphasis>
+          as root; there is a parallelism to the object oriented world. top forces only the attribute
+          objectclass, which
+          assigns an entry its object classes. A
+          <emphasis
+            role="bold">schema</emphasis>
+          consists object classes and attribute types,
+          and therefore defines, what kind of entries can be stored within
+          the
+          directory. Directory servers ship a
+          schema
+          out-of-the-box, often with elements standardized by RFCs. In
+          addition,
+          most directory solutions allow
+          you to
+          define custom object classes and attributes. But in practice,
+          the
+          pre-defined
+          elements are used.
+          Sometimes
+          they
+          get extended according to special requirements.
+        </para>
+      </section>
+      <section
+        id="Common applications of LDAP based directories">
+        <title>Common applications of LDAP based directories</title>
+        <para>LDAP operations include entry creation, modification, deletion and search. As a general rule, LDAP
+          directories are optimized for read and search operations, at the cost of write performance. Data, which will
+          be
+          modified often, therefore better suits in a relational database, which offers better support for
+          transactions and
+          referential integrity as well. Directories are rather used if comparatively stable data has
+          to
+          be provided
+          centrally. </para>
+        <para>Common examples are network resources (printers, services) and user data (including credentials and rights
+          for the resources). As a notable feature, many directory products offer replicas, which permit better access
+          times and higher availability especially in geographically dispersed organizations. Not for nothing, the most
+          common LDAP application is the enterprise phone book. That even Microsoft Outlook may be an LDAP client in
+          this
+          case - most average users probably don't know.</para>
+      </section>
+      <section
+        id="Examples of software components which support LDAP">
+        <title>Examples of software components which support LDAP</title>
+        <figure
+          id="LDAP-Tools">
+          <title>LDAP-Tools</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/ldap-tools.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          Very different types of software products may act as LDAP clients, consuming data for authentication,
+          authorization or data presentation etc.
+          <itemizedlist>
+            <listitem>
+              <para>E-Mail clients (e.g. Mozilla Thunderbird)</para>
+            </listitem>
+            <listitem>
+              <para>LDAP tools (e.g. Apache Directory Studio)</para>
+            </listitem>
+            <listitem>
+              <para>Web servers (e.g. Apache Tomcat, Apache HTTP Server)</para>
+            </listitem>
+            <listitem>
+              <para>Mail servers (e.g. Apache James)</para>
+            </listitem>
+            <listitem>
+              <para>...</para>
+            </listitem>
+          </itemizedlist>
+          Configuration details for several of these programs in conjunction with ApacheDS are described in later
+          sections.
+        </para>
+      </section>
+    </section>
+    <section
+      id="ldapResources">
+      <title>LDAP resources</title>
+      <section
+        id="Books">
+        <title>Books</title>
+        <para>There are several good LDAP books available. Here are two examples which provide sample chapters on their
+          homepages.</para>
+        <para>
+          Understanding and Deploying LDAP Directory Services
+          <figure
+            id="Cover Understanding and Deploying LDAP Directory Services">
+            <title>Cover Understanding and Deploying LDAP Directory Services</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata
+                  fileref="images/cover_howes_100.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+          Understanding and Deploying LDAP Directory Services (2nd Edition)
+          by Timothy A. Howes, Mark C. Smith, Gordon S.
+          Good, Tim Howes
+          Addison-Wesley Professional, 2nd Edition 2003
+          ISBN: 0-672323-16-8
+          <link
+            xlink:href="http://awprofessional.com/title/0672323168">Book's Homepage (Howes)</link>
+        </para>
+        <para>
+          LDAP fuer Java-Entwickler
+          <figure
+            id="Cover LDAP fuer Java-Entwickler">
+            <title>Cover LDAP fuer Java-Entwickler</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata
+                  fileref="images/cover_zoerner_100.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+          LDAP fuer Java-Entwickler – Einstieg und Integration.
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/de.png" />
+            </imageobject>
+          </mediaobject>
+          von Stefan Zoerner
+          Software und Support Verlag, 3. aktualisierte Auflage 2007
+          ISBN: 978-3-939084-07-5
+          <link
+            xlink:href="http://www.entwickler-press.de/buecher/ldap/">Webseite zum Buch (Zoerner)</link>
+        </para>
+      </section>
+      <section
+        id="Articles, forums, blogs and other online resources">
+        <title>Articles, forums, blogs and other online resources</title>
+        <section
+          id="Blogs">
+          <title>Blogs</title>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <link
+                  xlink:href="http://blogs.sun.com/roller/page/DirectoryManager">cn=Directory Manager - All about Directory Server</link>
+                , Sun Blog
+              </para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section
+          id="Articles and other online resources">
+          <title>Articles and other online resources</title>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <link
+                  xlink:href="http://www.redbooks.ibm.com/abstracts/SG244986.html?Open">Understanding LDAP - Design and Implementation</link>
+                , IBM RedBook, July 2006
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <link
+                  xlink:href="http://www.oreillynet.com/pub/a/sysadmin/2006/07/27/demystifying-ldap.html">Demystifying LDAP</link>
+                by Brian K. Jones, O'Reilly Network
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <link
+                  xlink:href="http://www.mitlinx.de/ldap/">LDAP verstehen mit linx</link>
+                , by Petra Haberer
+                <mediaobject>
+                  <imageobject>
+                    <imagedata
+                      fileref="images/de.png" />
+                  </imageobject>
+                </mediaobject>
+              </para>
+            </listitem>
+          </itemizedlist>
+        </section>
+      </section>
+    </section>
+  </section>
+
+  <section
+    id="Installing and starting the server">
+    <title>Installing and starting the server</title>
+    <para>This section describes how ApacheDS can be installed and started on different platforms.</para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="prerequisites" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Download a server installer" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Installation on Windows" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Installation on Mac OS X" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Installation on Linux and Solaris" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="prerequisites">
+      <title>Prerequisites</title>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <emphasis
+              role="bold">Java 5.0</emphasis>
+            . We recommend using
+            <link
+              xlink:href="http://java.sun.com/javase/downloads/index.jsp">
+              Sun's JDK</link>
+            , but the server has also been successfully tested
+            with JRockit 5.0 and with IBM Java 5.0.
+            You can check your
+            java installation with:
+            <para>
+              <screen>java -version</screen>
+            </para>
+            this should response something like:
+            <para>
+              <screen><![CDATA[
+java version "1.5.0_06"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
+Java
+HotSpot(TM) Client VM (build 1.5.0_06-b05, mixed mode)
+              ]]></screen>
+            </para>
+          </para>
+        </listitem>
+        <listitem>
+          <para>using Linux: you must have a X11 graphical interface</para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis
+              role="bold">384 MB RAM</emphasis>
+            for the JVM. That's the default setting, how to change that is described
+            <link
+              xlink:href="http://directory.apache.org/apacheds/1.5/14-basic-configuration-tasks.html#1.4.Basicconfigurationtasks-MemoryAllocation">here</link>
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    <section
+      id="Download a server installer">
+      <title>Download a server installer</title>
+      <para>
+        We provide native installers for several platforms:
+        <itemizedlist>
+          <listitem>
+            <para>Windows (exe)</para>
+          </listitem>
+          <listitem>
+            <para>Mac OS X (dmg)</para>
+          </listitem>
+          <listitem>
+            <para>Solaris x86 and SPARC (pkg)</para>
+          </listitem>
+          <listitem>
+            <para>Debian package (deb)</para>
+          </listitem>
+          <listitem>
+            <para>RPM package (rpm)</para>
+          </listitem>
+          <listitem>
+            <para>Linux Binary (bin)</para>
+          </listitem>
+        </itemizedlist>
+        Additional we provide an zip and tar.gz archive suitable for any platform.
+      </para>
+      <para>
+        You can download them from
+        <link
+          xlink:href="http://directory.apache.org/apacheds/1.5/downloads.html">here</link>
+        .
+      </para>
+      <para>
+        option for people familiar with tools like Subversion and Maven is to built the server from the sources on their
+        own. This is described
+        <link
+          xlink:href="http://directory.apache.org/community%26resources/sources.html">here</link>
+        .
+      </para>
+    </section>
+    <section
+      id="Installation on Windows">
+      <title>Installation on Windows</title>
+      <para>Installing can be easily done using the Windows installer. Its interface and functionality is similar to
+        other
+        wizard based installers.</para>
+      <figure
+        id="Windows Installer">
+        <title>Windows Installer</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/Windows_Installer.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>
+        To install the ApacheDS as Windows service you need
+        <emphasis
+          role="bold">Administrator</emphasis>
+        privileges.
+      </para>
+      <section
+        id="Starting and stopping the server Windows">
+        <title>Starting and stopping the server</title>
+        <para>
+          The server can be started and stopped with Windows Services manager (
+          <emphasis
+            role="bold">Control Panel > Administrative Tools > Services</emphasis>
+          ). You must be admin to do this.
+        </para>
+        <para>From there, you can easily start, stop and restart Apache DS.</para>
+      </section>
+    </section>
+    <section
+      id="Installation on Mac OS X">
+      <title>Installation on Mac OS X</title>
+      <para>To install Apache DS on Mac OS X, simply open the downloaded DMG file and then the "Apache Directory Server
+        Installer.pkg" in it.</para>
+      <figure
+        id="MacOSX Installer">
+        <title>MacOSX Installer</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/MacOSX_Installer.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>From there, you will be guided to install Apache DS on your system.</para>
+      <section
+        id="Starting and stopping the server MacOSX">
+        <title>Starting and stopping the server</title>
+        <para>On Mac OS X, Apache DS is installed as a launchd service and is loaded at startup time (and upon
+          successful
+          installation).</para>
+        <para>You can stop the server by unloading the launchd service with the following command line:</para>
+        <code>sudo launchctl unload /Library/LaunchDaemons/org.apache.directory.server.plist</code>
+        <para>You can start the server by loading the launchd service with the following command line:</para>
+        <code>sudo launchctl load /Library/LaunchDaemons/org.apache.directory.server.plist</code>
+      </section>
+    </section>
+    <section
+      id="Installation on Linux and Solaris">
+      <title>Installation on Linux and Solaris</title>
+      <para>
+        The installation for different installers is described on the
+        <link
+          xlink:href="http://directory.apache.org/apacheds/1.5/downloads.html">Apache Directory Server 1.5 Downloads</link>
+        page.
+      </para>
+    </section>
+  </section>
+
+  <section
+    id="Basic configuration tasks">
+    <title>Basic configuration tasks</title>
+    <section
+      id="Changing the server port for LDAP">
+      <title>Changing the server port for LDAP</title>
+      <para>This section describes how to change to port for the LDAP protocol.</para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <xref
+              linkend="The task and how to accomplish it" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Resources_2" />
+          </para>
+        </listitem>
+      </itemizedlist>
+      <section
+        id="The task and how to accomplish it">
+        <title>The task and how to accomplish it</title>
+        <para>By default the LDAP server listens on port 10389 (unencrypted or StartTLS) and 10636 (SSL). It is quite
+          common to run LDAP on 389, which is the well-known port for this protocol. Of course other options are
+          imaginable as well. Changing the LDAP port is a good example for adjusting the existing Spring configuration
+          as
+          introduced in the last section.</para>
+        <para>
+          Just pick the "ldapServer"-bean from the server.xml file
+          <programlisting><![CDATA[
+  <ldapServer id="ldapServer"
+            ...>
+    <transports>
+      <tcpTransport address="0.0.0.0" port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
+      <tcpTransport address="localhost" port="10636" enableSSL="true"/>
+    </transports>
+    ...
+  </ldapServer>
+          ]]></programlisting>
+          and change the values of port to your needs. You have to restart the server afterwards in order to take this
+          change effect.
+        </para>
+        <important>
+          Due to traditional Unix security restrictions, ports less than 1024 were "trusted". Thus on a
+          Unix-System, a
+          non-root process must listen on a port greater than 1023.
+        </important>
+      </section>
+      <section
+        id="Resources_1">
+        <title>Resources</title>
+        <itemizedlist>
+          <listitem>
+            <para>
+              <xref
+                linkend="Configuration Parameters Reference" />
+              : A Description of all configuration parameters in
+              <emphasis>server.xml</emphasis>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </section>
+    </section>
+    <section>
+      <title>Changing the admin password</title>
+      <para>This section describes the steps necessary to change the administrator password. Follow the instructions
+        provided here step by step.</para>
+
+      <section
+        id="Step one: Changing the value in the system partition">
+        <title>Step one: Changing the value in the system partition</title>
+        <para>While the server is up and running, change the value of the userPassword attribute of the admin
+          (uid=admin,ou=system) via LDAP. There are several ways to accomplish this task. In the following, we use the
+          Eclipse based Apache Directory Studio.</para>
+        <para>A new LDAP connection with this tool is created via "New Connection ..." from the Connections view. Enter
+          your connection data in the first step ...</para>
+        <figure
+          id="New LDAP Connection">
+          <title>New LDAP Connection</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/NewLDAPConnection1.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>... and in the next step, enter the admin DN uid=admin,ou=system and the current password (default is
+          "secret"). Saving the password is not necessary, we will change it anyway. </para>
+        <figure
+          id="New LDAP Connection 2">
+          <title>New LDAP Connection 2</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/NewLDAPConnection2.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          Click
+          <emphasis>Finish</emphasis>
+          to establish the connection.
+        </para>
+        <para>
+          Afterwards, modify the value of the
+          <emphasis>userPassword</emphasis>
+          attribute of the entry
+          <emphasis>uid=admin,ou=system</emphasis>
+          . Navigate to the entry in the DIT (
+          <emphasis>LDAP Browser</emphasis>
+          view), and double click the attribute in the Entry Editor view:
+        </para>
+        <figure
+          id="Entry Editor">
+          <title>Entry Editor</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/entryEditor.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>The Password Editor dialog shows up; enter the new password. You can optionally select a hash algorithm
+          like
+          SHA. In this case, the password will be stored one-way encrypted in the attribute value – not a bad idea.
+        </para>
+        <figure
+          id="Password Editor">
+          <title>Password Editor</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/passwordEditor.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          Pressing
+          <emphasis>OK</emphasis>
+          stores the new value. Close the connection and shutdown the server.
+        </para>
+      </section>
+      <section
+        id="Step two: Verification">
+        <title>Step two: Verification</title>
+        <para>
+          Verify that you can login as admin with the new password. With Apache Directory Studio, you can change the
+          properties of the existing connection profile via a right click in the
+          <emphasis>Connections</emphasis>
+          view and a selection of the
+          <emphasis>Properties</emphasis>
+          menu item. The following dialog appears:
+        </para>
+        <figure
+          id="Connection Properties">
+          <title>Connection Properties</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/connectionProperties.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          Enter the new password and press
+          <emphasis>OK</emphasis>
+          . Establishing a connection should now work.
+        </para>
+      </section>
+      <section
+        id="Resources_2">
+        <title>Resources</title>
+        <itemizedlist>
+          <listitem>
+            <para>
+              <link
+                xlink:href="http://directory.apache.org/studio/">Apache Directory Studio</link>
+              : The tool used in steps 1 and 2
+            </para>
+          </listitem>
+        </itemizedlist>
+      </section>
+    </section>
+
+    <section
+      id="Adding your own partition resp. suffix">
+      <title>Adding your own partition resp. suffix</title>
+      <para>This section describes how to add your own data partition.</para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <xref
+              linkend="What are partitions?" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Minimal partition definition" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Adding a partition programmatically" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="More configuration options for a JDBM partition" />
+          </para>
+        </listitem>
+      </itemizedlist>
+      <section
+        id="What are partitions?">
+        <title>What are partitions?</title>
+        <para>In ApacheDS entries are stored in partitions. Each partition contains a complete entry tree, also referred
+          to as a DIT. Multiple partitions may exist and the entry trees they contain are disconnected from each other,
+          meaning that changes to entries in partition A would never affect entries in partition B. The entries in a
+          particular partition are stored below some naming context called the partition suffix.</para>
+        <para>
+          The default implementation of partitions is based on
+          <link
+            xlink:href="http://jdbm.sourceforge.net/">JDBM</link>
+          B+Trees (but it's possible to add custom partition implementations). The ApacheDS default configuration
+          contains a a data partition with the suffix "dc=example,dc=com". The image below shows the suffixes of a
+          freshly installed ApacheDS within Apache Directory Studio.
+        </para>
+        <figure
+          id="Partitions in Studio after install">
+          <title>Partitions in Studio after install</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/partitions_in_studio_after_install.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>The schema subsystem and ApacheDS itself store their information in special partitions, "ou=schema" and
+          "ou=system" respectively.</para>
+      </section>
+      <section
+        id="Minimal partition definition">
+        <title>Minimal partition definition</title>
+        <para>For the examples in the following sections, we want to add a partition with the suffix "o=sevenSeas". This
+          requires editing of the server.xml file, and injecting a first entry, associated with the root of this
+          partition (here, "o=sevenseas") .</para>
+        <para>
+          Open the
+          <emphasis>server.xml</emphasis>
+          file for your directory instance in your favorite editor and look for the following element with name
+          partitions.
+        </para>
+        <programlisting><![CDATA[
+...
+ <partitions>
+  ...
+  <jdbmPartition id="example" cacheSize="100" suffix="dc=example,dc=com" optimizerEnabled="true"
+                 syncOnWrite="true">
+    <indexedAttributes>
+    ...
+    </indexedAttributes>
+  </jdbmPartition>
+ </partitions>
+...
+        ]]></programlisting>
+        <para>
+          Save the
+          <emphasis>server.xml</emphasis>
+          file and restart the server. The server has a new suffix now, but no context entry has been created for it. If
+          you connect with an LDAP Browser (Apache Directory Studio for instance), the partition is only visible in the
+          Root DSE. Below the Entry Editor of Directory Studio for the Root DSE after connecting to an ApacheDS instance
+          configured like above.
+        </para>
+        <figure
+          id="Root DSE">
+          <title>Root DSE</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/root_dse.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>Before using the partition (e.g. adding entries), you have to add a context entry. If you plan to load
+          LDIF data to your partition anyway, simply provide the context entry (the "root" of your partition) as a first
+          data set. In our example it might look like this:</para>
+        <programlisting><![CDATA[
+dn: o=sevenSeas
+o: sevenSeas
+objectClass: top
+objectClass: organization
+description: The context entry for suffix o=sevenSeas
+        ]]>
+        </programlisting>
+        <para>It is also possible to import a file to ApacheDS which only contains such an entry, of cause. Here is an
+          example on how to procede for the seven seas :</para>
+        <para>In the LDAP Browser of Directory Studio, right click on the DIT entry and select "Import -> LDIF
+          Import...". A file selections dialog appears. Browse to the LDIF file and click Finish. The entry (or entries,
+          if you provide more of them) will be added to to partition.</para>
+        <para>
+          The following image depicts the partitions after reconnecting with Apache Directory Studio (
+          <emphasis>LDAP Browser</emphasis>
+          view).
+        </para>
+        <figure
+          id="Partitions in Studio after adding">
+          <title>Partitions in Studio after adding</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/partitions_in_studio_after_adding.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </section>
+      <section
+        id="Loading the context entry automatically on startup">
+        <title>Loading the context entry automatically on startup</title>
+        <para>
+          If you don't want to launch Apache Studio, or to inject the LDIF file using a command line tool, you can
+          also
+          tells the server to load the file when it will be laucnhed the first time. Just create a ldif file
+          containing
+          the context entry, and add some tag into the
+          <emphasis>server.xml</emphasis>
+          file. For instance, you have created the
+          <emphasis
+            role="bold">sevenSeasRoot.ldif</emphasis>
+          file containing
+        </para>
+        <programlisting><![CDATA[
+# SevenSeas root context entry
+dn: o=sevenSeas
+o: sevenSeas
+objectClass: top
+objectClass: organization
+description: The context entry for suffix o=sevenSeas
+        ]]></programlisting>
+        <para>
+          Now just modify the
+          <emphasis>server.xml</emphasis>
+          file to add this line :
+        </para>
+        <programlisting><![CDATA[
+...
+  <apacheDS id="apacheDS"
+            synchPeriodMillis="15000"
+            allowAnonymousAccess="false">
+
+    <directoryService>#directoryService</directoryService>
+
+     We load the SevenSeas root context entry here 
+    <ldifDirectory>sevenSeasRoot.ldif</ldifDirectory>
+...
+        ]]></programlisting>
+        <para>The contextEntry will be loaded when the server will be started the first time.</para>
+      </section>
+      <section
+        id="Adding a partition programmatically">
+        <title>Adding a partition programmatically</title>
+        <para>The same o=sevenseas partition can be created through the application code using the Partition and
+          DirectoryService API</para>
+        <para>Here is the sample code to create a new partition o=sevenseas and its context entry programmatically
+        </para>
+        <example
+          id="Sample code to create a new partition">
+          <title>Sample code to create a new partition</title>
+          <programlisting><![CDATA[
+JdbmPartition sevenseasPartition = new JdbmPartition();
+sevenseasPartition.setId("sevenseas");
+sevenseasPartition.setSuffix("o=sevenseas");
+sevenseasPartition.setCacheSize(1000);
+sevenseasPartition.init(directoryService);
+
+// Create some indices (optional)
+Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+indexedAttrs.add( new JdbmIndex<Object, ServerEntry>("objectClass"));
+indexedAttrs.add( new JdbmIndex<Object, ServerEntry>("o"));
+sevenseasPartition.setIndexedAttributes( indexedAttrs );
+
+//Add partition to the directory service
+directoryService.addPartition(sevenseasPartition);
+
+// start the directory service
+directoryService.startup();
+
+// create the context entry
+ServerEntry entry = new DefaultServerEntry( directoryService.getRegistries(), new LdapDN( "o=sevenseas") );
+entry.put( "objectClass",  "top", "organization" );
+entry.put("o","sevenseas");
+
+// add the context entry
+AddContextPartitionOperationContext adOpContext = new AddContextPartitionOperationContext( directoryService.getAdminSession(), sevenseasPartition );
+adOpContext.add( entry, null );
+directoryService.getPartitionNexus().addContextPartition( adOpContext );
+      ]]></programlisting>
+        </example>
+      </section>
+      <section
+        id="More configuration options for a JDBM partition">
+        <title>More configuration options for a JDBM partition</title>
+        <para>Here is a list of the used attributes, their default values and meaning</para>
+        <table
+          id="More configuration options for a JDBM partition table">
+          <title>More configuration options for a JDBM partition</title>
+          <tgroup
+            cols="3">
+            <thead>
+              <row>
+                <entry>Property</entry>
+                <entry>Default value</entry>
+                <entry>Description</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>id</entry>
+                <entry></entry>
+                <entry>(required) uniquely identifies the partition</entry>
+              </row>
+              <row>
+                <entry>suffix</entry>
+                <entry></entry>
+                <entry>(required) an LDAP DN ("dc=example, dc=com", for instance)</entry>
+              </row>
+              <row>
+                <entry>cacheSize</entry>
+                <entry>-1</entry>
+                <entry>cache size expressed as a number of entries</entry>
+              </row>
+              <row>
+                <entry>optimizerEnabled</entry>
+                <entry>true</entry>
+                <entry></entry>
+              </row>
+              <row>
+                <entry>syncOnWrite</entry>
+                <entry>true</entry>
+                <entry>sync disks on every write operation</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </section>
+    </section>
+
+    <section
+      id="Configure logging">
+      <title>Configure logging</title>
+      <para>In order to detect and analyze problems, adjusting the log level of a server can be a valuable tool. This
+        section describes how to configure logging within a standalone ApacheDS.</para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <xref
+              linkend="ApacheDS and logging" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Default behavior after installation" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Adjusting logging to your needs" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Example configurations" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Log settings of the Windows daemon process" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <xref
+              linkend="Resources logging" />
+          </para>
+        </listitem>
+      </itemizedlist>
+      <section
+        id="ApacheDS and logging">
+        <title>ApacheDS and logging</title>
+        <para>
+          ApacheDS 1.5 uses
+          <link
+            xlink:href="http://www.slf4j.org/">SLF4J</link>
+          as its logging solution. This is a simple facade for various logging APIs. The default for ApacheDS 1.5 is
+          <link
+            xlink:href="http://logging.apache.org/log4j/">log4j</link>
+          .
+        </para>
+      </section>
+      <section
+        id="Default behavior after installation">
+        <title>Default behavior after installation</title>
+        <para>
+          By default, ApacheDS writes log files in the directory
+          <emphasis>&lt;APACHDS_HOME&gt;/var/log/</emphasis>
+          . Besides stdout, a
+          <link
+            xlink:href="http://logging.apache.org/log4j/docs/api/org/apache/log4j/RollingFileAppender.html">RollingFileAppender</link>
+          is used to collect warnings and errors. It
+          backups the log files when they reach a certain size.
+        </para>
+        <para>
+          Here is what the default configuration file
+          <emphasis>log4j.properties</emphasis>
+          , which is located in
+          <emphasis>&lt;APACHDS_HOME&gt;/conf/</emphasis>
+          , looks like.
+          The name of the RollingFileAppender is "R":
+        </para>
+        <example
+          id="Configuration RollingFileAppender">
+          <title>Configuration RollingFileAppender</title>
+          <programlisting><![CDATA[
+log4j.rootCategory=WARN, stdout, R
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+log4j.appender.R=org.apache.log4j.RollingFileAppender
+log4j.appender.R.File=apacheds-rolling.log
+
+log4j.appender.R.MaxFileSize=1024KB
+# Keep some backup files
+log4j.appender.R.MaxBackupIndex=5
+
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=[%d{HH:mm:ss}] %p [%c] - %m%n
+
+log4j.appender.stdout.layout.ConversionPattern=[%d{HH:mm:ss}] %p [%c] - %m%n
+
+# with these we'll not get innundated when switching to DEBUG
+log4j.logger.org.apache.directory.shared.ldap.name=WARN
+log4j.logger.org.springframework=WARN
+log4j.logger.org.apache.directory.shared.codec=WARN
+log4j.logger.org.apache.directory.shared.asn1=WARN
+        ]]>
+          </programlisting>
+        </example>
+        <para>In this file "R" is configured like this:</para>
+        <table
+          id="Configuration RollingFileAppender table">
+          <title>Configuration RollingFileAppender</title>
+          <tgroup
+            cols="3">
+            <thead>
+              <row>
+                <entry>Property name</entry>
+                <entry>Value in file above</entry>
+                <entry>Meaning</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>File</entry>
+                <entry>apacheds-rolling.log</entry>
+                <entry>
+                  path to the output log file, in our case relative to
+                  <emphasis>var/log</emphasis>
+                </entry>
+              </row>
+              <row>
+                <entry>MaxFileSize</entry>
+                <entry>1024KB</entry>
+                <entry>maximum size that the output file is allowed to reach before being rolled over to backup files
+                </entry>
+              </row>
+              <row>
+                <entry>MaxBackupIndex</entry>
+                <entry>5</entry>
+                <entry>number of backup files kept</entry>
+              </row>
+              <row>
+                <entry>ConversionPattern</entry>
+                <entry>[%d{HH:mm:ss}] %p [%c] - %m%n</entry>
+                <entry>format string for logging events</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+        <para>If the default logging does not meet your requirements, you can easily adjust the configuration to your
+          needs.</para>
+      </section>
+      <section
+        id="Adjusting logging to your needs">
+        <title>Adjusting logging to your needs</title>
+        <section
+          id="Log file location (where the log files are placed)">
+          <title>Log file location (where the log files are placed)</title>
+          <para>
+            By default the log files are placed at
+            <emphasis>&lt;APACHDS_HOME&gt;/var/log/</emphasis>
+            , but that can be changed.
+          </para>
+          <section
+            id="Linux/MacOS/Solaris">
+            <title>Linux/MacOS/Solaris</title>
+            <para>
+              On this systems the location of the log files is configured via an entry in
+              <emphasis
+                role="bold">/bin/server.init</emphasis>
+              . Look for the following lines and change it to your preferences:
+            </para>
+            <example>
+              <title>Log file location Linux/MacOS/Solaris</title>
+              <screen><![CDATA[
+$DAEMON_HOME/apacheds \
+...
+-outfile $SERVER_HOME/var/log/apacheds-stdout.log \
+-errfile $SERVER_HOME/var/log/apacheds-stderr.log \
+...    
+$APACHEDS_HOME start
+              ]]></screen>
+            </example>
+          </section>
+          <section
+            id="Windows">
+            <title>Windows</title>
+            <para>
+              On Windows you can use the configuration wizard for the service as shown in the screenshot above. To
+              adjust the log path you have to adjust the values of
+              <emphasis
+                role="bold">Redirect Stdout</emphasis>
+              and
+              <emphasis
+                role="bold">Redirect Stderror</emphasis>
+              .
+            </para>
+          </section>
+        </section>
+        <section
+          id="Log level (how detailed the logs are)">
+          <title>Log level (how detailed the logs are)</title>
+          <para>The following log levels from log4j are used for messages within ApacheDS:</para>
+          <table
+            id="Log level">
+            <title>Log level</title>
+            <tgroup
+              cols="2">
+              <thead>
+                <row>
+                  <entry>Level</entry>
+                  <entry>Description from log4j documentation</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry>DEBUG</entry>
+                  <entry>designates fine-grained informational events that are most useful to debug an application
+                  </entry>
+                </row>
+                <row>
+                  <entry>INFO</entry>
+                  <entry>designates informational messages that highlight the progress of the application at
+                    coarse-grained
+                    level</entry>
+                </row>
+                <row>
+                  <entry>WARN</entry>
+                  <entry>designates potentially harmful situations</entry>
+                </row>
+                <row>
+                  <entry>ERROR</entry>
+                  <entry>designates error events that might still allow the application to continue running</entry>
+                </row>
+                <row>
+                  <entry>FATAL</entry>
+                  <entry>designates very severe error events that will presumably lead the application to abort </entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+          <para>
+            The default (global) log level in the configuration is
+            <emphasis>WARN</emphasis>
+            . All messages of level WARN and more severe (ERROR, FATAL) are written to the rolling log file. The easiest
+            way to get finer log messages is to change it like this
+          </para>
+          <programlisting><![CDATA[
+log4j.rootCategory=DEBUG, stdout, R
+...
+          ]]></programlisting>
+          <para>detailed log messages took much file space and time and therefore should only be enabled globally in
+            order to analyze problems.</para>
+          <para>is possible to configure the logging more fine grained by using categories. Within the default
+            configuration there are some examples:</para>
+          <programlisting><![CDATA[
+...
+# with these we'll not get innundated when switching to DEBUG
+log4j.logger.org.apache.directory.shared.ldap.name=WARN
+log4j.logger.org.springframework=WARN
+log4j.logger.org.apache.directory.shared.codec=WARN
+log4j.logger.org.apache.directory.shared.asn1=WARN
+          ]]></programlisting>
+          <para>
+            If the global level is switched to DEBUG, these definitions override the setting with WARN for certain areas
+            and therefore keep the file a little bit smaller. Learn more about the concept of categories in the
+            <link
+              xlink:href="http://logging.apache.org/log4j/docs/manual.html">Short introduction to log4j</link>
+            .
+          </para>
+        </section>
+        <section
+          id="Format for log messages">
+          <title>Format for log messages</title>
+          <para>
+            The format of each line within a log file is controlled by a pattern. For the
+            <emphasis>RollingFileAppender</emphasis>
+            in the default configuration it looks like this
+          </para>
+          <programlisting><![CDATA[
+...
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=[%d{HH:mm:ss}] %p [%c] - %m%n
+...
+        ]]></programlisting>
+          <para>Some examples lines within the log file, formatted with the pattern "[%d{HH:mm:ss}] %p [%c] - %m%n" are:
+          </para>
+          <screen><![CDATA[
+...
+[12:29:03] WARN [org.apache.directory.server.core.DefaultDirectoryService]
+    - You didn't change the admin password of directory service instance 'default'.
+    Please update the admin password as soon as possible to prevent a possible security breach.
+...
+[12:29:05] INFO [org.apache.directory.server.jndi.ServerContextFactory]
+    - Successful bind of an LDAP Service (636) is complete.
+[12:29:05] INFO [org.apache.directory.server.Service] - server: started in 6750 milliseconds
+...
+        ]]></screen>
+          <para>The pattern uses the following conversion characters:</para>
+          <table
+            id="Log file output patterns">
+            <title>Log file output patterns</title>
+            <tgroup
+              cols="2">
+              <thead>
+                <row>
+                  <entry>Character</entry>
+                  <entry>Outputs</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry>%d</entry>
+                  <entry>date of the logging event in the given format. like "12:29:05" for %d{HH:mm:ss}</entry>
+                </row>
+                <row>
+                  <entry>%p</entry>
+                  <entry>priority (level) of the logging event, like "INFO" or "WARN"</entry>
+                </row>
+                <row>
+                  <entry>%c</entry>
+                  <entry>category of the logging event, like "org.apache.directory.server.Service"</entry>
+                </row>
+                <row>
+                  <entry>%m</entry>
+                  <entry>application supplied message associated with the logging event</entry>
+                </row>
+                <row>
+                  <entry>%n</entry>
+                  <entry>platform dependent line separator</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+          <para>
+            The
+            <link
+              xlink:href="http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html">javadoc of log4j</link>
+            contains a table with all valid %-characters and their meaning.
+          </para>
+          <para>
+            Simple adjust the pattern in the
+            <emphasis>log4j.properties</emphasis>
+            file to get the log format of your choice, for instance
+          </para>
+          <programlisting><![CDATA[
+log4j.appender.R.layout.ConversionPattern=[%d{dd.MM.yyyy HH:mm:ss}] %p: %c{1}.%M() - %m%n
+          ]]></programlisting>
+          <para>leads to messages of this form:</para>
+          <screen><![CDATA[
+...
+[29.12.2006 13:50:44] INFO: ServerContextFactory.startLDAP0() 
+    - Successful bind of an LDAP Service (636) is complete.
+[29.12.2006 13:50:44] INFO: Service.init() - server: started in 3016 milliseconds
+...
+          ]]></screen>
+          <warning>
+            <para>"Generating caller location information like with %M or %L is extremely slow. Its use should be
+              avoided unless execution speed is not an issue." (from the log4j documentation)</para>
+          </warning>
+        </section>
+        <section
+          id="Advanced log4j configuration">
+          <title>Advanced log4j configuration</title>
+          <para>
+            You can take advantage of other features of log4j as well, such as other appenders like the daily
+            rolling
+            file appender. And you can configure logging to make it easier for you to view the messages with
+            tools like
+            Log Factor 5 or
+            <link
+              xlink:href="http://logging.apache.org/log4j/docs/chainsaw.html">Chainsaw</link>
+            .
+          </para>
+          <para>
+            Learn more about log4j and related tools at its
+            <link
+              xlink:href="http://logging.apache.org/log4j/docs/index.html">homepage</link>
+            .
+          </para>
+        </section>
+      </section>
+      <section
+        id="Example configurations">
+        <title>Example configurations</title>
+        <para>The following example could be used to log all incoming search, add, delete, modify and moddn requests:
+        </para>
+        <example
+          id="Example log4j configuration">
+          <title>Example log4j.properties configuration</title>
+          <programlisting><![CDATA[
+log4j.logger.org.apache.directory.server.ldap.handlers.SearchHandler=DEBUG
+log4j.logger.org.apache.directory.server.ldap.handlers.AddHandler=DEBUG
+log4j.logger.org.apache.directory.server.ldap.handlers.DeleteHandler=DEBUG
+log4j.logger.org.apache.directory.server.ldap.handlers.ModifyHandler=DEBUG
+log4j.logger.org.apache.directory.server.ldap.handlers.ModifyDnHandler=DEBUG
+        ]]></programlisting>
+        </example>
+      </section>
+      <section
+        id="Log settings of the Windows daemon process">
+        <title>Log settings of the Windows daemon process</title>
+        <para>After installation on Windows, you have the option to configure the ApacheDS Windows Service (you can do
+          this later as well). If you do so, one option pane is dedicated to logging:</para>
+        <figure
+          id="W32 Service Properties">
+          <title>W32 Service Properties</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/w32_service_properties.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>You can adjust the logging level and a log path. Note that this is for the daemon only. The server itself
+          is configured as described above.</para>
+      </section>
+      <section
+        id="Resources logging">
+        <title>Resources</title>
+        <itemizedlist>
+          <listitem>
+            <para>
+              <link
+                xlink:href="http://logging.apache.org/log4j/docs/manual.html">Short introduction to log4j</link>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </section>
+    </section>
+
+    <section
+      id="Enable and disable anonymous access">
+      <title>Enable and disable anonymous access</title>
+      <para>This section briefly describes how to enable and disable anonymous access.</para>
+      <para>Anonymous access to the server is enabled by default. This includes read and write access! </para>
+      <para>
+        If you use the server standalone configured with a
+        <emphasis>server.xml</emphasis>
+        file, you can disable anonymous binds by
+        changing the value for property
+        <emphasis>allowAnonymousAccess</emphasis>
+        in the Spring bean definition for bean
+        <emphasis>defaultDirectoryService</emphasis>
+        , as depicted in the following fragment:
+      </para>
+      <programlisting><![CDATA[
+  <defaultDirectoryService id="directoryService" instanceId="default"
+                           ...
+                           allowAnonymousAccess="false"
+                           ...>
+        ]]></programlisting>
+      <para>A restart of the server is necessary for this change to take effect. Afterwards, all clients have to provide
+        their name (distinguished name) and password in order to bind to the directory service.</para>
+      <para>
+        Learn more about authentication option in the corresponding section of this guide
+        <xref
+          linkend="Authentication options">here</xref>
+        .
+      </para>
+    </section>
+  </section>
+
+  <section
+    id="About the sample configurations and sample directory data">
+    <title>About the sample configurations and sample directory data</title>
+    <para>This section describes basic parameters used throughout the examples in this guide. It also introduces the
+      sample directory "Sailors of the seven seas", and other requisites you need.</para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="Basic server parameters" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="LDAP Clients" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="The sample data (Sailors of the seven seas)" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Resources RFC 2849" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="Basic server parameters">
+      <title>Basic server parameters</title>
+      <para>In the following sections we assume that you will install, configure and run Apache Directory Server on a
+        host with the following host name using the parameters given in the following table:</para>
+      <table
+        id="Basic server parameters table">
+        <title>Basic server parameters</title>
+        <tgroup
+          cols="2">
+          <thead>
+            <row>
+              <entry>Parameter name</entry>
+              <entry>Parameter value</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>Hostname</entry>
+              <entry>zanzibar</entry>
+            </row>
+            <row>
+              <entry>Port</entry>
+              <entry>10389</entry>
+            </row>
+            <row>
+              <entry>Suffix ("Base DN")</entry>
+              <entry>o=sevenSeas</entry>
+            </row>
+            <row>
+              <entry>Admin user DN</entry>
+              <entry>uid=admin,ou=system</entry>
+            </row>
+            <row>
+              <entry>Admin user password</entry>
+              <entry>secret</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <para>
+        Before you start playing with the data make sure that you have added a partition with the suffix o=sevenSeas to
+        the server. How to do this is described
+        <xref
+          linkend="Basic configuration tasks">here</xref>
+        .
+      </para>
+      <para>In order to increase recognition, all examples of the Basic User's Guide use these values. Adjust them to
+        your needs (especially the password).</para>
+    </section>
+    <section
+      id="LDAP Clients">
+      <title>LDAP Clients</title>
+      <para>LDAP is a client/server protocol. Hence you need an LDAP client to connect remotely to the Apache Directory
+        Server (or at least the directory part of it, to be precise). There are different options here. Because the
+        protocol is standardized, you may use every LDAP compliant client. This is comparable to HTTP, where you can use
+        each web browser to communicate with virtually each web server, and totally different to relational databases.
+        The latter have a (more or less) standardized query language (SQL), but vendors tend to use individual network
+        access protocols. In practice, the LDAP situation is even better than HTTP, because there were no LDAP browser
+        wars ...</para>
+      <para>Many software components may act as an LDAP client. Normally they use LDAP libraries to connect. In the
+        following sections you meet LDAP clients with GUI and LDAP command line tools. Some Java programming examples
+        which takes advantage of JNDI are provided as well.</para>
+      <para>In other sections you will learn how E-Mail clients like Mozilla Thunderbird and application servers like
+        Apache Tomcat connect to Apache Directory server, either to use the data stored in the directory (e.g. mail
+        addresses) or to perform authentication and authorization.</para>
+      <para>
+        Recapitulating the Basic User's Guide describes connecting to the server with tools provided by ApacheDS as well
+        as third party products. In all cases the examples will use the connection data depicted above (
+        <emphasis>ldap://zanzibar:10389/o=sevenSeas</emphasis>
+        )
+      </para>
+    </section>
+    <section
+      id="The sample data (Sailors of the seven seas)">
+      <title>The sample data (Sailors of the seven seas)</title>
+      <para>
+        The file
+        <link
+          xlink:href="data/apache_ds_tutorial.ldif">apache_ds_tutorial.ldif</link>
+        contains some sample data, which is used in the following sections. It is a
+        text file in the so called
+        <emphasis
+          role="bold">LDIF</emphasis>
+        format. LDIF stands for LDAP Data Interchange Format. It is widely adopted in
+        the LDAP world and standardized in
+        <link
+          xlink:href="http://www.faqs.org/rfcs/rfc2849.html">RFC 2849</link>
+        . Therefore you are able to import our sample data into other
+        directory solutions as well, not only into Apache
+        Directory Server.
+      </para>
+      <para>The sample directory tree contains entries for persons and groups. These are structured in sub trees
+        (ou=people and ou=groups), see image below. The person entries describe sailors (historic and fictional), the
+        group entries bundle them. An example for a group is the ship crew of HMS Bounty.</para>
+      <figure
+        id="Sample LDAP tree structure">
+        <title>Sample LDAP tree structure</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/sample_structure.gif" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>This snippet of the file represents a single entry, just to give you an impression of how LDIF files look
+        like.</para>
+      <programlisting><![CDATA[
+...
+# Entry for Fletcher Christian
+#
+dn: cn=Fletcher Christian,ou=people,o=sevenSeas
+cn: Fletcher Christian
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+sn: Christian
+givenName: Fletcher
+description: Lieutenant Fletcher Christian
+manager: cn=William Bligh,ou=people,o=sevenSeas
+...
+        ]]></programlisting>
+      <para>There are different ways to import the data. Generally perform the following steps:</para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            Download and install the server, described im
+            <xref
+              linkend="Installing and starting the server" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Configure a partition for the sample date, described in
+            <xref
+              linkend="Basic configuration tasks" />
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Import the data, for instance using
+            <link
+              xlink:href="http://directory.apache.org/studio/">Apache Directory Studio</link>
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    <section
+      id="Resources RFC 2849">
+      <title>Resources</title>
+      <itemizedlist>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://www.faqs.org/rfcs/rfc2849.html">RFC 2849</link>
+            The LDAP Data Interchange Format (LDIF) – Technical Specification
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+</chapter>

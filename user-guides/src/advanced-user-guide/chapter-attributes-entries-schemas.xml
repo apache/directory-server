@@ -1,0 +1,874 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file 
+  distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under 
+  the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may 
+  obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to 
+  in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+  ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
+  the License. -->
+<chapter
+  version="5.0"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:ns5="http://www.w3.org/2000/svg"
+  xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+  xmlns:ns3="http://www.w3.org/1999/xhtml"
+  xml:lang="en">
+  <title>Attributes, Entries &amp; Schemas</title>
+  <section
+    id="Add your first elements to the schema">
+    <title>Add your first elements to the schema</title>
+    <para>This section shows how to define custom schema elements, and how to add them to an ApacheDS 1.5 instance.
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <xref
+            linkend="Motivation" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Browsing the schema of ApacheDS" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Which OIDs should you use?" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="A simple example" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Using Apache Directory Studio Schema Editor to load the new schema elements" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Using LDIF to load schema elements in RFC 4512 format" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Using JNDI to add the schema elements programmatically" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Using JNDI to add schema elements in RFC 4512 format programmatically" />
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <xref
+            linkend="Resources schema element" />
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="Motivation">
+      <title>Motivation</title>
+      <para>The schema of an LDAP server is comprised of object classes, attributes, syntaxes and matching rules.
+        Basically it defines which entries are allowed within the server and how the server should handle them. In
+        contrast to the 1.0 release, ApacheDS 1.5.0 comes with a completely redesigned schema subsystem. It enables
+        dynamic schema updates, like the creation of new attribute types or object classes at runtime (i.e. without
+        restarting the server).</para>
+      <important>
+        <title>Is it always necessary to define my own schema elements?</title>
+        <para>
+          No. ApacheDS comes with a comprehensive set of predefined, standardized schema elements (like
+          <emphasis>inetOrgPerson</emphasis>
+          ). It is quite common to solely use the predefined schema. The same holds true for other directory servers, by
+          the way.
+        </para>
+      </important>
+      <para>In the following text the addition of user defined schema elements to the schema is described in tutorial
+        style.</para>
+    </section>
+    <section
+      id="Browsing the schema of ApacheDS">
+      <title>Browsing the schema of ApacheDS</title>
+      <para>LDAPv3 servers publish their schema via LDAP. Thus it is possible to list the schema elements with standard
+        LDAP tools. For instance it is possible to use the ldapsearch command line tool to list all object classes
+      </para>
+      <screen><![CDATA[
+$ ldapsearch -h zanzibar -p 10389 -D "uid=admin,ou=system" -w ****** \
+     -b "cn=schema" -s base "(objectclass=subschema)" objectclasses
+...
+objectClasses: ( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top 
+  STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ 
+  seeAlso $ description ) X-SCHEMA 'core' )
+...
+      ]]></screen>
+      <para>
+        The output (formatted as defines in
+        <link
+          xlink:href="http://www.ietf.org/rfc/rfc4512.txt">RFC 4512</link>
+        ) contains all things which are interesting to know about an
+        object class (required attributes, optional
+        attributes etc.), but is not easy to read by a human user. It is
+        therefore often appropriate to use a GUI tool to
+        browse the schema (which basically performs the same search
+        operations but presents the output prettily). One
+        option is
+        <link
+          xlink:href="http://directory.apache.org/studio/">Apache Directory Studio</link>
+        , an Eclipse based LDAP tool
+        set which contains a powerful graphical Schema
+        browser:
+      </para>
+      <figure
+        id="Schema Browser Person figure">
+        <title>Schema Browser Person</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/schema_browser_person.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>The techniques described above work for all LDAP v3 compliant servers. The ability to browse the schema
+        gives us a chance to check whether our future changes to the schema really took place.</para>
+      <para>
+        The schema subsystem of ApacheDS 1.5 stores the schema elements as entries in the DIT. You can find them within
+        a special partition with suffix
+        <emphasis>ou=schema</emphasis>
+        ; simply browse the content with your favorite LDAP Browser. With Apache Directory Studio, it looks like this:
+      </para>
+      <figure
+        id="Schema Browser Tree figure">
+        <title>Schema Browser Tree</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/schema_browser_tree.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>Browsing the schema like this gives a good impression of the ApacheDS implementation of the schema subsystem
+        and an even better way to analyze effects during schema updates. But keep in mind that the storage scheme is
+        server dependent; not all LDAP server implementations store the schema elements in the DIT.</para>
+    </section>
+    <section
+      id="Which OIDs should you use?">
+      <title>Which OIDs should you use?</title>
+      <para>
+        If you plan to add custom schema elements, you need numerical OIDs (object identifiers) for them. If you
+        implement schema elements defined somewhere else (like
+        <link
+          xlink:href="http://www.educause.edu/eduperson/">eduPerson</link>
+        ), you can use the OIDs which are are part of their descriptions. But what if you plan to design your own?
+      </para>
+      <section
+        id="Some OID background information">
+        <title>Some OID background information</title>
+        <para>An OID is a string formed by a series of numbers which are seperated by a dot (like "12.4.1971.0.1"). Many
+          elements in directory world use OIDs: Controls, extended operations and schema elements (like "2.5.6.6" for
+          object class person). They identify these objects in a unique fashion and therefore avoid name clashes.</para>
+        <para>How is this accomplished? OIDs are assigned hierarchically: The owner of an OID is allowed to create new
+          IDs by simply appending numbers. S/he is also allowed to delegate ownership of newly created OIDs to someone
+          else. This way every person or organization is able to allocate an arbitrary number of new OIDs after
+          obtaining one from "higher command", and they are still unique world-wide.</para>
+      </section>
+      <section
+        id="OIDs in the example">
+        <title>OIDs in the example</title>
+        <para>OIDs starting with 1.3.6.1.4.1 represent IANA-registered private enterprises, Apache Software Foundation
+          for instance owns the OID 1.3.6.1.4.1.18060. The 1.3.6.1.4.1.18060.0 has been assigned to the Apache Directory
+          project by the ASF, and we have decided to use the branch "1.3.6.1.4.1.18060.0.4.3" for schema elements used
+          as examples in the documentation.</para>
+      </section>
+      <section
+        id="OIDs for your own custom schema elements">
+        <title>OIDs for your own custom schema elements</title>
+        <para>If you just want to play around with the schema subsystem, want to explore the capabilities, or learn
+          about LDAP in general, you will probably not mind about unique OIDs. This is comparable to using self-signed
+          certificates for SSL experiments. But it is nevertheless necessary that you use OIDs which are not used in the
+          schema yet (otherwise addition will fail).</para>
+        <para>But if you plan to use your schema elements in a production environment (an object class for instance
+          which describes employees with company specific attributes), or to ship your schema elements with a product
+          (e.g. a CRM or portal solution), you should definitely use unique OIDs. In order to do this you have to obtain
+          OIDs from a branch assigned to your company or organization (your network administrators will be helpful here,
+          do not invent OIDs without asking or obtaining a branch from someone who owns the prefix OID). If your company
+          or organization does not own on OID, there are several option to obtain one, one is the IANA (Internet
+          Assigned Numbers Authority). It is also possible to get an OID branch as an individual.</para>
+        <tip>
+          <title>Obtaining a PEN</title>
+          <para>
+            You can ask for your own PEN (Private Enterprise Number) here :
+            <link
+              xlink:href="http://pen.iana.org/pen/PenApplication.page">http://pen.iana.org/pen/PenApplication.page</link>
+            It takes a few weeks to have a private OID assigned to you, so be patient, or do it early !
+          </para>
+        </tip>
+      </section>
+    </section>
+    <section
+      id="A simple example">
+      <title>A simple example</title>
+      <para>The goal is to store ship entries in our directory, backing the "Seven Seas" example used throughout the
+        Basic User's Guide. There are no schema elements shipped with ApacheDS covering our naval requirements. So we
+        add some.</para>
+      <para>
+        Here is a sample entry for a ship in LDIF:
+        <programlisting><![CDATA[
+dn: cn=HMS Victory,ou=ships,o=sevenSeas
+objectClass: top
+objectClass: ship
+cn: HMS Victory
+numberOfGuns: 104
+description: a ship of the line of the Royal Navy
+description: built between 1759 and 1765
+      ]]></programlisting>
+      </para>
+      <para>
+        A ship entry is comprised of a mandatory value for common name (
+        <emphasis>cn</emphasis>
+        ) of the ship, description values and the
+        number of guns (
+        <emphasis>numberOfGuns</emphasis>
+        ). Thus a new object class ship and a new attribute type
+        <emphasis>numberOfGuns</emphasis>
+        have to be
+        added to the schema. There are different ways to accomplish the task. In any case, we have to add the
+        attribute
+        type first, because the object class refers to it.
+      </para>
+      <section
+        id="attribute type numberOfGuns">
+        <title>attribute type numberOfGuns</title>
+        <para>
+          Here is the definition of our custom attribute type numberOfGuns formatted according to RFC 4512.
+          <programlisting><![CDATA[
+( 1.3.6.1.4.1.18060.0.4.3.2.1 
+ NAME 'numberOfGuns'  DESC 'Number of guns of a ship'
+ EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+ SINGLE-VALUE 
+)
+      ]]></programlisting>
+        </para>
+      </section>
+      <section
+        id="object class ship">
+        <title>object class ship</title>
+        <para>
+          Custom object class
+          <emphasis>ship</emphasis>
+          is defined as follows
+          <programlisting><![CDATA[
+( 1.3.6.1.4.1.18060.0.4.3.3.1 
+ NAME 'ship' DESC 'An entry which represents a ship' 
+ SUP top STRUCTURAL 
+ MUST cn MAY ( numberOfGuns $ description ) 
+)
+      ]]></programlisting>
+        </para>
+      </section>
+    </section>
+    <section
+      id="Using Apache Directory Studio Schema Editor to load the new schema elements">
+      <title>Using Apache Directory Studio Schema Editor to load the new schema elements</title>
+      <para>A very convenient way to add your own schema elements to Apache Directory Server is to use the Schema Editor
+        of Apache Directory Studio. It is even possible to define/design them within the UI, but we opt here use a
+        prepared file in OpenLDAP format and import it using Studio. This is a good choice if you have the schema to add
+        already described that way.</para>
+      <para>
+        Our file
+        <link
+          xlink:href="data/sevenSeas.schema">sevenSeas.schema</link>
+        looks like this:
+      </para>
+      <programlisting><![CDATA[
+attributetype ( 1.3.6.1.4.1.18060.0.4.3.2.1 
+        NAME 'numberOfGuns' 
+        DESC 'Number of guns of a ship'
+        EQUALITY integerMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+        SINGLE-VALUE 
+ )
+objectclass ( 1.3.6.1.4.1.18060.0.4.3.3.1 
+        NAME 'ship'
+        DESC 'An entry which represents a ship' 
+        SUP top 
+        STRUCTURAL 
+        MUST cn 
+        MAY ( numberOfGuns $ description ) 
+ )
+        ]]></programlisting>
+      <para>
+        In Eclipse with the Apache Directory Studio plugins installed (or alternatively the standalone RCP application
+        of Apache Directory Studio, if you prefer this), open the
+        <emphasis>Schemas</emphasis>
+        view.
+      </para>
+      <figure
+        id="Schemas view figure">
+        <title>Schemas view</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/eclipse_showview_schemas.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>
+        When it is shown, press the
+        <emphasis>Open a schema file</emphasis>
+        button in the toolbar of it. In the file dialog, open the
+        <emphasis>sevenSeas.schema</emphasis>
+        . It is loaded and added to the
+        <emphasis>schemas</emphasis>
+        within the view.
+      </para>
+      <figure
+        id="Schemas view with loaded schemas figure">
+        <title>Schemas view with loaded schemas</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/schemas_view_with_loaded.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>
+        Select
+        <emphasis>Export For ApacheDS ...</emphasis>
+        in the context menu of the
+        <emphasis>sevenSeas</emphasis>
+        elements. The schema will be stored in
+        an LDIF file which can directly be imported into ApacheDS (we choose the
+        file name
+        <link
+          xlink:href="data/sevenSeas.ldif">sevenSeas.ldif</link>
+        ).
+      </para>
+      <para>
+        Use Apache Directory Studio to open a connection to your ApacheDS server, bind as administrator, and select
+        <emphasis>Import | LDIF Import ...</emphasis>
+        in the context menu of the DIT. Choose the LDIF file previously stored, and import the
+        file. Alternatively, you
+        can use command line tools like
+        <emphasis>ldapmodify</emphasis>
+        to load the file. If no errors are
+        displayed, you are done.
+      </para>
+      <para>There are several options to check whether the additions has be successful. One is to use the browse
+        techniques described above. You can also use specific search commands like this one:</para>
+      <screen><![CDATA[
+$ ldapsearch -h zanzibar -p 10389 -D "uid=admin,ou=system" -w ****** \\
+    -b "ou=schema" -s sub "(m-name=numberOfGuns)"
+version: 1
+dn: m-oid=1.3.6.1.4.1.18060.0.4.3.2.1,ou=attributeTypes,cn=other,ou=schema
+m-usage: USER_APPLICATIONS
+m-equality: integerOrderingMatch
+objectClass: metaAttributeType
+objectClass: metaTop
+objectClass: top
+m-name: numberOfGuns
+m-oid: 1.3.6.1.4.1.18060.0.4.3.2.1
+m-singleValue: TRUE
+m-description: Number of guns of a ship
+m-collective: FALSE
+m-obsolete: FALSE
+m-noUserModification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
+        ]]></screen>
+      <para>Of course it visible possible within the Apache Directory Studio UI as well. You will likely have to refresh
+        the schema to see the new elements in the schema browser</para>
+      <figure
+        id="Schema browser ship figure">
+        <title>Schema browser ship</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/schema_browser_ship.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>Now you are done: The schema elements are ready to use. Feel free to add your fleet!</para>
+      <figure
+        id="Entry editor with ship figure">
+        <title>Entry editor with ship</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata
+              fileref="images/entry_editor_with_ship.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </section>
+    <section
+      id="Using LDIF to load schema elements in RFC 4512 format">
+      <title>Using LDIF to load schema elements in RFC 4512 format</title>
+      <para>You could write an LDIF with your schema elements in RFC 4512 format and import the LDIF using command line
+        or Apache Directory Studio. The LDIF for our example looks like this:</para>
+      <programlisting><![CDATA[
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( 1.3.6.1.4.1.18060.0.4.3.2.1
+        NAME 'numberOfGuns'
+        DESC 'Number of guns of a ship'
+        EQUALITY integerMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+        SINGLE-VALUE
+ )
+-
+add: objectClasses
+objectClasses: ( 1.3.6.1.4.1.18060.0.4.3.3.1
+        NAME 'ship'
+        DESC 'An entry which represents a ship'
+        SUP top
+        STRUCTURAL
+        MUST cn
+        MAY ( numberOfGuns $ description )
+ )
+-
+      ]]></programlisting>
+    </section>
+    <section
+      id="Using JNDI to add the schema elements programmatically">
+      <title>Using JNDI to add the schema elements programmatically</title>
+      <para>You may want to add schema elements programmatically (for instance in a unit test) via a Java program acting
+        as a client. One option here is to use JNDI and its LDAP provider. The advantage of this approach is that it is
+        server independent; it works on LDAP servers other than ApacheDS as well as long as the server supports dynamic
+        updates and the bind user is allowed to perform these operations (normally only admistrators are allowed to do
+        this). </para>
+      <section
+        id="Some simple Java programs">
+        <title>Some simple Java programs</title>
+        <para>
+          In the following you find source code examples on how to add the two elements. The proceeding is described
+          in
+          more detail in the
+          <link
+            xlink:href="http://java.sun.com/products/jndi/tutorial/">JNDI Tutorial</link>
+          (Chapter "Tips for LDAP Users // Schema "). Both use connection data
+          provided by
+          <emphasis>jndi.properties</emphasis>
+          of the following form
+        </para>
+        <programlisting><![CDATA[
+java.naming.factory.initial=com.sun.jndi.ldap.LdapCtxFactory
+java.naming.provider.url=ldap://zanzibar:10389/
+java.naming.security.principal=uid=admin,ou=system
+java.naming.security.credentials=******
+java.naming.security.authentication=simple
+        ]]></programlisting>
+        <para>
+          This simple program (file
+          <link
+            xlink:href="data/CreateAttributeType.java">CreateAttributeType.java</link>
+          ) creates the attribute type
+          <emphasis>numberOfGuns</emphasis>
+        </para>
+        <programlisting><![CDATA[
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+public class CreateAttributeType {
+
+    public static void main(String[] args) throws NamingException {
+
+        DirContext ctx = new InitialDirContext();
+        DirContext schema = ctx.getSchema("");
+
+        Attributes attrs = new BasicAttributes(true);
+        attrs.put("NUMERICOID", "1.3.6.1.4.1.18060.0.4.3.2.1");
+        attrs.put("NAME", "numberOfGuns");
+        attrs.put("DESC", "Number of guns of a ship");
+        attrs.put("EQUALITY", "integerOrderingMatch");
+        attrs.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.27");
+        attrs.put("SINGLE-VALUE", "true");
+
+        schema.createSubcontext("AttributeDefinition/numberOfGuns", attrs);
+    }
+}
+        ]]></programlisting>
+        <para>
+          and this one (file
+          <link
+            xlink:href="data/CreateObjectClass.java">CreateObjectClass.java</link>
+          ) the object class
+          <emphasis>ship</emphasis>
+        </para>
+        <programlisting><![CDATA[
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+public class CreateObjectClass {
+
+    public static void main(String[] args) throws NamingException {
+
+        DirContext ctx = new InitialDirContext();
+        DirContext schema = ctx.getSchema("");
+
+        Attributes attrs = new BasicAttributes(true);
+        attrs.put("NUMERICOID", "1.3.6.1.4.1.18060.0.4.3.3.1");
+        attrs.put("NAME", "ship");
+        attrs.put("DESC", "An entry which represents a ship");
+        attrs.put("SUP", "top");
+        attrs.put("STRUCTURAL", "true");
+
+        Attribute must = new BasicAttribute("MUST");
+        must.add("cn");
+        attrs.put(must);
+
+        Attribute may = new BasicAttribute("MAY");
+        may.add("numberOfGuns");
+        may.add("description");
+        attrs.put(may);
+
+        schema.createSubcontext("ClassDefinition/ship", attrs);
+    }
+}
+        ]]></programlisting>
+        <para>After successfully running the programs against the LDAP server defined in the connection data. The schema
+          elements can also be found within a schema browser, but you may have to refresh the schema here as well. They
+          are also ready to use</para>
+        <para>
+          A final note for the JNDI approach: With the code shown above, the elements will be created by the
+          ApacheDS
+          schema subsystem within the
+          <emphasis>other</emphasis>
+          schema (in contrast to the
+          <emphasis>sevenSeas</emphasis>
+          schema ). You can also create
+          them programmatically in a specific schema with the help of the
+          <emphasis>X-SCHEMA</emphasis>
+          attribute:
+        </para>
+        <programlisting><![CDATA[
+...
+attrs.put("X-SCHEMA", "sevenSeas");
+...
+        ]]></programlisting>
+        <para>but in this case you have to create the skeleton entries for the sevenSeas schema before (loading an LDIF
+          file like the one generated by Apache Directory Studio as depicted above). Otherwise you will get an
+          NamingException ("LDAP: error code 54 - failed to modify entry cn=schema ...").</para>
+      </section>
+    </section>
+    <section
+      id="Using JNDI to add schema elements in RFC 4512 format programmatically">
+      <title>Using JNDI to add schema elements in RFC 4512 format programmatically</title>
+      <para>It is also possible to add schema elements in RFC 4512 format using JNDI:</para>
+      <programlisting><![CDATA[
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+public class CreateSevenSeasSchema
+{
+
+    public static void main(String[] args) throws NamingException
+    {
+        DirContext ctx = new InitialDirContext();
+
+        Attributes atAttrs = new BasicAttributes(true);
+        atAttrs.put("attributeTypes", 
+          "( 1.3.6.1.4.1.18060.0.4.3.2.1 NAME 'numberOfGuns' DESC 'Number of guns of a ship' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )");
+        ctx.modifyAttributes("cn=schema", DirContext.ADD_ATTRIBUTE, atAttrs);
+
+        Attributes ocAttrs = new BasicAttributes(true);
+        ocAttrs.put("objectClasses", 
+          "( 1.3.6.1.4.1.18060.0.4.3.3.1 NAME 'ship' DESC 'An entry which represents a ship' SUP top STRUCTURAL MUST cn MAY ( numberOfGuns $ description ) )");
+        ctx.modifyAttributes("cn=schema", DirContext.ADD_ATTRIBUTE, ocAttrs);
+    }
+
+}      ]]></programlisting>
+    </section>
+    <section
+      id="Resources schema element">
+      <title>Resources</title>
+      <itemizedlist>
+        <listitem>
+          <para>
+            Internet Assigned Numbers Authority (IANA)<?linebreak?>
+            <link
+              xlink:href="http://www.iana.org">http://www.iana.org</link>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://directory.apache.org/ldapstudio/">Apache Directory Studio</link>
+            , a complete LDAP tooling platform
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <link
+              xlink:href="http://www.ietf.org/rfc/rfc4512.txt">RFC 4512</link>
+            Lightweight Directory Access Protocol (LDAP): Directory Information Models, Section 4: Directory Schema
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            The
+            <link
+              xlink:href="http://java.sun.com/products/jndi/tutorial/">JNDI Tutorial</link>
+            at Sun Microsystems
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+  <section
+    id="Collective Attributes">
+    <title>Collective Attributes</title>
+    <warning>
+      <para>This page needs to be overworked</para>
+    </warning>
+    <section
+      id="Introduction Collective Attributes">
+      <title>Introduction</title>
+      <para>
+        Collective attributes are attributes whose values are shared across a collection of entries. It's very common to
+        encounter situations where a bunch of entries have the same value for an attribute. Collective attributes for
+        LDAP are defined in
+        <link
+          xlink:href="http://www.faqs.org/rfcs/rfc3671.html">RFC 3671</link>
+        . ApacheDS implements this RFC.
+      </para>
+      <section
+        id="Use Case">
+        <title>Use Case</title>
+        <para>For example one might organize everyone in an engineering department under an ou, 'ou=engineering'. If the
+          engineering team is located in the same area and building then several attributes in each user entry within
+          engineering will have the same value. An example of such an attribute would be the locale. If engineering is
+          located in Sunnyvale CA then all locale attributes of entries under 'ou=engineering' would be set to
+          Sunnyvale.</para>
+        <para>
+          Rather than manage the value for this attribute in each entry a single collective attribute can be used in a
+          subentry. Changes to the value of this attribute would immediately be reflected to those entries selected by
+          the subtreeSpecification of subentry. For more information on specifying subtrees take at
+          <xref
+            linkend="Subentries" />
+          .
+        </para>
+      </section>
+    </section>
+    <section
+      id="Setting up a Collective Attribute Administration Area (AA)">
+      <title>Setting up a Collective Attribute Administration Area (AA)</title>
+      <para>
+        To manage collective attributes for a collection of entries you must add collective subentries to the
+        Administrative Point (AP) of the collective AA. For more information on AAs see
+        <xref
+          linkend="Subentries" />
+        . These collective
+        subentries must have the objectClass subentry as well as collectiveAttributeSubentry. Also the
+        AP, of the AA,
+        must have an administrativeRole value of collectiveAttributeSpecificArea (2.5.23.5) or
+        collectiveAttributeInnerArea (2.5.23.6).
+      </para>
+      <section
+        id="Example AA">
+        <title>Example</title>
+        <para>For the use case above we can presume a partition at the namingContext 'dc=example,dc=com' with an
+          'ou=engineering' entry below containing users from the engineering team in Sunnyvale. Let's presume no AA has
+          yet been defined so we have to create one. We'll set the partition root 'dc=example,dc=com' as the AP of an AA
+          that spans the entire subtree. For this simple example the AA will be autonomous for the collective aspect.
+          Setting this up is just a matter of modifying the 'dc=example,dc=com' entry so it contains the operational
+          attribute administrativeRole with the value collectiveAttributeSpecificArea. The code below sets up this AAA
+          for collective attribute administration.</para>
+        <programlisting><![CDATA[
+// Get a DirContext on the dc=example,dc=com entry
+  Hashtable env = new Hashtable();
+  env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+  env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+  env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+  env.put( "java.naming.security.credentials", "secret" );
+  env.put( "java.naming.security.authentication", "simple" );
+  ctx = new InitialDirContext( env );
+
+  // Modify the entry to make it an AAA for collective attribute administration
+  Attributes mods = new BasicAttributes( "administrativeRole", "collectiveAttributeSpecificArea", true );
+  ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, mods );
+        ]]></programlisting>
+        <para>Now 'dc=example,dc=com' is the AP for a collective attribute AAA that spans the entire subtree under and
+          including it down to every leaf entry. All that remains is the addition of the subentry with the collective
+          attributes we want included in the entries of all engineering users. Here's what the LDIF would look like for
+          this subentry given that its commonName is 'engineeringLocale'.</para>
+        <programlisting><![CDATA[
+dn: cn=engineeringLocale,dc=example,dc=com
+objectClass: top
+objectClass: subentry
+objectClass: collectiveAttributeSubentry
+cn: engineeringLocale
+c-l: Sunnyvale
+subtreeSpecification: {base "ou=engineering", minimum 4}
+        ]]></programlisting>
+        <para>The following picture present the structure of our tree :</para>
+        <figure
+          id="SubEntry figure">
+          <title>SubEntry</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata
+                fileref="images/SubEntry.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>
+          A couple points regarding this subentry's LDIF:
+          <orderedlist>
+            <listitem>
+              <para>It subordinates to the AP ('dc=example,dc=com')</para>
+            </listitem>
+            <listitem>
+              <para>It contains the objectClasses: subentry and collectiveAttributeSubentry</para>
+            </listitem>
+            <listitem>
+              <para>It contains the collective version of locale (l): c-l</para>
+            </listitem>
+            <listitem>
+              <para>Its subtreeSpecification excludes entries whose number of DN name components is less than 4</para>
+            </listitem>
+          </orderedlist>
+        </para>
+        <para>Note that the minimum value of 4 is used in the subtreeSpecification to make sure that the entry
+          'ou=engineering,dc=example,dc=com' does not have c-l: Sunnyvale added to it. It's got 3 components to the DN
+          so minimum 4 chops it out of the collection.</para>
+      </section>
+    </section>
+    <section
+      id="Collective Attribute Types">
+      <title>Collective Attribute Types</title>
+      <para>As one can see from the example above, special collective attributes are used for regular attributes: c-l
+        for l. These attributes are derived from the original attribute and are marked as COLLECTIVE. RFC 3671 defines a
+        bunch of these which are listed below. If you don't find what you're looking for just add it to your own schema
+        using this pattern.</para>
+      <para>We have included this list from RFC 3671 into the collective.schema which comes standard with ApacheDS.
+      </para>
+      <literallayout><![CDATA[
+3.1. Collective Locality Name
+
+   The c-l attribute type specifies a locality name for a collection of
+   entries.
+
+      ( 2.5.4.7.1 NAME 'c-l'
+        SUP l COLLECTIVE )
+
+3.2. Collective State or Province Name
+
+   The c-st attribute type specifies a state or province name for a
+   collection of entries.
+
+      ( 2.5.4.8.1 NAME 'c-st'
+        SUP st COLLECTIVE )
+
+3.3. Collective Street Address
+
+   The c-street attribute type specifies a street address for a
+   collection of entries.
+
+      ( 2.5.4.9.1 NAME 'c-street'
+        SUP street COLLECTIVE )
+
+3.4. Collective Organization Name
+
+   The c-o attribute type specifies an organization name for a
+   collection of entries.
+
+      ( 2.5.4.10.1 NAME 'c-o'
+        SUP o COLLECTIVE )
+
+3.5. Collective Organizational Unit Name
+
+   The c-ou attribute type specifies an organizational unit name for a
+   collection of entries.
+
+      ( 2.5.4.11.1 NAME 'c-ou'
+        SUP ou COLLECTIVE )
+
+3.6. Collective Postal Address
+
+   The c-PostalAddress attribute type specifies a postal address for a
+   collection of entries.
+
+      ( 2.5.4.16.1 NAME 'c-PostalAddress'
+        SUP postalAddress COLLECTIVE )
+
+3.7. Collective Postal Code
+
+   The c-PostalCode attribute type specifies a postal code for a
+   collection of entries.
+
+      ( 2.5.4.17.1 NAME 'c-PostalCode'
+        SUP postalCode COLLECTIVE )
+
+3.8. Collective Post Office Box
+
+   The c-PostOfficeBox attribute type specifies a post office box for a
+   collection of entries.
+
+      ( 2.5.4.18.1 NAME 'c-PostOfficeBox'
+        SUP postOfficeBox COLLECTIVE )
+
+3.9. Collective Physical Delivery Office Name
+
+   The c-PhysicalDeliveryOfficeName attribute type specifies a physical
+   delivery office name for a collection of entries.
+
+      ( 2.5.4.19.1 NAME 'c-PhysicalDeliveryOfficeName'
+        SUP physicalDeliveryOfficeName COLLECTIVE )
+
+3.10. Collective Telephone Number
+
+   The c-TelephoneNumber attribute type specifies a telephone number for
+   a collection of entries.
+
+      ( 2.5.4.20.1 NAME 'c-TelephoneNumber'
+        SUP telephoneNumber COLLECTIVE )
+
+3.11. Collective Telex Number
+
+   The c-TelexNumber attribute type specifies a telex number for a
+   collection of entries.
+
+      ( 2.5.4.21.1 NAME 'c-TelexNumber'
+        SUP telexNumber COLLECTIVE )
+
+3.13. Collective Facsimile Telephone Number
+
+   The c-FacsimileTelephoneNumber attribute type specifies a facsimile
+   telephone number for a collection of entries.
+
+      ( 2.5.4.23.1 NAME 'c-FacsimileTelephoneNumber'
+
+   SUP facsimileTelephoneNumber COLLECTIVE )
+
+3.14. Collective International ISDN Number
+
+   The c-InternationalISDNNumber attribute type specifies an
+   international ISDN number for a collection of entries.
+
+      ( 2.5.4.25.1 NAME 'c-InternationalISDNNumber'
+        SUP internationalISDNNumber COLLECTIVE )
+    ]]></literallayout>
+    </section>
+  </section>
+</chapter>

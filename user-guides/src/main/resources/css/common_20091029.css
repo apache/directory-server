@@ -1,0 +1,529 @@
+html 
+{
+	overflow-y: scroll;
+}
+
+body 
+{
+	padding: 0;
+	margin: 0;
+	font-family: 'Lucida Sans', 'Helvetica', 'Sans-serif', 'sans';
+	font-size: 77%;
+	color: #777777;
+	background-color: white;
+	background-image: url('images/body-bg.png');
+	background-repeat: repeat-x;
+	background-position: bottom;
+	background-attachment: fixed;
+	height: 99%;
+}
+
+h1, h2, h3, h4, h5, h6 
+{
+	font-weight: bold;
+	margin: 0.67em 0px 0.67em 0px;
+}
+
+h1 
+{
+	font-size: 197%;
+
+/* 26px equivalent */
+}
+
+h2 
+{
+	font-size: 153.9%;
+
+/* 20px equivalent */
+}
+
+h3 
+{
+	font-size: 131%;
+
+/* 17px equivalent */
+}
+
+h4 
+{
+	font-size: 93%;
+
+/* 12px equivalent */
+}
+
+h5 
+{
+	font-size: 85%;
+
+/* 11px equivalent */
+}
+
+h6 
+{
+	font-size: 77%;
+
+/* 10px equivalent */
+}
+
+body 
+{
+	position: absolute;
+	width: 1005px;
+	margin-left: -502px;
+	left: 50%;
+}
+
+body>div.navheader>table
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+  margin:0;
+  margin-top:175;
+  padding:140px 20px 2px;
+  text-align:right;
+}
+
+body>div.navfooter>table
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+  margin:0;
+  margin-top:0;
+  padding:140px 20px 2px;
+  text-align:right;
+}
+
+body>div>table th
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+}
+
+body>div>table td
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+}
+
+body>table.copyrightfooter
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+}
+
+body>table.copyrightfooter td
+{
+  border-width: 0px;
+  background-color: transparent;
+  font-size:12px;
+}
+
+.navheader 
+{
+	width: 1005px;
+	height: 250px;
+	background-repeat: no-repeat;
+	vertical-align:bottom;
+}
+
+#subProjectsNavBar 
+{
+	color: white;
+	text-align: right;
+	margin: 0px;
+	color: #ffffff;
+	font-size: 12px;
+	padding: 140px 20px 2px;
+}
+
+#subProjectsNavBar a, #subProjectsNavBar a:link, #subProjectsNavBar a:visited 
+{
+	color: #ffffff;
+	text-decoration: none;
+}
+
+#subProjectsNavBar a:hover 
+{
+	color: #ffffff;
+	border-bottom: solid #ffffff 1px;
+}
+
+#subProjectsNavBar a strong 
+{
+	font-size: 14px;
+	font-weight: bold;
+	color: #ffffff;
+	border-bottom: solid #ffffff 1px;
+}
+
+#content 
+{
+	background: url('images/content-backgound_20091029.png') repeat-y;
+}
+
+#endContent 
+{
+	clear: both;
+}
+
+#leftColumn 
+{
+	float: left;
+	width: 193px;
+	padding-top: 10px;
+	margin-left: 10px;
+	line-height: 1.8em;
+}
+
+#rightColumn 
+{
+	float: left;
+	margin-left: 15px;
+	width: 762px;
+	text-align: left;
+	line-height: 1.5em;
+}
+
+#editZone 
+{
+
+
+/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
+  position: absolute;
+	right: 0;
+	top: 0;
+	height: 60px;
+	width: 60px;
+	z-index: 1000;
+}
+
+body > div#editZone 
+{
+	
+
+/* used by Opera 5+, Netscape6+/Mozilla, Konqueror, Safari, OmniWeb 4.5+, iCab, ICEbrowser */
+  position: fixed;
+}
+
+a 
+{
+	color: #777777;
+	text-decoration: underline;
+}
+
+a:hover 
+{
+	color: #000000;
+}
+
+a.none 
+{
+	background: transparent;
+	padding-right: 0px;
+}
+
+#navigation 
+{
+	padding-left: 12px;
+	font-weight: bold;
+}
+
+#navigation ul 
+{
+	margin: 0px;
+	padding: 0px;
+	margin-bottom: 10px;
+}
+
+#navigation li 
+{
+	list-style-type: none;
+	margin-left: 15px;
+	padding-left: 0px;
+}
+
+#navigation li ul 
+{
+	margin-left: 1.5em;
+}
+
+#navigation a 
+{
+	text-decoration: none;
+	color: #777777;
+}
+
+#navigation a:hover 
+{
+	color: #000000;
+	font-weight: bolder;
+}
+
+#navigation div 
+{
+	line-height: 1.5em;
+	margin-bottom: 2em;
+}
+
+#navigation h5 
+{
+	font-size: 1em;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+#navigation strong 
+{
+	color: #000000;
+}
+
+.blogSurtitle 
+{
+	padding-bottom: 10px;
+}
+
+.blogSurtitle img 
+{
+	display: none;
+}
+
+.endsection, .pagesubheading 
+{
+	display: none;
+}
+
+.blogpost .wiki-content 
+{
+	padding-left: 25px;
+}
+
+.blogDate 
+{
+	text-decoration: none;
+	font-weight: bolder;
+	padding: 1px;
+	padding-left: 20px;
+}
+
+a.blogHeading 
+{
+	text-decoration: none;
+	font-weight: bolder;
+	padding-left: 20px;
+	margin: 10px;
+}
+
+#footer 
+{
+	font-size: 11px;
+	padding-left: 203px;
+	height: 40px;
+	text-align: center;
+	background: url('images/footer_20091029.png') no-repeat;
+}
+
+.nobr sup img 
+{
+	display: none;
+}
+
+.preformattedContent pre 
+{
+	padding: 5px 10px;
+	border: 1px dashed #1a6c0b;
+	background-color: #f0f0f0;
+}
+
+blockquote 
+{
+	margin: 10px;
+	padding: 0px 10px;
+	border-left: 1px solid #1a6c0b;
+}
+
+table 
+{
+	margin: 5px;
+	border-collapse: collapse;
+}
+
+/* Added as a temporary fix for CONF-4223. The table elements appear to be inheriting the border: none attribute from the sectionMacro class */
+
+table td 
+{
+	border-width: 1px;
+	border-style: solid;
+	border-color: #ccc;
+	padding: 3px 4px 3px 4px;
+}
+
+/* Added as a temporary fix for CONF-4223. The table elements appear to be inheriting the border: none attribute from the sectionMacro class */
+
+table th 
+{
+	border-width: 1px;
+	border-style: solid;
+	border-color: #ccc;
+	padding: 3px 4px 3px 4px;
+	background-color: #f0f0f0;
+	text-align: center;
+}
+
+td 
+{
+	border-width: 1px;
+	border-style: solid;
+	border-color: #ccc;
+	padding: 3px 4px 3px 4px;
+}
+
+th 
+{
+	border-width: 1px;
+	border-style: solid;
+	border-color: #ccc;
+	padding: 3px 4px 3px 4px;
+	background-color: #f0f0f0;
+	text-align: center;
+}
+
+.important 
+{
+    border: 1px solid #f0c000;
+    background-color: #ffffce;
+    margin-top: 5px;
+    margin-bottom: 5px
+}
+
+.warning 
+{
+	border: 1px solid #c00;
+	background-color: #fcc;
+	text-align: left;
+	margin-top: 5px;
+	margin-bottom: 5px
+}
+
+.note 
+{
+	border: 1px solid #3c78b5;
+	background-color: #D8E4F1;
+	text-align: left;
+	margin-top: 5px;
+	margin-bottom: 5px
+}
+
+.literallayout 
+{
+    border: 1px dashed #1a6c0b;
+    font-size: 11px;
+    font-family: Courier;
+    margin: 10px;
+    line-height: 13px;
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 3px;
+}
+
+.tip 
+{
+	border: 1px solid #090;
+	background-color: #dfd;
+	text-align: left;
+	margin-top: 5px;
+	margin-bottom: 5px
+}
+
+/*
+.code 
+{
+	border: 1px dashed #1a6c0b;
+	font-size: 11px;
+	font-family: Courier;
+	margin: 10px;
+	line-height: 13px;
+}
+*/
+
+.programlisting 
+{
+    border: 1px dashed #1a6c0b;
+    font-size: 11px;
+    font-family: Courier;
+    margin: 10px;
+    line-height: 13px;
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 3px;
+}
+
+.screen 
+{
+    border: 1px dashed #1a6c0b;
+    font-size: 11px;
+    font-family: Courier;
+    margin: 10px;
+    line-height: 13px;
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 3px;
+}
+
+.codeHeader 
+{
+	background-color: #f0f0f0;
+	border-bottom: 1px dashed #1a6c0b;
+	padding: 3px;
+	text-align: center;
+}
+
+/*
+.codeContent 
+{
+	text-align: left;
+	background-color: #f0f0f0;
+	padding: 3px;
+}
+*/
+
+.code-keyword 
+{
+	color: #000091;
+	background-color: inherit;
+}
+
+.code-object 
+{
+	color: #910091;
+	background-color: inherit;
+}
+
+.code-quote 
+{
+	color: #009100;
+	background-color: inherit;
+}
+
+.code-comment 
+{
+	color: #808080;
+	background-color: inherit;
+}
+
+.code-xml .code-keyword 
+{
+	color: inherit;
+	font-weight: bold;
+}
+
+.code-tag 
+{
+	color: #000091;
+	background-color: inherit;
+}

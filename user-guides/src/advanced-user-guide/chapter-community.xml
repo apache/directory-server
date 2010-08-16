@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file 
+  distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under 
+  the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may 
+  obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to 
+  in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+  ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
+  the License. -->
+<chapter
+  version="5.0"
+  xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:ns5="http://www.w3.org/2000/svg"
+  xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+  xmlns:ns3="http://www.w3.org/1999/xhtml"
+  xml:lang="en">
+  <title>Community</title>
+  <section
+    id="Reporting Bugs">
+    <title>Reporting Bugs</title>
+    <tip>
+    <title>ApacheDS 1.5.5</title>
+    <para>This site was updated for ApacheDS 1.5.5.</para>
+    </tip>
+    <section
+      id="Introduction">
+      <title>Introduction</title>
+      <para>So you found a bug in ApacheDS. Don't worry this is a good thing! We can fix it really fast but need your
+        help. There are different degrees to your ability to help out. Some of you have developer skills so you might be
+        able to write a test case that pin points that bug. If you can do this we will prioritize your bug report above
+        all others. Yes we will put your bug to the top most important fixes that should be fixed first. But if you
+        can't do this and your bug is serious then we're prioritize it ahead of others anyway.</para>
+      <para>This wiki page shows you how you can help us to help you!!!</para>
+    </section>
+    <section
+      id="Creating a testcase project: using the apacheds-archetype-testcase">
+      <title>Creating a testcase project: using the apacheds-archetype-testcase</title>
+      <para>We've created a simple archetype for you to rapidly create a Maven project that fires up ApacheDS in
+        embedded mode within a JUnit testcase. This test case will start up ApacheDS as a server on any available port
+        above 1024 on your machine. You can then use JNDI or the Netscape LDAP API (more APIs to come) going over the
+        wire on that port above 1024. You can also use the ApacheDS core API to access the data directly.</para>
+      <para>So you can write client code in your test case immediately. Just add your code, tar gzip the project, and
+        attach it to your JIRA issue on the ApacheDS JIRA here:</para>
+      <para>
+        <link
+          xlink:href="https://issues.apache.org/jira/browse/DIRSERVER">https://issues.apache.org/jira/browse/DIRSERVER</link>
+      </para>
+      <para>We'll prioritize your bug higher than others and probably fix it rapidly because the problem is isolated
+        thanks to your testcase submission. We will in fact strip out your testcase and add it to our suite of test
+        cases to make sure ApacheDS always passes this integration test you've provided.</para>
+    </section>
+    <section
+      id="Installing the apacheds-archetype-testcase">
+      <title>Installing the apacheds-archetype-testcase</title>
+      <para>To use the archetype you'll need to check it out and install it. Here's how you can do that for the leading
+        edge of 1.5.5:</para>
+      <screen><![CDATA[
+svn co http://svn.apache.org/repos/asf/directory/samples/trunk/apacheds-archetype-testcase
+cd apacheds-archetype-testcase
+mvn install
+    ]]></screen>
+      <para>This will install the archetype onto your local repository. Now you can invoke the archetype.</para>
+    </section>
+    <section
+      id="Invoking (running) the archetype: generating the testcase project">
+      <title>Invoking (running) the archetype: generating the testcase project</title>
+      <para>Once you checkout the archetype plugin and install it you can use it like so to generate a foo-test project:
+      </para>
+      <screen><![CDATA[
+mvn archetype:generate -DarchetypeGroupId=org.apache.directory.samples \
+                       -DarchetypeArtifactId=apacheds-archetype-testcase \
+                       -DarchetypeVersion=1.5.5-SNAPSHOT \
+                       -DgroupId=com.acme -DartifactId=foo-test -Dpackage=com.acme
+    ]]></screen>
+      <para>This will generate the default test case project with the following tree structure:</para>
+      <programlisting><![CDATA[
+~/foo-test$ tree
+.
+|-- pom.xml
+`-- src
+    |-- main
+    |   `-- java
+    |       `-- com
+    |           `-- acme
+    |               `-- Dummy.java
+    `-- test
+        |-- java
+        |   `-- com
+        |       `-- acme
+        |           |-- AdvancedTest.java
+        |           |-- AdvancedTestApacheDsFactory.java
+        |           `-- MinimalTest.java
+        `-- resources
+            |-- log4j.properties
+            |-- sevenSeas_data.ldif
+            `-- sevenSeas_schema.ldif
+
+10 directories, 8 files
+    ]]></programlisting>
+      <itemizedlist>
+        <listitem>
+          <para>Dummy.java - this is just a placeholder file to make sure that Maven works properly.</para>
+        </listitem>
+        <listitem>
+          <para>MinimalTest - a minimal ApacheDS Integration Test. It contains two test methods to demonstrate usage of
+            JNDI and the ApacheDS core API. Add your own test method here.</para>
+        </listitem>
+        <listitem>
+          <para>AdvancedTest - an advanced ApacheDS Integration Test in case you need a special configuration for your
+            test. It demonstrates how to add a new partition, how to enable LDAPS, how to enable a disabled schema, how
+            to inject a custom schema, and how to inject custom test data.</para>
+        </listitem>
+        <listitem>
+          <para>AdvancedTestApacheDsFactory - configures ApacheDS for the advanced test</para>
+        </listitem>
+        <listitem>
+          <para>pom.xml - the Maven Project Object Model (POM) for your new testcase project (can remain as is).</para>
+        </listitem>
+        <listitem>
+          <para>log4j.properties - Log4j configuration file that controls ApacheDS logging for your convenience; edit
+            this file to control logging output.</para>
+        </listitem>
+        <listitem>
+          <para>sevenSeas_data.ldif - sample custom test data used by the advanced test.</para>
+        </listitem>
+        <listitem>
+          <para>sevenSeas_schema.ldif - sample custom schema used by the advanced test.</para>
+        </listitem>
+      </itemizedlist>
+      <para>Once you do this you can cd into foo-test and just build and test it for fun to see what happens. This will
+        build, and test the sample test cases (they should pass) that comes packaged with the project you just created.
+        CD into foo-test and run the following command:</para>
+      <screen><![CDATA[
+mvn test
+    ]]></screen>
+      <para>Now you can customize the MinimalTest.java or AdvancedTest.java file to isolate your bug. Open the classes
+        with your favorite editor and goto town. However if you want to pull this project into your IDE and edit it
+        there you can use Maven's IDEA, Eclipse and Netbeans integration to create IDE project descriptors for them.
+        Then you can import this project into your IDE. Here's how:</para>
+      <section
+        id="For IDEA">
+        <title>For IDEA</title>
+        <screen><![CDATA[
+mvn idea:idea
+    ]]></screen>
+      </section>
+      <section
+        id="For Eclipse">
+        <title>For Eclipse</title>
+        <screen><![CDATA[
+mvn eclipse:eclipse
+    ]]></screen>
+      </section>
+      <section
+        id="For Netbeans">
+        <title>For Netbeans</title>
+        <para>
+          See this page:
+          <link
+            xlink:href="http://maven.apache.org/guides/mini/guide-ide-netbeans/guide-ide-netbeans.html">http://maven.apache.org/guides/mini/guide-ide-netbeans/guide-ide-netbeans.html</link>
+        </para>
+        <screen><![CDATA[
+mvn eclipse:eclipse
+    ]]></screen>
+      </section>
+    </section>
+    <section
+      id="Note about version">
+      <title>Note about version</title>
+      <para>Note that this archetype is specific for ApacheDS 1.5.5.</para>
+    </section>
+    <section
+      id="Why a Maven Archetype for Testing?">
+      <title>Why a Maven Archetype for Testing?</title>
+      <orderedlist>
+        <listitem>
+          <para>Easy and fast to start integration testing ApacheDS.</para>
+        </listitem>
+        <listitem>
+          <para>We (developers of ApacheDS) can use it ourselves.</para>
+        </listitem>
+        <listitem>
+          <para>We want users of ApacheDS to help us help them.</para>
+        </listitem>
+        <listitem>
+          <para>Users need to customize a project with perhaps additional dependencies.</para>
+        </listitem>
+        <listitem>
+          <para>Users can add many test cases to the project.</para>
+        </listitem>
+        <listitem>
+          <para>Tests isolating custom bugs can be incorporated into our community test suite for ApacheDS.</para>
+        </listitem>
+      </orderedlist>
+    </section>
+  </section>
+  <section
+    id="Building trunks">
+    <title>Building trunks</title>
+    <para>
+      This page give some information about the layout of
+      <emphasis
+        role="bold">Apache DS 1.5</emphasis>
+      trunks, and try to explain how it is built.
+    </para>
+    <itemizedlist>
+      <listitem>
+        <xref
+          linkend="Project Hierarchy" />
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Prerequisites for building" />
+        <itemizedlist
+          mark="opencircle">
+          <listitem>
+            <xref
+              linkend="Maven" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="JDK 5" />
+          </listitem>
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Getting the code" />
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Building the trunks" />
+        <itemizedlist
+          mark="opencircle">
+          <listitem>
+            <xref
+              linkend="Enabling Snapshot Repositories" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="Building the trunks 1" />
+          </listitem>
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Building the installers" />
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Starting the server without installation" />
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Integration test" />
+      </listitem>
+      <listitem>
+        <xref
+          linkend="Eclipse" />
+        <itemizedlist
+          mark="opencircle">
+          <listitem>
+            <xref
+              linkend="Building eclipse files" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="Maven settings" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="Eclipse hints" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="Eclipse plugins" />
+          </listitem>
+          <listitem>
+            <xref
+              linkend="Coding standards" />
+          </listitem>
+        </itemizedlist>
+      </listitem>
+    </itemizedlist>
+    <section
+      id="Project Hierarchy">
+      <title>Project Hierarchy</title>
+      <para>The actual project hierarchy is the following (as of 1.5.5-SNAPSHOT) :</para>
+      <!-- Here comes the hierarchy. Is this really needed? -->
+      <para>This hierarchy represent the projects being built.</para>
+    </section>
+    <section
+      id="Prerequisites for building">
+      <title>Prerequisites for building</title>
+      <para>
+        You must have installed
+        <emphasis
+          role="bold">Maven 2.0.9</emphasis>
+        and have a
+        <emphasis
+          role="bold">JDK 5</emphasis>
+        installed on your computer. A working internet connection is also mandatory.
+      </para>
+      <important>
+        <para>
+          If the build hangs or you get an out of memory exception please increase the heap space:
+          <itemizedlist>
+            <listitem>
+              <para>
+                For Linux:
+                <screen><![CDATA[
+MAVEN_OPTS="-Xmx256m" mvn clean install
+      ]]></screen>
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                For Windows:
+                <screen><![CDATA[
+SET MAVEN_OPTS="-Xmx256m"
+mvn clean install
+      ]]></screen>
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+      </important>
+      <section
+        id="Maven">
+        <title>Maven</title>
+        <para>
+          <link
+            xlink:href="http://maven.apache.org/download.html">Download</link>
+          and install Maven 2.0.9. (ATTENTION !!! Do NOT use an older version of Maven )
+        </para>
+        <para>Add a MAVEN_HOME environment variable and add MAVEN_HOME/bin to your system path:</para>
+        <para>On a Linux box you could add the following to the .bashrc file (.bashrc is a file you'll find in your home
+          directory)</para>
+        <programlisting><![CDATA[
+...
+export MAVEN_HOME=/opt/maven-2.0.9
+export PATH=$JAVA_HOME:$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
+...
+        ]]></programlisting>
+        <para>Windows users, use Control Panel -> System -> Advanced -> Environment Variables</para>
+      </section>
+      <section
+        id="JDK 5">
+        <title>JDK 5</title>
+        <info>
+          <title>Sun JDK</title>
+          <para>There may be some issues with older JDK versions and Kerberos, therefore we recommend using a version
+            &gt;=1.5.0_09</para>
+        </info>
+      </section>
+    </section>
+    <section
+      id="Getting the code">
+      <title>Getting the code</title>
+      <para>
+        To download the sources, you must have installed a
+        <emphasis
+          role="bold">Subversion</emphasis>
+        client.
+      </para>
+      <para>With readonly access :</para>
+      <screen><![CDATA[
+svn co http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies/ apacheds-trunk
+        ]]></screen>
+      <para>With read/write access (for committers only) :</para>
+      <screen><![CDATA[
+svn co https://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies/ apacheds-trunk
+        ]]></screen>
+    </section>
+    <section
+      id="Building the trunks">
+      <title>Building the trunks</title>
+      <section
+        id="Enabling Snapshot Repositories">
+        <title>Enabling Snapshot Repositories</title>
+        <important>
+          <para>The following information is only needed if one want to setup its own maven repo. There is no need to
+            define a settings.xml file for generic usage.</para>
+          <para>Before building the trunks, you must configure Maven 2 to use the snapshot repository for Apache.
+            Snapshot repositories are typically configured per user at ~/.m2/settings.xml. The following example, added
+            to your settings.xml, will add a profile for the Apache snapshot repository.</para>
+          <programlisting><![CDATA[
+<settings>
+  <profiles>
+    ...
+    <profile>
+      <id>apache</id>
+      <repositories>
+        <repository>
+          <id>apache.org</id>
+          <name>Maven Snapshots</name>
+          <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>apache.org</id>
+          <name>Maven Plugin Snapshots</name>
+          <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+    ...
+  </profiles>
+</settings>
+        ]]></programlisting>
+        </important>
+        <para>You may either specify the profile at the command-line, each time you use 'mvn', or you may configure the
+          profile to always be active.</para>
+        <para>To use a profile at the command-line:</para>
+        <screen><![CDATA[
+# mvn -Papache [options] [<goal(s)>] [<phase(s)>]
+        ]]></screen>
+        <para>To specify the 'apache' profile to always be active:</para>
+        <programlisting><![CDATA[
+<settings>
+  ...
+  <activeProfiles>
+    <activeProfile>apache</activeProfile>
+  </activeProfiles>
+  ...
+</settings>
+        ]]></programlisting>
+      </section>
+      <section
+        id="Building the trunks 1">
+        <title>
+          Building the
+          <emphasis
+            role="bold">trunks</emphasis>
+        </title>
+        <para>Now, we can compile the project.</para>
+        <para>The command is simple :</para>
+        <screen><![CDATA[
+cd apacheds-trunk
+mvn clean install
+        ]]></screen>
+        <warning>
+          <title>Issue Commands From Top</title>
+          <para>You must make sure you build the shared, installers, and daemon project modules in addition to the
+            apacheds module to prevent problems with stale Maven SNAPSHOT jars in the snapshot repository from causing
+            compilation errors. This can be guaranteed by performing all Maven operations above in the top directory
+            that you checked out: the apacheds-trunk directory.</para>
+        </warning>
+        <para>
+          A lot of plugins will be downloaded. If you are curious, you can then look at .m2/repository to see what has
+          been downloaded on this step.
+          Building should finish with these lines:
+          <screen><![CDATA[
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 8 minutes 30 seconds
+[INFO] Finished at: Mon Oct 30 23:32:41 CET 2006
+[INFO] Final Memory: 18M/32M
+[INFO] ------------------------------------------------------------------------
+        ]]></screen>
+        </para>
+        <info>
+          <para>
+            If you want to do really safe build, run the following commands in trunks:
+            <screen><![CDATA[
+resources/superclean.sh
+mvn install -Dintegration
+        ]]></screen>
+          </para>
+        </info>
+      </section>
+    </section>
+    <section
+      id="Building the installers">
+      <title>Building the installers</title>
+      <para>Building the installers is a two phase process :</para>
+      <screen><![CDATA[
+cd apacheds-trunk
+mvn install
+cd installers/apacheds
+mvn -Pserver-installer install
+      ]]></screen>
+      <para>
+        That's it, the jars will be find in target/images/apacheds-1.5.?SNAPSHOT
+        &lt;XXXXXX&gt;-setup.jar where
+        XXXXXX is your local system and ? is the feature release minor number for the 1.5
+        branch.
+        </para>
+    </section>
+    <section
+      id="Starting the server without installation">
+      <title>Starting the server without installation</title>
+      <para>The directory apacheds-trunk/installers/apacheds-noarch contains a script for Linux (apacheds.sh) and one
+        for Windows (apacheds.bat) which can be used for starting the server without the need to install it first (as
+        non-root-user on Linux and non-Windows-service on Windows).</para>
+      <para>
+        Linux:
+        <screen><![CDATA[
+cd apacheds-trunk/installers/apacheds-noarch
+./apacheds.sh
+      ]]></screen>
+      </para>
+    </section>
+    <section
+      id="Integration test">
+      <title>Integration test</title>
+      <para>
+        To run integration tests, just use the following command :
+        <screen><![CDATA[
+cd apacheds-trunk
+mvn -Dintegration test
+      ]]></screen>
+      </para>
+    </section>
+    <section
+      id="Eclipse">
+      <title>Eclipse</title>
+      <section
+        id="Building eclipse files">
+        <title>Building eclipse files</title>
+        <para>
+          To build the .project and .classpath files for eclipse, type the following commands :
+          <screen><![CDATA[
+cd apacheds-trunk
+mvn clean install
+mvn eclipse:eclipse
+cd apacheds/bootstrap-partition
+mvn clean install
+      ]]></screen>
+        </para>
+        <para>(The last command is necessary because eclipse:eclipse purge the target directory, and we need some
+          generated files which has been removed. This is why we do another *mvn clean install* in the
+          boostrap-partition module
+          then import all the existing project which has been created.</para>
+      </section>
+      <section
+        id="Maven settings">
+        <title>Maven settings</title>
+        <para>Don't forget to declare a classpath variable named M2_REPO, pointing to ~/.m2/repository, otherwise many
+          links to existing jars will be broken.</para>
+        <para>
+          You can declare new variables in Eclipse in
+          <emphasis> -&gt; Preferences...</emphasis>
+          and selecting
+          <emphasis> -&gt; Build Path -> Classpath Variables</emphasis>
+        </para>
+      </section>
+      <section
+        id="Eclipse hints">
+        <title>Eclipse hints</title>
+        <para>
+          Add an
+          <emphasis>eclipse-apacheDS.sh</emphasis>
+          file in your eclipse root directory, to allow eclipse to get more memory (e.g.
+          750MB)
+        </para>
+        <para>You may also declare a specific workspace when launching eclipse. I have created a workspace-apacheDS
+          directory in my HOME directory, where all the ApacheDS project is built when I use Eclipse.</para>
+        <programlisting><![CDATA[
+<eclipse_root>/eclipse -data $HOME/workspace-apacheDS -vm java -vmargs -Xmx750M
+          ]]></programlisting>
+        <para>Launch eclipse :</para>
+        <screen><![CDATA[
+<eclipse_root>/eclipse-apacheDS.sh
+          ]]></screen>
+      </section>
+      <section
+        id="Eclipse plugins">
+        <title>Eclipse plugins</title>
+      </section>
+      <section
+        id="Coding standards">
+        <title>Coding standards</title>
+        <para>
+          The coding standards including an eclipse code formatting profile is available
+          <link
+            xlink:href="http://directory.apache.org/apacheds/DIRxDEV/coding-standards.html">here</link>
+          .
+        </para>
+      </section>
+    </section>
+  </section>
+  <section
+    id="Contributing">
+    <title>Contributing</title>
+  </section>
+
+</chapter>

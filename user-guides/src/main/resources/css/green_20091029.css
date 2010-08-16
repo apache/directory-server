@@ -1,0 +1,21 @@
+h1, h2, h3, h4, h5, h6 
+{
+	color: #196e0b;
+}
+
+.navheader 
+{
+	background-image: url('images/header-green_20091029.png');
+}
+
+.blogDate 
+{
+	color: #1a6c0b;
+	background: url('images/news-green.png') no-repeat;
+}
+
+a.blogHeading 
+{
+	color: #1a6c0b;
+	background: url('images/post-green.png') no-repeat;
+}

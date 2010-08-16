@@ -1,0 +1,6 @@
+# ApacheDS 1.0 Basic User's Guide
+# Section "Basic authorization" 
+# File captain_hook_delete.ldif
+dn: cn=James Hook,ou=people,o=sevenSeas
+changetype: delete
+

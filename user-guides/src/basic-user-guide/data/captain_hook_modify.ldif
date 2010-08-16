@@ -1,0 +1,8 @@
+# ApacheDS 1.0 Basic User's Guide
+# Section "Basic authorization" 
+# File captain_hook_modify.ldif
+dn: cn=James Hook,ou=people,o=sevenSeas
+changetype: modify
+add: description
+description: Wears an iron hook in place of his right hand
+-
