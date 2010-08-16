@@ -133,6 +133,7 @@
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
+    <module>user-guides</module>
   </modules>
 
   <build>
