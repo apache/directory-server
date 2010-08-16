@@ -80,11 +80,4 @@ under the License.
     </table>
   </xsl:template>
 
-  <!--
-    TODO
-    - template match="warning", add image
-    - template match="caution", add image
-  
-   -->
-
 </xsl:stylesheet>
