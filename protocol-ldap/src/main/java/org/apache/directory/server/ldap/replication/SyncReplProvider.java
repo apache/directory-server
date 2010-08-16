@@ -77,7 +77,7 @@ import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalIntermediateResponse;
+import org.apache.directory.shared.ldap.message.internal.IntermediateResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.Response;
@@ -324,7 +324,7 @@ public class SyncReplProvider implements ReplicationProvider
 
         if ( refreshNPersist )
         {
-            InternalIntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
+            IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );
 
             SyncInfoValueControl syncInfo = new SyncInfoValueControl( SynchronizationInfoEnum.NEW_COOKIE );
@@ -417,7 +417,7 @@ public class SyncReplProvider implements ReplicationProvider
                 contextCsn = sendContentFromLog( session, req, replicaLog );
                 cookie = StringTools.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + contextCsn );
 
-                InternalIntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
+                IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
                 intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );
 
                 SyncInfoValueControl syncInfo = new SyncInfoValueControl( SynchronizationInfoEnum.NEW_COOKIE );

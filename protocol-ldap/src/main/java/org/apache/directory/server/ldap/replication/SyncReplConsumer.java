@@ -73,7 +73,7 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDn
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalIntermediateResponse;
+import org.apache.directory.shared.ldap.message.internal.IntermediateResponse;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
@@ -422,7 +422,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( InternalIntermediateResponse syncInfoResp )
+    public void handleSyncInfo( IntermediateResponse syncInfoResp )
     {
         try
         {
@@ -561,9 +561,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 handleSearchReference( ( SearchResultReference ) resp );
             }
-            else if ( resp instanceof InternalIntermediateResponse )
+            else if ( resp instanceof IntermediateResponse )
             {
-                handleSyncInfo( ( InternalIntermediateResponse ) resp );
+                handleSyncInfo( ( IntermediateResponse ) resp );
             }
 
             resp = sf.get();
