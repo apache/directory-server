@@ -31,15 +31,16 @@ import java.util.concurrent.TimeoutException;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
-import org.apache.directory.ldap.client.api.message.CompareRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.CompareResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -113,10 +114,10 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
 
-        CompareRequest compareRequest = new CompareRequest();
-        compareRequest.setEntryDn( dn );
-        compareRequest.setAttrName( SchemaConstants.UID_AT );
-        compareRequest.setValue( "admin" );
+        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        compareRequest.setName( dn );
+        compareRequest.setAttributeId( SchemaConstants.UID_AT );
+        compareRequest.setAssertionValue( "admin" );
 
         connection.compare( compareRequest );
 

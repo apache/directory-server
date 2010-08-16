@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.CompareRequest;
 import org.apache.directory.ldap.client.api.message.ExtendedRequest;
 import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
@@ -57,7 +56,6 @@ import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
-import org.apache.directory.shared.ldap.message.LdapResultImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
@@ -164,22 +162,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     }
 
 
-    private LdapResult getDefaultResult()
-    {
-        LdapResult result = new LdapResultImpl();
-        result.setResultCode( ResultCodeEnum.SUCCESS );
-        return result;
-    }
-
-
-    private LdapResult getDefaultCompareResult()
-    {
-        LdapResult result = new LdapResultImpl();
-        result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
-        return result;
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -224,41 +206,14 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
+    public CompareResponse compare( InternalCompareRequest compareRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
         CompareResponse resp = new CompareResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.COMPARE_TRUE );
 
-        InternalCompareRequest icompare = new CompareRequestImpl( newId );
-
-        try
-        {
-            Object obj = compareRequest.getValue();
-            if ( obj instanceof byte[] )
-            {
-                icompare.setAssertionValue( ( byte[] ) obj );
-            }
-            else
-            {
-                icompare.setAssertionValue( ( String ) obj );
-            }
-
-            icompare.setAttributeId( compareRequest.getAttrName() );
-            icompare.setName( compareRequest.getEntryDn() );
-
-            session.compare( icompare );
-        }
-        catch ( LdapException e )
-        {
-            LOG.warn( e.getMessage(), e );
-
-            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
-        }
-
-        addResponseControls( icompare, resp );
+        addResponseControls( compareRequest, resp );
         return resp;
     }
 
@@ -268,10 +223,10 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, byte[] value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequest();
-        compareRequest.setEntryDn( dn );
-        compareRequest.setAttrName( attributeName );
-        compareRequest.setValue( value );
+        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        compareRequest.setName( dn );
+        compareRequest.setAttributeId( attributeName );
+        compareRequest.setAssertionValue( value );
 
         return compare( compareRequest );
     }
@@ -282,10 +237,10 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, String value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequest();
-        compareRequest.setEntryDn( dn );
-        compareRequest.setAttrName( attributeName );
-        compareRequest.setValue( value );
+        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        compareRequest.setName( dn );
+        compareRequest.setAttributeId( attributeName );
+        compareRequest.setAssertionValue( value );
 
         return compare( compareRequest );
     }
@@ -314,10 +269,18 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, Value<?> value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequest();
-        compareRequest.setEntryDn( dn );
-        compareRequest.setAttrName( attributeName );
-        compareRequest.setValue( value.get() );
+        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        compareRequest.setName( dn );
+        compareRequest.setAttributeId( attributeName );
+
+        if ( value.isBinary() )
+        {
+            compareRequest.setAssertionValue( value.getBytes() );
+        }
+        else
+        {
+            compareRequest.setAssertionValue( value.getString() );
+        }
 
         return compare( compareRequest );
     }
