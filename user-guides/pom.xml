@@ -27,9 +27,8 @@ under the License.
     <groupId>org.apache.directory.server</groupId>
     <version>1.5.8-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.server</groupId>
-  <artifactId>documentation</artifactId>
-  <version>1.5.8-SNAPSHOT</version>
+  <artifactId>user-guides</artifactId>
+  <name>ApacheDS User Guides</name>
 
   <build>
     <plugins>
@@ -59,8 +58,8 @@ under the License.
           <xincludeSupported>true</xincludeSupported>
           <paperType>A4</paperType>
           <fop1Extensions>1</fop1Extensions>
-          <htmlCustomization>src/docbkx-stylesheet/html/docbook.xsl</htmlCustomization>
-          <foCustomization>src/docbkx-stylesheet/fo/docbook.xsl</foCustomization>
+          <htmlCustomization>${basedir}/src/docbkx-stylesheet/html/docbook.xsl</htmlCustomization>
+          <foCustomization>${basedir}/src/docbkx-stylesheet/fo/docbook.xsl</foCustomization>
           <!--
              <customizationParameters>
             <parameter> <name>key</name> <value>value</value> </parameter> </customizationParameters>
@@ -75,16 +74,16 @@ under the License.
             </goals>
             <configuration>
               <!-- per execution configuration -->
-              <sourceDirectory>src/basic-user-guide</sourceDirectory>
+              <sourceDirectory>${basedir}/src/basic-user-guide</sourceDirectory>
               <targetDirectory>${project.build.directory}/basic-user-guide/html</targetDirectory>
               <postProcess>
                 <!-- Copy the images -->
                 <copy todir="${project.build.directory}/basic-user-guide/html/images">
-                  <fileset dir="src/basic-user-guide/images" />
+                  <fileset dir="${basedir}/src/basic-user-guide/images" />
                 </copy>
                 <!-- Copy the data -->
                 <copy todir="${project.build.directory}/basic-user-guide/html/data">
-                  <fileset dir="src/basic-user-guide/data" />
+                  <fileset dir="${basedir}/src/basic-user-guide/data" />
                 </copy>
               </postProcess>
             </configuration>
@@ -97,9 +96,9 @@ under the License.
             </goals>
             <configuration>
               <!-- per execution configuration -->
-              <sourceDirectory>src/basic-user-guide</sourceDirectory>
+              <sourceDirectory>${basedir}/src/basic-user-guide</sourceDirectory>
               <targetDirectory>${project.build.directory}/basic-user-guide/pdf</targetDirectory>
-              <imgSrcPath>src/basic-user-guide/</imgSrcPath>
+              <imgSrcPath>${basedir}/src/basic-user-guide/</imgSrcPath>
             </configuration>
           </execution>
           <execution>
@@ -110,16 +109,16 @@ under the License.
             </goals>
             <configuration>
               <!-- per execution configuration -->
-              <sourceDirectory>src/advanced-user-guide</sourceDirectory>
+              <sourceDirectory>${basedir}/src/advanced-user-guide</sourceDirectory>
               <targetDirectory>${project.build.directory}/advanced-user-guide/html</targetDirectory>
               <postProcess>
                 <!-- Copy the images -->
                 <copy todir="${project.build.directory}/advanced-user-guide/html/images">
-                  <fileset dir="src/advanced-user-guide/images" />
+                  <fileset dir="${basedir}/src/advanced-user-guide/images" />
                 </copy>
                 <!-- Copy the data -->
                 <copy todir="${project.build.directory}/advanced-user-guide/html/data">
-                  <fileset dir="src/advanced-user-guide/data" />
+                  <fileset dir="${basedir}/src/advanced-user-guide/data" />
                 </copy>
               </postProcess>
             </configuration>
@@ -132,28 +131,14 @@ under the License.
             </goals>
             <configuration>
               <!-- per execution configuration -->
-              <sourceDirectory>src/advanced-user-guide</sourceDirectory>
+              <sourceDirectory>${basedir}/src/advanced-user-guide</sourceDirectory>
               <targetDirectory>${project.build.directory}/advanced-user-guide/pdf</targetDirectory>
-              <imgSrcPath>src/advanced-user-guide/</imgSrcPath>
+              <imgSrcPath>${basedir}/src/advanced-user-guide/</imgSrcPath>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>apache.snapshots</id>
-      <name>Apache Development Snapshot Repository</name>
-      <url>https://repository.apache.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>
