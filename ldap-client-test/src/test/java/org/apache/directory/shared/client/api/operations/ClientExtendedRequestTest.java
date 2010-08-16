@@ -33,15 +33,16 @@ import javax.naming.ldap.StartTlsRequest;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ExtendedFuture;
-import org.apache.directory.ldap.client.api.message.ExtendedRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -107,14 +108,14 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     @Test
     public void testExtendedAsync() throws Exception
     {
-        ExtendedRequest extendedRequest = new ExtendedRequest( StartTlsRequest.OID );
+        InternalExtendedRequest extendedRequest = new ExtendedRequestImpl();
+        extendedRequest.setRequestName( StartTlsRequest.OID );
 
         ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );
 
         try
         {
-            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000,
-                TimeUnit.MILLISECONDS );
+            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( extendedResponse );
             assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );

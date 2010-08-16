@@ -27,8 +27,8 @@ import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.ResultResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
+import org.apache.directory.shared.ldap.message.internal.ResultResponse;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -160,15 +160,15 @@ class LdapProtocolHandler extends DemuxingIoHandler
         if ( message == SslFilter.SESSION_SECURED )
         {
             InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
-            req.setID( "1.3.6.1.4.1.1466.20037" );
-            req.setEncodedValue( "SECURED".getBytes( "ISO-8859-1" ) );
+            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
+            req.setRequestValue( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
             InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
-            req.setID( "1.3.6.1.4.1.1466.20037" );
-            req.setEncodedValue( "UNSECURED".getBytes( "ISO-8859-1" ) );
+            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
+            req.setRequestValue( "UNSECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
 

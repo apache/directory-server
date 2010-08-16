@@ -75,7 +75,7 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
 
     public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
-        ByteBuffer bb = ByteBuffer.wrap( req.getEncodedValue() );
+        ByteBuffer bb = ByteBuffer.wrap( req.getRequestValue() );
         Asn1Decoder decoder = new CertGenerationDecoder();
         CertGenerationContainer container = new CertGenerationContainer();
 

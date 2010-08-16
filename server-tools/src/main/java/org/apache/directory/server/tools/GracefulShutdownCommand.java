@@ -32,6 +32,7 @@ import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -101,7 +102,8 @@ public class GracefulShutdownCommand extends ToolCommand
         }
         try
         {
-            ctx.extendedOperation( new GracefulShutdownRequest( 0, timeOffline, delay ) );
+            ctx.extendedOperation( AttributeUtils.toJndiExtendedRequest( new GracefulShutdownRequest( 0, timeOffline,
+                delay ) ) );
             isSuccess = true;
         }
         catch ( Throwable t )
