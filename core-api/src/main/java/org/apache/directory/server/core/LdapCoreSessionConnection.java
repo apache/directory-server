@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -602,23 +601,16 @@ public class LdapCoreSessionConnection implements LdapConnection
      *          cause this we call {@link CoreSession#move(InternalModifyDnRequest)} always from this method.
      *          Instead use other specific modifyDn operations like {@link #move(DN, DN)}, {@link #rename(DN, RDN)} etc..
      */
-    public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
+    public ModifyDnResponse modifyDn( InternalModifyDnRequest modDnRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
-
         try
         {
-            iModDnReq.setDeleteOldRdn( modDnRequest.isDeleteOldRdn() );
-            iModDnReq.setName( modDnRequest.getEntryDn() );
-            iModDnReq.setNewRdn( modDnRequest.getNewRdn() );
-            iModDnReq.setNewSuperior( modDnRequest.getNewSuperior() );
-
-            session.move( iModDnReq );
+            session.move( modDnRequest );
         }
         catch ( LdapException e )
         {
@@ -628,7 +620,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
 
-        addResponseControls( iModDnReq, resp );
+        addResponseControls( modDnRequest, resp );
         return resp;
     }
 

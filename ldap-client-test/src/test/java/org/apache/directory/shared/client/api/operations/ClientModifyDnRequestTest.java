@@ -32,7 +32,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyDnFuture;
-import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -40,6 +39,8 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -146,8 +147,8 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         DN oldDn = new DN( dn );
         DN newDn = new DN( "cn=modifyDnWithString,ou=system" );
 
-        ModifyDnRequest modDnReq = new ModifyDnRequest();
-        modDnReq.setEntryDn( oldDn );
+        InternalModifyDnRequest modDnReq = new ModifyDnRequestImpl();
+        modDnReq.setName( oldDn );
         modDnReq.setNewRdn( new RDN( "cn=modifyDnWithString" ) );
         modDnReq.setDeleteOldRdn( true );
 
