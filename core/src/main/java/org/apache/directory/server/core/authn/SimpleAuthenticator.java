@@ -293,18 +293,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
 
-        // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
-        // Are the passwords equal ?
-        if ( Arrays.equals( credentials, storedPassword ) )
-        {
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "{} Authenticated", bindContext.getDn() );
-            }
-
-            return principal;
-        }
-
         // Let's see if the stored password was encrypted
         LdapSecurityConstants algorithm = PasswordUtil.findAlgorithm( storedPassword );
 
@@ -343,10 +331,24 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else
         {
-            // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
-            LOG.info( message );
-            throw new LdapAuthenticationException( message );
+            // PLAIN TEXT passwords : we compare the byte array directly
+            // Are the passwords equal ?
+            if ( Arrays.equals( credentials, storedPassword ) )
+            {
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "{} Authenticated", bindContext.getDn() );
+                }
+
+                return principal;
+            }
+            else
+            {
+                // Bad password ...
+                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+                LOG.info( message );
+                throw new LdapAuthenticationException( message );
+            }
         }
     }
 
