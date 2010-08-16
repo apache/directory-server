@@ -27,6 +27,8 @@ under the License.
   <xsl:import
     href="urn:docbkx:stylesheet" />
 
+  <!-- Important links: - http://www.sagehill.net/docbookxsl/ - http://docbkx-tools.sourceforge.net/ -->
+
   <!-- set bellow all your custom xsl configuration -->
 
   <xsl:param
@@ -39,7 +41,36 @@ under the License.
     name="section.label.includes.component.label"
     select="2" />
 
-  <!-- Important links: - http://www.sagehill.net/docbookxsl/ - http://docbkx-tools.sourceforge.net/ -->
+  <xsl:template name="footer.content">
+    <xsl:param name="pageclass" select="''"/>
+    <xsl:param name="sequence" select="''"/>
+    <xsl:param name="position" select="''"/>
+    <xsl:param name="gentext-key" select="''"/>
+    <xsl:choose>
+      <xsl:when test="$position = 'left'">
+        <fo:block />
+        <fo:block>© 2003-2010</fo:block>
+      </xsl:when>
+      <xsl:when test="$position = 'center'">
+        <fo:block>
+          <fo:page-number />
+        </fo:block>
+        <fo:block>
+          <fo:basic-link external-destination="url('http://www.apache.org/')"
+               text-decoration="underline"
+               color="blue">The Apache Software Foundation</fo:basic-link>
+        </fo:block>
+      </xsl:when>
+      <xsl:when test="$position = 'right'">
+        <fo:block />
+        <fo:block>
+          <fo:basic-link external-destination="url('http://directory.apache.org/privacy-policy.html')"
+               text-decoration="underline"
+               color="blue">Privacy Policy</fo:basic-link>
+        </fo:block>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>  
 
   <xsl:template match="processing-instruction('linebreak')">
     <fo:block/>
