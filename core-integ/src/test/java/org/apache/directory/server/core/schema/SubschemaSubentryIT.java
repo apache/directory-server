@@ -58,7 +58,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -66,7 +65,9 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -128,7 +129,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         LdapConnection conn = getAdminConnection( service );
 
-        ModifyRequest modRequest = new ModifyRequest( new DN( GLOBAL_SUBSCHEMA_DN ) );
+        InternalModifyRequest modRequest = new ModifyRequestImpl();
+        modRequest.setName( new DN( GLOBAL_SUBSCHEMA_DN ) );
         modRequest.add( "attributeTypes", "( 2.5.4.58 NAME 'attributeCertificateAttribute' "
             + " DESC 'attribute certificate use ;binary' SYNTAX 1.3.6.1.4.1.1466.115.121.1.8 )" );
         ModifyResponse response = conn.modify( modRequest );

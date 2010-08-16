@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -57,6 +56,7 @@ import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalMessage;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -369,7 +370,7 @@ public class ImportCommand extends ToolCommand
 
         modifyDNRequest.setMessageId( messageId );
 
-        // Encode and send the delete request
+        // Encode and send the modifyDn request
         LdapProtocolEncoder encoder = new LdapProtocolEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( modifyDNRequest );
@@ -411,7 +412,7 @@ public class ImportCommand extends ToolCommand
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
-        ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
+        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
 
         String dn = entry.getDn().getName();
 
@@ -420,24 +421,19 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Modify of entry " + dn );
         }
 
-        modifyRequest.setObject( new DN( dn ) );
-        modifyRequest.initModifications();
+        modifyRequest.setName( new DN( dn ) );
 
         for ( Modification modification : entry.getModificationItems() )
         {
-            modifyRequest.setCurrentOperation( modification.getOperation() );
-            modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getId() );
-
-            for ( Value<?> value : modification.getAttribute() )
-            {
-                modifyRequest.addAttributeValue( value );
-            }
+            modifyRequest.addModification( modification );
         }
 
         modifyRequest.setMessageId( messageId );
 
         // Encode and send the delete request
-        ByteBuffer bb = modifyRequest.encode();
+        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+
+        ByteBuffer bb = encoder.encodeMessage( modifyRequest );
         bb.flip();
 
         sendMessage( bb );

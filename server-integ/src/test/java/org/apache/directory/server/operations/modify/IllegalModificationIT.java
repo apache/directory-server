@@ -31,14 +31,15 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
@@ -84,7 +85,8 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     {
         LdapConnection con = getClientApiConnection( ldapServer );
 
-        ModifyRequest modReq = new ModifyRequest( new DN( DN ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( DN ) );
         modReq.add( "description", "" );
 
         ModifyResponse resp = con.modify( modReq );

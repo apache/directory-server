@@ -42,7 +42,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -56,10 +55,12 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
@@ -204,7 +205,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( LdapConnection connection, String dn, String role ) throws Exception
     {
-        ModifyRequest modifyRequest = new ModifyRequest( new DN( dn ) );
+        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( new DN( dn ) );
         modifyRequest.add( "administrativeRole", role );
         connection.modify( modifyRequest );
     }
@@ -425,8 +427,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         // Now delete the AP-B subentry
-        DeleteResponse deleteResponse = connection
-            .delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
+        DeleteResponse deleteResponse = connection.delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
 
         // --------------------------------------------------------------------
         // Check that we are back to where we were before the addition of the B

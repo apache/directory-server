@@ -32,7 +32,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -53,10 +52,12 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
@@ -218,8 +219,9 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        ModifyRequest modReq = new ModifyRequest( userDn );
-        modReq.add( PP_REQ_CTRL );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
 
         ModifyResponse modResp = connection.modify( modReq );

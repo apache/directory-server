@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -561,26 +560,17 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ModifyResponse modify( ModifyRequest modRequest ) throws LdapException
+    public ModifyResponse modify( InternalModifyRequest modRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
+        modRequest.setMessageId( newId );
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyRequest iModReq = new ModifyRequestImpl( newId );
-
         try
         {
-            iModReq.setName( modRequest.getDn() );
-
-            Iterator<Modification> itr = modRequest.getMods().iterator();
-            while ( itr.hasNext() )
-            {
-                iModReq.addModification( itr.next() );
-            }
-
-            session.modify( iModReq );
+            session.modify( modRequest );
         }
         catch ( LdapException e )
         {
@@ -590,7 +580,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             resp.getLdapResult().setErrorMessage( e.getMessage() );
         }
 
-        addResponseControls( iModReq, resp );
+        addResponseControls( modRequest, resp );
         return resp;
     }
 

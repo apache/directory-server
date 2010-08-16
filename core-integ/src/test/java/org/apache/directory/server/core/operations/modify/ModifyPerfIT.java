@@ -21,7 +21,6 @@ package org.apache.directory.server.core.operations.modify;
 
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -36,6 +35,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +95,8 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            ModifyRequest modRequest = new ModifyRequest( dn );
+            InternalModifyRequest modRequest = new ModifyRequestImpl();
+            modRequest.setName( dn );
             Modification modification = new DefaultModification();
             EntryAttribute attribute = new DefaultEntryAttribute( "sn" );
 
@@ -113,7 +115,8 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

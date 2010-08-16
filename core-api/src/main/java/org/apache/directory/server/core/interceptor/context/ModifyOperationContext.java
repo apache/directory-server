@@ -81,7 +81,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         super( session, modifyRequest.getName() );
 
-        modItems = ServerEntryUtils.toServerModification( modifyRequest.getModificationItems().toArray(
+        modItems = ServerEntryUtils.toServerModification( modifyRequest.getModifications().toArray(
             new DefaultModification[0] ), session.getDirectoryService().getSchemaManager() );
 
         requestControls = modifyRequest.getControls();

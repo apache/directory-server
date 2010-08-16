@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -40,9 +39,11 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.Response;
@@ -120,8 +121,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchControl() throws Exception
     {
-        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=users,ou=system",
-            "(objectClass=*)", SearchScope.ONELEVEL, "*" );
+        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=users,ou=system", "(objectClass=*)",
+            SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
     }
@@ -264,7 +265,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        ModifyRequest modReq = new ModifyRequest( new DN( "ou=blah,ou=system" ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "ou=blah,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "another-value" );
 
         ModifyResponse modResp = connection.modify( modReq );
@@ -283,7 +285,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        ModifyRequest modReq = new ModifyRequest( new DN( "ou=users,ou=system" ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "ou=users,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "dummyValue" );
 
         connection.modify( modReq );

@@ -32,7 +32,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -45,7 +44,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -118,8 +119,14 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         // modify the entry as the user
-        ModifyRequest modReq = new ModifyRequest( entryDN );
-        modReq.addModification( mods );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( entryDN );
+
+        for ( Modification modification : mods )
+        {
+            modReq.addModification( modification );
+        }
+
         ModifyResponse resp = userConnection.modify( modReq );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
@@ -177,7 +184,8 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
         // modify the entry as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
-        ModifyRequest modReq = new ModifyRequest( entryDN );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( entryDN );
         modReq.addModification( attr, modOp );
 
         ModifyResponse resp = userConnection.modify( modReq );
@@ -216,8 +224,13 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         DN userDN = new DN( "uid=" + uid + ",ou=users,ou=system" );
         LdapConnection connection = getConnectionAs( userDN, password );
 
-        ModifyRequest modReq = new ModifyRequest( userDN );
-        modReq.addModification( mods );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDN );
+
+        for ( Modification modification : mods )
+        {
+            modReq.addModification( modification );
+        }
 
         ModifyResponse resp = connection.modify( modReq );
 

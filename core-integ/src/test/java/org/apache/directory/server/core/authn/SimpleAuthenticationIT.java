@@ -29,15 +29,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -202,7 +203,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "roomnumber" ).contains( "4612" ) );
 
         // now modify the password for akarasulu
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "newpwd" );
         connection.modify( modReq );
 
@@ -252,7 +254,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
         connection.modify( modReq );
 
@@ -293,7 +296,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
         connection.modify( modReq );
 
@@ -332,7 +336,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'test123', encrypted using SHA with a 4 bytes salt
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{SSHA}0TT388zsWzHKtMEpIU/8/W68egchNEWp" );
         connection.modify( modReq );
 
@@ -371,7 +376,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using MD5
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
         connection.modify( modReq );
 
@@ -411,7 +417,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SMD5
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
         connection.modify( modReq );
 
@@ -450,7 +457,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using CRYPT
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "{crypt}qFkH8Z1woBlXw" );
         connection.modify( modReq );
 
@@ -490,7 +498,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection.bind( adminUserDn, "secret" );
 
         // now modify the password for akarasulu (while we're admin)
-        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        InternalModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( userDn ) );
         modReq.replace( "userPassword", "newpwd" );
         connection.modify( modReq );
         connection.close();
