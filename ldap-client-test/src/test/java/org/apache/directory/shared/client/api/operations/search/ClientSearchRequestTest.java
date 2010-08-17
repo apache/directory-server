@@ -31,7 +31,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SearchCursor;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -43,6 +42,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
@@ -199,8 +200,8 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithDerefAlias() throws Exception
     {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setBaseDn( "ou=users,ou=system" );
+        InternalSearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new DN( "ou=users,ou=system" ) );
         searchRequest.setFilter( "(objectClass=*)" );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.addAttributes( "*" );

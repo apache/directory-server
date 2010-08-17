@@ -35,7 +35,6 @@ import java.util.Set;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -68,12 +67,14 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.IntermediateResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
@@ -113,7 +114,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     private LdapNetworkConnection connection;
 
     /** the search request with control */
-    private SearchRequest searchRequest;
+    private InternalSearchRequest searchRequest;
 
     /** a reference to the directoryService */
     private DirectoryService directoryService;
@@ -259,9 +260,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         String baseDn = config.getBaseDn();
 
-        searchRequest = new SearchRequest();
+        searchRequest = new SearchRequestImpl();
 
-        searchRequest.setBaseDn( baseDn );
+        searchRequest.setBase( new DN( baseDn ) );
         searchRequest.setFilter( config.getFilter() );
         searchRequest.setSizeLimit( config.getSearchSizeLimit() );
         searchRequest.setTimeLimit( config.getSearchTimeout() );
@@ -274,7 +275,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.add( new ManageDsaITControl() );
+            searchRequest.addControl( new ManageDsaITControl() );
         }
     }
 
@@ -544,7 +545,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             syncReq.setCookie( syncCookie );
         }
 
-        searchRequest.add( syncReq );
+        searchRequest.addControl( syncReq );
 
         // Do the search
         SearchFuture sf = connection.searchAsync( searchRequest );

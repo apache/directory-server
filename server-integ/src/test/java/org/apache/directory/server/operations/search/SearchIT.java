@@ -48,7 +48,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -63,7 +62,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
@@ -1600,8 +1601,7 @@ public class SearchIT extends AbstractLdapTestUnit
             }
 
             // Searches for all the entries in ou=system
-            Cursor<Response> cursor = asyncCnx
-                .search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+            Cursor<Response> cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
@@ -1654,8 +1654,8 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         long sizeLimit = 7;
         LdapConnection connection = getClientApiConnection( ldapServer );
-        SearchRequest req = new SearchRequest();
-        req.setBaseDn( "ou=system" );
+        InternalSearchRequest req = new SearchRequestImpl();
+        req.setBase( new DN( "ou=system" ) );
         req.setFilter( "(ou=*)" );
         req.setScope( SearchScope.SUBTREE );
         req.setSizeLimit( sizeLimit );
@@ -1677,8 +1677,8 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
-        SearchRequest req = new SearchRequest();
-        req.setBaseDn( "ou=schema" );
+        InternalSearchRequest req = new SearchRequestImpl();
+        req.setBase( new DN( "ou=schema" ) );
         req.setFilter( "(objectClass=*)" );
         req.setScope( SearchScope.SUBTREE );
 

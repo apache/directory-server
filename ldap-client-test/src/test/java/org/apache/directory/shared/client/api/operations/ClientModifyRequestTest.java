@@ -76,7 +76,6 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        connection.setTimeOut( 0 );
 
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.primitives.OID;
@@ -42,7 +41,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
@@ -211,7 +209,15 @@ public class LdapCoreSessionConnection implements LdapConnection
         CompareResponse resp = new CompareResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.COMPARE_TRUE );
 
-        addResponseControls( compareRequest, resp );
+        try
+        {
+            session.compare( compareRequest );
+        }
+        catch ( Exception e )
+        {
+            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
+        }
+
         return resp;
     }
 
@@ -811,30 +817,15 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Cursor<Response> search( SearchRequest searchRequest ) throws LdapException
+    public Cursor<Response> search( InternalSearchRequest searchRequest ) throws LdapException
     {
         try
         {
             int newId = messageId.incrementAndGet();
 
-            InternalSearchRequest iSearchReq = new SearchRequestImpl( newId );
-            iSearchReq.setBase( new DN( searchRequest.getBaseDn() ) );
-            iSearchReq.setDerefAliases( searchRequest.getDerefAliases() );
-            iSearchReq.setFilter( FilterParser.parse( schemaManager, searchRequest.getFilter() ) );
-            iSearchReq.setScope( searchRequest.getScope() );
-            iSearchReq.setSizeLimit( searchRequest.getSizeLimit() );
-            iSearchReq.setTimeLimit( searchRequest.getTimeLimit() );
-            iSearchReq.setTypesOnly( searchRequest.getTypesOnly() );
+            searchRequest.setMessageId( newId );
 
-            if ( searchRequest.getAttributes() != null )
-            {
-                for ( String at : searchRequest.getAttributes() )
-                {
-                    iSearchReq.addAttribute( at );
-                }
-            }
-
-            EntryFilteringCursor entryCursor = session.search( iSearchReq );
+            EntryFilteringCursor entryCursor = session.search( searchRequest );
             entryCursor.beforeFirst();
 
             //TODO enforce the size and time limits, similar in the way SearchHandler does
@@ -856,9 +847,9 @@ public class LdapCoreSessionConnection implements LdapConnection
         throws LdapException
     {
         // generate some random operation number
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setMessageId( ( int ) System.currentTimeMillis() );
-        searchRequest.setBaseDn( baseDn );
+        InternalSearchRequest searchRequest = new SearchRequestImpl();
+
+        searchRequest.setBase( baseDn );
         searchRequest.setFilter( filter );
         searchRequest.setScope( scope );
         searchRequest.addAttributes( attributes );

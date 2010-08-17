@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -40,6 +39,8 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
 import org.apache.directory.shared.ldap.name.DN;
@@ -70,10 +71,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         DN bindDn = new DN( "uid=admin,ou=system" );
-        connection.setTimeOut( 0L );
         connection.bind( bindDn.getName(), "secret" );
-
-        //        session = ldapServer.getDirectoryService().getSession();
     }
 
 
@@ -116,9 +114,9 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
             connection.add( entry );
         }
 
-        SearchRequest sr = new SearchRequest();
+        InternalSearchRequest sr = new SearchRequestImpl();
         sr.setFilter( "(cn=*)" );
-        sr.setBaseDn( "ou=system" );
+        sr.setBase( new DN( "ou=system" ) );
         sr.setScope( SearchScope.ONELEVEL );
         sr.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
 
