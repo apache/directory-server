@@ -36,6 +36,7 @@
     <module>ldap-client</module>
     <module>apacheds</module>
     <module>installers</module>
+    <module>apacheds-manuals</module>
     <!-- module>kerberos-client</module -->
   </modules>
 
