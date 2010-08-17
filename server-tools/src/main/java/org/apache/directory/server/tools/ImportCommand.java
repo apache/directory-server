@@ -172,29 +172,25 @@ public class ImportCommand extends ToolCommand
 
                 if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
-                    if ( ( ( LdapMessageContainer ) ldapMessageContainer ).isInternal() )
+                    InternalMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getInternalMessage();
+
+                    if ( message instanceof BindResponse )
                     {
-                        InternalMessage message = ( ( LdapMessageContainer ) ldapMessageContainer )
-                            .getInternalMessage();
+                        BindResponse resp = ( BindResponse ) message;
 
-                        if ( message instanceof BindResponse )
+                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
-                            BindResponse resp = ( BindResponse ) message;
-
-                            if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
-                            {
-                                System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
-                            }
+                            System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
-                        else if ( message instanceof ExtendedResponse )
-                        {
-                            ExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
-                                .getExtendedResponse();
+                    }
+                    else if ( message instanceof ExtendedResponse )
+                    {
+                        ExtendedResponse response = ( ( LdapMessageContainer ) ldapMessageContainer )
+                            .getExtendedResponse();
 
-                            if ( response.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
-                            {
-                                System.out.println( "Error : " + response.getLdapResult().getErrorMessage() );
-                            }
+                        if ( response.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+                        {
+                            System.out.println( "Error : " + response.getLdapResult().getErrorMessage() );
                         }
                     }
 
