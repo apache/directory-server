@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
@@ -62,6 +63,7 @@ public class HttpServer
 
     private static final Logger LOG = LoggerFactory.getLogger( HttpServer.class );
 
+    private DirectoryService dirService;
 
     public HttpServer()
     {
@@ -73,7 +75,7 @@ public class HttpServer
      * 
      * @throws Exception
      */
-    public void start() throws Exception
+    public void start( DirectoryService dirService ) throws Exception
     {
 
         if ( confFile == null && ( webApps == null || webApps.isEmpty() ) )
@@ -82,6 +84,8 @@ public class HttpServer
             return;
         }
 
+        this.dirService = dirService;
+        
         XmlConfiguration jettyConf = null;
 
         if ( confFile != null )
