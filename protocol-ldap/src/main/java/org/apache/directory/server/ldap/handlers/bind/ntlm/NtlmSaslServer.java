@@ -33,7 +33,7 @@ import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -55,7 +55,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     private final NtlmProvider provider;
 
 
-    public NtlmSaslServer( NtlmProvider provider, InternalBindRequest bindRequest, LdapSession ldapSession )
+    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession )
     {
         super( ldapSession, null, bindRequest );
         this.provider = provider;

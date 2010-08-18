@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -248,7 +248,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        InternalDeleteRequest deleteRequest = new DeleteRequestImpl();
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
         deleteRequest.setName( dn );
 
         DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );

@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.future.WriteFuture;
@@ -60,14 +60,14 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplSearchListener.class );
 
     private LdapSession session;
-    private InternalSearchRequest req;
+    private SearchRequest req;
 
     private volatile boolean pushInRealTime;
 
     private final ReplicaEventLog clientMsgLog;
 
 
-    SyncReplSearchListener( LdapSession session, InternalSearchRequest req, ReplicaEventLog clientMsgLog,
+    SyncReplSearchListener( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog,
         boolean pushInRealTime )
     {
         this.pushInRealTime = pushInRealTime;
@@ -84,7 +84,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void setReq( InternalSearchRequest req )
+    public void setReq( SearchRequest req )
     {
         this.req = req;
         if ( req != null )
@@ -117,7 +117,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void requestAbandoned( InternalAbandonableRequest req )
+    public void requestAbandoned( AbandonableRequest req )
     {
         try
         {

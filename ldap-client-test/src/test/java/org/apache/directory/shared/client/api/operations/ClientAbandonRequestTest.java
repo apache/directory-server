@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
 import org.apache.directory.shared.ldap.name.DN;
@@ -114,7 +114,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
             connection.add( entry );
         }
 
-        InternalSearchRequest sr = new SearchRequestImpl();
+        SearchRequest sr = new SearchRequestImpl();
         sr.setFilter( "(cn=*)" );
         sr.setBase( new DN( "ou=system" ) );
         sr.setScope( SearchScope.ONELEVEL );

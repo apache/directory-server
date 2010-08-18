@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.replication;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 
 /**
  * Interface for a replication provider.
@@ -53,5 +53,5 @@ public interface ReplicationProvider
      * @param req the SearchRequest with the SyncRequest control
      * @throws LdapException
      */
-    void handleSyncRequest( LdapSession session, InternalSearchRequest req ) throws LdapException;
+    void handleSyncRequest( LdapSession session, SearchRequest req ) throws LdapException;
 }

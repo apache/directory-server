@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
@@ -200,7 +200,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithDerefAlias() throws Exception
     {
-        InternalSearchRequest searchRequest = new SearchRequestImpl();
+        SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( new DN( "ou=users,ou=system" ) );
         searchRequest.setFilter( "(objectClass=*)" );
         searchRequest.setScope( SearchScope.ONELEVEL );

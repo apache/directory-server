@@ -35,15 +35,15 @@ import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
+import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,7 +108,7 @@ public class SettingAlternativeHandlersTest
     
     public static class BogusAbandonHandler extends AbandonHandler
     {
-        public void abandonMessageReceived( IoSession session, InternalAbandonRequest request )
+        public void abandonMessageReceived( IoSession session, AbandonRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -117,7 +117,7 @@ public class SettingAlternativeHandlersTest
     
     public static class BogusUnbindHandler extends UnbindHandler
     {
-        public void unbindMessageReceived( IoSession session, InternalUnbindRequest request )
+        public void unbindMessageReceived( IoSession session, UnbindRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -125,7 +125,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusAddHandler extends AddHandler
     {
-        public void addMessageReceived( IoSession session, InternalAddRequest request )
+        public void addMessageReceived( IoSession session, AddRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -138,7 +138,7 @@ public class SettingAlternativeHandlersTest
         }
 
 
-        public void bindMessageReceived( IoSession session, InternalBindRequest request )
+        public void bindMessageReceived( IoSession session, BindRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -146,7 +146,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusCompareHandler extends CompareHandler
     {
-        public void compareMessageReceived( IoSession session, InternalCompareRequest request )
+        public void compareMessageReceived( IoSession session, CompareRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -154,7 +154,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusDeleteHandler extends  DeleteHandler
     {
-        public void deleteMessageReceived( IoSession session, InternalDeleteRequest request )
+        public void deleteMessageReceived( IoSession session, DeleteRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -162,7 +162,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusModifyDnHandler extends  ModifyDnHandler
     {
-        public void modifyDnMessageReceived( IoSession session, InternalModifyDnRequest request )
+        public void modifyDnMessageReceived( IoSession session, ModifyDnRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -170,7 +170,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusModifyHandler extends ModifyHandler
     {
-        public void modifyMessageReceived( IoSession session, InternalModifyRequest request )
+        public void modifyMessageReceived( IoSession session, ModifyRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -178,7 +178,7 @@ public class SettingAlternativeHandlersTest
 
     public static class BogusSearchHandler extends SearchHandler
     {
-        public void searchMessageReceived( IoSession session, InternalSearchRequest request )
+        public void searchMessageReceived( IoSession session, SearchRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }

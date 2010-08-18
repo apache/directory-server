@@ -24,18 +24,18 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link InternalModifyRequest}s.
+ * A single reply handler for {@link ModifyRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ModifyHandler extends LdapRequestHandler<InternalModifyRequest>
+public class ModifyHandler extends LdapRequestHandler<ModifyRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ModifyHandler.class );
 
@@ -43,7 +43,7 @@ public class ModifyHandler extends LdapRequestHandler<InternalModifyRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, InternalModifyRequest req )
+    public void handle( LdapSession session, ModifyRequest req )
     {
         LOG.debug( "Handling request : {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();

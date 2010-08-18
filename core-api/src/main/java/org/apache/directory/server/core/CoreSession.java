@@ -36,13 +36,13 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
+import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -247,21 +247,21 @@ public interface CoreSession
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param InternalAddRequest the request to execute
+     * @param AddRequest the request to execute
      * @exception Exception on failures to add the entry
      */
-    void add( InternalAddRequest addRequest ) throws LdapException;
+    void add( AddRequest addRequest ) throws LdapException;
     
     
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param InternalAddRequest the request to execute
+     * @param AddRequest the request to execute
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception Exception on failures to add the entry
      */
-    void add( InternalAddRequest addRequest, LogChange log ) throws LdapException;
+    void add( AddRequest addRequest, LogChange log ) throws LdapException;
     
     
     /**
@@ -295,7 +295,7 @@ public interface CoreSession
      * @param compareRequest the received request
      * @throws Exception if there are failures while comparing
      */
-    boolean compare( InternalCompareRequest compareRequest ) throws LdapException;
+    boolean compare( CompareRequest compareRequest ) throws LdapException;
 
     
     /**
@@ -317,10 +317,10 @@ public interface CoreSession
     void delete( DN dn, LogChange log ) throws LdapException;
     
     
-    void delete( InternalDeleteRequest deleteRequest ) throws LdapException;
+    void delete( DeleteRequest deleteRequest ) throws LdapException;
     
     
-    void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws LdapException;
+    void delete( DeleteRequest deleteRequest, LogChange log ) throws LdapException;
 
     
     /**
@@ -426,10 +426,10 @@ public interface CoreSession
     void modify( DN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
-    void modify( InternalModifyRequest modifyRequest ) throws LdapException;
+    void modify( ModifyRequest modifyRequest ) throws LdapException;
     
     
-    void modify( InternalModifyRequest modifyRequest, LogChange log ) throws LdapException;
+    void modify( ModifyRequest modifyRequest, LogChange log ) throws LdapException;
 
     
     /**
@@ -486,7 +486,7 @@ public interface CoreSession
      * @param modifyDnRequest The ModifyDN request
      * @throws Exception if there are failures while moving the entry/branch
      */
-    void move( InternalModifyDnRequest modifyDnRequest ) throws LdapException;
+    void move( ModifyDnRequest modifyDnRequest ) throws LdapException;
     
     
     /**
@@ -496,7 +496,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while moving the entry/branch
      */
-    void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
+    void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
     
     
     /**
@@ -570,7 +570,7 @@ public interface CoreSession
      * @throws Exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( InternalModifyDnRequest modifyDnRequest ) throws LdapException;
+    void moveAndRename( ModifyDnRequest modifyDnRequest ) throws LdapException;
     
     
     /**
@@ -581,7 +581,7 @@ public interface CoreSession
      * @throws Exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
+    void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
     
     
     /**
@@ -654,7 +654,7 @@ public interface CoreSession
      * @param modifyDnRequest The requested modification
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( InternalModifyDnRequest modifyDnRequest ) throws LdapException;
+    void rename( ModifyDnRequest modifyDnRequest ) throws LdapException;
     
     
     /**
@@ -664,7 +664,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
+    void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
     
     
     /**
@@ -755,11 +755,11 @@ public interface CoreSession
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
 
 
-    EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws LdapException;
+    EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException;
 
 
     void unbind() throws LdapException;
     
     
-    void unbind( InternalUnbindRequest unbindRequest ) throws LdapException;
+    void unbind( UnbindRequest unbindRequest ) throws LdapException;
 }

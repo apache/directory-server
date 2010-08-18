@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -73,7 +73,7 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         ByteBuffer bb = ByteBuffer.wrap( req.getRequestValue() );
         Asn1Decoder decoder = new CertGenerationDecoder();

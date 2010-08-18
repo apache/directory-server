@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.Response;
@@ -265,7 +265,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "ou=blah,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "another-value" );
 
@@ -285,7 +285,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "ou=users,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "dummyValue" );
 

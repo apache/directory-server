@@ -56,8 +56,8 @@ import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
@@ -127,7 +127,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
             "sn: user_sn", "userPassword: 1234" );
 
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
@@ -170,7 +170,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         userEntry.add( SchemaConstants.SN_AT, "hashedpwd_sn" );
         userEntry.add( SchemaConstants.USER_PASSWORD_AT, password );
 
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
@@ -209,7 +209,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
             "sn: userMinAge_sn", "userPassword: 12345" );
 
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
@@ -219,7 +219,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( userDn );
         modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );

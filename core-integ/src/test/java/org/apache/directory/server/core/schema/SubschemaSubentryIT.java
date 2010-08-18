@@ -67,7 +67,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -129,7 +129,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         LdapConnection conn = getAdminConnection( service );
 
-        InternalModifyRequest modRequest = new ModifyRequestImpl();
+        ModifyRequest modRequest = new ModifyRequestImpl();
         modRequest.setName( new DN( GLOBAL_SUBSCHEMA_DN ) );
         modRequest.add( "attributeTypes", "( 2.5.4.58 NAME 'attributeCertificateAttribute' "
             + " DESC 'attribute certificate use ;binary' SYNTAX 1.3.6.1.4.1.1466.115.121.1.8 )" );

@@ -33,7 +33,7 @@ import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandle
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public GssapiCallbackHandler( LdapSession ldapSession, CoreSession adminSession, InternalBindRequest bindRequest )
+    public GssapiCallbackHandler( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {
         super( adminSession.getDirectoryService(), bindRequest );
         this.ldapSession = ldapSession;

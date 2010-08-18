@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.CompareResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -114,7 +114,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
 
-        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( SchemaConstants.UID_AT );
         compareRequest.setAssertionValue( "admin" );

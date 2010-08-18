@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
@@ -112,7 +112,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection();
         DN adminDn = new DN( "uid=admin,ou=system" );
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( adminDn );
         String newPwd = "replaced";
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, newPwd );

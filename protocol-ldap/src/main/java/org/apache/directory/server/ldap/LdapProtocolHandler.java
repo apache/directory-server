@@ -25,9 +25,9 @@ import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.Request;
+import org.apache.directory.shared.ldap.message.internal.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.ResultResponse;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
  * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing 
  * {@link IoHandler} handler and populates it with subordinate handlers for
- * the various kinds of LDAP {@link InternalRequest} messages.  This is done in the
+ * the various kinds of LDAP {@link Request} messages.  This is done in the
  * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -159,23 +159,23 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
+            ExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setRequestName( "1.3.6.1.4.1.1466.20037" );
             req.setRequestValue( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
+            ExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setRequestName( "1.3.6.1.4.1.1466.20037" );
             req.setRequestValue( "UNSECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
 
-        if ( ( ( InternalRequest ) message ).getControls().size() > 0
-            && message instanceof InternalResultResponseRequest )
+        if ( ( ( Request ) message ).getControls().size() > 0
+            && message instanceof ResultResponseRequest )
         {
-            InternalResultResponseRequest req = ( InternalResultResponseRequest ) message;
+            ResultResponseRequest req = ( ResultResponseRequest ) message;
 
             for ( Control control : req.getControls().values() )
             {

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -69,7 +69,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public CramMd5CallbackHandler( LdapSession ldapSession, CoreSession adminSession, InternalBindRequest bindRequest )
+    public CramMd5CallbackHandler( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {
         super( adminSession.getDirectoryService(), bindRequest );
         this.ldapSession = ldapSession;

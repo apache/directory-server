@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -131,7 +131,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         entry.add( SchemaConstants.SN_AT, "testAsyncAdd_sn" );
 
         assertFalse( session.exists( dn ) );
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
         AddFuture addFuture = connection.addAsync( addRequest );

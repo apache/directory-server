@@ -64,17 +64,17 @@ import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.CompareResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalMessage;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.Message;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ResultResponseRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
@@ -161,7 +161,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public AddResponse add( InternalAddRequest addRequest ) throws LdapException
+    public AddResponse add( AddRequest addRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
@@ -192,7 +192,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public AddResponse add( Entry entry ) throws LdapException
     {
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
         return add( addRequest );
@@ -202,7 +202,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public CompareResponse compare( InternalCompareRequest compareRequest ) throws LdapException
+    public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
@@ -227,7 +227,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, byte[] value ) throws LdapException
     {
-        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
         compareRequest.setAssertionValue( value );
@@ -241,7 +241,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, String value ) throws LdapException
     {
-        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
         compareRequest.setAssertionValue( value );
@@ -273,7 +273,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, Value<?> value ) throws LdapException
     {
-        InternalCompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
 
@@ -302,7 +302,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public DeleteResponse delete( InternalDeleteRequest deleteRequest ) throws LdapException
+    public DeleteResponse delete( DeleteRequest deleteRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
@@ -332,7 +332,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public DeleteResponse delete( DN dn ) throws LdapException
     {
-        InternalDeleteRequest deleteRequest = new DeleteRequestImpl();
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
         deleteRequest.setName( dn );
 
         return delete( deleteRequest );
@@ -492,7 +492,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new ModifyRequestImpl( newId );
 
         try
         {
@@ -536,7 +536,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new ModifyRequestImpl( newId );
 
         try
         {
@@ -566,7 +566,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ModifyResponse modify( InternalModifyRequest modRequest ) throws LdapException
+    public ModifyResponse modify( ModifyRequest modRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
@@ -594,10 +594,10 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      * WARNING: this method is not in compatible with CoreSession API in some cases
-     *          cause this we call {@link CoreSession#move(InternalModifyDnRequest)} always from this method.
+     *          cause this we call {@link CoreSession#move(ModifyDnRequest)} always from this method.
      *          Instead use other specific modifyDn operations like {@link #move(DN, DN)}, {@link #rename(DN, RDN)} etc..
      */
-    public ModifyDnResponse modifyDn( InternalModifyDnRequest modDnRequest ) throws LdapException
+    public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
@@ -630,7 +630,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
 
         try
         {
@@ -671,7 +671,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
 
         try
         {
@@ -778,7 +778,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        InternalModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
 
         try
         {
@@ -817,7 +817,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Cursor<Response> search( InternalSearchRequest searchRequest ) throws LdapException
+    public Cursor<Response> search( SearchRequest searchRequest ) throws LdapException
     {
         try
         {
@@ -847,7 +847,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         throws LdapException
     {
         // generate some random operation number
-        InternalSearchRequest searchRequest = new SearchRequestImpl();
+        SearchRequest searchRequest = new SearchRequestImpl();
 
         searchRequest.setBase( baseDn );
         searchRequest.setFilter( filter );
@@ -896,7 +896,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ExtendedResponse extended( InternalExtendedRequest extendedRequest ) throws LdapException
+    public ExtendedResponse extended( ExtendedRequest extendedRequest ) throws LdapException
     {
         return extended( ( String ) null );
 
@@ -942,7 +942,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public void abandon( InternalAbandonRequest abandonRequest )
+    public void abandon( AbandonRequest abandonRequest )
     {
         throw new UnsupportedOperationException( "abandon operation is not supported" );
     }
@@ -962,7 +962,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind() throws LdapException, IOException
     {
-        InternalBindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new BindRequestImpl();
         bindReq.setName( DN.EMPTY_DN );
         bindReq.setCredentials( ( byte[] ) null );
 
@@ -973,7 +973,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public BindResponse bind( InternalBindRequest bindRequest ) throws LdapException, IOException
+    public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
     {
         int newId = messageId.incrementAndGet();
 
@@ -1017,7 +1017,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         byte[] credBytes = ( credentials == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( credentials ) );
 
-        InternalBindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new BindRequestImpl();
         bindReq.setName( name );
         bindReq.setCredentials( credBytes );
 
@@ -1034,7 +1034,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     }
 
 
-    private void addResponseControls( InternalResultResponseRequest iReq, InternalMessage clientResp )
+    private void addResponseControls( ResultResponseRequest iReq, Message clientResp )
     {
         Collection<Control> ctrlSet = iReq.getResultResponse().getControls().values();
 

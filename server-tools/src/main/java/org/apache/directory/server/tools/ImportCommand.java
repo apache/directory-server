@@ -61,13 +61,13 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalMessage;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.Message;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -172,7 +172,7 @@ public class ImportCommand extends ToolCommand
 
                 if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
-                    InternalMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getInternalMessage();
+                    Message message = ( ( LdapMessageContainer ) ldapMessageContainer ).getInternalMessage();
 
                     if ( message instanceof BindResponse )
                     {
@@ -222,7 +222,7 @@ public class ImportCommand extends ToolCommand
     private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, LdapException,
         EncoderException
     {
-        InternalAddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new AddRequestImpl();
 
         String dn = ldifEntry.getDn().getName();
 
@@ -293,7 +293,7 @@ public class ImportCommand extends ToolCommand
         LdapInvalidDnException, EncoderException
     {
         LdapProtocolEncoder encoder = new LdapProtocolEncoder();
-        InternalDeleteRequest delRequest = new DeleteRequestImpl( messageId );
+        DeleteRequest delRequest = new DeleteRequestImpl( messageId );
 
         String dn = entry.getDn().getName();
 
@@ -346,7 +346,7 @@ public class ImportCommand extends ToolCommand
     private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
-        InternalModifyDnRequest modifyDNRequest = new ModifyDnRequestImpl();
+        ModifyDnRequest modifyDNRequest = new ModifyDnRequestImpl();
 
         String dn = entry.getDn().getName();
 
@@ -408,7 +408,7 @@ public class ImportCommand extends ToolCommand
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
 
         String dn = entry.getDn().getName();
 
@@ -499,7 +499,7 @@ public class ImportCommand extends ToolCommand
      */
     private void bind( int messageId ) throws LdapInvalidDnException, EncoderException, DecoderException, IOException
     {
-        InternalBindRequest bindRequest = new BindRequestImpl( messageId );
+        BindRequest bindRequest = new BindRequestImpl( messageId );
 
         if ( "simple".equals( auth ) )
         {
@@ -551,7 +551,7 @@ public class ImportCommand extends ToolCommand
      */
     private void unbind( int messageId ) throws EncoderException, DecoderException, IOException
     {
-        InternalUnbindRequest unbindRequest = new UnbindRequestImpl( messageId );
+        UnbindRequest unbindRequest = new UnbindRequestImpl( messageId );
         LdapProtocolEncoder encoder = new LdapProtocolEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( unbindRequest );

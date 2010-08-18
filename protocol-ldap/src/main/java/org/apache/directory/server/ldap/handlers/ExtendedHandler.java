@@ -25,18 +25,18 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 
 
 /**
-* A single reply handler for {@link InternalExtendedRequest}s.
+* A single reply handler for {@link ExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
+public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
 {
-    public void handle( LdapSession session, InternalExtendedRequest req ) throws Exception
+    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
     {
         ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getRequestName() );
 

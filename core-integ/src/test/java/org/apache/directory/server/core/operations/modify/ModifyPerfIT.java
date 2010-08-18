@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,7 +95,7 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            InternalModifyRequest modRequest = new ModifyRequestImpl();
+            ModifyRequest modRequest = new ModifyRequestImpl();
             modRequest.setName( dn );
             Modification modification = new DefaultModification();
             EntryAttribute attribute = new DefaultEntryAttribute( "sn" );

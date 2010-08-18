@@ -78,7 +78,7 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.message.internal.IntermediateResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
@@ -209,7 +209,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    public void handleSyncRequest( LdapSession session, InternalSearchRequest req ) throws LdapException
+    public void handleSyncRequest( LdapSession session, SearchRequest req ) throws LdapException
     {
         try
         {
@@ -260,7 +260,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private String sendContentFromLog( LdapSession session, InternalSearchRequest req, ReplicaEventLog clientMsgLog )
+    private String sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog )
         throws Exception
     {
         // do the search from the log
@@ -303,7 +303,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void doContentUpdate( LdapSession session, InternalSearchRequest req, ReplicaEventLog replicaLog )
+    private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog )
         throws Exception
     {
         boolean refreshNPersist = isRefreshNPersist( req );
@@ -350,7 +350,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void doInitialRefresh( LdapSession session, InternalSearchRequest req ) throws Exception
+    private void doInitialRefresh( LdapSession session, SearchRequest req ) throws Exception
     {
 
         String originalFilter = req.getFilter().toString();
@@ -460,7 +460,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private SearchResultDone doSimpleSearch( LdapSession session, InternalSearchRequest req ) throws Exception
+    private SearchResultDone doSimpleSearch( LdapSession session, SearchRequest req ) throws Exception
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         LdapResult ldapResult = searchDoneResp.getLdapResult();
@@ -511,7 +511,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void readResults( LdapSession session, InternalSearchRequest req, LdapResult ldapResult,
+    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
@@ -555,7 +555,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void sendSearchResultEntry( LdapSession session, InternalSearchRequest req, Entry entry,
+    private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
         SyncStateTypeEnum syncStateType ) throws Exception
     {
 
@@ -579,7 +579,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void sendSearchResultEntry( LdapSession session, InternalSearchRequest req, Entry entry,
+    private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
         SyncModifyDnControl modDnControl ) throws Exception
     {
 
@@ -597,7 +597,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private Response generateResponse( LdapSession session, InternalSearchRequest req, Entry entry ) throws Exception
+    private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
         EntryAttribute ref = entry.get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
@@ -671,7 +671,7 @@ public class SyncReplProvider implements ReplicationProvider
     /**
      * Return the server size limit
      */
-    private long getServerSizeLimit( LdapSession session, InternalSearchRequest request )
+    private long getServerSizeLimit( LdapSession session, SearchRequest request )
     {
         if ( session.getCoreSession().isAnAdministrator() )
         {
@@ -698,7 +698,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void setTimeLimitsOnCursor( InternalSearchRequest req, LdapSession session,
+    private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session,
         final EntryFilteringCursor cursor )
     {
         // Don't bother setting time limits for administrators
@@ -748,7 +748,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    public ExprNode modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
+    public ExprNode modifyFilter( LdapSession session, SearchRequest req ) throws Exception
     {
         /*
          * Do not add the OR'd (objectClass=referral) expression if the user 
@@ -981,7 +981,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private void sendESyncRefreshRequired( LdapSession session, InternalSearchRequest req ) throws Exception
+    private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
@@ -992,7 +992,7 @@ public class SyncReplProvider implements ReplicationProvider
     }
 
 
-    private boolean isRefreshNPersist( InternalSearchRequest req )
+    private boolean isRefreshNPersist( SearchRequest req )
     {
         SyncRequestValueControl control = ( SyncRequestValueControl ) req.getControls().get(
             SyncRequestValueControl.CONTROL_OID );

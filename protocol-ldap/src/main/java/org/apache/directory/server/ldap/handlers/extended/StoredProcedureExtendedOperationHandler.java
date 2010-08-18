@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedur
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -75,7 +75,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         StoredProcedure spBean = decodeBean( req.getRequestValue() );
 

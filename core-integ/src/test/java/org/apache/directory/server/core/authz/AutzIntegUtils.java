@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -178,7 +178,7 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
 
@@ -195,7 +195,7 @@ public class AutzIntegUtils
      */
     public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.remove( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
         getAdminConnection().modify( modReq );
@@ -244,7 +244,7 @@ public class AutzIntegUtils
 
         if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
-            InternalModifyRequest modReq = new ModifyRequestImpl();
+            ModifyRequest modReq = new ModifyRequestImpl();
             modReq.setName( systemEntry.getDn() );
             modReq.add( "administrativeRole", "accessControlSpecificArea" );
             connection.modify( modReq );
@@ -274,7 +274,7 @@ public class AutzIntegUtils
     public static void addEntryACI( DN dn, String aciItem ) throws Exception
     {
         // modify the entry relative to ou=system to include the aciItem
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( dn );
         modReq.add( "entryACI", aciItem );
 
@@ -291,7 +291,7 @@ public class AutzIntegUtils
     public static void addSubentryACI( String aciItem ) throws Exception
     {
         // modify the entry relative to ou=system to include the aciItem
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "ou=system" ) );
         modReq.add( "subentryACI", aciItem );
         getAdminConnection().modify( modReq );
@@ -308,7 +308,7 @@ public class AutzIntegUtils
      */
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
         modReq.replace( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
@@ -317,7 +317,7 @@ public class AutzIntegUtils
 
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
         modReq.add( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );

@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
@@ -72,7 +72,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public RenameOperationContext( CoreSession session, InternalModifyDnRequest modifyDnRequest )
+    public RenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );
         this.newRdn = modifyDnRequest.getNewRdn();

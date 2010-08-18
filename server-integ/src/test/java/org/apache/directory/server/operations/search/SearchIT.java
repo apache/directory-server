@@ -64,7 +64,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
@@ -1654,7 +1654,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         long sizeLimit = 7;
         LdapConnection connection = getClientApiConnection( ldapServer );
-        InternalSearchRequest req = new SearchRequestImpl();
+        SearchRequest req = new SearchRequestImpl();
         req.setBase( new DN( "ou=system" ) );
         req.setFilter( "(ou=*)" );
         req.setScope( SearchScope.SUBTREE );
@@ -1677,7 +1677,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
-        InternalSearchRequest req = new SearchRequestImpl();
+        SearchRequest req = new SearchRequestImpl();
         req.setBase( new DN( "ou=schema" ) );
         req.setFilter( "(objectClass=*)" );
         req.setScope( SearchScope.SUBTREE );

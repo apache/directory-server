@@ -73,16 +73,16 @@ import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentr
 import org.apache.directory.shared.ldap.constants.SaslQoP;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
+import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
@@ -182,16 +182,16 @@ public class LdapServer extends DirectoryBackedService
     private List<String> saslRealms;
 
     /** The protocol handlers */
-    private LdapRequestHandler<InternalAbandonRequest> abandonHandler;
-    private LdapRequestHandler<InternalAddRequest> addHandler;
-    private LdapRequestHandler<InternalBindRequest> bindHandler;
-    private LdapRequestHandler<InternalCompareRequest> compareHandler;
-    private LdapRequestHandler<InternalDeleteRequest> deleteHandler;
-    private LdapRequestHandler<InternalExtendedRequest> extendedHandler;
-    private LdapRequestHandler<InternalModifyRequest> modifyHandler;
-    private LdapRequestHandler<InternalModifyDnRequest> modifyDnHandler;
-    private LdapRequestHandler<InternalSearchRequest> searchHandler;
-    private LdapRequestHandler<InternalUnbindRequest> unbindHandler;
+    private LdapRequestHandler<AbandonRequest> abandonHandler;
+    private LdapRequestHandler<AddRequest> addHandler;
+    private LdapRequestHandler<BindRequest> bindHandler;
+    private LdapRequestHandler<CompareRequest> compareHandler;
+    private LdapRequestHandler<DeleteRequest> deleteHandler;
+    private LdapRequestHandler<ExtendedRequest> extendedHandler;
+    private LdapRequestHandler<ModifyRequest> modifyHandler;
+    private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
+    private LdapRequestHandler<SearchRequest> searchHandler;
+    private LdapRequestHandler<UnbindRequest> unbindHandler;
 
     /** the underlying provider codec factory */
     private ProtocolCodecFactory codecFactory;
@@ -1041,7 +1041,7 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public MessageHandler<InternalAbandonRequest> getAbandonHandler()
+    public MessageHandler<AbandonRequest> getAbandonHandler()
     {
         return abandonHandler;
     }
@@ -1050,16 +1050,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The AbandonRequest handler
      */
-    public void setAbandonHandler( LdapRequestHandler<InternalAbandonRequest> abandonHandler )
+    public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalAbandonRequest.class );
+        this.handler.removeReceivedMessageHandler( AbandonRequest.class );
         this.abandonHandler = abandonHandler;
         this.abandonHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalAbandonRequest.class, this.abandonHandler );
+        this.handler.addReceivedMessageHandler( AbandonRequest.class, this.abandonHandler );
     }
 
 
-    public LdapRequestHandler<InternalAddRequest> getAddHandler()
+    public LdapRequestHandler<AddRequest> getAddHandler()
     {
         return addHandler;
     }
@@ -1068,16 +1068,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The AddRequest handler
      */
-    public void setAddHandler( LdapRequestHandler<InternalAddRequest> addHandler )
+    public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalAddRequest.class );
+        this.handler.removeReceivedMessageHandler( AddRequest.class );
         this.addHandler = addHandler;
         this.addHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalAddRequest.class, this.addHandler );
+        this.handler.addReceivedMessageHandler( AddRequest.class, this.addHandler );
     }
 
 
-    public LdapRequestHandler<InternalBindRequest> getBindHandler()
+    public LdapRequestHandler<BindRequest> getBindHandler()
     {
         return bindHandler;
     }
@@ -1086,17 +1086,17 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The BindRequest handler
      */
-    public void setBindHandler( LdapRequestHandler<InternalBindRequest> bindHandler )
+    public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
         this.bindHandler = bindHandler;
         this.bindHandler.setLdapServer( this );
 
-        handler.removeReceivedMessageHandler( InternalBindRequest.class );
-        handler.addReceivedMessageHandler( InternalBindRequest.class, this.bindHandler );
+        handler.removeReceivedMessageHandler( BindRequest.class );
+        handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
     }
 
 
-    public LdapRequestHandler<InternalCompareRequest> getCompareHandler()
+    public LdapRequestHandler<CompareRequest> getCompareHandler()
     {
         return compareHandler;
     }
@@ -1105,16 +1105,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The CompareRequest handler
      */
-    public void setCompareHandler( LdapRequestHandler<InternalCompareRequest> compareHandler )
+    public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalCompareRequest.class );
+        this.handler.removeReceivedMessageHandler( CompareRequest.class );
         this.compareHandler = compareHandler;
         this.compareHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalCompareRequest.class, this.compareHandler );
+        this.handler.addReceivedMessageHandler( CompareRequest.class, this.compareHandler );
     }
 
 
-    public LdapRequestHandler<InternalDeleteRequest> getDeleteHandler()
+    public LdapRequestHandler<DeleteRequest> getDeleteHandler()
     {
         return deleteHandler;
     }
@@ -1123,16 +1123,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The DeleteRequest handler
      */
-    public void setDeleteHandler( LdapRequestHandler<InternalDeleteRequest> deleteHandler )
+    public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalDeleteRequest.class );
+        this.handler.removeReceivedMessageHandler( DeleteRequest.class );
         this.deleteHandler = deleteHandler;
         this.deleteHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalDeleteRequest.class, this.deleteHandler );
+        this.handler.addReceivedMessageHandler( DeleteRequest.class, this.deleteHandler );
     }
 
 
-    public LdapRequestHandler<InternalExtendedRequest> getExtendedHandler()
+    public LdapRequestHandler<ExtendedRequest> getExtendedHandler()
     {
         return extendedHandler;
     }
@@ -1141,16 +1141,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The ExtendedRequest handler
      */
-    public void setExtendedHandler( LdapRequestHandler<InternalExtendedRequest> extendedHandler )
+    public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalExtendedRequest.class );
+        this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
         this.extendedHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalExtendedRequest.class, this.extendedHandler );
+        this.handler.addReceivedMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
 
 
-    public LdapRequestHandler<InternalModifyRequest> getModifyHandler()
+    public LdapRequestHandler<ModifyRequest> getModifyHandler()
     {
         return modifyHandler;
     }
@@ -1159,16 +1159,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The ModifyRequest handler
      */
-    public void setModifyHandler( LdapRequestHandler<InternalModifyRequest> modifyHandler )
+    public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalModifyRequest.class );
+        this.handler.removeReceivedMessageHandler( ModifyRequest.class );
         this.modifyHandler = modifyHandler;
         this.modifyHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalModifyRequest.class, this.modifyHandler );
+        this.handler.addReceivedMessageHandler( ModifyRequest.class, this.modifyHandler );
     }
 
 
-    public LdapRequestHandler<InternalModifyDnRequest> getModifyDnHandler()
+    public LdapRequestHandler<ModifyDnRequest> getModifyDnHandler()
     {
         return modifyDnHandler;
     }
@@ -1177,16 +1177,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The ModifyDNRequest handler
      */
-    public void setModifyDnHandler( LdapRequestHandler<InternalModifyDnRequest> modifyDnHandler )
+    public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalModifyDnRequest.class );
+        this.handler.removeReceivedMessageHandler( ModifyDnRequest.class );
         this.modifyDnHandler = modifyDnHandler;
         this.modifyDnHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalModifyDnRequest.class, this.modifyDnHandler );
+        this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
     }
 
 
-    public LdapRequestHandler<InternalSearchRequest> getSearchHandler()
+    public LdapRequestHandler<SearchRequest> getSearchHandler()
     {
         return searchHandler;
     }
@@ -1195,16 +1195,16 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The SearchRequest handler
      */
-    public void setSearchHandler( LdapRequestHandler<InternalSearchRequest> searchHandler )
+    public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalSearchRequest.class );
+        this.handler.removeReceivedMessageHandler( SearchRequest.class );
         this.searchHandler = searchHandler;
         this.searchHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalSearchRequest.class, this.searchHandler );
+        this.handler.addReceivedMessageHandler( SearchRequest.class, this.searchHandler );
     }
 
 
-    public LdapRequestHandler<InternalUnbindRequest> getUnbindHandler()
+    public LdapRequestHandler<UnbindRequest> getUnbindHandler()
     {
         return unbindHandler;
     }
@@ -1269,12 +1269,12 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param abandonHandler The UnbindRequest handler
      */
-    public void setUnbindHandler( LdapRequestHandler<InternalUnbindRequest> unbindHandler )
+    public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {
-        this.handler.removeReceivedMessageHandler( InternalUnbindRequest.class );
+        this.handler.removeReceivedMessageHandler( UnbindRequest.class );
         this.unbindHandler = unbindHandler;
         this.unbindHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( InternalUnbindRequest.class, this.unbindHandler );
+        this.handler.addReceivedMessageHandler( UnbindRequest.class, this.unbindHandler );
     }
 
 

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
@@ -110,7 +110,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        InternalModifyRequest modRequest = new ModifyRequestImpl();
+        ModifyRequest modRequest = new ModifyRequestImpl();
         modRequest.setName( dn );
         modRequest.replace( SchemaConstants.SN_AT, expected );
 
@@ -167,7 +167,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         assertEquals( "test", gn );
 
         // Now, replace the givenName
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( "givenName" );
         connection.modify( modifyRequest );
@@ -184,7 +184,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.SN_AT, expected );
 
@@ -222,7 +222,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
 
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
@@ -249,7 +249,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         String modifierName = "uid=x,ou=system";
         String modifiedTime = DateUtils.getGeneralizedTime();
 
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
         modifyRequest.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );

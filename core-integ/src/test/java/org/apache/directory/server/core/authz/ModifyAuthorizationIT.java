@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.ModifyResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -119,7 +119,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         // modify the entry as the user
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( entryDN );
 
         for ( Modification modification : mods )
@@ -184,7 +184,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
         // modify the entry as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( entryDN );
         modReq.addModification( attr, modOp );
 
@@ -224,7 +224,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         DN userDN = new DN( "uid=" + uid + ",ou=users,ou=system" );
         LdapConnection connection = getConnectionAs( userDN, password );
 
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( userDN );
 
         for ( Modification modification : mods )

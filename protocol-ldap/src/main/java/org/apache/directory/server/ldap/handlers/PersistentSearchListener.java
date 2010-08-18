@@ -36,8 +36,8 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +59,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 {
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final LdapSession session;
-    final InternalSearchRequest req;
+    final SearchRequest req;
     final PersistentSearchControl control;
 
 
-    PersistentSearchListener( LdapSession session, InternalSearchRequest req )
+    PersistentSearchListener( LdapSession session, SearchRequest req )
     {
         this.session = session;
         this.req = req;
@@ -92,7 +92,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
 
 
-    public void requestAbandoned( InternalAbandonableRequest req )
+    public void requestAbandoned( AbandonableRequest req )
     {
         try
         {

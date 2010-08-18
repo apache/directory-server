@@ -60,7 +60,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.internal.AddResponse;
 import org.apache.directory.shared.ldap.message.internal.DeleteResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
@@ -205,7 +205,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( LdapConnection connection, String dn, String role ) throws Exception
     {
-        InternalModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( new DN( dn ) );
         modifyRequest.add( "administrativeRole", role );
         connection.modify( modifyRequest );

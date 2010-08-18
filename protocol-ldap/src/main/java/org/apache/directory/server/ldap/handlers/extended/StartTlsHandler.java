@@ -42,7 +42,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -74,7 +74,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
 

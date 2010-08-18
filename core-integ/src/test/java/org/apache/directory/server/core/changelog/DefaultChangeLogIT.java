@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -290,7 +290,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertPresent( sysRoot, "ou=test5,ou=system" );
 
         // modify the test entry to add description and test new attr appears
-        InternalModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( entry.getDn() );
         modReq.add( "description", "a desc value" );
         sysRoot.modify( modReq );

@@ -33,12 +33,12 @@ import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalReferral;
-import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
+import org.apache.directory.shared.ldap.message.internal.AbandonRequest;
+import org.apache.directory.shared.ldap.message.internal.BindRequest;
+import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.internal.Referral;
+import org.apache.directory.shared.ldap.message.internal.Request;
+import org.apache.directory.shared.ldap.message.internal.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.ResultResponse;
 import org.apache.directory.shared.ldap.name.DN;
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class LdapRequestHandler<T extends InternalRequest> implements MessageHandler<T>
+public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
@@ -162,10 +162,10 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         // protect against insecure conns when confidentiality is required 
         if ( !isConfidentialityRequirementSatisfied( session ) )
         {
-            if ( message instanceof InternalExtendedRequest )
+            if ( message instanceof ExtendedRequest )
             {
                 // Reject all extended operations except StartTls  
-                InternalExtendedRequest req = ( InternalExtendedRequest ) message;
+                ExtendedRequest req = ( ExtendedRequest ) message;
 
                 if ( !req.getRequestName().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
@@ -175,10 +175,10 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
 
                 // Allow StartTls extended operations to go through
             }
-            else if ( message instanceof InternalResultResponseRequest )
+            else if ( message instanceof ResultResponseRequest )
             {
                 // Reject all other operations that have a result response  
-                rejectWithoutConfidentiality( session, ( ( InternalResultResponseRequest ) message )
+                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message )
                     .getResultResponse() );
                 return;
             }
@@ -191,7 +191,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
 
         // We should check that the server allows anonymous requests
         // only if it's not a BindRequest
-        if ( message instanceof InternalBindRequest )
+        if ( message instanceof BindRequest )
         {
             handle( ldapSession, message );
         }
@@ -214,7 +214,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
 
-            if ( message instanceof InternalAbandonRequest )
+            if ( message instanceof AbandonRequest )
             {
                 return;
             }
@@ -238,7 +238,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleException( LdapSession session, InternalResultResponseRequest req, Exception e )
+    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
 
@@ -289,7 +289,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             // Add the referrals if necessary
             if ( e instanceof LdapReferralException )
             {
-                InternalReferral referrals = new ReferralImpl();
+                Referral referrals = new ReferralImpl();
 
                 do
                 {

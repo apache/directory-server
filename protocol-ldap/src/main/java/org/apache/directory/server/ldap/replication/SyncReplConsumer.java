@@ -74,7 +74,7 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.message.internal.BindResponse;
 import org.apache.directory.shared.ldap.message.internal.IntermediateResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
 import org.apache.directory.shared.ldap.message.internal.LdapResult;
 import org.apache.directory.shared.ldap.message.internal.Response;
 import org.apache.directory.shared.ldap.message.internal.SearchResultDone;
@@ -114,7 +114,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     private LdapNetworkConnection connection;
 
     /** the search request with control */
-    private InternalSearchRequest searchRequest;
+    private SearchRequest searchRequest;
 
     /** a reference to the directoryService */
     private DirectoryService directoryService;

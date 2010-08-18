@@ -58,13 +58,13 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.AddRequest;
+import org.apache.directory.shared.ldap.message.internal.CompareRequest;
+import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
+import org.apache.directory.shared.ldap.message.internal.SearchRequest;
+import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -163,7 +163,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( InternalAddRequest addRequest ) throws LdapException
+    public void add( AddRequest addRequest ) throws LdapException
     {
         add( addRequest, LogChange.TRUE );
     }
@@ -172,7 +172,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( InternalAddRequest addRequest, LogChange log ) throws LdapException
+    public void add( AddRequest addRequest, LogChange log ) throws LdapException
     {
         AddOperationContext addContext = new AddOperationContext( this, addRequest );
 
@@ -781,7 +781,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public boolean compare( InternalCompareRequest compareRequest ) throws LdapException
+    public boolean compare( CompareRequest compareRequest ) throws LdapException
     {
         CompareOperationContext compareContext = new CompareOperationContext( this, compareRequest );
         OperationManager operationManager = directoryService.getOperationManager();
@@ -794,7 +794,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( InternalDeleteRequest deleteRequest ) throws LdapException
+    public void delete( DeleteRequest deleteRequest ) throws LdapException
     {
         delete( deleteRequest, LogChange.TRUE );
     }
@@ -803,7 +803,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws LdapException
+    public void delete( DeleteRequest deleteRequest, LogChange log ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( this, deleteRequest );
 
@@ -826,7 +826,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( InternalModifyRequest modifyRequest ) throws LdapException
+    public void modify( ModifyRequest modifyRequest ) throws LdapException
     {
         modify( modifyRequest, LogChange.TRUE );
     }
@@ -835,7 +835,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( InternalModifyRequest modifyRequest, LogChange log ) throws LdapException
+    public void modify( ModifyRequest modifyRequest, LogChange log ) throws LdapException
     {
         ModifyOperationContext modifyContext = new ModifyOperationContext( this, modifyRequest );
 
@@ -850,7 +850,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( InternalModifyDnRequest modifyDnRequest ) throws LdapException
+    public void move( ModifyDnRequest modifyDnRequest ) throws LdapException
     {
         move( modifyDnRequest, LogChange.TRUE );
     }
@@ -859,7 +859,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
+    public void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
         MoveOperationContext moveContext = new MoveOperationContext( this, modifyDnRequest );
 
@@ -874,7 +874,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( InternalModifyDnRequest modifyDnRequest ) throws LdapException
+    public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws LdapException
     {
         moveAndRename( modifyDnRequest, LogChange.TRUE );
     }
@@ -883,7 +883,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
+    public void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
         MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
 
@@ -898,7 +898,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( InternalModifyDnRequest modifyDnRequest ) throws LdapException
+    public void rename( ModifyDnRequest modifyDnRequest ) throws LdapException
     {
         rename( modifyDnRequest, LogChange.TRUE );
     }
@@ -907,7 +907,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
+    public void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
         RenameOperationContext renameContext = new RenameOperationContext( this, modifyDnRequest );
 
@@ -919,7 +919,7 @@ public class MockCoreSession implements CoreSession
     }
 
 
-    public EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws LdapException
+    public EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
@@ -937,7 +937,7 @@ public class MockCoreSession implements CoreSession
     }
 
 
-    public void unbind( InternalUnbindRequest unbindRequest )
+    public void unbind( UnbindRequest unbindRequest )
     {
         // TODO Auto-generated method stub
 
