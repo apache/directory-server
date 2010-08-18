@@ -35,42 +35,12 @@ import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
-import org.apache.directory.shared.ldap.codec.LdapResultCodec;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.BindResponse;
-import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.AddRequest;
-import org.apache.directory.shared.ldap.message.internal.BindRequest;
-import org.apache.directory.shared.ldap.message.internal.DeleteRequest;
-import org.apache.directory.shared.ldap.message.internal.Message;
-import org.apache.directory.shared.ldap.message.internal.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.internal.ModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.UnbindRequest;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -150,9 +120,9 @@ public class ImportCommand extends ToolCommand
     }
 
 
+    /*
     private LdapMessageCodec readResponse( ByteBuffer bb ) throws IOException, DecoderException
     {
-
         LdapMessageCodec messageResp = null;
 
         while ( true )
@@ -206,7 +176,6 @@ public class ImportCommand extends ToolCommand
         }
 
         return messageResp;
-
     }
 
 
@@ -214,11 +183,9 @@ public class ImportCommand extends ToolCommand
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param ldifEntry
-     *            The entry to add
-     * @param msgId
-     *            message id number
-     */
+     * @param ldifEntry The entry to add
+     * @param msgId message id number
+     *
     private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, LdapException,
         EncoderException
     {
@@ -288,7 +255,7 @@ public class ImportCommand extends ToolCommand
      *            The entry to delete
      * @param msgId
      *            message id number
-     */
+     *
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
@@ -342,7 +309,7 @@ public class ImportCommand extends ToolCommand
      *            The entry to modify
      * @param msgId
      *            message id number
-     */
+     *
     private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
@@ -404,7 +371,7 @@ public class ImportCommand extends ToolCommand
      * 
      * @param entry The entry to modify
      * @param msgId message id number
-     */
+     *
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
@@ -466,7 +433,7 @@ public class ImportCommand extends ToolCommand
      *            The entry to add
      * @param msgId
      *            message id number
-     */
+     *
     private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, LdapException,
         EncoderException
     {
@@ -496,7 +463,7 @@ public class ImportCommand extends ToolCommand
      * Bind to the ldap server
      * 
      * @param messageId The message Id
-     */
+     *
     private void bind( int messageId ) throws LdapInvalidDnException, EncoderException, DecoderException, IOException
     {
         BindRequest bindRequest = new BindRequestImpl( messageId );
@@ -574,6 +541,11 @@ public class ImportCommand extends ToolCommand
      */
     public void execute( CommandLine cmd ) throws Exception
     {
+        return;
+    }
+
+
+    /*
         processOptions( cmd );
 
         if ( isDebugEnabled() )
