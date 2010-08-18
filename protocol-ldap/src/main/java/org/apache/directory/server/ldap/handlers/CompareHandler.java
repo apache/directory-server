@@ -21,9 +21,9 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.CompareRequest;
-import org.apache.directory.shared.ldap.message.internal.LdapResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

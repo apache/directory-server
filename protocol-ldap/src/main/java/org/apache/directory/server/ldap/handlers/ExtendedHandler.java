@@ -23,10 +23,10 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.LdapResult;
 
 
 /**

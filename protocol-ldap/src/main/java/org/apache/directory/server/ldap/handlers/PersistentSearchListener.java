@@ -35,10 +35,10 @@ import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryC
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
+import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
-import org.apache.directory.shared.ldap.message.internal.AbandonableRequest;
-import org.apache.directory.shared.ldap.message.internal.SearchRequest;
-import org.apache.directory.shared.ldap.message.internal.SearchResultEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.replication;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.internal.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 
 /**
  * Interface for a replication provider.

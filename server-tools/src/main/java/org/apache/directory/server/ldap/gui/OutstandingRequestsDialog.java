@@ -33,7 +33,7 @@ import javax.swing.JButton;
 
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.internal.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.AbandonableRequest;
 
 import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
@@ -191,7 +191,7 @@ public class OutstandingRequestsDialog extends JDialog
         {
             requests = new AbandonableRequest[reqsMap.size()];
             //noinspection unchecked
-            requests = (org.apache.directory.shared.ldap.message.internal.AbandonableRequest[] ) reqsMap.values().toArray( requests );
+            requests = (org.apache.directory.shared.ldap.message.AbandonableRequest[] ) reqsMap.values().toArray( requests );
         }
         else
         {

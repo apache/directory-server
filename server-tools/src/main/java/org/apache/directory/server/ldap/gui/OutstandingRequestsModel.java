@@ -24,7 +24,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.message.internal.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.AbandonableRequest;
 
 
 public class OutstandingRequestsModel implements TableModel
