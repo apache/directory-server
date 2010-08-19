@@ -3,7 +3,7 @@ dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ou=co
  nfig
 ads-systemport: 10636
 ads-transportenablessl: true
-ads-transportaddress: localhost
+ads-transportaddress: 0.0.0.0
 ads-transportid: ldaps
 objectclass: ads-transport
 objectclass: ads-tcpTransport
