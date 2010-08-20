@@ -22,9 +22,9 @@ package org.apache.directory.server.ldap.handlers;
  
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -32,11 +32,11 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link InternalModifyDnRequest}s.
+ * A single reply handler for {@link ModifyDnRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
+public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ModifyDnHandler.class );
 
@@ -57,9 +57,9 @@ public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
      * - newSuperior : this is a move operation. The entry is removed from its
      * current location, and created in the new one.
      */
-    public void handle( LdapSession session, InternalModifyDnRequest req )
+    public void handle( LdapSession session, ModifyDnRequest req )
     {
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
         LOG.debug( "Handling modify dn request while ignoring referrals: {}", req );
 
         if ( req.getName().isEmpty() )

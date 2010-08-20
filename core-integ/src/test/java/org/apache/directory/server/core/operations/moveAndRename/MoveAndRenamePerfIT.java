@@ -19,11 +19,11 @@
  */
 package org.apache.directory.server.core.operations.moveAndRename;
 
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -33,6 +33,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,27 +46,11 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "MovePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
-                @ContextEntry(
-                    entryLdif = 
-                        "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
-            indexes =
-            { 
-                @CreateIndex(attribute = "objectClass", cacheSize = 1000), 
-                @CreateIndex(attribute = "sn", cacheSize = 1000),
-                @CreateIndex(attribute = "cn", cacheSize = 1000) 
-            })
-    }, 
-    enableChangeLog = false)
+@CreateDS(name = "MovePerfDS", partitions =
+    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
+        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
+        { @CreateIndex(attribute = "objectClass", cacheSize = 1000), @CreateIndex(attribute = "sn", cacheSize = 1000),
+            @CreateIndex(attribute = "cn", cacheSize = 1000) }) }, enableChangeLog = false)
 public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -90,7 +75,7 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 100 == 0 )
@@ -107,12 +92,12 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
             }
 
             long ttt0 = System.nanoTime();
-            
+
             connection.moveAndRename( oldDn, newDn );
-            
-            SearchResponse oldEntry = connection.lookup( oldDn.getName() );
-            SearchResponse newEntry = connection.lookup( newDn.getName() );
-            
+
+            Response oldEntry = connection.lookup( oldDn.getName() );
+            Response newEntry = connection.lookup( newDn.getName() );
+
             assertNull( oldEntry );
             assertNotNull( newEntry );
             long ttt1 = System.nanoTime();
@@ -121,14 +106,15 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
             DN tmpDn = newDn;
             newDn = oldDn;
             oldDn = tmpDn;
-            
+
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

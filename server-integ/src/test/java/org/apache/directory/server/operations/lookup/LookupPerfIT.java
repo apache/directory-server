@@ -32,8 +32,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -42,6 +40,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,14 +53,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(
-    transports =
-      { 
-        @CreateTransport(protocol = "LDAP") 
-      })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class LookupPerfIT extends AbstractLdapTestUnit
 {
     public static LdapServer ldapServer;
+
 
     /**
      * Evaluate the lookup operation performances
@@ -70,37 +68,37 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
 
-        SearchResponse response = connection.lookup( "uid=admin,ou=system" );;
+        Response response = connection.lookup( "uid=admin,ou=system" );;
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        
-        SearchResultEntry result = (SearchResultEntry)response;
+
+        SearchResultEntry result = ( SearchResultEntry ) response;
 
         assertNotNull( result );
-        
+
         Entry entry = result.getEntry();
-        
+
         assertNotNull( entry );
 
         long t0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < 50; i++ )
         {
-            for ( int j = 0; j < 10000; j++)
+            for ( int j = 0; j < 10000; j++ )
             {
                 response = connection.lookup( "uid=admin,ou=system", "+" );
             }
-            
+
             System.out.print( "." );
         }
-        
+
         long t1 = System.currentTimeMillis();
-        
+
         System.out.println( "Delta : " + ( t1 - t0 ) );
         connection.close();
     }
-    
-    
+
+
     public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -109,11 +107,11 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        
+
         return new InitialLdapContext( env, JndiUtils.toJndiControls( controls ) );
     }
 
-    
+
     /**
      * Evaluate the lookup operation performances
      */
@@ -121,27 +119,27 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     public void testLookupPerfJNDI() throws Exception
     {
         LdapContext ctx = getWiredContext( ldapServer, null );
-        
+
         Attributes result = ctx.getAttributes( "uid=admin,ou=system" );
-        
+
         assertNotNull( result );
 
         long t0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < 50; i++ )
         {
-            for ( int j = 0; j < 10000; j++)
+            for ( int j = 0; j < 10000; j++ )
             {
                 ctx.getAttributes( "uid=admin,ou=system" );
             }
-            
+
             System.out.print( "." );
         }
-        
+
         long t1 = System.currentTimeMillis();
-        
+
         System.out.println( "Delta : " + ( t1 - t0 ) );
-        
+
         ctx.close();
     }
 }

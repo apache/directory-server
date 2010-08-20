@@ -25,7 +25,7 @@ import javax.security.sasl.SaslServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.BindRequest;
 
 
 /**
@@ -53,7 +53,7 @@ public class NtlmMechanismHandler extends AbstractMechanismHandler
     }
 
 
-    public SaslServer handleMechanism( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 

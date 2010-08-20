@@ -21,9 +21,6 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AddResponse;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -31,7 +28,11 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -44,6 +45,7 @@ import org.apache.directory.shared.ldap.name.DN;
 public class AutzIntegUtils
 {
     public static DirectoryService service;
+
 
     // -----------------------------------------------------------------------
     // Utility methods used by subclasses
@@ -176,7 +178,8 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
 
         connection.modify( modReq ).getLdapResult().getResultCode();
@@ -192,7 +195,8 @@ public class AutzIntegUtils
      */
     public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
-        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.remove( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
         getAdminConnection().modify( modReq );
     }
@@ -240,7 +244,8 @@ public class AutzIntegUtils
 
         if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
-            ModifyRequest modReq = new ModifyRequest( systemEntry.getDn() );
+            ModifyRequest modReq = new ModifyRequestImpl();
+            modReq.setName( systemEntry.getDn() );
             modReq.add( "administrativeRole", "accessControlSpecificArea" );
             connection.modify( modReq );
         }
@@ -269,7 +274,8 @@ public class AutzIntegUtils
     public static void addEntryACI( DN dn, String aciItem ) throws Exception
     {
         // modify the entry relative to ou=system to include the aciItem
-        ModifyRequest modReq = new ModifyRequest( dn );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( dn );
         modReq.add( "entryACI", aciItem );
 
         getAdminConnection().modify( modReq );
@@ -285,7 +291,8 @@ public class AutzIntegUtils
     public static void addSubentryACI( String aciItem ) throws Exception
     {
         // modify the entry relative to ou=system to include the aciItem
-        ModifyRequest modReq = new ModifyRequest( new DN( "ou=system" ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "ou=system" ) );
         modReq.add( "subentryACI", aciItem );
         getAdminConnection().modify( modReq );
     }
@@ -301,15 +308,17 @@ public class AutzIntegUtils
      */
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
-        ModifyRequest req = new ModifyRequest( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
-        req.replace( "prescriptiveACI", aciItem );
-        getAdminConnection().modify( req );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        modReq.replace( "prescriptiveACI", aciItem );
+        getAdminConnection().modify( modReq );
     }
 
 
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
-        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
         modReq.add( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
     }

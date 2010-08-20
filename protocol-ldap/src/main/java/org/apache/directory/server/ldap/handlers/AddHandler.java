@@ -22,20 +22,20 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * An LDAP add operation {@link InternalAddRequest} handler.
+ * An LDAP add operation {@link AddRequest} handler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddHandler extends LdapRequestHandler<InternalAddRequest>
+public class AddHandler extends LdapRequestHandler<AddRequest>
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AddHandler.class );
@@ -44,10 +44,10 @@ public class AddHandler extends LdapRequestHandler<InternalAddRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, InternalAddRequest req ) 
+    public void handle( LdapSession session, AddRequest req ) 
     {
         LOG.debug( "Handling request: {}", req );
-        InternalLdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {

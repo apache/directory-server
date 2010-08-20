@@ -43,10 +43,10 @@ import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedur
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -60,8 +60,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
-    
-    
+
+
     public StoredProcedureExtendedOperationHandler()
     {
         super();
@@ -75,40 +75,41 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        StoredProcedure spBean = decodeBean( req.getPayload() );
-        
+        StoredProcedure spBean = decodeBean( req.getRequestValue() );
+
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
         ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
-        
+
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
-        
-        for ( StoredProcedureParameter pPojo:spBean.getParameters() )
+
+        for ( StoredProcedureParameter pPojo : spBean.getParameters() )
         {
             byte[] serializedValue = pPojo.getValue();
             Object value = SerializationUtils.deserialize( serializedValue );
-            
+
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
                 value = session.getCoreSession().lookup( new DN( paramCtx ) );
             }
-            
+
             valueList.add( value );
         }
-        
+
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
-        
+
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
-        
+
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( InternalExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
+        ( ( ExtendedResponse ) ( req.getResultResponse() ) ).setResponseValue( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
-        
+
     }
-    
+
+
     private StoredProcedure decodeBean( byte[] payload )
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -125,19 +126,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         }
 
         StoredProcedure spBean = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
-        
+
         return spBean;
     }
 
-    
+
     public String getOid()
     {
         return StoredProcedureRequest.EXTENSION_OID;
     }
 
-
     private static final Set<String> EXTENSION_OIDS;
-    
+
     static
     {
         Set<String> s = new HashSet<String>();
@@ -145,8 +145,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         s.add( StoredProcedureResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( s );
     }
-    
-    
+
+
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;

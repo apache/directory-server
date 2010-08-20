@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.client.api;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,9 +33,6 @@ import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -46,24 +44,24 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the LdapConnection class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    })
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
 
@@ -121,7 +119,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             {
                 connection.close();
             }
-            catch( IOException ioe )
+            catch ( IOException ioe )
             {
                 fail();
             }
@@ -141,7 +139,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        SearchResponse resp = connection.lookup( ADMIN_DN );
+        Response resp = connection.lookup( ADMIN_DN );
         assertNotNull( resp );
 
         Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
@@ -157,14 +155,14 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void searchByEntryUuid() throws Exception
     {
-        SearchResponse resp = connection.lookup( ADMIN_DN, "+" );
+        Response resp = connection.lookup( ADMIN_DN, "+" );
         Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
 
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
 
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new StringValue( uuid ) );
 
-        Cursor<SearchResponse> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
+        Cursor<Response> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
 
         Entry readEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
@@ -206,7 +204,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
+        Cursor<Response> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
         HashMap<String, Entry> map = new HashMap<String, Entry>();
 
         while ( cursor.next() )

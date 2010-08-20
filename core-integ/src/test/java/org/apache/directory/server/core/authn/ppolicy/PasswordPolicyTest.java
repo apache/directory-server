@@ -32,11 +32,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AbstractResponseWithResult;
-import org.apache.directory.ldap.client.api.message.AddRequest;
-import org.apache.directory.ldap.client.api.message.AddResponse;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -56,6 +51,13 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
@@ -65,21 +67,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test cases for testing PasswordPolicy implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
-
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 // disable changelog, for more info see DIRSERVER-1528
-@CreateDS( enableChangeLog=false)
+@CreateDS(enableChangeLog = false)
 public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
@@ -93,7 +91,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     public void setPwdPolicy() throws LdapException
     {
         policyConfig = new PasswordPolicyConfiguration();
-        
+
         policyConfig.setPwdMaxAge( 110 );
         policyConfig.setPwdFailureCountInterval( 30 );
         policyConfig.setPwdMaxFailure( 2 );
@@ -108,7 +106,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) service
             .getInterceptor( AuthenticationInterceptor.class.getName() );
         authInterceptor.setPwdPolicyConfig( policyConfig );
-        
+
         authInterceptor.loadPwdPolicyStateAtributeTypes();
     }
 
@@ -126,17 +124,14 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
         DN userDn = new DN( "cn=user,ou=system" );
-        Entry userEntry = LdifUtils.createEntry( userDn, 
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: user",
-            "sn: user_sn",
-            "userPassword: 1234" ); 
+        Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
+            "sn: user_sn", "userPassword: 1234" );
 
-        AddRequest addReq = new AddRequest( userEntry );
-        addReq.add( PP_REQ_CTRL );
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
@@ -146,8 +141,8 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         EntryAttribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
         pwdAt.add( "12345" );
-        
-        addResp = connection.add( addReq );
+
+        addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
@@ -163,10 +158,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
-        byte[] password = PasswordUtil.encryptPassword( "12345".getBytes(), LdapSecurityConstants.HASH_METHOD_CRYPT, null );
+        byte[] password = PasswordUtil.encryptPassword( "12345".getBytes(), LdapSecurityConstants.HASH_METHOD_CRYPT,
+            null );
         String strPwd = "{crypt}" + StringTools.utf8ToString( password );
         password = strPwd.getBytes();
-        
+
         DN userDn = new DN( "cn=hashedpwd,ou=system" );
         Entry userEntry = new DefaultEntry( userDn );
         userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
@@ -174,10 +170,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         userEntry.add( SchemaConstants.SN_AT, "hashedpwd_sn" );
         userEntry.add( SchemaConstants.USER_PASSWORD_AT, password );
 
-        AddRequest addReq = new AddRequest( userEntry );
-        addReq.add( PP_REQ_CTRL );
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
@@ -188,65 +185,66 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         EntryAttribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
         pwdAt.add( password );
-        
-        addResp = connection.add( addReq );
+
+        addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), StringTools.utf8ToString( password ) );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), StringTools
+            .utf8ToString( password ) );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
 
-    
+
     @Test
     public void testPwdMinAge() throws Exception
     {
         policyConfig.setPwdMinAge( 5 );
-        
+
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
-        
+
         DN userDn = new DN( "cn=userMinAge,ou=system" );
-        Entry userEntry = LdifUtils.createEntry( userDn, 
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userMinAge",
-            "sn: userMinAge_sn",
-            "userPassword: 12345" ); 
+        Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
+            "sn: userMinAge_sn", "userPassword: 12345" );
 
-        AddRequest addReq = new AddRequest( userEntry );
-        addReq.add( PP_REQ_CTRL );
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addReq );
+        AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
-        
-        ModifyRequest modReq = new ModifyRequest( userDn );
-        modReq.add( PP_REQ_CTRL );
+
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
-        
+
         ModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
-        
+
         respCtrl = getPwdRespCtrl( modResp );
         assertEquals( PASSWORD_TOO_YOUNG, respCtrl.getPasswordPolicyError() );
-        
+
         Thread.sleep( 5000 );
-      
+
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
-        
+
         LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
 
-    private PasswordPolicyResponseControl getPwdRespCtrl( AbstractResponseWithResult resp ) throws Exception
+
+    private PasswordPolicyResponseControl getPwdRespCtrl( Response resp ) throws Exception
     {
-        Control ctrl = resp.getControl( PP_REQ_CTRL.getOid() );
+        Control ctrl = resp.getControls().get( PP_REQ_CTRL.getOid() );
+
         if ( ctrl == null )
         {
             return null;

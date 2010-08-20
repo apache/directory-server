@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap;
 
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
 
 
 /**
@@ -58,7 +58,7 @@ public interface ExtendedOperationHandler
      * 
      * @throws Exception if failed to handle the operation
      */
-    void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception;
+    void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception;
 
 
     /**

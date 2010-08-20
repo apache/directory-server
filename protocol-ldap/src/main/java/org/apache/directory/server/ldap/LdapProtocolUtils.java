@@ -21,8 +21,8 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.Response;
 
 
 /**
@@ -39,11 +39,11 @@ public class LdapProtocolUtils implements LdapProtocolConstants
      * @param opContext the context to populate with request controls
      * @param request the request to extract controls from
      */
-    public static void setRequestControls( OperationContext opContext, InternalRequest request ) throws Exception
+    public static void setRequestControls( OperationContext opContext, Request request ) throws Exception
     {
         if ( request.getControls() != null )
         {
-            request.addAll( request.getControls().values().toArray( EMPTY_CONTROLS ) );
+            request.addAllControls( request.getControls().values().toArray( EMPTY_CONTROLS ) );
         }
     }
 
@@ -55,7 +55,7 @@ public class LdapProtocolUtils implements LdapProtocolConstants
      * @param opContext the context to extract controls from
      * @param response the response to populate with response controls
      */
-    public static void setResponseControls( OperationContext opContext, InternalResponse response ) throws Exception
+    public static void setResponseControls( OperationContext opContext, Response response ) throws Exception
     {
         opContext.addRequestControls( opContext.getResponseControls() );
     }

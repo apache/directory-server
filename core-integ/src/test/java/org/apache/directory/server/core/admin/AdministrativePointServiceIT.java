@@ -25,11 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AddResponse;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -39,7 +34,12 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ModifyDnResponse;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 {
     // The shared LDAP connection
@@ -74,14 +74,15 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
     private Entry getAdminRole( String dn ) throws Exception
     {
-        SearchResponse lookup = connection.lookup( dn, "administrativeRole" );
+        Response lookup = connection.lookup( dn, "administrativeRole" );
 
         assertTrue( lookup instanceof SearchResultEntry );
 
-        Entry entry = ((SearchResultEntry)lookup).getEntry();
+        Entry entry = ( ( SearchResultEntry ) lookup ).getEntry();
 
         return entry;
     }
+
 
     // -------------------------------------------------------------------
     // Test the Add operation
@@ -93,13 +94,8 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddAutonomousArea() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: autonomousArea"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: autonomousArea" );
 
         // It should succeed
         AddResponse response = connection.add( autonomousArea );
@@ -115,17 +111,11 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertFalse( entry.contains( "administrativeRole", "2.5.23.4" ) );
         assertFalse( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
-        autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea2, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea2",
-            "administrativeRole: autonomousArea",
-            "administrativeRole: accessControlSpecificArea",
-            "administrativeRole: collectiveAttributeInnerArea",
+        autonomousArea = LdifUtils.createEntry( "ou=autonomousArea2, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea2", "administrativeRole: autonomousArea",
+            "administrativeRole: accessControlSpecificArea", "administrativeRole: collectiveAttributeInnerArea",
             "administrativeRole: 2.5.23.4", // This is the subSchemaSpecificArea OID
-            "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA"
-            );
+            "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA" );
 
         // It should fail, as an autonomous area is already defining the specific areas
         response = connection.add( autonomousArea );
@@ -141,14 +131,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddSpecificAreas() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: accessControlSpecificArea",
-            "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlSpecificArea",
+            "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA" );
 
         AddResponse response = connection.add( autonomousArea );
 
@@ -156,7 +141,6 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Check that the entry is containing all the roles
         Entry entry = getAdminRole( "ou=autonomousArea, ou=system" );
-
 
         assertFalse( entry.contains( "administrativeRole", "autonomousArea" ) );
         assertTrue( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
@@ -173,14 +157,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddInnerAreas() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: accessControlINNERArea",
-            "administrativeRole: TRIGGEREXECUTIONINNERAREA"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlINNERArea",
+            "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
         AddResponse response = connection.add( autonomousArea );
 
@@ -202,14 +181,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddInvalidRole() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: accessControlBadArea",
-            "administrativeRole: TRIGGEREXECUTIONINNERAREA"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlBadArea",
+            "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
         AddResponse response = connection.add( autonomousArea );
 
@@ -224,14 +198,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddInnerAndSpecificRole() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: accessControlSpecificArea",
-            "administrativeRole: accessControlInnerArea"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: accessControlSpecificArea",
+            "administrativeRole: accessControlInnerArea" );
 
         AddResponse response = connection.add( autonomousArea );
 
@@ -250,20 +219,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyAddSpecificArea() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.ADD_ATTRIBUTE,
-                                            new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -282,21 +245,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyAddInnerArea() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.ADD_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole", "accessControlInnerArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "accessControlInnerArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -315,21 +271,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyAddInnerAreaToSameSpecificArea() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.ADD_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole", "collectiveAttributeInnerArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeInnerArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
@@ -344,21 +293,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyAddSameSpecificArea() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.ADD_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole", "collectiveAttributeSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS, response.getLdapResult().getResultCode() );
@@ -373,21 +315,15 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyDeleteAll() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "administrativeRole: accessControlSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.REMOVE_ATTRIBUTE,
-                                            new DefaultEntryAttribute( "administrativeRole" ) );
+        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -405,23 +341,16 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyDeleteAll2() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "administrativeRole: accessControlSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.REMOVE_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole",
-                                                    "collectiveAttributeSpecificArea", "accessControlSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea",
+                "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -439,23 +368,15 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyDeleteSomeRole() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "administrativeRole: accessControlSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.REMOVE_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole",
-                                                    "accessControlSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -475,23 +396,15 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyDeleteSomeInexistingRole() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "administrativeRole: accessControlSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.REMOVE_ATTRIBUTE,
-                                            new DefaultEntryAttribute(
-                                                "administrativeRole",
-                                                    "triggerExecutionSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, response.getLdapResult().getResultCode() );
@@ -506,30 +419,20 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyCombined() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "administrativeRole: accessControlSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea",
+            "administrativeRole: accessControlSpecificArea" );
 
         connection.add( caArea );
 
         // Add another specific area
-        Modification modification1 = new DefaultModification(
-            ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute(
-                "administrativeRole",
-                    "triggerExecutionSpecificArea" ) );
-        Modification modification2 = new DefaultModification(
-            ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute(
-                "administrativeRole",
-                    "triggerExecutionSpecificArea" ) );
+        Modification modification1 = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+        Modification modification2 = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
-        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2, modification1);
+        ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2,
+            modification1 );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
@@ -549,20 +452,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyReplace() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry(
-            "ou=caArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: caArea",
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
+        Entry caArea = LdifUtils.createEntry( "ou=caArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: caArea", "administrativeRole: collectiveAttributeSpecificArea" );
 
         connection.add( caArea );
 
         // Try to modify it to an InnerArea
-        Modification modification = new DefaultModification(
-                                            ModificationOperation.REPLACE_ATTRIBUTE,
-                                            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         // Should fail
@@ -581,13 +478,8 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testMoveAutonomousArea() throws Exception
     {
         // Inject an AAA
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: autonomousArea"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: autonomousArea" );
 
         connection.add( autonomousArea );
 
@@ -609,18 +501,14 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testMoveAndRenameAutonomousArea() throws Exception
     {
         // Inject an AAA
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: autonomousArea"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: autonomousArea" );
 
         connection.add( autonomousArea );
 
         // It should fail, as we haven't injected all the roles
-        ModifyDnResponse response = connection.moveAndRename( "ou=autonomousArea, ou=system", "ou=new autonomousArea, uid=admin, ou=system" );
+        ModifyDnResponse response = connection.moveAndRename( "ou=autonomousArea, ou=system",
+            "ou=new autonomousArea, uid=admin, ou=system" );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -637,13 +525,8 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testRenameAutonomousArea() throws Exception
     {
         // Inject an AAA
-        Entry autonomousArea = LdifUtils.createEntry(
-            "ou=autonomousArea, ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: autonomousArea",
-            "administrativeRole: autonomousArea"
-            );
+        Entry autonomousArea = LdifUtils.createEntry( "ou=autonomousArea, ou=system", "ObjectClass: top",
+            "ObjectClass: organizationalUnit", "ou: autonomousArea", "administrativeRole: autonomousArea" );
 
         connection.add( autonomousArea );
 

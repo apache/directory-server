@@ -43,12 +43,12 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.CompareResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.message.CompareResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,43 +61,31 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
-    })
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: person",
-    "objectClass: top",
-    "uid: akarasulu",
-    "cn: Alex Karasulu",
-    "sn: karasulu", 
-    // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: computers",
-    "description: Computers for Alex",
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
-    // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "uid: akarasuluref",
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
-    }
-)
+        // Entry # 1
+        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "objectClass: top",
+        "uid: akarasulu",
+        "cn: Alex Karasulu",
+        "sn: karasulu",
+        // Entry # 2
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "ou: computers",
+        "description: Computers for Alex",
+        "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
+        // Entry # 3
+        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
+        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class CompareIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
-    
+
 
     /**
      * Tests normal compare operation on normal non-referral entries without 
@@ -107,7 +95,7 @@ public class CompareIT extends AbstractLdapTestUnit
     public void testNormalCompare() throws Exception
     {
         LdapConnection conn = getClientApiConnection( ldapServer );
-        
+
         // comparison success
         CompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
         assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
@@ -115,11 +103,11 @@ public class CompareIT extends AbstractLdapTestUnit
         // comparison failure
         resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
         assertEquals( ResultCodeEnum.COMPARE_FALSE, resp.getLdapResult().getResultCode() );
-        
+
         conn.unBind();
     }
-    
-    
+
+
     /**
      * Tests normal compare operation on normal non-referral entries without 
      * the ManageDsaIT control using an attribute that does not exist in the
@@ -129,14 +117,14 @@ public class CompareIT extends AbstractLdapTestUnit
     public void testNormalCompareMissingAttribute() throws Exception
     {
         LDAPConnection conn = getWiredConnection( ldapServer );
-        
+
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
         assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
 
         // non-existing attribute
         attribute = new LDAPAttribute( "mail", "akarasulu@apache.org" );
-        
+
         try
         {
             conn.compare( "uid=akarasulu,ou=users,ou=system", attribute );
@@ -144,13 +132,13 @@ public class CompareIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE.getValue(), e.getLDAPResultCode() ); 
+            assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE.getValue(), e.getLDAPResultCode() );
         }
-        
+
         conn.disconnect();
     }
-    
-    
+
+
     /**
      * Tests compare operation on referral entry with the ManageDsaIT control.
      */
@@ -162,7 +150,7 @@ public class CompareIT extends AbstractLdapTestUnit
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         conn.setConstraints( constraints );
-        
+
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "uid", "akarasuluref" );
         assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", attribute, constraints ) );
@@ -170,11 +158,11 @@ public class CompareIT extends AbstractLdapTestUnit
         // comparison failure
         attribute = new LDAPAttribute( "uid", "elecharny" );
         assertFalse( conn.compare( "uid=akarasuluref,ou=users,ou=system", attribute, constraints ) );
-        
+
         conn.disconnect();
     }
-    
-    
+
+
     /**
      * Tests compare operation on normal and referral entries without the 
      * ManageDsaIT control. Referrals are sent back to the client with a
@@ -187,7 +175,7 @@ public class CompareIT extends AbstractLdapTestUnit
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
-        
+
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "uid", "akarasulu" );
         assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute, constraints ) );
@@ -207,8 +195,8 @@ public class CompareIT extends AbstractLdapTestUnit
 
         conn.disconnect();
     }
-    
-    
+
+
     /**
      * Tests compare operation on normal and referral entries without the 
      * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
@@ -221,10 +209,10 @@ public class CompareIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[0] );
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
+
         // comparison success
-        NamingEnumeration<SearchResult> answer = ctx.search( "uid=akarasulu,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
+        NamingEnumeration<SearchResult> answer = ctx.search( "uid=akarasulu,ou=users,ou=system", "(uid=akarasulu)",
+            controls );
         assertTrue( answer.hasMore() );
         SearchResult result = answer.next();
         assertEquals( "", result.getName() );
@@ -235,8 +223,7 @@ public class CompareIT extends AbstractLdapTestUnit
         // referrals failure
         try
         {
-            answer = ctx.search( "uid=akarasuluref,ou=users,ou=system", 
-                "(uid=akarasuluref)", controls );
+            answer = ctx.search( "uid=akarasuluref,ou=users,ou=system", "(uid=akarasuluref)", controls );
             fail( "Should never get here" );
         }
         catch ( ReferralException e )
@@ -247,8 +234,8 @@ public class CompareIT extends AbstractLdapTestUnit
 
         ctx.close();
     }
-    
-    
+
+
     /**
      * Check that operation are not executed if we are now allowed to bind
      * anonymous
@@ -261,7 +248,7 @@ public class CompareIT extends AbstractLdapTestUnit
         LDAPConnection conn = new LDAPConnection();
         conn.connect( "localhost", ldapServer.getPort() );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
-        
+
         try
         {
             conn.compare( "uid=admin,ou=system", attr );
@@ -272,12 +259,12 @@ public class CompareIT extends AbstractLdapTestUnit
             assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
         }
     }
-    
-    
+
+
     /**
      * Tests referral handling when an ancestor is a referral.
      */
-    @Test 
+    @Test
     public void testAncestorReferral() throws Exception
     {
         LOG.debug( "" );
@@ -295,7 +282,8 @@ public class CompareIT extends AbstractLdapTestUnit
         response = listener.getResponse();
         assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
 
-        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
+        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system",
+            response.getReferrals()[0] );
         assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
         assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
 

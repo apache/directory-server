@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.client.api;
 
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -34,7 +35,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -47,37 +47,28 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * Test the LdapConnection class with SSL enabled
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    },
-    saslHost="localhost",
-    saslMechanisms =
-    {
-        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
-    },
-    extendedOpHandlers =
-    {
-        StoredProcedureExtendedOperationHandler.class
-    })
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") }, saslHost = "localhost", saslMechanisms =
+    { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+        @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+        @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+        @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+        @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) }, extendedOpHandlers =
+    { StoredProcedureExtendedOperationHandler.class })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
     private static LdapConnectionConfig config;
@@ -92,9 +83,11 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             {
             }
 
+
             public void checkServerTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
             {
             }
+
 
             public X509Certificate[] getAcceptedIssuers()
             {
@@ -106,7 +99,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         config.setLdapHost( "localhost" );
         config.setUseSsl( true );
         config.setLdapPort( ldapServer.getPortSSL() );
-        config.setTrustManagers( new TrustManager[]{ X509 } );
+        config.setTrustManagers( new TrustManager[]
+            { X509 } );
     }
 
 

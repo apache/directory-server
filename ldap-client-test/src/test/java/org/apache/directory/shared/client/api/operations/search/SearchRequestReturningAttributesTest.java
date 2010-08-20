@@ -28,8 +28,6 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -38,6 +36,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,30 +51,18 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(
-    transports = 
-        {
-          @CreateTransport(protocol = "LDAP"), 
-          @CreateTransport(protocol = "LDAPS") 
-        })
-@ApplyLdifs({
-    "dn: cn=user1,ou=users,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "sn: user1 sn",
-    "cn: user1",
-    
-    // alias to the above entry
-    "dn: cn=user1-alias,ou=users,ou=system",
-    "objectClass: alias",
-    "objectClass: top",
-    "objectClass: extensibleObject",
-    "aliasedObjectName: cn=user1,ou=users,ou=system",
-    "cn: user1-alias"
-})
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
+@ApplyLdifs(
+    { "dn: cn=user1,ou=users,ou=system", "objectClass: person", "objectClass: top", "sn: user1 sn", "cn: user1",
+
+        // alias to the above entry
+        "dn: cn=user1-alias,ou=users,ou=system", "objectClass: alias", "objectClass: top",
+        "objectClass: extensibleObject", "aliasedObjectName: cn=user1,ou=users,ou=system", "cn: user1-alias" })
 public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
+
 
     @Before
     public void setup() throws Exception
@@ -113,11 +101,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAll() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, "*",
-            "+" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "*", "+" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -128,9 +116,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 7, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
@@ -150,10 +138,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllUsers() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, "*" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "*" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -164,9 +153,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 3, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
@@ -182,10 +171,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllOperationals() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, "+" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "+" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -196,9 +186,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 4, entry.size() );
         assertTrue( entry.containsAttribute( "creatorsName" ) );
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
@@ -215,11 +205,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllUsersAndSomeOperationals() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, "*",
-            "entryCSN", "entryUUID" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "*", "entryCSN", "entryUUID" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -230,9 +220,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 5, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
@@ -250,11 +240,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchAllOperationalAndSomeUsers() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, "+",
-            "cn", "sn" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "+", "cn", "sn" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -265,9 +255,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 6, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -286,11 +276,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchSomeOpsAndUsers() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "cn", "entryUUID", "sn", "entryCSN" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "cn", "entryUUID", "sn", "entryCSN" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -301,9 +291,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 4, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -320,11 +310,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithDuplicatedAttrs() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "cn", "entryUUID", "cn", "sn", "entryCSN", "entryUUID" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "cn", "entryUUID", "cn", "sn", "entryCSN", "entryUUID" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -335,9 +325,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 4, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -354,11 +344,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithOIDAndtext() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "cn", "1.3.6.1.1.16.4", "surName", "entryCSN", "entryUUID" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "cn", "1.3.6.1.1.16.4", "surName", "entryCSN", "entryUUID" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -369,9 +359,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 4, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -388,11 +378,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithMissingAttributes() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "cn", "1.3.6.1.1.16.4", "gn", "entryCSN", "entryUUID" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "cn", "1.3.6.1.1.16.4", "gn", "entryCSN", "entryUUID" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -403,9 +393,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 3, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
@@ -421,11 +411,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributes() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "1.1" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "1.1" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -436,9 +426,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 0, entry.size() );
     }
 
@@ -451,11 +441,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributesAndAttributes() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "1.1", "cn" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "1.1", "cn" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -466,9 +456,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
+
         assertEquals( 1, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
     }
@@ -482,11 +472,11 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Test
     public void testSearchNoAttributesAllAttributes() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)", SearchScope.OBJECT, 
-            "1.1", "*", "+" );
+        Cursor<Response> cursor = connection.search( "cn=user1,ou=users,ou=system", "(objectclass=*)",
+            SearchScope.OBJECT, "1.1", "*", "+" );
         int count = 0;
-        SearchResponse response = null;
-        
+        Response response = null;
+
         while ( cursor.next() )
         {
             response = cursor.get();
@@ -497,10 +487,9 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = (SearchResultEntry)response;
+        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
         Entry entry = resultEntry.getEntry();
-        
-        
+
         assertEquals( 7, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );

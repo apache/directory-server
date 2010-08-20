@@ -40,11 +40,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;
@@ -63,25 +63,24 @@ public class StartTlsHandler implements ExtendedOperationHandler
 
     private static final Set<String> EXTENSION_OIDS;
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsHandler.class );
-    
+
     private SSLContext sslContext;
 
-    
     static
     {
         Set<String> set = new HashSet<String>( 3 );
         set.add( EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
-    
 
-    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
+
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
-        
+
         IoFilterChain chain = session.getIoSession().getFilterChain();
         SslFilter sslFilter = ( SslFilter ) chain.get( "sslFilter" );
-        if( sslFilter == null )
+        if ( sslFilter == null )
         {
             sslFilter = new SslFilter( sslContext );
             chain.addFirst( "sslFilter", sslFilter );
@@ -90,19 +89,18 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             sslFilter.startSsl( session.getIoSession() );
         }
-        
-        InternalExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
-        InternalLdapResult result = res.getLdapResult();
+
+        ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
+        LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
-        res.setResponse( new byte[ 0 ] );
+        res.setResponseValue( new byte[0] );
 
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );
         session.getIoSession().write( res );
     }
-    
-    
+
     class ServerX509TrustManager implements X509TrustManager
     {
         public void checkClientTrusted( X509Certificate[] chain, String authType ) throws CertificateException
@@ -110,10 +108,12 @@ public class StartTlsHandler implements ExtendedOperationHandler
             LOG.debug( "checkClientTrusted() called" );
         }
 
+
         public void checkServerTrusted( X509Certificate[] chain, String authType ) throws CertificateException
         {
             LOG.debug( "checkServerTrusted() called" );
         }
+
 
         public X509Certificate[] getAcceptedIssuers()
         {
@@ -134,14 +134,16 @@ public class StartTlsHandler implements ExtendedOperationHandler
         return EXTENSION_OID;
     }
 
-    
+
     public void setLdapServer( LdapServer ldapServer )
     {
         LOG.debug( "Setting LDAP Service" );
         Provider provider = Security.getProvider( "SUN" );
         LOG.debug( "provider = {}", provider );
         CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapServer.getDirectoryService() );
-        KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
+        KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
+        {
+        };
 
         try
         {
@@ -151,7 +153,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( I18n.err( I18n.ERR_678 ) );
         }
-        
+
         KeyManagerFactory keyManagerFactory = null;
         try
         {
@@ -161,7 +163,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( I18n.err( I18n.ERR_679 ), e );
         }
-        
+
         try
         {
             keyManagerFactory.init( keyStore, null );
@@ -170,7 +172,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( I18n.err( I18n.ERR_680 ), e );
         }
-        
+
         try
         {
             sslContext = SSLContext.getInstance( "TLS" );
@@ -179,12 +181,11 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( I18n.err( I18n.ERR_681 ), e );
         }
-        
+
         try
         {
-            sslContext.init( keyManagerFactory.getKeyManagers(), 
-                new TrustManager[] { new ServerX509TrustManager() }, 
-                new SecureRandom() );
+            sslContext.init( keyManagerFactory.getKeyManagers(), new TrustManager[]
+                { new ServerX509TrustManager() }, new SecureRandom() );
         }
         catch ( Exception e )
         {

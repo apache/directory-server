@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -77,11 +77,11 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public ModifyOperationContext( CoreSession session, InternalModifyRequest modifyRequest ) throws LdapException
+    public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws LdapException
     {
         super( session, modifyRequest.getName() );
 
-        modItems = ServerEntryUtils.toServerModification( modifyRequest.getModificationItems().toArray(
+        modItems = ServerEntryUtils.toServerModification( modifyRequest.getModifications().toArray(
             new DefaultModification[0] ), session.getDirectoryService().getSchemaManager() );
 
         requestControls = modifyRequest.getControls();

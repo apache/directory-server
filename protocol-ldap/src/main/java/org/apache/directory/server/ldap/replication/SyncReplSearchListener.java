@@ -36,12 +36,12 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
+import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.future.WriteFuture;
 import org.slf4j.Logger;
@@ -60,14 +60,14 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplSearchListener.class );
 
     private LdapSession session;
-    private InternalSearchRequest req;
+    private SearchRequest req;
 
     private volatile boolean pushInRealTime;
 
     private final ReplicaEventLog clientMsgLog;
 
 
-    SyncReplSearchListener( LdapSession session, InternalSearchRequest req, ReplicaEventLog clientMsgLog,
+    SyncReplSearchListener( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog,
         boolean pushInRealTime )
     {
         this.pushInRealTime = pushInRealTime;
@@ -84,7 +84,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void setReq( InternalSearchRequest req )
+    public void setReq( SearchRequest req )
     {
         this.req = req;
         if ( req != null )
@@ -117,7 +117,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void requestAbandoned( InternalAbandonableRequest req )
+    public void requestAbandoned( AbandonableRequest req )
     {
         try
         {
@@ -135,22 +135,22 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         Entry entry = addContext.getEntry();
 
         LOG.debug( "sending added entry {}", entry.getDn() );
-        
+
         try
         {
             if ( pushInRealTime )
             {
-                
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
                 SyncStateValueControl syncAdd = new SyncStateValueControl();
                 syncAdd.setSyncStateType( SyncStateTypeEnum.ADD );
-                syncAdd.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncAdd
+                    .setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString() ) );
                 syncAdd.setCookie( getCookie( entry ) );
-                respEntry.add( syncAdd );
+                respEntry.addControl( syncAdd );
 
                 WriteFuture future = session.getIoSession().write( respEntry );
                 handleWriteFuture( future, entry, EventType.ADD, null );
@@ -182,19 +182,19 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( pushInRealTime )
             {
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
                 SyncStateValueControl syncDelete = new SyncStateValueControl();
                 syncDelete.setSyncStateType( SyncStateTypeEnum.DELETE );
-                syncDelete.setEntryUUID( StringTools.uuidToBytes( entry.get(
-                    SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                syncDelete.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
+                    .getString() ) );
                 syncDelete.setCookie( getCookie( entry ) );
-                respEntry.add( syncDelete );
+                respEntry.addControl( syncDelete );
 
                 WriteFuture future = session.getIoSession().write( respEntry );
-                
+
                 handleWriteFuture( future, entry, EventType.DELETE, null );
             }
             else
@@ -208,8 +208,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             LOG.error( e.getMessage(), e );
         }
     }
-    
-    
+
+
     public void entryModified( ModifyOperationContext modifyContext )
     {
         Entry alteredEntry = modifyContext.getAlteredEntry();
@@ -220,20 +220,20 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( pushInRealTime )
             {
-                
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( modifyContext.getDn() );
                 respEntry.setEntry( alteredEntry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODIFY );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get(
-                    SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get( SchemaConstants.ENTRY_UUID_AT )
+                    .getString() ) );
                 syncModify.setCookie( getCookie( alteredEntry ) );
-                respEntry.add( syncModify );
+                respEntry.addControl( syncModify );
 
                 WriteFuture future = session.getIoSession().write( respEntry );
-                
+
                 // store altered entry cause that holds the updated CSN
                 handleWriteFuture( future, alteredEntry, EventType.MODIFY, null );
             }
@@ -257,32 +257,32 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            if( ! moveContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if ( !moveContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
                 sendDeletedEntry( moveContext.getEntry() );
                 return;
             }
-            
+
             SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVE );
             modDnControl.setEntryDn( moveContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
             if ( pushInRealTime )
             {
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( moveContext.getDn() );
                 respEntry.setEntry( entry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get(
-                    SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
+                    .getString() ) );
                 syncModify.setCookie( getCookie( entry ) );
-                respEntry.add( syncModify );
-                respEntry.add( modDnControl );
-                
+                respEntry.addControl( syncModify );
+                respEntry.addControl( modDnControl );
+
                 WriteFuture future = session.getIoSession().write( respEntry );
-                
+
                 handleWriteFuture( future, entry, null, modDnControl );
             }
             else
@@ -299,12 +299,12 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
     public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
-        
+
         LOG.debug( "sending moveAndRenamed entry {}", moveAndRenameContext.getDn() );
 
         try
         {
-            if( ! moveAndRenameContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if ( !moveAndRenameContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
                 sendDeletedEntry( moveAndRenameContext.getEntry() );
                 return;
@@ -319,21 +319,21 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             if ( pushInRealTime )
             {
                 Entry alteredEntry = moveAndRenameContext.getModifiedEntry();
-                
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get(
-                    SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get( SchemaConstants.ENTRY_UUID_AT )
+                    .getString() ) );
                 syncModify.setCookie( getCookie( alteredEntry ) );
-                respEntry.add( syncModify );
-                respEntry.add( modDnControl );
+                respEntry.addControl( syncModify );
+                respEntry.addControl( modDnControl );
 
                 WriteFuture future = session.getIoSession().write( respEntry );
-                
+
                 handleWriteFuture( future, alteredEntry, null, modDnControl );
             }
             else
@@ -351,9 +351,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void entryRenamed( RenameOperationContext renameContext )
     {
         Entry entry = renameContext.getEntry();
-        
+
         LOG.debug( "sending renamed entry {}", entry.getDn() );
-        
+
         try
         {
             SyncModifyDnControl modDnControl = new SyncModifyDnControl();
@@ -364,20 +364,20 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             if ( pushInRealTime )
             {
-                InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get(
-                    SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
+                    .getString() ) );
                 syncModify.setCookie( getCookie( renameContext.getModifiedEntry() ) );
-                respEntry.add( syncModify );
-                respEntry.add( modDnControl );
-                
+                respEntry.addControl( syncModify );
+                respEntry.addControl( modDnControl );
+
                 WriteFuture future = session.getIoSession().write( respEntry );
-                
+
                 handleWriteFuture( future, renameContext.getModifiedEntry(), null, modDnControl );
             }
             else
@@ -390,8 +390,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             LOG.error( e.getMessage(), e );
         }
     }
-    
-    
+
+
     public boolean isPushInRealTime()
     {
         return pushInRealTime;
@@ -409,21 +409,21 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         String csn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
         return StringTools.getBytesUtf8( clientMsgLog.getId() + SyncReplProvider.REPLICA_ID_DELIM + csn );
     }
-    
-    
+
+
     private void handleWriteFuture( WriteFuture future, Entry entry, EventType event, SyncModifyDnControl modDnControl )
     {
         future.awaitUninterruptibly();
-        if( !future.isWritten() )
+        if ( !future.isWritten() )
         {
             LOG.error( "Failed to write to the consumer {}", clientMsgLog.getId() );
             LOG.error( "", future.getException() );
-            
+
             // set realtime push to false, will be set back to true when the client
             // comes back and sends another request this flag will be set to true
             pushInRealTime = false;
-            
-            if( modDnControl != null )
+
+            if ( modDnControl != null )
             {
                 clientMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             }

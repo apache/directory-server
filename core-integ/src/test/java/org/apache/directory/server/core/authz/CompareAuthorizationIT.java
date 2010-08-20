@@ -30,7 +30,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.CompareResponse;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -38,6 +37,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.CompareResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -51,8 +51,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( enableAccessControl=true )
+@RunWith(FrameworkRunner.class)
+@CreateDS(enableAccessControl = true)
 public class CompareAuthorizationIT extends AbstractLdapTestUnit
 {
 
@@ -61,15 +61,15 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     {
         AutzIntegUtils.service = service;
     }
-    
-    
+
+
     @After
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Checks if an attribute of a simple entry (an organizationalUnit's telephoneNumber)
      * with an RDN relative to ou=system can be compared by a specific non-admin user.
@@ -95,7 +95,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         DN entryDN = new DN( entryRdn + ",ou=system" );
         boolean result = true;
-        
+
         // create the entry with the telephoneNumber attribute to compare
         Entry testEntry = new DefaultEntry( entryDN );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
@@ -106,18 +106,18 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         // create the entry as admin
         adminConnection.add( testEntry );
-        
+
         DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
         CompareResponse resp = userConnection.compare( entryDN, "telephoneNumber", number );
-        
+
         // don't set based on compare result success/failure but based on whether the op was permitted or not
-        if( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
+        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
         {
             result = false;
         }
-        
+
         // let's clean up
         adminConnection.delete( entryRdn );
 
@@ -141,23 +141,12 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantCompare, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", 
-            "{ " +
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }" +
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
-            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "administratorAdd", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }" + "    userPermissions "
+            + "    { " + "      { " + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -186,23 +175,12 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( "billydAdd", 
-            "{ " +
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " +
-            "  authenticationLevel none, " +
-            "  itemOrUserFirst userFirst: " + 
-            "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
-            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "billydAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
+            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
@@ -224,27 +202,13 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( 
-            "billyAddBySubtree", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " +
-            "    { " +
-            "      subtree { { base \"ou=users,ou=system\" } } " +
-            "    }, " + 
-            "    userPermissions " +
-            "    { " +
-            "        { " +
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "billyAddBySubtree", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, "
+            + "    userPermissions " + "    { " + "        { "
+            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
@@ -266,24 +230,12 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables anyone to add an entry below ou=system
-        createAccessControlSubentry( 
-            "anybodyAdd", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+        createAccessControlSubentry( "anybodyAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
+            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
+            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + "      } " + "    } " + "  } "
+            + "}" );
 
         // see if we can now compare that test entry's number which we could not before
         // should work with billyd now that all users are authorized
@@ -307,7 +259,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         adminCtx.add( user );
 
         CompareResponse resp = adminCtx.compare( userDN, "userPassword", "bobspassword" );
-        assertEquals(  ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
     }
 
 }

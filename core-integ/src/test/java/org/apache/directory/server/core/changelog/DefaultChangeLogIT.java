@@ -28,8 +28,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -40,6 +38,9 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Test;
@@ -55,8 +56,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "DefaultChangeLogIT-class")
 public class DefaultChangeLogIT extends AbstractLdapTestUnit
 {
     public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );
@@ -80,7 +81,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.add( SchemaConstants.OU_AT, "test0" );
         sysRoot.add( entry );
-        
+
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
         Tag t0 = service.getChangeLog().tag();
@@ -134,7 +135,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // no sync this time but should happen automatically
         service.shutdown();
         service.startup();
-        
+
         sysRoot = getAdminConnection( service );
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
@@ -168,7 +169,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         service.shutdown();
         service.startup();
-        
+
         sysRoot = getAdminConnection( service );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
@@ -289,7 +290,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertPresent( sysRoot, "ou=test5,ou=system" );
 
         // modify the test entry to add description and test new attr appears
-        ModifyRequest modReq = new ModifyRequest( entry.getDn() );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( entry.getDn() );
         modReq.add( "description", "a desc value" );
         sysRoot.modify( modReq );
 
@@ -310,7 +312,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // add the attribute again and make sure it is old value
-        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq = new ModifyRequestImpl();
+        modReq.setName( resusitated.getDn() );
         modReq.add( "description", "old value" );
         sysRoot.modify( modReq );
         resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
@@ -321,7 +324,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // now tag then replace the value to "new value" and confirm
         Tag t1 = service.getChangeLog().tag();
-        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq = new ModifyRequestImpl();
+        modReq.setName( resusitated.getDn() );
         modReq.replace( "description", "new value" );
         sysRoot.modify( modReq );
 
@@ -339,13 +343,13 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertNotNull( description );
         assertEquals( description.getString(), "old value" );
 
-
         // -------------------------------------------------------------------
         // Modify REMOVE Test
         // -------------------------------------------------------------------
 
         Tag t2 = service.getChangeLog().tag();
-        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq = new ModifyRequestImpl();
+        modReq.setName( resusitated.getDn() );
         modReq.remove( "description", "old value" );
         sysRoot.modify( modReq );
 
@@ -367,17 +371,19 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // add a userPassword attribute so we can test replacing it
-        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq = new ModifyRequestImpl();
+        modReq.setName( resusitated.getDn() );
         modReq.add( "userPassword", "to be replaced" );
         sysRoot.modify( modReq );
         resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertPassword( resusitated, "to be replaced" );
 
-        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq = new ModifyRequestImpl();
+        modReq.setName( resusitated.getDn() );
         modReq.remove( "description", "old value" );
         modReq.add( "seeAlso", "ou=added" );
         modReq.replace( "userPassword", "a replaced value" );
-        
+
         Tag t3 = service.getChangeLog().tag();
 
         // now make the modification and check that description is gone,
@@ -418,8 +424,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         SearchResultEntry se = ( SearchResultEntry ) connection.lookup( dn );
         assertNull( se );
     }
-    
-    
+
+
     private void assertPresent( LdapConnection connection, String dn ) throws LdapException
     {
         Entry entry = ( ( SearchResultEntry ) connection.lookup( dn ) ).getEntry();

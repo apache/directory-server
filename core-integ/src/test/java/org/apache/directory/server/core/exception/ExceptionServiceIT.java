@@ -28,13 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.AddResponse;
-import org.apache.directory.ldap.client.api.message.DeleteResponse;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -46,7 +39,15 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.DeleteResponse;
+import org.apache.directory.shared.ldap.message.ModifyDnResponse;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.After;
@@ -59,16 +60,16 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( name="ExceptionServiceIT-DS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "ExceptionServiceIT-DS")
 public class ExceptionServiceIT extends AbstractLdapTestUnit
 {
-    
+
     private AddResponse createSubContext( String type, String value ) throws Exception
     {
         return createSubContext( new DN( ServerDNConstants.SYSTEM_DN ), type, value );
     }
-    
+
 
     private AddResponse createSubContext( DN parent, String type, String value ) throws Exception
     {
@@ -79,9 +80,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalPerson" );
         entry.add( SchemaConstants.CN_AT, value );
         entry.add( SchemaConstants.SN_AT, value );
-        
+
         AddResponse resp = getAdminConnection( service ).add( entry );
-        
+
         return resp;
     }
 
@@ -97,7 +98,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // Search Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Test search operation failure when the search base is non-existant.
      *
@@ -106,7 +106,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailSearchNoSuchObject() throws Exception
     {
-        Cursor<SearchResponse> cursor = getAdminConnection( service ).search( "ou=blah", "(objectClass=*)", SearchScope.ONELEVEL, "*" );
+        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=blah", "(objectClass=*)",
+            SearchScope.ONELEVEL, "*" );
         assertFalse( cursor.next() );
     }
 
@@ -120,7 +121,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchControl() throws Exception
     {
-        Cursor<SearchResponse> cursor = getAdminConnection( service ).search( "ou=users,ou=system", "(objectClass=*)", SearchScope.ONELEVEL, "*" );
+        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=users,ou=system", "(objectClass=*)",
+            SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
     }
@@ -143,7 +145,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         Entry entry = new DefaultEntry( new DN( "ou=users,ou=groups,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         entry.add( SchemaConstants.OU_AT, "users" );
-        
+
         connection.add( entry );
         ModifyDnResponse resp = connection.rename( entry.getDn(), new RDN( "ou=users" ) );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
@@ -151,9 +153,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         Entry userzEntry = new DefaultEntry( new DN( "ou=userz,ou=groups,ou=system" ) );
         userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         userzEntry.add( SchemaConstants.OU_AT, "userz" );
-        
+
         connection.add( userzEntry );
-        
+
         ModifyDnResponse modResp = connection.rename( "ou=userz,ou=groups,ou=system", "ou=users", true );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, modResp.getLdapResult().getResultCode() );
     }
@@ -192,7 +194,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=groups,ou=system" ) ).getEntry();
         assertNotNull( entry );
 
-        SearchResponse res = connection.lookup( "ou=users,ou=system" );
+        Response res = connection.lookup( "ou=users,ou=system" );
         assertNull( res );
     }
 
@@ -200,7 +202,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
     // ModifyRdn Operation Tests
     // ------------------------------------------------------------------------
-
 
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
@@ -254,7 +255,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // Modify Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Test modify operation failure when the object modified is non-existant.
      *
@@ -265,9 +265,10 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        ModifyRequest modReq = new ModifyRequest( new DN( "ou=blah,ou=system" ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "ou=blah,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "another-value" );
-        
+
         ModifyResponse modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, modResp.getLdapResult().getResultCode() );
     }
@@ -284,9 +285,10 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        ModifyRequest modReq = new ModifyRequest( new DN( "ou=users,ou=system" ) );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new DN( "ou=users,ou=system" ) );
         modReq.add( SchemaConstants.OU_AT, "dummyValue" );
-        
+
         connection.modify( modReq );
         Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=system" ) ).getEntry();
         EntryAttribute ou = entry.get( "ou" );
@@ -298,7 +300,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
     // Lookup Operation Tests
     // ------------------------------------------------------------------------
-
 
     /**
      * Test lookup operation failure when the object looked up is non-existant.
@@ -334,7 +335,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
     // List Operation Tests
     // ------------------------------------------------------------------------
-
 
     /**
      * Test list operation failure when the base searched is non-existant.
@@ -386,7 +386,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // Add Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
@@ -421,9 +420,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailAddEntryAlreadyExists() throws Exception
     {
-        createSubContext( "ou", "blah");
+        createSubContext( "ou", "blah" );
 
-        AddResponse resp = createSubContext( "ou", "blah");
+        AddResponse resp = createSubContext( "ou", "blah" );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
     }
 
@@ -438,8 +437,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        AddResponse resp = createSubContext( "ou", "blah");
-        resp = createSubContext( new DN( "ou=blah,ou=system" ), "ou", "subctx");
+        AddResponse resp = createSubContext( "ou", "blah" );
+        resp = createSubContext( new DN( "ou=blah,ou=system" ), "ou", "subctx" );
         Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=subctx,ou=blah,ou=system" ) ).getEntry();
         assertNotNull( entry );
     }
@@ -448,7 +447,6 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
     // Delete Operation Tests
     // ------------------------------------------------------------------------
-
 
     /**
      * Tests for delete failure when the entry to be deleted has child entires.
@@ -461,7 +459,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = getAdminConnection( service );
 
         AddResponse resp = createSubContext( "ou", "blah" );
-        resp = createSubContext( new DN( "ou=blah,ou=system" ),  "ou", "subctx" );
+        resp = createSubContext( new DN( "ou=blah,ou=system" ), "ou", "subctx" );
 
         DeleteResponse delResp = connection.delete( "ou=blah,ou=system" );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, delResp.getLdapResult().getResultCode() );

@@ -41,10 +41,10 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.gui.SessionsFrame;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -76,7 +76,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    public void handleExtendedOperation( LdapSession requestor, InternalExtendedRequest req )
+    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req )
         throws Exception
     {
         DirectoryService service = requestor.getCoreSession().getDirectoryService();

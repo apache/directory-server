@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.client.api.operations;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -36,8 +37,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.ldap.client.api.listener.DeleteListener;
-import org.apache.directory.ldap.client.api.message.DeleteRequest;
-import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -45,6 +44,9 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
+import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -53,59 +55,42 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test case for client delete operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
-@ApplyLdifs( {
-    "dn: cn=parent,ou=system",
-    "objectClass: person",
-    "cn: parent_cn",
-    "sn: parent_sn", 
-    
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
+@ApplyLdifs(
+    { "dn: cn=parent,ou=system", "objectClass: person", "cn: parent_cn", "sn: parent_sn",
+
     "",
-    
-    "dn: cn=child1,cn=parent,ou=system",
-    "objectClass: person",
-    "cn: child1_cn",
-    "sn: child1_sn", 
-    
+
+    "dn: cn=child1,cn=parent,ou=system", "objectClass: person", "cn: child1_cn", "sn: child1_sn",
+
     "",
-    
-    "dn: cn=child2,cn=parent,ou=system",
-    "objectClass: person",
-    "cn: child2_cn",
-    "sn: child2_sn", 
-    
+
+    "dn: cn=child2,cn=parent,ou=system", "objectClass: person", "cn: child2_cn", "sn: child2_sn",
+
     "",
-    
-    "dn: cn=grand_child11,cn=child1,cn=parent,ou=system",
-    "objectClass: person",
-    "cn: grand_child11_cn",
-    "sn: grand_child11_sn", 
-    
-    "",
-    
-    "dn: cn=grand_child12,cn=child1,cn=parent,ou=system",
-    "objectClass: person",
-    "cn: grand_child12_cn",
-    "sn: grand_child12_sn"
-})
+
+    "dn: cn=grand_child11,cn=child1,cn=parent,ou=system", "objectClass: person", "cn: grand_child11_cn",
+        "sn: grand_child11_sn",
+
+        "",
+
+        "dn: cn=grand_child12,cn=child1,cn=parent,ou=system", "objectClass: person", "cn: grand_child12_cn",
+        "sn: grand_child12_sn" })
 public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
-    
+
     private CoreSession session;
-    
-    
+
+
     @Before
     public void setup() throws Exception
     {
@@ -113,11 +98,11 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
-        
+
         session = ldapServer.getDirectoryService().getAdminSession();
     }
 
-    
+
     /**
      * Close the LdapConnection
      */
@@ -131,61 +116,61 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
     }
-    
-    
+
+
     @Test
     public void testDeleteLeafNode() throws Exception
     {
         DN dn = new DN( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
-        
+
         assertTrue( session.exists( dn ) );
-        
+
         DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-        
+
         assertFalse( session.exists( dn ) );
     }
-    
-    
+
+
     @Test
     public void testDeleteNonLeafFailure() throws Exception
     {
         DN dn = new DN( "cn=child1,cn=parent,ou=system" ); // has children
         assertTrue( session.exists( dn ) );
- 
+
         DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
-        
+
         assertTrue( session.exists( dn ) );
     }
-    
+
 
     @Test
     @Ignore
     public void testDeleteWithCascadeControl() throws Exception
     {
         DN dn = new DN( "cn=parent,ou=system" );
-        
+
         assertTrue( session.exists( dn ) );
-        
+
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
             DeleteResponse response = connection.deleteTree( dn );
             assertNotNull( response );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-            
+
             assertFalse( session.exists( dn ) );
         }
     }
-    
-    
+
+
     /**
      * this method uses reflection to test deleteChildren method without using the
      * convenient method delete( dn, true ), cause the convenient method checks 
@@ -202,20 +187,21 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     public void testDeleteWithoutCascadeControl() throws Exception
     {
         DN dn = new DN( "cn=parent,ou=system" );
-        
+
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class, DeleteListener.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class,
+            DeleteListener.class );
         deleteChildrenMethod.setAccessible( true );
-        
+
         DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, null );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-        
+
         assertFalse( session.exists( dn ) );
     }
 
-    
+
     /**
      * @see #testDeleteWithoutCascadeControl()
      */
@@ -224,14 +210,15 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     public void testDeleteAsyncWithoutCascadeControl() throws Exception
     {
         DN dn = new DN( "cn=parent,ou=system" );
-        
+
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class, DeleteListener.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class,
+            DeleteListener.class );
         deleteChildrenMethod.setAccessible( true );
-    
+
         final AtomicInteger count = new AtomicInteger();
-        
+
         DeleteListener listener = new DeleteListener()
         {
             public void entryDeleted( LdapAsyncConnection connection, DeleteResponse response ) throws LdapException
@@ -241,7 +228,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
                 count.incrementAndGet();
             }
         };
-        
+
         try
         {
             connection.deleteTree( dn );
@@ -253,20 +240,23 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         }
     }
 
-    
+
     @Test
     public void testDeleteAsync() throws Exception
     {
         DN dn = new DN( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
-        
+
         assertTrue( session.exists( dn ) );
-        
-        DeleteFuture deleteFuture = connection.deleteAsync( new DeleteRequest( dn ));
-        
+
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( dn );
+
+        DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );
+
         try
         {
             DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
-            
+
             assertNotNull( deleteResponse );
             assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
             assertTrue( connection.isAuthenticated() );

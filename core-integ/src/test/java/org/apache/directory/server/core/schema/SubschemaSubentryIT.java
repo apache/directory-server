@@ -58,8 +58,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -67,6 +65,9 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -102,27 +103,20 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( name="SubschemaSubentryIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "SubschemaSubentryIT-class")
 public class SubschemaSubentryIT extends AbstractLdapTestUnit
 {
     private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
 
-    private static final SyntaxCheckerDescriptionSchemaParser SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER =
-        new SyntaxCheckerDescriptionSchemaParser();
-    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER =
-        new AttributeTypeDescriptionSchemaParser();
-    private LdapComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser =
-        new LdapComparatorDescriptionSchemaParser();
-    private NormalizerDescriptionSchemaParser normalizerDescriptionSchemaParser =
-        new NormalizerDescriptionSchemaParser();
-    private LdapSyntaxDescriptionSchemaParser ldapSyntaxDescriptionSchemaParser =
-        new LdapSyntaxDescriptionSchemaParser();
-    private MatchingRuleDescriptionSchemaParser matchingRuleDescriptionSchemaParser =
-        new MatchingRuleDescriptionSchemaParser();
-    private ObjectClassDescriptionSchemaParser objectClassDescriptionSchemaParser =
-        new ObjectClassDescriptionSchemaParser();
+    private static final SyntaxCheckerDescriptionSchemaParser SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER = new SyntaxCheckerDescriptionSchemaParser();
+    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
+    private LdapComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser = new LdapComparatorDescriptionSchemaParser();
+    private NormalizerDescriptionSchemaParser normalizerDescriptionSchemaParser = new NormalizerDescriptionSchemaParser();
+    private LdapSyntaxDescriptionSchemaParser ldapSyntaxDescriptionSchemaParser = new LdapSyntaxDescriptionSchemaParser();
+    private MatchingRuleDescriptionSchemaParser matchingRuleDescriptionSchemaParser = new MatchingRuleDescriptionSchemaParser();
+    private ObjectClassDescriptionSchemaParser objectClassDescriptionSchemaParser = new ObjectClassDescriptionSchemaParser();
 
 
     /**
@@ -135,7 +129,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         LdapConnection conn = getAdminConnection( service );
 
-        ModifyRequest modRequest = new ModifyRequest( new DN( GLOBAL_SUBSCHEMA_DN ) );
+        ModifyRequest modRequest = new ModifyRequestImpl();
+        modRequest.setName( new DN( GLOBAL_SUBSCHEMA_DN ) );
         modRequest.add( "attributeTypes", "( 2.5.4.58 NAME 'attributeCertificateAttribute' "
             + " DESC 'attribute certificate use ;binary' SYNTAX 1.3.6.1.4.1.1466.115.121.1.8 )" );
         ModifyResponse response = conn.modify( modRequest );
@@ -170,7 +165,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).destroySubcontext( getSubschemaSubentryDN() );
             fail( "You are not allowed to delete the global schema subentry" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
     }
@@ -189,7 +184,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).createSubcontext( getSubschemaSubentryDN(), getSubschemaSubentryAttributes() );
             fail( "You are not allowed to add the global schema subentry which exists by default" );
         }
-        catch( NameAlreadyBoundException e )
+        catch ( NameAlreadyBoundException e )
         {
         }
     }
@@ -208,7 +203,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=system" );
             fail( "You are not allowed to rename the global schema subentry which is fixed" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
     }
@@ -227,7 +222,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=blah,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -236,7 +231,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
     }
@@ -246,8 +241,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // SyntaxChecker Tests
     // -----------------------------------------------------------------------
 
-
-    private void checkSyntaxCheckerPresent( SchemaManager schemaManager, String oid, String schemaName, boolean isPresent ) throws Exception
+    private void checkSyntaxCheckerPresent( SchemaManager schemaManager, String oid, String schemaName,
+        boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
@@ -263,7 +258,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER.parseSyntaxCheckerDescription( desc );
+                syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER
+                    .parseSyntaxCheckerDescription( desc );
                 break;
             }
         }
@@ -292,7 +288,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
             Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
 
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service.getSchemaManager().getRegistries(), schemaName );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service
+                .getSchemaManager().getRegistries(), schemaName );
             assertEquals( oid, syntaxChecker.getOid() );
         }
         else
@@ -300,10 +297,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             //noinspection EmptyCatchBlock
             try
             {
-                attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes(
+                    "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
 
@@ -380,8 +378,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
-            +  getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+                + getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         // 4th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
@@ -399,8 +398,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // check add no schema info
         // -------------------------------------------------------------------
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
-            +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+                + getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
         // 6th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
@@ -409,8 +409,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // after a total of 6 changes
         if ( service.getChangeLog().getLatest() != null )
         {
-            assertEquals( service.getChangeLog().getLatest().getRevision() + 6,
-                    service.getChangeLog().getCurrentRevision() );
+            assertEquals( service.getChangeLog().getLatest().getRevision() + 6, service.getChangeLog()
+                .getCurrentRevision() );
         }
     }
 
@@ -418,7 +418,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // Comparator Tests
     // -----------------------------------------------------------------------
-
 
     private void checkComparatorPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
@@ -471,7 +470,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -543,8 +542,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
-            +  getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
+                + getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
         checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
@@ -561,8 +561,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
-            +  getByteCode( "DummyComparator.bytecode" ) + " )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
+                + getByteCode( "DummyComparator.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
         checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
@@ -572,7 +573,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // Normalizer Tests
     // -----------------------------------------------------------------------
-
 
     private void checkNormalizerPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
@@ -625,7 +625,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -697,8 +697,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
-            +  getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
+                + getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
         checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
@@ -715,8 +716,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
-            +  getByteCode( "DummyNormalizer.bytecode" ) + " )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
+                + getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
         checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
@@ -726,7 +728,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // Syntax Tests
     // -----------------------------------------------------------------------
-
 
     private void checkSyntaxPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
@@ -779,7 +780,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -824,7 +825,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "ldapSyntaxes" );
             fail( "should not be able to add syntaxes without their syntaxCheckers" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -897,7 +898,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // MatchingRule Tests
     // -----------------------------------------------------------------------
 
-
     private void checkMatchingRulePresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
@@ -948,7 +948,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -993,7 +993,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
             fail( "Cannot add matchingRule with bogus non-existant syntax" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1005,10 +1005,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
 
@@ -1025,10 +1025,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 DESC 'bogus desc' " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 DESC 'bogus desc' " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 DESC 'bogus desc' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 DESC 'bogus desc' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
 
@@ -1044,10 +1044,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
 
@@ -1063,10 +1063,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' " +
-                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
-                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' "
+            + "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' "
+            + "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
 
@@ -1095,8 +1095,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10002 DESC 'bogus desc' " +
-        "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10002 DESC 'bogus desc' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" );
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
         checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10002", "other", true );
     }
@@ -1105,7 +1105,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // AttributeType Tests
     // -----------------------------------------------------------------------
-
 
     private void checkAttributeTypePresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
@@ -1159,7 +1158,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -1196,17 +1195,15 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // test rejection with non-existant syntax
         // -------------------------------------------------------------------
 
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 DESC 'bogus desc' " +
-                "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 DESC 'bogus desc' " +
-                "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 DESC 'bogus desc' " + "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 DESC 'bogus desc' " + "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant syntax" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1218,17 +1215,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant syntax" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1240,17 +1237,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant equality MatchingRule" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1262,17 +1259,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant ordering MatchingRule" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1284,17 +1281,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant substrings MatchingRule" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1306,10 +1303,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -1323,10 +1320,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -1340,16 +1337,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
-                "OBSOLETE SUP 2.5.4.41 " +
-                "EQUALITY caseExactIA5Match " +
-                "ORDERING octetStringOrderingMatch " +
-                "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "USAGE userApplications X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
-                "USAGE userApplications X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " + "OBSOLETE SUP 2.5.4.41 "
+            + "EQUALITY caseExactIA5Match " + "ORDERING octetStringOrderingMatch "
+            + "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 "
+            + "USAGE userApplications X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " + "USAGE userApplications X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -1378,16 +1371,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
-                "OBSOLETE SUP 2.5.4.41 " +
-                "EQUALITY caseExactIA5Match " +
-                "ORDERING octetStringOrderingMatch " +
-                "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "USAGE userApplications )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
-                "USAGE userApplications )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " + "OBSOLETE SUP 2.5.4.41 "
+            + "EQUALITY caseExactIA5Match " + "ORDERING octetStringOrderingMatch "
+            + "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 "
+            + "USAGE userApplications )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
+            + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " + "USAGE userApplications )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -1406,11 +1395,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         disableSchema( "nis" );
         DN dn = new DN( getSubschemaSubentryDN() );
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-            "DESC 'bogus description' SUP name SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' SINGLE-VALUE X-SCHEMA 'nis' )";
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC 'bogus description' SUP name SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
-            new BasicAttribute( "attributeTypes", substrate ) );
+        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "attributeTypes", substrate ) );
 
         getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
@@ -1431,13 +1419,15 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         assertNull( attributeType );
 
-        attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        attrs = getSchemaContext( service ).getAttributes(
+            "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
         Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
+            .getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperiorOid() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1460,11 +1450,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         enableSchema( "nis" );
         DN dn = new DN( getSubschemaSubentryDN() );
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-            "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
-            new BasicAttribute( "attributeTypes", substrate ) );
+        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "attributeTypes", substrate ) );
 
         getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
@@ -1494,13 +1483,14 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertEquals( "name", attributeType.getSuperiorOid() );
 
         attrs = getSchemaContext( service ).getAttributes(
-                "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+            "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
         Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
+            .getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperiorOid() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1516,7 +1506,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // ObjectClass Tests
     // -----------------------------------------------------------------------
-
 
     private void checkObjectClassPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
@@ -1557,8 +1546,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid
-                    + ",ou=objectClasses,cn=" + schemaName );
+            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else
@@ -1566,11 +1554,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             //noinspection EmptyCatchBlock
             try
             {
-                attrs = getSchemaContext( service ).getAttributes( "m-oid=" +
-                        oid + ",ou=objectClasses,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes(
+                    "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
@@ -1615,7 +1603,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant super" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1627,10 +1615,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " + "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " + "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1646,10 +1632,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1665,10 +1651,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1684,10 +1670,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1703,19 +1689,19 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
-                "MAY ( blah0 $ cn ) X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
-                "MAY ( sn $ blah1 ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) "
+            + "MAY ( blah0 $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) "
+            + "MAY ( sn $ blah1 ) X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1727,19 +1713,19 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
-                "MUST ( blah0 $ cn ) X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
-                "MUST ( sn $ blah1 ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) "
+            + "MUST ( blah0 $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) "
+            + "MUST ( sn $ blah1 ) X-SCHEMA 'nis' )" );
 
         try
         {
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( OperationNotSupportedException e )
         {
         }
 
@@ -1751,12 +1737,13 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
-                "MAY ( sn $ cn ) X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
-                "MAY ( sn $ ou ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY "
+            + "MAY ( sn $ cn ) X-SCHEMA 'nis' )" );
+        descriptions
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+                + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) "
+                + "MAY ( sn $ ou ) X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1772,12 +1759,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
-                "MUST ( sn $ cn ) X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
-                "MUST ( sn $ ou ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY "
+            + "MUST ( sn $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) "
+            + "MUST ( sn $ ou ) X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1793,16 +1780,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
-                "MUST ( sn $ cn ) " +
-                "MAY ( gn $ ou ) " +
-                "X-SCHEMA 'nis' ) " );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
-                "MUST ( sn $ ou ) " +
-                "MAY ( cn $ gn ) " +
-                "X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY "
+            + "MUST ( sn $ cn ) " + "MAY ( gn $ ou ) " + "X-SCHEMA 'nis' ) " );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL "
+            + "MUST ( sn $ ou ) " + "MAY ( cn $ gn ) " + "X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -1831,14 +1814,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-            "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
-            "MUST ( sn $ cn ) " +
-            "MAY ( gn $ ou ) )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
-            "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
-            "MUST ( sn $ ou ) " +
-            "MAY ( gn $ cn ) )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 "
+            + "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY "
+            + "MUST ( sn $ cn ) " + "MAY ( gn $ ou ) )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 "
+            + "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL "
+            + "MUST ( sn $ ou ) " + "MAY ( gn $ cn ) )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "other", true );
@@ -1850,7 +1831,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     // Test Modifier and Timestamp Updates
     // -----------------------------------------------------------------------
 
-
     /**
      * This method checks the modifiersName, and the modifyTimestamp on the schema
      * subentry then modifies a schema.  It then checks it again to make sure these
@@ -1861,7 +1841,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore // @TODO as we can't modify a schema element, the end of this test has been commented
+    @Ignore
+    // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {
         TimeZone tz = TimeZone.getTimeZone( "GMT" );
@@ -1893,11 +1874,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         enableSchema( "nis" );
         DN dn = new DN( getSubschemaSubentryDN() );
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-            "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
-            new BasicAttribute( "attributeTypes", substrate ) );
+        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "attributeTypes", substrate ) );
 
         getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
@@ -1923,7 +1903,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Date modifyTimestampAfter = DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() );
         assertTrue( modifyTimestampAfter.getTime() <= cal.getTime().getTime() );
 
-
         assertTrue( modifyTimestampAfter.getTime() >= modifyTimestamp.getTime() );
 
         // now let's test the modifiersName update with another user besides
@@ -1937,7 +1916,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         // now let's get a context for this user
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -1990,7 +1969,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         DN dn = new DN( getSubschemaSubentryDN() );
 
         // Uses ModificationItem to keep the modification ordering
-        ModificationItem[] modifications = new ModificationItem[ descriptions.size()];
+        ModificationItem[] modifications = new ModificationItem[descriptions.size()];
         int i = 0;
 
         for ( String description : descriptions )
@@ -2046,10 +2025,10 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
+        controls.setReturningAttributes( new String[]
+            { SUBSCHEMA_SUBENTRY } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( service )
-                .search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search( "", "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -2068,10 +2047,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+", "*" } );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( service )
-                .search( getSubschemaSubentryDN(), "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search( getSubschemaSubentryDN(),
+            "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         return result.getAttributes();

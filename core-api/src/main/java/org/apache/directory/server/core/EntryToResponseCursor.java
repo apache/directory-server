@@ -23,14 +23,15 @@ package org.apache.directory.server.core;
 
 import java.util.Iterator;
 
-import org.apache.directory.ldap.client.api.message.LdapResult;
-import org.apache.directory.ldap.client.api.message.SearchResultDone;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultDone;
+import org.apache.directory.shared.ldap.message.SearchResultDoneImpl;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 
 
 /**
@@ -39,29 +40,33 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchResponse>
+public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalResponse>
 {
     /** the underlying cursor */
-    private Cursor wrapped;
+    private Cursor<InternalResponse> wrapped;
 
     /** a reference to hold the SearchResultDone response */
     private SearchResultDone searchDoneResp;
 
     private boolean done;
 
-    public EntryToResponseCursor( Cursor wrapped )
+    private int messageId;
+
+
+    public EntryToResponseCursor( int messageId, Cursor<InternalResponse> wrapped )
     {
         this.wrapped = wrapped;
+        this.messageId = messageId;
     }
 
 
-    public Iterator<SearchResponse> iterator()
+    public Iterator<InternalResponse> iterator()
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public void after( SearchResponse resp ) throws Exception
+    public void after( InternalResponse resp ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -79,7 +84,7 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
     }
 
 
-    public void before( SearchResponse resp ) throws Exception
+    public void before( InternalResponse resp ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -109,13 +114,13 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
     }
 
 
-    public SearchResponse get() throws Exception
+    public InternalResponse get() throws Exception
     {
         ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
-        SearchResultEntry se = new SearchResultEntry();
+        SearchResultEntry se = new SearchResultEntryImpl( messageId );
         se.setEntry( entry );
 
-        return ( SearchResponse ) se;
+        return ( InternalResponse ) se;
     }
 
 
@@ -151,12 +156,11 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
     public boolean next() throws Exception
     {
         done = wrapped.next();
-        if( !done )
+
+        if ( !done )
         {
-            searchDoneResp = new SearchResultDone();
-            LdapResult ldapResult = new LdapResult();
-            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-            searchDoneResp.setLdapResult( ldapResult );
+            searchDoneResp = new SearchResultDoneImpl( messageId );
+            searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         }
 
         return done;
@@ -173,6 +177,7 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
     {
         wrapped.setClosureMonitor( monitor );
     }
+
 
     /**
      * {@inheritDoc}

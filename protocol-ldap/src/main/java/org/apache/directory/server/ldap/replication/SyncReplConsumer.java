@@ -35,14 +35,6 @@ import java.util.Set;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.LdapResult;
-import org.apache.directory.ldap.client.api.message.SearchIntermediateResponse;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultDone;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.ldap.client.api.message.SearchResultReference;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -74,7 +66,16 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.IntermediateResponse;
+import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.SearchResultDone;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.message.SearchResultReference;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
@@ -259,9 +260,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         String baseDn = config.getBaseDn();
 
-        searchRequest = new SearchRequest();
+        searchRequest = new SearchRequestImpl();
 
-        searchRequest.setBaseDn( baseDn );
+        searchRequest.setBase( new DN( baseDn ) );
         searchRequest.setFilter( config.getFilter() );
         searchRequest.setSizeLimit( config.getSearchSizeLimit() );
         searchRequest.setTimeLimit( config.getSearchTimeout() );
@@ -274,7 +275,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.add( new ManageDsaITControl() );
+            searchRequest.addControl( new ManageDsaITControl() );
         }
     }
 
@@ -283,7 +284,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        Control ctrl = searchDone.getControl( SyncDoneValueControl.CONTROL_OID );
+        Control ctrl = searchDone.getControls().get( SyncDoneValueControl.CONTROL_OID );
         SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
         try
         {
@@ -328,7 +329,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             Entry remoteEntry = syncResult.getEntry();
 
-            Control ctrl = syncResult.getControl( SyncStateValueControl.CONTROL_OID );
+            Control ctrl = syncResult.getControls().get( SyncStateValueControl.CONTROL_OID );
 
             try
             {
@@ -380,7 +381,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControl( SyncModifyDnControl.CONTROL_OID );
+                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDnControl.CONTROL_OID );
                     //Apache Directory Server's special control
                     SyncModifyDnControl syncModDnControl = new SyncModifyDnControl();
 
@@ -422,7 +423,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( SearchIntermediateResponse syncInfoResp )
+    public void handleSyncInfo( IntermediateResponse syncInfoResp )
     {
         try
         {
@@ -544,12 +545,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             syncReq.setCookie( syncCookie );
         }
 
-        searchRequest.add( syncReq );
+        searchRequest.addControl( syncReq );
 
         // Do the search
         SearchFuture sf = connection.searchAsync( searchRequest );
 
-        SearchResponse resp = sf.get();
+        Response resp = sf.get();
 
         while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
         {
@@ -561,9 +562,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 handleSearchReference( ( SearchResultReference ) resp );
             }
-            else if ( resp instanceof SearchIntermediateResponse )
+            else if ( resp instanceof IntermediateResponse )
             {
-                handleSyncInfo( ( SearchIntermediateResponse ) resp );
+                handleSyncInfo( ( IntermediateResponse ) resp );
             }
 
             resp = sf.get();
@@ -576,7 +577,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             // log the error and handle it appropriately
             LOG.warn( "given replication base DN {} is not found on provider", config.getBaseDn() );
-            if( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
+            if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
                 disconnet();
@@ -589,9 +590,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 deleteRecursive( new DN( config.getBaseDn() ), null );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
-                LOG.error( "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer", e );
+                LOG
+                    .error(
+                        "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
+                        e );
                 disconnet();
             }
 

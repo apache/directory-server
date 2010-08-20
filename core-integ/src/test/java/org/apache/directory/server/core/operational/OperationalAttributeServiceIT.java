@@ -29,9 +29,6 @@ import static org.junit.Assert.assertTrue;
 import javax.naming.NamingException;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -46,7 +43,10 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
@@ -61,21 +61,16 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "OperationalDS")
 @ApplyLdifs(
-    {
-        "dn: cn=Kate Bush,ou=system",
-        "objectClass: top",
-        "objectClass: person",
-        "cn: Bush",
-        "sn: Kate Bush"
-    })
+    { "dn: cn=Kate Bush,ou=system", "objectClass: top", "objectClass: person", "cn: Bush", "sn: Kate Bush" })
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String DN_KATE_BUSH = "cn=Kate Bush,ou=system";
 
     private LdapConnection connection;
+
 
     @Before
     public void setup() throws Exception
@@ -94,20 +89,15 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testBinaryAttributeFilterExtension() throws Exception
     {
-        Entry entry = LdifUtils.createEntry(
-            new DN( "ou=test,ou=system" ),
-            "objectClass: top",
-            "objectClass: person",
-            "objectClass: organizationalPerson",
-            "objectClass: inetOrgPerson",
-            "ou", "test",
-            "cn", "test",
-            "sn", "test" );
+        Entry entry = LdifUtils
+            .createEntry( new DN( "ou=test,ou=system" ), "objectClass: top", "objectClass: person",
+                "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "ou", "test", "cn", "test", "sn",
+                "test" );
 
-        connection.add(entry );
+        connection.add( entry );
 
         // test without turning on the property
-        SearchResultEntry response = (SearchResultEntry)connection.lookup( "ou=test,ou=system" );
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=test,ou=system" );
         Entry result = response.getEntry();
         EntryAttribute ou = result.get( "ou" );
         Object value = ou.getString();
@@ -115,19 +105,21 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         // try jpegPhoto which should be binary automatically - use ou as control
         byte[] keyValue = new byte[]
-                                   { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
+            { ( byte ) 0xFF, ( byte ) 0xD8, ( byte ) 0xFF, ( byte ) 0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45,
+                0x23, 0x7d, 0x7f };
         entry.put( "jpegPhoto", keyValue );
         entry.setDn( new DN( "ou=anothertest,ou=system" ) );
         entry.set( "ou", "anothertest" );
         connection.add( entry );
-        response = (SearchResultEntry)connection.lookup( "ou=anothertest,ou=system" );
+        response = ( SearchResultEntry ) connection.lookup( "ou=anothertest,ou=system" );
         ou = response.getEntry().get( "ou" );
         value = ou.getString();
         assertEquals( "anothertest", value );
         EntryAttribute jpegPhoto = response.getEntry().get( "jpegPhoto" );
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
-        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( ( byte[] ) value ) );
+        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools
+            .dumpBytes( ( byte[] ) value ) );
     }
 
 
@@ -137,15 +129,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         /*
          * create ou=testing00,ou=system
          */
-        Entry entry = LdifUtils.createEntry(
-            new DN( "ou=testing00,ou=system" ),
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou", "testing00" );
+        Entry entry = LdifUtils.createEntry( new DN( "ou=testing00,ou=system" ), "objectClass: top",
+            "objectClass: organizationalUnit", "ou", "testing00" );
 
-        connection.add(entry );
+        connection.add( entry );
 
-        SearchResultEntry response = (SearchResultEntry)connection.lookup( "ou=testing00,ou=system" );
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=testing00,ou=system" );
         assertNotNull( response );
 
         entry = response.getEntry();
@@ -158,9 +147,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "createTimestamp" ) );
         assertNull( entry.get( "creatorsName" ) );
 
-        Cursor<SearchResponse> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)", SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
+        Cursor<Response> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)",
+            SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
         responses.next();
-        SearchResultEntry result = (SearchResultEntry)responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         assertNotNull( result.getEntry().get( "ou" ) );
         assertNotNull( result.getEntry().get( "creatorsName" ) );
@@ -183,9 +173,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSystemContextRoot() throws Exception
     {
-        Cursor<SearchResponse> responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
+        Cursor<Response> responses = connection
+            .search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
         responses.next();
-        SearchResultEntry result = (SearchResultEntry)responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         // test to make sure op attribute do not occur - this is the control
         Entry entry = result.getEntry();
@@ -193,9 +184,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "createTimestamp" ) );
 
         // now we ask for all the op attributes and check to get them
-        responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName", "createTimestamp" );
+        responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName",
+            "createTimestamp" );
         responses.next();
-        result = (SearchResultEntry)responses.get();
+        result = ( SearchResultEntry ) responses.get();
 
         entry = result.getEntry();
         assertNotNull( entry.get( "creatorsName" ) );
@@ -222,28 +214,16 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
-        Entry entry = LdifUtils.createEntry(
-            new DN( "uid=akarasulu,ou=users,ou=system" ),
-            "objectClass: top",
-            "objectClass: person",
-            "objectClass: organizationalPerson",
-            "objectClass: inetOrgPerson",
-            "ou: Engineering",
-            "ou: People",
-            "uid: akarasulu",
-            "l", "Bogusville",
-            "cn: Alex Karasulu",
-            "sn: Karasulu",
-            "givenName",
-            "mail: akarasulu@apache.org",
-            "telephoneNumber: +1 408 555 4798",
-            "facsimileTelephoneNumber: +1 408 555 9751",
-            "roomnumber: 4612",
-            "userPassword: test" );
+        Entry entry = LdifUtils.createEntry( new DN( "uid=akarasulu,ou=users,ou=system" ), "objectClass: top",
+            "objectClass: person", "objectClass: organizationalPerson", "objectClass: inetOrgPerson",
+            "ou: Engineering", "ou: People", "uid: akarasulu", "l", "Bogusville", "cn: Alex Karasulu", "sn: Karasulu",
+            "givenName", "mail: akarasulu@apache.org", "telephoneNumber: +1 408 555 4798",
+            "facsimileTelephoneNumber: +1 408 555 9751", "roomnumber: 4612", "userPassword: test" );
 
-        connection.add(entry );
+        connection.add( entry );
 
-        SearchResultEntry response = (SearchResultEntry)connection.lookup( "uid=akarasulu,ou=users,ou=system", "creatorsName" );
+        SearchResultEntry response = ( SearchResultEntry ) connection.lookup(
+            "uid=akarasulu,ou=users,ou=system", "creatorsName" );
         Entry result = response.getEntry();
 
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( result.get( "creatorsName" ).getString() ) );
@@ -263,9 +243,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.modify( DN_KATE_BUSH, modifyOp );
 
-        Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifiersName", "modifyTimestamp" );
+        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
+            "modifiersName", "modifyTimestamp" );
         responses.next();
-        SearchResultEntry result = (SearchResultEntry)responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         assertNotNull( result.getEntry().get( "modifiersName" ) );
         assertNotNull( result.getEntry().get( "modifyTimestamp" ) );
@@ -288,9 +269,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( DN_KATE_BUSH, modifyAddOp );
 
         // Determine modifyTimestamp
-        Cursor<SearchResponse> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
+        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
+            "modifyTimestamp" );
         responses.next();
-        SearchResultEntry result = (SearchResultEntry)responses.get();
+        SearchResultEntry result = ( SearchResultEntry ) responses.get();
 
         EntryAttribute modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
@@ -308,7 +290,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // Determine modifyTimestamp after modification
         responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
         responses.next();
-        result = (SearchResultEntry)responses.get();
+        result = ( SearchResultEntry ) responses.get();
 
         modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );

@@ -30,10 +30,10 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
     
-    public SaslServer handleMechanism( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
@@ -75,7 +75,7 @@ public class SimpleMechanismHandler implements MechanismHandler
             ldapSession.setCoreSession( bindContext.getSession() );
             
             // Return the successful response
-            InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
+            BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             LdapProtocolUtils.setResponseControls( bindContext, response );
             
@@ -87,7 +87,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
-            InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
+            LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
             if ( e instanceof LdapOperationException )
             {

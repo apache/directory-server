@@ -31,10 +31,6 @@ import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SearchCursor;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
-import org.apache.directory.ldap.client.api.message.SearchRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultDone;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -45,7 +41,12 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.SearchResultDone;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -59,38 +60,25 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(
-    transports = 
-        {
-          @CreateTransport(protocol = "LDAP"), 
-          @CreateTransport(protocol = "LDAPS") 
-        })
-@ApplyLdifs({
-    "dn: cn=user1,ou=users,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "sn: user1 sn",
-    "cn: user1",
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
+@ApplyLdifs(
+    { "dn: cn=user1,ou=users,ou=system", "objectClass: person", "objectClass: top", "sn: user1 sn",
+        "cn: user1",
 
-    // alias to the above entry
-    "dn: cn=user1-alias,ou=users,ou=system",
-    "objectClass: alias",
-    "objectClass: top",
-    "objectClass: extensibleObject",
-    "aliasedObjectName: cn=user1,ou=users,ou=system",
-    "cn: user1-alias",
+        // alias to the above entry
+        "dn: cn=user1-alias,ou=users,ou=system", "objectClass: alias", "objectClass: top",
+        "objectClass: extensibleObject", "aliasedObjectName: cn=user1,ou=users,ou=system", "cn: user1-alias",
 
-    // Another user
-    "dn: cn=elecharny,ou=users,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "sn:: RW1tYW51ZWwgTMOpY2hhcm55",
-    "cn: elecharny"
-    
-})
+        // Another user
+        "dn: cn=elecharny,ou=users,ou=system", "objectClass: person", "objectClass: top",
+        "sn:: RW1tYW51ZWwgTMOpY2hhcm55", "cn: elecharny"
+
+    })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
+
 
     @Before
     public void setup() throws Exception
@@ -124,7 +112,8 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearch() throws Exception
     {
-        SearchCursor cursor = ( SearchCursor ) connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*", "+" );
+        SearchCursor cursor = ( SearchCursor ) connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL,
+            "*", "+" );
         int count = 0;
         while ( cursor.next() )
         {
@@ -133,43 +122,43 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         }
 
         SearchResultDone done = cursor.getSearchDone();
-        
+
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
         assertEquals( 5, count );
     }
-    
+
 
     @Test
     public void testSearchEquality() throws Exception
     {
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)", SearchScope.ONELEVEL, "*",
-            "+" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
+            SearchScope.ONELEVEL, "*", "+" );
         int count = 0;
         while ( cursor.next() )
         {
             Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
-            assertNotNull(  entry );
+            assertNotNull( entry );
             count++;
         }
-        
+
         assertEquals( 4, count );
     }
-    
-    
+
+
     @Test
     public void testAsyncSearch() throws Exception
     {
         SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
             "+" );
         int count = 0;
-        SearchResponse searchResponse = null;
-        
+        Response searchResponse = null;
+
         do
         {
-            searchResponse = ( SearchResponse ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
+            searchResponse = ( Response ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
             assertNotNull( searchResponse );
-            if( !( searchResponse instanceof SearchResultDone ) )
+            if ( !( searchResponse instanceof SearchResultDone ) )
             {
                 count++;
             }
@@ -179,7 +168,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         assertEquals( 5, count );
     }
 
-    
+
     /**
      * Test a search with a Substring filter
      * @throws Exception
@@ -187,16 +176,16 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchPersonSubstring() throws Exception
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE, "*",
-            "+" );
+        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE,
+            "*", "+" );
         int count = 0;
-        SearchResponse searchResponse = null;
-        
+        Response searchResponse = null;
+
         do
         {
-            searchResponse = ( SearchResponse ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
+            searchResponse = ( Response ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
             assertNotNull( searchResponse );
-            
+
             if ( !( searchResponse instanceof SearchResultDone ) )
             {
                 count++;
@@ -207,41 +196,41 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         assertEquals( 3, count );
     }
 
-    
+
     @Test
     public void testSearchWithDerefAlias() throws Exception
     {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setBaseDn( "ou=users,ou=system" );
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new DN( "ou=users,ou=system" ) );
         searchRequest.setFilter( "(objectClass=*)" );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.addAttributes( "*" );
-        
+
         int count = 0;
-        Cursor<SearchResponse> cursor = connection.search( searchRequest );
-        
-        while( cursor.next() )
+        Cursor<Response> cursor = connection.search( searchRequest );
+
+        while ( cursor.next() )
         {
             count++;
         }
-        
+
         // due to dereferencing of aliases we get only one entry
         assertEquals( 2, count );
 
         count = 0;
         searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
         cursor = connection.search( searchRequest );
-        
-        while( cursor.next() )
+
+        while ( cursor.next() )
         {
             count++;
         }
-        
+
         assertEquals( 3, count );
     }
-    
 
-    @Test(expected=LdapException.class)
+
+    @Test(expected = LdapException.class)
     public void testSearchUTF8() throws Exception
     {
         connection.search( "ou=system", "(sn=Emmanuel LŽcharny)", SearchScope.ONELEVEL, "*", "+" );

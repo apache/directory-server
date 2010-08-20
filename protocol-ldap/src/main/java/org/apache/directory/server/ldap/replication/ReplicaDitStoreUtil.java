@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapCoreSessionConnection;
@@ -44,6 +42,8 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -68,13 +68,14 @@ public class ReplicaDitStoreUtil
     private Map<Integer, List<Modification>> modMap = new HashMap<Integer, List<Modification>>();
 
     private LdapCoreSessionConnection coreConnection;
-    
+
+
     public ReplicaDitStoreUtil( DirectoryService dirService ) throws Exception
     {
         this.adminSession = dirService.getAdminSession();
         this.schemaManager = dirService.getSchemaManager();
         coreConnection = new LdapCoreSessionConnection( adminSession );
-        
+
         init();
     }
 
@@ -93,7 +94,7 @@ public class ReplicaDitStoreUtil
 
             adminSession.add( entry );
         }
-        
+
     }
 
 
@@ -106,7 +107,7 @@ public class ReplicaDitStoreUtil
 
         Entry entry = new DefaultEntry( schemaManager );
         entry.setDn( new DN( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
-        
+
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replConsumer" );
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
         entry.add( "ads-replAliasDerefMode", String
@@ -115,25 +116,26 @@ public class ReplicaDitStoreUtil
         entry.add( "ads-replLastSentCsn", replica.getLastSentCsn() );
         entry.add( "ads-replSearchScope", String.valueOf( replica.getSearchCriteria().getScope().getScope() ) );
         entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
-        
+
         adminSession.add( entry );
     }
 
 
     public void updateReplicaLastSentCsn( ReplicaEventLog replica ) throws Exception
     {
-     
+
         List<Modification> mods = modMap.get( replica.getId() );
         EntryAttribute lastSentCsnAt = null;
-        if( mods == null )
+        if ( mods == null )
         {
-            lastSentCsnAt = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "ads-replLastSentCsn" ) );
+            lastSentCsnAt = new DefaultEntryAttribute( schemaManager
+                .lookupAttributeTypeRegistry( "ads-replLastSentCsn" ) );
             lastSentCsnAt.add( replica.getLastSentCsn() );
-            
+
             Modification mod = new DefaultModification();
             mod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
             mod.setAttribute( lastSentCsnAt );
-            
+
             mods = new ArrayList<Modification>( 1 );
             mods.add( mod );
         }
@@ -147,55 +149,57 @@ public class ReplicaDitStoreUtil
         DN dn = new DN( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
     }
-    
-    
+
+
     public List<ReplicaEventLog> getReplicaConsumers() throws Exception
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
-        
-        Cursor<SearchResponse> cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)", SearchScope.ONELEVEL, "+", "*" );
-        while( cursor.next() )
+
+        Cursor<Response> cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
+            SearchScope.ONELEVEL, "+", "*" );
+
+        while ( cursor.next() )
         {
             Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             ReplicaEventLog replica = convertEntryToReplica( entry );
             replicas.add( replica );
         }
         cursor.close();
-        
+
         return replicas;
     }
 
-    
+
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
         String id = entry.get( "ads-dsReplicaId" ).getString();
         ReplicaEventLog replica = new ReplicaEventLog( Integer.parseInt( id ) );
-        
+
         NotificationCriteria searchCriteria = new NotificationCriteria();
-        
+
         String aliasMode = entry.get( "ads-replAliasDerefMode" ).getString();
         searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( Integer.parseInt( aliasMode ) ) );
-        
+
         String baseDn = entry.get( "ads-searchBaseDN" ).getString();
         searchCriteria.setBase( baseDn );
-        
+
         String lastSentCsn = entry.get( "ads-replLastSentCsn" ).getString();
         replica.setLastSentCsn( lastSentCsn );
-        
+
         String scope = entry.get( "ads-replSearchScope" ).getString();
         searchCriteria.setScope( SearchScope.getSearchScope( Integer.parseInt( scope ) ) );
 
         String filter = entry.get( "ads-replSearchFilter" ).getString();
         searchCriteria.setFilter( filter );
         replica.setSearchFilter( filter );
-        
+
         searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         replica.setSearchCriteria( searchCriteria );
-        
+
         // explicitly mark the replica as not-dirty, cause we just loaded it from 
         // the store, this prevents updating the replica info immediately after loading
         replica.setDirty( false );
-        
+
         return replica;
     }
 }

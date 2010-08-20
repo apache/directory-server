@@ -29,11 +29,6 @@ import java.util.HashSet;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.DeleteResponse;
-import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -41,7 +36,13 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.DeleteResponse;
+import org.apache.directory.shared.ldap.message.ModifyDnResponse;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -73,8 +74,8 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Makes sure the admin cannot delete the admin account.
      *
@@ -110,15 +111,16 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     public void testModifyOnAdminByAdmin() throws Exception
     {
         LdapConnection connection = getAdminConnection();
-        DN adminDN = new DN( "uid=admin,ou=system" );
-        ModifyRequest req = new ModifyRequest( adminDN );
+        DN adminDn = new DN( "uid=admin,ou=system" );
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( adminDn );
         String newPwd = "replaced";
-        req.replace( SchemaConstants.USER_PASSWORD_AT, newPwd );
-        connection.modify( req );
+        modReq.replace( SchemaConstants.USER_PASSWORD_AT, newPwd );
+        connection.modify( modReq );
         connection.close();
 
-        connection = getConnectionAs( adminDN, newPwd );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( adminDN.getName() ) ).getEntry();
+        connection = getConnectionAs( adminDn, newPwd );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( adminDn.getName() ) ).getEntry();
         assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
             .getBytes() ) );
     }
@@ -136,7 +138,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 
         HashSet<String> set = new HashSet<String>();
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+        Cursor<Response> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
 
         while ( cursor.next() )
         {

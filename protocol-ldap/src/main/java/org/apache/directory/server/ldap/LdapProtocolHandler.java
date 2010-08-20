@@ -20,15 +20,15 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
+import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalRequest;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponse;
-import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
  * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing 
  * {@link IoHandler} handler and populates it with subordinate handlers for
- * the various kinds of LDAP {@link InternalRequest} messages.  This is done in the
+ * the various kinds of LDAP {@link Request} messages.  This is done in the
  * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -50,7 +50,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdapProtocolHandler.class );
-    
+
     /** the {@link LdapServer} this handler is associated with */
     private final LdapServer ldapServer;
 
@@ -87,12 +87,12 @@ class LdapProtocolHandler extends DemuxingIoHandler
     {
         // Get the associated LdapSession
         LdapSession ldapSession = ldapServer.getLdapSessionManager().removeLdapSession( session );
-        
+
         // Clean it up !
         cleanUpSession( ldapSession );
     }
 
-    
+
     /**
      * Explicitly handles {@link LdapSession} and {@link IoSession} cleanup tasks.
      *
@@ -106,16 +106,16 @@ class LdapProtocolHandler extends DemuxingIoHandler
             LOG.warn( "Null LdapSession given to cleanUpSession." );
             return;
         }
-        
+
         LOG.debug( "Cleaning the {} session", ldapSession );
-        
+
         if ( ldapSession != null )
         {
             // Abandon all the requests
             ldapSession.abandonAllOutstandingRequests();
         }
-        
-        if ( ! ldapSession.getIoSession().isClosing() || ldapSession.getIoSession().isConnected() )
+
+        if ( !ldapSession.getIoSession().isClosing() || ldapSession.getIoSession().isConnected() )
         {
             try
             {
@@ -128,7 +128,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         }
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.mina.handler.demux.DemuxingIoHandler#messageReceived(org.apache.mina.common.IoSession, java.lang.Object)
@@ -159,28 +159,29 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
-            req.setOid( "1.3.6.1.4.1.1466.20037" );
-            req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
+            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
+            req.setRequestValue( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
-            req.setOid( "1.3.6.1.4.1.1466.20037" );
-            req.setPayload( "UNSECURED".getBytes( "ISO-8859-1" ) );
+            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
+            req.setRequestValue( "UNSECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
 
-        if ( ( ( InternalRequest ) message ).getControls().size() > 0 && message instanceof InternalResultResponseRequest )
+        if ( ( ( Request ) message ).getControls().size() > 0
+            && message instanceof ResultResponseRequest )
         {
-            InternalResultResponseRequest req = ( InternalResultResponseRequest ) message;
-            
+            ResultResponseRequest req = ( ResultResponseRequest ) message;
+
             for ( Control control : req.getControls().values() )
             {
-                if ( control.isCritical() && ! ldapServer.getSupportedControls().contains( control.getOid() ) )
+                if ( control.isCritical() && !ldapServer.getSupportedControls().contains( control.getOid() ) )
                 {
-                    InternalResultResponse resp = req.getResultResponse();
+                    ResultResponse resp = req.getResultResponse();
                     resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getOid() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );
@@ -207,9 +208,9 @@ class LdapProtocolHandler extends DemuxingIoHandler
             {
                 session.write( rcme.getResponse() );
                 return;
-            }                
+            }
         }
-        
+
         LOG.warn( "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
         session.write( NoticeOfDisconnect.PROTOCOLERROR );

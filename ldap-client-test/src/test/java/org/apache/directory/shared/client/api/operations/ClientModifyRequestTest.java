@@ -33,9 +33,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
-import org.apache.directory.ldap.client.api.message.ModifyRequest;
-import org.apache.directory.ldap.client.api.message.ModifyResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -47,7 +44,11 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -62,23 +63,19 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer (
-    transports =
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
-    })
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
 
     private CoreSession session;
 
+
     @Before
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        connection.setTimeOut( 0 );
 
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
@@ -100,7 +97,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
-        catch( Exception ioe )
+        catch ( Exception ioe )
         {
             fail();
         }
@@ -113,7 +110,8 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        ModifyRequest modRequest = new ModifyRequest( dn );
+        ModifyRequest modRequest = new ModifyRequestImpl();
+        modRequest.setName( dn );
         modRequest.replace( SchemaConstants.SN_AT, expected );
 
         connection.modify( modRequest );
@@ -169,7 +167,8 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         assertEquals( "test", gn );
 
         // Now, replace the givenName
-        ModifyRequest modifyRequest = new ModifyRequest( dn );
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
         modifyRequest.replace( "givenName" );
         connection.modify( modifyRequest );
 
@@ -185,12 +184,13 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        ModifyRequest modRequest = new ModifyRequest( dn );
-        modRequest.replace( SchemaConstants.SN_AT, expected );
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.SN_AT, expected );
 
         assertTrue( session.exists( dn ) );
 
-        ModifyFuture modifyFuture = connection.modifyAsync( modRequest );
+        ModifyFuture modifyFuture = connection.modifyAsync( modifyRequest );
 
         try
         {
@@ -222,16 +222,18 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
 
-        ModifyRequest modReq = new ModifyRequest( dn );
-        modReq.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
 
-        modReq = new ModifyRequest( dn );
-        modReq.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+        modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
 
-        modResp = connection.modify( modReq );
+        modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
     }
 
@@ -247,11 +249,12 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         String modifierName = "uid=x,ou=system";
         String modifiedTime = DateUtils.getGeneralizedTime();
 
-        ModifyRequest modReq = new ModifyRequest( dn );
-        modReq.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
-        modReq.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
+        modifyRequest.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
         Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
