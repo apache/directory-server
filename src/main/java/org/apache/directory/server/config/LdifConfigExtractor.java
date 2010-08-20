@@ -51,12 +51,12 @@ import org.slf4j.LoggerFactory;
  */
 public class LdifConfigExtractor
 {
-    
+
     private static final String CONFIG_SUBDIR = "config";
-    
+
     private static final Logger LOG = LoggerFactory.getLogger( LdifConfigExtractor.class );
-    
-    
+
+
     /**
      * Extracts the LDIF files from a Jar file or copies exploded LDIF resources.
      *
@@ -70,7 +70,7 @@ public class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             outputDirectory.mkdir();
         }
-        
+
         File configDirectory = new File( outputDirectory, CONFIG_SUBDIR );
 
         if ( !configDirectory.exists() )
@@ -85,7 +85,7 @@ public class LdifConfigExtractor
 
         LOG.debug( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
 
-        Pattern pattern = Pattern.compile( ".*config/ou=config.*\\.ldif" );
+        Pattern pattern = Pattern.compile( ".*config" + File.separator + "ou=config.*\\.ldif" );
         Map<String, Boolean> list = ResourceMap.getResources( pattern );
 
         for ( Entry<String, Boolean> entry : list.entrySet() )
@@ -102,7 +102,7 @@ public class LdifConfigExtractor
         }
     }
 
-    
+
     /**
      * Copies a file line by line from the source file argument to the 
      * destination file argument.
@@ -114,29 +114,30 @@ public class LdifConfigExtractor
     private static void copyFile( File source, File destination ) throws IOException
     {
         LOG.debug( "copyFile(): source = {}, destination = {}", source, destination );
-        
-        if ( ! destination.getParentFile().exists() )
+
+        if ( !destination.getParentFile().exists() )
         {
             destination.getParentFile().mkdirs();
         }
-        
-        if ( ! source.getParentFile().exists() )
+
+        if ( !source.getParentFile().exists() )
         {
             throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
         }
-        
+
         FileWriter out = new FileWriter( destination );
         BufferedReader in = new BufferedReader( new FileReader( source ) );
         String line;
         while ( null != ( line = in.readLine() ) )
         {
-            out.write( line + "\n" ); 
+            out.write( line + "\n" );
         }
-        
+
         in.close();
         out.flush();
         out.close();
     }
+
 
     /**
      * Extracts the LDIF schema resource from a Jar.
@@ -161,12 +162,12 @@ public class LdifConfigExtractor
             {
                 return;
             }
-            
-            if ( ! destination.getParentFile().exists() )
+
+            if ( !destination.getParentFile().exists() )
             {
                 destination.getParentFile().mkdirs();
             }
-            
+
             FileOutputStream out = new FileOutputStream( destination );
             try
             {
@@ -176,7 +177,7 @@ public class LdifConfigExtractor
                     out.write( buf, 0, readCount );
                 }
                 out.flush();
-            } 
+            }
             finally
             {
                 out.close();
@@ -188,7 +189,7 @@ public class LdifConfigExtractor
         }
     }
 
-    
+
     /**
      * Calculates the destination file.
      *
@@ -200,7 +201,7 @@ public class LdifConfigExtractor
         File parent = resource.getParentFile();
         Stack<String> fileComponentStack = new Stack<String>();
         fileComponentStack.push( resource.getName() );
-        
+
         while ( parent != null )
         {
             if ( parent.getName().equals( "config" ) )
@@ -209,23 +210,23 @@ public class LdifConfigExtractor
                 // config/config base path. So we need to add one more 
                 // schema component to all LDIF files minus this config.ldif
                 fileComponentStack.push( "config" );
-                
+
                 return assembleDestinationFile( outputDirectory, fileComponentStack );
             }
 
             fileComponentStack.push( parent.getName() );
-            
-            if ( parent.equals( parent.getParentFile() )
-                    || parent.getParentFile() == null )
+
+            if ( parent.equals( parent.getParentFile() ) || parent.getParentFile() == null )
             {
                 throw new IllegalStateException( I18n.err( I18n.ERR_510 ) );
             }
-            
+
             parent = parent.getParentFile();
         }
 
         throw new IllegalStateException( I18n.err( I18n.ERR_511 ) );
     }
+
 
     /**
      * Assembles the destination file by appending file components previously
@@ -237,12 +238,12 @@ public class LdifConfigExtractor
     private static File assembleDestinationFile( File outputDirectory, Stack<String> fileComponentStack )
     {
         File destinationFile = outputDirectory.getAbsoluteFile();
-        
-        while ( ! fileComponentStack.isEmpty() )
+
+        while ( !fileComponentStack.isEmpty() )
         {
             destinationFile = new File( destinationFile, fileComponentStack.pop() );
         }
-        
+
         return destinationFile;
     }
 
