@@ -72,9 +72,6 @@ public interface ConfigSchemaConstants
 
     String ADS_HTTP_CONFFILE = "ads-httpConfFile";
 
-    //TODO unused, better to be remove or reuse after renaming
-    //String ADS_HTTP_WEBAPPS = "ads-httpWebApps";
-
     String ADS_DIRECTORYSERVICE_ID = "ads-directoryServiceId";
 
     String ADS_DS_REPLICA_ID = "ads-dsReplicaId";
@@ -210,6 +207,8 @@ public interface ConfigSchemaConstants
     String ADS_REPL_PROVIDER_OC = "ads-replProvider";
     
     String ADS_REPL_PROVIDER_IMPL = "ads-replProviderImpl";
+    
+    String ADS_REPL_ENABLE_PROVIDER = "ads-enableReplProvider";
     
     String ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC = "ads-ldapServerSaslMechanismHandler";
     

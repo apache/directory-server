@@ -88,6 +88,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
+import org.apache.directory.server.ldap.replication.SyncReplProvider;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -112,7 +113,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 ;
@@ -225,20 +225,37 @@ public class ConfigPartitionReader
         Transport[] transports = createTransports( ldapServerEntry.getDn() );
         server.setTransports( transports );
 
-        EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
-        if( replProvImplAttr != null )
+        EntryAttribute replEnableProvAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_ENABLE_PROVIDER );
+        
+        if( replEnableProvAttr != null )
         {
-            String fqcn = replProvImplAttr.getString();
-            try
+            if( Boolean.parseBoolean( replEnableProvAttr.getString() ) )
             {
-                Class<?> replProvImplClz = Class.forName( fqcn );
-                ReplicationProvider rp = ( ReplicationProvider ) replProvImplClz.newInstance();
-                server.setReplicationProvider( rp );
-            }
-            catch( ClassNotFoundException e )
-            {
-                LOG.error( "Failed to load and instantiate ReplicationProvider implementation", e );
-                throw e;
+                EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
+                
+                String fqcn = null;
+                
+                if( replProvImplAttr != null )
+                {
+                    fqcn = replProvImplAttr.getString();
+                }
+                else
+                {
+                    // default replication provider
+                    fqcn = SyncReplProvider.class.getName();
+                }
+                
+                try
+                {
+                    Class<?> replProvImplClz = Class.forName( fqcn );
+                    ReplicationProvider rp = ( ReplicationProvider ) replProvImplClz.newInstance();
+                    server.setReplicationProvider( rp );
+                }
+                catch( ClassNotFoundException e )
+                {
+                    LOG.error( "Failed to load and instantiate ReplicationProvider implementation", e );
+                    throw e;
+                }
             }
         }
         
