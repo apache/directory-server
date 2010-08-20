@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.event.EventIntercepto
 ads-interceptorid: eventInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true

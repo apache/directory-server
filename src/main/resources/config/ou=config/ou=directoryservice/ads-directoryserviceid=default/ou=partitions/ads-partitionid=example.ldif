@@ -9,3 +9,4 @@ objectclass: ads-jdbmPartition
 objectclass: ads-partition
 objectclass: top
 ads-partitionid: example
+ads-enabled: true

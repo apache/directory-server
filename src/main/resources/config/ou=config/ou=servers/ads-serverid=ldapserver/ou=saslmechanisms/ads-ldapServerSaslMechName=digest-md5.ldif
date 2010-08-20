@@ -6,3 +6,4 @@ ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: DIGEST-MD5
+ads-enabled: true

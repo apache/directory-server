@@ -14,3 +14,4 @@ ads-ldapserversaslprincipal: ldap/ldap.example.com@EXAMPLE.COM
 ads-ldapserversaslrealms: example.com
 ads-ldapserversaslrealms: apache.org
 ads-searchbasedn: ou=users,ou=system
+ads-enabled: true

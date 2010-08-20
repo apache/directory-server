@@ -7,3 +7,4 @@ objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: GSS-SPNEGO
 ads-ldapserverntlmmechprovider: com.foo.Bar
+ads-enabled: true

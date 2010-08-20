@@ -19,3 +19,4 @@ pwdMinAge: 0
 pwdAllowUserChange: TRUE
 pwdGraceAuthNLimit: 5
 pwdCheckQuality: 2
+ads-enabled: true

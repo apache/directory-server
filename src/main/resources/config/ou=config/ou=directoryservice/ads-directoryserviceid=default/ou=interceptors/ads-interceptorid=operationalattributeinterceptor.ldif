@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.operational.Operation
 ads-interceptorid: operationalAttributeInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true

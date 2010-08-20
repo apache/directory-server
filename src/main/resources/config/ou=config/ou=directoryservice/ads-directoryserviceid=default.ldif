@@ -9,3 +9,4 @@ ads-dsdenormalizeopattrsenabled: false
 objectclass: ads-directoryService
 objectclass: top
 ads-directoryserviceid: default
+ads-enabled: true

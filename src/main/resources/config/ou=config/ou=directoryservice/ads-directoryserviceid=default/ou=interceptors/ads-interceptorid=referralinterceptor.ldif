@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.referral.ReferralInte
 ads-interceptorid: referralInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true

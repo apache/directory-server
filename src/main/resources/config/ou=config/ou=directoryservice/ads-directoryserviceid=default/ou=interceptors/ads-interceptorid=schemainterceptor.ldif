@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.schema.SchemaIntercep
 ads-interceptorid: schemaInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true
