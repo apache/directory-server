@@ -72,7 +72,8 @@ public interface ConfigSchemaConstants
 
     String ADS_HTTP_CONFFILE = "ads-httpConfFile";
 
-    String ADS_HTTP_WEBAPPS = "ads-httpWebApps";
+    //TODO unused, better to be remove or reuse after renaming
+    //String ADS_HTTP_WEBAPPS = "ads-httpWebApps";
 
     String ADS_DIRECTORYSERVICE_ID = "ads-directoryServiceId";
 
@@ -221,4 +222,8 @@ public interface ConfigSchemaConstants
     String ADS_LDAP_SERVER_EXT_OP_HANDLER_OC = "ads-ldapServerExtendedOpHandler";
     
     String ADS_LDAP_SERVER_EXT_OP_HANDLER_FQCN = "ads-ldapServerExtendedOpHandlerClass";
+    
+    String ADS_LDAP_SERVER_KEYSTORE_FILE = "ads-ldapserverkeystorefile";
+    
+    String ADS_LDAP_SERVER_CERT_PASSWORD = "ads-ldapServerCertificatePassword";
 }

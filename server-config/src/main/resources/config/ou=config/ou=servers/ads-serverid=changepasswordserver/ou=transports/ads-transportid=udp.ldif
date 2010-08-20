@@ -8,3 +8,4 @@ ads-transportid: udp
 objectclass: ads-transport
 objectclass: top
 objectclass: ads-udpTransport
+ads-enabled: true

@@ -7,3 +7,4 @@ ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
 objectclass: top
+ads-enabled: true

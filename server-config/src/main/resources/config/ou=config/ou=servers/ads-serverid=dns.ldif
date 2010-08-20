@@ -1,6 +1,5 @@
 version: 1
 dn: ads-serverId=dns,ou=servers,ou=config
-ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-serverid: dns
 ads-enabled: false
 objectclass: ads-server
