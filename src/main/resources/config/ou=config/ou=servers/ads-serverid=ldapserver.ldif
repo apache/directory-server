@@ -15,3 +15,4 @@ ads-ldapserversaslrealms: example.com
 ads-ldapserversaslrealms: apache.org
 ads-searchbasedn: ou=users,ou=system
 ads-enabled: true
+ads-enableReplProvider: false
