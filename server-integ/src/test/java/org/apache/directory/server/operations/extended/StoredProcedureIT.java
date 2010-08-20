@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormal
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -100,8 +99,6 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
-    // (@TODO fix the JNDI conversion for extended operation)
     public void testExecuteProcedureWithReturnValue() throws Exception
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHello";
@@ -113,8 +110,6 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
-    // (@TODO fix the JNDI conversion for extended operation)
     public void testExecuteProcedureWithParametersAndReturnValue() throws Exception
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHelloTo";
