@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterc
 ads-interceptorid: triggerInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true

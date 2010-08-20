@@ -6,3 +6,4 @@ ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: SIMPLE
+ads-enabled: true

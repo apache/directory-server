@@ -8,3 +8,4 @@ ads-transportid: ldaps
 objectclass: ads-transport
 objectclass: ads-tcpTransport
 objectclass: top
+ads-enabled: true

@@ -7,3 +7,4 @@ ads-interceptorclassname: org.apache.directory.server.core.normalization.Normali
 ads-interceptorid: normalizationInterceptor
 objectclass: ads-interceptor
 objectclass: top
+ads-enabled: true

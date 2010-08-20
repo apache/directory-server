@@ -8,3 +8,4 @@ ads-transportid: tcp
 objectclass: ads-transport
 objectclass: ads-tcpTransport
 objectclass: top
+ads-enabled: true
