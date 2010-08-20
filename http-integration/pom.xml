@@ -35,6 +35,11 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
@@ -50,6 +55,7 @@
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-util</artifactId>
     </dependency>
+
   </dependencies>
   
   <build>
