@@ -257,7 +257,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         ModifyResponse modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        Entry loadedEntry = connection.lookup( dn.getName(), "+" );
 
         assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
         assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );

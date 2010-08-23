@@ -179,7 +179,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        Entry loadedEntry = connection.lookup( dn.getName(), "+" );
 
         // successful for admin
         assertEquals( uuid, loadedEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
