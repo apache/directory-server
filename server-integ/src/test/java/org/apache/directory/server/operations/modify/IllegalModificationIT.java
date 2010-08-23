@@ -93,7 +93,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, resp.getLdapResult().getResultCode() );
 
         // Check whether entry is unmodified, i.e. no description
-        Entry entry = ( ( SearchResultEntry ) con.lookup( DN ) ).getEntry();
+        Entry entry = con.lookup( DN );
         assertEquals( "description exists?", null, entry.get( "description" ) );
     }
 

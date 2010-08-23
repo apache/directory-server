@@ -68,17 +68,9 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
 
-        Response response = connection.lookup( "uid=admin,ou=system" );;
-        assertNotNull( response );
-        assertTrue( response instanceof SearchResultEntry );
-
-        SearchResultEntry result = ( SearchResultEntry ) response;
-
-        assertNotNull( result );
-
-        Entry entry = result.getEntry();
-
+        Entry entry = connection.lookup( "uid=admin,ou=system" );;
         assertNotNull( entry );
+        assertTrue( entry instanceof SearchResultEntry );
 
         long t0 = System.currentTimeMillis();
 
@@ -86,7 +78,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         {
             for ( int j = 0; j < 10000; j++ )
             {
-                response = connection.lookup( "uid=admin,ou=system", "+" );
+                entry = connection.lookup( "uid=admin,ou=system", "+" );
             }
 
             System.out.print( "." );

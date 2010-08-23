@@ -206,8 +206,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
 
-        Response response = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        Entry entry = ( ( SearchResultEntry ) response ).getEntry();
+        Entry entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );
@@ -216,8 +215,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
 
-        response = connection.lookup( "ou=users,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=users,ou=system" );
         c_ou = entry.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
 
@@ -229,8 +227,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
         // entry should not show the c-ou collective attribute anymore
-        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
         if ( c_ou != null )
@@ -242,8 +239,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         Entry subentry2 = getTestSubentry2( "cn=testsubentry2,ou=system" );
         connection.add( subentry2 );
 
-        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
         if ( c_ou != null )
@@ -252,8 +248,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
-        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
@@ -261,8 +256,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         assertTrue( c_ou.contains( "configuration2" ) );
 
         // request the collective attribute specifically
-        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "c-ou" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "c-ou" );
         c_ou = entry.get( "c-ou" );
 
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
@@ -270,8 +264,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         assertTrue( c_ou.contains( "configuration2" ) );
 
         // unspecify the collective attribute in the returning attribute list
-        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "objectClass" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "objectClass" );
         c_ou = entry.get( "c-ou" );
 
         assertNull( "a collective c-ou attribute should not be present", c_ou );
@@ -282,16 +275,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         connection.add( getTestSubentry3( "cn=testsubentry3,ou=system" ) );
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
-        response = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         EntryAttribute c_st = entry.get( "c-st" );
 
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
-        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
@@ -310,8 +301,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( "ou=interceptors,ou=configuration, ou=system", modification );
 
         // none of the attributes should appear any longer
-        response = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
-        entry = ( ( SearchResultEntry ) response ).getEntry();
+        entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
         if ( c_ou != null )
@@ -521,9 +511,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         connection.add( subentry );
 
         // request the collective attribute's super type specifically
-        Response response = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
-
-        Entry entry = ( ( SearchResultEntry ) response ).getEntry();
+        Entry entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
 
         EntryAttribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );

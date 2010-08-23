@@ -61,16 +61,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        Response response = connection.lookup( "cn=test,ou=system", "+" );
-
-        assertNotNull( response );
-        assertTrue( response instanceof SearchResultEntry );
-
-        SearchResultEntry result = ( SearchResultEntry ) response;
-
-        assertNotNull( result );
-
-        Entry entry = result.getEntry();
+        Entry entry = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( entry );
 
@@ -131,16 +122,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
             + "}" );
 
-        Response response = connection.lookup( "cn=test,ou=system", "+" );
-
-        assertNotNull( response );
-        assertTrue( response instanceof SearchResultEntry );
-
-        SearchResultEntry result = ( SearchResultEntry ) response;
-
-        assertNotNull( result );
-
-        Entry entry = result.getEntry();
+        Entry entry = connection.lookup( "cn=test,ou=system", "+" );
 
         assertNotNull( entry );
 

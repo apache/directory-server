@@ -120,7 +120,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
         connection.close();
 
         connection = getConnectionAs( adminDn, newPwd );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( adminDn.getName() ) ).getEntry();
+        Entry entry = connection.lookup( adminDn.getName() );
         assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
             .getBytes() ) );
     }

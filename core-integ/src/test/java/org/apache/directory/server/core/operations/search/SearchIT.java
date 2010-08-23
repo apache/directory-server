@@ -1783,8 +1783,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         connection.add( entry2 );
 
-        entry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
-        entry2 = ( ( SearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
+        entry = connection.lookup( dn.getName(), "+" );
+        entry2 = connection.lookup( dn2.getName(), "+" );
 
         String lowerCsn = entry.get( "entryCsn" ).getString();
         String higherCsn = entry2.get( "entryCsn" ).getString();

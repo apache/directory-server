@@ -269,7 +269,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -309,7 +309,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -350,7 +350,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
+        Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
         EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
@@ -1205,8 +1205,7 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( entry );
 
         // Analyze entry and description attribute
-        SearchResultEntry resp = ( SearchResultEntry ) con.lookup( dn, "*", "+" );
-        Entry addedEntry = resp.getEntry();
+        Entry addedEntry = con.lookup( dn, "*", "+" );
         assertNotNull( addedEntry );
 
         EntryAttribute attr = addedEntry.get( SchemaConstants.ENTRY_UUID_AT );

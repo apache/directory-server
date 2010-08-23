@@ -97,8 +97,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         // test without turning on the property
-        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=test,ou=system" );
-        Entry result = response.getEntry();
+        Entry result = connection.lookup( "ou=test,ou=system" );
         EntryAttribute ou = result.get( "ou" );
         Object value = ou.getString();
         assertTrue( value instanceof String );
@@ -111,11 +110,11 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         entry.setDn( new DN( "ou=anothertest,ou=system" ) );
         entry.set( "ou", "anothertest" );
         connection.add( entry );
-        response = ( SearchResultEntry ) connection.lookup( "ou=anothertest,ou=system" );
-        ou = response.getEntry().get( "ou" );
+        Entry loadedEntry = connection.lookup( "ou=anothertest,ou=system" );
+        ou = loadedEntry.get( "ou" );
         value = ou.getString();
         assertEquals( "anothertest", value );
-        EntryAttribute jpegPhoto = response.getEntry().get( "jpegPhoto" );
+        EntryAttribute jpegPhoto = loadedEntry.get( "jpegPhoto" );
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
         assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools
@@ -134,10 +133,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        SearchResultEntry response = ( SearchResultEntry ) connection.lookup( "ou=testing00,ou=system" );
-        assertNotNull( response );
+        entry = connection.lookup( "ou=testing00,ou=system" );
+        assertNotNull( entry );
 
-        entry = response.getEntry();
         assertNotNull( entry );
         assertEquals( "testing00", entry.get( "ou" ).getString() );
         EntryAttribute attribute = entry.get( "objectClass" );
@@ -222,9 +220,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        SearchResultEntry response = ( SearchResultEntry ) connection.lookup(
-            "uid=akarasulu,ou=users,ou=system", "creatorsName" );
-        Entry result = response.getEntry();
+        Entry result = connection.lookup( "uid=akarasulu,ou=users,ou=system", "creatorsName" );
 
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( result.get( "creatorsName" ).getString() ) );
     }

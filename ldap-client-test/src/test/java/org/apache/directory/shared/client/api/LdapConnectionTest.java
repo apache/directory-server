@@ -35,6 +35,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -42,6 +43,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.BindResponse;
@@ -136,27 +138,34 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     }
 
 
+    @ApplyLdifs({
+        "dn: uid=kayyagari,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: kayyagari",
+        "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
+    })
     @Test
     public void testLookup() throws Exception
     {
-        Response resp = connection.lookup( ADMIN_DN );
-        assertNotNull( resp );
-
-        Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
+        Entry entry = connection.lookup( ADMIN_DN );
         assertNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
 
         // perform lookup with operational attributes
-        resp = connection.lookup( ADMIN_DN, "+", "*" );
-        entry = ( ( SearchResultEntry ) resp ).getEntry();
+        entry = connection.lookup( ADMIN_DN, "+", "*" );
         assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
+        
+        entry = connection.lookup( "uid=kayyagari,ou=system" );
+        assertNull( entry );
     }
 
 
     @Test
     public void searchByEntryUuid() throws Exception
     {
-        Response resp = connection.lookup( ADMIN_DN, "+" );
-        Entry entry = ( ( SearchResultEntry ) resp ).getEntry();
+        Entry entry = connection.lookup( ADMIN_DN, "+" );
 
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
 
@@ -175,12 +184,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
 
         connection.loadSchema();
 
-        entry = ( ( SearchResultEntry ) connection.lookup( "uid=admin,ou=system" ) ).getEntry();
+        entry = connection.lookup( "uid=admin,ou=system" );
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isBinary() );
     }
 

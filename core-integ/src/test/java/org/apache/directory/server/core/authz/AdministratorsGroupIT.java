@@ -31,7 +31,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -65,8 +65,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
 
     boolean canReadAdministrators( LdapConnection connection ) throws Exception
     {
-        SearchResultEntry res = ( SearchResultEntry ) connection
-            .lookup( "cn=Administrators,ou=groups,ou=system" );
+        Entry res = connection.lookup( "cn=Administrators,ou=groups,ou=system" );
 
         if ( res == null )
         {

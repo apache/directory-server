@@ -191,11 +191,11 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = getAdminConnection( service );
 
         connection.move( "ou=users,ou=system", "ou=groups,ou=system" );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=groups,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "ou=users,ou=groups,ou=system" );
         assertNotNull( entry );
 
-        Response res = connection.lookup( "ou=users,ou=system" );
-        assertNull( res );
+        entry = connection.lookup( "ou=users,ou=system" );
+        assertNull( entry );
     }
 
 
@@ -290,7 +290,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         modReq.add( SchemaConstants.OU_AT, "dummyValue" );
 
         connection.modify( modReq );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "ou=users,ou=system" );
         EntryAttribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
@@ -326,7 +326,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "ou=users,ou=system" );
         assertNotNull( entry );
         assertEquals( "users", entry.get( "ou" ).getString() );
     }
@@ -439,7 +439,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         AddResponse resp = createSubContext( "ou", "blah" );
         resp = createSubContext( new DN( "ou=blah,ou=system" ), "ou", "subctx" );
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=subctx,ou=blah,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "ou=subctx,ou=blah,ou=system" );
         assertNotNull( entry );
     }
 
@@ -494,7 +494,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         AddResponse resp = createSubContext( "ou", "blah" );
 
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=blah,ou=system" ) ).getEntry();
+        Entry entry = connection.lookup( "ou=blah,ou=system" );
         assertNotNull( entry );
         connection.delete( entry.getDn() );
 

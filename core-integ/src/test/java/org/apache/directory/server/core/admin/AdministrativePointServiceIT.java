@@ -23,6 +23,7 @@ package org.apache.directory.server.core.admin;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -37,9 +38,7 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
-import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,13 +73,11 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
     private Entry getAdminRole( String dn ) throws Exception
     {
-        Response lookup = connection.lookup( dn, "administrativeRole" );
+        Entry lookup = connection.lookup( dn, "administrativeRole" );
 
-        assertTrue( lookup instanceof SearchResultEntry );
+        assertNotNull( lookup );
 
-        Entry entry = ( ( SearchResultEntry ) lookup ).getEntry();
-
-        return entry;
+        return lookup;
     }
 
 

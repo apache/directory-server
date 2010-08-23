@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Test;
@@ -295,7 +294,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         modReq.add( "description", "a desc value" );
         sysRoot.modify( modReq );
 
-        Entry resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        Entry resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         EntryAttribute description = resusitated.get( "description" );
         assertNotNull( description );
@@ -303,7 +302,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // now revert and assert that the added entry re-appears
         service.revert( t0.getRevision() );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         assertNull( resusitated.get( "description" ) );
 
@@ -316,7 +315,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         modReq.setName( resusitated.getDn() );
         modReq.add( "description", "old value" );
         sysRoot.modify( modReq );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -329,7 +328,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         modReq.replace( "description", "new value" );
         sysRoot.modify( modReq );
 
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -337,7 +336,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // now revert and assert the old value is now reverted
         service.revert( t1.getRevision() );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -353,14 +352,14 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         modReq.remove( "description", "old value" );
         sysRoot.modify( modReq );
 
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
 
         // now revert and assert the old value is now reverted
         service.revert( t2.getRevision() );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -375,7 +374,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         modReq.setName( resusitated.getDn() );
         modReq.add( "userPassword", "to be replaced" );
         sysRoot.modify( modReq );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertPassword( resusitated, "to be replaced" );
 
         modReq = new ModifyRequestImpl();
@@ -389,7 +388,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // now make the modification and check that description is gone,
         // seeAlso is added, and that the userPassword has been replaced
         sysRoot.modify( modReq );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
@@ -400,7 +399,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // now we revert and make sure the old values are as they were
         service.revert( t3.getRevision() );
-        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -421,14 +420,14 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
     private void assertNotPresent( LdapConnection connection, String dn ) throws LdapException
     {
-        SearchResultEntry se = ( SearchResultEntry ) connection.lookup( dn );
+        Entry se = connection.lookup( dn );
         assertNull( se );
     }
 
 
     private void assertPresent( LdapConnection connection, String dn ) throws LdapException
     {
-        Entry entry = ( ( SearchResultEntry ) connection.lookup( dn ) ).getEntry();
+        Entry entry = connection.lookup( dn );
         assertNotNull( entry );
     }
 }

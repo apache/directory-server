@@ -95,8 +95,8 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
 
             connection.moveAndRename( oldDn, newDn );
 
-            Response oldEntry = connection.lookup( oldDn.getName() );
-            Response newEntry = connection.lookup( newDn.getName() );
+            Entry oldEntry = connection.lookup( oldDn.getName() );
+            Entry newEntry = connection.lookup( newDn.getName() );
 
             assertNull( oldEntry );
             assertNotNull( newEntry );

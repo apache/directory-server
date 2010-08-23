@@ -359,7 +359,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertEquals( 10, counter );
         recursivelyDelete( base );
 
-        SearchResultEntry entry = ( SearchResultEntry ) connection.lookup( base.getName() );
+        Entry entry = connection.lookup( base.getName() );
         assertNull( entry );
     }
 
@@ -844,7 +844,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection userCtx = getConnectionAs( "uid=billyd,ou=users,ou=system", "billyd" );
 
         // we should not see ou=groups,ou=system for the remaining name
-        SearchResultEntry entry = ( SearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
+        Entry entry = userCtx.lookup( "cn=blah,ou=groups" );
         assertNull( entry );
 
         // now delete and replace subentry with one that does not excluse ou=groups,ou=system
@@ -857,7 +857,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "          grantDiscloseOnError " + "        } " + "      } " + "    } " + "  } " + "}" );
 
         // now try a lookup of a non-existant entry under ou=groups,ou=system again
-        entry = ( SearchResultEntry ) userCtx.lookup( "cn=blah,ou=groups" );
+        entry = userCtx.lookup( "cn=blah,ou=groups" );
         assertNull( entry );
     }
 

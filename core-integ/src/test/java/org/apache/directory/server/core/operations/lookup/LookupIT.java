@@ -75,9 +75,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupStar() throws Exception
     {
-        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system", "*" );
-        Entry entry = result.getEntry();
-
+        Entry entry = connection.lookup( "cn=test,ou=system", "*" );
         assertNotNull( entry );
 
         // Check that we don't have any operational attributes :
@@ -98,9 +96,7 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupPlus() throws Exception
     {
         service.setDenormalizeOpAttrsEnabled( true );
-        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system", "+" );
-        Entry entry = result.getEntry();
-
+        Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
 
         // We should have 5 attributes
@@ -125,10 +121,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupEmptyAtrid() throws Exception
     {
-        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system",
-            ( String[] ) null );
-        Entry entry = result.getEntry();
-
+        Entry entry = connection.lookup( "cn=test,ou=system", ( String[] ) null );
         assertNotNull( entry );
 
         // We should have 3 attributes
@@ -147,8 +140,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        SearchResultEntry result = ( SearchResultEntry ) connection.lookup( "cn=test,ou=system" );
-        Entry entry = result.getEntry();
+        Entry entry = connection.lookup( "cn=test,ou=system" );
 
         assertNotNull( entry );
 
@@ -169,10 +161,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Ignore
     public void testLookupWithAttrs() throws Exception
     {
-        SearchResultEntry result = ( SearchResultEntry ) connection
-            .lookup( "cn=test,ou=system", "name" );
-        Entry entry = result.getEntry();
-
+        Entry entry = connection.lookup( "cn=test,ou=system", "name" );
         assertNotNull( entry );
 
         // We should have 3 attributes

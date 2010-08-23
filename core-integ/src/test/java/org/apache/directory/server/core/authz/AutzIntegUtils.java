@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -236,8 +235,7 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry systemEntry = ( ( SearchResultEntry ) connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" ) )
-            .getEntry();
+        Entry systemEntry = connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" );
 
         // modify ou=system to be an AP for an A/C AA if it is not already
         EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
