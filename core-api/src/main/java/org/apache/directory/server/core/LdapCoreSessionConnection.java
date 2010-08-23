@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AddRequest;
@@ -79,6 +80,7 @@ import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.message.SearchResultReference;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -414,7 +416,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Response lookup( DN dn, String... attributes ) throws LdapException
+    public Entry lookup( DN dn, String... attributes ) throws LdapException
     {
         return _lookup( dn, attributes );
     }
@@ -424,16 +426,14 @@ public class LdapCoreSessionConnection implements LdapConnection
      * this method exists solely for the purpose of calling from
      * lookup(DN dn) avoiding the varargs,
      */
-    private Response _lookup( DN dn, String... attributes )
+    private Entry _lookup( DN dn, String... attributes )
     {
-        int newId = messageId.incrementAndGet();
+        messageId.incrementAndGet();
 
-        SearchResultEntry resp = null;
+        Entry entry = null;
 
         try
         {
-            Entry entry = null;
-
             if ( attributes == null )
             {
                 entry = session.lookup( dn );
@@ -442,23 +442,20 @@ public class LdapCoreSessionConnection implements LdapConnection
             {
                 entry = session.lookup( dn, attributes );
             }
-
-            resp = new SearchResultEntryImpl( newId );
-            resp.setEntry( entry );
         }
         catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
         }
 
-        return resp;
+        return entry;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public Response lookup( String dn, String... attributes ) throws LdapException
+    public Entry lookup( String dn, String... attributes ) throws LdapException
     {
         return _lookup( new DN( dn ), attributes );
     }
@@ -467,7 +464,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Response lookup( DN dn ) throws LdapException
+    public Entry lookup( DN dn ) throws LdapException
     {
         return _lookup( dn );
     }
@@ -476,7 +473,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Response lookup( String dn ) throws LdapException
+    public Entry lookup( String dn ) throws LdapException
     {
         return _lookup( new DN( dn ) );
     }
