@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AddRequest;
@@ -78,9 +77,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
-import org.apache.directory.shared.ldap.message.SearchResultReference;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -590,20 +586,60 @@ public class LdapCoreSessionConnection implements LdapConnection
 
     /**
      * {@inheritDoc}
-     * WARNING: this method is not in compatible with CoreSession API in some cases
-     *          cause this we call {@link CoreSession#move(ModifyDnRequest)} always from this method.
-     *          Instead use other specific modifyDn operations like {@link #move(DN, DN)}, {@link #rename(DN, RDN)} etc..
      */
     public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
     {
         int newId = messageId.incrementAndGet();
 
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
-        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        LdapResult result = resp.getLdapResult();
+        result.setResultCode( ResultCodeEnum.SUCCESS );
+
+        if ( modDnRequest.getName().isEmpty() )
+        {
+            // it is not allowed to modify the name of the Root DSE
+            String msg = "Modify DN is not allowed on Root DSE.";
+            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
+            result.setErrorMessage( msg );
+            return resp;
+        }
 
         try
         {
-            session.move( modDnRequest );
+            DN newRdn = null;
+            if( modDnRequest.getNewRdn() != null )
+            {
+                newRdn = new DN( modDnRequest.getNewRdn().getName(), schemaManager );
+            }
+            
+            DN oldRdn = new DN( modDnRequest.getName().getRdn().getName(), schemaManager );
+            
+            boolean rdnChanged = modDnRequest.getNewRdn() != null && 
+                ! newRdn.getNormName().equals( oldRdn.getNormName() );
+            
+            if ( rdnChanged )
+            {
+                if ( modDnRequest.getNewSuperior() != null )
+                {
+                    session.moveAndRename( modDnRequest );
+                }
+                else
+                {
+                    session.rename( modDnRequest );
+                }
+            }
+            else if ( modDnRequest.getNewSuperior() != null )
+            {
+                modDnRequest.setNewRdn( null );
+                session.move( modDnRequest );
+            }
+            else
+            {
+                result.setErrorMessage( "Attempt to move entry onto itself." );
+                result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+                result.setMatchedDn( modDnRequest.getName() );
+            }
+
         }
         catch ( LdapException e )
         {
@@ -623,29 +659,11 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse move( DN entryDn, DN newSuperiorDn ) throws LdapException
     {
-        int newId = messageId.incrementAndGet();
-        ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
-        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
+        iModDnReq.setName( entryDn );
+        iModDnReq.setNewSuperior( newSuperiorDn );
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
-
-        try
-        {
-            iModDnReq.setName( entryDn );
-            iModDnReq.setNewSuperior( newSuperiorDn );
-
-            session.move( iModDnReq );
-        }
-        catch ( LdapException e )
-        {
-            LOG.warn( e.getMessage(), e );
-
-            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
-        }
-
-        addResponseControls( iModDnReq, resp );
-        return resp;
+        return modifyDn( iModDnReq );
     }
 
 
@@ -663,31 +681,12 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse rename( DN entryDn, RDN newRdn, boolean deleteOldRdn ) throws LdapException
     {
-        int newId = messageId.incrementAndGet();
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
+        iModDnReq.setName( entryDn );
+        iModDnReq.setNewRdn( newRdn );
+        iModDnReq.setDeleteOldRdn( deleteOldRdn );
 
-        ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
-        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
-
-        try
-        {
-            iModDnReq.setName( entryDn );
-            iModDnReq.setNewRdn( newRdn );
-            iModDnReq.setDeleteOldRdn( deleteOldRdn );
-
-            session.rename( iModDnReq );
-        }
-        catch ( LdapException e )
-        {
-            LOG.warn( e.getMessage(), e );
-
-            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
-        }
-
-        addResponseControls( iModDnReq, resp );
-        return resp;
+        return modifyDn( iModDnReq );
     }
 
 
@@ -770,31 +769,16 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( "The RootDSE cannot be the target" );
         }
 
-        int newId = messageId.incrementAndGet();
-
-        ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
+        ModifyDnResponse resp = new ModifyDnResponseImpl();
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl( newId );
+        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
 
-        try
-        {
-            iModDnReq.setName( entryDn );
-            iModDnReq.setNewSuperior( newDn );
-            iModDnReq.setDeleteOldRdn( deleteOldRdn );
+        iModDnReq.setName( entryDn );
+        iModDnReq.setNewSuperior( newDn );
+        iModDnReq.setDeleteOldRdn( deleteOldRdn );
 
-            session.moveAndRename( iModDnReq );
-        }
-        catch ( LdapException e )
-        {
-            LOG.warn( e.getMessage(), e );
-
-            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
-        }
-
-        addResponseControls( iModDnReq, resp );
-        return resp;
+        return modifyDn( iModDnReq );
     }
 
 
