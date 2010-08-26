@@ -1,6 +1,5 @@
 version: 1
-dn: ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=direc
- toryService,ou=config
+dn: ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-partitionsuffix: ou=system
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
