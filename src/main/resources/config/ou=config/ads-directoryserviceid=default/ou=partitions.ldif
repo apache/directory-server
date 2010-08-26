@@ -1,0 +1,5 @@
+version: 1
+dn: ou=partitions,ads-directoryServiceId=default,ou=config
+ou: partitions
+objectclass: organizationalUnit
+objectclass: top

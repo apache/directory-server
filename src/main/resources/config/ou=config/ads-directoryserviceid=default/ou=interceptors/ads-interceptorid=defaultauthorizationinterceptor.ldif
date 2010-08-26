@@ -1,0 +1,10 @@
+version: 1
+dn: ads-interceptorId=defaultAuthorizationInterceptor,ou=interceptors,ads-direct
+ oryServiceId=default,ou=config
+ads-interceptororder: 5
+ads-interceptorclassname: org.apache.directory.server.core.authz.DefaultAuthoriz
+ ationInterceptor
+ads-interceptorid: defaultAuthorizationInterceptor
+objectclass: ads-interceptor
+objectclass: top
+ads-enabled: true
