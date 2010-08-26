@@ -1,0 +1,10 @@
+version: 1
+dn: ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directorySer
+ viceId=default,ou=config
+ads-interceptororder: 2
+ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationI
+ nterceptor
+ads-interceptorid: authenticationInterceptor
+objectclass: ads-interceptor
+objectclass: top
+ads-enabled: true

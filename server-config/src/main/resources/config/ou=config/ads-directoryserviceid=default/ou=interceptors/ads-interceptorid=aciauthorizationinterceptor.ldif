@@ -1,0 +1,10 @@
+version: 1
+dn: ads-interceptorId=aciAuthorizationInterceptor,ou=interceptors,ads-directoryS
+ erviceId=default,ou=config
+ads-interceptororder: 4
+ads-interceptorclassname: org.apache.directory.server.core.authz.AciAuthorizatio
+ nInterceptor
+ads-interceptorid: aciAuthorizationInterceptor
+objectclass: ads-interceptor
+objectclass: top
+ads-enabled: true

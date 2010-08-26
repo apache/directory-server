@@ -1,6 +1,0 @@
-version: 1
-dn: ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=defa
- ult,ou=directoryService,ou=config
-ou: indexes
-objectclass: organizationalUnit
-objectclass: top

@@ -1,9 +1,0 @@
-version: 1
-dn: ads-indexAttributeId=krb5PrincipalName,ou=indexes,ads-partitionId=example,ou
- =partitions,ads-directoryServiceId=default,ou=directoryService,ou=config
-ads-indexattributeid: krb5PrincipalName
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: top
-ads-enabled: true

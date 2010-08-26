@@ -1,0 +1,10 @@
+version: 1
+dn: ads-interceptorId=operationalAttributeInterceptor,ou=interceptors,ads-direct
+ oryServiceId=default,ou=config
+ads-interceptororder: 7
+ads-interceptorclassname: org.apache.directory.server.core.operational.Operation
+ alAttributeInterceptor
+ads-interceptorid: operationalAttributeInterceptor
+objectclass: ads-interceptor
+objectclass: top
+ads-enabled: true
