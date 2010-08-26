@@ -847,9 +847,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
                 for ( Partition partition : partitions.values() )
                 {
-                    searchContext.setDn( partition.getSuffix() );
-                    searchContext.setScope( SearchScope.OBJECT );
-                    cursors.add( partition.search( searchContext ) );
+                    DN contextDn = partition.getSuffix();
+                    EntryOperationContext hasEntryContext = new EntryOperationContext( null, contextDn );
+                    // search only if the context entry exists
+                    if( partition.hasEntry( hasEntryContext ) )
+                    {
+                        searchContext.setDn( contextDn );
+                        searchContext.setScope( SearchScope.OBJECT );
+                        cursors.add( partition.search( searchContext ) );
+                    }
                 }
 
                 return new CursorList( cursors, searchContext );
