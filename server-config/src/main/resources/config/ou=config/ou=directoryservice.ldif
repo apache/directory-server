@@ -1,5 +1,0 @@
-version: 1
-dn: ou=directoryService,ou=config
-ou: directoryService
-objectclass: organizationalUnit
-objectclass: top
