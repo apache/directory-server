@@ -79,14 +79,8 @@ public class CacheService
 
     public void destroy()
     {
-        if ( cacheManager.getStatus() == Status.STATUS_ALIVE )
-        {
-            LOG.info( "destroying the cache service" );
-
-            cacheManager.removalAll();
-
-            cacheManager.shutdown();
-        }
+        LOG.info( "clearing all the caches" );
+        cacheManager.clearAll();
     }
 
 
