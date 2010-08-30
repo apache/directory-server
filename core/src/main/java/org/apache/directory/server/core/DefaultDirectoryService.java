@@ -1420,7 +1420,10 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
 
-        DNFactory.setSchemaManager( schemaManager );
+        cacheService = new CacheService();
+        cacheService.initialize( this );
+
+        DNFactory.initialize( this );
 
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
@@ -1441,9 +1444,6 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
 
         firstStart = createBootstrapEntries();
-        
-        cacheService = new CacheService();
-        cacheService.initialize( this );
         
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );

@@ -21,8 +21,8 @@
 package org.apache.directory.server.core;
 
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -39,13 +39,17 @@ import org.slf4j.LoggerFactory;
 public class DNFactory
 {
 
-    /** a map of <DN-upName, DN> tuples */
-    // NOTE: currently a map is used, will eventually be replaced with ehCache if thie experiment succeeds
-    private static final Map<String, DN> DN_CACHE = new ConcurrentHashMap<String, DN>();
+    /** a cache for DNs */
+    // this cache instance will be initialized only when DNFactory gets initialized by
+    // directory service. Other classes(like tests) can still use this factory but no cache is maintained
+    // FIXME this decision needs to be evaluated
+    private static Cache DN_CACHE;
 
     private static final Logger LOG = LoggerFactory.getLogger( DNFactory.class );
 
     private static SchemaManager schemaManager;
+
+    private static boolean enableStats = false;
 
     // stat counters
     private static int hitCount = 0;
@@ -71,12 +75,24 @@ public class DNFactory
             return null;
         }
 
-        if( dn.trim().length() == 0 )
+        if ( dn.trim().length() == 0 )
         {
             return DN.EMPTY_DN;
         }
 
-        DN cachedDN = DN_CACHE.get( dn );
+        DN cachedDN = null;
+
+        // read the explanation at the above DN_CACHE variable declaration
+        // for the reason for performing this check
+        if( DN_CACHE != null )
+        {
+            Element dnCacheEntry = DN_CACHE.get( dn );
+            
+            if ( dnCacheEntry != null )
+            {
+                cachedDN = ( DN ) dnCacheEntry.getValue();
+            }
+        }
 
         if ( cachedDN == null )
         {
@@ -84,8 +100,15 @@ public class DNFactory
 
             cachedDN = new DN( dn, schemaManager );
 
-            DN_CACHE.put( dn, cachedDN );
-            missCount++;
+            if( DN_CACHE != null )
+            {
+                DN_CACHE.put( new Element( dn, cachedDN ) );
+            }
+
+            if ( enableStats )
+            {
+                missCount++;
+            }
         }
         else
         {
@@ -94,13 +117,21 @@ public class DNFactory
                 cachedDN.normalize( schemaManager );
             }
 
-            hitCount++;
+            if ( enableStats )
+            {
+                hitCount++;
+            }
         }
 
         LOG.debug( "DN {} found in the cache", dn );
-//        System.out.println( "DN '" + cachedDN + "' found in the cache and isNormalized " + cachedDN.isNormalized() );
-//        System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
-//            + cachedDN.isNormalized() );
+        
+        if ( enableStats )
+        {
+            //System.out.println( "DN '" + cachedDN + "' found in the cache and isNormalized " + cachedDN.isNormalized() );
+            System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
+                + cachedDN.isNormalized() );
+        }
+        
         return cachedDN;
     }
 
@@ -148,4 +179,13 @@ public class DNFactory
         DNFactory.schemaManager = schemaManager;
     }
 
+    
+    /**
+     * this method will be called from the DefaultDirectoryService during startup
+     */
+    protected static void initialize( DirectoryService dirService )
+    {
+        schemaManager = dirService.getSchemaManager();
+        DN_CACHE = dirService.getCacheService().getCache( "dnCache" );
+    }
 }
