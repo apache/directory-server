@@ -240,6 +240,9 @@ public class DefaultDirectoryService implements DirectoryService
 
     private static final String LOCK_FILE_NAME = ".dirservice.lock";
 
+    /** the ehcache based cache service */
+    private CacheService cacheService;
+
     /**
      * The synchronizer thread. It flush data on disk periodically.
      */
@@ -1010,7 +1013,8 @@ public class DefaultDirectoryService implements DirectoryService
         // And shutdown the server
         // --------------------------------------------------------------------
         interceptorChain.destroy();
-
+        cacheService.destroy();
+        
         if ( lockFile != null )
         {
             try
@@ -1437,7 +1441,10 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
 
         firstStart = createBootstrapEntries();
-
+        
+        cacheService = new CacheService();
+        cacheService.initialize( this );
+        
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
@@ -1767,4 +1774,13 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheService getCacheService()
+    {
+        return cacheService;
+    }
+
 }

@@ -517,4 +517,9 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the syncPeriodMillis
      */
     long getSyncPeriodMillis();
+    
+    /**
+     * @return the cache service
+     */
+    CacheService getCacheService();
 }

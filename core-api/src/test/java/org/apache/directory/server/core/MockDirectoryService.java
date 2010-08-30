@@ -485,4 +485,11 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
         
     }
+
+
+    public CacheService getCacheService()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
