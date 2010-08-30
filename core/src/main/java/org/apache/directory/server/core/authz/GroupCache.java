@@ -20,17 +20,19 @@
 package org.apache.directory.server.core.authz;
 
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DNFactory;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -68,9 +70,6 @@ public class GroupCache
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
-    private final Map<String, Set<String>> groups = new HashMap<String, Set<String>>();
-
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
 
@@ -93,6 +92,8 @@ public class GroupCache
 
     private static final Set<DN> EMPTY_GROUPS = new HashSet<DN>();
 
+    /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
+    private Cache ehCache;
 
     /**
      * Creates a static group cache.
@@ -100,10 +101,10 @@ public class GroupCache
      * @param directoryService the directory service core
      * @throws LdapException if there are failures on initialization
      */
-    public GroupCache( CoreSession session ) throws LdapException
+    public GroupCache( DirectoryService dirService ) throws LdapException
     {
-        schemaManager = session.getDirectoryService().getSchemaManager();
-        nexus = session.getDirectoryService().getPartitionNexus();
+        schemaManager = dirService.getSchemaManager();
+        nexus = dirService.getPartitionNexus();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
         UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
@@ -111,7 +112,9 @@ public class GroupCache
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        initialize( session );
+        this.ehCache = dirService.getCacheService().getCache( "groupCache" );
+        
+        initialize( dirService.getAdminSession() );
     }
 
 
@@ -143,7 +146,7 @@ public class GroupCache
             DN baseDn = DNFactory.create( suffix, schemaManager );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
+            
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
@@ -156,30 +159,34 @@ public class GroupCache
                     Entry result = results.get();
                     DN groupDn = result.getDn().normalize( schemaManager );
                     EntryAttribute members = getMemberAttribute( result );
-
+    
                     if ( members != null )
                     {
                         Set<String> memberSet = new HashSet<String>( members.size() );
                         addMembers( memberSet, members );
-                        groups.put( groupDn.getNormName(), memberSet );
+                        
+                        Element cacheElement = new Element( groupDn.getNormName(), memberSet );
+                        ehCache.put( cacheElement );
                     }
                     else
                     {
                         LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
                     }
                 }
-
+    
                 results.close();
             }
             catch ( Exception e )
             {
-                throw new LdapOperationException( e.getMessage() );
+                LdapOperationException le = new LdapOperationException( e.getMessage() );
+                le.initCause( e );
+                throw le;
             }
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents on startup:\n {}", groups );
+            LOG.debug( "group cache contents on startup:\n {}", ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -305,11 +312,13 @@ public class GroupCache
 
         Set<String> memberSet = new HashSet<String>( members.size() );
         addMembers( memberSet, members );
-        groups.put( name.getNormName(), memberSet );
+        
+        Element cacheElement = new Element( name.getNormName(), memberSet );
+        ehCache.put( cacheElement );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(), groups );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -330,11 +339,11 @@ public class GroupCache
             return;
         }
 
-        groups.remove( name.getNormName() );
+        ehCache.remove( name.getNormName() );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), groups );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -414,7 +423,7 @@ public class GroupCache
         {
             if ( memberAttrId.equalsIgnoreCase( modification.getAttribute().getId() ) )
             {
-                Set<String> memberSet = groups.get( name.getNormName() );
+                Set<String> memberSet = ( Set<String> ) ehCache.get( name.getNormName() ).getValue();
 
                 if ( memberSet != null )
                 {
@@ -427,7 +436,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -450,7 +459,7 @@ public class GroupCache
             return;
         }
 
-        Set<String> memberSet = groups.get( name.getNormName() );
+        Set<String> memberSet = ( Set<String> ) ehCache.get( name.getNormName() ).getValue();
 
         if ( memberSet != null )
         {
@@ -459,7 +468,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -478,7 +487,7 @@ public class GroupCache
             return true;
         }
 
-        Set<String> members = groups.get( administratorsGroupDn.getNormName() );
+        Set<String> members = ( Set<String> ) ehCache.get( administratorsGroupDn.getNormName() ).getValue();
 
         if ( members == null )
         {
@@ -517,9 +526,10 @@ public class GroupCache
 
         Set<DN> memberGroups = null;
 
-        for ( String group : groups.keySet() )
+        for ( Object obj : ehCache.getKeys() )
         {
-            Set<String> members = groups.get( group );
+            String group = ( String ) obj;
+            Set<String> members = ( Set<String> ) ehCache.get( group ).getValue();
 
             if ( members == null )
             {
@@ -548,15 +558,20 @@ public class GroupCache
 
     public boolean groupRenamed( DN oldName, DN newName )
     {
-        Set<String> members = groups.remove( oldName.getNormName() );
-
-        if ( members != null )
+        Element membersElement = ehCache.get( oldName.getNormName() );
+        
+        if ( membersElement != null )
         {
-            groups.put( newName.getNormName(), members );
+            Set<String> members = ( Set<String> ) membersElement.getValue();
+            
+            ehCache.remove( oldName.getNormName() );
+            
+            Element cacheElement = new Element( newName.getNormName(), members );
+            ehCache.put( cacheElement );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), groups );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
             }
 
             return true;

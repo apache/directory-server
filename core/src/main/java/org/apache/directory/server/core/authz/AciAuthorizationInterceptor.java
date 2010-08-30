@@ -38,6 +38,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
+import org.apache.directory.server.core.authz.GroupCache;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -198,7 +199,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Create the caches
         tupleCache = new TupleCache( adminSession );
-        groupCache = new GroupCache( adminSession );
+        groupCache = new GroupCache( directoryService );
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
