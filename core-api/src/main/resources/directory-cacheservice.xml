@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>       
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="false" monitoring="autodetect"
+         dynamicConfig="true" >
+   
+    <diskStore path="java.io.tmpdir"/>
+
+    <cacheManagerEventListenerFactory class="" properties=""/>
+
+    <!--
+    Mandatory Default Cache configuration. These settings will be applied to caches
+    created programmtically using CacheManager.add(String cacheName).
+
+    The defaultCache has an implicit name "default" which is a reserved cache name.
+    -->
+    <defaultCache
+           maxElementsInMemory="0"
+           eternal="false"
+           overflowToDisk="true"
+           timeToIdleSeconds="1200"
+           timeToLiveSeconds="1200">
+    </defaultCache>
+
+    <!--
+    Sample cache named sampleCache1
+    This cache contains a maximum in memory of 10000 elements, and will expire
+    an element if it is idle for more than 5 minutes and lives for more than
+    10 minutes.
+
+    If there are more than 10000 elements it will overflow to the
+    disk cache, which in this configuration will go to wherever java.io.tmp is
+    defined on your system. On a standard Linux system this will be /tmp"
+    -->
+    <cache name="groupCache"
+           maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
+           eternal="true"
+           overflowToDisk="true"
+           diskSpoolBufferSizeMB="20"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="600"/>
+</ehcache>
