@@ -23,6 +23,7 @@ package org.apache.directory.server.core.security;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -43,8 +44,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
@@ -69,8 +70,10 @@ public class TlsKeyGenerator
     public static final String PUBLIC_KEY_FORMAT_AT = "publicKeyFormat";
     public static final String USER_CERTIFICATE_AT = "userCertificate";
 
-    public static final String CERTIFICATE_PRINCIPAL_DN =
-        "CN=ApacheDS, OU=Directory, O=ASF, C=US";
+    private static final String BASE_DN = "OU=Directory, O=ASF, C=US";
+    
+    public static final String CERTIFICATE_PRINCIPAL_DN = "CN=ApacheDS," + BASE_DN;
+    
     private static final String ALGORITHM = "RSA";
     
     /* 
@@ -251,13 +254,27 @@ public class TlsKeyGenerator
         BigInteger serialNumber = BigInteger.valueOf( System.currentTimeMillis() );
 
         X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
-        X500Principal dnName = new X500Principal( CERTIFICATE_PRINCIPAL_DN );
-
+        X500Principal issuerDn = new X500Principal( CERTIFICATE_PRINCIPAL_DN );
+        
+        X500Principal subjectDn = null;
+        
+        try
+        {
+            String hostName = InetAddress.getLocalHost().getHostName();
+            subjectDn = new X500Principal( "CN=" + hostName + "," + BASE_DN );
+        }
+        catch( Exception e )
+        {
+            LOG.warn( "failed to create certificate subject name from host name", e );
+            subjectDn = issuerDn;
+        }
+       
+        
         certGen.setSerialNumber( serialNumber );
-        certGen.setIssuerDN( dnName );
+        certGen.setIssuerDN( issuerDn );
         certGen.setNotBefore( startDate );
         certGen.setNotAfter( expiryDate );
-        certGen.setSubjectDN( dnName );
+        certGen.setSubjectDN( subjectDn );
         certGen.setPublicKey( publicKey );
         certGen.setSignatureAlgorithm( "SHA1With" + ALGORITHM );
 

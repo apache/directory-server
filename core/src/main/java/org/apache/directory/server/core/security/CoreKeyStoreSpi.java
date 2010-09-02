@@ -161,7 +161,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.debug( "Certificate in alias request is X.509 based." );
             X509Certificate xcert = ( X509Certificate ) cert;
-            if ( xcert.getSubjectDN().toString().equals( TlsKeyGenerator.CERTIFICATE_PRINCIPAL_DN ) )
+            if ( xcert.getIssuerDN().toString().equals( TlsKeyGenerator.CERTIFICATE_PRINCIPAL_DN ) )
             {
                 return APACHEDS_ALIAS;
             }
