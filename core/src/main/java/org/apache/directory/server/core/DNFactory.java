@@ -188,4 +188,17 @@ public class DNFactory
         schemaManager = dirService.getSchemaManager();
         DN_CACHE = dirService.getCacheService().getCache( "dnCache" );
     }
+    
+    
+    /**
+     * clears all the DNs present in the cache 
+     */
+    public static void clearCache()
+    {
+        if( DN_CACHE != null )
+        {
+            LOG.debug( "clearing all the DNs from cache" );
+            DN_CACHE.removeAll();
+        }
+    }
 }
