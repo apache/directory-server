@@ -524,38 +524,35 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // case #1 : The user does not have a session.
         if ( ldapSession.isAnonymous() )
         {
-            if ( !StringTools.isEmpty( saslMechanism ) )
+            // fist check that the mechanism exists
+            if ( !checkMechanism( saslMechanism ) )
             {
-                // fist check that the mechanism exists
-                if ( !checkMechanism( saslMechanism ) )
-                {
-                    // get out !
-                    sendAuthMethNotSupported( ldapSession, bindRequest );
-
-                    return;
-                }
-
-                // Store the mechanism in the ldap session
-                ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
-
-                // Get the handler for this mechanism
-                MechanismHandler mechanismHandler = handlers.get( saslMechanism );
-
-                // Store the mechanism handler in the salsProperties
-                ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
-
-                // Initialize the mechanism specific data
-                mechanismHandler.init( ldapSession );
-
-                // Get the SaslServer instance which manage the C/R exchange
-                SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
-
-                // We have to generate a challenge
-                generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
-
-                // And get back
+                // get out !
+                sendAuthMethNotSupported( ldapSession, bindRequest );
+                
                 return;
             }
+            
+            // Store the mechanism in the ldap session
+            ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
+            
+            // Get the handler for this mechanism
+            MechanismHandler mechanismHandler = handlers.get( saslMechanism );
+            
+            // Store the mechanism handler in the salsProperties
+            ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
+            
+            // Initialize the mechanism specific data
+            mechanismHandler.init( ldapSession );
+            
+            // Get the SaslServer instance which manage the C/R exchange
+            SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
+            
+            // We have to generate a challenge
+            generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
+            
+            // And get back
+            return;
         }
         else if ( ldapSession.isAuthPending() )
         {
