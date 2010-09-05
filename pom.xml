@@ -130,6 +130,7 @@
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
     <module>server-replication</module>
+    <module>http-directory-bridge</module>
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
