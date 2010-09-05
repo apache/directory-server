@@ -21,16 +21,20 @@
 package org.apache.directory.server.integration.http;
 
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.HttpDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.mortbay.xml.XmlConfiguration;
@@ -78,12 +82,6 @@ public class HttpServer
     public void start( DirectoryService dirService ) throws Exception
     {
 
-        if ( confFile == null && ( webApps == null || webApps.isEmpty() ) )
-        {
-            LOG.warn( "Neither configuration file nor web apps were configured for the http server, skipping initialization." );
-            return;
-        }
-
         this.dirService = dirService;
         
         XmlConfiguration jettyConf = null;
@@ -114,6 +112,16 @@ public class HttpServer
 
         if ( configured )
         {
+            Handler[] handlers = jetty.getHandlers();
+            for( Handler h : handlers )
+            {
+                if( h instanceof ContextHandler )
+                {
+                    ContextHandler ch = ( ContextHandler ) h;
+                    ch.setAttribute( HttpDirectoryService.KEY, new HttpDirectoryService( dirService ) );
+                }
+            }
+            
             LOG.info( "starting jetty http server" );
             jetty.start();
         }
@@ -145,8 +153,44 @@ public class HttpServer
                 webapp.setWar( w.getWarFile() );
                 webapp.setContextPath( w.getContextPath() );
                 handlers.add( webapp );
+                
+                webapp.setParentLoaderPriority( true );
             }
 
+            // add web apps from the webapps directory inside directory service's working directory
+            // the exploded or archived wars
+            File webAppDir = new File( dirService.getWorkingDirectory(), "webapps" );
+            
+            FilenameFilter webAppFilter = new FilenameFilter()
+            {
+                
+                public boolean accept( File dir, String name )
+                {
+                    return name.endsWith( ".war" );
+                }
+            };
+            
+            if ( webAppDir.exists() )
+            {
+                File[] appList = webAppDir.listFiles( webAppFilter );
+                for( File app : appList )
+                {
+                    WebAppContext webapp = new WebAppContext();
+                    webapp.setWar( app.getAbsolutePath() );
+                    String ctxName = app.getName();
+                    int pos = ctxName.indexOf( '.' );
+                    if( pos > 0 )
+                    {
+                        ctxName = ctxName.substring( 0, pos );
+                    }
+                    
+                    webapp.setContextPath( "/" + ctxName );
+                    handlers.add( webapp );
+                    
+                    webapp.setParentLoaderPriority( true );
+                }
+            }
+            
             jetty.setHandlers( handlers.toArray( new Handler[ handlers.size() ] ) );
             
             configured = true;
