@@ -93,19 +93,19 @@ public class CursorList implements EntryFilteringCursor
 
         if ( ( start < 0 ) || ( start > this.list.size() ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005, start ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005_START_INDEX_OUT_OF_RANGE, start ) );
         }
 
         if ( ( end < 0 ) || ( end > this.list.size() ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006_END_INDEX_OUT_OF_RANGE, end ) );
         }
 
         // check list is not empty list since the empty list is the only situation
         // where we allow for start to equal the end: in other cases it makes no sense
         if ( ( this.list.size() > 0 ) && ( start >= end ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007, start, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007_START_INDEX_ABOVE_END_INDEX, start, end ) );
         }
 
         this.start = start;
@@ -133,9 +133,9 @@ public class CursorList implements EntryFilteringCursor
     {
         if ( index >= 0 && index < end )
         {
-            return list.get( index ).available(); 
+            return list.get( index ).available();
         }
-        
+
         return false;
     }
 
@@ -175,7 +175,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void afterLast() throws Exception
     {
-        this.index = end-1;
+        this.index = end - 1;
         list.get( index ).afterLast();
     }
 
@@ -369,10 +369,10 @@ public class CursorList implements EntryFilteringCursor
     {
         if ( index < start || index >= end )
         {
-            throw new IOException( I18n.err( I18n.ERR_02009 ) );
+            throw new IOException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
         }
 
-        if( list.get( index ).available() )
+        if ( list.get( index ).available() )
         {
             return ( ClonedServerEntry ) list.get( index ).get();
         }
@@ -391,11 +391,11 @@ public class CursorList implements EntryFilteringCursor
 
     public boolean addEntryFilter( EntryFilter filter )
     {
-        for( EntryFilteringCursor efc : list )
+        for ( EntryFilteringCursor efc : list )
         {
             efc.addEntryFilter( filter );
         }
-        
+
         // returning hard coded value, shouldn't be a problem
         return true;
     }
