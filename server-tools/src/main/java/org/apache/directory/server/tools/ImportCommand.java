@@ -34,7 +34,7 @@ import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.IAsn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
@@ -80,7 +80,7 @@ public class ImportCommand extends ToolCommand
 
     private SocketAddress serverAddress;
 
-    private IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+    private Asn1Container ldapMessageContainer = new LdapMessageContainer();
 
     private Asn1Decoder ldapDecoder = new Asn1Decoder();
 

@@ -38,7 +38,7 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.IAsn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
@@ -114,7 +114,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
         ByteBuffer stream = ByteBuffer.wrap( payload );
-        IAsn1Container storedProcedureContainer = new StoredProcedureContainer();
+        Asn1Container storedProcedureContainer = new StoredProcedureContainer();
 
         try
         {
