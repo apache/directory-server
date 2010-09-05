@@ -5,7 +5,6 @@ objectclass: ads-ldapServer
 objectclass: ads-catalogBasedServer
 objectclass: top
 ads-serverid: ldapServer
-ads-ldapserverallowanonymousaccess: false
 ads-ldapServerConfidentialityRequired: false
 ads-ldapservermaxsizelimit: 1000
 ads-ldapservermaxtimelimit: 15000
