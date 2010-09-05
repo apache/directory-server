@@ -110,7 +110,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
         {
             // We have to tell the server that it should accept anonymous
             // auth, because we are reading the rootDSE
-            ldapServer.setAllowAnonymousAccess( true );
             ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
             // Point on rootDSE

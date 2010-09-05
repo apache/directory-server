@@ -140,7 +140,6 @@ public class MiscBindIT extends AbstractLdapTestUnit
     public void revertAnonnymous()
     {
         ldapServer.getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );
-        ldapServer.setAllowAnonymousAccess( oldAnnonymousAccess );
     }
 
     
@@ -154,7 +153,6 @@ public class MiscBindIT extends AbstractLdapTestUnit
     public void testDisableAnonymousBinds() throws Exception
     {
         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
-        ldapServer.setAllowAnonymousAccess( false );
         
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         final Hashtable<String, Object> env = new Hashtable<String, Object>();

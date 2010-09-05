@@ -249,7 +249,6 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
-        ldapServer.setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -324,7 +323,6 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
 
         ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
-        ldapServer.setAllowAnonymousAccess( oldValue );
     }
 
 

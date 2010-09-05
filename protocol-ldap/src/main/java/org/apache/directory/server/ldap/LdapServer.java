@@ -159,9 +159,6 @@ public class LdapServer extends DirectoryBackedService
     /** If LDAPS is activated : the certificate password */
     private String certificatePassword;
 
-    /** Whether to allow anonymous access: enabled by default. */
-    private boolean allowAnonymousAccess = true;
-
     /** The extended operation handlers. */
     private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
 
@@ -799,28 +796,6 @@ public class LdapServer extends DirectoryBackedService
     public boolean isEnableLdaps( Transport transport )
     {
         return transport.isSSLEnabled();
-    }
-
-
-    /**
-     * Returns <code>true</code> if anonymous access is allowed.
-     *
-     * @return True if anonymous access is allowed.
-     */
-    public boolean isAllowAnonymousAccess()
-    {
-        return allowAnonymousAccess;
-    }
-
-
-    /**
-     * Sets whether to allow anonymous access or not.
-     *
-     * @param enableAnonymousAccess Set <code>true</code> to allow anonymous access.
-     */
-    public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
-    {
-        this.allowAnonymousAccess = enableAnonymousAccess;
     }
 
 
