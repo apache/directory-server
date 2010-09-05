@@ -267,7 +267,7 @@ public class HostAddress extends AbstractAsn1Object
         try
         {
             // The HostAddress SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( hostAddressLength ) );
 
             // The addr-type, first the tag, then the value

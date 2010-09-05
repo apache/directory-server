@@ -241,7 +241,7 @@ public class HostAddresses extends AbstractAsn1Object
         try
         {
             // The HostAddresses SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( addressesLength ) );
 
             // The hostAddress list, if it's not empty

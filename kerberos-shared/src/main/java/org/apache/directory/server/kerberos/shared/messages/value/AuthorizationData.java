@@ -164,7 +164,7 @@ public class AuthorizationData extends AbstractAsn1Object implements Encodable
         try
         {
             // The AuthorizationData SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( authorizationDataLength ) );
 
             // Each entry, if any

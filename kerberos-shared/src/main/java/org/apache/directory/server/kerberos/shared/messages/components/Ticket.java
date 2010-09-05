@@ -488,7 +488,7 @@ public class Ticket extends AbstractAsn1Object
             buffer.put( TLV.getBytes( ticketLength ) );
 
             // The Ticket SEQUENCE Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( ticketSeqLength ) );
 
             // The tkt-vno Tag and value
@@ -499,7 +499,7 @@ public class Ticket extends AbstractAsn1Object
             // The realm Tag and value
             buffer.put( ( byte ) 0xA1 );
             buffer.put( TLV.getBytes( realmLength ) );
-            buffer.put( UniversalTag.GENERALIZED_STRING_TAG );
+            buffer.put( UniversalTag.GENERAL_STRING.getValue() );
             buffer.put( TLV.getBytes( realmBytes.length ) );
             buffer.put( realmBytes );
 

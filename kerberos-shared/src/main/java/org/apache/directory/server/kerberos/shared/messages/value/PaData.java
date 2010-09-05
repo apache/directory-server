@@ -213,7 +213,7 @@ public class PaData extends AbstractAsn1Object
         try
         {
             // The Checksum SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( preAuthenticationDataSeqLength ) );
 
             // The cksumtype, first the tag, then the value

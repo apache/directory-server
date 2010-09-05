@@ -289,7 +289,7 @@ public class EncryptionKey extends AbstractAsn1Object
         try
         {
             // The EncryptionKey SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encryptionKeyLength ) );
 
             // The keyType, first the tag, then the value

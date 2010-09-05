@@ -220,7 +220,7 @@ public class AuthorizationDataEntry extends AbstractAsn1Object
         try
         {
             // The AuthorizationDataEntry SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( authorizationDataEntryLength ) );
 
             // The adType, first the tag, then the value

@@ -208,7 +208,7 @@ public class TransitedEncoding extends AbstractAsn1Object
         try
         {
             // The AuthorizationDataEntry SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( transitedEncodingLength ) );
 
             // The tr-type, first the tag, then the value

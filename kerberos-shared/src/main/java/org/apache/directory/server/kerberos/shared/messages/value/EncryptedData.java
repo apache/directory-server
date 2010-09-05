@@ -270,7 +270,7 @@ public class EncryptedData extends AbstractAsn1Object
         try
         {
             // The EncryptedData SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encryptedDataSeqLength ) );
 
             // The etype, first the tag, then the value

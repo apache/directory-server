@@ -380,7 +380,7 @@ public class PrincipalName extends AbstractAsn1Object
         try
         {
             // The PrincipalName SEQ Tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( principalNameSeqLength ) );
 
             // The name-type, first the tag, then the value
@@ -393,7 +393,7 @@ public class PrincipalName extends AbstractAsn1Object
             buffer.put( TLV.getBytes( principalStringsTagLength ) );
 
             // The name-string sequence
-            buffer.put( UniversalTag.SEQUENCE_TAG );
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
 
             if ( ( nameString == null ) || ( nameString.size() == 0 ) )
             {
@@ -406,7 +406,7 @@ public class PrincipalName extends AbstractAsn1Object
                 // The kerberosStrings
                 for ( byte[] name : nameBytes )
                 {
-                    buffer.put( UniversalTag.GENERALIZED_STRING_TAG );
+                    buffer.put( UniversalTag.GENERAL_STRING.getValue() );
 
                     if ( ( name == null ) || ( name.length == 0 ) )
                     {
