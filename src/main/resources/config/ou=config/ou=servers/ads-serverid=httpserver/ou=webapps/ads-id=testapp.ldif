@@ -5,3 +5,4 @@ ads-httpappctxpath: /foo
 ads-id: testapp
 objectclass: ads-httpWebApp
 objectclass: top
+ads-enabled: false
