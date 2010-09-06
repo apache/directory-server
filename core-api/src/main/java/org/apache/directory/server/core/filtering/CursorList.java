@@ -147,7 +147,7 @@ public class CursorList implements EntryFilteringCursor
     public void before( ClonedServerEntry element ) throws Exception
     {
         // checkNotClosed( "before()" );
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
     }
 
 
@@ -156,7 +156,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void after( ClonedServerEntry element ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
     }
 
 
