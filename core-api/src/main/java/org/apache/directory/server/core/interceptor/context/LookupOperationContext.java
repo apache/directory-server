@@ -18,7 +18,7 @@
  *  
  */
 package org.apache.directory.server.core.interceptor.context;
- 
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,16 +38,22 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class LookupOperationContext extends AbstractOperationContext
 {
-    private static final String[] EMPTY = new String[] {};
-    
+    private static final String[] EMPTY = new String[]
+        {};
+
     /** The list of attributes id to return */
     private List<String> attrsId = new ArrayList<String>();
-    
+
+    /** A flag set to true if the user has requested all the operational attributes ( "+" )*/
     private Boolean allOperational;
-    
+
+    /** A flag set to true if the user has requested all the user attributes ( "*" ) */
     private Boolean allUser;
-    
-    
+
+    /** A flag set to true if the user has requested no attribute to be returned */
+    private Boolean noAttribute;
+
+
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -57,7 +63,7 @@ public class LookupOperationContext extends AbstractOperationContext
     {
         super( session );
     }
-    
+
 
     /**
      * 
@@ -68,7 +74,7 @@ public class LookupOperationContext extends AbstractOperationContext
     {
         super( session, dn );
     }
-    
+
 
     /**
      * 
@@ -81,7 +87,7 @@ public class LookupOperationContext extends AbstractOperationContext
         setAttrsId( attrsId );
     }
 
-    
+
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -93,7 +99,7 @@ public class LookupOperationContext extends AbstractOperationContext
         setAttrsId( attrsId );
     }
 
-    
+
     /**
      * @return Get the attribute ids as a String array
      */
@@ -105,12 +111,12 @@ public class LookupOperationContext extends AbstractOperationContext
         }
         else
         {
-            String[] attrs = new String[ attrsId.size()];
+            String[] attrs = new String[attrsId.size()];
             return attrsId.toArray( attrs );
         }
     }
 
-    
+
     /**
      * Set the attribute Ids
      *
@@ -118,10 +124,10 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public void setAttrsId( String[] attrsId )
     {
-        if ( attrsId != null && attrsId.length > 0 )
+        if ( ( attrsId != null ) && ( attrsId.length > 0 ) )
         {
             this.attrsId = new ArrayList<String>( Arrays.asList( attrsId ) );
-            
+
             // filter out the '+' and '*' and set boolean parameters 
             for ( String id : this.attrsId )
             {
@@ -133,16 +139,30 @@ public class LookupOperationContext extends AbstractOperationContext
                 {
                     allUser = true;
                 }
+                else if ( id.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                {
+                    noAttribute = true;
+                    allOperational = null;
+                    allUser = null;
+
+                    // We can stop here
+                    break;
+                }
             }
 
-            if ( allOperational != null && allOperational )
+            if ( ( allOperational != null ) && allOperational )
             {
                 this.attrsId.remove( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
             }
-            
-            if ( allUser != null && allUser )
+
+            if ( ( allUser != null ) && allUser )
             {
                 this.attrsId.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
+            }
+
+            if ( noAttribute != null )
+            {
+                this.attrsId.clear();
             }
         }
     }
@@ -155,27 +175,44 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public void addAttrsId( String attrId )
     {
-        if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+        if ( noAttribute == null )
         {
-            allUser = true;
-            return;
+            if ( attrId.equals( SchemaConstants.NO_ATTRIBUTE ) )
+            {
+                noAttribute = true;
+
+                if ( attrsId != null )
+                {
+                    attrsId.clear();
+                }
+
+                return;
+            }
+
+            if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+            {
+                allUser = true;
+
+                return;
+            }
+
+            if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            {
+                allOperational = true;
+
+                return;
+            }
+
+            if ( attrsId == null )
+            {
+                attrsId = new ArrayList<String>();
+            }
+
+            attrsId.add( attrId );
         }
-        
-        if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-        {
-            allOperational = true;
-            return;
-        }
-        
-        if ( attrsId == null )
-        {
-            attrsId = new ArrayList<String>(); 
-        }
-        
-        attrsId.add( attrId );
     }
 
-    
+
     /**
      * @return The attribute IDs list
      */
@@ -184,18 +221,33 @@ public class LookupOperationContext extends AbstractOperationContext
         return attrsId;
     }
 
-    
-    public Boolean getAllUser()
-    {
-        return allUser;
-    }
-    
 
-    public Boolean getAllOperational()
+    /**
+     * @return The flag telling if the "*" attribute has been used
+     */
+    public boolean hasAllUser()
     {
-        return allOperational;
+        return ( allUser != null ) && allUser;
     }
-    
+
+
+    /**
+     * @return The flag telling if the "+" attribute has been used
+     */
+    public boolean hasAllOperational()
+    {
+        return ( allOperational != null ) && allOperational;
+    }
+
+
+    /**
+     * @return The flag telling if the "+" attribute has been used
+     */
+    public boolean hasNoAttribute()
+    {
+        return ( noAttribute != null );
+    }
+
 
     /**
      * @return the operation name
@@ -205,12 +257,13 @@ public class LookupOperationContext extends AbstractOperationContext
         return "Lookup";
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "LookupContext for DN '" + getDn().getName() + "'" + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
+        return "LookupContext for DN '" + getDn().getName() + "'"
+            + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
     }
 }

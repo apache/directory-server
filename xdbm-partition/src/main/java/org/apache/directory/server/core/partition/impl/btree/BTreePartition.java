@@ -303,6 +303,14 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
         ClonedServerEntry entry = lookup( id );
 
+        // Remove all the attributes if the NO_ATTRIBUTE flag is set
+        if ( lookupContext.hasNoAttribute() )
+        {
+            entry.clear();
+
+            return entry;
+        }
+
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
             return entry;

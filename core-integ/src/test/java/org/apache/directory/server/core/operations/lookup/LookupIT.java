@@ -31,7 +31,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -171,5 +170,20 @@ public class LookupIT extends AbstractLdapTestUnit
         assertEquals( "test", entry.get( "cn" ).getString() );
         assertEquals( "sn_test", entry.get( "sn" ).getString() );
         assertFalse( entry.containsAttribute( "objectClass" ) );
+    }
+
+
+    /**
+     * Test a lookup( DN ) operation with no attributes
+     */
+    @Test
+    @Ignore
+    public void testLookupWithNoAttrs() throws Exception
+    {
+        Entry entry = connection.lookup( "cn=test,ou=system", "1.1" );
+        assertNotNull( entry );
+
+        // We should have 0 attributes
+        assertEquals( 0, entry.size() );
     }
 }

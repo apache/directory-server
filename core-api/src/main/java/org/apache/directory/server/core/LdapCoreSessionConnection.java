@@ -31,6 +31,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
@@ -40,6 +41,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
@@ -490,6 +492,38 @@ public class LdapCoreSessionConnection implements LdapConnection
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
         return _lookup( new DN( dn ), attributes );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean exists( String dn ) throws LdapException
+    {
+        return exists( new DN( dn ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean exists( DN dn ) throws LdapException
+    {
+        try
+        {
+            Entry entry = lookup( dn, SchemaConstants.NO_ATTRIBUTE );
+
+            return entry != null;
+        }
+        catch ( LdapNoPermissionException lnpe )
+        {
+            // Special case to deal with insufficient permissions 
+            return false;
+        }
+        catch ( LdapException le )
+        {
+            throw le;
+        }
     }
 
 

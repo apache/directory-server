@@ -131,13 +131,15 @@ public class InterceptorChain
         }
 
 
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
+            throws LdapException
         {
             return nexus.search( searchContext );
         }
 
 
-        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext )
+            throws LdapException
         {
             return nexus.lookup( lookupContext );
         }
@@ -161,7 +163,8 @@ public class InterceptorChain
         }
 
 
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
+            throws LdapException
         {
             nexus.moveAndRename( moveAndRenameContext );
         }
@@ -569,8 +572,8 @@ public class InterceptorChain
             // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
-            Entry foundEntry = adminSession.lookup( opContext.getDn(),
-                SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+            Entry foundEntry = adminSession
+                .lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
 
             if ( foundEntry != null )
             {
@@ -580,13 +583,14 @@ public class InterceptorChain
                 }
                 else
                 {
-                    opContext.setEntry( (ClonedServerEntry)foundEntry );
+                    opContext.setEntry( ( ClonedServerEntry ) foundEntry );
                 }
             }
             else
             {
                 // This is an error : we *must* have an entry if we want to be able to rename.
-                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
+                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+                    opContext.getDn() ) );
 
                 throw ldnfe;
             }
@@ -600,8 +604,7 @@ public class InterceptorChain
         // trouble reading the entry due to insufficient access rights
         CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
-        Entry foundEntry = adminSession.lookup( opContext.getDn(),
-            SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
 
         if ( foundEntry != null )
         {
@@ -610,7 +613,8 @@ public class InterceptorChain
         else
         {
             // This is an error : we *must* have an entry if we want to be able to rename.
-            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
+            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+                opContext.getDn() ) );
 
             throw ldnfe;
         }

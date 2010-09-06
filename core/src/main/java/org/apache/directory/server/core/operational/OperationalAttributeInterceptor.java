@@ -285,8 +285,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                     modifiedTimeAtPresent = true;
                 }
             }
-            
-            if( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
+
+            if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
@@ -323,7 +323,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
     {
-        Entry entry = ((ClonedServerEntry)renameContext.getEntry() ).getClonedEntry();
+        Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -341,7 +341,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveContext.getNewDn() );
         moveContext.setModifiedEntry( modifiedEntry );
-        
+
         nextInterceptor.move( moveContext );
     }
 
@@ -372,7 +372,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             filterOperationalAttributes( result );
         }
-        else if ( ( lookupContext.getAllOperational() == null ) || ( lookupContext.getAllOperational() == false ) )
+        else if ( !lookupContext.hasAllOperational() )
         {
             filter( lookupContext, result );
         }
