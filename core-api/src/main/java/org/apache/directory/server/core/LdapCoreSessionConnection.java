@@ -93,6 +93,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapCoreSessionConnection implements LdapConnection
 {
+    /** The logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
 
     /** the CoreSession object */
     private CoreSession session;
@@ -103,9 +105,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** the session's DirectoryService */
     private DirectoryService directoryService;
 
+    /** The MessageId counter */
     private AtomicInteger messageId = new AtomicInteger( 0 );
-
-    private static final Logger LOG = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
 
 
     public LdapCoreSessionConnection()
@@ -161,6 +162,20 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public AddResponse add( AddRequest addRequest ) throws LdapException
     {
+        if ( addRequest == null )
+        {
+            String msg = "Cannot process a null addRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
+        if ( addRequest.getEntry() == null )
+        {
+            String msg = "Cannot add a null entry";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         addRequest.setMessageId( newId );
@@ -190,6 +205,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public AddResponse add( Entry entry ) throws LdapException
     {
+        if ( entry == null )
+        {
+            String msg = "Cannot add an empty entry";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
@@ -202,6 +224,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
     {
+        if ( compareRequest == null )
+        {
+            String msg = "Cannot process a null compareRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         CompareResponse resp = new CompareResponseImpl( newId );
@@ -302,6 +331,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public DeleteResponse delete( DeleteRequest deleteRequest ) throws LdapException
     {
+        if ( deleteRequest == null )
+        {
+            String msg = "Cannot process a null deleteRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         DeleteResponse resp = new DeleteResponseImpl( newId );
@@ -349,7 +385,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean doesFutureExistFor( Integer messageId )
+    public boolean doesFutureExistFor( int messageId )
     {
         return false;
     }
@@ -480,6 +516,19 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyResponse modify( DN dn, Modification... modifications ) throws LdapException
     {
+        if ( dn == null )
+        {
+            LOG.debug( "received a null dn for modification" );
+            throw new IllegalArgumentException( "The DN to be modified cannot be null" );
+        }
+
+        if ( ( modifications == null ) || ( modifications.length == 0 ) )
+        {
+            String msg = "Cannot process a ModifyRequest without any modification";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         ModifyResponse resp = new ModifyResponseImpl( newId );
@@ -525,6 +574,12 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyResponse modify( Entry entry, ModificationOperation modOp ) throws LdapException
     {
+        if ( entry == null )
+        {
+            LOG.debug( "received a null entry for modification" );
+            throw new IllegalArgumentException( "Entry to be modified cannot be null" );
+        }
+
         int newId = messageId.incrementAndGet();
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
@@ -561,6 +616,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyResponse modify( ModifyRequest modRequest ) throws LdapException
     {
+        if ( modRequest == null )
+        {
+            String msg = "Cannot process a null modifyRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         modRequest.setMessageId( newId );
@@ -589,6 +651,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
     {
+        if ( modDnRequest == null )
+        {
+            String msg = "Cannot process a null modDnRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         ModifyDnResponse resp = new ModifyDnResponseImpl( newId );
@@ -607,16 +676,16 @@ public class LdapCoreSessionConnection implements LdapConnection
         try
         {
             DN newRdn = null;
-            if( modDnRequest.getNewRdn() != null )
+            if ( modDnRequest.getNewRdn() != null )
             {
                 newRdn = new DN( modDnRequest.getNewRdn().getName(), schemaManager );
             }
-            
+
             DN oldRdn = new DN( modDnRequest.getName().getRdn().getName(), schemaManager );
-            
-            boolean rdnChanged = modDnRequest.getNewRdn() != null && 
-                ! newRdn.getNormName().equals( oldRdn.getNormName() );
-            
+
+            boolean rdnChanged = modDnRequest.getNewRdn() != null
+                && !newRdn.getNormName().equals( oldRdn.getNormName() );
+
             if ( rdnChanged )
             {
                 if ( modDnRequest.getNewSuperior() != null )
@@ -659,6 +728,20 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse move( DN entryDn, DN newSuperiorDn ) throws LdapException
     {
+        if ( entryDn == null )
+        {
+            String msg = "Cannot process a move of a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
+        if ( newSuperiorDn == null )
+        {
+            String msg = "Cannot process a move to a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
         iModDnReq.setName( entryDn );
         iModDnReq.setNewSuperior( newSuperiorDn );
@@ -672,6 +755,20 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse move( String entryDn, String newSuperiorDn ) throws LdapException
     {
+        if ( entryDn == null )
+        {
+            String msg = "Cannot process a move of a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
+        if ( newSuperiorDn == null )
+        {
+            String msg = "Cannot process a move to a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         return move( new DN( entryDn ), new DN( newSuperiorDn ) );
     }
 
@@ -681,6 +778,20 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse rename( DN entryDn, RDN newRdn, boolean deleteOldRdn ) throws LdapException
     {
+        if ( entryDn == null )
+        {
+            String msg = "Cannot process a rename of a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
+        if ( newRdn == null )
+        {
+            String msg = "Cannot process a rename with a null RDN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
         iModDnReq.setName( entryDn );
         iModDnReq.setNewRdn( newRdn );
@@ -713,6 +824,20 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse rename( String entryDn, String newRdn ) throws LdapException
     {
+        if ( entryDn == null )
+        {
+            String msg = "Cannot process a rename of a null DN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
+        if ( newRdn == null )
+        {
+            String msg = "Cannot process a rename with a null RDN";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         return rename( new DN( entryDn ), new RDN( newRdn ) );
     }
 
@@ -800,6 +925,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Cursor<Response> search( SearchRequest searchRequest ) throws LdapException
     {
+        if ( searchRequest == null )
+        {
+            String msg = "Cannot process a null searchRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         try
         {
             int newId = messageId.incrementAndGet();
@@ -827,6 +959,12 @@ public class LdapCoreSessionConnection implements LdapConnection
     public Cursor<Response> search( DN baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
+        if ( baseDn == null )
+        {
+            LOG.debug( "received a null dn for a search" );
+            throw new IllegalArgumentException( "The base DN cannot be null" );
+        }
+
         // generate some random operation number
         SearchRequest searchRequest = new SearchRequestImpl();
 
@@ -853,9 +991,10 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public void unBind() throws Exception
+    public void unBind() throws LdapException
     {
         messageId.set( 0 );
+
         if ( session != null )
         {
             session.unbind();
@@ -879,6 +1018,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ExtendedResponse extended( ExtendedRequest extendedRequest ) throws LdapException
     {
+        if ( extendedRequest == null )
+        {
+            String msg = "Cannot process a null extendedRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         return extended( ( String ) null );
 
     }
@@ -956,6 +1102,13 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
     {
+        if ( bindRequest == null )
+        {
+            String msg = "Cannot process a null bindRequest";
+            LOG.debug( msg );
+            throw new IllegalArgumentException( msg );
+        }
+
         int newId = messageId.incrementAndGet();
 
         BindOperationContext bindContext = new BindOperationContext( null );
