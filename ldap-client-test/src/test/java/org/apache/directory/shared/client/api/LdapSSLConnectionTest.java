@@ -61,14 +61,24 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") }, saslHost = "localhost", saslMechanisms =
-    { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+    { 
+        @CreateTransport(protocol = "LDAP"),
+        @CreateTransport(protocol = "LDAPS") 
+    }, 
+    saslHost = "localhost", 
+    saslMechanisms =
+    { 
+        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) }, extendedOpHandlers =
-    { StoredProcedureExtendedOperationHandler.class })
+        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) 
+    }, 
+    extendedOpHandlers =
+    { 
+        StoredProcedureExtendedOperationHandler.class 
+    })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
     private static LdapConnectionConfig config;
