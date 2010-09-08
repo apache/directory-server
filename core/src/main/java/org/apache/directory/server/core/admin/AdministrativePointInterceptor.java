@@ -19,9 +19,12 @@
  */
 package org.apache.directory.server.core.admin;
 
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.directory.SearchControls;
@@ -38,6 +41,7 @@ import org.apache.directory.server.core.administrative.SpecificAdministrativePoi
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -75,6 +79,7 @@ import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * An interceptor to manage the Administrative model
  *
@@ -82,7 +87,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AdministrativePointInterceptor extends BaseInterceptor
 {
-    /** A ogger for this class */
+    /** A {@link Logger} for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AdministrativePointInterceptor.class );
 
     /**
@@ -108,6 +113,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /** The possible roles */
     private static final Set<String> ROLES = new HashSet<String>();
 
+    // Initialize the ROLES field
     static
     {
         ROLES.add( SchemaConstants.AUTONOMOUS_AREA.toLowerCase() );
@@ -126,6 +132,29 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+    /** A Map to associate a role with it's OID */
+    private static final Map<String, String> ROLES_OID = new HashMap<String, String>();
+
+    // Initialize the roles/oid map
+    static
+    {
+        ROLES_OID.put( SchemaConstants.AUTONOMOUS_AREA.toLowerCase(), SchemaConstants.AUTONOMOUS_AREA_OID );
+        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase(),
+            SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase(),
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        ROLES_OID.put( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase(),
+            SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
     /** The possible inner area roles */
@@ -175,31 +204,31 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean hasSpecificArea( String role, EntryAttribute modifiedAdminRole )
     {
         // Check if the associated specific area role is already present
-        if ( role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() ) ||
-             role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+        if ( role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() )
+            || role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
         {
-            if ( modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() ) ||
-                 modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
+            if ( modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() )
+                || modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
             {
                 // Not a valid role : we will throw an exception
                 return true;
             }
         }
-        else if ( role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() ) ||
-                 role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+        else if ( role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() )
+            || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
         {
-            if ( modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-                 modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+            if ( modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
+                || modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
             {
                 // Not a valid role : we will throw an exception
                 return true;
             }
         }
-        else if ( role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() ) ||
-                  role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+        else if ( role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() )
+            || role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
         {
-            if ( modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() ) ||
-                 modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            if ( modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() )
+                || modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
             {
                 // Not a valid role : we will throw an exception
                 return true;
@@ -215,15 +244,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private List<AdministrativePoint> createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid )
     {
-        List<AdministrativePoint> adminPoints = new ArrayList<AdministrativePoint> ();
+        List<AdministrativePoint> adminPoints = new ArrayList<AdministrativePoint>();
 
         for ( Value<?> value : adminPoint )
         {
             String role = value.getString();
 
             // Deal with Autonomous AP
-            if ( role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA_OID ) )
             {
                 AdministrativePoint aap = new AutonomousAdministrativePoint( dn, uuid );
                 adminPoints.add( aap );
@@ -233,67 +262,74 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
 
             // Deal with AccessControl AP
-            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
             {
-                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.AccessControlSpecificArea );
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.AccessControlSpecificArea );
                 adminPoints.add( sap );
 
                 continue;
             }
 
-            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
             {
-                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.AccessControlInnerArea );
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.AccessControlInnerArea );
                 adminPoints.add( iap );
 
                 continue;
             }
 
             // Deal with CollectveAttribute AP
-            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
             {
-                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.CollectiveAttributeSpecificArea );
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.CollectiveAttributeSpecificArea );
                 adminPoints.add( sap );
 
                 continue;
             }
 
-            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
             {
-                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.CollectiveAttributeInnerArea );
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.CollectiveAttributeInnerArea );
                 adminPoints.add( iap );
 
                 continue;
             }
 
             // Deal with SubSchema AP
-            if ( role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
             {
-                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.SubSchemaSpecificArea );
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.SubSchemaSpecificArea );
                 adminPoints.add( sap );
 
                 continue;
             }
 
             // Deal with TriggerExecution AP
-            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
             {
-                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid, AdministrativeRole.TriggerExecutionSpecificArea );
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.TriggerExecutionSpecificArea );
                 adminPoints.add( sap );
 
                 continue;
             }
 
-            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-                 role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
             {
-                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid, AdministrativeRole.TriggerExecutionInnerArea );
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.TriggerExecutionInnerArea );
                 adminPoints.add( iap );
 
                 continue;
@@ -304,7 +340,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
-    private AdministrativePoint getParent( AdministrativePoint ap, List<AdministrativePoint> aps, AdministrativeRole role, DnNode<List<AdministrativePoint>> currentNode )
+    private AdministrativePoint getParent( AdministrativePoint ap, List<AdministrativePoint> aps,
+        AdministrativeRole role, DnNode<List<AdministrativePoint>> currentNode )
     {
         AdministrativePoint parent = null;
 
@@ -338,7 +375,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
-
     private AdministrativePoint findParent( AdministrativePoint ap, DnNode<List<AdministrativePoint>> currentNode )
     {
         List<AdministrativePoint> aps = currentNode.getElement();
@@ -348,7 +384,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // Check if the current element is a valid parent
             switch ( ap.getRole() )
             {
-                case AutonomousArea :
+                case AutonomousArea:
                     AdministrativePoint currentAp = aps.get( 0 );
 
                     if ( currentAp.isAutonomous() )
@@ -369,28 +405,28 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                         }
                     }
 
-                case AccessControlInnerArea :
+                case AccessControlInnerArea:
                     return getParent( ap, aps, AdministrativeRole.AccessControlSpecificArea, currentNode );
 
-                case CollectiveAttributeInnerArea :
+                case CollectiveAttributeInnerArea:
                     return getParent( ap, aps, AdministrativeRole.CollectiveAttributeSpecificArea, currentNode );
 
-                case TriggerExecutionInnerArea :
+                case TriggerExecutionInnerArea:
                     return getParent( ap, aps, AdministrativeRole.TriggerExecutionSpecificArea, currentNode );
 
-                case AccessControlSpecificArea :
+                case AccessControlSpecificArea:
                     return getParent( ap, aps, AdministrativeRole.AccessControlSpecificArea, currentNode );
 
-                case CollectiveAttributeSpecificArea :
+                case CollectiveAttributeSpecificArea:
                     return getParent( ap, aps, AdministrativeRole.CollectiveAttributeSpecificArea, currentNode );
 
-                case SubSchemaSpecificArea :
+                case SubSchemaSpecificArea:
                     return getParent( ap, aps, AdministrativeRole.SubSchemaSpecificArea, currentNode );
 
-                case TriggerExecutionSpecificArea :
+                case TriggerExecutionSpecificArea:
                     return getParent( ap, aps, AdministrativeRole.TriggerExecutionSpecificArea, currentNode );
 
-                default :
+                default:
                     return null;
             }
         }
@@ -406,6 +442,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
         }
     }
+
 
     /**
      * Creates an Administrative service interceptor.
@@ -424,20 +461,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
-        CoreSession adminSession = new DefaultCoreSession(
-            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes(
-            new String[]
-                {
-                    SchemaConstants.ADMINISTRATIVE_ROLE_AT,
-                    SchemaConstants.ENTRY_UUID_AT
-                } );
+        controls.setReturningAttributes( new String[]
+            { SchemaConstants.ADMINISTRATIVE_ROLE_AT, SchemaConstants.ENTRY_UUID_AT } );
 
-        ExprNode filter = new EqualityNode<String>( ADMINISTRATIVE_ROLE_AT, new StringValue(
-            adminRoleType ) );
+        ExprNode filter = new EqualityNode<String>( ADMINISTRATIVE_ROLE_AT, new StringValue( adminRoleType ) );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, DN.EMPTY_DN, filter,
             controls );
@@ -497,12 +529,13 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // administrative point, finally the Inner administrative Point
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
-        CoreSession adminSession = new DefaultCoreSession(
-            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { SchemaConstants.ADMINISTRATIVE_ROLE_AT } );
+        controls.setReturningAttributes( new String[]
+            { SchemaConstants.ADMINISTRATIVE_ROLE_AT } );
 
         // get the list of all the AAPs
         List<Entry> autonomousSAPs = getAdministrativePoints( SchemaConstants.AUTONOMOUS_AREA );
@@ -532,7 +565,16 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
-     * {@inheritDoc}
+     * Add an administrative point into the DIT.
+     * 
+     * We have to deal with some specific cases :
+     * <ul>
+     * <li>If it's an AA, then the added role should be the only one</li>
+     * <li>It's not possible to add IA and SA at the same time</li>
+     * 
+     * @param next The next {@link Interceptor} in the chain
+     * @param addContext The {@link AddOperationContext} instance
+     * @throws LdapException If we had some error while processing the Add operation
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
@@ -565,20 +607,13 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Now we are trying to add an Administrative point. We have to check that the added
-        // AP is correct if it's a AAP : it should not have any other role
+        // AP is correct if it's an AAP : it should not have any other role
         if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
         {
-            if ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ||
-                 adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            if ( adminPoint.size() > 1 )
             {
-                String message = "Cannot add an Autonomous Administratve Point when some other" +
-                    " roles are added : " + adminPoint;
+                String message = "Cannot add an Autonomous Administratve Point when some other" + " roles are added : "
+                    + adminPoint;
                 LOG.error( message );
                 throw new LdapUnwillingToPerformException( message );
             }
@@ -596,24 +631,44 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // check that we can't mix Inner and Specific areas
-        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) ) ||
-             ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) ) ||
-             ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
+        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) || adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) && ( adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) || adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) )
+            || ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) || adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) && ( adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) || adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) )
+            || ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) || adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) && ( adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) || adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
         {
-            // This is inconsistant
-            String message = "Cannot add a specific Administrative Point and the same" +
-                " inner Administrative point at the same time : " + adminPoint;
+            // This is inconsistent
+            String message = "Cannot add a specific Administrative Point and the same"
+                + " inner Administrative point at the same time : " + adminPoint;
             LOG.error( message );
             throw new LdapUnwillingToPerformException( message );
+        }
+
+        // Check that we don't add the same role twice now
+        Set<String> seenRoles = new HashSet<String>();
+
+        for ( Value<?> role : adminPoint )
+        {
+            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+            if ( seenRoles.contains( trimmedRole ) )
+            {
+                // Already seen : an error
+                String message = "The role " + role.getString() + " has already been seen.";
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+
+            // Add the role and its OID into the seen roles
+            seenRoles.add( trimmedRole );
+            seenRoles.add( ROLES_OID.get( trimmedRole ) );
         }
 
         // Ok, we are golden.
@@ -623,7 +678,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
 
         // Construct the AdministrativePoint objects
-        List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPoint, addContext.getDn(), uuid );
+        List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPoint, addContext.getDn(),
+            uuid );
 
         for ( AdministrativePoint ap : administrativePoints )
         {
@@ -638,7 +694,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             else
             {
                 // Find the parent
-                AdministrativePoint parent = findParent( ap,  adminPointCache );
+                AdministrativePoint parent = findParent( ap, adminPointCache );
                 ap.setParent( parent );
 
                 // We won't have any children as the entry has just been added
@@ -669,7 +725,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
 
-        EntryAttribute modifiedAdminRole = (modifyContext.getEntry()).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
+        EntryAttribute modifiedAdminRole = ( modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
 
         for ( Modification modification : modifications )
         {
@@ -684,7 +740,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // Apply it to a virtual AdministrativeRole attribute
             switch ( modification.getOperation() )
             {
-                case ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE:
                     if ( modifiedAdminRole == null )
                     {
                         // Create the attribute
@@ -720,7 +776,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                         if ( isInnerArea( role ) && hasSpecificArea( role, modifiedAdminRole ) )
                         {
                             // Not a valid role : we will throw an exception
-                            String msg = "Cannot add an Inner Area ole to an AdministrativePoint which already has the same Specific Area role " + value;
+                            String msg = "Cannot add an Inner Area ole to an AdministrativePoint which already has the same Specific Area role "
+                                + value;
                             LOG.error( msg );
                             throw new LdapUnwillingToPerformException( msg );
                         }
@@ -731,7 +788,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                     break;
 
-                case REMOVE_ATTRIBUTE :
+                case REMOVE_ATTRIBUTE:
                     if ( modifiedAdminRole == null )
                     {
                         // We can't remove a value when the attribute does not exist.
@@ -772,7 +829,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                     break;
 
-                case REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE:
                     // Not supported
                     String msg = "Cannot replace an administrative role, the opertion is not supported";
                     LOG.error( msg );
@@ -842,8 +899,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext )
-        throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = renameContext.getEntry();
 
