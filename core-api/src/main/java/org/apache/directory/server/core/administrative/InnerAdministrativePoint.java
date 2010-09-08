@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.administrative;
 
+
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+
 
 /**
  *
@@ -56,5 +58,14 @@ public class InnerAdministrativePoint extends AbstractAdministrativePoint
     public AdministrativePoint getParent()
     {
         return parent;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "IAP : " + super.toString();
     }
 }

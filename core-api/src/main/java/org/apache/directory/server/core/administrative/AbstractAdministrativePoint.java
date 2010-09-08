@@ -19,11 +19,13 @@
  */
 package org.apache.directory.server.core.administrative;
 
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+
 
 /**
  *
@@ -46,6 +48,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /** The children AdministrativePoints */
     protected Map<String, AdministrativePoint> children;
 
+
     protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
     {
         this.dn = dn;
@@ -53,6 +56,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
         this.role = role;
         this.children = new ConcurrentHashMap<String, AdministrativePoint>();
     }
+
 
     /**
      * {@inheritDoc}
@@ -150,5 +154,20 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     public void addChild( AdministrativePoint child )
     {
         children.put( child.getUuid(), child );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Role: '" ).append( role ).append( "', " );
+        sb.append( "DN: '" ).append( dn ).append( "', " );
+        sb.append( "UUID: " ).append( uuid ).append( '\n' );
+
+        return sb.toString();
     }
 }

@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.administrative;
 
+
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+
 
 /**
  *
@@ -46,5 +48,14 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     public boolean isAutonomous()
     {
         return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "AAP : " + super.toString();
     }
 }
