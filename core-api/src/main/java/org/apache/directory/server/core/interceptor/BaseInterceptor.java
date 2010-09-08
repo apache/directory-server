@@ -58,10 +58,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public abstract class BaseInterceptor implements Interceptor
 {
-    
+
     /** set of operational attribute types used for representing the password policy state of a user entry */
     protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
-    
+
+
     /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
      * instances differently
@@ -71,7 +72,8 @@ public abstract class BaseInterceptor implements Interceptor
     {
         return getClass().getName();
     }
-    
+
+
     /**
      * TODO delete this since it uses static access
      * Returns {@link LdapPrincipal} of current context.
@@ -122,7 +124,9 @@ public abstract class BaseInterceptor implements Interceptor
     // ------------------------------------------------------------------------
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
-
+    /**
+     * {@inheritDoc}
+     */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         next.add( addContext );
@@ -158,7 +162,7 @@ public abstract class BaseInterceptor implements Interceptor
         return next.lookup( lookupContext );
     }
 
-    
+
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         next.modify( modifyContext );
@@ -172,8 +176,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext )
-        throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         next.rename( renameContext );
     }
@@ -188,7 +191,8 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
+        throws LdapException
     {
         return next.search( searchContext );
     }

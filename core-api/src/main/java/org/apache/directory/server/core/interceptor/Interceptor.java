@@ -110,6 +110,7 @@ public interface Interceptor
      */
     String getName();
 
+
     /**
      * Intializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is loaded into interceptor chain.
@@ -128,13 +129,13 @@ public interface Interceptor
     /**
      * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
-    Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  getRootDseContext ) throws LdapException;
+    Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#compare( CompareOperationContext )} call.
      */
-    boolean compare( NextInterceptor next, CompareOperationContext compareContext) throws LdapException;
+    boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException;
 
 
     /**
@@ -145,6 +146,10 @@ public interface Interceptor
 
     /**
      * Filters {@link Partition#add( AddOperationContext )} call.
+     * 
+     * @param next The next {@link Interceptor} in the chain
+     * @param addContext The {@link AddOperationContext} instance
+     * @throws LdapException If we had some error while processing the Add operation
      */
     void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
 
@@ -194,14 +199,14 @@ public interface Interceptor
     /**
      * Filters {@link Partition#moveAndRename( MoveAndRenameOperationContext) } call.
      */
-    void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException;
+    void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
+
 
     /**
      * Filters {@link Partition#bind( BindOperationContext )} call.
      */
-    void bind( NextInterceptor next, BindOperationContext bindContext )
-        throws LdapException;
+    void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException;
+
 
     /**
      * Filters {@link Partition#unbind( UnbindOperationContext )} call.
