@@ -375,6 +375,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Find the parent for the given administrative point. If the AP is an AAP, the parent will be the closest
+     * AAP or the closest SAP. If we have a SAP between the added AAP and a AAP, then 
+     */
     private AdministrativePoint findParent( AdministrativePoint ap, DnNode<List<AdministrativePoint>> currentNode )
     {
         List<AdministrativePoint> aps = currentNode.getElement();
@@ -505,6 +509,37 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Update The Administrative Points cache, adding the given AdminPoint
+     */
+    private void addAPCache( EntryAttribute adminPoint, AddOperationContext addContext ) throws LdapException
+    {
+        // Now, update the cache
+        String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
+
+        // Construct the AdministrativePoint objects
+        List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPoint, addContext.getDn(),
+            uuid );
+
+        // Store the APs in the AP cache
+        adminPointCache.add( addContext.getDn(), administrativePoints );
+
+        System.out.println( "After addition : " + adminPointCache );
+    }
+
+
+    /**
+     * Update The Administrative Points cache, removing the given AdminPoint
+     */
+    private void deleteAPCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext ) throws LdapException
+    {
+        // Store the APs in the AP cache
+        adminPointCache.remove( deleteContext.getDn() );
+
+        System.out.println( "After deletion : " + adminPointCache );
+    }
+
+
     //-------------------------------------------------------------------------------------------
     // Interceptor initialization
     //-------------------------------------------------------------------------------------------
@@ -624,6 +659,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                 next.add( addContext );
 
+                // Now, update the AdminPoint cache
+                addAPCache( adminPoint, addContext );
+
                 LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
 
                 return;
@@ -674,34 +712,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Ok, we are golden.
         next.add( addContext );
 
-        // Now, update the cache
-        String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
+        // Now, update the AdminPoint cache
+        addAPCache( adminPoint, addContext );
 
-        // Construct the AdministrativePoint objects
-        List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPoint, addContext.getDn(),
-            uuid );
-
-        for ( AdministrativePoint ap : administrativePoints )
-        {
-            if ( ap.isAutonomous() )
-            {
-                // Find the parent
-                AdministrativePoint parent = findParent( ap, adminPointCache );
-                ap.setParent( parent );
-
-                // We won't have any children as the entry has just been added
-            }
-            else
-            {
-                // Find the parent
-                AdministrativePoint parent = findParent( ap, adminPointCache );
-                ap.setParent( parent );
-
-                // We won't have any children as the entry has just been added
-            }
-        }
-
-        LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
+        LOG.debug( "Added an Administrative Point at {}", entry.getDn() );
 
         return;
     }
@@ -712,7 +726,111 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
+        Entry entry = deleteContext.getEntry();
+
+        // Check if we are deleting an Administrative Point
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        if ( adminPoint == null )
+        {
+            // Nope, go on.
+            next.delete( deleteContext );
+
+            LOG.debug( "Exit from Administrative Interceptor" );
+
+            return;
+        }
+
+        LOG.debug( "Deletion of an administrative point at {} for the role {}", entry.getDn(), adminPoint );
+
+        // Check that the removed AdministrativeRoles are valid
+        for ( Value<?> role : adminPoint )
+        {
+            if ( !isValidRole( role.getString() ) )
+            {
+                String message = "Cannot remove the given role, it's not a valid one :" + role;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+
+        // Now we are trying to remove an Administrative point. We have to check that the removed
+        // AP is correct if it's an AAP : it should not have any other role
+        if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
+        {
+            if ( adminPoint.size() > 1 )
+            {
+                String message = "Cannot remove an Autonomous Administratve Point when some other"
+                    + " roles are removed : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+            else
+            {
+                // Ok, we can remove the AAP
+                LOG.debug( "Deleting an Autonomous Administrative Point at {}", entry.getDn() );
+
+                next.delete( deleteContext );
+
+                // Now, update the AdminPoint cache
+                deleteAPCache( adminPoint, deleteContext );
+
+                LOG.debug( "Deleted an Autonomous Administrative Point at {}", entry.getDn() );
+
+                return;
+            }
+        }
+
+        // check that we can't mix Inner and Specific areas
+        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) || adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) && ( adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) || adminPoint
+            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) )
+            || ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) || adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) && ( adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) || adminPoint
+                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) )
+            || ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) || adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) && ( adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) || adminPoint
+                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
+        {
+            // This is inconsistent
+            String message = "Cannot delete a specific Administrative Point and the same"
+                + " inner Administrative point at the same time : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        // Check that we don't delete the same role twice now
+        Set<String> seenRoles = new HashSet<String>();
+
+        for ( Value<?> role : adminPoint )
+        {
+            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+            if ( seenRoles.contains( trimmedRole ) )
+            {
+                // Already seen : an error
+                String message = "The role " + role.getString() + " has already been seen.";
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+
+            // Add the role and its OID into the seen roles
+            seenRoles.add( trimmedRole );
+            seenRoles.add( ROLES_OID.get( trimmedRole ) );
+        }
+
+        // Ok, we are golden.
         next.delete( deleteContext );
+
+        // Now, update the AdminPoint cache
+        deleteAPCache( adminPoint, deleteContext );
+
+        LOG.debug( "Deleted an Administrative Point at {}", entry.getDn() );
+
+        return;
     }
 
 
