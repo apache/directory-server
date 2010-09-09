@@ -58,7 +58,6 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -66,8 +65,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueExcep
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -236,6 +235,111 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         return false;
+    }
+
+
+    /**
+     * Create an AP for a given entry, assuming that the AdminsitrativeRoles are correct 
+     * (because we pulled the entry from the backend)
+     */
+    private List<AdministrativePoint> createAdministrativePoints( Entry adminPointEntry, String uuid )
+    {
+        List<AdministrativePoint> adminPoints = new ArrayList<AdministrativePoint>();
+        EntryAttribute roles = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
+        DN dn = adminPointEntry.getDn();
+
+        // Loop on all the roles
+        for ( Value<?> value : roles )
+        {
+            String role = value.getString();
+
+            // Deal with Autonomous AP
+            if ( role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA_OID ) )
+            {
+                AdministrativePoint aap = new AutonomousAdministrativePoint( dn, uuid );
+                adminPoints.add( aap );
+
+                // If it's an AAP, we can get out immediately
+                return adminPoints;
+            }
+
+            // Deal with AccessControl AP
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.AccessControlSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.AccessControlInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+
+            // Deal with CollectveAttribute AP
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.CollectiveAttributeSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.CollectiveAttributeInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+
+            // Deal with SubSchema AP
+            if ( role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.SubSchemaSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            // Deal with TriggerExecution AP
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+            {
+                AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
+                    AdministrativeRole.TriggerExecutionSpecificArea );
+                adminPoints.add( sap );
+
+                continue;
+            }
+
+            if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA )
+                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+            {
+                AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
+                    AdministrativeRole.TriggerExecutionInnerArea );
+                adminPoints.add( iap );
+
+                continue;
+            }
+        }
+
+        return adminPoints;
     }
 
 
@@ -459,24 +563,26 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     //-------------------------------------------------------------------------------------------
     // Helper methods
     //-------------------------------------------------------------------------------------------
-    private List<Entry> getAdministrativePoints( String adminRoleType ) throws LdapException
+    private List<Entry> getAdministrativePoints() throws LdapException
     {
         List<Entry> entries = new ArrayList<Entry>();
 
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
-
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
-            directoryService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { SchemaConstants.ADMINISTRATIVE_ROLE_AT, SchemaConstants.ENTRY_UUID_AT } );
 
-        ExprNode filter = new EqualityNode<String>( ADMINISTRATIVE_ROLE_AT, new StringValue( adminRoleType ) );
+        // Search for all the adminstrativePoints in the base
+        ExprNode filter = new PresenceNode( ADMINISTRATIVE_ROLE_AT );
+
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, DN.EMPTY_DN, filter,
             controls );
+
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
         EntryFilteringCursor results = nexus.search( searchOperationContext );
@@ -512,7 +618,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update The Administrative Points cache, adding the given AdminPoint
      */
-    private void addAPCache( EntryAttribute adminPoint, AddOperationContext addContext ) throws LdapException
+    private void addAdminPointCache( EntryAttribute adminPoint, AddOperationContext addContext ) throws LdapException
     {
         // Now, update the cache
         String uuid = addContext.getEntry().get( ENTRY_UUID_AT ).getString();
@@ -529,9 +635,37 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
+     * Update The Administrative Points cache, adding the given AdminPoints
+     */
+    private void addAdminPointCache( List<Entry> adminPointEntries ) throws LdapException
+    {
+        for ( Entry adminPointEntry : adminPointEntries )
+        {
+            // update the cache
+            DN dn = adminPointEntry.getDn();
+
+            String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
+
+            List<AdministrativePoint> currentAdminPoints = adminPointCache.getElement( dn );
+
+            List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPointEntry, uuid );
+
+            for ( AdministrativePoint administrativePoint : administrativePoints )
+            {
+                currentAdminPoints.add( administrativePoint );
+            }
+
+            // Store the APs in the AP cache
+            adminPointCache.add( dn, currentAdminPoints );
+        }
+    }
+
+
+    /**
      * Update The Administrative Points cache, removing the given AdminPoint
      */
-    private void deleteAPCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext ) throws LdapException
+    private void deleteAdminPointCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext )
+        throws LdapException
     {
         // Store the APs in the AP cache
         adminPointCache.remove( deleteContext.getDn() );
@@ -564,30 +698,17 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // administrative point, finally the Inner administrative Point
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
-            directoryService );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { SchemaConstants.ADMINISTRATIVE_ROLE_AT } );
 
-        // get the list of all the AAPs
-        List<Entry> autonomousSAPs = getAdministrativePoints( SchemaConstants.AUTONOMOUS_AREA );
-
-        // get the list of all the specific APs
-        List<Entry> accessControlSAPs = getAdministrativePoints( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA );
-        List<Entry> collectiveAttributeSAPs = getAdministrativePoints( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA );
-        List<Entry> subSchemaSAPs = getAdministrativePoints( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA );
-        List<Entry> triggerExecutionSAPs = getAdministrativePoints( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA );
-
-        // get the list of all the inner APs
-        List<Entry> accessControlIAPs = getAdministrativePoints( SchemaConstants.ACCESS_CONTROL_INNER_AREA );
-        List<Entry> collectiveAttributeIAPs = getAdministrativePoints( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA );
-        List<Entry> triggerExecutionIAPs = getAdministrativePoints( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA );
-
         // Create the root AdministrativePoint cache. The first DN
         adminPointCache = new DnNode<List<AdministrativePoint>>();
+
+        // get the list of all the AAPs
+        List<Entry> administrativePoints = getAdministrativePoints();
+        addAdminPointCache( administrativePoints );
     }
 
 
@@ -660,7 +781,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 next.add( addContext );
 
                 // Now, update the AdminPoint cache
-                addAPCache( adminPoint, addContext );
+                addAdminPointCache( adminPoint, addContext );
 
                 LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
 
@@ -713,7 +834,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         next.add( addContext );
 
         // Now, update the AdminPoint cache
-        addAPCache( adminPoint, addContext );
+        addAdminPointCache( adminPoint, addContext );
 
         LOG.debug( "Added an Administrative Point at {}", entry.getDn() );
 
@@ -773,7 +894,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 next.delete( deleteContext );
 
                 // Now, update the AdminPoint cache
-                deleteAPCache( adminPoint, deleteContext );
+                deleteAdminPointCache( adminPoint, deleteContext );
 
                 LOG.debug( "Deleted an Autonomous Administrative Point at {}", entry.getDn() );
 
@@ -826,7 +947,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         next.delete( deleteContext );
 
         // Now, update the AdminPoint cache
-        deleteAPCache( adminPoint, deleteContext );
+        deleteAdminPointCache( adminPoint, deleteContext );
 
         LOG.debug( "Deleted an Administrative Point at {}", entry.getDn() );
 
