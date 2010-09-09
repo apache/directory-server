@@ -117,7 +117,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.client.ldap</groupId>
+      <groupId>org.apache.directory.shared</groupId>
       <artifactId>ldap-client-api</artifactId>
     </dependency>
     
