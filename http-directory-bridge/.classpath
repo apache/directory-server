@@ -1,0 +1,61 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="target/maven-shared-archive-resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/findbugs/annotations/1.0.0/annotations-1.0.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
+  <classpathentry kind="src" path="/apacheds-core"/>
+  <classpathentry kind="src" path="/apacheds-core-api"/>
+  <classpathentry kind="src" path="/apacheds-core-constants"/>
+  <classpathentry kind="src" path="/apacheds-i18n"/>
+  <classpathentry kind="var" path="M2_REPO/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140.jar" sourcepath="M2_REPO/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/1.4/commons-io-1.4.jar" sourcepath="M2_REPO/commons-io/commons-io/1.4/commons-io-1.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-io/commons-io/1.4/commons-io-1.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.5/commons-lang-2.5.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.5/commons-lang-2.5-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-lang/commons-lang/2.5/commons-lang-2.5-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache-core/2.2.0/ehcache-core-2.2.0.jar" sourcepath="M2_REPO/net/sf/ehcache/ehcache-core/2.2.0/ehcache-core-2.2.0-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/net/sf/ehcache/ehcache-core/2.2.0/ehcache-core-2.2.0-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar" sourcepath="M2_REPO/junit/junit/4.8.1/junit-4.8.1-sources.jar"/>
+  <classpathentry kind="src" path="/ldap-client-api"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/log4j/log4j/1.2.16/log4j-1.2.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-core/2.0.0-RC1/mina-core-2.0.0-RC1.jar" sourcepath="M2_REPO/org/apache/mina/mina-core/2.0.0-RC1/mina-core-2.0.0-RC1-sources.jar"/>
+  <classpathentry kind="src" path="/shared-asn1"/>
+  <classpathentry kind="src" path="/shared-cursor"/>
+  <classpathentry kind="src" path="/shared-i18n"/>
+  <classpathentry kind="src" path="/shared-ldap"/>
+  <classpathentry kind="src" path="/shared-ldap-constants"/>
+  <classpathentry kind="src" path="/shared-ldap-schema"/>
+  <classpathentry kind="src" path="/shared-ldap-schema-loader"/>
+  <classpathentry kind="src" path="/shared-ldap-schema-manager"/>
+  <classpathentry kind="src" path="/shared-ldif"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.11/slf4j-api-1.5.11.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.5.11/slf4j-api-1.5.11-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.5.11/slf4j-log4j12-1.5.11.jar" sourcepath="M2_REPO/org/slf4j/slf4j-log4j12/1.5.11/slf4j-log4j12-1.5.11-sources.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
