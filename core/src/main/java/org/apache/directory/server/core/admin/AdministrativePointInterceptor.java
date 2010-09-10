@@ -648,6 +648,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             List<AdministrativePoint> currentAdminPoints = adminPointCache.getElement( dn );
 
+            if ( currentAdminPoints == null )
+            {
+                currentAdminPoints = new ArrayList<AdministrativePoint>();
+            }
+
             List<AdministrativePoint> administrativePoints = createAdministrativePoints( adminPointEntry, uuid );
 
             for ( AdministrativePoint administrativePoint : administrativePoints )
