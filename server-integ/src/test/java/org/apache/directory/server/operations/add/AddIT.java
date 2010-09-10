@@ -86,7 +86,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
@@ -103,13 +102,35 @@ import org.slf4j.LoggerFactory;
 @RunWith(FrameworkRunner.class)
 @CreateDS(allowAnonAccess = true, name = "AddIT-class", partitions =
     {
-        @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-            + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-            { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }),
+        @CreatePartition(
+            name = "example",
+            suffix = "dc=example,dc=com",
+            contextEntry = @ContextEntry(
+                entryLdif = "dn: dc=example,dc=com\n" +
+                    "dc: example\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n"),
+            indexes =
+            {
+                @CreateIndex(attribute = "objectClass"),
+                @CreateIndex(attribute = "dc"),
+                @CreateIndex(attribute = "ou")
+            }),
 
-        @CreatePartition(name = "directory", suffix = "dc=directory,dc=apache,dc=org", contextEntry = @ContextEntry(entryLdif = "dn: dc=directory,dc=apache,dc=org\n"
-            + "dc: directory\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-            { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) })
+        @CreatePartition(
+            name = "directory",
+            suffix = "dc=directory,dc=apache,dc=org",
+            contextEntry = @ContextEntry(
+                entryLdif = "dn: dc=directory,dc=apache,dc=org\n" +
+                    "dc: directory\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n"),
+            indexes =
+            {
+                @CreateIndex(attribute = "objectClass"),
+                @CreateIndex(attribute = "dc"),
+                @CreateIndex(attribute = "ou")
+            }) })
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
@@ -123,21 +144,29 @@ import org.slf4j.LoggerFactory;
         "sn: Person",
 
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
         "objectClass: top",
         "uid: akarasulu",
         "cn: Alex Karasulu",
         "sn: karasulu",
 
         // Entry # 2
-        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: computers",
         "description: Computers for Alex",
         "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
 
         // Entry # 3
-        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
-        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class AddIT extends AbstractLdapTestUnit
