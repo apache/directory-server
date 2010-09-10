@@ -48,10 +48,6 @@ import org.junit.runner.Description;
  */
 public class ServerAnnotationProcessor
 {
-    /** The created LDAP Server */
-    private static LdapServer ldapServer;
-
-
     private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders, int startPort )
     {
         if ( transportBuilders.length != 0 )
@@ -186,15 +182,6 @@ public class ServerAnnotationProcessor
 
 
     /**
-     * @return The created instance of LdapServer, if any
-     */
-    public static LdapServer getLdapServer()
-    {
-        return ldapServer;
-    }
-
-    
-    /**
      * Create a new instance of LdapServer
      *
      * @param directoryService The associated DirectoryService
@@ -207,9 +194,7 @@ public class ServerAnnotationProcessor
         CreateLdapServer createLdapServer = ( CreateLdapServer ) getAnnotation( CreateLdapServer.class );
         
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        ldapServer = createLdapServer( createLdapServer, directoryService, startPort );
-
-        return ldapServer;
+        return createLdapServer( createLdapServer, directoryService, startPort );
     }
 
 
@@ -228,10 +213,9 @@ public class ServerAnnotationProcessor
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        ldapServer = createLdapServer( createLdapServer, directoryService, startPort );
-
-        return ldapServer;
+        return createLdapServer( createLdapServer, directoryService, startPort );
     }
+
 
     @SuppressWarnings("unchecked")
     private static Annotation getAnnotation( Class annotationClass ) throws Exception
