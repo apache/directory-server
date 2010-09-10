@@ -542,6 +542,7 @@ public class LdapServer extends DirectoryBackedService
             LOG.warn( "Failed to sent NoD.", e );
         }
 
+        started = false;
         LOG.info( "Ldap service stopped." );
     }
 
