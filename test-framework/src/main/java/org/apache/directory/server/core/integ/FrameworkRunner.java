@@ -200,7 +200,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     }
                 }
 
-                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), directoryService,
+                classLdapServer = ServerAnnotationProcessor.createLdapServer( getDescription(), directoryService,
                     minPort + 1 );
             }
             else if ( ( suite != null ) && ( suite.getLdapServer() != null ) )

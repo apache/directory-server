@@ -120,7 +120,7 @@ public class FrameworkSuite extends Suite
     
     private void startLdapServer( Description description ) throws Exception
     {
-        ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService, 1024 );
+        ldapServer = ServerAnnotationProcessor.createLdapServer( description, directoryService, 1024 );
     }
     
     

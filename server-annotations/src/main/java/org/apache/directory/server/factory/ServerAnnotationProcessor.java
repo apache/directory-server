@@ -48,6 +48,10 @@ import org.junit.runner.Description;
  */
 public class ServerAnnotationProcessor
 {
+    /** The created LDAP Server */
+    private static LdapServer ldapServer;
+
+
     private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders, int startPort )
     {
         if ( transportBuilders.length != 0 )
@@ -180,22 +184,53 @@ public class ServerAnnotationProcessor
         }
     }
 
+
+    /**
+     * @return The created instance of LdapServer, if any
+     */
+    public static LdapServer getLdapServer()
+    {
+        return ldapServer;
+    }
+
     
-    public static LdapServer getLdapServer( DirectoryService directoryService, int startPort ) throws Exception
+    /**
+     * Create a new instance of LdapServer
+     *
+     * @param directoryService The associated DirectoryService
+     * @param startPort The port used by the server
+     * @return An LdapServer instance 
+     * @throws Exception If the server cannot be started
+     */
+    public static LdapServer createLdapServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateLdapServer createLdapServer = ( CreateLdapServer ) getAnnotation( CreateLdapServer.class );
         
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService, startPort );
+        ldapServer = createLdapServer( createLdapServer, directoryService, startPort );
+
+        return ldapServer;
     }
 
 
-    public static LdapServer getLdapServer( Description description, DirectoryService directoryService, int startPort ) throws Exception
+    /**
+     * Create a new instance of LdapServer
+     *
+     * @param description A description for the created LdapServer
+     * @param directoryService The associated DirectoryService
+     * @param startPort The port used by the server
+     * @return An LdapServer instance 
+     * @throws Exception If the server cannot be started
+     */
+    public static LdapServer createLdapServer( Description description, DirectoryService directoryService, int startPort )
+        throws Exception
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService, startPort );
+        ldapServer = createLdapServer( createLdapServer, directoryService, startPort );
+
+        return ldapServer;
     }
 
     @SuppressWarnings("unchecked")

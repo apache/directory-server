@@ -230,7 +230,8 @@ public class DirectoryServiceAnnotationTest
         assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
 
         // Now, get the server
-        LdapServer ldapServer = ServerAnnotationProcessor.getLdapServer( service, AvailablePortFinder.getNextAvailable( 1024 ) );
+        LdapServer ldapServer = ServerAnnotationProcessor.createLdapServer( service, AvailablePortFinder
+            .getNextAvailable( 1024 ) );
 
         // Check that the server is running
         assertTrue( ldapServer.isStarted() );
