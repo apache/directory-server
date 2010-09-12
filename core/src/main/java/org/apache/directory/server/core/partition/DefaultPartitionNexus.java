@@ -153,7 +153,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     final List<Modification> mods = new ArrayList<Modification>( 2 );
 
-    private String lastSyncedCtxCsn = "";
+    private String lastSyncedCtxCsn = null;
 
 
     /**
@@ -445,7 +445,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         try
         {
             // update only if the CSN changes
-            if ( !lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
+            if ( ( lastSyncedCtxCsn != null ) && !lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
             {
                 lastSyncedCtxCsn = directoryService.getContextCsn();
 
