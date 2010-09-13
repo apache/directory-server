@@ -233,7 +233,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test(expected = LdapException.class)
     public void testSearchUTF8() throws Exception
     {
-        connection.search( "ou=system", "(sn=Emmanuel LŽcharny)", SearchScope.ONELEVEL, "*", "+" );
+        connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
         fail();
     }
 }
