@@ -26,12 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.Hashtable;
 
-import javax.naming.AuthenticationNotSupportedException;
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -39,6 +35,8 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -49,6 +47,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
@@ -56,6 +55,8 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
@@ -78,16 +79,30 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: ou=users,dc=example,dc=com", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=users,dc=example,dc=com",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: users\n",
         // Entry # 2
-        "dn: uid=hnelson,ou=users,dc=example,dc=com", "objectClass: inetOrgPerson",
-        "objectClass: organizationalPerson", "objectClass: person", "objectClass: top", "uid: hnelson",
-        "userPassword: secret", "cn: Horatio Nelson", "sn: Nelson" })
-@CreateDS(allowAnonAccess = true, name = "SaslBindIT-class", partitions =
+        "dn: uid=hnelson,ou=users,dc=example,dc=com",
+        "objectClass: inetOrgPerson",
+        "objectClass: organizationalPerson",
+        "objectClass: person",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "objectClass: top",
+        "uid: hnelson",
+        "userPassword: secret",
+        "krb5PrincipalName: hnelson@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+        "cn: Horatio Nelson",
+        "sn: Nelson" })
+@CreateDS(allowAnonAccess = false, name = "SaslBindIT-class", partitions =
     { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
         + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) })
+        { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) },
+additionalInterceptors = { KeyDerivationInterceptor.class }
+)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslMechanisms =
     { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
@@ -144,30 +159,22 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            BindRequest bindReq = new BindRequestImpl();
+            bindReq.setCredentials( "secret".getBytes() );
+            bindReq.setName( userDn );
+            bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
 
-            env.put( Context.SECURITY_AUTHENTICATION, "PLAIN" );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            BindResponse resp = connection.bind( bindReq );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            DirContext context = new InitialDirContext( env );
+            Entry entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            String[] attrIDs =
-                { "uid" };
-
-            Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-            String uid = null;
-
-            if ( attrs.get( "uid" ) != null )
-            {
-                uid = ( String ) attrs.get( "uid" ).get();
-            }
-
-            assertEquals( uid, "hnelson" );
+            connection.close();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             fail( "Should not have caught exception." );
         }
@@ -182,22 +189,19 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            BindRequest bindReq = new BindRequestImpl();
+            bindReq.setCredentials( "secret".getBytes() );
+            bindReq.setName( userDn );
+            bindReq.setSaslMechanism( "" ); // invalid mechanism
+            bindReq.setSimple( false );
 
-            env.put( Context.SECURITY_AUTHENTICATION, "" );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-            new InitialDirContext( env );
-            fail( "Should not be there" );
+            BindResponse resp = connection.bind( bindReq );
+            assertEquals( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, resp.getLdapResult().getResultCode() );
+            connection.close();
         }
-        catch ( AuthenticationNotSupportedException anse )
-        {
-            assertTrue( true );
-        }
-        catch ( NamingException ne )
+        catch ( Exception e )
         {
             fail( "Should not have caught exception." );
         }
@@ -212,31 +216,18 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            BindResponse resp = connection.bindCramMd5( userDn.getName(), "secret", null );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            DirContext context = new InitialDirContext( env );
+            Entry entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            String[] attrIDs =
-                { "uid" };
-
-            Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-            String uid = null;
-
-            if ( attrs.get( "uid" ) != null )
-            {
-                uid = ( String ) attrs.get( "uid" ).get();
-            }
-
-            assertEquals( uid, "hnelson" );
+            connection.close();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             fail( "Should not have caught exception." );
         }
@@ -251,26 +242,17 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
-
-            env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
-
-            DirContext context = new InitialDirContext( env );
-
-            String[] attrIDs =
-                { "uid" };
-
-            context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-            fail( "Should have thrown exception." );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            
+            BindResponse resp = connection.bindCramMd5( userDn.getName(), "badsecret", null );
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
+            connection.close();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            assertTrue( e.getMessage().contains( "Invalid response" ) );
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
         }
     }
 
@@ -281,35 +263,25 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5Bind() throws Exception
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
-
-        env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
-        env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-        // Specify realm
-        env.put( "java.naming.security.sasl.realm", "example.com" );
-
-        // Request privacy protection
-        env.put( "javax.security.sasl.qop", "auth-conf" );
-
-        DirContext context = new InitialDirContext( env );
-
-        String[] attrIDs =
-            { "uid" };
-
-        Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-        String uid = null;
-
-        if ( attrs.get( "uid" ) != null )
+        try
         {
-            uid = ( String ) attrs.get( "uid" ).get();
-        }
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            connection.setTimeOut( Integer.MAX_VALUE );
 
-        assertEquals( uid, "hnelson" );
+            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
+                .get( 0 ) );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+
+            Entry entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+
+            connection.close();
+        }
+        catch ( Exception e )
+        {
+            fail( "Should not have caught exception." );
+        }
     }
 
 
@@ -321,33 +293,20 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            connection.setTimeOut( Integer.MAX_VALUE );
 
-            env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, "badrealm.com" );
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
 
-            // Bad realm
-            env.put( "java.naming.security.sasl.realm", "badrealm.com" );
-
-            // Request privacy protection
-            env.put( "javax.security.sasl.qop", "auth-conf" );
-
-            DirContext context = new InitialDirContext( env );
-
-            String[] attrIDs =
-                { "uid" };
-
-            context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-            fail( "Should have thrown exception." );
+            connection.close();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            assertTrue( e.getMessage().contains( "Nonexistent realm" ) );
+            fail( "Should not have caught exception." );
         }
+
     }
 
 
@@ -359,24 +318,20 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            connection.setTimeOut( Integer.MAX_VALUE );
 
-            env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
+            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "badsecret", null, ldapServer
+                .getSaslRealms().get( 0 ) );
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
 
-            DirContext context = new InitialDirContext( env );
-            String[] attrIDs =
-                { "uid" };
-
-            context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-            fail( "Should have thrown exception." );
+            connection.close();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            assertTrue( e.getMessage().contains( "digest response format violation" ) );
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
         }
     }
 
