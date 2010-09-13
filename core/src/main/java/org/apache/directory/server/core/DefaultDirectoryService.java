@@ -39,6 +39,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -98,6 +99,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,6 +244,9 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the ehcache based cache service */
     private CacheService cacheService;
+
+    /** The AdministrativePoint cache */
+    private DnNode<List<AdministrativePoint>> adminPointCache;
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -1423,6 +1428,9 @@ public class DefaultDirectoryService implements DirectoryService
         cacheService = new CacheService();
         cacheService.initialize( this );
 
+        // Initialize the AP cache
+        adminPointCache = new DnNode<List<AdministrativePoint>>();
+
         DNFactory.initialize( this );
 
         // triggers partition to load schema fully from schema partition
@@ -1783,4 +1791,12 @@ public class DefaultDirectoryService implements DirectoryService
         return cacheService;
     }
 
+
+    /**
+     * @return The AdministrativePoint cache
+     */
+    public DnNode<List<AdministrativePoint>> getAdministrativePoints()
+    {
+        return adminPointCache;
+    }
 }

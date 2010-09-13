@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -42,6 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
 public class MockDirectoryService implements DirectoryService
@@ -442,54 +444,51 @@ public class MockDirectoryService implements DirectoryService
     
     public void setReplicaId( int replicaId )
     {
-        
     }
 
     public void setJournal( Journal journal )
     {
-        
     }
 
     public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
     {
-        // TODO Auto-generated method stub
-        
     }
 
     public ReplicationConfiguration getReplicationConfiguration()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public String getContextCsn()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public long getSyncPeriodMillis()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     public void setContextCsn( String lastCommittedCsnVal )
     {
-        // TODO Auto-generated method stub
-        
     }
 
     public void setSyncPeriodMillis( long syncPeriodMillis )
     {
-        // TODO Auto-generated method stub
-        
     }
 
 
     public CacheService getCacheService()
     {
-        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<List<AdministrativePoint>> getAdministrativePoints()
+    {
         return null;
     }
 }

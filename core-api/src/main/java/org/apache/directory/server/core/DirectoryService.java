@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.event.EventService;
@@ -40,6 +41,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
 /**
@@ -522,4 +524,10 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the cache service
      */
     CacheService getCacheService();
+    
+
+    /**
+     * @return The AdministrativePoint cache
+     */
+    DnNode<List<AdministrativePoint>> getAdministrativePoints();
 }

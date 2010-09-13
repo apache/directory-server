@@ -25,15 +25,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,10 +128,14 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     // The shared LDAP connection
     private static LdapConnection connection;
 
+    // A reference to the schema manager
+    private static SchemaManager schemaManager;
+
     @Before
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( service );
+        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
     }
 
 
@@ -150,11 +160,10 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     // Test the Add operation
     // -------------------------------------------------------------------
     /**
-     * Test the addition of an autonomous area
-     * @throws Exception
+     * Test the persistence of autonomous areas across a server stop and start
      */
     @Test
-    public void testAddAutonomousArea() throws Exception
+    public void testPersistAutonomousArea() throws Exception
     {
         assertTrue( ldapServer.isStarted() );
 
@@ -169,6 +178,8 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         // And restart
         ldapServer.getDirectoryService().startup();
         ldapServer.start();
+        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+
         assertTrue( service.isStarted() );
         assertTrue( ldapServer.getDirectoryService().isStarted() );
         
@@ -176,5 +187,18 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP2,ou=system" ).getString() );
         assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
+
+        // Check the cache
+        DnNode<List<AdministrativePoint>> cache = ldapServer.getDirectoryService().getAdministrativePoints();
+
+        List<AdministrativePoint> aap1 = cache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        assertNotNull( aap1 );
+
+        List<AdministrativePoint> aap2 = cache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        assertNotNull( aap2 );
+
+        List<AdministrativePoint> subAap1 = cache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+            schemaManager ) );
+        assertNotNull( subAap1 );
     }
 }
