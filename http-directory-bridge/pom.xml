@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>apacheds-http-directory-bridge</artifactId>
-  <name>Integrates DirectoryService instance with a web application</name>
+  <name>ApacheDS DirectoryService-WebApp bridge</name>
 
   <dependencies>
     <dependency>
