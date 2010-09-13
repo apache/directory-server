@@ -25,16 +25,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -45,7 +41,7 @@ import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.name.DN;
@@ -55,10 +51,12 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test the LdapConnection class with SSL enabled
- *
+ * Test the LdapConnection class by enabling SSL and StartTLS one after the other 
+ * (using both in the same test class saves the time required to start/stop another server for StartTLS)
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { 
@@ -77,40 +75,27 @@ import org.junit.runner.RunWith;
     }, 
     extendedOpHandlers =
     { 
-        StoredProcedureExtendedOperationHandler.class 
+        StartTlsHandler.class 
     })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
-    private static LdapConnectionConfig config;
-
+    private LdapConnectionConfig sslConfig;
+    
+    private LdapConnectionConfig tlsConfig;
 
     @Before
     public void setup()
     {
-        X509TrustManager X509 = new X509TrustManager()
-        {
-            public void checkClientTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
-            {
-            }
-
-
-            public void checkServerTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
-            {
-            }
-
-
-            public X509Certificate[] getAcceptedIssuers()
-            {
-                return new X509Certificate[0];
-            }
-        };
-
-        config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
-        config.setUseSsl( true );
-        config.setLdapPort( ldapServer.getPortSSL() );
-        config.setTrustManagers( new TrustManager[]
-            { X509 } );
+        sslConfig = new LdapConnectionConfig();
+        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setUseSsl( true );
+        sslConfig.setLdapPort( ldapServer.getPortSSL() );
+        sslConfig.setTrustManagers( new NoVerificationTrustManager() );
+        
+        tlsConfig = new LdapConnectionConfig();
+        tlsConfig.setLdapHost( "localhost" );
+        tlsConfig.setLdapPort( ldapServer.getPort() );
+        tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
     }
 
 
@@ -125,12 +110,12 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         LdapConnection connection = null;
         try
         {
-            connection = new LdapNetworkConnection( config );
+            connection = new LdapNetworkConnection( sslConfig );
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
 
             assertNotNull( bindResponse );
 
-            connection.unBind();
+            connection.close();
         }
         catch ( Exception le )
         {
@@ -143,8 +128,51 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testGetSupportedControls() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( config );
+        LdapConnection connection = new LdapNetworkConnection( sslConfig );
 
+        DN dn = new DN( "uid=admin,ou=system" );
+        connection.bind( dn.getName(), "secret" );
+
+        List<String> controlList = connection.getSupportedControls();
+        assertNotNull( controlList );
+        assertFalse( controlList.isEmpty() );
+        
+        connection.close();
+    }    
+    
+    
+    /**
+     * Test a successful bind request after setting up TLS
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testStartTLSBindRequest()
+    {
+        LdapNetworkConnection connection = null;
+        try
+        {
+            connection = new LdapNetworkConnection( tlsConfig );
+            connection.startTls();
+            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+
+            assertNotNull( bindResponse );
+
+            connection.unBind();
+        }
+        catch ( Exception le )
+        {
+            fail();
+        }
+    }
+
+
+    @Test
+    public void testGetSupportedControlsWithStartTLS() throws Exception
+    {
+        LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
+        connection.startTls();
+        
         DN dn = new DN( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
 
