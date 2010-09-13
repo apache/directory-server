@@ -184,9 +184,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
-    private DnNode<List<AdministrativePoint>> adminPointCache;
-
-
     /**
      * Tells if the given role is a InnerArea role
      */
@@ -628,9 +625,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             uuid );
 
         // Store the APs in the AP cache
-        adminPointCache.add( addContext.getDn(), administrativePoints );
-
-        System.out.println( "After addition : " + adminPointCache );
+        directoryService.getAdministrativePoints().add( addContext.getDn(), administrativePoints );
     }
 
 
@@ -646,7 +641,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
 
-            List<AdministrativePoint> currentAdminPoints = adminPointCache.getElement( dn );
+            List<AdministrativePoint> currentAdminPoints = directoryService.getAdministrativePoints().getElement( dn );
 
             if ( currentAdminPoints == null )
             {
@@ -661,7 +656,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
 
             // Store the APs in the AP cache
-            adminPointCache.add( dn, currentAdminPoints );
+            directoryService.getAdministrativePoints().add( dn, currentAdminPoints );
         }
     }
 
@@ -673,9 +668,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         throws LdapException
     {
         // Store the APs in the AP cache
-        adminPointCache.remove( deleteContext.getDn() );
-
-        System.out.println( "After deletion : " + adminPointCache );
+        directoryService.getAdministrativePoints().remove( deleteContext.getDn() );
     }
 
 
@@ -707,9 +700,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { SchemaConstants.ADMINISTRATIVE_ROLE_AT } );
-
-        // Create the root AdministrativePoint cache. The first DN
-        adminPointCache = new DnNode<List<AdministrativePoint>>();
 
         // get the list of all the AAPs
         List<Entry> administrativePoints = getAdministrativePoints();
