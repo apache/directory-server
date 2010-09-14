@@ -53,12 +53,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -71,8 +68,9 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 
@@ -85,6 +83,9 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class TestBTree
 {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     static final boolean DEBUG = false;
 
     // the number of threads to be started in the synchronization test
@@ -97,41 +98,11 @@ public class TestBTree
     // for how long should the threads run.
     static final int THREAD_RUNTIME = 10 * 1000;
 
-    public static final List<String> createdFiles = new ArrayList<String>();
-    
 
-    private static void deleteFile( String filename )
+    private String getTemporaryFile( String name ) throws IOException
     {
-        File file = new File( filename );
-
-        if ( file.exists() ) {
-            try 
-            {
-                file.delete();
-            } 
-            catch ( Exception except ) 
-            {
-                except.printStackTrace();
-            }
-            
-            if ( file.exists() ) 
-            {
-                System.out.println( "WARNING:  Cannot delete file: " + file );
-            }
-        }
-    }
-
-    
-    @AfterClass
-    public static void tearDown()
-    {
-        System.gc();
-        for(String createdFile : createdFiles)
-        {
-            deleteFile( createdFile );
-            deleteFile( createdFile + ".db" );
-            deleteFile( createdFile + ".lg" );
-        }
+        String file = folder.newFile( name ).getAbsolutePath();
+        return file;
     }
 
 
@@ -151,10 +122,9 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "testBasics" );
-        createdFiles.add( "testBasics" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testBasics" ) );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
-        
+
         tree.insert( test1, value1, false );
         tree.insert( test2, value2, false );
         byte[] result = tree.find( test0 );
@@ -177,7 +147,7 @@ public class TestBTree
         recman.close();
     }
 
-    
+
     /**
      *  Basic tests, just use the simple test possibilities of junit (cdaller)
      */
@@ -193,18 +163,17 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "testBasics2" );
-        createdFiles.add( "testBasics2" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testBasics2" ) );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
 
         tree.insert( test1, value1, false );
         tree.insert( test2, value2, false );
-        
+
         assertEquals( null, tree.find( test0 ) );
         assertEquals( 0, ByteArrayComparator.compareByteArray( value1, ( byte[] ) tree.find( test1 ) ) );
         assertEquals( 0, ByteArrayComparator.compareByteArray( value2, ( byte[] ) tree.find( test2 ) ) );
         assertEquals( null, ( byte[] ) tree.find( test3 ) );
-        
+
         recman.close();
     }
 
@@ -226,18 +195,17 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "testClose" );
-        createdFiles.add( "testClose" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testClose" ) );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
 
         tree.insert( test1, value1, false );
         tree.insert( test2, value2, false );
-        
+
         assertEquals( null, tree.find( test0 ) );
         assertEquals( 0, ByteArrayComparator.compareByteArray( value1, ( byte[] ) tree.find( test1 ) ) );
         assertEquals( 0, ByteArrayComparator.compareByteArray( value2, ( byte[] ) tree.find( test2 ) ) );
         assertEquals( null, ( byte[] ) tree.find( test3 ) );
-        
+
         recman.close();
 
         try
@@ -301,8 +269,7 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "testInsert" );
-        createdFiles.add( "testInsert" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testInsert" ) );
         tree = new BTree<String, Object>( recman, new StringComparator() );
 
         // insert different objects and retrieve them
@@ -311,7 +278,7 @@ public class TestBTree
         tree.insert( "one", Integer.valueOf( 1 ), false );
         tree.insert( "two", Long.valueOf( 2 ), false );
         tree.insert( "myownobject", new ObjectStore( Integer.valueOf( 234 ) ), false );
-        
+
         assertEquals( "value2", tree.find( "test2" ) );
         assertEquals( "value1", tree.find( "test1" ) );
         assertEquals( Integer.valueOf( 1 ), tree.find( "one" ) );
@@ -323,12 +290,12 @@ public class TestBTree
         assertEquals( "value1", tree.find( "test1" ) ); // still the old value?
         assertEquals( "value1", tree.insert( "test1", "value11", true ) );
         assertEquals( "value11", tree.find( "test1" ) ); // now the new value!
-        
+
         ObjectStore expectedObj = new ObjectStore( Integer.valueOf( 234 ) );
         ObjectStore btreeObj = ( ObjectStore ) tree.find( "myownobject" );
-        
+
         assertEquals( expectedObj, btreeObj );
-        
+
         recman.close();
     }
 
@@ -341,8 +308,7 @@ public class TestBTree
     {
         BTree<String, String> tree;
 
-        RecordManager recordManager = RecordManagerFactory.createRecordManager( "testInsertMany" );
-        createdFiles.add( "testInsertMany" );
+        RecordManager recordManager = RecordManagerFactory.createRecordManager( getTemporaryFile( "testInsertMany" ) );
         tree = new BTree<String, String>( recordManager, new StringComparator() );
         tree.setPageSize( 4 );
 
@@ -353,7 +319,7 @@ public class TestBTree
         tree.insert( "test4", "value4", false );
         tree.insert( "test5", "value5", false );
         tree.insert( "test6", "value6", false );
-        
+
         assertEquals( "value2", tree.find( "test2" ) );
         assertEquals( "value1", tree.find( "test1" ) );
 
@@ -370,25 +336,24 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "testRemove" );
-        createdFiles.add( "testRemove" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testRemove" ) );
         tree = new BTree<String, Object>( recman, new StringComparator() );
 
         tree.insert( "test1", "value1", false );
         tree.insert( "test2", "value2", false );
-        
+
         assertEquals( "value1", tree.find( "test1" ) );
         assertEquals( "value2", tree.find( "test2" ) );
-        
+
         tree.remove( "test1" );
-        
+
         assertEquals( null, tree.find( "test1" ) );
         assertEquals( "value2", tree.find( "test2" ) );
-        
+
         tree.remove( "test2" );
-        
+
         assertEquals( null, tree.find( "test2" ) );
-        
+
         int iterations = 1000;
 
         for ( int count = 0; count < iterations; count++ )
@@ -409,7 +374,7 @@ public class TestBTree
         }
 
         assertEquals( 0, tree.size() );
-        
+
         recman.close();
     }
 
@@ -423,23 +388,22 @@ public class TestBTree
         RecordManager recman;
         BTree<String, String> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "testFind" );
-        createdFiles.add( "testFind" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testFind" ) );
         tree = new BTree<String, String>( recman, new StringComparator() );
 
         tree.insert( "test1", "value1", false );
         tree.insert( "test2", "value2", false );
-        
+
         Object value = tree.find( "test1" );
-        
+
         assertTrue( value instanceof String );
         assertEquals( "value1", value );
-        
+
         tree.insert( "", "Empty String as key", false );
-        
+
         assertEquals( "Empty String as key", tree.find( "" ) );
         assertEquals( null, tree.find( "someoneelse" ) );
-        
+
         recman.close();
     }
 
@@ -453,8 +417,7 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "testLargeDataAmount" );
-        createdFiles.add( "testLargeDataAmount" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testLargeDataAmount" ) );
 
         // recman = new jdbm.recman.BaseRecordManager( "test" );
         tree = new BTree<String, Object>( recman, new StringComparator() );
@@ -471,7 +434,7 @@ public class TestBTree
         {
             assertEquals( Integer.valueOf( count ), tree.find( "num" + count ) );
         }
-        
+
         // delete data
         for ( int count = 0; count < iterations; count++ )
         {
@@ -496,10 +459,9 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Integer> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "testMultithreadAccess" );
-        createdFiles.add( "testMultithreadAccess" );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testMultithreadAccess" ) );
         tree = new BTree<String, Integer>( recman, new StringComparator() );
-        TestThread<String, Integer>[] threadPool = (TestThread<String, Integer>[])new TestThread[THREAD_NUMBER];
+        TestThread<String, Integer>[] threadPool = ( TestThread<String, Integer>[] ) new TestThread[THREAD_NUMBER];
         String name;
         Map<String, Integer> content;
 
@@ -587,7 +549,6 @@ public class TestBTree
         return ( tree_obj.equals( entry.getValue() ) );
     }
 
-
     /**
      * Inner class for testing puroposes only (multithreaded access)
      */
@@ -638,7 +599,7 @@ public class TestBTree
                 assertTrue( contains( entry, btree ) );
 
                 assertNotNull( btree.find( entry.getKey() ) );
-                
+
                 assertTrue( containsValue( entry.getValue(), btree ) );
             }
 
@@ -679,7 +640,6 @@ public class TestBTree
     } // end of class TestThread
 }
 
-
 /**
  * class for testing purposes only (store as value in btree) not
  * implemented as inner class, as this prevents Serialization if
@@ -689,7 +649,6 @@ class ObjectStore implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    
     /**
      * 
      */
