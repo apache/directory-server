@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
+import org.apache.directory.shared.ldap.message.LdapEncoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
@@ -436,7 +436,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             } );
 
             // Send encoded request to server
-            LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+            LdapEncoder encoder = new LdapEncoder();
             ByteBuffer bb = encoder.encodeMessage( request );
 
             bb.flip();
@@ -479,7 +479,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             } );
 
             // Send encoded request to server
-            LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+            LdapEncoder encoder = new LdapEncoder();
             ByteBuffer bb = encoder.encodeMessage( request );
             bb.flip();
 

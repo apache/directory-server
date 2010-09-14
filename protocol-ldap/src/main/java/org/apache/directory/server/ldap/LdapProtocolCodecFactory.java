@@ -20,9 +20,9 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.ldap.client.api.protocol.LdapProtocolEncoder;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
-import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;

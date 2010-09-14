@@ -38,7 +38,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.message.LdapProtocolEncoder;
+import org.apache.directory.shared.ldap.message.LdapEncoder;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 
@@ -216,7 +216,7 @@ public class ImportCommand extends ToolCommand
         addRequest.setMessageId( messageId );
 
         // Encode and send the addRequest message
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
         ByteBuffer bb = encoder.encodeMessage( addRequest );
         bb.flip();
 
@@ -259,7 +259,7 @@ public class ImportCommand extends ToolCommand
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         LdapInvalidDnException, EncoderException
     {
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
         DeleteRequest delRequest = new DeleteRequestImpl( messageId );
 
         String dn = entry.getDn().getName();
@@ -334,7 +334,7 @@ public class ImportCommand extends ToolCommand
         modifyDNRequest.setMessageId( messageId );
 
         // Encode and send the modifyDn request
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( modifyDNRequest );
         bb.flip();
@@ -394,7 +394,7 @@ public class ImportCommand extends ToolCommand
         modifyRequest.setMessageId( messageId );
 
         // Encode and send the delete request
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( modifyRequest );
         bb.flip();
@@ -477,7 +477,7 @@ public class ImportCommand extends ToolCommand
         bindRequest.setName( new DN( user ) );
 
         // Encode and send the bind request
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( bindRequest );
         bb.flip();
@@ -519,7 +519,7 @@ public class ImportCommand extends ToolCommand
     private void unbind( int messageId ) throws EncoderException, DecoderException, IOException
     {
         UnbindRequest unbindRequest = new UnbindRequestImpl( messageId );
-        LdapProtocolEncoder encoder = new LdapProtocolEncoder();
+        LdapEncoder encoder = new LdapEncoder();
 
         ByteBuffer bb = encoder.encodeMessage( unbindRequest );
         bb.flip();
