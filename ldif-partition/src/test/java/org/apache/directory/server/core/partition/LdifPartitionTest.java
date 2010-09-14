@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.partition;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -71,6 +72,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Unit test cases for the LDIF partition test
@@ -126,9 +128,9 @@ public class LdifPartitionTest
     {
         String contextEntry =
             "dn: ou=test, ou=system\n" +
-            "objectclass: organizationalUnit\n" +
-            "objectclass: top\n" +
-            "ou: test";
+                "objectclass: organizationalUnit\n" +
+                "objectclass: top\n" +
+                "ou: test";
 
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
@@ -184,7 +186,8 @@ public class LdifPartitionTest
     public void testLdifAddEntries() throws Exception
     {
         DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
@@ -214,8 +217,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
     }
 
 
@@ -228,7 +233,8 @@ public class LdifPartitionTest
     public void testLdifAddExistingEntry() throws Exception
     {
         DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
@@ -281,7 +287,8 @@ public class LdifPartitionTest
     public void testLdifDeleteExistingEntry() throws Exception
     {
         DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
@@ -328,8 +335,10 @@ public class LdifPartitionTest
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test1.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
 
         dn = new DN( "dc=test2,dc=test,ou=test,ou=system", schemaManager );
 
@@ -349,9 +358,13 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
+            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
     }
+
+
     //-------------------------------------------------------------------------
     // Partition.delete() tests
     //-------------------------------------------------------------------------
@@ -364,7 +377,8 @@ public class LdifPartitionTest
     public void testLdifSearchExistingEntry() throws Exception
     {
         DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
@@ -431,8 +445,10 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system", schemaManager ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system", schemaManager ) ) );
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system",
+            schemaManager ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system",
+            schemaManager ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
         partition.move( moveOpCtx );
@@ -447,8 +463,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild12.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111" )
+            .exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" )
+            .exists() );
     }
 
 
@@ -472,8 +490,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" )
+            .exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" )
+            .exists() );
     }
 
 
@@ -497,8 +517,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" )
+            .exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" )
+            .exists() );
 
         // the renamed LDIF must contain the old an new RDN attribute
         String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
@@ -517,7 +539,8 @@ public class LdifPartitionTest
         DN childDn2 = new DN( "dc=child2,ou=test,ou=system", schemaManager );
 
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
-        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, true );
+        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
+            childDn2, newRdn, true );
         partition.moveAndRename( moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -529,8 +552,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertFalse( new File( wkdir,
+            "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir,
+            "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
     }
 
 
@@ -544,7 +569,8 @@ public class LdifPartitionTest
         DN childDn2 = new DN( "dc=child2,ou=test,ou=system", schemaManager );
 
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
-        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, false );
+        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
+            childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -556,8 +582,10 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertFalse( new File( wkdir,
+            "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir,
+            "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
 
         // the renamed LDIF must contain the old an new RDN attribute
         String content = FileUtils
@@ -570,7 +598,8 @@ public class LdifPartitionTest
     private CoreSession injectEntries() throws Exception
     {
         DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         ClonedServerEntry rootEntry = createEntry( "ou=test,ou=system" );
@@ -593,7 +622,6 @@ public class LdifPartitionTest
         addCtx.setEntry( childEntry2 );
 
         partition.add( addCtx );
-
 
         ClonedServerEntry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
         grandChild11.put( "ObjectClass", "top", "domain" );
@@ -627,7 +655,8 @@ public class LdifPartitionTest
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild12" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild12.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" )
+            .exists() );
 
         return session;
     }

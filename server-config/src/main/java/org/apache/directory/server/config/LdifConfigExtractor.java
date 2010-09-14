@@ -56,6 +56,10 @@ public class LdifConfigExtractor
 
     private static final Logger LOG = LoggerFactory.getLogger( LdifConfigExtractor.class );
 
+    // java.util.regex.Pattern is immutable so only one instance is needed for all uses.
+    private static final Pattern EXTRACT_PATTERN = Pattern.compile( ".*config"
+                            + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
+
 
     /**
      * Extracts the LDIF files from a Jar file or copies exploded LDIF resources.
@@ -85,8 +89,7 @@ public class LdifConfigExtractor
 
         LOG.debug( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
 
-        Pattern pattern = Pattern.compile( ".*config" + File.separator + "ou=config.*\\.ldif" );
-        Map<String, Boolean> list = ResourceMap.getResources( pattern );
+        Map<String, Boolean> list = ResourceMap.getResources( EXTRACT_PATTERN );
 
         for ( Entry<String, Boolean> entry : list.entrySet() )
         {

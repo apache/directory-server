@@ -165,6 +165,7 @@ public class JdbmStoreTest
     {
         if ( store != null )
         {
+            // make sure all files are closed so that they can be deleted on Windows.
             store.destroy();
         }
 
@@ -217,6 +218,9 @@ public class JdbmStoreTest
         Long id = store2.getEntryId( suffixDn );
         Entry lookup = store2.lookup( id );
         assertEquals( 2, lookup.getDn().size() );
+
+        // make sure all files are closed so that they can be deleted on Windows.
+        store2.destroy();
     }
 
 
@@ -282,6 +286,7 @@ public class JdbmStoreTest
         assertFalse( store.isSyncOnWrite() );
 
         store.sync();
+        // make sure all files are closed so that they can be deleted on Windows.
         store.destroy();
     }
 
@@ -642,7 +647,7 @@ public class JdbmStoreTest
         File testSpecificDir = new File( wkdir, "testConvertIndex" );
         testSpecificDir.mkdirs();
 
-        Index nonJdbmIndex = new GenericIndex( "ou", 10,  testSpecificDir );
+        Index<?, Object, Long> nonJdbmIndex = new GenericIndex<Object, Object, Long>( "ou", 10, testSpecificDir );
 
         Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
@@ -650,6 +655,8 @@ public class JdbmStoreTest
 
         assertNotNull( obj );
         assertEquals( JdbmIndex.class, obj.getClass() );
+
+        ( ( JdbmIndex ) obj ).close();
     }
 
 
@@ -923,7 +930,6 @@ public class JdbmStoreTest
         store.setSyncOnWrite( false );
         // do not add ou index this time
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-
 
         DN suffixDn = new DN( "o=Good Times Co.", schemaManager );
         store.setSuffixDn( suffixDn );

@@ -66,8 +66,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A LDIF based partition. Data are stored on disk as LDIF, following this organisation :
- * <li> each entry is associated with a file, postfixed with LDIF
+ * A LDIF based partition. Data are stored on disk as LDIF, following this organization :
+ * <li> each entry is associated with a file, post-fixed with LDIF
  * <li> each entry having at least one child will have a directory created using its name.
  * The root is the partition's suffix.
  * <br>
@@ -429,7 +429,6 @@ public class LdifPartition extends BTreePartition<Long>
             throw new LdapOperationException( e.getMessage() );
         }
 
-
         // And delete the old entry's LDIF file
         File file = getFile( oldEntryDn, DELETE );
         boolean deleted = deleteFile( file );
@@ -540,7 +539,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         String parentDir = null;
 
-        if( entryDn.equals( suffix ) )
+        if ( entryDn.equals( suffix ) )
         {
             parentDir = suffixDirectory.getParent() + File.separator;
         }
@@ -593,7 +592,7 @@ public class LdifPartition extends BTreePartition<Long>
             // Now, get the normalized value
             String normValue = ava.getNormValue().getString();
 
-            fileName.append( atName ).append(  "=" ).append( normValue );
+            fileName.append( atName ).append( "=" ).append( normValue );
 
             if ( iterator.hasNext() )
             {
@@ -651,7 +650,7 @@ public class LdifPartition extends BTreePartition<Long>
         if ( SystemUtils.IS_OS_WINDOWS )
         {
             // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']',
-            // '*', [0x00-0x1F], '?'
+            // '*', [0x00-0x1F], '?', and '%' with "%xx" where xx is the hex value of the character.
             StringBuilder sb = new StringBuilder();
 
             for ( char c : fileName.toCharArray() )
@@ -690,10 +689,6 @@ public class LdifPartition extends BTreePartition<Long>
                     case 0x1D:
                     case 0x1E:
                     case 0x1F:
-                        sb.append( "\\" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) ).append(
-                            StringTools.dumpHex( ( byte ) ( c & 0x04 ) ) );
-                        break;
-
                     case '/':
                     case '\\':
                     case '<':
@@ -707,7 +702,9 @@ public class LdifPartition extends BTreePartition<Long>
                     case ']':
                     case '*':
                     case '?':
-                        sb.append( '\\' ).append( c );
+                    case '%':
+                        sb.append( "%" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) )
+                                        .append( StringTools.dumpHex( ( byte ) ( c & 0xF ) ) );
                         break;
 
                     default:
