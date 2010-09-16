@@ -42,6 +42,7 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -58,7 +59,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.kerberos.shared.jaas.CallbackHandlerBean;
-import org.apache.directory.server.kerberos.shared.jaas.Krb5LoginConfiguration;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -147,7 +147,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     {
         String krbConfPath = getClass().getClassLoader().getResource( "krb5.conf" ).getFile();
         System.setProperty( "java.security.krb5.conf", krbConfPath );
-        System.setProperty( "sun.security.krb5.debug", "false" );
+        System.setProperty( "sun.security.krb5.debug", "true" );
     }
 
 
