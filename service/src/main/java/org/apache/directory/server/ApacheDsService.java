@@ -596,7 +596,7 @@ public class ApacheDsService
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
 
         EntryFilteringCursor cursor = session.search( partition.getSuffix(), SearchScope.SUBTREE, filter,
-            AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet( MANDATORY_ENTRY_ATOP_MAP.values() ) );
+            AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet<AttributeTypeOptions>( MANDATORY_ENTRY_ATOP_MAP.values() ) );
         cursor.beforeFirst();
 
         List<Modification> mods = new ArrayList<Modification>();
