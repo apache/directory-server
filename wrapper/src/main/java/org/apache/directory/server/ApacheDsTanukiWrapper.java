@@ -21,8 +21,6 @@
 package org.apache.directory.server;
 
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tanukisoftware.wrapper.WrapperListener;
@@ -30,14 +28,16 @@ import org.tanukisoftware.wrapper.WrapperManager;
 
 
 /**
- * The bootstrapper used by Tanuki Wrapper.
+ * A Tanuki Wrapper implementation for the ApacheDS service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ApacheDsTanukiWrapper implements WrapperListener
 {
+    /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ApacheDsTanukiWrapper.class );
 
+    /** The ApacheDS service*/
     private ApacheDsService service;
 
 
@@ -54,38 +54,58 @@ public class ApacheDsTanukiWrapper implements WrapperListener
 
     public Integer start( String[] args )
     {
-        service = new ApacheDsService();
-        InstallationLayout installationLayout = new InstallationLayout( ( File ) null ); // TODO
-        InstanceLayout instanceLayout = new InstanceLayout( ( File ) null ); // TODO
-        try
+        log.info( "Starting the service..." );
+        
+        if ( ( args != null ) && ( args.length == 2 ) )
         {
-            service.init( installationLayout, instanceLayout );
+            // Creating ApacheDS service
+            service = new ApacheDsService();
+
+            // Creating installation and instance layouts from the arguments
+            InstallationLayout installationLayout = new InstallationLayout( args[0] );
+            InstanceLayout instanceLayout = new InstanceLayout( args[1] );
+
+            // Initializing the service
+            try
+            {
+                service.init( installationLayout, instanceLayout );
+            }
+            catch ( Exception e )
+            {
+                log.error( "Failed to start the service.", e );
+                System.exit( ExitCodes.START );
+            }
+
+            // Starting the service
+            service.start();
         }
-        catch ( Exception e )
+        else
         {
-            log.error( "Failed to start", e );
-            System.exit( ExitCodes.START );
+            throw new IllegalArgumentException(
+                "Program must be launched with 2 arguements (path the the installation directory "
+                    + "and path to the instance directory." );
         }
-        service.start();
+
         return null;
     }
 
 
     public int stop( int exitCode )
     {
-        log.info( "Attempting graceful shutdown of this server instance" );
+        log.info( "Attempting graceful shutdown of the service..." );
 
+        // Stopping the service
         try
         {
             service.stop();
         }
         catch ( Exception e )
         {
-            log.error( "Failed to stop", e );
+            log.error( "Failed to stop the service.", e );
             System.exit( ExitCodes.STOP );
         }
 
-        log.info( "Completed graceful shutdown..." );
+        log.info( "Completed graceful shutdown of the service..." );
 
         return exitCode;
     }
@@ -93,7 +113,6 @@ public class ApacheDsTanukiWrapper implements WrapperListener
 
     public void controlEvent( int event )
     {
-        log.error( "Recvd Event: " + event );
         if ( WrapperManager.isControlledByNativeWrapper() )
         {
             // The Wrapper will take care of this event
@@ -101,7 +120,7 @@ public class ApacheDsTanukiWrapper implements WrapperListener
         else
         {
             // We are not being controlled by the Wrapper, so
-            //  handle the event ourselves.
+            // handle the event ourselves.
             if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
                  ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
                  ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
