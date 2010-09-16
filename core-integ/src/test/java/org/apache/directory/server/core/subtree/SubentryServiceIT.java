@@ -106,35 +106,60 @@ import org.junit.runner.RunWith;
         "sn: a1-1",
         "",
         // entry A1-2
-        "dn: cn=A1-2,cn=A1,dc=AP-A,dc=test,ou=system", "objectClass: top",
+        "dn: cn=A1-2,cn=A1,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
         "objectClass: person",
         "cn: A1-2",
         "sn: a1-2",
         "",
         // entry A2
-        "dn: cn=A2,dc=AP-A,dc=test,ou=system", "objectClass: top", "objectClass: person",
+        "dn: cn=A2,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: person",
         "cn: A2",
         "sn: a2",
         "",
         // entry A2-1
-        "dn: cn=A2-1,cn=A2,dc=AP-A,dc=test,ou=system", "objectClass: top", "objectClass: person",
+        "dn: cn=A2-1,cn=A2,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: person",
         "cn: A2-1",
         "sn: a2-1",
         "",
         // The second level AP
-        "dn: dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system", "objectClass: top", "objectClass: domain",
-        "administrativeRole: collectiveAttributeSpecificArea", "dc: AP-B",
+        "dn: dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: domain",
+        "administrativeRole: collectiveAttributeSpecificArea",
+        "dc: AP-B",
         "",
         // entry B1
-        "dn: cn=B1,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system", "objectClass: top", "objectClass: person", "cn: B1",
-        "sn: b1", "",
+        "dn: cn=B1,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: B1",
+        "sn: b1",
+        "",
         // entry B2
-        "dn: cn=B2,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system", "objectClass: top", "objectClass: person", "cn: B2",
-        "sn: b2", "",
+        "dn: cn=B2,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: B2",
+        "sn: b2",
+        "",
         // The first level non AP
-        "dn: dc=not-AP,dc=test,ou=system", "objectClass: top", "objectClass: domain", "dc: not-AP", "",
+        "dn: dc=not-AP,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: domain",
+        "dc: not-AP",
+        "",
         // An entry under non-AP
-        "dn: cn=C,dc=not-AP,dc=test,ou=system", "objectClass: top", "objectClass: person", "cn: C", "sn: entry-C", "" })
+        "dn: cn=C,dc=not-AP,dc=test,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: C",
+        "sn: entry-C",
+        "" })
 public class SubentryServiceIT extends AbstractLdapTestUnit
 {
 

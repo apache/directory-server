@@ -143,9 +143,14 @@ import org.junit.runner.RunWith;
         " AigC14//Z",
 
         // Entry # 4
-        "dn: cn=Heather Nova,ou=system", "objectClass: person", "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", "objectClass: strongAuthenticationUser", "objectClass: top",
-        "userCertificate:: NFZOXw==", "cn: Heather Nova",
+        "dn: cn=Heather Nova,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: strongAuthenticationUser",
+        "objectClass: top",
+        "userCertificate:: NFZOXw==",
+        "cn: Heather Nova",
         "sn: Nova",
         "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
         " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
@@ -156,12 +161,22 @@ import org.junit.runner.RunWith;
         " AigC14//Z",
 
         // Entry #5
-        "dn: cn=Janis Joplin,ou=system", "objectClass: person", "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", "objectClass: top", "objectClass: strongAuthenticationUser", "cn: Janis Joplin",
-        "sn: Joplin", "userCertificate:: ",
+        "dn: cn=Janis Joplin,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: top",
+        "objectClass: strongAuthenticationUser",
+        "cn: Janis Joplin",
+        "sn: Joplin",
+        "userCertificate:: ",
 
         // Entry #6
-        "dn: cn=Kim Wilde,ou=system", "objectClass: person", "objectClass: top", "cn: Kim Wilde", "sn: Wilde",
+        "dn: cn=Kim Wilde,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Kim Wilde",
+        "sn: Wilde",
         "description: an American singer-songwriter+sexy blond"
 
     })
@@ -1702,5 +1717,32 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertTrue( newCount < count );
+    }
+
+
+    @Test
+    public void testSearchComplexFilter() throws Exception
+    {
+        LdapContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setTimeLimit( 10 );
+
+        NamingEnumeration<SearchResult> result = ctx.search( "cn=Kim Wilde,ou=system",
+            "(&(&(ObjectClass=person)(!(ObjectClass=strongAuthenticationUser))(sn=Wilde)))", controls );
+
+        assertTrue( result.hasMore() );
+        SearchResult sr = result.next();
+        assertNotNull( sr );
+        assertEquals( "Kim Wilde", sr.getAttributes().get( "cn" ).get() );
+
+        // Now check with another version of the filter
+        result = ctx.search( "cn=Kim Wilde,ou=system",
+            "(&(sn=Wilde)(&(objectClass=person)(!(objectClass=strongAuthenticationUser))))", controls );
+
+        assertTrue( result.hasMore() );
+        sr = result.next();
+        assertNotNull( sr );
+        assertEquals( "Kim Wilde", sr.getAttributes().get( "cn" ).get() );
     }
 }
