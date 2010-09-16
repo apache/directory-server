@@ -1,4 +1,6 @@
 package org.apache.directory.server;
+
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -19,12 +21,7 @@ package org.apache.directory.server;
  *  
  */
 
-
-
 import java.io.File;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,32 +30,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class InstallationLayout
+public class InstallationLayout extends AbstractLayout
 {
-    /** The logger*/
-    private final static Logger log = LoggerFactory.getLogger( InstallationLayout.class );
-
-    /** The required directories */
-    private File[] requiredDirectories = new File[]
-        {
-            getInstallationDirectory(),
-            getBinDirectory(),
-            getConfDirectory(),
-            getLibDirectory()
-        };
-
-    /** The required files */
-    private File[] requiredFiles = new File[]
-        {
-            getScriptFile(),
-            getWrapperFile(),
-            getWrapperConfigurationFile()
-        };
-
-    /** The installation directory */
-    private File installationDirectory;
-
-
     /**
      * Creates a new instance of InstallationLayout.
      *
@@ -67,7 +40,8 @@ public class InstallationLayout
      */
     public InstallationLayout( File installationDirectory )
     {
-        this.installationDirectory = installationDirectory;
+        super( installationDirectory );
+        init();
     }
 
 
@@ -79,7 +53,34 @@ public class InstallationLayout
      */
     public InstallationLayout( String installationDirectoryPath )
     {
-        this.installationDirectory = new File( installationDirectoryPath );
+        super( installationDirectoryPath );
+        init();
+    }
+
+
+    /**
+     * Initializes the InstallationLayout.
+     */
+    private void init()
+    {
+        // The required directories
+        File[] requiredDirectories = new File[]
+            {
+                getInstallationDirectory(),
+                getBinDirectory(),
+                getConfDirectory(),
+                getLibDirectory()
+            };
+        setRequiredDirectories( requiredDirectories );
+
+        // The required files
+        File[] requiredFiles = new File[]
+            {
+                getScriptFile(),
+                getWrapperFile(),
+                getWrapperConfigurationFile()
+            };
+        setRequiredFiles( requiredFiles );
     }
 
 
@@ -115,7 +116,7 @@ public class InstallationLayout
      */
     public File getInstallationDirectory()
     {
-        return installationDirectory;
+        return getDirectory();
     }
 
 
@@ -188,94 +189,5 @@ public class InstallationLayout
     public File getWrapperFile()
     {
         return new File( getBinDirectory(), "wrapper" );
-    }
-
-
-    /**
-     * Creates the required directories (if they don't already exist).
-     */
-    public void mkdirs()
-    {
-        for ( File requiredDirectory : requiredDirectories )
-        {
-            if ( !requiredDirectory.exists() )
-            {
-                requiredDirectory.mkdirs();
-            }
-        }
-    }
-
-
-    /**
-     * Verifies the installation by checking required directories and files.
-     */
-    public void verifyInstallation()
-    {
-        log.debug( "Verifying required directories" );
-
-        // Verifying required directories
-        for ( File requiredDirectory : requiredDirectories )
-        {
-            // Exists?
-            if ( !requiredDirectory.exists() )
-            {
-                String message = "The required '" + requiredDirectory + " directory does not exist!";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-
-            // Directory?
-            if ( requiredDirectory.isFile() )
-            {
-                String message = "'" + requiredDirectory + "' is a file when it should be a directory.";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-
-            // Writable?
-            if ( !requiredDirectory.canWrite() )
-            {
-                String message = "'" + requiredDirectory
-                    + "' is write protected from the current user '"
-                    + System.getProperty( "user.name" ) + "'";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-        }
-
-        log.debug( "Required directories verification finished successfully." );
-
-        log.debug( "Verifying required files" );
-
-        // Verifying required files
-        for ( File requiredFile : requiredFiles )
-        {
-            // Exists?
-            if ( !requiredFile.exists() )
-            {
-                String message = "The required'" + requiredFile + "' file does not exist!";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-
-            // File?
-            if ( requiredFile.isDirectory() )
-            {
-                String message = "'" + requiredFile + "' is a directory when it should be a file.";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-
-            // Writable?
-            if ( !requiredFile.canRead() )
-            {
-                String message = "'" + requiredFile + "' is not readable by the current user '"
-                    + System.getProperty( "user.name" ) + "'.";
-                log.error( message );
-                throw new IllegalStateException( message );
-            }
-        }
-
-        log.debug( "Required files verification finished successfully." );
     }
 }
