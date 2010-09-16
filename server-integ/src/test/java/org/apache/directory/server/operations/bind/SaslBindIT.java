@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -37,6 +39,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -48,14 +51,18 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
@@ -96,7 +103,38 @@ import org.slf4j.LoggerFactory;
         "krb5PrincipalName: hnelson@EXAMPLE.COM",
         "krb5KeyVersionNumber: 0",
         "cn: Horatio Nelson",
-        "sn: Nelson" })
+        "sn: Nelson",
+    
+        // krbtgt
+        "dn: uid=krbtgt,ou=users,dc=example,dc=com",
+        "objectClass: inetOrgPerson",
+        "objectClass: organizationalPerson",
+        "objectClass: person",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "objectClass: top",
+        "uid: krbtgt",
+        "userPassword: secret",
+        "krb5PrincipalName: krbtgt/EXAMPLE.COM@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+        "cn: KDC Service",
+        "sn: Service",
+        
+        // ldap 
+        "dn: uid=ldap,ou=users,dc=example,dc=com",
+        "objectClass: inetOrgPerson",
+        "objectClass: organizationalPerson",
+        "objectClass: person",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "objectClass: top",
+        "uid: ldap",
+        "userPassword: randall",
+        "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+        "cn: LDAP Service",
+        "sn: Service"
+    })
 @CreateDS(allowAnonAccess = false, name = "SaslBindIT-class", partitions =
     { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
         + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
@@ -104,7 +142,7 @@ import org.slf4j.LoggerFactory;
 additionalInterceptors = { KeyDerivationInterceptor.class }
 )
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslMechanisms =
+    { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslPrincipal="ldap/localhost@EXAMPLE.COM", saslMechanisms =
     { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
@@ -112,6 +150,12 @@ additionalInterceptors = { KeyDerivationInterceptor.class }
         @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) }, extendedOpHandlers =
     { StoredProcedureExtendedOperationHandler.class }, ntlmProvider = BogusNtlmProvider.class)
+@CreateKdcServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "UDP", port = 6088 ),
+        @CreateTransport( protocol = "TCP", port = 6088 )
+    })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
 
@@ -267,7 +311,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
         {
             DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
             LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            connection.setTimeOut( Integer.MAX_VALUE );
 
             BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
                 .get( 0 ) );
@@ -286,6 +329,32 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
 
     /**
+     * GSSAPI test
+     */
+    @Test
+    public void testSaslGssApiBind() throws Exception
+    {
+        try
+        {
+            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+            BindResponse resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 ).toUpperCase(), "localhost", 6088 );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+
+            Entry entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+
+            connection.close();
+        }
+        catch ( Exception e )
+        {
+            fail( "Should not have caught exception." );
+        }
+    }
+
+    
+    /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the realm is bad.
      */
     @Test
@@ -295,7 +364,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
         {
             DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
             LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            connection.setTimeOut( Integer.MAX_VALUE );
 
             BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, "badrealm.com" );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
@@ -320,7 +388,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
         {
             DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
             LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            connection.setTimeOut( Integer.MAX_VALUE );
 
             BindResponse resp = connection.bindDigestMd5( userDn.getName(), "badsecret", null, ldapServer
                 .getSaslRealms().get( 0 ) );
@@ -516,6 +583,22 @@ public class SaslBindIT extends AbstractLdapTestUnit
         }
 
         return provider;
+    }
+
+    
+    ////////////////////////
+    protected Entry getPrincipalAttributes( String dn, String sn, String cn, String uid, String userPassword, String principal ) throws LdapException
+    {
+        Entry entry = new DefaultEntry( new DN( dn ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "inetOrgPerson", "krb5principal", "krb5kdcentry" );
+        entry.add( SchemaConstants.CN_AT, cn );
+        entry.add( SchemaConstants.SN_AT, sn );
+        entry.add( SchemaConstants.UID_AT, uid );
+        entry.add( SchemaConstants.USER_PASSWORD_AT, userPassword );
+        entry.add( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
+        entry.add( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
+
+        return entry;
     }
 
 }
