@@ -133,6 +133,8 @@
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
+    <module>service</module>
+    <module>wrapper</module>
   </modules>
 
   <build>
@@ -393,6 +395,18 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-xdbm-tools</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-wrapper</artifactId>
         <version>${project.version}</version>
       </dependency>
       
