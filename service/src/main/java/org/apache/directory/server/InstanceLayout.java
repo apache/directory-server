@@ -46,7 +46,6 @@ public class InstanceLayout
         {
             getInstanceDirectory(),
             getConfDirectory(),
-            getLdifDirectory(),
             getLogDirectory(),
             getPartitionsDirectory(),
             getRunDirectory()
@@ -97,18 +96,6 @@ public class InstanceLayout
     public File getConfDirectory()
     {
         return new File( getInstanceDirectory(), "conf" );
-    }
-
-
-    /**
-     * Gets the 'ldif' directory.
-     *
-     * @return
-     *      the 'ldif' directory
-     */
-    public File getLdifDirectory()
-    {
-        return new File( getInstanceDirectory(), "ldif" );
     }
 
 
