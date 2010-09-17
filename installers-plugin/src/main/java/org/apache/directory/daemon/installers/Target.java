@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.directory.daemon.InstallationLayout;
+import org.apache.directory.server.InstallationLayout;
 
 
 /**

@@ -34,10 +34,6 @@ import org.apache.directory.daemon.installers.bin.BinInstallerCommand;
 import org.apache.directory.daemon.installers.bin.BinTarget;
 import org.apache.directory.daemon.installers.deb.DebInstallerCommand;
 import org.apache.directory.daemon.installers.deb.DebTarget;
-import org.apache.directory.daemon.installers.inno.InnoInstallerCommand;
-import org.apache.directory.daemon.installers.inno.InnoTarget;
-import org.apache.directory.daemon.installers.izpack.IzPackInstallerCommand;
-import org.apache.directory.daemon.installers.izpack.IzPackTarget;
 import org.apache.directory.daemon.installers.macosxpkg.MacOsXPkgInstallerCommand;
 import org.apache.directory.daemon.installers.macosxpkg.MacOsXPkgTarget;
 import org.apache.directory.daemon.installers.nsis.NsisInstallerCommand;
@@ -100,11 +96,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     /**
      * @parameter
      */
-    private IzPackTarget[] izPackTargets;
-
-    /**
-     * @parameter
-     */
     private RpmTarget[] rpmTargets;
 
     /**
@@ -116,11 +107,6 @@ public class ServiceInstallersMojo extends AbstractMojo
      * @parameter
      */
     private SolarisPkgTarget[] solarisPkgTargets;
-
-    /**
-     * @parameter
-     */
-    private InnoTarget[] innoTargets;
 
     /**
      * @parameter
@@ -245,20 +231,6 @@ public class ServiceInstallersMojo extends AbstractMojo
             // Generate all installers
             // ---------------------------------------------------------------
 
-            if ( target instanceof IzPackTarget )
-            {
-                IzPackInstallerCommand izPackCmd = null;
-                izPackCmd = new IzPackInstallerCommand( this, ( IzPackTarget ) target );
-                izPackCmd.execute();
-            }
-
-            if ( target instanceof InnoTarget )
-            {
-                InnoInstallerCommand innoCmd = null;
-                innoCmd = new InnoInstallerCommand( this, ( InnoTarget ) target );
-                innoCmd.execute();
-            }
-
             if ( target instanceof NsisTarget )
             {
                 NsisInstallerCommand nsisCmd = null;
@@ -314,8 +286,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     private void initializeAllTargets()
     {
         allTargets = new ArrayList<Target>();
-        addAll( allTargets, izPackTargets );
-        addAll( allTargets, innoTargets );
         addAll( allTargets, nsisTargets );
         addAll( allTargets, rpmTargets );
         addAll( allTargets, debTargets );

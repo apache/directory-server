@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.InstallationLayout;
+import org.apache.directory.server.InstallationLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -84,154 +84,155 @@ public class CreateImageCommand extends MojoCommand
         target.setLayout( layout );
         layout.mkdirs();
 
-        // copy over the read me file if present otherwise use the bundled copy
-        if ( target.getApplication().getReadme() != null && target.getApplication().getReadme().exists() )
-        {
-            File readmeTarget = layout.getReadmeFile( target.getApplication().getReadme().getName() );
-            try
-            {
-                FileUtils.copyFile( target.getApplication().getReadme(), readmeTarget );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy read me file " + target.getApplication().getReadme()
-                    + " into position " + readmeTarget );
-            }
-        }
-
-        // copy over the license file if present otherwise use the bundled copy
-        File licenseTarget = layout.getLicenseFile( target.getApplication().getLicense().getName() );
-        if ( target.getApplication().getLicense().exists() )
-        {
-            try
-            {
-                FileUtils.copyFile( target.getApplication().getLicense(), licenseTarget );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy license file " + target.getApplication().getLicense()
-                    + " into position " + licenseTarget );
-            }
-        }
-        else
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "LICENSE" ),
-                    licenseTarget, false );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to bundled ASL license file "
-                    + getClass().getResource( "LICENSE" ) + " into position " + licenseTarget );
-            }
-        }
-
-        // copy over the icon if present otherwise use the bundled copy
-        File iconTarget = layout.getLogoIconFile( target.getApplication().getIcon().getName() );
-        if ( target.getApplication().getIcon().exists() )
-        {
-            try
-            {
-                FileUtils.copyFile( target.getApplication().getIcon(), iconTarget );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy icon file " + target.getApplication().getIcon()
-                    + " into position " + iconTarget );
-            }
-        }
-        else
-        {
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "logo.ico" ), iconTarget );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy icon file " + getClass().getResource( "logo.ico" )
-                    + " into position " + iconTarget );
-            }
-        }
-
-        // copy over the REQUIRED bootstrapper.jar file 
-        try
-        {
-            FileUtils.copyFile( mymojo.getBootstrapper().getFile(), layout.getBootstrapper() );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoFailureException( "Failed to copy bootstrapper.jar " + mymojo.getBootstrapper().getFile()
-                + " into position " + layout.getBootstrapper() );
-        }
-
-        // copy over the REQUIRED logger artifact
-        /*
-                try
-                {
-                    FileUtils.copyFile( mymojo.getLogger().getFile(), layout.getLogger() );
-                }
-                catch ( IOException e )
-                {
-                    throw new MojoFailureException( "Failed to copy logger.jar " + mymojo.getLogger().getFile()
-                        + " into position " + layout.getLogger() );
-                }
-        */
-
-        // copy over the REQUIRED daemon.jar file 
-        try
-        {
-            FileUtils.copyFile( mymojo.getDaemon().getFile(), new File( layout.getLibDirectory(), "wrapper.jar" ) );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoFailureException( "Failed to copy daemon.jar " + mymojo.getDaemon().getFile()
-                + " into position " + layout.getDaemon() );
-        }
-
-        // copy over the optional bootstrapper configuration file
-        if ( target.getBootstrapperConfigurationFile() != null )
-        {
-            try
-            {
-                FileUtils.copyFile( target.getBootstrapperConfigurationFile(), layout
-                    .getBootstrapperConfigurationFile() );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy project bootstrapper configuration file "
-                    + target.getBootstrapperConfigurationFile() + " into position "
-                    + layout.getBootstrapperConfigurationFile() );
-            }
-        }
-
-        // copy over the optional logging configuration file
-        if ( target.getLoggerConfigurationFile().exists() )
-        {
-            try
-            {
-                FileUtils.copyFile( target.getLoggerConfigurationFile(), layout.getLoggerConfigurationFile() );
-            }
-            catch ( IOException e )
-            {
-                log.error( "Failed to copy logger configuration file " + target.getLoggerConfigurationFile()
-                    + " into position " + layout.getLoggerConfigurationFile(), e );
-            }
-        }
-
-        // copy over the optional server configuration file
-        if ( target.getServerConfigurationFile().exists() )
-        {
-            try
-            {
-                FileUtils.copyFile( target.getServerConfigurationFile(), layout.getConfigurationFile() );
-            }
-            catch ( IOException e )
-            {
-                log.error( "Failed to copy server configuration file " + target.getServerConfigurationFile()
-                    + " into position " + layout.getConfigurationFile(), e );
-            }
-        }
+        // TODO FIXME
+        //        // copy over the read me file if present otherwise use the bundled copy
+        //        if ( target.getApplication().getReadme() != null && target.getApplication().getReadme().exists() )
+        //        {
+        //            File readmeTarget = layout.getReadmeFile( target.getApplication().getReadme().getName() );
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getApplication().getReadme(), readmeTarget );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to copy read me file " + target.getApplication().getReadme()
+        //                    + " into position " + readmeTarget );
+        //            }
+        //        }
+        //
+        //        // copy over the license file if present otherwise use the bundled copy
+        //        File licenseTarget = layout.getLicenseFile( target.getApplication().getLicense().getName() );
+        //        if ( target.getApplication().getLicense().exists() )
+        //        {
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getApplication().getLicense(), licenseTarget );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to copy license file " + target.getApplication().getLicense()
+        //                    + " into position " + licenseTarget );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            try
+        //            {
+        //                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "LICENSE" ),
+        //                    licenseTarget, false );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to bundled ASL license file "
+        //                    + getClass().getResource( "LICENSE" ) + " into position " + licenseTarget );
+        //            }
+        //        }
+        //
+        //        // copy over the icon if present otherwise use the bundled copy
+        //        File iconTarget = layout.getLogoIconFile( target.getApplication().getIcon().getName() );
+        //        if ( target.getApplication().getIcon().exists() )
+        //        {
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getApplication().getIcon(), iconTarget );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to copy icon file " + target.getApplication().getIcon()
+        //                    + " into position " + iconTarget );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            try
+        //            {
+        //                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "logo.ico" ), iconTarget );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to copy icon file " + getClass().getResource( "logo.ico" )
+        //                    + " into position " + iconTarget );
+        //            }
+        //        }
+        //
+        //        // copy over the REQUIRED bootstrapper.jar file 
+        //        try
+        //        {
+        //            FileUtils.copyFile( mymojo.getBootstrapper().getFile(), layout.getBootstrapper() );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            throw new MojoFailureException( "Failed to copy bootstrapper.jar " + mymojo.getBootstrapper().getFile()
+        //                + " into position " + layout.getBootstrapper() );
+        //        }
+        //
+        //        // copy over the REQUIRED logger artifact
+        //        /*
+        //                try
+        //                {
+        //                    FileUtils.copyFile( mymojo.getLogger().getFile(), layout.getLogger() );
+        //                }
+        //                catch ( IOException e )
+        //                {
+        //                    throw new MojoFailureException( "Failed to copy logger.jar " + mymojo.getLogger().getFile()
+        //                        + " into position " + layout.getLogger() );
+        //                }
+        //        */
+        //
+        //        // copy over the REQUIRED daemon.jar file 
+        //        try
+        //        {
+        //            FileUtils.copyFile( mymojo.getDaemon().getFile(), new File( layout.getLibDirectory(), "wrapper.jar" ) );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            throw new MojoFailureException( "Failed to copy daemon.jar " + mymojo.getDaemon().getFile()
+        //                + " into position " + layout.getDaemon() );
+        //        }
+        //
+        //        // copy over the optional bootstrapper configuration file
+        //        if ( target.getBootstrapperConfigurationFile() != null )
+        //        {
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getBootstrapperConfigurationFile(), layout
+        //                    .getBootstrapperConfigurationFile() );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                throw new MojoFailureException( "Failed to copy project bootstrapper configuration file "
+        //                    + target.getBootstrapperConfigurationFile() + " into position "
+        //                    + layout.getBootstrapperConfigurationFile() );
+        //            }
+        //        }
+        //
+        //        // copy over the optional logging configuration file
+        //        if ( target.getLoggerConfigurationFile().exists() )
+        //        {
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getLoggerConfigurationFile(), layout.getLoggerConfigurationFile() );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                log.error( "Failed to copy logger configuration file " + target.getLoggerConfigurationFile()
+        //                    + " into position " + layout.getLoggerConfigurationFile(), e );
+        //            }
+        //        }
+        //
+        //        // copy over the optional server configuration file
+        //        if ( target.getServerConfigurationFile().exists() )
+        //        {
+        //            try
+        //            {
+        //                FileUtils.copyFile( target.getServerConfigurationFile(), layout.getConfigurationFile() );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                log.error( "Failed to copy server configuration file " + target.getServerConfigurationFile()
+        //                    + " into position " + layout.getConfigurationFile(), e );
+        //            }
+        //        }
 
         // -------------------------------------------------------------------
         // Copy Wrapper Files
@@ -378,7 +379,7 @@ public class CreateImageCommand extends MojoCommand
 
         if ( target.getSourcesDirectory() != null )
         {
-            File sourcesDirectory = new File( layout.getBaseDirectory(), target.getSourcesTargetPath() );
+            File sourcesDirectory = new File( layout.getInstallationDirectory(), target.getSourcesTargetPath() );
             try
             {
                 FileUtils.copyDirectoryStructure( target.getSourcesDirectory(), sourcesDirectory );
@@ -394,7 +395,7 @@ public class CreateImageCommand extends MojoCommand
 
         if ( target.getDocsDirectory() != null )
         {
-            File docsDirectory = new File( layout.getBaseDirectory(), target.getDocsTargetPath() );
+            File docsDirectory = new File( layout.getInstallationDirectory(), target.getDocsTargetPath() );
             try
             {
                 FileUtils.copyDirectoryStructure( target.getDocsDirectory(), docsDirectory );
@@ -408,7 +409,7 @@ public class CreateImageCommand extends MojoCommand
 
         // -- if present copy the NOTICE.txt file --
 
-        File noticeFileTarget = new File( layout.getBaseDirectory(), "NOTICE.txt" );
+        File noticeFileTarget = new File( layout.getInstallationDirectory(), "NOTICE.txt" );
         File noticeFile = new File( "NOTICE.txt" );
         if ( noticeFile.exists() )
         {

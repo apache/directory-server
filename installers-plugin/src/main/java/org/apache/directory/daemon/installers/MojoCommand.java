@@ -45,60 +45,63 @@ public abstract class MojoCommand
     protected final Map<String, Artifact> dependencyMap;
     protected final Log log;
     protected final ServiceInstallersMojo mymojo;
-    
+
+
     public abstract void execute() throws MojoExecutionException, MojoFailureException;
+
+
     public abstract Properties getFilterProperties();
-    
+
 
     public MojoCommand( ServiceInstallersMojo mymojo )
     {
         this.mymojo = mymojo;
         this.log = mymojo.getLog();
         this.dependencyMap = new HashMap<String, Artifact>();
-        
-        for ( Iterator ii = mymojo.getProject().getDependencyArtifacts().iterator(); ii.hasNext(); /* */ )
+
+        for ( Iterator ii = mymojo.getProject().getDependencyArtifacts().iterator(); ii.hasNext(); /* */)
         {
             Artifact artifact = ( Artifact ) ii.next();
             dependencyMap.put( artifact.getGroupId() + ":" + artifact.getArtifactId(), artifact );
         }
     }
-    
-    
+
+
     public void reportProcessing( PackagedFile packagedFile )
     {
-        if ( ! log.isInfoEnabled() )
+        if ( !log.isInfoEnabled() )
         {
             return;
         }
-        
-        log.info( "\t\tProcessing packagedFile with source " + packagedFile.getSource() + " for destination " 
-            + packagedFile.getDestinationPath() ); 
+
+        log.info( "\t\tProcessing packagedFile with source " + packagedFile.getSource() + " for destination "
+            + packagedFile.getDestinationPath() );
     }
-    
-    
+
+
     public void processPackagedFiles( Target target, PackagedFile[] packagedFiles )
     {
         if ( packagedFiles == null )
         {
             return;
         }
-        
+
         if ( log.isInfoEnabled() )
         {
             log.info( "\tProcessing " + packagedFiles.length + " packagedFiles: " );
         }
-        
+
         for ( int ii = 0; ii < packagedFiles.length; ii++ )
         {
             File source = null;
-            reportProcessing( packagedFiles[ii ] );
+            reportProcessing( packagedFiles[ii] );
 
             try
             {
                 if ( packagedFiles[ii].isDependency() )
                 {
                     Artifact artifact = dependencyMap.get( packagedFiles[ii].getSource() );
-                    
+
                     if ( artifact == null )
                     {
                         throw new MojoFailureException( "The packaged file setup as a dependency on artifact "
@@ -111,8 +114,8 @@ public abstract class MojoCommand
                 {
                     source = new File( packagedFiles[ii].getSource() );
                 }
-                
-                if ( ! source.isAbsolute() )
+
+                if ( !source.isAbsolute() )
                 {
                     File sourceDirectoryRelative = new File( mymojo.getSourceDirectory(), packagedFiles[ii].getSource() );
                     File baseRelative = new File( mymojo.getProject().getBasedir(), packagedFiles[ii].getSource() );
@@ -124,27 +127,28 @@ public abstract class MojoCommand
                     {
                         source = baseRelative;
                     }
-                    else if ( ! source.exists() )
+                    else if ( !source.exists() )
                     {
                         throw new MojoFailureException( "Failed to copy packagedFile. Cannot locate source: " + source );
                     }
-                    
+
                     source = source.getAbsoluteFile();
                 }
-                
+
                 if ( packagedFiles[ii].isExpandable() )
                 {
-                    File dest = new File( target.getLayout().getBaseDirectory(), packagedFiles[ii].getDestinationPath() );
-                    if ( ! dest.exists() )
+                    File dest = new File( target.getLayout().getInstallationDirectory(),
+                        packagedFiles[ii].getDestinationPath() );
+                    if ( !dest.exists() )
                     {
                         dest.mkdirs();
                     }
-                    
+
                     String fileExtension = source.getName().substring( source.getName().lastIndexOf( '.' ) );
-                    if ( fileExtension.equalsIgnoreCase( ".jar" ) || fileExtension.equalsIgnoreCase( ".zip" ) 
+                    if ( fileExtension.equalsIgnoreCase( ".jar" ) || fileExtension.equalsIgnoreCase( ".zip" )
                         || fileExtension.equalsIgnoreCase( ".war" ) || fileExtension.equalsIgnoreCase( ".sar" ) )
                     {
-                        log.info( "\t\t\t ... expanding " + source  + "\n\t\t\t => to " + dest );
+                        log.info( "\t\t\t ... expanding " + source + "\n\t\t\t => to " + dest );
                         Expand expand = new Expand();
                         expand.setSrc( source );
                         expand.setOverwrite( true );
@@ -156,16 +160,18 @@ public abstract class MojoCommand
                         }
                         catch ( Exception e )
                         {
-                            throw new MojoFailureException( "Failed to expaned packagedFile " + source + ": " + e.getMessage() );
+                            throw new MojoFailureException( "Failed to expaned packagedFile " + source + ": "
+                                + e.getMessage() );
                         }
                     }
-                    
-                    throw new MojoFailureException( "Failed to expand packagedFile: " + source 
+
+                    throw new MojoFailureException( "Failed to expand packagedFile: " + source
                         + ". It does not have a jar, war or zip extension" );
                 }
-                
-                File dest = new File( target.getLayout().getBaseDirectory(), packagedFiles[ii].getDestinationPath() );
-                
+
+                File dest = new File( target.getLayout().getInstallationDirectory(),
+                    packagedFiles[ii].getDestinationPath() );
+
                 if ( packagedFiles[ii].isDirectory() )
                 {
                     try
@@ -174,7 +180,7 @@ public abstract class MojoCommand
                     }
                     catch ( IOException e )
                     {
-                        throw new MojoFailureException( "Failed to copy packagedFile [directory=true] from source " 
+                        throw new MojoFailureException( "Failed to copy packagedFile [directory=true] from source "
                             + source + " to destination " + dest );
                     }
                     continue;
@@ -192,7 +198,7 @@ public abstract class MojoCommand
                     }
                     continue;
                 }
-                
+
                 try
                 {
                     FileUtils.copyFile( source, dest );
@@ -203,7 +209,7 @@ public abstract class MojoCommand
                         " to destination " + dest );
                 }
             }
-            catch ( Exception e ) 
+            catch ( Exception e )
             {
                 log.error( "Failed while processing " + source, e );
             }

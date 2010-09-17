@@ -109,7 +109,7 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
             return;
         }
 
-        File baseDirectory = target.getLayout().getBaseDirectory();
+        File baseDirectory = target.getLayout().getInstallationDirectory();
         File imagesDirectory = baseDirectory.getParentFile();
 
         log.info( "Creating Mac OS X PKG Installer..." );
@@ -184,7 +184,7 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
         catch ( IOException e )
         {
             log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getBaseDirectory()
+            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
                 + ") to the PKG directory (" + pkgRootDirectory + ")" );
         }
 

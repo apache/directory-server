@@ -59,12 +59,12 @@ public class RpmInstallerCommand extends MojoCommand
     private File rpmBuilder;
 
 
-    public RpmInstallerCommand(ServiceInstallersMojo mymojo, RpmTarget target)
+    public RpmInstallerCommand( ServiceInstallersMojo mymojo, RpmTarget target )
     {
         super( mymojo );
         this.target = target;
         this.log = mymojo.getLog();
-        File imagesDir = target.getLayout().getBaseDirectory().getParentFile();
+        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
         rpmConfigurationFile = new File( imagesDir, target.getId() + ".spec" );
         initializeFiltering();
     }
@@ -74,8 +74,8 @@ public class RpmInstallerCommand extends MojoCommand
     {
         return filterProperties;
     }
-    
-    
+
+
     /**
      * Performs the following:
      * <ol>
@@ -125,7 +125,8 @@ public class RpmInstallerCommand extends MojoCommand
                 new File( baseDir + "/SOURCES" ).mkdirs();
                 new File( baseDir + "/SPECS" ).mkdirs();
                 new File( baseDir + "/SRPMS" ).mkdirs();
-            } catch ( Exception e )
+            }
+            catch ( Exception e )
             {
                 log.warn( "Please set the rpmTopDir in the pom.xml to a directory where the build" );
                 log.warn( "user has proper permissions to create dirs and files." );
@@ -152,41 +153,42 @@ public class RpmInstallerCommand extends MojoCommand
         // -------------------------------------------------------------------
 
         String version = target.getApplication().getVersion().replace( '-', '_' );
-        
-        if ( target.getScriptFile() != null && target.getScriptFile().exists() )
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, target.getScriptFile(), 
-                    target.getLayout().getInitScript(), true );
-            }
-            catch ( IOException e )
-            {
-                mymojo.getLog().error( "Failed to copy project supplied init script " + target.getScriptFile()
-                    + " into position " + target.getLayout().getInitScript(), e );
-            }
 
-            if ( mymojo.getLog().isInfoEnabled() )
-            {
-                mymojo.getLog().info( "Using project supplied init script file: "
-                        + target.getScriptFile() );
-            }
-        }
-        else
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
-                    "server.init" ), target.getLayout().getInitScript(), true );
-            }
-            catch ( IOException e )
-            {
-                mymojo.getLog().error(
-                    "Failed to copy init script " + getClass().getResource( "server.init" ) + " into position "
-                        + target.getLayout().getInitScript(), e );
-            }
-        }
-        
+        // TODO FIXME
+        //        if ( target.getScriptFile() != null && target.getScriptFile().exists() )
+        //        {
+        //            try
+        //            {
+        //                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, target.getScriptFile(),
+        //                    target.getLayout().getInitScript(), true );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                mymojo.getLog().error( "Failed to copy project supplied init script " + target.getScriptFile()
+        //                    + " into position " + target.getLayout().getInitScript(), e );
+        //            }
+        //
+        //            if ( mymojo.getLog().isInfoEnabled() )
+        //            {
+        //                mymojo.getLog().info( "Using project supplied init script file: "
+        //                        + target.getScriptFile() );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            try
+        //            {
+        //                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
+        //                    "server.init" ), target.getLayout().getInitScript(), true );
+        //            }
+        //            catch ( IOException e )
+        //            {
+        //                mymojo.getLog().error(
+        //                    "Failed to copy init script " + getClass().getResource( "server.init" ) + " into position "
+        //                        + target.getLayout().getInitScript(), e );
+        //            }
+        //        }
+
         // check first to see if the default spec file is present in src/main/installers
         File projectRpmFile = new File( mymojo.getSourceDirectory(), "spec.template" );
         if ( target.getRpmSpecificationFile() != null && target.getRpmSpecificationFile().exists() )
@@ -208,7 +210,7 @@ public class RpmInstallerCommand extends MojoCommand
             {
                 MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, projectRpmFile, rpmConfigurationFile, true );
             }
-           catch ( IOException e )
+            catch ( IOException e )
             {
                 throw new MojoFailureException( "Failed to filter and copy project provided " + projectRpmFile + " to "
                     + rpmConfigurationFile );
@@ -233,8 +235,13 @@ public class RpmInstallerCommand extends MojoCommand
 
         buildSourceTarball();
         String[] cmd = new String[]
-            { rpmBuilder.getAbsolutePath(), "-ba", "--define", "_topdir " + target.getRpmTopDir().getAbsolutePath(), rpmConfigurationFile.getAbsolutePath() };
-        MojoHelperUtils.exec( cmd, target.getLayout().getBaseDirectory().getParentFile(), target.isDoSudo() );
+            {
+                rpmBuilder.getAbsolutePath(),
+                "-ba",
+                "--define",
+                "_topdir " + target.getRpmTopDir().getAbsolutePath(),
+                rpmConfigurationFile.getAbsolutePath() };
+        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
         String rpmName = target.getApplication().getName() + "-" + version + "-0." + target.getOsArch() + ".rpm";
         File srcFile = new File( target.getRpmTopDir(), "RPMS/" + target.getOsArch() + "/" + rpmName );
         File dstFile = null;
@@ -273,7 +280,7 @@ public class RpmInstallerCommand extends MojoCommand
         filterProperties.put( "app", target.getApplication().getName() );
         filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
         filterProperties.put( "app.server.class", mymojo.getApplicationClass() );
-        filterProperties.put( "app.java.home", "java");
+        filterProperties.put( "app.java.home", "java" );
 
         char firstChar = target.getApplication().getName().charAt( 0 );
         firstChar = Character.toUpperCase( firstChar );
@@ -325,24 +332,25 @@ public class RpmInstallerCommand extends MojoCommand
         filterProperties.put( "app.description", target.getApplication().getDescription() );
         filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
 
-        if ( !target.getLayout().getReadmeFile().exists() )
-        {
-            touchFile( target.getLayout().getReadmeFile() );
-        }
-        filterProperties.put( "app.readme", target.getLayout().getReadmeFile().getPath() );
-        filterProperties.put( "app.readme.name", target.getLayout().getReadmeFile().getName() );
-        filterProperties.put( "app.icon", target.getLayout().getLogoIconFile().getName() );
-        filterProperties.put( "app.icon.name", target.getLayout().getLogoIconFile().getName() );
-        filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
-        filterProperties.put( "install.append.libs", getInstallLibraryJars() );
-        filterProperties.put( "verify.append.libs", getVerifyLibraryJars() );
-        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
-        filterProperties.put( "server.init", target.getLayout().getInitScript().getName() );
-        filterProperties.put( "app.install.base", "/opt/" + target.getApplication().getName() + "-" + version );
+        // TODO FIXME
+        //        if ( !target.getLayout().getReadmeFile().exists() )
+        //        {
+        //            touchFile( target.getLayout().getReadmeFile() );
+        //        }
+        //        filterProperties.put( "app.readme", target.getLayout().getReadmeFile().getPath() );
+        //        filterProperties.put( "app.readme.name", target.getLayout().getReadmeFile().getName() );
+        //        filterProperties.put( "app.icon", target.getLayout().getLogoIconFile().getName() );
+        //        filterProperties.put( "app.icon.name", target.getLayout().getLogoIconFile().getName() );
+        //        filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
+        //        filterProperties.put( "install.append.libs", getInstallLibraryJars() );
+        //        filterProperties.put( "verify.append.libs", getVerifyLibraryJars() );
+        //        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
+        //        filterProperties.put( "server.init", target.getLayout().getInitScript().getName() );
+        //        filterProperties.put( "app.install.base", "/opt/" + target.getApplication().getName() + "-" + version );
 
         if ( target.getDocsDirectory() != null )
         {
-            File docRoot = new File( target.getLayout().getBaseDirectory(), target.getDocsTargetPath() );
+            File docRoot = new File( target.getLayout().getInstallationDirectory(), target.getDocsTargetPath() );
             List<File> docList = new ArrayList<File>( 200 );
             listFiles( docList, docRoot );
             filterProperties.put( "mk.docs.dirs", getMkDocsDirs( docList, target ) );
@@ -358,7 +366,7 @@ public class RpmInstallerCommand extends MojoCommand
 
         if ( target.getSourcesDirectory() != null )
         {
-            File srcRoot = new File( target.getLayout().getBaseDirectory(), target.getSourcesTargetPath() );
+            File srcRoot = new File( target.getLayout().getInstallationDirectory(), target.getSourcesTargetPath() );
             List<File> srcList = new ArrayList<File>( 200 );
             listFiles( srcList, srcRoot );
             filterProperties.put( "mk.sources.dirs", getMkSourcesDirs( srcList, target ) );
@@ -372,10 +380,10 @@ public class RpmInstallerCommand extends MojoCommand
             filterProperties.put( "verify.sources", "" );
         }
 
-        File noticeFile = new File( target.getLayout().getBaseDirectory(), "NOTICE.txt" );
+        File noticeFile = new File( target.getLayout().getInstallationDirectory(), "NOTICE.txt" );
         if ( noticeFile.exists() )
         {
-            filterProperties.put( "install.notice.file", "install -m 644 " + target.getLayout().getBaseDirectory()
+            filterProperties.put( "install.notice.file", "install -m 644 " + target.getLayout().getInstallationDirectory()
                 + "/NOTICE.txt $RPM_BUILD_ROOT/opt/" + target.getApplication().getName() + "-%{version}" );
             filterProperties.put( "verify.notice.file", "/opt/" + target.getApplication().getName()
                 + "-%{version}/NOTICE.txt" );
@@ -391,10 +399,10 @@ public class RpmInstallerCommand extends MojoCommand
     static String getMkSourcesDirs( List srcList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getBaseDirectory();
+        File srcBase = target.getLayout().getInstallationDirectory();
         srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < srcList.size(); ii++ )
         {
@@ -418,10 +426,10 @@ public class RpmInstallerCommand extends MojoCommand
     static String getMkDocsDirs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docsBase = target.getLayout().getBaseDirectory();
+        File docsBase = target.getLayout().getInstallationDirectory();
         docsBase = new File( docsBase, target.getDocsTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < docList.size(); ii++ )
         {
@@ -451,8 +459,8 @@ public class RpmInstallerCommand extends MojoCommand
 
         fileList.add( dir );
         File[] files = dir.listFiles();
-        
-        for ( File file:files )
+
+        for ( File file : files )
         {
             if ( file.isFile() )
             {
@@ -467,10 +475,10 @@ public class RpmInstallerCommand extends MojoCommand
     static String getInstallDocs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docsBase = target.getLayout().getBaseDirectory();
+        File docsBase = target.getLayout().getInstallationDirectory();
         docsBase = new File( docsBase, target.getDocsTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < docList.size(); ii++ )
         {
@@ -482,7 +490,7 @@ public class RpmInstallerCommand extends MojoCommand
 
             String path = file.getAbsolutePath().substring( basePathSize );
             buf.append( "install -m 644 " );
-            buf.append( target.getLayout().getBaseDirectory() ).append( "/" );
+            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
             buf.append( path );
             buf.append( " $RPM_BUILD_ROOT/opt/" );
             buf.append( target.getApplication().getName() );
@@ -497,16 +505,16 @@ public class RpmInstallerCommand extends MojoCommand
     static String getVerifyDocs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docBase = target.getLayout().getBaseDirectory();
+        File docBase = target.getLayout().getInstallationDirectory();
         docBase = new File( docBase, target.getDocsTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < docList.size(); ii++ )
         {
             File file = ( File ) docList.get( ii );
             String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( target.getLayout().getBaseDirectory() );
+            buf.append( target.getLayout().getInstallationDirectory() );
             buf.append( target.getApplication().getName() );
             buf.append( "-%{version}/" );
             buf.append( path );
@@ -519,10 +527,10 @@ public class RpmInstallerCommand extends MojoCommand
     static String getInstallSources( List sourceList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getBaseDirectory();
+        File srcBase = target.getLayout().getInstallationDirectory();
         srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < sourceList.size(); ii++ )
         {
@@ -534,7 +542,7 @@ public class RpmInstallerCommand extends MojoCommand
 
             String path = file.getAbsolutePath().substring( basePathSize );
             buf.append( "install -m 644 " );
-            buf.append( target.getLayout().getBaseDirectory() ).append( "/" );
+            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
             buf.append( path );
             buf.append( " $RPM_BUILD_ROOT/opt/" );
             buf.append( target.getApplication().getName() );
@@ -549,10 +557,10 @@ public class RpmInstallerCommand extends MojoCommand
     static String getVerifySources( List sourceList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getBaseDirectory();
+        File srcBase = target.getLayout().getInstallationDirectory();
         srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getBaseDirectory().getAbsolutePath().length() + 1;
+        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
         for ( int ii = 0; ii < sourceList.size(); ii++ )
         {
@@ -619,10 +627,10 @@ public class RpmInstallerCommand extends MojoCommand
     {
         String version = target.getApplication().getVersion().replace( '-', '_' );
         String dirname = target.getApplication().getName() + "-" + version;
-        File sourcesDir = new File( target.getLayout().getBaseDirectory().getParentFile(), dirname );
+        File sourcesDir = new File( target.getLayout().getInstallationDirectory().getParentFile(), dirname );
         try
         {
-            FileUtils.copyDirectoryStructure( target.getLayout().getBaseDirectory(), sourcesDir );
+            FileUtils.copyDirectoryStructure( target.getLayout().getInstallationDirectory(), sourcesDir );
         }
         catch ( IOException e1 )
         {
@@ -631,10 +639,13 @@ public class RpmInstallerCommand extends MojoCommand
         }
 
         String[] cmd = new String[]
-            { "tar", "-zcvf",
-            target.getRpmTopDir().getAbsolutePath() + "/SOURCES/" + target.getApplication().getName() + "-" + version + ".tar.gz",
+            {
+                "tar",
+                "-zcvf",
+                target.getRpmTopDir().getAbsolutePath() + "/SOURCES/" + target.getApplication().getName() + "-"
+                    + version + ".tar.gz",
                 sourcesDir.getAbsolutePath() };
 
-        MojoHelperUtils.exec( cmd, target.getLayout().getBaseDirectory().getParentFile(), target.isDoSudo() );
+        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
     }
 }
