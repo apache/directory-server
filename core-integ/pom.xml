@@ -95,7 +95,7 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-loader</artifactId>
+      <artifactId>shared-ldap-schema</artifactId>
     </dependency>
 
     <dependency>
