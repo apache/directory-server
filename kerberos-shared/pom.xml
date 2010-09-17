@@ -66,11 +66,6 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-constants</artifactId>
-    </dependency>
   </dependencies>
 </project>
 
