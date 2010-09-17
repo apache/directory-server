@@ -20,8 +20,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.installers</groupId>
-    <artifactId>installers-parent</artifactId>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.5.8-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-installers</artifactId>
@@ -29,358 +29,29 @@
   <packaging>jar</packaging>
 
   <description>
-    Installer generating project for ApacheDS
+    Generates installers for ApacheDS
   </description>
-
-  <properties>
-    <daemon.version>1.1.9-SNAPSHOT</daemon.version>
-    <daemon.plugin.version>1.1.9-SNAPSHOT</daemon.plugin.version>
-    <server.version>1.5.8-SNAPSHOT</server.version>
-  </properties>
-
+  
   <dependencies>
+
     <dependency>
-      <artifactId>apacheds-noarch-installer</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-service</artifactId>
     </dependency>  
     
     <dependency>
       <groupId>tanukisoft</groupId>
       <artifactId>wrapper</artifactId>
-      <version>${wrapper.version}</version>
       <scope>runtime</scope>
     </dependency>
     
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-tools</artifactId>
-      <groupId>org.apache.directory.server</groupId>
-      <version>${server.version}</version>
     </dependency>
   </dependencies>
 
   <profiles>
-    <profile>
-      <id>suite-installer</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>process-resources</phase>
-                <configuration>
-                  <tasks>
-                    <mkdir dir="target/images" />
-                    <get src="http://vm094.oxylos.org/mirror-maven2/org/apache/directory/studio/ApacheDirectoryStudio/${studio.version}-win32/ApacheDirectoryStudio-${studio.version}-win32.zip" verbose="on" usetimestamp="true" dest="target/ApacheDirectoryStudio.zip" />
-                    <touch file="target/ApacheDirectoryStudio.zip" />
-                    <unzip src="target/ApacheDirectoryStudio.zip" dest="target/images/suite-win32" overwrite="false" />
-                    <move toDir="target/images/suite-win32/ApacheDirectoryStudio">
-                      <fileset dir="target/images/suite-win32/ApacheDirectoryStudio-win32-${studio.version}" />
-                    </move>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.apache.directory.daemon</groupId>
-            <artifactId>daemon-plugin</artifactId>
-            <configuration>
-              <application>
-                <name>suite</name>
-                <version>1.0</version>
-                <description>Apache Directory Suite</description>
-                <icon>src/main/resources/feather.ico</icon>
-                <copyrightYear>2007</copyrightYear>
-                <minimumJavaVersion>1.5</minimumJavaVersion>
-                <url>http://directory.apache.org</url>
-                <email>users@directory.apache.org</email>
-                <license>target/classes/META-INF/LICENSE</license>
-                <authors>
-                  <author>Apache Directory Team</author>
-                  <author>akarasulu@apache.org</author>
-                  <author>ckoppelt@apache.org</author>
-                  <author>elecharny@apache.org</author>
-                  <author>erodriguez@apache.org</author>
-                  <author>ersiner@apache.org</author>
-                  <author>oersoy@apache.org</author>
-                  <author>pamarcelot@apache.org</author>
-                  <author>szoerner@apache.org</author>
-                  <author>seelmann@apache.org</author>
-                  <author>trustin@apache.org</author>
-                </authors>
-              </application>
-              <packagedFiles>
-                <packagedFile>
-                  <source>org.apache.directory.server:apacheds-server-tools</source>
-                  <destinationPath>bin/apacheds-tools.jar</destinationPath>
-                  <dependency>true</dependency>
-                  <installationBundleId>Binaries</installationBundleId>
-                </packagedFile>
-                <packagedFile>
-                  <source>target/classes/META-INF/NOTICE</source>
-                  <destinationPath>NOTICE</destinationPath>
-                  <executable>false</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <applicationClass>org.apache.ldap.server.Service</applicationClass>
-              <nsisTargets>
-                <nsisTarget>
-                  <packagedFiles>
-                    <packagedFile>
-                      <source>apacheds.conf</source>
-                      <destinationPath>conf/apacheds.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-default.conf</source>
-                      <destinationPath>conf/apacheds-default.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/suite-installer.ico</source>
-                      <destinationPath>suite-installer.ico</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/example.ldif</source>
-                      <destinationPath>conf/example.ldif</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                  </packagedFiles>
-                  <id>suite-win32</id>
-                  <nsisCompiler>/usr/bin/makensis</nsisCompiler>
-                  <nsisConfigurationFile>src/main/installers/apacheds-suite-win.nsi</nsisConfigurationFile>
-                  <finalName>apache-directory-suite-${suite.version}-setup</finalName>
-                  <osName>Windows XP</osName>
-                  <osFamily>windows</osFamily>
-                  <osVersion>5.1</osVersion>
-                  <osArch>win32</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </nsisTarget>
-              </nsisTargets>
-
-              <excludes>
-                <!-- apacheds-tools.jar does not get put in lib directory -->
-                <exclude>org.apache.directory.server:apacheds-server-tools</exclude>
-
-                <exclude>ant:ant</exclude>
-                <exclude>aopalliance:aopalliance</exclude>
-                <exclude>xerces:xerces</exclude>
-                <!--exclude>commons-pool:commons-pool</exclude-->
-                <exclude>xml-apis:xml-apis</exclude>
-                <exclude>aspectwerkz:aspectwerkz-core</exclude>
-                <exclude>velocity:velocity</exclude>
-                <exclude>qdox:qdox</exclude>
-                <exclude>oro:oro</exclude>
-                <exclude>commons-attributes:commons-attributes-compiler</exclude>
-                <exclude>commons-attributes:commons-attributes-api</exclude>
-                <exclude>cglib:cglib</exclude>
-                <exclude>velocity:velocity-dep</exclude>
-                <exclude>com.jamonapi:jamon</exclude>
-                <exclude>asm:asm</exclude>
-                <exclude>freemarker:freemarker</exclude>
-                <exclude>asm:asm-util</exclude>
-                <exclude>jasperreports:jasperreports</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>deploy-installer-suite-win32</id>
-                <phase>deploy</phase>
-                <configuration>
-                  <file>target/images/apache-directory-suite-${suite.version}-setup.exe</file>
-                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
-                  <artifactId>ApacheDirectoryInstaller</artifactId>
-                  <groupId>${pom.groupId}</groupId>
-                  <packaging>exe</packaging>
-                  <version>suite-win32-${studio.version}</version>
-                  <uniqueVersion>false</uniqueVersion>
-                </configuration>
-                <goals>
-                  <goal>deploy-file</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    
-    <profile>
-      <id>studio-installer</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>process-resources</phase>
-                <configuration>
-                  <tasks>
-                    <mkdir dir="target/images" />
-                    <get src="http://vm094.oxylos.org/mirror-maven2/org/apache/directory/studio/ApacheDirectoryStudio/${studio.version}-win32/ApacheDirectoryStudio-${studio.version}-win32.zip" verbose="on" usetimestamp="true" dest="target/ApacheDirectoryStudio.zip" />
-                    <touch file="target/ApacheDirectoryStudio.zip" />
-                    <unzip src="target/ApacheDirectoryStudio.zip" dest="target/images/studio-win32" overwrite="false" />
-                    <move toDir="target/images/studio-win32/ApacheDirectoryStudio">
-                      <fileset dir="target/images/studio-win32/ApacheDirectoryStudio-win32-${studio.version}" />
-                    </move>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.apache.directory.daemon</groupId>
-            <artifactId>daemon-plugin</artifactId>
-            <configuration>
-              <application>
-                <name>studio</name>
-                <version>1.0</version>
-                <description>Apache Directory Studio</description>
-
-                <icon>src/main/resources/feather.ico</icon>
-                <copyrightYear>2007</copyrightYear>
-                <minimumJavaVersion>1.5</minimumJavaVersion>
-                <url>http://directory.apache.org</url>
-                <email>users@directory.apache.org</email>
-                <license>target/classes/META-INF/LICENSE</license>
-                <authors>
-                  <author>Apache Directory Team</author>
-                  <author>akarasulu@apache.org</author>
-                  <author>ckoppelt@apache.org</author>
-                  <author>elecharny@apache.org</author>
-                  <author>erodriguez@apache.org</author>
-                  <author>ersiner@apache.org</author>
-                  <author>oersoy@apache.org</author>
-                  <author>pamarcelot@apache.org</author>
-                  <author>szoerner@apache.org</author>
-                  <author>seelmann@apache.org</author>
-                  <author>trustin@apache.org</author>
-                </authors>
-              </application>
-              <packagedFiles>
-                <packagedFile>
-                  <source>org.apache.directory.server:apacheds-server-tools</source>
-                  <destinationPath>bin/apacheds-tools.jar</destinationPath>
-                  <dependency>true</dependency>
-                  <installationBundleId>Binaries</installationBundleId>
-                </packagedFile>
-                <packagedFile>
-                  <source>target/classes/META-INF/NOTICE</source>
-                  <destinationPath>NOTICE</destinationPath>
-                  <executable>false</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <applicationClass>org.apache.ldap.server.Service</applicationClass>
-              <nsisTargets>
-                <nsisTarget>
-                  <packagedFiles>
-                    <packagedFile>
-                      <source>../resources/studio-installer.ico</source>
-                      <destinationPath>studio-installer.ico</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                  </packagedFiles>
-
-                  <id>studio-win32</id>
-                  <nsisCompiler>/usr/bin/makensis</nsisCompiler>
-                  <nsisConfigurationFile>src/main/installers/apacheds-studio-win.nsi</nsisConfigurationFile>
-                  <finalName>apache-directory-studio-${studio.version}-setup</finalName>
-                  <osName>Windows XP</osName>
-                  <osFamily>windows</osFamily>
-                  <osVersion>5.1</osVersion>
-                  <osArch>win32</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </nsisTarget>
-              </nsisTargets>
-              <excludes>
-                <!-- apacheds-tools.jar does not get put in lib directory -->
-                <exclude>org.apache.directory.server:apacheds-server-tools</exclude>
-
-                <exclude>ant:ant</exclude>
-                <exclude>aopalliance:aopalliance</exclude>
-                <exclude>xerces:xerces</exclude>
-                <!--exclude>commons-pool:commons-pool</exclude-->
-                <exclude>xml-apis:xml-apis</exclude>
-                <exclude>aspectwerkz:aspectwerkz-core</exclude>
-                <exclude>velocity:velocity</exclude>
-                <exclude>qdox:qdox</exclude>
-                <exclude>oro:oro</exclude>
-                <exclude>commons-attributes:commons-attributes-compiler</exclude>
-                <exclude>commons-attributes:commons-attributes-api</exclude>
-                <exclude>cglib:cglib</exclude>
-                <exclude>velocity:velocity-dep</exclude>
-                <exclude>com.jamonapi:jamon</exclude>
-                <exclude>asm:asm</exclude>
-                <exclude>freemarker:freemarker</exclude>
-                <exclude>asm:asm-util</exclude>
-                <exclude>jasperreports:jasperreports</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>deploy-installer-studio-win32</id>
-                <phase>deploy</phase>
-                <configuration>
-                  <file>target/images/apache-directory-studio-${studio.version}-setup.exe</file>
-                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
-                  <artifactId>ApacheDirectoryInstaller</artifactId>
-                  <groupId>${pom.groupId}</groupId>
-                  <packaging>exe</packaging>
-                  <version>studio-win32-${studio.version}</version>
-                  <uniqueVersion>false</uniqueVersion>
-                </configuration>
-                <goals>
-                  <goal>deploy-file</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
     <!-- Profile for Server Installers -->
     <profile>
       <id>server-installer</id>
@@ -1136,9 +807,9 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.directory.daemon</groupId>
-          <artifactId>daemon-plugin</artifactId>
-          <version>${daemon.plugin.version}</version>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>installers-plugin</artifactId>
+          <version>${project.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
