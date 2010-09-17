@@ -133,16 +133,6 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-loader</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-manager</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldif</artifactId>
     </dependency>
   </dependencies>
