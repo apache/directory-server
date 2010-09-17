@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -76,17 +75,8 @@ public class MojoHelperUtils
         Writer fileWriter = null;
         try
         {
-            if ( mymojo.getEncoding() == null || mymojo.getEncoding().length() < 1 )
-            {
-                fileReader = new BufferedReader( new InputStreamReader( from ) );
-                fileWriter = new FileWriter( to );
-            }
-            else
-            {
-                FileOutputStream outstream = new FileOutputStream( to );
-                fileReader = new BufferedReader( new InputStreamReader( from, mymojo.getEncoding() ) );
-                fileWriter = new OutputStreamWriter( outstream, mymojo.getEncoding() );
-            }
+            fileReader = new BufferedReader( new InputStreamReader( from ) );
+            fileWriter = new OutputStreamWriter( new FileOutputStream( to ) );
 
             Reader reader = null;
             if ( filtering )

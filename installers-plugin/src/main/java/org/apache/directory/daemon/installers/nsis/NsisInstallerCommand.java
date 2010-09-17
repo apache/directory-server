@@ -20,24 +20,22 @@
 package org.apache.directory.daemon.installers.nsis;
 
 
-import org.apache.directory.daemon.installers.MojoCommand;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.artifact.Artifact;
-import org.apache.tools.ant.taskdefs.Execute;
-import org.apache.tools.ant.taskdefs.Touch;
-import org.apache.tools.ant.Project;
-import org.codehaus.plexus.util.FileUtils;
-
-import java.util.Properties;
-import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
+
+import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.daemon.installers.ServiceInstallersMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Execute;
+import org.apache.tools.ant.taskdefs.Touch;
+import org.codehaus.plexus.util.FileUtils;
 
 
 /**
@@ -295,24 +293,6 @@ public class NsisInstallerCommand extends MojoCommand
         //        filterProperties.put( "app.lib.jars", getApplicationLibraryJars() );
         //        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
 
-        if ( target.getDocsDirectory() != null )
-        {
-            filterProperties.put( "docs.directive", getDocsDirective() );
-        }
-        else
-        {
-            filterProperties.put( "docs.directive", "" );
-        }
-
-        if ( target.getSourcesDirectory() != null )
-        {
-            filterProperties.put( "sources.directive", getSourcesDirective() );
-        }
-        else
-        {
-            filterProperties.put( "sources.directive", "" );
-        }
-
         File noticeFile = new File( target.getLayout().getInstallationDirectory(), "NOTICE.txt" );
         if ( noticeFile.exists() )
         {
@@ -323,46 +303,6 @@ public class NsisInstallerCommand extends MojoCommand
         {
             filterProperties.put( "notice.file", "" );
         }
-    }
-
-
-    private String getSourcesDirective()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append( "Source: {#SourceBase}\\" ).append( target.getSourcesTargetPath() );
-        buf.append( "\\*; DestDir: {app}\\" ).append( target.getSourcesTargetPath() );
-        buf.append( "\\; Flags: ignoreversion recursesubdirs createallsubdirs" );
-        return buf.toString();
-    }
-
-
-    private String getDocsDirective()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append( "Source: {#SourceBase}\\" ).append( target.getDocsTargetPath() );
-        buf.append( "\\*; DestDir: {app}\\" ).append( target.getDocsTargetPath() );
-        buf.append( "\\; Flags: ignoreversion recursesubdirs createallsubdirs" );
-        return buf.toString();
-    }
-
-
-    private String getApplicationLibraryJars()
-    {
-        StringBuffer buf = new StringBuffer();
-        List artifacts = target.getLibArtifacts();
-
-        for ( int ii = 0; ii < artifacts.size(); ii++ )
-        {
-            // "Source: {#SourceBase}\lib\${artifact.file.name}; DestDir: {app}; DestName: ${app.file.name}"
-            buf.append( "Source: {#SourceBase}\\lib\\" );
-            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
-            buf.append( artifact.getName() );
-            buf.append( "; DestDir: {app}\\lib; DestName: " );
-            buf.append( artifact.getName() );
-            buf.append( "\n" );
-        }
-
-        return buf.toString();
     }
 
 

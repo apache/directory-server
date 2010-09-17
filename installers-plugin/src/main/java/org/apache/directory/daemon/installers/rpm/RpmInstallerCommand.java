@@ -279,7 +279,6 @@ public class RpmInstallerCommand extends MojoCommand
         filterProperties.putAll( mymojo.getProject().getProperties() );
         filterProperties.put( "app", target.getApplication().getName() );
         filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
-        filterProperties.put( "app.server.class", mymojo.getApplicationClass() );
         filterProperties.put( "app.java.home", "java" );
 
         char firstChar = target.getApplication().getName().charAt( 0 );
@@ -348,37 +347,6 @@ public class RpmInstallerCommand extends MojoCommand
         //        filterProperties.put( "server.init", target.getLayout().getInitScript().getName() );
         //        filterProperties.put( "app.install.base", "/opt/" + target.getApplication().getName() + "-" + version );
 
-        if ( target.getDocsDirectory() != null )
-        {
-            File docRoot = new File( target.getLayout().getInstallationDirectory(), target.getDocsTargetPath() );
-            List<File> docList = new ArrayList<File>( 200 );
-            listFiles( docList, docRoot );
-            filterProperties.put( "mk.docs.dirs", getMkDocsDirs( docList, target ) );
-            filterProperties.put( "install.docs", getInstallDocs( docList, target ) );
-            filterProperties.put( "verify.docs", getVerifyDocs( docList, target ) );
-        }
-        else
-        {
-            filterProperties.put( "mk.docs.dirs", "" );
-            filterProperties.put( "install.docs", "" );
-            filterProperties.put( "verify.docs", "" );
-        }
-
-        if ( target.getSourcesDirectory() != null )
-        {
-            File srcRoot = new File( target.getLayout().getInstallationDirectory(), target.getSourcesTargetPath() );
-            List<File> srcList = new ArrayList<File>( 200 );
-            listFiles( srcList, srcRoot );
-            filterProperties.put( "mk.sources.dirs", getMkSourcesDirs( srcList, target ) );
-            filterProperties.put( "install.sources", getInstallSources( srcList, target ) );
-            filterProperties.put( "verify.sources", getVerifySources( srcList, target ) );
-        }
-        else
-        {
-            filterProperties.put( "mk.sources.dirs", "" );
-            filterProperties.put( "install.sources", "" );
-            filterProperties.put( "verify.sources", "" );
-        }
 
         File noticeFile = new File( target.getLayout().getInstallationDirectory(), "NOTICE.txt" );
         if ( noticeFile.exists() )
@@ -399,8 +367,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getMkSourcesDirs( List srcList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getInstallationDirectory();
-        srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
@@ -426,8 +392,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getMkDocsDirs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docsBase = target.getLayout().getInstallationDirectory();
-        docsBase = new File( docsBase, target.getDocsTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
@@ -475,8 +439,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getInstallDocs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docsBase = target.getLayout().getInstallationDirectory();
-        docsBase = new File( docsBase, target.getDocsTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
@@ -505,8 +467,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getVerifyDocs( List docList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File docBase = target.getLayout().getInstallationDirectory();
-        docBase = new File( docBase, target.getDocsTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
@@ -527,8 +487,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getInstallSources( List sourceList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getInstallationDirectory();
-        srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 
@@ -557,8 +515,6 @@ public class RpmInstallerCommand extends MojoCommand
     static String getVerifySources( List sourceList, Target target )
     {
         StringBuffer buf = new StringBuffer();
-        File srcBase = target.getLayout().getInstallationDirectory();
-        srcBase = new File( srcBase, target.getSourcesTargetPath() );
         // +1 for '/' char 
         int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
 

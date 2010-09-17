@@ -61,7 +61,6 @@ public class CreateImageCommand extends MojoCommand
         filterProperties.putAll( mymojo.getProject().getProperties() );
         filterProperties.put( "app", target.getApplication().getName() );
         filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
-        filterProperties.put( "app.server.class", mymojo.getApplicationClass() );
 
         if ( target.getApplication().getVersion() != null )
         {
@@ -375,37 +374,6 @@ public class CreateImageCommand extends MojoCommand
 
         target.setLibArtifacts( MojoHelperUtils.copyDependencies( mymojo, layout ) );
 
-        // -- copy sources if set --
-
-        if ( target.getSourcesDirectory() != null )
-        {
-            File sourcesDirectory = new File( layout.getInstallationDirectory(), target.getSourcesTargetPath() );
-            try
-            {
-                FileUtils.copyDirectoryStructure( target.getSourcesDirectory(), sourcesDirectory );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy sources exported from " + target.getSourcesDirectory()
-                    + " to " + sourcesDirectory );
-            }
-        }
-
-        // -- copy doco if set --
-
-        if ( target.getDocsDirectory() != null )
-        {
-            File docsDirectory = new File( layout.getInstallationDirectory(), target.getDocsTargetPath() );
-            try
-            {
-                FileUtils.copyDirectoryStructure( target.getDocsDirectory(), docsDirectory );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy generated docs from " + target.getDocsDirectory()
-                    + " to " + docsDirectory );
-            }
-        }
 
         // -- if present copy the NOTICE.txt file --
 

@@ -71,19 +71,15 @@ public class Target
     private File loggerConfigurationFile;
     private File serverConfigurationFile;
     private File bootstrapperConfigurationFile;
-    private File sourcesDirectory;
-    private File docsDirectory;
-    private String sourcesTargetPath;
-    private String docsTargetPath;
     private File scriptFile;
 
     private InstallationLayout layout;
     private List libArtifacts;
 
     private Application application;
-    
+
     protected PackagedFile[] packagedFiles;
-    
+
 
     public void setApplication( Application application )
     {
@@ -266,54 +262,6 @@ public class Target
     public String getCopyrightYear()
     {
         return copyrightYear;
-    }
-
-
-    public void setSourcesDirectory( File sourcesDirectory )
-    {
-        this.sourcesDirectory = sourcesDirectory;
-    }
-
-
-    public File getSourcesDirectory()
-    {
-        return sourcesDirectory;
-    }
-
-
-    public void setDocsDirectory( File docsDirectory )
-    {
-        this.docsDirectory = docsDirectory;
-    }
-
-
-    public File getDocsDirectory()
-    {
-        return docsDirectory;
-    }
-
-
-    public void setSourcesTargetPath( String sourcesTargetDirectory )
-    {
-        this.sourcesTargetPath = sourcesTargetDirectory;
-    }
-
-
-    public String getSourcesTargetPath()
-    {
-        return sourcesTargetPath;
-    }
-
-
-    public void setDocsTargetPath( String docsTargetDirectory )
-    {
-        this.docsTargetPath = docsTargetDirectory;
-    }
-
-
-    public String getDocsTargetPath()
-    {
-        return docsTargetPath;
     }
 
 

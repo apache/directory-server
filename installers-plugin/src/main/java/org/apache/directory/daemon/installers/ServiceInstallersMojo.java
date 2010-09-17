@@ -21,10 +21,8 @@ package org.apache.directory.daemon.installers;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +49,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.util.JavaEnvUtils;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.Os;
 
 
 /**
@@ -65,13 +62,6 @@ import org.codehaus.plexus.util.Os;
  */
 public class ServiceInstallersMojo extends AbstractMojo
 {
-    static final String BOOTSTRAPPER_ARTIFACT_ID = "daemon-bootstrappers";
-    static final String BOOTSTRAPPER_GROUP_ID = "org.apache.directory.daemon";
-    static final String LOGGER_ARTIFACT_ID = "slf4j-api";
-    static final String LOGGER_GROUP_ID = "org.slf4j";
-    static final String DAEMON_ARTIFACT_ID = "wrapper";
-    static final String DAEMON_GROUP_ID = "tanukisoft";
-
     /**
      * The target directory into which the mojo creates os and platform 
      * specific images.
@@ -134,42 +124,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     private Application application;
 
     /**
-     * @parameter 
-     * @required
-     */
-    private String applicationClass;
-
-    /**
-     * @parameter
-     */
-    private String encoding;
-
-    /**
-     * @parameter
-     */
-    private String svnBaseUrl;
-
-    /**
-     * @parameter default-value="false"
-     */
-    private boolean packageSources;
-
-    /**
-     * @parameter default-value="false"
-     */
-    private boolean packageDocs;
-
-    /**
-     * @parameter default-value="src"
-     */
-    private String sourcesTargetPath;
-
-    /**
-     * @parameter default-value="docs"
-     */
-    private String docsTargetPath;
-
-    /**
      * @parameter
      */
     private PackagedFile[] packagedFiles;
@@ -186,8 +140,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     /** commons-daemon dependency needed by native daemon */
     private Artifact daemon;
 
-    private File exportedSources;
-    private File docsBase;
     private List<Target> allTargets;
 
 
@@ -198,19 +150,16 @@ public class ServiceInstallersMojo extends AbstractMojo
         // collect all targets 
         initializeAllTargets();
 
-        // setup exports and docs if specified for installers
-        setupSourcesAndDocs();
-
         // makes sure defaulted values are set to globals
         setDefaults();
 
         // bail if there is nothing to do 
         if ( allTargets.isEmpty() )
         {
-            getLog().info( "===================================================================" );
+            getLog().info( "-------------------------------------------------------" );
             getLog().info( "[installers:generate]" );
             getLog().info( "No installers to generate." );
-            getLog().info( "===================================================================" );
+            getLog().info( "-------------------------------------------------------" );
             return;
         }
 
@@ -218,7 +167,7 @@ public class ServiceInstallersMojo extends AbstractMojo
         reportSetup();
 
         // search for and find the bootstrapper artifact
-        setBootstrapArtifacts();
+        //        setBootstrapArtifacts();
 
         // generate installers for all targets
         for ( Target target : allTargets )
@@ -447,120 +396,79 @@ public class ServiceInstallersMojo extends AbstractMojo
             {
                 target.setOsVersion( "*" );
             }
-
-            if ( packageSources && exportedSources != null && target.getSourcesDirectory() == null )
-            {
-                target.setSourcesDirectory( exportedSources );
-            }
-
-            if ( packageDocs && docsBase != null && target.getDocsDirectory() == null )
-            {
-                target.setDocsDirectory( docsBase );
-            }
-
-            if ( target.getSourcesTargetPath() == null )
-            {
-                target.setSourcesTargetPath( sourcesTargetPath );
-            }
-
-            if ( target.getDocsTargetPath() == null )
-            {
-                target.setDocsTargetPath( docsTargetPath );
-            }
         }
     }
 
 
-    private void setupSourcesAndDocs() throws MojoFailureException
-    {
-        File generatedDocs = null;
-
-        if ( svnBaseUrl != null )
-        {
-            exportedSources = new File( outputDirectory, "src" );
-            exportSvnSources( exportedSources );
-
-            if ( packageDocs )
-            {
-                generatedDocs = new File( outputDirectory, "docs" );
-                generateDocs( exportedSources, generatedDocs );
-                docsBase = new File( generatedDocs, "target" );
-                docsBase = new File( docsBase, "site" );
-            }
-        }
-    }
-
-
-    private void setBootstrapArtifacts() throws MojoFailureException
-    {
-        Artifact artifact = null;
-        Iterator artifacts = project.getDependencyArtifacts().iterator();
-
-        while ( artifacts.hasNext() )
-        {
-            artifact = ( Artifact ) artifacts.next();
-            if ( artifact.getArtifactId().equals( BOOTSTRAPPER_ARTIFACT_ID )
-                && artifact.getGroupId().equals( BOOTSTRAPPER_GROUP_ID ) )
-            {
-                getLog().info( "Found bootstrapper dependency with version: " + artifact.getVersion() );
-                bootstrapper = artifact;
-            }
-            else if ( artifact.getArtifactId().equals( LOGGER_ARTIFACT_ID )
-                && artifact.getGroupId().equals( LOGGER_GROUP_ID ) )
-            {
-                getLog().info( "Found logger dependency with version: " + artifact.getVersion() );
-                logger = artifact;
-            }
-            else if ( artifact.getArtifactId().equals( DAEMON_ARTIFACT_ID )
-                && artifact.getGroupId().equals( DAEMON_GROUP_ID ) )
-            {
-                getLog().info( "Found daemon dependency with version: " + artifact.getVersion() );
-                daemon = artifact;
-            }
-        }
-
-        if ( bootstrapper == null )
-        {
-            throw new MojoFailureException( "Bootstrapper dependency artifact required: " + BOOTSTRAPPER_GROUP_ID + ":"
-                + BOOTSTRAPPER_ARTIFACT_ID );
-        }
-        if ( logger == null )
-        {
-            throw new MojoFailureException( "Logger dependency artifact required: " + LOGGER_GROUP_ID + ":"
-                + LOGGER_ARTIFACT_ID );
-        }
-        if ( daemon == null )
-        {
-            throw new MojoFailureException( "Daemon dependency artifact required: " + DAEMON_GROUP_ID + ":"
-                + DAEMON_ARTIFACT_ID );
-        }
-    }
-
+    //    private void setBootstrapArtifacts() throws MojoFailureException
+    //    {
+    //        Artifact artifact = null;
+    //        Iterator artifacts = project.getDependencyArtifacts().iterator();
+    //
+    //        while ( artifacts.hasNext() )
+    //        {
+    //            artifact = ( Artifact ) artifacts.next();
+    //            if ( artifact.getArtifactId().equals( BOOTSTRAPPER_ARTIFACT_ID )
+    //                && artifact.getGroupId().equals( BOOTSTRAPPER_GROUP_ID ) )
+    //            {
+    //                getLog().info( "Found bootstrapper dependency with version: " + artifact.getVersion() );
+    //                bootstrapper = artifact;
+    //            }
+    //            else if ( artifact.getArtifactId().equals( LOGGER_ARTIFACT_ID )
+    //                && artifact.getGroupId().equals( LOGGER_GROUP_ID ) )
+    //            {
+    //                getLog().info( "Found logger dependency with version: " + artifact.getVersion() );
+    //                logger = artifact;
+    //            }
+    //            else if ( artifact.getArtifactId().equals( DAEMON_ARTIFACT_ID )
+    //                && artifact.getGroupId().equals( DAEMON_GROUP_ID ) )
+    //            {
+    //                getLog().info( "Found daemon dependency with version: " + artifact.getVersion() );
+    //                daemon = artifact;
+    //            }
+    //        }
+    //
+    //        if ( bootstrapper == null )
+    //        {
+    //            throw new MojoFailureException( "Bootstrapper dependency artifact required: " + BOOTSTRAPPER_GROUP_ID + ":"
+    //                + BOOTSTRAPPER_ARTIFACT_ID );
+    //        }
+    //        if ( logger == null )
+    //        {
+    //            throw new MojoFailureException( "Logger dependency artifact required: " + LOGGER_GROUP_ID + ":"
+    //                + LOGGER_ARTIFACT_ID );
+    //        }
+    //        if ( daemon == null )
+    //        {
+    //            throw new MojoFailureException( "Daemon dependency artifact required: " + DAEMON_GROUP_ID + ":"
+    //                + DAEMON_ARTIFACT_ID );
+    //        }
+    //    }
 
     public void reportSetup()
     {
-        getLog().info( "===================================================================" );
+        getLog().info( "-------------------------------------------------------" );
         getLog().info( "[installers:create]" );
         getLog().info( "applicationName = " + application.getName() );
         getLog().info( "sourceDirectory = " + sourceDirectory );
         getLog().info( "outputDirectory = " + outputDirectory );
-        getLog().info( "----------------------------- allTargets -----------------------------" );
-
-        boolean isFirst = true;
+        getLog().info( "---------------------- allTargets ---------------------" );
 
         if ( allTargets != null )
         {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                getLog().info( "" );
-            }
+            boolean isFirst = true;
 
             for ( Target target : allTargets )
             {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    getLog().info( "" );
+                }
+
                 getLog().info( "id: " + target.getId() );
                 getLog().info( "osName: " + target.getOsName() );
                 getLog().info( "osArch: " + target.getOsArch() );
@@ -573,41 +481,6 @@ public class ServiceInstallersMojo extends AbstractMojo
         }
 
         getLog().info( "===================================================================" );
-    }
-
-
-    private void exportSvnSources( File exportTarget ) throws MojoFailureException
-    {
-        String[] cmd = new String[]
-            { "svn", "export", svnBaseUrl, exportTarget.getAbsolutePath() };
-        MojoHelperUtils.exec( cmd, outputDirectory, false );
-    }
-
-
-    private void generateDocs( File exportTarget, File docsTarget ) throws MojoFailureException
-    {
-        try
-        {
-            FileUtils.copyDirectoryStructure( exportTarget, docsTarget );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoFailureException( "Failed to copy exported sources from svn here "
-                + exportTarget.getAbsolutePath() + " to " + docsTarget.getAbsolutePath() );
-        }
-
-        String[] cmd = null;
-        if ( Os.isFamily( "windows" ) )
-        {
-            cmd = new String[]
-                { "mvn.bat", "site", "--non-recursive" };
-        }
-        else
-        {
-            cmd = new String[]
-                { "mvn", "site", "--non-recursive" };
-        }
-        MojoHelperUtils.exec( cmd, docsTarget, false );
     }
 
 
@@ -635,12 +508,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     }
 
 
-    public String getEncoding()
-    {
-        return this.encoding;
-    }
-
-
     public MavenProject getProject()
     {
         return project;
@@ -650,12 +517,6 @@ public class ServiceInstallersMojo extends AbstractMojo
     public Set getExcludes()
     {
         return this.excludes;
-    }
-
-
-    public String getApplicationClass()
-    {
-        return this.applicationClass;
     }
 
 
