@@ -47,6 +47,11 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-ldif-partition</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -58,11 +63,6 @@
       <artifactId>apacheds-jdbm-partition</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-ldif-partition</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-xdbm-partition</artifactId>
@@ -86,11 +86,6 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-schema</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldif</artifactId>
     </dependency>
   </dependencies>
 </project>
