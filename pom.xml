@@ -130,10 +130,5 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-schema</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldif</artifactId>
-    </dependency>
   </dependencies>
 </project>
