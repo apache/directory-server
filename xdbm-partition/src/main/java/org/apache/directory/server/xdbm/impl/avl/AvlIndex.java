@@ -123,8 +123,15 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
      */
     public void close() throws Exception
     {
-        forward.close();
-        reverse.close();
+        if ( forward != null )
+        {
+            forward.close();
+        }
+        
+        if ( reverse != null )
+        {
+            reverse.close();
+        }
     }
 
 

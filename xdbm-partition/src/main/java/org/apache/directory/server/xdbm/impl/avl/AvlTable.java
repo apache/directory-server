@@ -70,12 +70,11 @@ public class AvlTable<K, V> implements Table<K, V>
     
 
     /**
-     * Does nothing.
-     * 
      * {@inheritDoc}
      */
     public void close() throws Exception
     {
+        ( ( AvlTreeMapImpl ) avl ).removeAll();
     }
 
     

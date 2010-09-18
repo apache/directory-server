@@ -131,4 +131,11 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         return ( org.apache.directory.server.xdbm.impl.avl.AvlStore<Entry> ) store;
     }
 
+
+    @Override
+    protected void doDestroy() throws Exception
+    {
+        store.destroy();        
+    }
+
 }

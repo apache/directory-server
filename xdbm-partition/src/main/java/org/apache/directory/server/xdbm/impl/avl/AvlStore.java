@@ -53,7 +53,22 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     public void destroy() throws Exception
     {
         // don't reset initialized flag
-        //initialized = false;
+        initialized = false;
+
+        if ( master != null )
+        {
+            master.close();
+        }
+        
+        for ( Index idx : systemIndices.values() )
+        {
+            idx.close();
+        }
+        
+        for ( Index idx : userIndices.values() )
+        {
+            idx.close();
+        }
     }
 
 
