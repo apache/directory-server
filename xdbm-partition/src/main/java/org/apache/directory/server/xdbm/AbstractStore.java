@@ -143,7 +143,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * add() method. This flag needs to be enabled only in cases where interceptor chain
      * is not used or not yet effective at the time of adding entries into this store.
      */
-    private boolean checkHasEntryDuringAdd = true;
+    private boolean checkHasEntryDuringAdd = false;
 
     public void init( SchemaManager schemaManager ) throws Exception
     {
