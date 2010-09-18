@@ -137,6 +137,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** the relative distinguished name index */
     protected Index<ParentIdAndRdn<ID>, E, ID> rdnIdx;
 
+    /**
+     * a flag to enable/disable hasEntry() check before adding the entry
+     * Note: This kind of check is already present in ExceptionInterceptor's
+     * add() method. This flag needs to be enabled only in cases where interceptor chain
+     * is not used or not yet effective at the time of adding entries into this store.
+     */
+    private boolean checkHasEntryDuringAdd = true;
 
     public void init( SchemaManager schemaManager ) throws Exception
     {
@@ -847,6 +854,19 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
+        DN entryDn = entry.getDn();
+
+        if ( checkHasEntryDuringAdd )
+        {
+            // check if the entry already exists
+            if ( getEntryId( entryDn ) != null )
+            {
+                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+                throw ne;
+            }
+        }
+
         ID parentId;
         ID id = master.getNextId( entry );
 
@@ -855,7 +875,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // capped off using the zero value which no entry can have since
         // entry sequences start at 1.
         //
-        DN entryDn = entry.getDn();
         DN parentDn = null;
         ParentIdAndRdn<ID> key = null;
 
@@ -2142,4 +2161,24 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         entryCsnIdx.drop( id );
         entryCsnIdx.add( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
     }
+
+    
+    /**
+     * @return true if the hasEntry check is performed before adding a entry, false otherwise
+     */
+    public boolean isCheckHasEntryDuringAdd()
+    {
+        return checkHasEntryDuringAdd;
+    }
+
+    
+    /**
+     * set the flag to nable/disable checking of entry existence before actually adding it
+     * @param checkHasEntryDuringAdd
+     */
+    public void setCheckHasEntryDuringAdd( boolean checkHasEntryDuringAdd )
+    {
+        this.checkHasEntryDuringAdd = checkHasEntryDuringAdd;
+    }
+    
 }
