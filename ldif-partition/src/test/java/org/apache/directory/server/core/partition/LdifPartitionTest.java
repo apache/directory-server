@@ -141,6 +141,7 @@ public class LdifPartitionTest
         // initialize the store
         // initialize the partition
         partition = new LdifPartition();
+        partition.setCheckHasEntryDuringAdd( true );
         partition.setId( "test-ldif" );
         partition.setSuffix( new DN( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
@@ -601,13 +602,6 @@ public class LdifPartitionTest
         CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
-
-        ClonedServerEntry rootEntry = createEntry( "ou=test,ou=system" );
-        rootEntry.put( "ObjectClass", "top", "domain" );
-        rootEntry.put( "ou", "test" );
-        addCtx.setEntry( rootEntry );
-
-        partition.add( addCtx );
 
         ClonedServerEntry childEntry1 = createEntry( "dc=child1,ou=test,ou=system" );
         childEntry1.put( "ObjectClass", "top", "domain" );

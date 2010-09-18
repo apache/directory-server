@@ -36,16 +36,11 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -59,7 +54,6 @@ import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,13 +82,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdifPartition extends BTreePartition<Long>
+public class LdifPartition extends AbstractLdifPartition
 {
     /** A logger for this class */
     private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
-
-    /** The directory into which the partition is stored */
-    private String workingDirectory;
 
     /** The directory into which the entries are stored */
     private File suffixDirectory;
@@ -128,15 +119,6 @@ public class LdifPartition extends BTreePartition<Long>
         }
     };
 
-    /** The extension used for LDIF entry files */
-    private static final String CONF_FILE_EXTN = ".ldif";
-
-    /** We use a partition to manage searches on this partition */
-    private AvlPartition wrappedPartition;
-
-    /** A default CSN factory */
-    private static CsnFactory defaultCSNFactory;
-
 
     /**
      * Creates a new instance of LdifPartition.
@@ -157,10 +139,6 @@ public class LdifPartition extends BTreePartition<Long>
         wrappedPartition.setSuffix( suffix );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
-
-        // Create the CsnFactory with a invalid ReplicaId
-        // @TODO : inject a correct ReplicaId
-        defaultCSNFactory = new CsnFactory( 0 );
 
         this.searchEngine = wrappedPartition.getSearchEngine();
 
@@ -789,233 +767,9 @@ public class LdifPartition extends BTreePartition<Long>
     }
 
 
-    @Override
-    public void addIndexOn( Index<? extends Object, Entry, Long> index ) throws Exception
-    {
-        wrappedPartition.addIndexOn( index );
-    }
-
-
-    @Override
-    public int count() throws Exception
-    {
-        return wrappedPartition.count();
-    }
-
-
-    @Override
-    protected void doDestroy() throws Exception
-    {
-        wrappedPartition.destroy();
-    }
-
-
-    @Override
-    public Index<String, Entry, Long> getAliasIndex()
-    {
-        return wrappedPartition.getAliasIndex();
-    }
-
-
-    @Override
-    public int getChildCount( Long id ) throws LdapException
-    {
-        return wrappedPartition.getChildCount( id );
-    }
-
-
-    @Override
-    public DN getEntryDn( Long id ) throws Exception
-    {
-        return wrappedPartition.getEntryDn( id );
-    }
-
-
-    @Override
-    public Long getEntryId( DN dn ) throws LdapException
-    {
-        return wrappedPartition.getEntryId( dn );
-    }
-
-
-    @Override
-    public Index<Long, Entry, Long> getOneAliasIndex()
-    {
-        return wrappedPartition.getOneAliasIndex();
-    }
-
-
-    @Override
-    public Index<Long, Entry, Long> getOneLevelIndex()
-    {
-        return wrappedPartition.getOneLevelIndex();
-    }
-
-
-    @Override
-    public Index<String, Entry, Long> getPresenceIndex()
-    {
-        return wrappedPartition.getPresenceIndex();
-    }
-
-
-    @Override
-    public String getProperty( String propertyName ) throws Exception
-    {
-        return wrappedPartition.getProperty( propertyName );
-    }
-
-
-    @Override
-    public Index<Long, Entry, Long> getSubAliasIndex()
-    {
-        return wrappedPartition.getSubAliasIndex();
-    }
-
-
-    @Override
-    public Index<Long, Entry, Long> getSubLevelIndex()
-    {
-        return wrappedPartition.getSubLevelIndex();
-    }
-
-
-    @Override
-    public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
-    {
-        return wrappedPartition.getSystemIndex( attributeType );
-    }
-
-
-    @Override
-    public Iterator<String> getSystemIndices()
-    {
-        return wrappedPartition.getSystemIndices();
-    }
-
-
-    @Override
-    public Index<? extends Object, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
-    {
-        return wrappedPartition.getUserIndex( attributeType );
-    }
-
-
-    @Override
-    public Iterator<String> getUserIndices()
-    {
-        return wrappedPartition.getUserIndices();
-    }
-
-
-    @Override
-    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
-    {
-        return wrappedPartition.hasSystemIndexOn( attributeType );
-    }
-
-
-    @Override
-    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
-    {
-        return wrappedPartition.hasUserIndexOn( attributeType );
-    }
-
-
-    @Override
-    public boolean isInitialized()
-    {
-        return wrappedPartition != null && wrappedPartition.isInitialized();
-    }
-
-
-    @Override
-    public IndexCursor<Long, Entry, Long> list( Long id ) throws LdapException
-    {
-        return wrappedPartition.list( id );
-    }
-
-
-    @Override
-    public ClonedServerEntry lookup( Long id ) throws LdapException
-    {
-        return wrappedPartition.lookup( id );
-    }
-
-
-    @Override
-    public void setProperty( String propertyName, String propertyValue ) throws Exception
-    {
-        wrappedPartition.setProperty( propertyName, propertyValue );
-    }
-
-
-    @Override
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        super.setSchemaManager( schemaManager );
-    }
-
-
-    @Override
-    public void sync() throws Exception
-    {
-        wrappedPartition.sync();
-        //TODO implement the File I/O here to push the update to entries to the corresponding LDIF file
-    }
-
-
-    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
-    {
-        wrappedPartition.unbind( unbindContext );
-    }
-
-
-    @Override
-    public String getId()
-    {
-        // TODO Auto-generated method stub
-        return super.getId();
-    }
-
-
-    @Override
-    public void setId( String id )
-    {
-        super.setId( id );
-        wrappedPartition.setId( id );
-    }
-
-
-    @Override
-    public void setSuffix( DN suffix ) throws LdapInvalidDnException
-    {
-        super.setSuffix( suffix );
-        wrappedPartition.setSuffix( suffix );
-    }
-
-
     /**
-     * @return the workingDirectory
-     */
-    public String getWorkingDirectory()
-    {
-        return workingDirectory;
-    }
-
-
-    /**
-     * @param workingDirectory the workingDirectory to set
-     */
-    public void setWorkingDirectory( String workingDirectory )
-    {
-        this.workingDirectory = workingDirectory;
-    }
-
-
-    /**
-     * @return the contextEntry
-     */
+      * @return the contextEntry
+      */
     public Entry getContextEntry()
     {
         return contextEntry;
@@ -1043,20 +797,10 @@ public class LdifPartition extends BTreePartition<Long>
     }
 
 
-    /**
-     * @return the wrappedPartition
-     */
-    public Partition getWrappedPartition()
+    @Override
+    protected void doDestroy() throws Exception
     {
-        return wrappedPartition;
+        wrappedPartition.destroy();
     }
 
-
-    /**
-     * @param wrappedPartition the wrappedPartition to set
-     */
-    public void setWrappedPartition( AvlPartition wrappedPartition )
-    {
-        this.wrappedPartition = wrappedPartition;
-    }
 }
