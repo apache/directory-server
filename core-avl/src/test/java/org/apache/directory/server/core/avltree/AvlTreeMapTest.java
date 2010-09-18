@@ -62,7 +62,7 @@ public class AvlTreeMapTest
     };
 
     
-    private AvlTreeMap<Integer, Integer> createTree()
+    private AvlTreeMapImpl<Integer, Integer> createTree()
     {
         return new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
     }
@@ -160,16 +160,8 @@ public class AvlTreeMapTest
         tree.insert( 28, 4 );
         tree.insert( 26, 5 );
 
-        if ( LOG.isDebugEnabled() )
-        {
-            
-        }
-
         tree.remove( 24, 3 ); // this causes a single left rotation on node with key 12
-        if ( LOG.isDebugEnabled() )
-        {
-            
-        }
+
         assertTrue( tree.getRoot().getLeft().key == 26 );
     }
 
@@ -383,6 +375,32 @@ public class AvlTreeMapTest
         tree.insert( 1, 1 );
 
         assertEquals( "1,2,3", getInorderForm( tree ) );
+    }
+
+    
+    @Test
+    public void testRemoveAll()
+    {
+        AvlTreeMapImpl<Integer, Integer> tree = createTree();
+        assertNull( tree.insert( 3, 1 ) );
+        tree.insert( 37, 2 );
+
+        assertFalse( tree.isEmpty() );
+        assertEquals( 2, tree.getSize() );
+        
+        tree.removeAll();
+        
+        assertTrue( tree.isEmpty() );
+        assertEquals( 0, tree.getSize() );
+        assertNull( tree.getFirst() );
+        assertNull( tree.getLast() );
+        assertNull( tree.getRoot() );
+        
+        // re-insert
+        assertNull( tree.insert( 3, 1 ) );
+        tree.insert( 37, 2 );
+        assertFalse( tree.isEmpty() );
+        assertEquals( 2, tree.getSize() );
     }
 
     
