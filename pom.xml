@@ -412,12 +412,6 @@
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-asn1-codec</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-dsml-parser</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>

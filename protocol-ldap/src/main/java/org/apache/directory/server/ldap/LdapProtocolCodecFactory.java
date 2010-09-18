@@ -22,15 +22,20 @@ package org.apache.directory.server.ldap;
 
 import org.apache.directory.ldap.client.api.protocol.LdapProtocolEncoder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
+import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 
@@ -41,6 +46,44 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 final class LdapProtocolCodecFactory implements ProtocolCodecFactory
 {
+    private class Asn1CodecDecoder extends ProtocolDecoderAdapter
+    {
+        /** The stateful decoder */
+        private final StatefulDecoder decoder;
+
+        /** The Output queue */
+        private ProtocolDecoderOutput decOut;
+
+
+        /**
+         * Creates a new instance of Asn1CodecDecoder.
+         * 
+         * @param decoder The associated decoder
+         */
+        public Asn1CodecDecoder( StatefulDecoder decoder )
+        {
+            this.decoder = decoder;
+            this.decoder.setCallback( new DecoderCallback()
+            {
+                public void decodeOccurred( StatefulDecoder decoder, Object decoded )
+                {
+                    decOut.write( decoded );
+                }
+            } );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws DecoderException
+        {
+            decOut = out;
+            decoder.decode( in.buf() );
+        }
+    }
+
+
     /** the directory service for which this factor generates codecs */
     final private DirectoryService directoryService;
 
