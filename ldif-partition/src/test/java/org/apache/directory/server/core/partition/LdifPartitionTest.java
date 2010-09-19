@@ -66,10 +66,11 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,9 @@ public class LdifPartitionTest
     private static LdifPartition partition;
     private static SchemaManager schemaManager = null;
     private static CsnFactory defaultCSNFactory;
+
+    @Rule
+    public static TemporaryFolder folder = new TemporaryFolder();
 
 
     @BeforeClass
@@ -115,11 +119,6 @@ public class LdifPartitionTest
         }
 
         defaultCSNFactory = new CsnFactory( 0 );
-
-        wkdir = File.createTempFile( LdifPartitionTest.class.getSimpleName(), "db" );
-        wkdir.delete();
-        wkdir = new File( wkdir.getParentFile(), LdifPartitionTest.class.getSimpleName() );
-        FileUtils.deleteDirectory( wkdir );
     }
 
 
@@ -133,10 +132,8 @@ public class LdifPartitionTest
                 "ou: test";
 
         // setup the working directory for the store
-        wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
-        wkdir.delete();
-        wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        wkdir.mkdirs();
+        wkdir = folder.newFile( "db" );
+        wkdir = folder.getRoot();
 
         // initialize the store
         // initialize the partition
@@ -151,14 +148,6 @@ public class LdifPartitionTest
         partition.initialize();
 
         LOG.debug( "Created new LDIF partition" );
-    }
-
-
-    @After
-    public void destroyStore() throws Exception
-    {
-        // Delete the directory and its content
-        FileUtils.deleteDirectory( wkdir );
     }
 
 
@@ -218,10 +207,8 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
     }
 
 
@@ -336,10 +323,8 @@ public class LdifPartitionTest
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test1.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
 
         dn = new DN( "dc=test2,dc=test,ou=test,ou=system", schemaManager );
 
@@ -359,10 +344,8 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
-        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists()
-            || new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn%2bobjectclass=domain.ldif" ).exists() );
     }
 
 
@@ -593,6 +576,70 @@ public class LdifPartitionTest
             .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
         assertTrue( content.contains( "dc: child1" ) );
         assertTrue( content.contains( "dc: movedChild1" ) );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1551 (LdifPartition file names on Unix and Windows).
+     * Ensure that special characters (http://en.wikipedia.org/wiki/Filenames) are encoded.
+     */
+    @Test
+    public void testSpecialCharacters() throws Exception
+    {
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
+        AddOperationContext addCtx = new AddOperationContext( session );
+
+        String rdnWithForbiddenChars = "dc=- -\\\"-%-&-(-)-*-\\+-/-:-\\;-\\<-\\>-?-[-\\5C-]-|-";
+        String rdnWithEscapedChars = "dc=-%20-%22-%25-%26-%28-%29-%2a-%2b-%2f-%3a-%3b-%3c-%3e-%3f-%5b-%5c-%5d-%7c-";
+
+        ClonedServerEntry entry1 = createEntry( rdnWithForbiddenChars + ",ou=test,ou=system" );
+        entry1.put( "objectClass", "top", "domain" );
+        addCtx.setEntry( entry1 );
+
+        partition.add( addCtx );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/" + rdnWithEscapedChars ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/" + rdnWithEscapedChars + ".ldif" ).exists() );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1551 (LdifPartition file names on Unix and Windows).
+     * Ensure that C0 control characters (http://en.wikipedia.org/wiki/Control_characters) are encoded.
+     */
+    @Test
+    public void testControlCharacters() throws Exception
+    {
+        DN adminDn = new DN( "uid=admin,ou=system", schemaManager );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            new MockDirectoryService( 1 ) );
+        AddOperationContext addCtx = new AddOperationContext( session );
+
+        String rdnWithControlChars = "userPassword=-\u0000-\u0001-\u0002-\u0003-\u0004-\u0005-\u0006-\u0007" +
+                "-\u0008-\u0009-\n-\u000B-\u000C-\r-\u000E-\u000F" +
+                "-\u0010-\u0011-\u0012-\u0013-\u0014-\u0015-\u0016-\u0017" +
+                "-\u0018-\u0019-\u001A-\u001B-\u001C-\u001D-\u001E-\u001F" +
+                "-\u007F";
+
+        String rdnWithEscapedChars = "userpassword=-%00-%01-%02-%03-%04-%05-%06-%07-%08-%09-%0a-%0b-%0c-%0d-%0e-%0f" +
+                "-%10-%11-%12-%13-%14-%15-%16-%17-%18-%19-%1a-%1b-%1c-%1d-%1e-%1f-%7f";
+
+        ClonedServerEntry entry1 = createEntry( rdnWithControlChars + ",ou=test,ou=system" );
+        entry1.put( "objectClass", "top", "person" );
+        entry1.put( "cn", "test" );
+        entry1.put( "sn", "test" );
+        addCtx.setEntry( entry1 );
+
+        partition.add( addCtx );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/" + rdnWithEscapedChars ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/" + rdnWithEscapedChars + ".ldif" ).exists() );
     }
 
 

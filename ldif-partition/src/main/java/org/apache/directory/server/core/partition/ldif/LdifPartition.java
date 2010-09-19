@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.SystemUtils;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -621,103 +620,80 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-     * Get a OS compatible file name
+     * Get a OS compatible file name. We URL encode all characters that may cause trouble
+     * according to http://en.wikipedia.org/wiki/Filenames. This includes C0 control characters
+     * [0x00-0x1F] and 0x7F, see http://en.wikipedia.org/wiki/Control_characters.
      */
     private String getOSFileName( String fileName )
     {
-        if ( SystemUtils.IS_OS_WINDOWS )
+        StringBuilder sb = new StringBuilder();
+
+        for ( char c : fileName.toCharArray() )
         {
-            // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']',
-            // '*', [0x00-0x1F], '?', and '%' with "%xx" where xx is the hex value of the character.
-            StringBuilder sb = new StringBuilder();
-
-            for ( char c : fileName.toCharArray() )
+            switch ( c )
             {
-                switch ( c )
-                {
-                    case 0x00:
-                    case 0x01:
-                    case 0x02:
-                    case 0x03:
-                    case 0x04:
-                    case 0x05:
-                    case 0x06:
-                    case 0x07:
-                    case 0x08:
-                    case 0x09:
-                    case 0x0A:
-                    case 0x0B:
-                    case 0x0C:
-                    case 0x0D:
-                    case 0x0E:
-                    case 0x0F:
-                    case 0x10:
-                    case 0x11:
-                    case 0x12:
-                    case 0x13:
-                    case 0x14:
-                    case 0x15:
-                    case 0x16:
-                    case 0x17:
-                    case 0x18:
-                    case 0x19:
-                    case 0x1A:
-                    case 0x1B:
-                    case 0x1C:
-                    case 0x1D:
-                    case 0x1E:
-                    case 0x1F:
-                    case '/':
-                    case '\\':
-                    case '<':
-                    case '>':
-                    case '|':
-                    case '"':
-                    case ':':
-                    case '+':
-                    case ' ':
-                    case '[':
-                    case ']':
-                    case '*':
-                    case '?':
-                    case '%':
-                        sb.append( "%" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) )
-                                        .append( StringTools.dumpHex( ( byte ) ( c & 0xF ) ) );
-                        break;
+                case 0x00:
+                case 0x01:
+                case 0x02:
+                case 0x03:
+                case 0x04:
+                case 0x05:
+                case 0x06:
+                case 0x07:
+                case 0x08:
+                case 0x09:
+                case 0x0A:
+                case 0x0B:
+                case 0x0C:
+                case 0x0D:
+                case 0x0E:
+                case 0x0F:
+                case 0x10:
+                case 0x11:
+                case 0x12:
+                case 0x13:
+                case 0x14:
+                case 0x15:
+                case 0x16:
+                case 0x17:
+                case 0x18:
+                case 0x19:
+                case 0x1A:
+                case 0x1B:
+                case 0x1C:
+                case 0x1D:
+                case 0x1E:
+                case 0x1F:
+                case 0x7F:
+                case ' ': // 0x20
+                case '"': // 0x22
+                case '%': // 0x25
+                case '&': // 0x26
+                case '(': // 0x28
+                case ')': // 0x29
+                case '*': // 0x2A
+                case '+': // 0x2B
+                case '/': // 0x2F
+                case ':': // 0x3A
+                case ';': // 0x3B
+                case '<': // 0x3C
+                case '>': // 0x3E
+                case '?': // 0x3F
+                case '[': // 0x5B
+                case '\\': // 0x5C
+                case ']': // 0x5D
+                case '|': // 0x7C
+                    sb.append( "%" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) )
+                                    .append( StringTools.dumpHex( ( byte ) ( c & 0xF ) ) );
+                    break;
 
-                    default:
-                        sb.append( c );
-                        break;
-                }
+                default:
+                    sb.append( c );
+                    break;
             }
-
-            return sb.toString().toLowerCase();
         }
-        else
-        {
-            // On linux, just escape '/' and null
-            StringBuilder sb = new StringBuilder();
 
-            for ( char c : fileName.toCharArray() )
-            {
-                switch ( c )
-                {
-                    case '/':
-                        sb.append( "\\/" );
-                        break;
-
-                    case '\0':
-                        sb.append( "\\00" );
-                        break;
-
-                    default:
-                        sb.append( c );
-                        break;
-                }
-            }
-
-            return sb.toString().toLowerCase();
-        }
+        return sb.toString().toLowerCase();
     }
 
 
