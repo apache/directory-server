@@ -825,6 +825,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <configLocation>directory-checks.xml</configLocation>
           <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
