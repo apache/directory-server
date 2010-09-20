@@ -191,35 +191,28 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure the server properly returns the supportedSASLMechanisms.
      */
     @Test
-    public void testSupportedSASLMechanisms()
+    public void testSupportedSASLMechanisms() throws Exception
     {
-        try
-        {
-            // We have to tell the server that it should accept anonymous
-            // auth, because we are reading the rootDSE
-            ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        // We have to tell the server that it should accept anonymous
+        // auth, because we are reading the rootDSE
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
-            // Point on rootDSE
-            DirContext context = new InitialDirContext();
+        // Point on rootDSE
+        DirContext context = new InitialDirContext();
 
-            Attributes attrs = context.getAttributes( "ldap://localhost:" + ldapServer.getPort(), new String[]
-                { "supportedSASLMechanisms" } );
+        Attributes attrs = context.getAttributes( "ldap://localhost:" + ldapServer.getPort(), new String[]
+            { "supportedSASLMechanisms" } );
 
-            //             Thread.sleep( 10 * 60 * 1000 );
-            NamingEnumeration<? extends Attribute> answer = attrs.getAll();
-            Attribute result = answer.next();
-            assertEquals( 6, result.size() );
-            assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.NTLM ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.PLAIN ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.GSS_SPNEGO ) );
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        //             Thread.sleep( 10 * 60 * 1000 );
+        NamingEnumeration<? extends Attribute> answer = attrs.getAll();
+        Attribute result = answer.next();
+        assertEquals( 6, result.size() );
+        assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
+        assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
+        assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
+        assertTrue( result.contains( SupportedSaslMechanisms.NTLM ) );
+        assertTrue( result.contains( SupportedSaslMechanisms.PLAIN ) );
+        assertTrue( result.contains( SupportedSaslMechanisms.GSS_SPNEGO ) );
     }
 
 
@@ -227,29 +220,22 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure PLAIN-binds works
      */
     @Test
-    public void testSaslBindPLAIN()
+    public void testSaslBindPLAIN() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            BindRequest bindReq = new BindRequestImpl();
-            bindReq.setCredentials( "secret".getBytes() );
-            bindReq.setName( userDn );
-            bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setCredentials( "secret".getBytes() );
+        bindReq.setName( userDn );
+        bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
 
-            BindResponse resp = connection.bind( bindReq );
-            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+        BindResponse resp = connection.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            Entry entry = connection.lookup( userDn );
-            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        connection.close();
     }
 
 
@@ -257,26 +243,19 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Test a SASL bind with an empty mechanism 
      */
     @Test
-    public void testSaslBindNoMech()
+    public void testSaslBindNoMech() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            BindRequest bindReq = new BindRequestImpl();
-            bindReq.setCredentials( "secret".getBytes() );
-            bindReq.setName( userDn );
-            bindReq.setSaslMechanism( "" ); // invalid mechanism
-            bindReq.setSimple( false );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setCredentials( "secret".getBytes() );
+        bindReq.setName( userDn );
+        bindReq.setSaslMechanism( "" ); // invalid mechanism
+        bindReq.setSimple( false );
 
-            BindResponse resp = connection.bind( bindReq );
-            assertEquals( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, resp.getLdapResult().getResultCode() );
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        BindResponse resp = connection.bind( bindReq );
+        assertEquals( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, resp.getLdapResult().getResultCode() );
+        connection.close();
     }
 
 
@@ -284,25 +263,18 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure CRAM-MD5 binds below the RootDSE work.
      */
     @Test
-    public void testSaslCramMd5Bind()
+    public void testSaslCramMd5Bind() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            BindResponse resp = connection.bindCramMd5( userDn.getName(), "secret", null );
-            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+        BindResponse resp = connection.bindCramMd5( userDn.getName(), "secret", null );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            Entry entry = connection.lookup( userDn );
-            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        connection.close();
     }
 
 
@@ -310,22 +282,14 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure CRAM-MD5 binds below the RootDSE fail if the password is bad.
      */
     @Test
-    public void testSaslCramMd5BindBadPassword()
+    public void testSaslCramMd5BindBadPassword() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            
-            BindResponse resp = connection.bindCramMd5( userDn.getName(), "badsecret", null );
-            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Should not have caught exception." );
-        }
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        BindResponse resp = connection.bindCramMd5( userDn.getName(), "badsecret", null );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
+        connection.close();
     }
 
 
@@ -335,24 +299,17 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5Bind() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
+        BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
                 .get( 0 ) );
-            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            Entry entry = connection.lookup( userDn );
-            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        connection.close();
     }
 
 
@@ -362,23 +319,17 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslGssApiBind() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            BindResponse resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 ).toUpperCase(), "localhost", 6088 );
-            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+        BindResponse resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 )
+            .toUpperCase(), "localhost", 6088 );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
-            Entry entry = connection.lookup( userDn );
-            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
+        connection.close();
     }
 
     
@@ -386,23 +337,15 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the realm is bad.
      */
     @Test
-    public void testSaslDigestMd5BindBadRealm()
+    public void testSaslDigestMd5BindBadRealm() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, "badrealm.com" );
-            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
+        BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, "badrealm.com" );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            fail( "Should not have caught exception." );
-        }
-
+        connection.close();
     }
 
 
@@ -410,24 +353,16 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the password is bad.
      */
     @Test
-    public void testSaslDigestMd5BindBadPassword()
+    public void testSaslDigestMd5BindBadPassword() throws Exception
     {
-        try
-        {
-            DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
-            LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            BindResponse resp = connection.bindDigestMd5( userDn.getName(), "badsecret", null, ldapServer
+        BindResponse resp = connection.bindDigestMd5( userDn.getName(), "badsecret", null, ldapServer
                 .getSaslRealms().get( 0 ) );
-            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
 
-            connection.close();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Should not have caught exception." );
-        }
+        connection.close();
     }
 
 
