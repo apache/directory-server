@@ -22,7 +22,6 @@ package org.apache.directory.server.operations.bind;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.net.InetAddress;
@@ -73,6 +72,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.DN;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -414,6 +414,51 @@ public class SaslBindIT extends AbstractLdapTestUnit
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
         assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+    }
+
+
+    /**
+     * Test for DIRAPI-30 (Sporadic NullPointerException during SASL bind).
+     * Tests multiple connect/bind/unbind/disconnect.
+     */
+    @Ignore("Activate when DIRAPI-30 is solved")
+    @Test
+    public void testSequentialBinds() throws Exception
+    {
+        LdapNetworkConnection connection;
+        BindResponse resp;
+        Entry entry;
+        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+
+        for ( int i = 0; i < 1000; i++ )
+        {
+            System.out.println( "try " + i );
+            // Digest-MD5
+            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
+                .get( 0 ) );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+            entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+            connection.close();
+
+            // Cram-MD5
+            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            resp = connection.bindCramMd5( userDn.getName(), "secret", null );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+            entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+            connection.close();
+
+            // GSSAPI
+            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 )
+                .toUpperCase(), "localhost", 6088 );
+            assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+            entry = connection.lookup( userDn );
+            assertEquals( "hnelson", entry.get( "uid" ).getString() );
+            connection.close();
+        }
     }
 
     /**
