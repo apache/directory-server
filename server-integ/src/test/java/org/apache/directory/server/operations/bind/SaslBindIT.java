@@ -68,6 +68,8 @@ import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapEncoder;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.DN;
@@ -121,7 +123,7 @@ import org.slf4j.LoggerFactory;
         "sn: Service",
         
         // ldap per host
-        "dn: uid=ldap-host,ou=users,dc=example,dc=com",
+        "dn: uid=ldap,ou=users,dc=example,dc=com",
         "objectClass: inetOrgPerson",
         "objectClass: organizationalPerson",
         "objectClass: person",
@@ -131,21 +133,6 @@ import org.slf4j.LoggerFactory;
         "uid: ldap",
         "userPassword: randall",
         "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
-        "krb5KeyVersionNumber: 0",
-        "cn: LDAP Service",
-        "sn: Service",
-        
-        // ldap per IP
-        "dn: uid=ldap-ip,ou=users,dc=example,dc=com",
-        "objectClass: inetOrgPerson",
-        "objectClass: organizationalPerson",
-        "objectClass: person",
-        "objectClass: krb5principal",
-        "objectClass: krb5kdcentry",
-        "objectClass: top",
-        "uid: ldap",
-        "userPassword: randall",
-        "krb5PrincipalName: ldap/127.0.0.1@EXAMPLE.COM",
         "krb5KeyVersionNumber: 0",
         "cn: LDAP Service",
         "sn: Service"
@@ -173,7 +160,7 @@ additionalInterceptors = { KeyDerivationInterceptor.class }
     })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
-    public SaslBindIT()
+    public SaslBindIT() throws Exception
     {
         // On Windows 7 and Server 2008 the loopback address 127.0.0.1
         // isn't resolved to localhost by default. In that case we need
@@ -191,6 +178,12 @@ public class SaslBindIT extends AbstractLdapTestUnit
         }
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
         ldapServer.setSaslPrincipal( servicePrincipal );
+
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( new DN( "uid=ldap,ou=users,dc=example,dc=com" ) );
+        modifyRequest.replace( "userPassword", "randall" );
+        modifyRequest.replace( "krb5PrincipalName", servicePrincipal );
+        service.getAdminSession().modify( modifyRequest );
     }
 
 
