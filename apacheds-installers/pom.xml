@@ -58,8 +58,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.directory.daemon</groupId>
-            <artifactId>daemon-plugin</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>installers-plugin</artifactId>
             <configuration>
               <excludes>
 
