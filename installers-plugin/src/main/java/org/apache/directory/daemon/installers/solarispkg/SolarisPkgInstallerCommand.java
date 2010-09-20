@@ -24,12 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.AbstractMojoCommand;
+import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.taskdefs.Execute;
 
 
@@ -38,13 +37,9 @@ import org.apache.tools.ant.taskdefs.Execute;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SolarisPkgInstallerCommand extends MojoCommand
+public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTarget>
 {
     private final Properties filterProperties = new Properties( System.getProperties() );
-    /** The PKG target */
-    private final SolarisPkgTarget target;
-    /** The Maven logger */
-    private final Log log;
 
     private File pkgMaker;
     private File pkgTranslator;
@@ -53,16 +48,14 @@ public class SolarisPkgInstallerCommand extends MojoCommand
     /**
      * Creates a new instance of SolarisPkgInstallerCommand.
      *
-     * @param mymojo
+     * @param mojo
      *      the Server Installers Mojo
      * @param target
      *      the PKG target
      */
-    public SolarisPkgInstallerCommand( ServiceInstallersMojo mymojo, SolarisPkgTarget target )
+    public SolarisPkgInstallerCommand( GenerateMojo mojo, SolarisPkgTarget target )
     {
-        super( mymojo );
-        this.target = target;
-        this.log = mymojo.getLog();
+        super( mojo, target );
         initializeFiltering();
     }
 
@@ -134,7 +127,7 @@ public class SolarisPkgInstallerCommand extends MojoCommand
             MojoHelperUtils.copyFiles( baseDirectory, apacheDsHomeDirectory );
 
             // Replacing the apacheds.conf file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
                 new File( apacheDsHomeDirectory, "conf/apacheds.conf" ), false );
         }
         catch ( IOException e )
@@ -159,20 +152,20 @@ public class SolarisPkgInstallerCommand extends MojoCommand
         try
         {
             // Copying the apacheds.conf file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
                 "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
 
             // Copying the log4j.properties file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, new File( apacheDsHomeDirectory,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( apacheDsHomeDirectory,
                 "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
 
             // Copying the server.xml file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                 new File( apacheDsHomeDirectory, "conf/server.xml" ), new File( debDefaultInstanceConfDirectory,
                     "server.xml" ), false );
 
             // Copying the init script in /etc/init.d/
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ),
                 new File( etcInitdDirectory, "apacheds" + "-default" ), true );
 
             // Removing the redundant server.xml file (see DIRSERVER-1112)
@@ -188,22 +181,22 @@ public class SolarisPkgInstallerCommand extends MojoCommand
         // Copying the 'pkg' files 
         try
         {
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "Prototype" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "Prototype" ),
                 new File( pkgDirectory, "Prototype" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "pkginfo" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "pkginfo" ),
                 new File( pkgDirectory, "pkginfo" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "preinstall" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preinstall" ),
                 new File( pkgDirectory, "preinstall" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "postinstall" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinstall" ),
                 new File( pkgDirectory, "postinstall" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "preremove" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preremove" ),
                 new File( pkgDirectory, "preremove" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "postremove" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postremove" ),
                 new File( pkgDirectory, "postremove" ), true );
         }
         catch ( IOException e )
@@ -249,13 +242,13 @@ public class SolarisPkgInstallerCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app", target.getApplication().getName() );
-        filterProperties.put( "app.name", target.getApplication().getName() );
+        filterProperties.putAll( mojo.getProject().getProperties() );
+        filterProperties.put( "app", "apacheds" );
+        filterProperties.put( "app.name", "apacheds" );
         filterProperties.put( "osArch", target.getOsArch() );
-        if ( target.getApplication().getVersion() != null )
+        if ( mojo.getProject().getVersion() != null )
         {
-            filterProperties.put( "app.version", target.getApplication().getVersion() );
+            filterProperties.put( "app.version", mojo.getProject().getVersion() );
         }
         else
         {
@@ -265,7 +258,7 @@ public class SolarisPkgInstallerCommand extends MojoCommand
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.MojoCommand#getFilterProperties()
+     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
      */
     public Properties getFilterProperties()
     {

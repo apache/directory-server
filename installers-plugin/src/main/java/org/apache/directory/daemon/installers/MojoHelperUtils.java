@@ -67,7 +67,7 @@ public class MojoHelperUtils
     }
 
 
-    public static void copyAsciiFile( ServiceInstallersMojo mymojo, Properties filterProperties, InputStream from,
+    public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, InputStream from,
         File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
@@ -110,14 +110,14 @@ public class MojoHelperUtils
     }
 
 
-    public static void copyAsciiFile( ServiceInstallersMojo mymojo, Properties filterProperties, File from, File to,
+    public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, File from, File to,
         boolean filtering ) throws IOException
     {
         copyAsciiFile( mymojo, filterProperties, new FileInputStream( from ), to, filtering );
     }
 
 
-    public static List copyDependencies( ServiceInstallersMojo mymojo, InstallationLayout layout )
+    public static List copyDependencies( GenerateMojo mymojo, InstallationLayout layout )
         throws MojoFailureException
     {
         List<Artifact> libArtifacts = new ArrayList<Artifact>();

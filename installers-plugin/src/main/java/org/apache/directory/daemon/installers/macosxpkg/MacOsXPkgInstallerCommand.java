@@ -24,12 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.AbstractMojoCommand;
+import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.taskdefs.Execute;
 
 
@@ -38,13 +37,9 @@ import org.apache.tools.ant.taskdefs.Execute;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MacOsXPkgInstallerCommand extends MojoCommand
+public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarget>
 {
     private final Properties filterProperties = new Properties( System.getProperties() );
-    /** The PKG target */
-    private final MacOsXPkgTarget target;
-    /** The Maven logger */
-    private final Log log;
     /** The PackageMaker utility executable */
     private File packageMakerUtility;
     /** The hdiutil utility executable */
@@ -54,16 +49,14 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
     /**
      * Creates a new instance of MacOsXPkgInstallerCommand.
      *
-     * @param mymojo
+     * @param mojo
      *      the Server Installers Mojo
      * @param target
      *      the PKG target
      */
-    public MacOsXPkgInstallerCommand( ServiceInstallersMojo mymojo, MacOsXPkgTarget target )
+    public MacOsXPkgInstallerCommand( GenerateMojo mojo, MacOsXPkgTarget target )
     {
-        super( mymojo );
-        this.target = target;
-        this.log = mymojo.getLog();
+        super( mojo, target );
         initializeFiltering();
     }
 
@@ -125,8 +118,8 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
         pkgRootDirectory.mkdirs();
         File pkgRootUsrBinDirectory = new File( pkgRootDirectory, "usr/bin" );
         pkgRootUsrBinDirectory.mkdirs();
-        File pkgRootUsrLocalApachedsDirectory = new File( pkgRootDirectory, "usr/local/"
-            + target.getApplication().getName() + "-" + target.getApplication().getVersion() );
+        File pkgRootUsrLocalApachedsDirectory = new File( pkgRootDirectory, "usr/local/apacheds-"
+            + mojo.getProject().getVersion() );
         pkgRootUsrLocalApachedsDirectory.mkdirs();
         File pkgRootInstancesDirectory = new File( pkgRootUsrLocalApachedsDirectory, "instances" );
         pkgRootInstancesDirectory.mkdirs();
@@ -149,32 +142,32 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
             MojoHelperUtils.copyFiles( baseDirectory, pkgRootUsrLocalApachedsDirectory );
 
             // Copying the apacheds.init file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.init" ),
-                new File( pkgRootUsrLocalApachedsDirectory, "bin/" + target.getApplication().getName() + ".init" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.init" ),
+                new File( pkgRootUsrLocalApachedsDirectory, "bin/apacheds.init" ),
                 true );
 
             // Replacing the apacheds.conf file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
                 new File( pkgRootUsrLocalApachedsDirectory, "conf/apacheds.conf" ), true );
 
             // Copying the apacheds.conf file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
                 "apacheds-default.conf" ), new File( pkgRootInstancesDefaultConfDirectory, "apacheds.conf" ), false );
 
             // Copying the log4j.properties file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
                 "conf/log4j.properties" ), new File( pkgRootInstancesDefaultConfDirectory, "log4j.properties" ), false );
 
             // Copying the server.xml file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
                 "conf/server.xml" ), new File( pkgRootInstancesDefaultConfDirectory, "server.xml" ), false );
 
             // Copying the apacheds command to /usr/bin
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
-                "apacheds-usr-bin.sh" ), new File( pkgRootUsrBinDirectory, target.getApplication().getName() ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "apacheds-usr-bin.sh" ), new File( pkgRootUsrBinDirectory, "apacheds" ), true );
 
             // Copying the org.apache.directory.server.plist file to /Library/LaunchDaemons/
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
                 "org.apache.directory.server.plist" ), new File( pkgRootLibraryLaunchDaemons,
                 "org.apache.directory.server.plist" ), true );
 
@@ -221,11 +214,11 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
             { packageMakerUtility.getAbsolutePath(), "--root", "root/", "--resources", "Resources/", "--info",
-                "Info.plist", "--title", "Apache Directory Server " + target.getApplication().getVersion(),
-                "--version", target.getApplication().getVersion(), "--scripts", "scripts", "--out",
+                "Info.plist", "--title", "Apache Directory Server " + mojo.getProject().getVersion(),
+                "--version", mojo.getProject().getVersion(), "--scripts", "scripts", "--out",
                 "Apache Directory Server Installer.pkg" };
         createPkgTask.setCommandline( cmd );
-        createPkgTask.setSpawn( true );
+        createPkgTask.setSpawn( true ); // TODO should we remove this?
         createPkgTask.setWorkingDirectory( pkgDirectory );
         try
         {
@@ -315,11 +308,10 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app.name", target.getApplication().getName() );
-        if ( target.getApplication().getVersion() != null )
+        filterProperties.putAll( mojo.getProject().getProperties() );
+        if ( mojo.getProject().getVersion() != null )
         {
-            filterProperties.put( "app.version", target.getApplication().getVersion() );
+            filterProperties.put( "app.version", mojo.getProject().getVersion() );
         }
         else
         {
@@ -329,7 +321,7 @@ public class MacOsXPkgInstallerCommand extends MojoCommand
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.MojoCommand#getFilterProperties()
+     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
      */
     public Properties getFilterProperties()
     {

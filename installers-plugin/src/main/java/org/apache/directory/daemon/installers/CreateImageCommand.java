@@ -35,17 +35,15 @@ import org.codehaus.plexus.util.FileUtils;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CreateImageCommand extends MojoCommand
+public class CreateImageCommand extends AbstractMojoCommand<Target>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
-    private final Target target;
+    private Properties filterProperties = new Properties( System.getProperties() );
     private InstallationLayout layout;
 
 
-    public CreateImageCommand( ServiceInstallersMojo mojo, Target target )
+    public CreateImageCommand( GenerateMojo mojo, Target target )
     {
-        super( mojo );
-        this.target = target;
+        super( mojo, target );
         initializeFiltering();
     }
 
@@ -58,19 +56,8 @@ public class CreateImageCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app", target.getApplication().getName() );
-        filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
-
-        if ( target.getApplication().getVersion() != null )
-        {
-            filterProperties.put( "app.version", target.getApplication().getVersion() );
-        }
-
-        if ( target.getApplication().getDescription() != null )
-        {
-            filterProperties.put( "app.init.message", target.getApplication().getDescription() );
-        }
+        filterProperties.putAll( mojo.getProject().getProperties() );
+        filterProperties.put( "version", mojo.getProject().getVersion() );
     }
 
 
@@ -78,7 +65,7 @@ public class CreateImageCommand extends MojoCommand
     {
         // make the layout directories
         log.info( "Creating image ... " );
-        File dir = new File( mymojo.getOutputDirectory(), target.getId() );
+        File dir = new File( mojo.getOutputDirectory(), target.getId() );
         layout = new InstallationLayout( dir );
         target.setLayout( layout );
         layout.mkdirs();
@@ -117,7 +104,7 @@ public class CreateImageCommand extends MojoCommand
         //        {
         //            try
         //            {
-        //                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "LICENSE" ),
+        //                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "LICENSE" ),
         //                    licenseTarget, false );
         //            }
         //            catch ( IOException e )
@@ -157,11 +144,11 @@ public class CreateImageCommand extends MojoCommand
         //        // copy over the REQUIRED bootstrapper.jar file 
         //        try
         //        {
-        //            FileUtils.copyFile( mymojo.getBootstrapper().getFile(), layout.getBootstrapper() );
+        //            FileUtils.copyFile( mojo.getBootstrapper().getFile(), layout.getBootstrapper() );
         //        }
         //        catch ( IOException e )
         //        {
-        //            throw new MojoFailureException( "Failed to copy bootstrapper.jar " + mymojo.getBootstrapper().getFile()
+        //            throw new MojoFailureException( "Failed to copy bootstrapper.jar " + mojo.getBootstrapper().getFile()
         //                + " into position " + layout.getBootstrapper() );
         //        }
         //
@@ -169,11 +156,11 @@ public class CreateImageCommand extends MojoCommand
         //        /*
         //                try
         //                {
-        //                    FileUtils.copyFile( mymojo.getLogger().getFile(), layout.getLogger() );
+        //                    FileUtils.copyFile( mojo.getLogger().getFile(), layout.getLogger() );
         //                }
         //                catch ( IOException e )
         //                {
-        //                    throw new MojoFailureException( "Failed to copy logger.jar " + mymojo.getLogger().getFile()
+        //                    throw new MojoFailureException( "Failed to copy logger.jar " + mojo.getLogger().getFile()
         //                        + " into position " + layout.getLogger() );
         //                }
         //        */
@@ -181,11 +168,11 @@ public class CreateImageCommand extends MojoCommand
         //        // copy over the REQUIRED daemon.jar file 
         //        try
         //        {
-        //            FileUtils.copyFile( mymojo.getDaemon().getFile(), new File( layout.getLibDirectory(), "wrapper.jar" ) );
+        //            FileUtils.copyFile( mojo.getDaemon().getFile(), new File( layout.getLibDirectory(), "wrapper.jar" ) );
         //        }
         //        catch ( IOException e )
         //        {
-        //            throw new MojoFailureException( "Failed to copy daemon.jar " + mymojo.getDaemon().getFile()
+        //            throw new MojoFailureException( "Failed to copy daemon.jar " + mojo.getDaemon().getFile()
         //                + " into position " + layout.getDaemon() );
         //        }
         //
@@ -244,7 +231,7 @@ public class CreateImageCommand extends MojoCommand
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "wrapper/bin/wrapper-linux-x86-32" ),
-                    new File( layout.getBinDirectory(), target.getApplication().getName() ) );
+                    new File( layout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "wrapper/lib/libwrapper-linux-x86-32.so" ), new File( layout.getLibDirectory(), "libwrapper.so" ) );
             }
@@ -262,7 +249,7 @@ public class CreateImageCommand extends MojoCommand
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "wrapper/bin/wrapper-linux-x86-64" ),
-                    new File( layout.getBinDirectory(), target.getApplication().getName() ) );
+                    new File( layout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "wrapper/lib/libwrapper-linux-x86-64.so" ), new File( layout.getLibDirectory(), "libwrapper.so" ) );
             }
@@ -278,8 +265,7 @@ public class CreateImageCommand extends MojoCommand
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "wrapper/bin/wrapper-macosx-universal-32" ), new File( layout.getBinDirectory(), target
-                    .getApplication().getName() ) );
+                    "wrapper/bin/wrapper-macosx-universal-32" ), new File( layout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "wrapper/lib/libwrapper-macosx-universal-32.jnilib" ), new File( layout.getLibDirectory(),
                     "libwrapper.jnilib" ) );
@@ -297,8 +283,7 @@ public class CreateImageCommand extends MojoCommand
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "wrapper/bin/wrapper-solaris-x86-32" ), new File( layout.getBinDirectory(), target
-                    .getApplication().getName() ) );
+                    "wrapper/bin/wrapper-solaris-x86-32" ), new File( layout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "wrapper/lib/libwrapper-solaris-x86-32.so" ), new File( layout.getLibDirectory(),
                     "libwrapper.so" ) );
@@ -316,8 +301,7 @@ public class CreateImageCommand extends MojoCommand
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "wrapper/bin/wrapper-solaris-sparc-32" ), new File( layout.getBinDirectory(), target
-                    .getApplication().getName() ) );
+                    "wrapper/bin/wrapper-solaris-sparc-32" ), new File( layout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "wrapper/lib/libwrapper-solaris-sparc-32.so" ), new File( layout.getLibDirectory(),
                     "libwrapper.so" ) );
@@ -328,10 +312,10 @@ public class CreateImageCommand extends MojoCommand
             }
         }
 
-        // now copy over the jsvc executable renaming it to the mymojo.getApplicationName() 
+        // now copy over the jsvc executable renaming it to the mojo.getApplicationName() 
         if ( target.getOsName().equals( "sunos" ) && target.getOsArch().equals( "sparc" ) )
         {
-            File executable = new File( layout.getBinDirectory(), target.getApplication().getName() );
+            File executable = new File( layout.getBinDirectory(), "wrapper" );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
@@ -345,7 +329,7 @@ public class CreateImageCommand extends MojoCommand
 
         if ( target.getOsName().equals( "sunos" ) && target.getOsArch().equals( "i386" ) )
         {
-            File executable = new File( layout.getBinDirectory(), target.getApplication().getName() );
+            File executable = new File( layout.getBinDirectory(), "wrapper" );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_i386" ), executable );
@@ -357,7 +341,7 @@ public class CreateImageCommand extends MojoCommand
             }
         }
 
-        // now copy over the jsvc executable renaming it to the mymojo.getApplicationName() 
+        // now copy over the jsvc executable renaming it to the mojo.getApplicationName() 
         //        if ( target.getOsName().equals( "macosx" ) && target.getOsArch().equals( "ppc" ) )
         //        {
         //            File executable = new File( layout.getBinDirectory(), target.getApplication().getName() );
@@ -372,8 +356,7 @@ public class CreateImageCommand extends MojoCommand
         //            }
         //        }
 
-        target.setLibArtifacts( MojoHelperUtils.copyDependencies( mymojo, layout ) );
-
+        target.setLibArtifacts( MojoHelperUtils.copyDependencies( mojo, layout ) );
 
         // -- if present copy the NOTICE.txt file --
 
@@ -392,6 +375,6 @@ public class CreateImageCommand extends MojoCommand
             }
         }
 
-        processPackagedFiles( target, mymojo.getPackagedFiles() );
+        processPackagedFiles( target, mojo.getPackagedFiles() );
     }
 }

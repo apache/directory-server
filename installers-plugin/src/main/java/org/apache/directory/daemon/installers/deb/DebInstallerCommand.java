@@ -24,12 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.AbstractMojoCommand;
+import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.taskdefs.Execute;
 
 
@@ -38,13 +37,9 @@ import org.apache.tools.ant.taskdefs.Execute;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DebInstallerCommand extends MojoCommand
+public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 {
     private final Properties filterProperties = new Properties( System.getProperties() );
-    /** The Deb target */
-    private final DebTarget target;
-    /** The Maven logger */
-    private final Log log;
     /** The dpkg utility*/
     private File dpkgUtility;
 
@@ -52,16 +47,14 @@ public class DebInstallerCommand extends MojoCommand
     /**
      * Creates a new instance of DebInstallerCommand.
      *
-     * @param mymojo
+     * @param mojo
      *      the Server Installers Mojo
      * @param target
      *      the DEB target
      */
-    public DebInstallerCommand( ServiceInstallersMojo mymojo, DebTarget target )
+    public DebInstallerCommand( GenerateMojo mojo, DebTarget target )
     {
-        super( mymojo );
-        this.target = target;
-        this.log = mymojo.getLog();
+        super( mojo, target );
         initializeFiltering();
     }
 
@@ -109,14 +102,14 @@ public class DebInstallerCommand extends MojoCommand
         log.info( "Copying DEB Package files" );
 
         // Copying the apacheds files in the '/opt/apacheds-$VERSION/' directory
-        File debApacheDsHomeDirectory = new File( debDirectory, "opt/apacheds-" + target.getApplication().getVersion() );
+        File debApacheDsHomeDirectory = new File( debDirectory, "opt/apacheds-" + mojo.getProject().getVersion() );
         try
         {
             // Copying the generated layout
             MojoHelperUtils.copyFiles( baseDirectory, debApacheDsHomeDirectory );
 
             // Replacing the apacheds.conf file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
                 new File( debApacheDsHomeDirectory, "conf/apacheds.conf" ), false );
         }
         catch ( IOException e )
@@ -128,7 +121,7 @@ public class DebInstallerCommand extends MojoCommand
 
         // Copying the instances in the '/var/lib/apacheds-$VERSION/default' directory
         File debDefaultInstanceDirectory = new File( debDirectory, "var/lib/apacheds-"
-            + target.getApplication().getVersion() + "/default" );
+            + mojo.getProject().getVersion() + "/default" );
         debDefaultInstanceDirectory.mkdirs();
         File debDefaultInstanceConfDirectory = new File( debDefaultInstanceDirectory, "conf" );
         debDefaultInstanceConfDirectory.mkdirs();
@@ -138,25 +131,25 @@ public class DebInstallerCommand extends MojoCommand
         new File( debDefaultInstanceDirectory, "run" ).mkdirs();
         File debEtcInitdDirectory = new File( debDirectory, "etc/init.d" );
         debEtcInitdDirectory.mkdirs();
-        new File( debDirectory, "/var/run/apacheds-" + target.getApplication().getVersion() ).mkdirs();
+        new File( debDirectory, "/var/run/apacheds-" + mojo.getProject().getVersion() ).mkdirs();
         try
         {
             // Copying the apacheds.conf file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream(
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
                 "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
 
             // Copying the log4j.properties file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, new File( debApacheDsHomeDirectory,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
                 "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
 
             // Copying the server.xml file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, new File( debApacheDsHomeDirectory,
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
                 "conf/server.xml" ), new File( debDefaultInstanceConfDirectory, "server.xml" ), false );
 
             // Copying the init script in /etc/init.d/
             MojoHelperUtils
-                .copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ), new File(
-                    debEtcInitdDirectory, "apacheds-" + target.getApplication().getVersion() + "-default" ), true );
+                .copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ), new File(
+                    debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
 
             // Removing the redundant server.xml file (see DIRSERVER-1112)
             new File( debApacheDsHomeDirectory, "conf/server.xml" ).delete();
@@ -175,13 +168,13 @@ public class DebInstallerCommand extends MojoCommand
         // Copying the 'control' file
         try
         {
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "control" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "control" ),
                 new File( debDebianDirectory, "control" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
                 new File( debDebianDirectory, "postinst" ), true );
 
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
                 new File( debDebianDirectory, "prerm" ), true );
         }
         catch ( IOException e )
@@ -226,10 +219,9 @@ public class DebInstallerCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app", target.getApplication().getName() );
-        String version = target.getApplication().getVersion();
-        if ( target.getApplication().getVersion() != null )
+        filterProperties.putAll( mojo.getProject().getProperties() );
+        String version = mojo.getProject().getVersion();
+        if ( version != null )
         {
             if ( version.endsWith( "-SNAPSHOT" ) )
             {
@@ -240,18 +232,18 @@ public class DebInstallerCommand extends MojoCommand
                 filterProperties.put( "version.debian", version );
             }
 
-            filterProperties.put( "app.version", version );
+            filterProperties.put( "version", version );
         }
         else
         {
-            filterProperties.put( "app.version", "1.0" );
+            filterProperties.put( "version", "1.0" );
         }
         filterProperties.put( "arch", target.getOsArch() );
     }
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.MojoCommand#getFilterProperties()
+     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
      */
     public Properties getFilterProperties()
     {

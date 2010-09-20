@@ -40,11 +40,13 @@ import org.codehaus.plexus.util.FileUtils;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class MojoCommand
+public abstract class AbstractMojoCommand<T extends Target>
 {
-    protected final Map<String, Artifact> dependencyMap;
-    protected final Log log;
-    protected final ServiceInstallersMojo mymojo;
+    protected GenerateMojo mojo;
+    protected T target;
+    
+    protected Map<String, Artifact> dependencyMap;
+    protected Log log;
 
 
     public abstract void execute() throws MojoExecutionException, MojoFailureException;
@@ -53,13 +55,15 @@ public abstract class MojoCommand
     public abstract Properties getFilterProperties();
 
 
-    public MojoCommand( ServiceInstallersMojo mymojo )
+    public AbstractMojoCommand( GenerateMojo mojo, T target )
     {
-        this.mymojo = mymojo;
-        this.log = mymojo.getLog();
-        this.dependencyMap = new HashMap<String, Artifact>();
+        this.mojo = mojo;
+        this.target= target;
+        
+        log = mojo.getLog();
+        dependencyMap = new HashMap<String, Artifact>();
 
-        for ( Iterator ii = mymojo.getProject().getDependencyArtifacts().iterator(); ii.hasNext(); /* */)
+        for ( Iterator ii = mojo.getProject().getDependencyArtifacts().iterator(); ii.hasNext(); /* */)
         {
             Artifact artifact = ( Artifact ) ii.next();
             dependencyMap.put( artifact.getGroupId() + ":" + artifact.getArtifactId(), artifact );
@@ -117,8 +121,8 @@ public abstract class MojoCommand
 
                 if ( !source.isAbsolute() )
                 {
-                    File sourceDirectoryRelative = new File( mymojo.getSourceDirectory(), packagedFiles[ii].getSource() );
-                    File baseRelative = new File( mymojo.getProject().getBasedir(), packagedFiles[ii].getSource() );
+                    File sourceDirectoryRelative = new File( mojo.getSourceDirectory(), packagedFiles[ii].getSource() );
+                    File baseRelative = new File( mojo.getProject().getBasedir(), packagedFiles[ii].getSource() );
                     if ( sourceDirectoryRelative.exists() )
                     {
                         source = sourceDirectoryRelative;
@@ -189,7 +193,7 @@ public abstract class MojoCommand
                 {
                     try
                     {
-                        MojoHelperUtils.copyAsciiFile( mymojo, getFilterProperties(), source, dest, true );
+                        MojoHelperUtils.copyAsciiFile( mojo, getFilterProperties(), source, dest, true );
                     }
                     catch ( IOException e )
                     {

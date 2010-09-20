@@ -41,13 +41,10 @@ import org.apache.directory.daemon.installers.rpm.RpmTarget;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgInstallerCommand;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgTarget;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Developer;
-import org.apache.maven.model.MailingList;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.apache.tools.ant.util.JavaEnvUtils;
 import org.codehaus.plexus.util.FileUtils;
 
 
@@ -60,12 +57,13 @@ import org.codehaus.plexus.util.FileUtils;
  * @requiresDependencyResolution runtime
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServiceInstallersMojo extends AbstractMojo
+public class GenerateMojo extends AbstractMojo
 {
     /**
      * The target directory into which the mojo creates os and platform 
      * specific images.
-     * @parameter default-value="${project.build.directory}/images"
+     * 
+     * @parameter default-value="${project.build.directory}/installers"
      */
     private File outputDirectory;
 
@@ -78,57 +76,72 @@ public class ServiceInstallersMojo extends AbstractMojo
     private File sourceDirectory;
 
     /**
+     * The associated maven project.
+     * 
      * @parameter expression="${project}" default-value="${project}"
      * @required
      */
     private MavenProject project;
 
     /**
+     * The RPM installer targets.
+     * 
      * @parameter
      */
     private RpmTarget[] rpmTargets;
 
     /**
+     * The Mac OS X installer targets.
+     * 
      * @parameter
      */
     private MacOsXPkgTarget[] macOsXPkgTargets;
 
     /**
+     * The Solaris PKG installers targets.
+     * 
      * @parameter
      */
     private SolarisPkgTarget[] solarisPkgTargets;
 
     /**
+     * The NSIS installer targets.
+     * 
      * @parameter
      */
     private NsisTarget[] nsisTargets;
 
     /**
+     * The Debian installer targets.
+     * 
      * @parameter
      */
     private DebTarget[] debTargets;
 
     /**
+     * The Binary installer targets.
+     * 
      * @parameter
      */
     private BinTarget[] binTargets;
+
     /**
+     * The Archive installers targets.
+     * 
      * @parameter
      */
     private ArchiveTarget[] archiveTargets;
 
     /**
-     * @parameter 
-     * @required
-     */
-    private Application application;
-
-    /**
+     * The packages files.
+     * 
      * @parameter
      */
     private PackagedFile[] packagedFiles;
 
     /**
+     * The exclusions.
+     * 
      * @parameter
      */
     private Set excludes;
@@ -147,10 +160,10 @@ public class ServiceInstallersMojo extends AbstractMojo
     {
         FileUtils.mkdir( outputDirectory.getAbsolutePath() );
 
-        // collect all targets 
+        // Collecting all targets 
         initializeAllTargets();
 
-        // makes sure defaulted values are set to globals
+        // Makes sure defaulted values are set to globals
         setDefaults();
 
         // bail if there is nothing to do 
@@ -232,27 +245,37 @@ public class ServiceInstallersMojo extends AbstractMojo
     }
 
 
+    /**
+     * Initializes all targets.
+     */
     private void initializeAllTargets()
     {
         allTargets = new ArrayList<Target>();
-        addAll( allTargets, nsisTargets );
-        addAll( allTargets, rpmTargets );
-        addAll( allTargets, debTargets );
-        addAll( allTargets, macOsXPkgTargets );
-        addAll( allTargets, solarisPkgTargets );
-        addAll( allTargets, binTargets );
-        addAll( allTargets, archiveTargets );
+
+        addAllTargets( allTargets, nsisTargets );
+        addAllTargets( allTargets, rpmTargets );
+        addAllTargets( allTargets, debTargets );
+        addAllTargets( allTargets, macOsXPkgTargets );
+        addAllTargets( allTargets, solarisPkgTargets );
+        addAllTargets( allTargets, binTargets );
+        addAllTargets( allTargets, archiveTargets );
     }
 
 
-    private void addAll( List<Target> list, Target[] array )
+    /**
+     * Adds an array of targets to the given list.
+     *
+     * @param list
+     *      the list of targets
+     * @param array
+     *      an array of targets
+     */
+    private void addAllTargets( List<Target> list, Target[] array )
     {
-        if ( array == null )
+        if ( ( list != null ) && ( array != null ) )
         {
-            return;
+            list.addAll( Arrays.asList( array ) );
         }
-
-        list.addAll( Arrays.asList( array ) );
     }
 
 
@@ -263,119 +286,121 @@ public class ServiceInstallersMojo extends AbstractMojo
             return;
         }
 
-        if ( application.getName() == null )
-        {
-            throw new MojoFailureException( "Installed application name cannot be null." );
-        }
-
-        if ( application.getCompany() == null )
-        {
-            if ( project.getOrganization() != null )
-            {
-                application.setCompany( project.getOrganization().getName() );
-            }
-            else
-            {
-                application.setCompany( "Apache Software Foundation" );
-            }
-        }
-
-        if ( application.getDescription() == null )
-        {
-            if ( project.getDescription() != null )
-            {
-                application.setDescription( project.getDescription() );
-            }
-            else
-            {
-                application.setDescription( "No description of this application is available." );
-            }
-        }
-
-        if ( project.getInceptionYear() != null )
-        {
-            application.setCopyrightYear( project.getInceptionYear() );
-        }
-
-        if ( application.getUrl() == null )
-        {
-            if ( project.getUrl() != null )
-            {
-                application.setUrl( project.getUrl() );
-            }
-            else if ( project.getOrganization() != null )
-            {
-                application.setUrl( project.getOrganization().getUrl() );
-            }
-            else
-            {
-                application.setUrl( "http://www.apache.org" );
-            }
-        }
-
-        if ( application.getVersion() == null )
-        {
-            application.setVersion( project.getVersion() );
-        }
-
-        if ( application.getMinimumJavaVersion() == null )
-        {
-            application.setMinimumJavaVersion( JavaEnvUtils.getJavaVersion() );
-        }
-
-        if ( application.getAuthors() == null )
-        {
-            List<String> authors = new ArrayList<String>();
-            @SuppressWarnings(value =
-                { "unchecked" })
-            List<Developer> developers = project.getDevelopers();
-
-            for ( Developer developer : developers )
-            {
-                if ( developer.getEmail() != null )
-                {
-                    authors.add( developer.getEmail() );
-                }
-                else
-                {
-                    authors.add( developer.getName() );
-                }
-            }
-
-            application.setAuthors( authors );
-        }
-
-        if ( application.getEmail() == null )
-        {
-            if ( !project.getMailingLists().isEmpty() )
-            {
-                application.setEmail( ( ( MailingList ) project.getMailingLists().get( 0 ) ).getPost() );
-            }
-
-            application.setEmail( "general@apache.org" );
-        }
-
-        if ( application.getIcon() == null )
-        {
-            application.setIcon( new File( "src/main/installers/logo.ico" ) );
-        }
-
-        if ( application.getReadme() == null )
-        {
-            application.setReadme( new File( "README" ) );
-        }
-
-        if ( application.getLicense() == null )
-        {
-            application.setLicense( new File( "LICENSE" ) );
-        }
+        // TODO FIXME
+        //        if ( application.getName() == null )
+        //        {
+        //            throw new MojoFailureException( "Installed application name cannot be null." );
+        //        }
+        //
+        //        if ( application.getCompany() == null )
+        //        {
+        //            if ( project.getOrganization() != null )
+        //            {
+        //                application.setCompany( project.getOrganization().getName() );
+        //            }
+        //            else
+        //            {
+        //                application.setCompany( "Apache Software Foundation" );
+        //            }
+        //        }
+        //
+        //        if ( application.getDescription() == null )
+        //        {
+        //            if ( project.getDescription() != null )
+        //            {
+        //                application.setDescription( project.getDescription() );
+        //            }
+        //            else
+        //            {
+        //                application.setDescription( "No description of this application is available." );
+        //            }
+        //        }
+        //
+        //        if ( project.getInceptionYear() != null )
+        //        {
+        //            application.setCopyrightYear( project.getInceptionYear() );
+        //        }
+        //
+        //        if ( application.getUrl() == null )
+        //        {
+        //            if ( project.getUrl() != null )
+        //            {
+        //                application.setUrl( project.getUrl() );
+        //            }
+        //            else if ( project.getOrganization() != null )
+        //            {
+        //                application.setUrl( project.getOrganization().getUrl() );
+        //            }
+        //            else
+        //            {
+        //                application.setUrl( "http://www.apache.org" );
+        //            }
+        //        }
+        //
+        //        if ( application.getVersion() == null )
+        //        {
+        //            application.setVersion( project.getVersion() );
+        //        }
+        //
+        //        if ( application.getMinimumJavaVersion() == null )
+        //        {
+        //            application.setMinimumJavaVersion( JavaEnvUtils.getJavaVersion() );
+        //        }
+        //
+        //        if ( application.getAuthors() == null )
+        //        {
+        //            List<String> authors = new ArrayList<String>();
+        //            @SuppressWarnings(value =
+        //                { "unchecked" })
+        //            List<Developer> developers = project.getDevelopers();
+        //
+        //            for ( Developer developer : developers )
+        //            {
+        //                if ( developer.getEmail() != null )
+        //                {
+        //                    authors.add( developer.getEmail() );
+        //                }
+        //                else
+        //                {
+        //                    authors.add( developer.getName() );
+        //                }
+        //            }
+        //
+        //            application.setAuthors( authors );
+        //        }
+        //
+        //        if ( application.getEmail() == null )
+        //        {
+        //            if ( !project.getMailingLists().isEmpty() )
+        //            {
+        //                application.setEmail( ( ( MailingList ) project.getMailingLists().get( 0 ) ).getPost() );
+        //            }
+        //
+        //            application.setEmail( "general@apache.org" );
+        //        }
+        //
+        //        if ( application.getIcon() == null )
+        //        {
+        //            application.setIcon( new File( "src/main/installers/logo.ico" ) );
+        //        }
+        //
+        //        if ( application.getReadme() == null )
+        //        {
+        //            application.setReadme( new File( "README" ) );
+        //        }
+        //
+        //        if ( application.getLicense() == null )
+        //        {
+        //            application.setLicense( new File( "LICENSE" ) );
+        //        }
 
         for ( Target target : allTargets )
         {
-            if ( target.getApplication() == null )
-            {
-                target.setApplication( this.application );
-            }
+            // TODO FIXME
+            //            if ( target.getApplication() == null )
+            //            {
+            //                target.setApplication( this.application );
+            //            }
 
             if ( target.getLoggerConfigurationFile() == null )
             {
@@ -448,8 +473,7 @@ public class ServiceInstallersMojo extends AbstractMojo
     public void reportSetup()
     {
         getLog().info( "-------------------------------------------------------" );
-        getLog().info( "[installers:create]" );
-        getLog().info( "applicationName = " + application.getName() );
+        getLog().info( "[installers:generate]" );
         getLog().info( "sourceDirectory = " + sourceDirectory );
         getLog().info( "outputDirectory = " + outputDirectory );
         getLog().info( "---------------------- allTargets ---------------------" );
@@ -480,7 +504,7 @@ public class ServiceInstallersMojo extends AbstractMojo
             }
         }
 
-        getLog().info( "===================================================================" );
+        getLog().info( "-------------------------------------------------------" );
     }
 
 

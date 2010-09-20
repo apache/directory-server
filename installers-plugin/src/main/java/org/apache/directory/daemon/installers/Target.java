@@ -76,21 +76,7 @@ public class Target
     private InstallationLayout layout;
     private List libArtifacts;
 
-    private Application application;
-
     protected PackagedFile[] packagedFiles;
-
-
-    public void setApplication( Application application )
-    {
-        this.application = application;
-    }
-
-
-    public Application getApplication()
-    {
-        return application;
-    }
 
 
     public void setOsName( String osName )

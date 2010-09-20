@@ -24,12 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.AbstractMojoCommand;
+import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.BZip2;
 import org.apache.tools.ant.taskdefs.GZip;
@@ -43,28 +42,22 @@ import org.codehaus.plexus.util.FileUtils;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ArchiveInstallerCommand extends MojoCommand
+public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
-    /** The archive target */
-    private final ArchiveTarget target;
-    /** The Maven logger */
-    private final Log log;
+    private Properties filterProperties = new Properties( System.getProperties() );
 
 
     /**
      * Creates a new instance of ArchiveInstallerCommand.
      *
-     * @param mymojo
+     * @param mojo
      *      the Server Installers Mojo
      * @param target
      *      the target
      */
-    public ArchiveInstallerCommand( ServiceInstallersMojo mymojo, ArchiveTarget target )
+    public ArchiveInstallerCommand( GenerateMojo mojo, ArchiveTarget target )
     {
-        super( mymojo );
-        this.target = target;
-        this.log = mymojo.getLog();
+        super( mojo, target );
         initializeFiltering();
     }
 
@@ -107,8 +100,8 @@ public class ArchiveInstallerCommand extends MojoCommand
 
         // Creating the archive directory
         File targetDirectory = new File( imagesDirectory, target.getId() );
-        File archiveDirectory = new File( targetDirectory, target.getApplication().getName() + "_"
-            + target.getApplication().getVersion() );
+        File archiveDirectory = new File( targetDirectory, "apacheds" + "_"
+            + mojo.getProject().getVersion() );
 
         log.info( "Copying Archive Installer files" );
 
@@ -116,15 +109,15 @@ public class ArchiveInstallerCommand extends MojoCommand
         try
         {
             // Copying the apacheds.bat file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.bat" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.bat" ),
                 new File( targetDirectory, "apacheds.bat" ), false );
 
             // Copying the cpappend.bat file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "cpappend.bat" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "cpappend.bat" ),
                 new File( targetDirectory, "cpappend.bat" ), false );
 
             // Copying the apacheds.sh file
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, getClass().getResourceAsStream( "apacheds.sh" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.sh" ),
                 new File( targetDirectory, "apacheds.sh" ), false );
 
             // Copying all the files in the final archive directory
@@ -236,7 +229,7 @@ public class ArchiveInstallerCommand extends MojoCommand
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.MojoCommand#getFilterProperties()
+     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
      */
     public Properties getFilterProperties()
     {
@@ -246,16 +239,6 @@ public class ArchiveInstallerCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app", target.getApplication().getName() );
-        String version = target.getApplication().getVersion();
-        if ( version != null )
-        {
-            filterProperties.put( "app.version", version );
-        }
-        else
-        {
-            filterProperties.put( "app.version", "1.0" );
-        }
+        filterProperties.putAll( mojo.getProject().getProperties() );
     }
 }

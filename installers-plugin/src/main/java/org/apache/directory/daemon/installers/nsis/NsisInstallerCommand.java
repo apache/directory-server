@@ -26,9 +26,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.MojoCommand;
+import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.ServiceInstallersMojo;
+import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -43,21 +43,17 @@ import org.codehaus.plexus.util.FileUtils;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NsisInstallerCommand extends MojoCommand
+public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 {
     private final Properties filterProperties = new Properties( System.getProperties() );
-    private final NsisTarget target;
     private final File nsisConfigurationFile;
-    private final Log log;
 
     private File nsisCompiler;
 
 
-    public NsisInstallerCommand( ServiceInstallersMojo mymojo, NsisTarget target )
+    public NsisInstallerCommand( GenerateMojo mojo, NsisTarget target )
     {
-        super( mymojo );
-        this.target = target;
-        this.log = mymojo.getLog();
+        super( mojo, target );
         File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
         nsisConfigurationFile = new File( imagesDir, target.getId() + ".nsi" );
         initializeFiltering();
@@ -112,12 +108,12 @@ public class NsisInstallerCommand extends MojoCommand
         // -------------------------------------------------------------------
 
         // check first to see if the default install.iss file is present in src/main/installers
-        File projectNsisFile = new File( mymojo.getSourceDirectory(), "install.nsi" );
+        File projectNsisFile = new File( mojo.getSourceDirectory(), "install.nsi" );
         if ( target.getNsisConfigurationFile() != null && target.getNsisConfigurationFile().exists() )
         {
             try
             {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, target.getNsisConfigurationFile(),
+                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, target.getNsisConfigurationFile(),
                         nsisConfigurationFile, true );
             }
             catch ( IOException e )
@@ -130,7 +126,7 @@ public class NsisInstallerCommand extends MojoCommand
         {
             try
             {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, projectNsisFile, nsisConfigurationFile, true );
+                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, projectNsisFile, nsisConfigurationFile, true );
             }
             catch ( IOException e )
             {
@@ -144,7 +140,7 @@ public class NsisInstallerCommand extends MojoCommand
             URL resource = getClass().getResource( "install.iss" );
             try
             {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, in, nsisConfigurationFile, true );
+                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, in, nsisConfigurationFile, true );
             }
             catch ( IOException e )
             {
@@ -157,15 +153,14 @@ public class NsisInstallerCommand extends MojoCommand
         // 3: copy native files
         // -------------------------------------------------------------------
 
-        // now copy over the Prunsrv and Prunmgr executables renaming them to the mymojo.getApplicationName() + w for mgr
+        // now copy over the Prunsrv and Prunmgr executables renaming them to the mojo.getApplicationName() + w for mgr
         if ( target.getOsFamily().equals( "windows" ) )
         {
-            File executableTarget = new File( target.getLayout().getBinDirectory(),
-                target.getApplication().getName() + ".exe" );
-            File override = new File( mymojo.getSourceDirectory(), target.getWrapperExecutablePath() );
+            File executableTarget = new File( target.getLayout().getBinDirectory(), "apacheds.exe" );
+            File override = new File( mojo.getSourceDirectory(), target.getWrapperExecutablePath() );
             if ( override.exists() )
             {
-                mymojo.getLog().info( "Using native launcher supplied by project: " + override.getAbsolutePath() );
+                mojo.getLog().info( "Using native launcher supplied by project: " + override.getAbsolutePath() );
                 try
                 {
                     FileUtils.copyFile( override, executableTarget );
@@ -229,17 +224,14 @@ public class NsisInstallerCommand extends MojoCommand
 
     private void initializeFiltering()
     {
-        filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app", target.getApplication().getName() );
-        filterProperties.put( "app.base.dir", mymojo.getProject().getBasedir().getAbsolutePath() );
+        filterProperties.putAll( mojo.getProject().getProperties() );
+        filterProperties.put( "app.base.dir", mojo.getProject().getBasedir().getAbsolutePath() );
 
-        char firstChar = target.getApplication().getName().charAt( 0 );
-        firstChar = Character.toUpperCase( firstChar );
-        filterProperties.put( "app.displayname", firstChar + target.getApplication().getName().substring( 1 ) );
+        filterProperties.put( "app.displayname", "ApacheDS" );
 
-        if ( target.getApplication().getVersion() != null )
+        if ( mojo.getProject().getVersion() != null )
         {
-            filterProperties.put( "app.version", target.getApplication().getVersion() );
+            filterProperties.put( "app.version", mojo.getProject().getVersion() );
         }
         else
         {
@@ -250,34 +242,24 @@ public class NsisInstallerCommand extends MojoCommand
         // WARNING: hard code values just to for testing
         // -------------------------------------------------------------------
 
-        // @todo use the list of committers and add multiple authors to nsis
-        if ( target.getApplication().getAuthors().isEmpty() )
-        {
-            filterProperties.put( "app.author", "Apache Software Foundation" );
-        }
-        else
-        {
-            filterProperties.put( "app.author", target.getApplication().getAuthors().get( 0 ) );
-        }
-
         if ( target.getFinalName() != null )
         {
             filterProperties.put( "app.final.name", target.getFinalName() );
         }
         else
         {
-            String finalName = target.getApplication().getName() + "-" + target.getApplication().getVersion()
+            String finalName = "apacheds-" + mojo.getProject().getVersion()
                 + "-win32-setup.exe";
             filterProperties.put( "app.final.name", finalName );
         }
 
-        filterProperties.put( "app.email", target.getApplication().getEmail() );
-        filterProperties.put( "app.url", target.getApplication().getUrl() );
-        filterProperties.put( "app.java.version", target.getApplication().getMinimumJavaVersion() );
+        //        filterProperties.put( "app.email", target.getApplication().getEmail() );
+        //        filterProperties.put( "app.url", target.getApplication().getUrl() );
+        filterProperties.put( "app.java.version", "1.5" );
         filterProperties.put( "app.license", target.getLayout().getLicenseFile().getPath() );
         filterProperties.put( "app.license.name", target.getLayout().getLicenseFile().getName() );
         filterProperties.put( "app.company.name", target.getCompanyName() );
-        filterProperties.put( "app.description", target.getApplication().getDescription() );
+        //        filterProperties.put( "app.description", target.getApplication().getDescription() );
         filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
 
         // TODO FIXME
