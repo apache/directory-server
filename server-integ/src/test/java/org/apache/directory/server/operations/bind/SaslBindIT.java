@@ -25,13 +25,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -120,8 +120,8 @@ import org.slf4j.LoggerFactory;
         "cn: KDC Service",
         "sn: Service",
         
-        // ldap 
-        "dn: uid=ldap,ou=users,dc=example,dc=com",
+        // ldap per host
+        "dn: uid=ldap-host,ou=users,dc=example,dc=com",
         "objectClass: inetOrgPerson",
         "objectClass: organizationalPerson",
         "objectClass: person",
@@ -131,6 +131,21 @@ import org.slf4j.LoggerFactory;
         "uid: ldap",
         "userPassword: randall",
         "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+        "cn: LDAP Service",
+        "sn: Service",
+        
+        // ldap per IP
+        "dn: uid=ldap-ip,ou=users,dc=example,dc=com",
+        "objectClass: inetOrgPerson",
+        "objectClass: organizationalPerson",
+        "objectClass: person",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "objectClass: top",
+        "uid: ldap",
+        "userPassword: randall",
+        "krb5PrincipalName: ldap/127.0.0.1@EXAMPLE.COM",
         "krb5KeyVersionNumber: 0",
         "cn: LDAP Service",
         "sn: Service"
@@ -158,6 +173,26 @@ additionalInterceptors = { KeyDerivationInterceptor.class }
     })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
+    public SaslBindIT()
+    {
+        // On Windows 7 and Server 2008 the loopback address 127.0.0.1
+        // isn't resolved to localhost by default. In that case we need
+        // to use the IP address for the service principal.
+        String hostName;
+        try
+        {
+            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
+            hostName = loopback.getHostName();
+        }
+        catch ( UnknownHostException e )
+        {
+            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
+            hostName = "localhost";
+        }
+        String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
+        ldapServer.setSaslPrincipal( servicePrincipal );
+    }
+
 
     /**
      * Tests to make sure the server properly returns the supportedSASLMechanisms.

@@ -23,6 +23,8 @@ package org.apache.directory.server.kerberos.kdc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
@@ -158,6 +160,23 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
+        // On Windows 7 and Server 2008 the loopback address 127.0.0.1
+        // isn't resolved to localhost by default. In that case we need
+        // to use the IP address for the service principal.
+        String hostName;
+        try
+        {
+            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
+            hostName = loopback.getHostName();
+        }
+        catch ( UnknownHostException e )
+        {
+            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
+            hostName = "localhost";
+        }
+        String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
+        ldapServer.setSaslPrincipal( servicePrincipal );
+
         Attributes attrs;
 
         setContexts( "uid=admin,ou=system", "secret" );
@@ -203,7 +222,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         attrs = getPrincipalAttributes( "Service", "KDC Service", "krbtgt", "secret", "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         users.createSubcontext( "uid=krbtgt", attrs );
 
-        attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", "ldap/localhost@EXAMPLE.COM" );
+        attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", servicePrincipal );
         users.createSubcontext( "uid=ldap", attrs );
     }
 
