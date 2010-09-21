@@ -355,9 +355,54 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( Long id ) throws LdapException
+    public synchronized void delete( Long id ) throws LdapException
     {
         wrappedPartition.delete( id );
+
+        try
+        {
+            EntryOffset entryOffset = offsetMap.get( id );
+
+            // check if the entry to be removed is present at the end of file
+            if ( entryOffset.getEnd() == ldifFile.length() )
+            {
+                ldifFile.setLength( entryOffset.getStart() );
+                // check if entry is the context entry
+                if ( entryOffset.getStart() == 0 )
+                {
+                    contextEntry = null;
+                }
+            }
+            else
+            {
+                FileChannel tmpBufChannel = tempBufFile.getChannel();
+                FileChannel mainChannel = ldifFile.getChannel();
+
+                // clear the buffer
+                tempBufFile.setLength( 0 );
+
+                long count = ( ldifFile.length() - entryOffset.getEnd() );
+
+                mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
+                ldifFile.setLength( entryOffset.getStart() );
+
+                Set<EntryOffset> belowParentOffsets = greaterThan( entryOffset );
+
+                long diff = entryOffset.length();
+                diff -= (2 * diff); // this offset change should always be negative
+                
+                for ( EntryOffset o : belowParentOffsets )
+                {
+                    o.changeOffsetsBy( diff );
+                }
+
+                tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
+            }
+        }
+        catch( IOException e )
+        {
+            throw new LdapException( e );
+        }
     }
 
 
@@ -379,7 +424,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 return e;
             }
         }
-        
+
         // if non exists
         return null;
     }
@@ -458,7 +503,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 // erase file
                 ldifFile.setLength( 0 );
             }
-            
+
             ldifFile.seek( pos );
 
             ldifFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
