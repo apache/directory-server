@@ -45,7 +45,6 @@ import org.codehaus.plexus.util.FileUtils;
  */
 public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
     private final File nsisConfigurationFile = new File( "" ); // TODO FIXME
 
     private File nsisCompiler;
@@ -57,13 +56,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         // TODO FIXME
         //        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
         //        nsisConfigurationFile = new File( imagesDir, target.getId() + ".nsi" );
-        initializeFiltering();
-    }
-
-
-    public Properties getFilterProperties()
-    {
-        return filterProperties;
+        initializeFilterProperties();
     }
 
 
@@ -203,9 +196,13 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
     }
 
 
-    private void initializeFiltering()
+    /**
+     * {@inheritDoc}
+     */
+    protected void initializeFilterProperties()
     {
-        filterProperties.putAll( mojo.getProject().getProperties() );
+        super.initializeFilterProperties();
+
         filterProperties.put( "app.base.dir", mojo.getProject().getBasedir().getAbsolutePath() );
 
         filterProperties.put( "app.displayname", "ApacheDS" );
@@ -277,5 +274,19 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         touch.setProject( new Project() );
         touch.setFile( file );
         touch.execute();
+    }
+
+
+    public File getInstallationDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public File getInstanceDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

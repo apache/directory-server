@@ -43,7 +43,6 @@ import org.codehaus.plexus.util.Os;
  */
 public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
     private final File rpmConfigurationFile = new File( "" ); // TODO FIXME
     private File rpmBuilder;
 
@@ -54,13 +53,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         // TODO FIXME
         //        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
         //        rpmConfigurationFile = new File( imagesDir, target.getId() + ".spec" );
-        initializeFiltering();
-    }
-
-
-    public Properties getFilterProperties()
-    {
-        return filterProperties;
+        initializeFilterProperties();
     }
 
 
@@ -242,9 +235,13 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     }
 
 
-    private void initializeFiltering()
+    /**
+     * {@inheritDoc}
+     */
+    protected void initializeFilterProperties()
     {
-        filterProperties.putAll( mojo.getProject().getProperties() );
+        super.initializeFilterProperties();
+
         //        filterProperties.put( "app", target.getApplication().getName() );
         //        filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
         //        filterProperties.put( "app.java.home", "java" );
@@ -579,5 +576,19 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         //                sourcesDir.getAbsolutePath() };
         //
         //        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
+    }
+
+
+    public File getInstallationDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public File getInstanceDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -22,18 +22,11 @@ package org.apache.directory.daemon.installers.archive;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.BZip2;
-import org.apache.tools.ant.taskdefs.GZip;
-import org.apache.tools.ant.taskdefs.Tar;
-import org.apache.tools.ant.taskdefs.Zip;
 import org.codehaus.plexus.util.FileUtils;
 
 
@@ -44,9 +37,6 @@ import org.codehaus.plexus.util.FileUtils;
  */
 public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
 {
-    private Properties filterProperties = new Properties( System.getProperties() );
-
-
     /**
      * Creates a new instance of ArchiveInstallerCommand.
      *
@@ -58,7 +48,7 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
     public ArchiveInstallerCommand( GenerateMojo mojo, ArchiveTarget target )
     {
         super( mojo, target );
-        initializeFiltering();
+        initializeFilterProperties();
     }
 
 
@@ -229,17 +219,16 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
-     */
-    public Properties getFilterProperties()
+    public File getInstallationDirectory()
     {
-        return filterProperties;
+        // TODO Auto-generated method stub
+        return null;
     }
 
 
-    private void initializeFiltering()
+    public File getInstanceDirectory()
     {
-        filterProperties.putAll( mojo.getProject().getProperties() );
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -39,8 +39,6 @@ import org.apache.tools.ant.taskdefs.Execute;
  */
 public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTarget>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
-
     private File pkgMaker;
     private File pkgTranslator;
 
@@ -56,7 +54,7 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
     public SolarisPkgInstallerCommand( GenerateMojo mojo, SolarisPkgTarget target )
     {
         super( mojo, target );
-        initializeFiltering();
+        initializeFilterProperties();
     }
 
 
@@ -241,9 +239,13 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
     }
 
 
-    private void initializeFiltering()
+    /**
+     * {@inheritDoc}
+     */
+    protected void initializeFilterProperties()
     {
-        filterProperties.putAll( mojo.getProject().getProperties() );
+        super.initializeFilterProperties();
+
         filterProperties.put( "app", "apacheds" );
         filterProperties.put( "app.name", "apacheds" );
         filterProperties.put( "osArch", target.getOsArch() );
@@ -258,11 +260,16 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
-     */
-    public Properties getFilterProperties()
+    public File getInstallationDirectory()
     {
-        return filterProperties;
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public File getInstanceDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

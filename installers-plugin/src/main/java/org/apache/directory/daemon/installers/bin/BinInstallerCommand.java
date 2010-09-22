@@ -40,7 +40,6 @@ import org.codehaus.plexus.util.FileUtils;
  */
 public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 {
-    private final Properties filterProperties = new Properties( System.getProperties() );
     /** The sh utility executable */
     private File shUtility = new File( "/bin/sh" );
     /** The final name of the installer */
@@ -58,7 +57,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
     public BinInstallerCommand( GenerateMojo mojo, BinTarget target )
     {
         super( mojo, target );
-        initializeFiltering();
+        initializeFilterProperties();
     }
 
 
@@ -217,18 +216,13 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
+    /**
+     * {@inheritDoc}
      */
-    public Properties getFilterProperties()
+    protected void initializeFilterProperties()
     {
-        return filterProperties;
-    }
+        super.initializeFilterProperties();
 
-
-    private void initializeFiltering()
-    {
-        filterProperties.putAll( mojo.getProject().getProperties() );
         filterProperties.put( "tmpArchive", "__tmp.tar.gz" );
         finalName = target.getFinalName();
         if ( !finalName.endsWith( ".bin" ) )
@@ -237,5 +231,19 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         }
         filterProperties.put( "finalName", finalName );
         filterProperties.put( "apacheds.version", mojo.getProject().getVersion() );
+    }
+
+
+    public File getInstallationDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public File getInstanceDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

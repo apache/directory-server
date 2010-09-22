@@ -55,7 +55,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
     public DebInstallerCommand( GenerateMojo mojo, DebTarget target )
     {
         super( mojo, target );
-        initializeFiltering();
+        initializeFilterProperties();
     }
 
 
@@ -218,9 +218,13 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
     }
 
 
-    private void initializeFiltering()
+    /**
+     * {@inheritDoc}
+     */
+    protected void initializeFilterProperties()
     {
-        filterProperties.putAll( mojo.getProject().getProperties() );
+        super.initializeFilterProperties();
+
         String version = mojo.getProject().getVersion();
         if ( version != null )
         {
@@ -243,11 +247,16 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.daemon.installers.AbstractMojoCommand#getFilterProperties()
-     */
-    public Properties getFilterProperties()
+    public File getInstallationDirectory()
     {
-        return filterProperties;
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public File getInstanceDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
