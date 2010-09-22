@@ -302,6 +302,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
                 LdapPrincipal ldapPrincipal = ( LdapPrincipal ) ldapSession
                     .getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
+
                 if ( ldapPrincipal != null )
                 {
                     DirectoryService ds = ldapSession.getLdapServer().getDirectoryService();
@@ -341,6 +342,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
                 // And write back the response
                 ldapSession.getIoSession().write( resp );
+
                 LOG.debug( "Returning final authentication data to client to complete context." );
             }
         }
