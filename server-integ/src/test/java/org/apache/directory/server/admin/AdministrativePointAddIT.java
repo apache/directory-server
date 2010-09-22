@@ -266,7 +266,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         // It should succeed
         assertNotNull( response );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an SAP with the same role which has a parent AAP
         entry = LdifUtils.createEntry(
@@ -294,9 +294,9 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         response = connection.add( entry );
 
-        // It should fail
+        // It should succeed
         assertNotNull( response );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
 
 

@@ -70,6 +70,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
@@ -762,23 +763,40 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             boolean parentFound = false;
             DnNode<List<AdministrativePoint>> apNodes = directoryService.getAdministrativePoints();
 
-            while ( ( apNodes != null ) && apNodes.hasParent( dn ) )
+            if ( !apNodes.hasParent( dn ) )
             {
-                // The IAP has a parent, but it may not be the wanted parent
-                List<AdministrativePoint> parentAps = apNodes.getElement( dn );
+                // No parents, this is an error
+                String message = "Cannot add an IAP with no parent : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
 
-                if ( parentAps == null )
+            for ( int i = 0; i < dn.size(); i++ )
+            {
+                RDN rdn = dn.getRdn( i );
+                
+                // The IAP has a parent, but it may not be the wanted parent
+                DnNode<List<AdministrativePoint>> node = apNodes.getChild( rdn );
+                
+                if ( node == null )
                 {
                     // No parents, this is an error
                     String message = "Cannot add an IAP with no parent : " + adminPoint;
                     LOG.error( message );
                     throw new LdapUnwillingToPerformException( message );
+                }
+                
+                List<AdministrativePoint> adminPoints = node.getElement();
 
+                if ( adminPoints == null )
+                {
+                    apNodes = node;
+                    continue;
                 }
 
                 // Check that the parent is either an AA, or contains an IAP
                 // or a SAP with the same role
-                for ( AdministrativePoint parentRole : parentAps )
+                for ( AdministrativePoint parentRole : adminPoints )
                 {
                     if ( parentRole.isAutonomous() )
                     {
@@ -824,7 +842,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 }
 
                 // recurse now
-                apNodes = apNodes.getNode( dn );
+                apNodes = node;
             }
 
             if ( !parentFound )
@@ -897,6 +915,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         LOG.debug( "Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
+
+        System.out.println( entry );
 
         // Check if we are adding an Administrative Point
         EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
