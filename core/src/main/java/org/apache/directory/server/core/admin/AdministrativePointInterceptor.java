@@ -200,7 +200,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean hasSpecificArea( String role, EntryAttribute modifiedAdminRole )
     {
         // Check if the associated specific area role is already present
-        if ( role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() )
+        if ( role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA )
             || role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
         {
             if ( modifiedAdminRole.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() )
@@ -210,7 +210,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 return true;
             }
         }
-        else if ( role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() )
+        else if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA )
             || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
         {
             if ( modifiedAdminRole.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
@@ -220,7 +220,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 return true;
             }
         }
-        else if ( role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() )
+        else if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA )
             || role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
         {
             if ( modifiedAdminRole.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() )
@@ -284,7 +284,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             // Deal with CollectveAttribute AP
             if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
-                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
+                || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) )
             {
                 AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
                     AdministrativeRole.CollectiveAttributeSpecificArea );
@@ -294,7 +294,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
 
             if ( role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA )
-                || role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+                || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
             {
                 AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
                     AdministrativeRole.CollectiveAttributeInnerArea );
@@ -305,7 +305,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             // Deal with SubSchema AP
             if ( role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA )
-                || role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
+                || role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID ) )
             {
                 AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
                     AdministrativeRole.SubSchemaSpecificArea );
@@ -316,7 +316,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             // Deal with TriggerExecution AP
             if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA )
-                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
+                || role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) )
             {
                 AdministrativePoint sap = new SpecificAdministrativePoint( dn, uuid,
                     AdministrativeRole.TriggerExecutionSpecificArea );
@@ -326,7 +326,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
 
             if ( role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA )
-                || role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+                || role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
             {
                 AdministrativePoint iap = new InnerAdministrativePoint( dn, uuid,
                     AdministrativeRole.TriggerExecutionInnerArea );
@@ -672,6 +672,172 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Check that the roles are all valid, ie they are part of the ROLES set
+     */
+    private void checkRoleSyntax( EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    {
+        
+        for ( Value<?> role : adminPoint )
+        {
+            if ( !ROLES.contains( StringTools.toLowerCase( StringTools.trim( role.getString() ) ) ) )
+            {
+                String message = "Cannot add the given role, it's not a valid one :" + role;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+    }
+
+
+    /**
+     * Check that the same role is not added twice in an AP
+     */
+    private void checkRolesNotDuplicated( EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    {
+        Set<String> seenRoles = new HashSet<String>();
+
+        for ( Value<?> role : adminPoint )
+        {
+            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+            if ( seenRoles.contains( trimmedRole ) )
+            {
+                // Already seen : an error
+                String message = "The role " + role.getString() + " has already been seen.";
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+
+            // Add the role and its OID into the seen roles
+            seenRoles.add( trimmedRole );
+            seenRoles.add( ROLES_OID.get( trimmedRole ) );
+        }
+    }
+
+
+    /**
+     * Check that we don't have an IAP and a SAP with the same familly
+     */
+    private void checkInnerSpecificMix( EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    {
+        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
+                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) &&
+               ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
+                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) ) ||
+             ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) &&
+               ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) ) ||
+             ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
+                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) &&
+               ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
+        {
+            // This is inconsistent
+            String message = "Cannot add a specific Administrative Point and the same"
+                + " inner Administrative point at the same time : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+    }
+
+
+    /**
+     * Check that the IAPs (if any) have a parent
+     */
+    private void checkIAPHasParent( EntryAttribute adminPoint, DN dn ) throws LdapUnwillingToPerformException
+    {
+        // First, loop over the AP and process only the IAP
+        for ( Value<?> role : adminPoint )
+        {
+            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+            if ( !INNER_AREA_ROLES.contains( trimmedRole ) )
+            {
+                // Not an IAP, let's continue
+                continue;
+            }
+            
+            boolean parentFound = false;
+            DnNode<List<AdministrativePoint>> apNodes = directoryService.getAdministrativePoints();
+
+            while ( ( apNodes != null ) && apNodes.hasParent( dn ) )
+            {
+                // The IAP has a parent, but it may not be the wanted parent
+                List<AdministrativePoint> parentAps = apNodes.getElement( dn );
+
+                if ( parentAps == null )
+                {
+                    // No parents, this is an error
+                    String message = "Cannot add an IAP with no parent : " + adminPoint;
+                    LOG.error( message );
+                    throw new LdapUnwillingToPerformException( message );
+
+                }
+
+                // Check that the parent is either an AA, or contains an IAP
+                // or a SAP with the same role
+                for ( AdministrativePoint parentRole : parentAps )
+                {
+                    if ( parentRole.isAutonomous() )
+                    {
+                        parentFound = true;
+                        return;
+                    }
+
+                    // AC IAP
+                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
+                         trimmedRole.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+                    {
+                        // Check for AC SAP or IAP
+                        if ( ( parentRole.getRole() == AdministrativeRole.AccessControlInnerArea ) ||
+                             ( parentRole.getRole() == AdministrativeRole.AccessControlSpecificArea ) )
+                        {
+                            return;
+                        }
+                    }
+
+                    // CA IAP
+                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+                         trimmedRole.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
+                    {
+                        // Check for AC SAP or IAP
+                        if ( ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeInnerArea ) ||
+                             ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeSpecificArea ) )
+                        {
+                            return;
+                        }
+                    }
+
+                    // TE IAP
+                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+                         trimmedRole.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
+                    {
+                        // Check for AC SAP or IAP
+                        if ( ( parentRole.getRole() == AdministrativeRole.TriggerExecutionInnerArea ) ||
+                             ( parentRole.getRole() == AdministrativeRole.TriggerExecutionSpecificArea ) )
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                // recurse now
+                apNodes = apNodes.getNode( dn );
+            }
+
+            if ( !parentFound )
+            {
+                // This is inconsistent
+                String message = "Cannot add an IAP with no parent : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+    }
+
+
     //-------------------------------------------------------------------------------------------
     // Interceptor initialization
     //-------------------------------------------------------------------------------------------
@@ -729,6 +895,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
+        LOG.debug( "Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
 
         // Check if we are adding an Administrative Point
@@ -739,7 +906,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // Nope, go on.
             next.add( addContext );
 
-            LOG.debug( "Exit from Administrative Interceptor" );
+            LOG.debug( "Exit from Administrative Interceptor, no AP in the added entry" );
 
             return;
         }
@@ -747,30 +914,25 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         LOG.debug( "Addition of an administrative point at {} for the role {}", entry.getDn(), adminPoint );
 
         // Check that the added AdministrativeRoles are valid
-        for ( Value<?> role : adminPoint )
-        {
-            if ( !isValidRole( role.getString() ) )
-            {
-                String message = "Cannot add the given role, it's not a valid one :" + role;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-        }
+        checkRoleSyntax( adminPoint );
 
+        // Check that we don't add the same role twice now
+        checkRolesNotDuplicated( adminPoint );
+        
         // Now we are trying to add an Administrative point. We have to check that the added
         // AP is correct if it's an AAP : it should not have any other role
         if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
         {
             if ( adminPoint.size() > 1 )
             {
-                String message = "Cannot add an Autonomous Administratve Point when some other" + " roles are added : "
+                String message = "Cannot add an Autonomous Administratve Point when some other roles are added : "
                     + adminPoint;
                 LOG.error( message );
                 throw new LdapUnwillingToPerformException( message );
             }
             else
             {
-                // Ok, we can add the AAP
+                // Ok, we can add the AAP immediately
                 LOG.debug( "Adding an Autonomous Administrative Point at {}", entry.getDn() );
 
                 next.add( addContext );
@@ -785,45 +947,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // check that we can't mix Inner and Specific areas
-        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) || adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) && ( adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) || adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) )
-            || ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) || adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) && ( adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) || adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) )
-            || ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) || adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) && ( adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) || adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
-        {
-            // This is inconsistent
-            String message = "Cannot add a specific Administrative Point and the same"
-                + " inner Administrative point at the same time : " + adminPoint;
-            LOG.error( message );
-            throw new LdapUnwillingToPerformException( message );
-        }
+        checkInnerSpecificMix( adminPoint );
 
-        // Check that we don't add the same role twice now
-        Set<String> seenRoles = new HashSet<String>();
-
-        for ( Value<?> role : adminPoint )
-        {
-            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
-
-            if ( seenRoles.contains( trimmedRole ) )
-            {
-                // Already seen : an error
-                String message = "The role " + role.getString() + " has already been seen.";
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-
-            // Add the role and its OID into the seen roles
-            seenRoles.add( trimmedRole );
-            seenRoles.add( ROLES_OID.get( trimmedRole ) );
-        }
+        // Check that we don't add an IAP with no parent. The IAP must be added under
+        // either a AAP, or a SAP/IAP within the same family
+        checkIAPHasParent( adminPoint, entry.getDn() );
 
         // Ok, we are golden.
         next.add( addContext );
