@@ -268,7 +268,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertNotNull( response );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
 
-        // Add the entry under an AAP with the same role which has a parent AAP
+        // Add the entry under an SAP with the same role which has a parent AAP
         entry = LdifUtils.createEntry(
             "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
             "ObjectClass: top",
@@ -283,7 +283,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        // Add the entry under an IAP with a different role which has a parent AAP
+        // Add the entry under an SAP with a different role which has a parent AAP
         entry = LdifUtils.createEntry(
             "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
             "ObjectClass: top",
@@ -294,8 +294,139 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         response = connection.add( entry );
 
-        // It should succeed
+        // It should fail
         assertNotNull( response );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+
+
+    /**
+     * Test the addition of SAPs
+     */
+    @Test
+    public void testAddSAP() throws Exception
+    {
+        assertTrue( ldapServer.isStarted() );
+
+        // First check that we can add a SAP in the DIT if there is no
+        // parent AAP or SAP
+        Entry entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=entry,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        AddResponse response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under a SAP with the same role which has no parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=SAP-CA2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under a SAP with a different role which has no parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=SAP-AC2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under an AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under an IAP with the same role which has a parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under an IAP with a different role which has a parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under an SAP with the same role which has a parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Add the entry under an SAP with a different role which has a parent AAP
+        entry = LdifUtils.createEntry(
+            "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        response = connection.add( entry );
+
+        // It should succeed
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
 }
