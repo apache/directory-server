@@ -30,7 +30,6 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class ArchiveTarget extends Target
 {
-    /** The archive type */
     /**
      * The archive type.
      * <p>

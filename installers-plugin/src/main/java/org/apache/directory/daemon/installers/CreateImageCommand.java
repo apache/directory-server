@@ -67,7 +67,6 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
         log.info( "Creating image ... " );
         File dir = new File( mojo.getOutputDirectory(), target.getId() );
         layout = new InstallationLayout( dir );
-        target.setLayout( layout );
         layout.mkdirs();
 
         // TODO FIXME
@@ -225,8 +224,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
         // -------------------------------------------------------------------
 
         // LINUX I386
-        if ( target.getOsName().equals( "linux" ) && target.getOsArch().equals( "i386" )
-            && target.getDaemonFramework().equals( "tanuki" ) )
+        if ( target.getOsName().equals( "linux" ) && target.getOsArch().equals( "i386" ) )
         {
             try
             {
@@ -243,8 +241,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
 
         // LINUX X86_64 (AMD64)
         if ( target.getOsName().equals( "linux" )
-            && ( target.getOsArch().equals( "x86_64" ) || target.getOsArch().equals( "amd64" ) )
-            && target.getDaemonFramework().equals( "tanuki" ) )
+            && ( target.getOsArch().equals( "x86_64" ) || target.getOsArch().equals( "amd64" ) ) )
         {
             try
             {
@@ -260,7 +257,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
         }
 
         // MAC OS X
-        if ( target.getOsName().equalsIgnoreCase( "mac os x" ) && target.getDaemonFramework().equals( "tanuki" ) )
+        if ( target.getOsName().equalsIgnoreCase( "Mac OS X" ) )
         {
             try
             {
@@ -277,8 +274,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
         }
 
         // SOLARIS X86
-        if ( target.getOsName().equalsIgnoreCase( "solaris" ) && target.getOsArch().equals( "x86" )
-            && target.getDaemonFramework().equals( "tanuki" ) )
+        if ( target.getOsName().equalsIgnoreCase( "solaris" ) && target.getOsArch().equals( "x86" ) )
         {
             try
             {
@@ -295,8 +291,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
         }
 
         // SOLARIS SPARC
-        if ( target.getOsName().equalsIgnoreCase( "solaris" ) && target.getOsArch().equals( "sparc" )
-            && target.getDaemonFramework().equals( "tanuki" ) )
+        if ( target.getOsName().equalsIgnoreCase( "solaris" ) && target.getOsArch().equals( "sparc" ) )
         {
             try
             {
@@ -312,51 +307,7 @@ public class CreateImageCommand extends AbstractMojoCommand<Target>
             }
         }
 
-        // now copy over the jsvc executable renaming it to the mojo.getApplicationName() 
-        if ( target.getOsName().equals( "sunos" ) && target.getOsArch().equals( "sparc" ) )
-        {
-            File executable = new File( layout.getBinDirectory(), "wrapper" );
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy jsvc executable file "
-                    + getClass().getResource( "jsvc_solaris_sparc" ) + " into position " + executable.getAbsolutePath() );
-            }
-        }
-
-        if ( target.getOsName().equals( "sunos" ) && target.getOsArch().equals( "i386" ) )
-        {
-            File executable = new File( layout.getBinDirectory(), "wrapper" );
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_i386" ), executable );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy jsvc executable file "
-                    + getClass().getResource( "jsvc_solaris_i386" ) + " into position " + executable.getAbsolutePath() );
-            }
-        }
-
-        // now copy over the jsvc executable renaming it to the mojo.getApplicationName() 
-        //        if ( target.getOsName().equals( "macosx" ) && target.getOsArch().equals( "ppc" ) )
-        //        {
-        //            File executable = new File( layout.getBinDirectory(), target.getApplication().getName() );
-        //            try
-        //            {
-        //                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_macosx_ppc" ), executable );
-        //            }
-        //            catch ( IOException e )
-        //            {
-        //                throw new MojoFailureException( "Failed to copy jsvc executable file "
-        //                    + getClass().getResource( "jsvc_macosx_ppc" ) + " into position " + executable.getAbsolutePath() );
-        //            }
-        //        }
-
-        target.setLibArtifacts( MojoHelperUtils.copyDependencies( mojo, layout ) );
+        //        target.setLibArtifacts( MojoHelperUtils.copyDependencies( mojo, layout ) );
 
         // -- if present copy the NOTICE.txt file --
 

@@ -122,7 +122,7 @@ public class ApacheDsService
     private boolean isSchemaPartitionFirstExtraction = false;
 
 
-    public void init( InstallationLayout layout, InstanceLayout instanceLayout ) throws Exception
+    public void init( InstanceLayout instanceLayout ) throws Exception
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
         if ( !partitionsDir.exists() )
@@ -138,10 +138,10 @@ public class ApacheDsService
         cpReader = new ConfigPartitionReader( configPartition );
 
         // Initialize the LDAP server
-        initLdap( layout, instanceLayout );
+        initLdap( instanceLayout );
 
         // Initialize the NTP server
-        initNtp( layout );
+        initNtp();
 
         // Initialize the DNS server (Not ready yet)
         // initDns( layout );
@@ -150,10 +150,10 @@ public class ApacheDsService
         // initDhcp( layout );
 
         // Initialize the ChangePwd server (Not ready yet)
-        initChangePwd( layout );
+        initChangePwd();
 
         // Initialize the Kerberos server
-        initKerberos( layout );
+        initKerberos();
 
         // initialize the jetty http server
         initHttpServer();
@@ -238,7 +238,7 @@ public class ApacheDsService
     /**
      * Initialize the LDAP server
      */
-    private void initLdap( InstallationLayout layout, InstanceLayout instanceLayout ) throws Exception
+    private void initLdap( InstanceLayout instanceLayout ) throws Exception
     {
         LOG.info( "Starting the LDAP server" );
 
@@ -307,7 +307,7 @@ public class ApacheDsService
     /**
      * Initialize the NTP server
      */
-    private void initNtp( InstallationLayout layout ) throws Exception
+    private void initNtp() throws Exception
     {
         ntpServer = cpReader.createNtpServer();
         if ( ntpServer == null )
@@ -374,7 +374,7 @@ public class ApacheDsService
     /**
      * Initialize the KERBEROS server
      */
-    private void initKerberos( InstallationLayout layout ) throws Exception
+    private void initKerberos( ) throws Exception
     {
         kdcServer = cpReader.createKdcServer();
         if ( kdcServer == null )
@@ -407,7 +407,7 @@ public class ApacheDsService
     /**
      * Initialize the Change Password server
      */
-    private void initChangePwd( InstallationLayout layout ) throws Exception
+    private void initChangePwd( ) throws Exception
     {
 
         changePwdServer = cpReader.createChangePwdServer();

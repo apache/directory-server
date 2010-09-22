@@ -44,7 +44,7 @@ public abstract class AbstractMojoCommand<T extends Target>
 {
     protected GenerateMojo mojo;
     protected T target;
-    
+
     protected Map<String, Artifact> dependencyMap;
     protected Log log;
 
@@ -58,8 +58,8 @@ public abstract class AbstractMojoCommand<T extends Target>
     public AbstractMojoCommand( GenerateMojo mojo, T target )
     {
         this.mojo = mojo;
-        this.target= target;
-        
+        this.target = target;
+
         log = mojo.getLog();
         dependencyMap = new HashMap<String, Artifact>();
 
@@ -141,82 +141,96 @@ public abstract class AbstractMojoCommand<T extends Target>
 
                 if ( packagedFiles[ii].isExpandable() )
                 {
-                    File dest = new File( target.getLayout().getInstallationDirectory(),
-                        packagedFiles[ii].getDestinationPath() );
-                    if ( !dest.exists() )
-                    {
-                        dest.mkdirs();
-                    }
-
-                    String fileExtension = source.getName().substring( source.getName().lastIndexOf( '.' ) );
-                    if ( fileExtension.equalsIgnoreCase( ".jar" ) || fileExtension.equalsIgnoreCase( ".zip" )
-                        || fileExtension.equalsIgnoreCase( ".war" ) || fileExtension.equalsIgnoreCase( ".sar" ) )
-                    {
-                        log.info( "\t\t\t ... expanding " + source + "\n\t\t\t => to " + dest );
-                        Expand expand = new Expand();
-                        expand.setSrc( source );
-                        expand.setOverwrite( true );
-                        expand.setDest( dest );
-                        try
-                        {
-                            expand.execute();
-                            continue;
-                        }
-                        catch ( Exception e )
-                        {
-                            throw new MojoFailureException( "Failed to expaned packagedFile " + source + ": "
-                                + e.getMessage() );
-                        }
-                    }
+                    // TODO FIXME
+                    //                    File dest = new File( target.getLayout().getInstallationDirectory(),
+                    //                        packagedFiles[ii].getDestinationPath() );
+                    //                    if ( !dest.exists() )
+                    //                    {
+                    //                        dest.mkdirs();
+                    //                    }
+                    //
+                    //                    String fileExtension = source.getName().substring( source.getName().lastIndexOf( '.' ) );
+                    //                    if ( fileExtension.equalsIgnoreCase( ".jar" ) || fileExtension.equalsIgnoreCase( ".zip" )
+                    //                        || fileExtension.equalsIgnoreCase( ".war" ) || fileExtension.equalsIgnoreCase( ".sar" ) )
+                    //                    {
+                    //                        log.info( "\t\t\t ... expanding " + source + "\n\t\t\t => to " + dest );
+                    //                        Expand expand = new Expand();
+                    //                        expand.setSrc( source );
+                    //                        expand.setOverwrite( true );
+                    //                        expand.setDest( dest );
+                    //                        try
+                    //                        {
+                    //                            expand.execute();
+                    //                            continue;
+                    //                        }
+                    //                        catch ( Exception e )
+                    //                        {
+                    //                            throw new MojoFailureException( "Failed to expaned packagedFile " + source + ": "
+                    //                                + e.getMessage() );
+                    //                        }
+                    //                    }
 
                     throw new MojoFailureException( "Failed to expand packagedFile: " + source
                         + ". It does not have a jar, war or zip extension" );
                 }
 
-                File dest = new File( target.getLayout().getInstallationDirectory(),
-                    packagedFiles[ii].getDestinationPath() );
-
-                if ( packagedFiles[ii].isDirectory() )
-                {
-                    try
-                    {
-                        FileUtils.copyDirectoryStructure( source, dest );
-                    }
-                    catch ( IOException e )
-                    {
-                        throw new MojoFailureException( "Failed to copy packagedFile [directory=true] from source "
-                            + source + " to destination " + dest );
-                    }
-                    continue;
-                }
-                else if ( packagedFiles[ii].isFiltered() )
-                {
-                    try
-                    {
-                        MojoHelperUtils.copyAsciiFile( mojo, getFilterProperties(), source, dest, true );
-                    }
-                    catch ( IOException e )
-                    {
-                        throw new MojoFailureException( "Failed to copy packagedFile from source " + source +
-                            " to destination " + dest );
-                    }
-                    continue;
-                }
-
-                try
-                {
-                    FileUtils.copyFile( source, dest );
-                }
-                catch ( IOException e )
-                {
-                    throw new MojoFailureException( "Failed to copy packagedFile from source " + source +
-                        " to destination " + dest );
-                }
+                // TODO FIXME
+                //                File dest = new File( target.getLayout().getInstallationDirectory(),
+                //                    packagedFiles[ii].getDestinationPath() );
+                //
+                //                if ( packagedFiles[ii].isDirectory() )
+                //                {
+                //                    try
+                //                    {
+                //                        FileUtils.copyDirectoryStructure( source, dest );
+                //                    }
+                //                    catch ( IOException e )
+                //                    {
+                //                        throw new MojoFailureException( "Failed to copy packagedFile [directory=true] from source "
+                //                            + source + " to destination " + dest );
+                //                    }
+                //                    continue;
+                //                }
+                //                else if ( packagedFiles[ii].isFiltered() )
+                //                {
+                //                    try
+                //                    {
+                //                        MojoHelperUtils.copyAsciiFile( mojo, getFilterProperties(), source, dest, true );
+                //                    }
+                //                    catch ( IOException e )
+                //                    {
+                //                        throw new MojoFailureException( "Failed to copy packagedFile from source " + source +
+                //                            " to destination " + dest );
+                //                    }
+                //                    continue;
+                //                }
+                //
+                //                try
+                //                {
+                //                    FileUtils.copyFile( source, dest );
+                //                }
+                //                catch ( IOException e )
+                //                {
+                //                    throw new MojoFailureException( "Failed to copy packagedFile from source " + source +
+                //                        " to destination " + dest );
+                //                }
             }
             catch ( Exception e )
             {
                 log.error( "Failed while processing " + source, e );
             }
         }
+    }
+
+
+    /**
+     * Gets the directory associated with the target.
+     *
+     * @return
+     *      the directory associated with the target
+     */
+    protected File getTargetDirectory()
+    {
+        return new File( mojo.getOutputDirectory(), target.getId() );
     }
 }

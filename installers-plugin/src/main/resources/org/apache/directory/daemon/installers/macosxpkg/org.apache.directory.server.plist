@@ -31,13 +31,9 @@
 
         <key>ProgramArguments</key>
         <array>
-            <string>/usr/local/${app.name}-${app.version}/bin/${app.name}</string>
-            <string>/usr/local/${app.name}-${app.version}/conf/apacheds.conf</string>
-            <string>set.INSTANCE_HOME=/usr/local/${app.name}-${app.version}/instances</string>
-            <string>set.INSTANCE=default</string>
-            <string>wrapper.syslog.ident=${app.name}</string>
-            <string>wrapper.pidfile=/usr/local/${app.name}-${app.version}/instances/default/default.pid</string>
-            <string>wrapper.daemonize=FALSE</string>
+            <string>/usr/local/apacheds-${version}/bin/apacheds</string>
+            <string>console</string>
+            <string>default</string>
         </array>
                 
         <key>RunAtLoad</key>

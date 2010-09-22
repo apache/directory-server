@@ -48,15 +48,16 @@ import org.codehaus.plexus.util.Os;
 public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 {
     private final Properties filterProperties = new Properties( System.getProperties() );
-    private final File rpmConfigurationFile;
+    private final File rpmConfigurationFile = new File( "" ); // TODO FIXME
     private File rpmBuilder;
 
 
     public RpmInstallerCommand( GenerateMojo mojo, RpmTarget target )
     {
         super( mojo, target );
-        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
-        rpmConfigurationFile = new File( imagesDir, target.getId() + ".spec" );
+        // TODO FIXME
+        //        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
+        //        rpmConfigurationFile = new File( imagesDir, target.getId() + ".spec" );
         initializeFiltering();
     }
 
@@ -83,13 +84,14 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         // Step 1 & 4: do some error checking first for builder and OS
         // -------------------------------------------------------------------
 
-        if ( !target.getOsFamily().equals( "unix" ) || !target.getOsName().equalsIgnoreCase( "Linux" ) )
-        {
-            log.warn( "RPM target " + target.getId() + " cannot be built for an non-linux based machine!" );
-            log.warn( "The target will not be built." );
-            log.warn( "The rest of the build will not fail because of this acceptable situation." );
-            return;
-        }
+        // TODO FIXME
+        //        if ( !target.getOsFamily().equals( "unix" ) || !target.getOsName().equalsIgnoreCase( "Linux" ) )
+        //        {
+        //            log.warn( "RPM target " + target.getId() + " cannot be built for an non-linux based machine!" );
+        //            log.warn( "The target will not be built." );
+        //            log.warn( "The rest of the build will not fail because of this acceptable situation." );
+        //            return;
+        //        }
 
         if ( !Os.isName( "linux" ) )
         {
@@ -222,46 +224,47 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
             }
         }
 
-        processPackagedFiles( target, target.getPackagedFiles() );
-
-        buildSourceTarball();
-        String[] cmd = new String[]
-            {
-                rpmBuilder.getAbsolutePath(),
-                "-ba",
-                "--define",
-                "_topdir " + target.getRpmTopDir().getAbsolutePath(),
-                rpmConfigurationFile.getAbsolutePath() };
-        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
-        String rpmName = "apacheds-" + version + "-0." + target.getOsArch() + ".rpm";
-        File srcFile = new File( target.getRpmTopDir(), "RPMS/" + target.getOsArch() + "/" + rpmName );
-        File dstFile = null;
-
-        if ( target.getFinalName() == null )
-        {
-            dstFile = new File( mojo.getOutputDirectory(), rpmName );
-        }
-        else
-        {
-            String finalName = target.getFinalName();
-            if ( !finalName.endsWith( ".rpm" ) )
-            {
-                finalName = finalName + ".rpm";
-            }
-
-            dstFile = new File( mojo.getOutputDirectory(), finalName );
-        }
-
-        try
-        {
-            FileUtils.copyFile( srcFile, dstFile );
-            srcFile.delete();
-        }
-        catch ( IOException e )
-        {
-            // if this happens we don't stop since RPM could be somewhere else
-            e.printStackTrace();
-        }
+        // TODO FIXME
+        //        processPackagedFiles( target, target.getPackagedFiles() );
+        //
+        //        buildSourceTarball();
+        //        String[] cmd = new String[]
+        //            {
+        //                rpmBuilder.getAbsolutePath(),
+        //                "-ba",
+        //                "--define",
+        //                "_topdir " + target.getRpmTopDir().getAbsolutePath(),
+        //                rpmConfigurationFile.getAbsolutePath() };
+        //        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
+        //        String rpmName = "apacheds-" + version + "-0." + target.getOsArch() + ".rpm";
+        //        File srcFile = new File( target.getRpmTopDir(), "RPMS/" + target.getOsArch() + "/" + rpmName );
+        //        File dstFile = null;
+        //
+        //        if ( target.getFinalName() == null )
+        //        {
+        //            dstFile = new File( mojo.getOutputDirectory(), rpmName );
+        //        }
+        //        else
+        //        {
+        //            String finalName = target.getFinalName();
+        //            if ( !finalName.endsWith( ".rpm" ) )
+        //            {
+        //                finalName = finalName + ".rpm";
+        //            }
+        //
+        //            dstFile = new File( mojo.getOutputDirectory(), finalName );
+        //        }
+        //
+        //        try
+        //        {
+        //            FileUtils.copyFile( srcFile, dstFile );
+        //            srcFile.delete();
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            // if this happens we don't stop since RPM could be somewhere else
+        //            e.printStackTrace();
+        //        }
     }
 
 
@@ -359,23 +362,24 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < srcList.size(); ii++ )
-        {
-            File file = ( File ) srcList.get( ii );
-            if ( file.isFile() )
-            {
-                continue;
-            }
-
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < srcList.size(); ii++ )
+        //        {
+        //            File file = ( File ) srcList.get( ii );
+        //            if ( file.isFile() )
+        //            {
+        //                continue;
+        //            }
+        //
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
@@ -384,23 +388,24 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < docList.size(); ii++ )
-        {
-            File file = ( File ) docList.get( ii );
-            if ( file.isFile() )
-            {
-                continue;
-            }
-
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < docList.size(); ii++ )
+        //        {
+        //            File file = ( File ) docList.get( ii );
+        //            if ( file.isFile() )
+        //            {
+        //                continue;
+        //            }
+        //
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
@@ -431,26 +436,27 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < docList.size(); ii++ )
-        {
-            File file = ( File ) docList.get( ii );
-            if ( file.isDirectory() )
-            {
-                continue;
-            }
-
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( "install -m 644 " );
-            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
-            buf.append( path );
-            buf.append( " $RPM_BUILD_ROOT/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < docList.size(); ii++ )
+        //        {
+        //            File file = ( File ) docList.get( ii );
+        //            if ( file.isDirectory() )
+        //            {
+        //                continue;
+        //            }
+        //
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( "install -m 644 " );
+        //            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
+        //            buf.append( path );
+        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
@@ -459,18 +465,19 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < docList.size(); ii++ )
-        {
-            File file = ( File ) docList.get( ii );
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( target.getLayout().getInstallationDirectory() );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < docList.size(); ii++ )
+        //        {
+        //            File file = ( File ) docList.get( ii );
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( target.getLayout().getInstallationDirectory() );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
@@ -479,26 +486,27 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < sourceList.size(); ii++ )
-        {
-            File file = ( File ) sourceList.get( ii );
-            if ( file.isDirectory() )
-            {
-                continue;
-            }
-
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( "install -m 644 " );
-            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
-            buf.append( path );
-            buf.append( " $RPM_BUILD_ROOT/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < sourceList.size(); ii++ )
+        //        {
+        //            File file = ( File ) sourceList.get( ii );
+        //            if ( file.isDirectory() )
+        //            {
+        //                continue;
+        //            }
+        //
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( "install -m 644 " );
+        //            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
+        //            buf.append( path );
+        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
@@ -507,35 +515,37 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         StringBuffer buf = new StringBuffer();
         // +1 for '/' char 
-        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-
-        for ( int ii = 0; ii < sourceList.size(); ii++ )
-        {
-            File file = ( File ) sourceList.get( ii );
-            String path = file.getAbsolutePath().substring( basePathSize );
-            buf.append( "/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/" );
-            buf.append( path );
-            buf.append( "\n" );
-        }
+        //        // TODO FIXME
+        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
+        //
+        //        for ( int ii = 0; ii < sourceList.size(); ii++ )
+        //        {
+        //            File file = ( File ) sourceList.get( ii );
+        //            String path = file.getAbsolutePath().substring( basePathSize );
+        //            buf.append( "/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/" );
+        //            buf.append( path );
+        //            buf.append( "\n" );
+        //        }
         return buf.toString();
     }
 
 
     private Object getVerifyLibraryJars()
     {
+        // TODO FIXME
         StringBuffer buf = new StringBuffer();
-        List artifacts = target.getLibArtifacts();
-        for ( int ii = 0; ii < artifacts.size(); ii++ )
-        {
-            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
-            buf.append( "/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/lib/" );
-            buf.append( artifact.getName() );
-            buf.append( "\n" );
-        }
+        //        List artifacts = target.getLibArtifacts();
+        //        for ( int ii = 0; ii < artifacts.size(); ii++ )
+        //        {
+        //            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
+        //            buf.append( "/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/lib/" );
+        //            buf.append( artifact.getName() );
+        //            buf.append( "\n" );
+        //        }
 
         return buf.toString();
     }
@@ -543,19 +553,20 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
     private String getInstallLibraryJars()
     {
+        // TODO FIXME
         StringBuffer buf = new StringBuffer();
-        List artifacts = target.getLibArtifacts();
-        for ( int ii = 0; ii < artifacts.size(); ii++ )
-        {
-            buf.append( "install -m 644 " );
-            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
-            buf.append( artifact.getAbsoluteFile() );
-            buf.append( " $RPM_BUILD_ROOT/opt/" );
-            buf.append( "apacheds" );
-            buf.append( "-%{version}/lib/" );
-            buf.append( artifact.getName() );
-            buf.append( "\n" );
-        }
+        //        List artifacts = target.getLibArtifacts();
+        //        for ( int ii = 0; ii < artifacts.size(); ii++ )
+        //        {
+        //            buf.append( "install -m 644 " );
+        //            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
+        //            buf.append( artifact.getAbsoluteFile() );
+        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
+        //            buf.append( "apacheds" );
+        //            buf.append( "-%{version}/lib/" );
+        //            buf.append( artifact.getName() );
+        //            buf.append( "\n" );
+        //        }
 
         return buf.toString();
     }
@@ -572,26 +583,27 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
     private void buildSourceTarball() throws MojoFailureException
     {
-        String version = mojo.getProject().getVersion().replace( '-', '_' );
-        String dirname = "apacheds-" + version;
-        File sourcesDir = new File( target.getLayout().getInstallationDirectory().getParentFile(), dirname );
-        try
-        {
-            FileUtils.copyDirectoryStructure( target.getLayout().getInstallationDirectory(), sourcesDir );
-        }
-        catch ( IOException e1 )
-        {
-            throw new MojoFailureException( "failed to copy directory structure at " + target.getLayout() + " to "
-                + sourcesDir );
-        }
-
-        String[] cmd = new String[]
-            {
-                "tar",
-                "-zcvf",
-                target.getRpmTopDir().getAbsolutePath() + "/SOURCES/apacheds-" + version + ".tar.gz",
-                sourcesDir.getAbsolutePath() };
-
-        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
+        // TODO FIXME
+        //        String version = mojo.getProject().getVersion().replace( '-', '_' );
+        //        String dirname = "apacheds-" + version;
+        //        File sourcesDir = new File( target.getLayout().getInstallationDirectory().getParentFile(), dirname );
+        //        try
+        //        {
+        //            FileUtils.copyDirectoryStructure( target.getLayout().getInstallationDirectory(), sourcesDir );
+        //        }
+        //        catch ( IOException e1 )
+        //        {
+        //            throw new MojoFailureException( "failed to copy directory structure at " + target.getLayout() + " to "
+        //                + sourcesDir );
+        //        }
+        //
+        //        String[] cmd = new String[]
+        //            {
+        //                "tar",
+        //                "-zcvf",
+        //                target.getRpmTopDir().getAbsolutePath() + "/SOURCES/apacheds-" + version + ".tar.gz",
+        //                sourcesDir.getAbsolutePath() };
+        //
+        //        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
     }
 }

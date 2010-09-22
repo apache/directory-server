@@ -26,7 +26,7 @@
   </parent>
   <artifactId>apacheds-installers</artifactId>
   <name>ApacheDS Installers</name>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <description>
     Generates installers for ApacheDS
@@ -40,15 +40,10 @@
     </dependency>  
     
     <dependency>
-      <groupId>tanukisoft</groupId>
-      <artifactId>wrapper</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    
-    <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-server-tools</artifactId>
+      <artifactId>apacheds-wrapper</artifactId>
     </dependency>
+
   </dependencies>
 
   <profiles>
@@ -61,300 +56,16 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>installers-plugin</artifactId>
             <configuration>
-              <excludes>
-
-                <!-- apacheds-tools.jar does not get put in lib directory -->
-                <exclude>org.apache.directory.server:apacheds-server-tools</exclude>
-
-                <exclude>ant:ant</exclude>
-                <exclude>aopalliance:aopalliance</exclude>
-                <exclude>xerces:xerces</exclude>
-                <!--exclude>commons-pool:commons-pool</exclude-->
-                <exclude>xml-apis:xml-apis</exclude>
-                <exclude>aspectwerkz:aspectwerkz-core</exclude>
-                <exclude>velocity:velocity</exclude>
-                <exclude>qdox:qdox</exclude>
-                <exclude>oro:oro</exclude>
-                <exclude>commons-attributes:commons-attributes-compiler</exclude>
-                <exclude>commons-attributes:commons-attributes-api</exclude>
-                <exclude>cglib:cglib</exclude>
-                <exclude>velocity:velocity-dep</exclude>
-                <exclude>com.jamonapi:jamon</exclude>
-                <exclude>asm:asm</exclude>
-                <exclude>freemarker:freemarker</exclude>
-                <exclude>asm:asm-util</exclude>
-                <exclude>jasperreports:jasperreports</exclude>
-              </excludes>
-
-              <application>
-                <name>apacheds</name>
-                <icon>src/main/resources/feather.ico</icon>
-                <version>${server.version}</version>
-                <copyrightYear>2007</copyrightYear>
-                <minimumJavaVersion>1.5</minimumJavaVersion>
-                <url>http://directory.apache.org</url>
-                <email>users@directory.apache.org</email>
-                <description>Apache Directory Server</description>
-                <license>target/classes/META-INF/LICENSE</license>
-                <authors>
-                  <author>Apache Directory Team</author>
-                  <author>akarasulu@apache.org</author>
-                  <author>ckoppelt@apache.org</author>
-                  <author>elecharny@apache.org</author>
-                  <author>erodriguez@apache.org</author>
-                  <author>ersiner@apache.org</author>
-                  <author>oersoy@apache.org</author>
-                  <author>pamarcelot@apache.org</author>
-                  <author>szoerner@apache.org</author>
-                  <author>seelmann@apache.org</author>
-                  <author>trustin@apache.org</author>
-                </authors>
-              </application>
-              <packagedFiles>
-                <packagedFile>
-                  <source>org.apache.directory.server:apacheds-server-tools</source>
-                  <destinationPath>bin/apacheds-tools.jar</destinationPath>
-                  <dependency>true</dependency>
-                  <installationBundleId>Binaries</installationBundleId>
-                </packagedFile>
-                <packagedFile>
-                  <source>target/classes/META-INF/NOTICE</source>
-                  <destinationPath>NOTICE</destinationPath>
-                  <executable>false</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <applicationClass>
-                org.apache.ldap.server.Service
-              </applicationClass>
-
-              <!-- Targets for Linux .rpm installer package -->
-              <rpmTargets>
-                <rpmTarget>
-                  <packagedFiles>
-                    <packagedFile>
-                      <source>rpm-apacheds-tools.sh</source>
-                      <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                      <installationBundleId>Binaries</installationBundleId>
-                      <executable>true</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-fhs.conf</source>
-                      <destinationPath>conf/apacheds.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-sysconfig.conf</source>
-                      <destinationPath>conf/apacheds-sysconfig.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-default.conf</source>
-                      <destinationPath>conf/apacheds-default.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/adstree.ico</source>
-                      <destinationPath>logo.ico</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                  </packagedFiles>
-                  <id>apacheds-i386-rpm</id>
-                  <rpmSpecificationFile>src/main/installers/apacheds-rpm.spec</rpmSpecificationFile>
-                  <rpmTopDir>target/rpmbuild</rpmTopDir>
-                  <finalName>apacheds-${server.version}-i386.rpm</finalName>
-                  <osName>Linux</osName>
-                  <osFamily>unix</osFamily>
-                  <osArch>i386</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                  <scriptFile>src/main/installers/apacheds-init</scriptFile>
-                  <!--<bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>-->
-                </rpmTarget>
-                <rpmTarget>
-                  <packagedFiles>
-                    <packagedFile>
-                      <source>rpm-apacheds-tools.sh</source>
-                      <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                      <installationBundleId>Binaries</installationBundleId>
-                      <executable>true</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-fhs.conf</source>
-                      <destinationPath>conf/apacheds.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-sysconfig.conf</source>
-                      <destinationPath>conf/apacheds-sysconfig.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-default.conf</source>
-                      <destinationPath>conf/apacheds-default.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/adstree.ico</source>
-                      <destinationPath>logo.ico</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                  </packagedFiles>
-                  <id>apacheds-x86_64-rpm</id>
-                  <rpmSpecificationFile>src/main/installers/apacheds-rpm.spec</rpmSpecificationFile>
-                  <rpmTopDir>target/rpmbuild</rpmTopDir>
-                  <finalName>apacheds-${server.version}-x86_64.rpm</finalName>
-                  <osName>Linux</osName>
-                  <osFamily>unix</osFamily>
-                  <osArch>x86_64</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                  <scriptFile>src/main/installers/apacheds-init</scriptFile>
-                  <!--<bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>-->
-                </rpmTarget>
-              </rpmTargets>
-              
-              <!-- Targets for Windows .exe installer package -->
-              <nsisTargets>
-                <nsisTarget>
-                  <packagedFiles>
-                    <packagedFile>
-                      <source>apacheds.conf</source>
-                      <destinationPath>conf/apacheds.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>apacheds-default.conf</source>
-                      <destinationPath>conf/apacheds-default.conf</destinationPath>
-                      <executable>false</executable>
-                      <filtered>true</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/server-installer.ico</source>
-                      <destinationPath>server-installer.ico</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                    <packagedFile>
-                      <source>../resources/example.ldif</source>
-                      <destinationPath>conf/example.ldif</destinationPath>
-                      <executable>false</executable>
-                      <filtered>false</filtered>
-                    </packagedFile>
-                  </packagedFiles>
-
-                  <id>server-win32</id>
-                  <nsisCompiler>/usr/bin/makensis</nsisCompiler>
-                  <nsisConfigurationFile>src/main/installers/apacheds-server-win.nsi</nsisConfigurationFile>
-                  <finalName>apacheds-${server.version}-setup</finalName>
-                  <osName>Windows XP</osName>
-                  <osFamily>windows</osFamily>
-                  <osVersion>5.1</osVersion>
-                  <osArch>x86</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </nsisTarget>
-              </nsisTargets>
               
               <!-- Targets for Mac OS X .pkg installer package -->
               <macOsXPkgTargets>
                 <macOsXPkgTarget>
                  <id>apacheds-macosx</id>
-                  <finalName>apacheds-${server.version}.dmg</finalName>
+                  <finalName>apacheds-${version}.dmg</finalName>
                   <osName>Mac OS X</osName>
-                  <osFamily>macosx</osFamily>
                   <osArch>x86</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
                 </macOsXPkgTarget>
               </macOsXPkgTargets>
-
-              <!-- Targets for Solaris .pkg installer package -->
-              <solarisPkgTargets>
-                <solarisPkgTarget>
-                  <id>apacheds-solaris-x86</id>
-                  <finalName>apacheds-${server.version}-solaris-x86.pkg</finalName>
-                  <osName>solaris</osName>
-                  <osArch>x86</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </solarisPkgTarget>
-                <solarisPkgTarget>
-                  <id>apacheds-solaris-sparc</id>
-                  <finalName>apacheds-${server.version}-solaris-sparc.pkg</finalName>
-                  <osName>solaris</osName>
-                  <osArch>sparc</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </solarisPkgTarget>
-              </solarisPkgTargets>
-              
-              <!-- Targets for Debian .deb installer package -->
-              <debTargets>
-                <debTarget>
-                 <id>apacheds-debian-i386</id>
-                  <finalName>apacheds-${server.version}-i386.deb</finalName>
-                  <osName>linux</osName>
-                  <osFamily>linux</osFamily>
-                  <osArch>i386</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </debTarget>
-                <debTarget>
-                 <id>apacheds-debian-amd64</id>
-                  <finalName>apacheds-${server.version}-amd64.deb</finalName>
-                  <osName>linux</osName>
-                  <osFamily>linux</osFamily>
-                  <osArch>amd64</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </debTarget>
-              </debTargets>
-              
-              <!-- Targets for Linux Binary .bin installer -->
-              <binTargets>
-                <binTarget>
-                 <id>apacheds-bin-installer-i386</id>
-                  <finalName>apacheds-${server.version}-i386.bin</finalName>
-                  <osName>Linux</osName>
-                  <osFamily>linux</osFamily>
-                  <osArch>i386</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </binTarget>
-                 <binTarget>
-                 <id>apacheds-bin-installer-x86_64</id>
-                  <finalName>apacheds-${server.version}-x86_64.bin</finalName>
-                  <osName>Linux</osName>
-                  <osFamily>linux</osFamily>
-                  <osArch>x86_64</osArch>
-                  <daemonFramework>tanuki</daemonFramework>
-                </binTarget>
-              </binTargets>
-              
-              <!-- Targets for Archive installer -->
-              <archiveTargets>
-                <archiveTarget>
-                  <id>apacheds-archive-zip</id>
-                  <osName>any</osName>
-                  <osFamily>any</osFamily>
-                  <osArch>any</osArch>
-                  <daemonFramework>any</daemonFramework>
-                  <finalName>apacheds-${server.version}.zip</finalName>
-                  <archiveType>zip</archiveType>
-                </archiveTarget>
-                <archiveTarget>
-                  <id>apacheds-archive-tar.gz</id>
-                  <osName>any</osName>
-                  <osFamily>any</osFamily>
-                  <osArch>any</osArch>
-                  <daemonFramework>any</daemonFramework>
-                  <finalName>apacheds-${server.version}.tar.gz</finalName>
-                  <archiveType>tar.gz</archiveType>
-                </archiveTarget>
-              </archiveTargets>
               
             </configuration>
             <executions>

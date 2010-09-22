@@ -41,6 +41,12 @@ import org.apache.directory.daemon.installers.rpm.RpmTarget;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgInstallerCommand;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgTarget;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.factory.DefaultArtifactFactory;
+import org.apache.maven.artifact.repository.DefaultArtifactRepositoryFactory;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.DefaultArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -185,9 +191,11 @@ public class GenerateMojo extends AbstractMojo
         // generate installers for all targets
         for ( Target target : allTargets )
         {
+            getLog().info( "Executing target '" + target.getId() + '"' );
+
             // create the installation image first
-            CreateImageCommand imgCmd = new CreateImageCommand( this, target );
-            imgCmd.execute();
+//            CreateImageCommand imgCmd = new CreateImageCommand( this, target );
+//            imgCmd.execute();
 
             // ---------------------------------------------------------------
             // Generate all installers
@@ -401,26 +409,26 @@ public class GenerateMojo extends AbstractMojo
             //            {
             //                target.setApplication( this.application );
             //            }
-
-            if ( target.getLoggerConfigurationFile() == null )
-            {
-                target.setLoggerConfigurationFile( new File( sourceDirectory, "log4j.properties" ) );
-            }
-
-            if ( target.getBootstrapperConfigurationFile() == null )
-            {
-                target.setBootstrapperConfigurationFile( new File( sourceDirectory, "bootstrapper.properties" ) );
-            }
-
-            if ( target.getServerConfigurationFile() == null )
-            {
-                target.setServerConfigurationFile( new File( sourceDirectory, "server.xml" ) );
-            }
-
-            if ( target.getOsVersion() == null )
-            {
-                target.setOsVersion( "*" );
-            }
+            //
+            //            if ( target.getLoggerConfigurationFile() == null )
+            //            {
+            //                target.setLoggerConfigurationFile( new File( sourceDirectory, "log4j.properties" ) );
+            //            }
+            //
+            //            if ( target.getBootstrapperConfigurationFile() == null )
+            //            {
+            //                target.setBootstrapperConfigurationFile( new File( sourceDirectory, "bootstrapper.properties" ) );
+            //            }
+            //
+            //            if ( target.getServerConfigurationFile() == null )
+            //            {
+            //                target.setServerConfigurationFile( new File( sourceDirectory, "server.xml" ) );
+            //            }
+            //
+            //            if ( target.getOsVersion() == null )
+            //            {
+            //                target.setOsVersion( "*" );
+            //            }
         }
     }
 
@@ -496,11 +504,6 @@ public class GenerateMojo extends AbstractMojo
                 getLog().info( "id: " + target.getId() );
                 getLog().info( "osName: " + target.getOsName() );
                 getLog().info( "osArch: " + target.getOsArch() );
-                getLog().info( "osVersion: " + target.getOsVersion() );
-                getLog().info( "daemonFramework: " + target.getDaemonFramework() );
-                getLog().info( "loggerConfigurationFile: " + target.getLoggerConfigurationFile() );
-                getLog().info( "bootstrapperConfigurationFiles: " + target.getBootstrapperConfigurationFile() );
-                getLog().info( "serverConfigurationFile: " + target.getServerConfigurationFile() );
             }
         }
 

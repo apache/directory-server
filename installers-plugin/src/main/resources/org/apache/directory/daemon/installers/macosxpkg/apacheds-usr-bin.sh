@@ -17,4 +17,4 @@
 #  specific language governing permissions and limitations
 #  under the License.
 #
-/usr/local/${app.name}-${app.version}/bin/${app.name}.init $*
+/usr/local/apacheds-${version}/bin/apacheds $*

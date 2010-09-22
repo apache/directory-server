@@ -20,13 +20,6 @@
 package org.apache.directory.daemon.installers;
 
 
-import java.io.File;
-import java.util.List;
-import java.util.Locale;
-
-import org.apache.directory.server.InstallationLayout;
-
-
 /**
  * The superclass for all installer targets.
  * 
@@ -34,106 +27,42 @@ import org.apache.directory.server.InstallationLayout;
  */
 public class Target
 {
-    /**
-     * Possible values:<br />
-     *    <ul>
-     *      <li>dos</li>
-     *      <li>mac</li>
-     *      <li>netware</li>
-     *      <li>os/2</li>
-     *      <li>tandem</li>
-     *      <li>unix</li>
-     *      <li>windows</li>
-     *      <li>win9x</li>
-     *      <li>z/os</li>
-     *      <li>os/400</li>
-     *    </ul>
-     */
-    public final static String[] OS_FAMILIES = new String[]
-        { "dos", "mac", "netware", "os/2", "tandem", "unix", "windows", "win9x", "z/os", "os/400" };
-    public final static String[] OPERATING_SYSTEMS = new String[]
-        { "Linux", "SunOS", "Windows", "Mac OS X" };
-    public final static String[] ARCHITECTURES = new String[]
-        { "intel", "sparc", "ppc" };
-    public final static String[] DAEMON_FRAMEWORKS = new String[]
-        { "jsvc", "procrun", "tanuki" };
+    /** The OS name for 'Linux' */
+    public static final String OS_NAME_LINUX = "Linux";
+    /** The OS name for 'Mac OS X' */
+    public static final String OS_NAME_MAC_OS_X = "Mac OS X";
+    /** The OS name for 'Solaris' */
+    public static final String OS_NAME_SOLARIS = "Solaris";
+    /** The OS name for 'Windows' */
+    public static final String OS_NAME_WINDOWS = "Windows";
 
-    // required stuff
+    /** The OS architecture for 'amd64' */
+    public static final String OS_ARCH_AMD64 = "amd64";
+    /** The OS architecture for 'i386' */
+    public static final String OS_ARCH_I386 = "i386";
+    /** The OS architecture for 'sparc' */
+    public static final String OS_ARCH_SPARC = "sparc";
+    /** The OS architecture for 'x86' */
+    public static final String OS_ARCH_X86 = "x86";
+    /** The OS architecture for 'x86_64' */
+    public static final String OS_ARCH_X86_64 = "x86_64";
+
+    /** The id */
     private String id;
+
+    /** The name of the operating system */
     private String osName;
+
+    /** The architecture of the operating system */
     private String osArch;
-    private String osFamily;
-    private String osVersion;
-    private String daemonFramework;
+
+    /** The final name of the installer file */
     private String finalName;
-    private String companyName = "Apache Software Foundation";
-    private String copyrightYear = "2006";
-    private File loggerConfigurationFile;
-    private File serverConfigurationFile;
-    private File bootstrapperConfigurationFile;
-    private File scriptFile;
-
-    private InstallationLayout layout;
-    private List libArtifacts;
-
-    protected PackagedFile[] packagedFiles;
 
 
-    public void setOsName( String osName )
+    public String getFinalName()
     {
-        this.osName = osName.toLowerCase( Locale.US );
-    }
-
-
-    public String getOsName()
-    {
-        return osName;
-    }
-
-
-    public void setOsArch( String osArch )
-    {
-        this.osArch = osArch.toLowerCase( Locale.US );
-    }
-
-
-    public String getOsArch()
-    {
-        return osArch;
-    }
-
-
-    public void setDaemonFramework( String daemonFramework )
-    {
-        this.daemonFramework = daemonFramework.toLowerCase( Locale.US );
-    }
-
-
-    public String getDaemonFramework()
-    {
-        return daemonFramework;
-    }
-
-
-    public void setOsVersion( String osVersion )
-    {
-        this.osVersion = osVersion.toLowerCase( Locale.US );
-    }
-
-
-    public String getOsVersion()
-    {
-        if ( osVersion == null )
-        {
-            return null;
-        }
-        return osVersion.toLowerCase( Locale.US );
-    }
-
-
-    public void setId( String id )
-    {
-        this.id = id;
+        return finalName;
     }
 
 
@@ -143,75 +72,15 @@ public class Target
     }
 
 
-    public void setLoggerConfigurationFile( File loggerConfigurationFile )
+    public String getOsArch()
     {
-        this.loggerConfigurationFile = loggerConfigurationFile;
+        return osArch;
     }
 
 
-    public File getLoggerConfigurationFile()
+    public String getOsName()
     {
-        return loggerConfigurationFile;
-    }
-
-
-    public void setServerConfigurationFile( File serverConfigurationFile )
-    {
-        this.serverConfigurationFile = serverConfigurationFile;
-    }
-
-
-    public File getServerConfigurationFile()
-    {
-        return serverConfigurationFile;
-    }
-
-
-    public void setBootstrapperConfigurationFile( File bootstrapperConfigurationFile )
-    {
-        this.bootstrapperConfigurationFile = bootstrapperConfigurationFile;
-    }
-
-
-    public File getBootstrapperConfigurationFile()
-    {
-        return bootstrapperConfigurationFile;
-    }
-
-
-    public void setOsFamily( String osFamily )
-    {
-        this.osFamily = osFamily;
-    }
-
-
-    public String getOsFamily()
-    {
-        return osFamily;
-    }
-
-
-    public void setLayout( InstallationLayout layout )
-    {
-        this.layout = layout;
-    }
-
-
-    public InstallationLayout getLayout()
-    {
-        return layout;
-    }
-
-
-    public void setLibArtifacts( List libArtifacts )
-    {
-        this.libArtifacts = libArtifacts;
-    }
-
-
-    public List getLibArtifacts()
-    {
-        return libArtifacts;
+        return osName;
     }
 
 
@@ -221,56 +90,101 @@ public class Target
     }
 
 
-    public String getFinalName()
+    public void setId( String id )
     {
-        return finalName;
+        this.id = id;
     }
 
 
-    public void setCompanyName( String innoCompanyName )
+    public void setOsArch( String osArch )
     {
-        this.companyName = innoCompanyName;
+        this.osArch = osArch;
     }
 
 
-    public String getCompanyName()
+    public void setOsName( String osName )
     {
-        return companyName;
+        this.osName = osName;
     }
 
 
-    public void setCopyrightYear( String innoCopyrightYear )
+    /**
+     * Indicates if the OS name is 'Linux'.
+     */
+    public boolean isOsNameLinux()
     {
-        this.copyrightYear = innoCopyrightYear;
+        return Target.OS_NAME_LINUX.equalsIgnoreCase( osName );
     }
 
 
-    public String getCopyrightYear()
+    /**
+     * Indicates if the OS name is 'Mac OS X'.
+     */
+    public boolean isOsNameMacOSX()
     {
-        return copyrightYear;
+        return Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName );
     }
 
 
-    public void setPackagedFiles( PackagedFile[] packagedFiles )
+    /**
+     * Indicates if the OS name is 'Solaris'.
+     */
+    public boolean isOsNameSolaris()
     {
-        this.packagedFiles = packagedFiles;
+        return Target.OS_NAME_SOLARIS.equalsIgnoreCase( osName );
     }
 
 
-    public PackagedFile[] getPackagedFiles()
+    /**
+     * Indicates if the OS name is 'Windows'.
+     */
+    public boolean isOsNameWindows()
     {
-        return packagedFiles;
+        return Target.OS_NAME_WINDOWS.equalsIgnoreCase( osName );
     }
 
 
-    public void setScriptFile( File scriptFile )
+    /**
+     * Indicates if the OS architecture is 'amd64'.
+     */
+    public boolean isOsArchAmd64()
     {
-        this.scriptFile = scriptFile;
+        return Target.OS_ARCH_AMD64.equalsIgnoreCase( osArch );
     }
 
 
-    public File getScriptFile()
+    /**
+     * Indicates if the OS architecture is 'i386'.
+     */
+    public boolean isOsArchI386()
     {
-        return scriptFile;
+        return Target.OS_ARCH_I386.equalsIgnoreCase( osArch );
+    }
+
+
+    /**
+     * Indicates if the OS architecture is 'Sparc'.
+     */
+    public boolean isOsArchSparc()
+    {
+        return Target.OS_ARCH_SPARC.equalsIgnoreCase( osArch );
+    }
+
+
+    /**
+     * Indicates if the OS architecture is 'x86'.
+     */
+    public boolean isOsArchx86()
+    {
+        return Target.OS_ARCH_X86.equalsIgnoreCase( osArch );
+    }
+
+
+    /**
+     * Indicates if the OS architecture is 'x86_64'.
+     */
+    public boolean isOsArchX86_64()
+    {
+        return Target.OS_ARCH_X86_64.equalsIgnoreCase( osArch );
     }
 }

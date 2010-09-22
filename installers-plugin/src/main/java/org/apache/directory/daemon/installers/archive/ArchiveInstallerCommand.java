@@ -93,110 +93,111 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
             return;
         }
 
-        File baseDirectory = target.getLayout().getInstallationDirectory();
-        File imagesDirectory = baseDirectory.getParentFile();
-
-        log.info( "Creating Archive Installer..." );
-
-        // Creating the archive directory
-        File targetDirectory = new File( imagesDirectory, target.getId() );
-        File archiveDirectory = new File( targetDirectory, "apacheds" + "_"
-            + mojo.getProject().getVersion() );
-
-        log.info( "Copying Archive Installer files" );
-
-        // Copying the resources files
-        try
-        {
-            // Copying the apacheds.bat file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.bat" ),
-                new File( targetDirectory, "apacheds.bat" ), false );
-
-            // Copying the cpappend.bat file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "cpappend.bat" ),
-                new File( targetDirectory, "cpappend.bat" ), false );
-
-            // Copying the apacheds.sh file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.sh" ),
-                new File( targetDirectory, "apacheds.sh" ), false );
-
-            // Copying all the files in the final archive directory
-            MojoHelperUtils.copyFiles( targetDirectory, archiveDirectory );
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy Archive Installer resources files." );
-        }
-
-        // Generating the Bin
-        log.info( "Generating Archive Installer" );
-
-        Project project = new Project();
-        project.setBaseDir( targetDirectory );
-
-        // ZIP Archive
-        if ( archiveType.equalsIgnoreCase( "zip" ) )
-        {
-            Zip zipTask = new Zip();
-            zipTask.setProject( project );
-            zipTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
-            zipTask.setBasedir( targetDirectory );
-            zipTask.setIncludes( archiveDirectory.getName() + "/**" );
-            zipTask.execute();
-        }
-        // TAR Archive
-        else if ( archiveType.equalsIgnoreCase( "tar" ) )
-        {
-            Tar tarTask = new Tar();
-            tarTask.setProject( project );
-            tarTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
-            tarTask.setBasedir( targetDirectory );
-            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-            tarTask.execute();
-        }
-        // TAR.GZ Archive
-        else if ( archiveType.equalsIgnoreCase( "tar.gz" ) )
-        {
-            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
-
-            Tar tarTask = new Tar();
-            tarTask.setProject( project );
-            tarTask.setDestFile( tarFile );
-            tarTask.setBasedir( targetDirectory );
-            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-            tarTask.execute();
-
-            GZip gzipTask = new GZip();
-            gzipTask.setProject( project );
-            gzipTask.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
-            gzipTask.setSrc( tarFile );
-            gzipTask.execute();
-
-            tarFile.delete();
-        }
-        // TAR.BZ2 Archive
-        else if ( archiveType.equalsIgnoreCase( "tar.bz2" ) )
-        {
-            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
-
-            Tar tarTask = new Tar();
-            tarTask.setProject( project );
-            tarTask.setDestFile( tarFile );
-            tarTask.setBasedir( targetDirectory );
-            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-            tarTask.execute();
-
-            BZip2 bzip2Task = new BZip2();
-            bzip2Task.setProject( project );
-            bzip2Task.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
-            bzip2Task.setSrc( tarFile );
-            bzip2Task.execute();
-
-            tarFile.delete();
-        }
-
-        log.info( "Archive Installer generated at " + new File( imagesDirectory, target.getFinalName() ) );
+        // TODO FIXME
+        //        File baseDirectory = target.getLayout().getInstallationDirectory();
+        //        File imagesDirectory = baseDirectory.getParentFile();
+        //
+        //        log.info( "Creating Archive Installer..." );
+        //
+        //        // Creating the archive directory
+        //        File targetDirectory = new File( imagesDirectory, target.getId() );
+        //        File archiveDirectory = new File( targetDirectory, "apacheds" + "_"
+        //            + mojo.getProject().getVersion() );
+        //
+        //        log.info( "Copying Archive Installer files" );
+        //
+        //        // Copying the resources files
+        //        try
+        //        {
+        //            // Copying the apacheds.bat file
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.bat" ),
+        //                new File( targetDirectory, "apacheds.bat" ), false );
+        //
+        //            // Copying the cpappend.bat file
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "cpappend.bat" ),
+        //                new File( targetDirectory, "cpappend.bat" ), false );
+        //
+        //            // Copying the apacheds.sh file
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.sh" ),
+        //                new File( targetDirectory, "apacheds.sh" ), false );
+        //
+        //            // Copying all the files in the final archive directory
+        //            MojoHelperUtils.copyFiles( targetDirectory, archiveDirectory );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy Archive Installer resources files." );
+        //        }
+        //
+        //        // Generating the Bin
+        //        log.info( "Generating Archive Installer" );
+        //
+        //        Project project = new Project();
+        //        project.setBaseDir( targetDirectory );
+        //
+        //        // ZIP Archive
+        //        if ( archiveType.equalsIgnoreCase( "zip" ) )
+        //        {
+        //            Zip zipTask = new Zip();
+        //            zipTask.setProject( project );
+        //            zipTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
+        //            zipTask.setBasedir( targetDirectory );
+        //            zipTask.setIncludes( archiveDirectory.getName() + "/**" );
+        //            zipTask.execute();
+        //        }
+        //        // TAR Archive
+        //        else if ( archiveType.equalsIgnoreCase( "tar" ) )
+        //        {
+        //            Tar tarTask = new Tar();
+        //            tarTask.setProject( project );
+        //            tarTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
+        //            tarTask.setBasedir( targetDirectory );
+        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
+        //            tarTask.execute();
+        //        }
+        //        // TAR.GZ Archive
+        //        else if ( archiveType.equalsIgnoreCase( "tar.gz" ) )
+        //        {
+        //            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
+        //
+        //            Tar tarTask = new Tar();
+        //            tarTask.setProject( project );
+        //            tarTask.setDestFile( tarFile );
+        //            tarTask.setBasedir( targetDirectory );
+        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
+        //            tarTask.execute();
+        //
+        //            GZip gzipTask = new GZip();
+        //            gzipTask.setProject( project );
+        //            gzipTask.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
+        //            gzipTask.setSrc( tarFile );
+        //            gzipTask.execute();
+        //
+        //            tarFile.delete();
+        //        }
+        //        // TAR.BZ2 Archive
+        //        else if ( archiveType.equalsIgnoreCase( "tar.bz2" ) )
+        //        {
+        //            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
+        //
+        //            Tar tarTask = new Tar();
+        //            tarTask.setProject( project );
+        //            tarTask.setDestFile( tarFile );
+        //            tarTask.setBasedir( targetDirectory );
+        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
+        //            tarTask.execute();
+        //
+        //            BZip2 bzip2Task = new BZip2();
+        //            bzip2Task.setProject( project );
+        //            bzip2Task.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
+        //            bzip2Task.setSrc( tarFile );
+        //            bzip2Task.execute();
+        //
+        //            tarFile.delete();
+        //        }
+        //
+        //        log.info( "Archive Installer generated at " + new File( imagesDirectory, target.getFinalName() ) );
     }
 
 

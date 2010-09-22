@@ -68,152 +68,153 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // Verifying the target is linux
-        if ( !target.getOsFamily().equals( "linux" ) )
-        {
-            log.warn( "DEB package installer can only be targeted for Linux platforms!" );
-            log.warn( "The build will continue, but please check the the platform of this installer " );
-            log.warn( "target" );
-            return;
-        }
-
-        // Verifying the dpkg utility exists
-        if ( !target.getDpkgUtility().exists() )
-        {
-            log.warn( "Cannot find dpkg utility at this location: " + target.getDpkgUtility() );
-            log.warn( "The build will continue, but please check the location of your dpkg " );
-            log.warn( "utility." );
-            return;
-        }
-        else
-        {
-            dpkgUtility = target.getDpkgUtility();
-        }
-
-        File baseDirectory = target.getLayout().getInstallationDirectory();
-        File imagesDirectory = baseDirectory.getParentFile();
-
-        log.info( "Creating Debian DEB Package..." );
-
-        // Creating the package directory
-        File debDirectory = new File( imagesDirectory, target.getId() + "-deb" );
-        debDirectory.mkdirs();
-
-        log.info( "Copying DEB Package files" );
-
-        // Copying the apacheds files in the '/opt/apacheds-$VERSION/' directory
-        File debApacheDsHomeDirectory = new File( debDirectory, "opt/apacheds-" + mojo.getProject().getVersion() );
-        try
-        {
-            // Copying the generated layout
-            MojoHelperUtils.copyFiles( baseDirectory, debApacheDsHomeDirectory );
-
-            // Replacing the apacheds.conf file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
-                new File( debApacheDsHomeDirectory, "conf/apacheds.conf" ), false );
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
-                + ") to the DEB directory (" + debApacheDsHomeDirectory + ")" );
-        }
-
-        // Copying the instances in the '/var/lib/apacheds-$VERSION/default' directory
-        File debDefaultInstanceDirectory = new File( debDirectory, "var/lib/apacheds-"
-            + mojo.getProject().getVersion() + "/default" );
-        debDefaultInstanceDirectory.mkdirs();
-        File debDefaultInstanceConfDirectory = new File( debDefaultInstanceDirectory, "conf" );
-        debDefaultInstanceConfDirectory.mkdirs();
-        new File( debDefaultInstanceDirectory, "ldif" ).mkdirs();
-        new File( debDefaultInstanceDirectory, "log" ).mkdirs();
-        new File( debDefaultInstanceDirectory, "partitions" ).mkdirs();
-        new File( debDefaultInstanceDirectory, "run" ).mkdirs();
-        File debEtcInitdDirectory = new File( debDirectory, "etc/init.d" );
-        debEtcInitdDirectory.mkdirs();
-        new File( debDirectory, "/var/run/apacheds-" + mojo.getProject().getVersion() ).mkdirs();
-        try
-        {
-            // Copying the apacheds.conf file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
-
-            // Copying the log4j.properties file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
-                "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
-
-            // Copying the server.xml file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
-                "conf/server.xml" ), new File( debDefaultInstanceConfDirectory, "server.xml" ), false );
-
-            // Copying the init script in /etc/init.d/
-            MojoHelperUtils
-                .copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ), new File(
-                    debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
-
-            // Removing the redundant server.xml file (see DIRSERVER-1112)
-            new File( debApacheDsHomeDirectory, "conf/server.xml" ).delete();
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy resources files to the DEB directory ("
-                + debDefaultInstanceDirectory + ")" );
-        }
-
-        // Create DEBIAN directory
-        File debDebianDirectory = new File( debDirectory, "DEBIAN" );
-        debDebianDirectory.mkdirs();
-
-        // Copying the 'control' file
-        try
-        {
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "control" ),
-                new File( debDebianDirectory, "control" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
-                new File( debDebianDirectory, "postinst" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
-                new File( debDebianDirectory, "prerm" ), true );
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy DEB 'control' file." );
-        }
-
-        // Setting correct permission on the postinst script
-        MojoHelperUtils.exec( new String[]
-            { "chmod", "755", new File( debDebianDirectory, "postinst" ).toString() }, debDebianDirectory, false );
-        MojoHelperUtils.exec( new String[]
-            { "chmod", "755", new File( debDebianDirectory, "prerm" ).toString() }, debDebianDirectory, false );
-
-        // Generating the DEB
-        log.info( "Generating Debian DEB Package" );
-        String finalName = target.getFinalName();
-        if ( !finalName.endsWith( ".deb" ) )
-        {
-            finalName = finalName + ".deb";
-        }
-        Execute createDebTask = new Execute();
-        String[] cmd = new String[]
-            { dpkgUtility.getAbsolutePath(), "-b", target.getId() + "-deb", finalName };
-        createDebTask.setCommandline( cmd );
-        createDebTask.setSpawn( true );
-        createDebTask.setWorkingDirectory( imagesDirectory );
-
-        try
-        {
-            createDebTask.execute();
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed while trying to generate the DEB package: " + e.getMessage() );
-        }
-
-        log.info( "Debian DEB package generated at " + new File( imagesDirectory, finalName ) );
+        // TODO FIXME
+        //        // Verifying the target is linux
+        //        if ( !target.getOsFamily().equals( "linux" ) )
+        //        {
+        //            log.warn( "DEB package installer can only be targeted for Linux platforms!" );
+        //            log.warn( "The build will continue, but please check the the platform of this installer " );
+        //            log.warn( "target" );
+        //            return;
+        //        }
+        //
+        //        // Verifying the dpkg utility exists
+        //        if ( !target.getDpkgUtility().exists() )
+        //        {
+        //            log.warn( "Cannot find dpkg utility at this location: " + target.getDpkgUtility() );
+        //            log.warn( "The build will continue, but please check the location of your dpkg " );
+        //            log.warn( "utility." );
+        //            return;
+        //        }
+        //        else
+        //        {
+        //            dpkgUtility = target.getDpkgUtility();
+        //        }
+        //
+        //        File baseDirectory = target.getLayout().getInstallationDirectory();
+        //        File imagesDirectory = baseDirectory.getParentFile();
+        //
+        //        log.info( "Creating Debian DEB Package..." );
+        //
+        //        // Creating the package directory
+        //        File debDirectory = new File( imagesDirectory, target.getId() + "-deb" );
+        //        debDirectory.mkdirs();
+        //
+        //        log.info( "Copying DEB Package files" );
+        //
+        //        // Copying the apacheds files in the '/opt/apacheds-$VERSION/' directory
+        //        File debApacheDsHomeDirectory = new File( debDirectory, "opt/apacheds-" + mojo.getProject().getVersion() );
+        //        try
+        //        {
+        //            // Copying the generated layout
+        //            MojoHelperUtils.copyFiles( baseDirectory, debApacheDsHomeDirectory );
+        //
+        //            // Replacing the apacheds.conf file
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
+        //                new File( debApacheDsHomeDirectory, "conf/apacheds.conf" ), false );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
+        //                + ") to the DEB directory (" + debApacheDsHomeDirectory + ")" );
+        //        }
+        //
+        //        // Copying the instances in the '/var/lib/apacheds-$VERSION/default' directory
+        //        File debDefaultInstanceDirectory = new File( debDirectory, "var/lib/apacheds-"
+        //            + mojo.getProject().getVersion() + "/default" );
+        //        debDefaultInstanceDirectory.mkdirs();
+        //        File debDefaultInstanceConfDirectory = new File( debDefaultInstanceDirectory, "conf" );
+        //        debDefaultInstanceConfDirectory.mkdirs();
+        //        new File( debDefaultInstanceDirectory, "ldif" ).mkdirs();
+        //        new File( debDefaultInstanceDirectory, "log" ).mkdirs();
+        //        new File( debDefaultInstanceDirectory, "partitions" ).mkdirs();
+        //        new File( debDefaultInstanceDirectory, "run" ).mkdirs();
+        //        File debEtcInitdDirectory = new File( debDirectory, "etc/init.d" );
+        //        debEtcInitdDirectory.mkdirs();
+        //        new File( debDirectory, "/var/run/apacheds-" + mojo.getProject().getVersion() ).mkdirs();
+        //        try
+        //        {
+        //            // Copying the apacheds.conf file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+        //                "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
+        //
+        //            // Copying the log4j.properties file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
+        //                "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
+        //
+        //            // Copying the server.xml file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( debApacheDsHomeDirectory,
+        //                "conf/server.xml" ), new File( debDefaultInstanceConfDirectory, "server.xml" ), false );
+        //
+        //            // Copying the init script in /etc/init.d/
+        //            MojoHelperUtils
+        //                .copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ), new File(
+        //                    debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
+        //
+        //            // Removing the redundant server.xml file (see DIRSERVER-1112)
+        //            new File( debApacheDsHomeDirectory, "conf/server.xml" ).delete();
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy resources files to the DEB directory ("
+        //                + debDefaultInstanceDirectory + ")" );
+        //        }
+        //
+        //        // Create DEBIAN directory
+        //        File debDebianDirectory = new File( debDirectory, "DEBIAN" );
+        //        debDebianDirectory.mkdirs();
+        //
+        //        // Copying the 'control' file
+        //        try
+        //        {
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "control" ),
+        //                new File( debDebianDirectory, "control" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
+        //                new File( debDebianDirectory, "postinst" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
+        //                new File( debDebianDirectory, "prerm" ), true );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy DEB 'control' file." );
+        //        }
+        //
+        //        // Setting correct permission on the postinst script
+        //        MojoHelperUtils.exec( new String[]
+        //            { "chmod", "755", new File( debDebianDirectory, "postinst" ).toString() }, debDebianDirectory, false );
+        //        MojoHelperUtils.exec( new String[]
+        //            { "chmod", "755", new File( debDebianDirectory, "prerm" ).toString() }, debDebianDirectory, false );
+        //
+        //        // Generating the DEB
+        //        log.info( "Generating Debian DEB Package" );
+        //        String finalName = target.getFinalName();
+        //        if ( !finalName.endsWith( ".deb" ) )
+        //        {
+        //            finalName = finalName + ".deb";
+        //        }
+        //        Execute createDebTask = new Execute();
+        //        String[] cmd = new String[]
+        //            { dpkgUtility.getAbsolutePath(), "-b", target.getId() + "-deb", finalName };
+        //        createDebTask.setCommandline( cmd );
+        //        createDebTask.setSpawn( true );
+        //        createDebTask.setWorkingDirectory( imagesDirectory );
+        //
+        //        try
+        //        {
+        //            createDebTask.execute();
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed while trying to generate the DEB package: " + e.getMessage() );
+        //        }
+        //
+        //        log.info( "Debian DEB package generated at " + new File( imagesDirectory, finalName ) );
     }
 
 

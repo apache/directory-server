@@ -47,6 +47,16 @@ public class MacOsXPkgTarget extends Target
 
 
     /**
+     * Creates a new instance of MacOsXPkgTarget.
+     */
+    public MacOsXPkgTarget()
+    {
+        setOsName( Target.OS_NAME_MAC_OS_X );
+        setOsArch( Target.OS_ARCH_X86_64 );
+    }
+
+
+    /**
      * Gets the PackageMaker utility.
      *
      * @return

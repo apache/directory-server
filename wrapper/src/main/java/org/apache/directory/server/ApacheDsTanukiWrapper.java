@@ -55,20 +55,19 @@ public class ApacheDsTanukiWrapper implements WrapperListener
     public Integer start( String[] args )
     {
         log.info( "Starting the service..." );
-        
-        if ( ( args != null ) && ( args.length == 2 ) )
+
+        if ( ( args != null ) && ( args.length == 1 ) )
         {
             // Creating ApacheDS service
             service = new ApacheDsService();
 
-            // Creating installation and instance layouts from the arguments
-            InstallationLayout installationLayout = new InstallationLayout( args[0] );
-            InstanceLayout instanceLayout = new InstanceLayout( args[1] );
+            // Creating instance layouts from the argument
+            InstanceLayout instanceLayout = new InstanceLayout( args[0] );
 
             // Initializing the service
             try
             {
-                service.init( installationLayout, instanceLayout );
+                service.init( instanceLayout );
             }
             catch ( Exception e )
             {
@@ -82,8 +81,7 @@ public class ApacheDsTanukiWrapper implements WrapperListener
         else
         {
             throw new IllegalArgumentException(
-                "Program must be launched with 2 arguements (path the the installation directory "
-                    + "and path to the instance directory." );
+                "Program must be launched with 1 arguement, the path to the instance directory." );
         }
 
         return null;

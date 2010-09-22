@@ -134,6 +134,8 @@ public class MojoHelperUtils
             artifact = ( Artifact ) artifacts.next();
             String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
 
+            mymojo.getLog().info( "artifact=> " + key );
+
             if ( artifact.equals( mymojo.getBootstrapper() ) )
             {
                 rejects.add( key );
@@ -144,7 +146,7 @@ public class MojoHelperUtils
             }
             else
             {
-                if ( mymojo.getExcludes().contains( key ) )
+                if ( ( mymojo.getExcludes() != null ) && ( mymojo.getExcludes().contains( key ) ) )
                 {
                     rejects.add( key );
                     continue;
@@ -164,7 +166,7 @@ public class MojoHelperUtils
             }
         }
 
-        if ( !mymojo.getExcludes().isEmpty() )
+        if ( ( mymojo.getExcludes() != null ) && ( !mymojo.getExcludes().isEmpty() ) )
         {
             mymojo.getLog().info( "" );
             mymojo.getLog().info( "    Excluded artifacts: " );
@@ -196,7 +198,7 @@ public class MojoHelperUtils
             String cmdString = " ";
             for ( int ii = 0; ii < cmd.length; ii++ )
             {
-                System.out.println( "cmd[" + ii + "] = " + cmd[ii] );
+                //                System.out.println( "cmd[" + ii + "] = " + cmd[ii] ); // TODO
                 cmdString += cmd[ii] + " ";
             }
 
@@ -209,7 +211,7 @@ public class MojoHelperUtils
         String cmdString = " ";
         for ( int ii = 0; ii < cmd.length; ii++ )
         {
-            System.out.println( "cmd[" + ii + "] = " + cmd[ii] );
+            //            System.out.println( "cmd[" + ii + "] = " + cmd[ii] ); // TODO
             cmdString += cmd[ii] + " ";
         }
 

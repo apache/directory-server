@@ -19,10 +19,12 @@
  */
 package org.apache.directory.daemon.installers.nsis;
 
+
 import org.apache.directory.daemon.installers.Target;
 
 import java.io.File;
 import java.util.Calendar;
+
 
 /**
  * A Nullsoft Installer System (NSIS) installer for the Windows platform
@@ -40,11 +42,10 @@ public class NsisTarget extends Target
     {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis( System.currentTimeMillis() );
-        setCopyrightYear( String.valueOf( cal.get( Calendar.YEAR ) ) );
     }
 
 
-    public void setNsisCompiler( File nsisCompiler)
+    public void setNsisCompiler( File nsisCompiler )
     {
         this.nsisCompiler = nsisCompiler;
     }
@@ -68,7 +69,7 @@ public class NsisTarget extends Target
     }
 
 
-    public void setWrapperExecutablePath( String wrapperExecutablePath)
+    public void setWrapperExecutablePath( String wrapperExecutablePath )
     {
         this.wrapperExecutablePath = wrapperExecutablePath;
     }
@@ -78,6 +79,5 @@ public class NsisTarget extends Target
     {
         return wrapperExecutablePath;
     }
-
 
 }

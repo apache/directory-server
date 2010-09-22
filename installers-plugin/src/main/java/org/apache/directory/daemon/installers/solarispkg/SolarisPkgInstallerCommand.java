@@ -104,139 +104,140 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
             pkgTranslator = target.getPkgTranslator();
         }
 
-        File baseDirectory = target.getLayout().getInstallationDirectory();
-        File imagesDirectory = baseDirectory.getParentFile();
-
-        log.info( "Creating Solaris PKG Installer..." );
-
-        // Creating the package directory
-        File pkgDirectory = new File( imagesDirectory, target.getId() + "-pkg" );
-        pkgDirectory.mkdirs();
-
-        log.info( "Copying Solaris PKG installer files" );
-
-        // Creating the root directories hierarchy
-        File pkgRootDirectory = new File( pkgDirectory, "root" );
-        pkgRootDirectory.mkdirs();
-
-        // Copying the apacheds files in the '/opt/apacheds/' directory
-        File apacheDsHomeDirectory = new File( pkgRootDirectory, "opt/apacheds" );
-        try
-        {
-            // Copying the generated layout
-            MojoHelperUtils.copyFiles( baseDirectory, apacheDsHomeDirectory );
-
-            // Replacing the apacheds.conf file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
-                new File( apacheDsHomeDirectory, "conf/apacheds.conf" ), false );
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
-                + ") to the PKG directory (" + apacheDsHomeDirectory + ")" );
-        }
-
-        // Copying the instances in the '/var/opt/apacheds/default' directory
-        File defaultInstanceDirectory = new File( pkgRootDirectory, "var/opt/apacheds" + "/default" );
-        defaultInstanceDirectory.mkdirs();
-        File debDefaultInstanceConfDirectory = new File( defaultInstanceDirectory, "conf" );
-        debDefaultInstanceConfDirectory.mkdirs();
-        new File( defaultInstanceDirectory, "ldif" ).mkdirs();
-        new File( defaultInstanceDirectory, "log" ).mkdirs();
-        new File( defaultInstanceDirectory, "partitions" ).mkdirs();
-        new File( defaultInstanceDirectory, "run" ).mkdirs();
-        File etcInitdDirectory = new File( pkgRootDirectory, "etc/init.d" );
-        etcInitdDirectory.mkdirs();
-        new File( pkgRootDirectory, "/var/run/apacheds" ).mkdirs();
-        try
-        {
-            // Copying the apacheds.conf file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
-
-            // Copying the log4j.properties file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( apacheDsHomeDirectory,
-                "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
-
-            // Copying the server.xml file in the default instance conf directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                new File( apacheDsHomeDirectory, "conf/server.xml" ), new File( debDefaultInstanceConfDirectory,
-                    "server.xml" ), false );
-
-            // Copying the init script in /etc/init.d/
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ),
-                new File( etcInitdDirectory, "apacheds" + "-default" ), true );
-
-            // Removing the redundant server.xml file (see DIRSERVER-1112)
-            new File( apacheDsHomeDirectory, "conf/server.xml" ).delete();
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy resources files to the PKG directory ("
-                + defaultInstanceDirectory + ")" );
-        }
-
-        // Copying the 'pkg' files 
-        try
-        {
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "Prototype" ),
-                new File( pkgDirectory, "Prototype" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "pkginfo" ),
-                new File( pkgDirectory, "pkginfo" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preinstall" ),
-                new File( pkgDirectory, "preinstall" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinstall" ),
-                new File( pkgDirectory, "postinstall" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preremove" ),
-                new File( pkgDirectory, "preremove" ), true );
-
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postremove" ),
-                new File( pkgDirectory, "postremove" ), true );
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy PKG 'control' file." );
-        }
-
-        // Creating the target folder
-        new File( pkgDirectory, "target" ).mkdir();
-
-        // Generating the PKG
-        log.info( "Generating Solaris PKG Installer" );
-        String finalName = target.getFinalName();
-        if ( !finalName.endsWith( ".pkg" ) )
-        {
-            finalName = finalName + ".pkg";
-        }
-        try
-        {
-            // Generating the PKG
-            Execute executeTask = new Execute();
-            executeTask.setCommandline( new String[]
-                { pkgMaker.getAbsolutePath(), "-o", "-r", "root", "-d", "target", "apacheds" } );
-            executeTask.setSpawn( true );
-            executeTask.setWorkingDirectory( pkgDirectory );
-            executeTask.execute();
-
-            // Packaging it as a single file
-            executeTask.setCommandline( new String[]
-                { pkgTranslator.getAbsolutePath(), "-s", "target", "../../" + finalName, "apacheds" } );
-            executeTask.execute();
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed while trying to generate the PKG: " + e.getMessage() );
-        }
-
-        log.info( "Solaris PKG generated at " + new File( imagesDirectory, finalName ) );
+        // TODO FIXME
+        //        File baseDirectory = target.getLayout().getInstallationDirectory();
+        //        File imagesDirectory = baseDirectory.getParentFile();
+        //
+        //        log.info( "Creating Solaris PKG Installer..." );
+        //
+        //        // Creating the package directory
+        //        File pkgDirectory = new File( imagesDirectory, target.getId() + "-pkg" );
+        //        pkgDirectory.mkdirs();
+        //
+        //        log.info( "Copying Solaris PKG installer files" );
+        //
+        //        // Creating the root directories hierarchy
+        //        File pkgRootDirectory = new File( pkgDirectory, "root" );
+        //        pkgRootDirectory.mkdirs();
+        //
+        //        // Copying the apacheds files in the '/opt/apacheds/' directory
+        //        File apacheDsHomeDirectory = new File( pkgRootDirectory, "opt/apacheds" );
+        //        try
+        //        {
+        //            // Copying the generated layout
+        //            MojoHelperUtils.copyFiles( baseDirectory, apacheDsHomeDirectory );
+        //
+        //            // Replacing the apacheds.conf file
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
+        //                new File( apacheDsHomeDirectory, "conf/apacheds.conf" ), false );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
+        //                + ") to the PKG directory (" + apacheDsHomeDirectory + ")" );
+        //        }
+        //
+        //        // Copying the instances in the '/var/opt/apacheds/default' directory
+        //        File defaultInstanceDirectory = new File( pkgRootDirectory, "var/opt/apacheds" + "/default" );
+        //        defaultInstanceDirectory.mkdirs();
+        //        File debDefaultInstanceConfDirectory = new File( defaultInstanceDirectory, "conf" );
+        //        debDefaultInstanceConfDirectory.mkdirs();
+        //        new File( defaultInstanceDirectory, "ldif" ).mkdirs();
+        //        new File( defaultInstanceDirectory, "log" ).mkdirs();
+        //        new File( defaultInstanceDirectory, "partitions" ).mkdirs();
+        //        new File( defaultInstanceDirectory, "run" ).mkdirs();
+        //        File etcInitdDirectory = new File( pkgRootDirectory, "etc/init.d" );
+        //        etcInitdDirectory.mkdirs();
+        //        new File( pkgRootDirectory, "/var/run/apacheds" ).mkdirs();
+        //        try
+        //        {
+        //            // Copying the apacheds.conf file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+        //                "apacheds-default.conf" ), new File( debDefaultInstanceConfDirectory, "apacheds.conf" ), false );
+        //
+        //            // Copying the log4j.properties file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( apacheDsHomeDirectory,
+        //                "conf/log4j.properties" ), new File( debDefaultInstanceConfDirectory, "log4j.properties" ), false );
+        //
+        //            // Copying the server.xml file in the default instance conf directory
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+        //                new File( apacheDsHomeDirectory, "conf/server.xml" ), new File( debDefaultInstanceConfDirectory,
+        //                    "server.xml" ), false );
+        //
+        //            // Copying the init script in /etc/init.d/
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ),
+        //                new File( etcInitdDirectory, "apacheds" + "-default" ), true );
+        //
+        //            // Removing the redundant server.xml file (see DIRSERVER-1112)
+        //            new File( apacheDsHomeDirectory, "conf/server.xml" ).delete();
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy resources files to the PKG directory ("
+        //                + defaultInstanceDirectory + ")" );
+        //        }
+        //
+        //        // Copying the 'pkg' files 
+        //        try
+        //        {
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "Prototype" ),
+        //                new File( pkgDirectory, "Prototype" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "pkginfo" ),
+        //                new File( pkgDirectory, "pkginfo" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preinstall" ),
+        //                new File( pkgDirectory, "preinstall" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinstall" ),
+        //                new File( pkgDirectory, "postinstall" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "preremove" ),
+        //                new File( pkgDirectory, "preremove" ), true );
+        //
+        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postremove" ),
+        //                new File( pkgDirectory, "postremove" ), true );
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed to copy PKG 'control' file." );
+        //        }
+        //
+        //        // Creating the target folder
+        //        new File( pkgDirectory, "target" ).mkdir();
+        //
+        //        // Generating the PKG
+        //        log.info( "Generating Solaris PKG Installer" );
+        //        String finalName = target.getFinalName();
+        //        if ( !finalName.endsWith( ".pkg" ) )
+        //        {
+        //            finalName = finalName + ".pkg";
+        //        }
+        //        try
+        //        {
+        //            // Generating the PKG
+        //            Execute executeTask = new Execute();
+        //            executeTask.setCommandline( new String[]
+        //                { pkgMaker.getAbsolutePath(), "-o", "-r", "root", "-d", "target", "apacheds" } );
+        //            executeTask.setSpawn( true );
+        //            executeTask.setWorkingDirectory( pkgDirectory );
+        //            executeTask.execute();
+        //
+        //            // Packaging it as a single file
+        //            executeTask.setCommandline( new String[]
+        //                { pkgTranslator.getAbsolutePath(), "-s", "target", "../../" + finalName, "apacheds" } );
+        //            executeTask.execute();
+        //        }
+        //        catch ( IOException e )
+        //        {
+        //            log.error( e.getMessage() );
+        //            throw new MojoFailureException( "Failed while trying to generate the PKG: " + e.getMessage() );
+        //        }
+        //
+        //        log.info( "Solaris PKG generated at " + new File( imagesDirectory, finalName ) );
     }
 
 
