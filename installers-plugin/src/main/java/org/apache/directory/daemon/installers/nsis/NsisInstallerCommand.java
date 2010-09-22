@@ -110,7 +110,6 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         // -------------------------------------------------------------------
 
         // check first to see if the default install.iss file is present in src/main/installers
-        File projectNsisFile = new File( mojo.getSourceDirectory(), "install.nsi" );
         if ( target.getNsisConfigurationFile() != null && target.getNsisConfigurationFile().exists() )
         {
             try
@@ -124,31 +123,10 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
                     + target.getNsisConfigurationFile() + " to " + nsisConfigurationFile );
             }
         }
-        else if ( projectNsisFile.exists() )
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, projectNsisFile, nsisConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy project provided " + projectNsisFile
-                    + " to " + nsisConfigurationFile );
-            }
-        }
         else
         {
-            InputStream in = getClass().getResourceAsStream( "install.iss" );
-            URL resource = getClass().getResource( "install.iss" );
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, in, nsisConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy bundled " + resource + " to "
-                    + nsisConfigurationFile );
-            }
+            throw new MojoFailureException( "NSIS configuration file does not exist ("
+                + target.getNsisConfigurationFile() + ")." );
         }
 
         // -------------------------------------------------------------------
@@ -259,12 +237,12 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         // TODO FIXME
         //        filterProperties.put( "app.email", target.getApplication().getEmail() );
         //        filterProperties.put( "app.url", target.getApplication().getUrl() );
-//        filterProperties.put( "app.java.version", "1.5" );
-//        filterProperties.put( "app.license", target.getLayout().getLicenseFile().getPath() );
-//        filterProperties.put( "app.license.name", target.getLayout().getLicenseFile().getName() );
-//        filterProperties.put( "app.company.name", target.getCompanyName() );
+        //        filterProperties.put( "app.java.version", "1.5" );
+        //        filterProperties.put( "app.license", target.getLayout().getLicenseFile().getPath() );
+        //        filterProperties.put( "app.license.name", target.getLayout().getLicenseFile().getName() );
+        //        filterProperties.put( "app.company.name", target.getCompanyName() );
         //        filterProperties.put( "app.description", target.getApplication().getDescription() );
-//        filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
+        //        filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
 
         // TODO FIXME
         //        if ( !target.getLayout().getReadmeFile().exists() )

@@ -124,9 +124,9 @@ public class MojoHelperUtils
         Artifact artifact = null;
         List<String> rejects = new ArrayList<String>();
 
-        mymojo.getLog().info( "" );
-        mymojo.getLog().info( "    Including artifacts: " );
-        mymojo.getLog().info( "    -------------------" );
+//        mymojo.getLog().info( "" );
+//        mymojo.getLog().info( "    Including artifacts: " );
+//        mymojo.getLog().info( "    -------------------" );
         Iterator artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
 
         while ( artifacts.hasNext() )
@@ -134,53 +134,40 @@ public class MojoHelperUtils
             artifact = ( Artifact ) artifacts.next();
             String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
 
-            mymojo.getLog().info( "artifact=> " + key );
-
-            if ( artifact.equals( mymojo.getBootstrapper() ) )
+            if ( ( mymojo.getExcludes() != null ) && ( mymojo.getExcludes().contains( key ) ) )
             {
                 rejects.add( key );
+                continue;
             }
-            else if ( artifact.equals( mymojo.getDaemon() ) )
-            {
-                rejects.add( key );
-            }
-            else
-            {
-                if ( ( mymojo.getExcludes() != null ) && ( mymojo.getExcludes().contains( key ) ) )
-                {
-                    rejects.add( key );
-                    continue;
-                }
 
-                try
-                {
-                    FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
-                    libArtifacts.add( artifact );
-                    mymojo.getLog().info( "        o " + key );
-                }
-                catch ( IOException e )
-                {
-                    throw new MojoFailureException( "Failed to copy dependency artifact " + artifact
+            try
+            {
+                FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
+                libArtifacts.add( artifact );
+//                mymojo.getLog().info( "        o " + key );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy dependency artifact " + artifact
                         + " into position " + layout.getLibDirectory() );
-                }
             }
         }
 
-        if ( ( mymojo.getExcludes() != null ) && ( !mymojo.getExcludes().isEmpty() ) )
-        {
-            mymojo.getLog().info( "" );
-            mymojo.getLog().info( "    Excluded artifacts: " );
-            mymojo.getLog().info( "    ------------------" );
-            for ( int ii = 0; ii < rejects.size(); ii++ )
-            {
-                mymojo.getLog().info( "        o " + rejects.get( ii ) );
-            }
-        }
-        else
-        {
-            mymojo.getLog().info( "No artifacts have been excluded." );
-        }
-        mymojo.getLog().info( "" );
+        //        if ( ( mymojo.getExcludes() != null ) && ( !mymojo.getExcludes().isEmpty() ) )
+        //        {
+        //            mymojo.getLog().info( "" );
+        //            mymojo.getLog().info( "    Excluded artifacts: " );
+        //            mymojo.getLog().info( "    ------------------" );
+        //            for ( int ii = 0; ii < rejects.size(); ii++ )
+        //            {
+        //                mymojo.getLog().info( "        o " + rejects.get( ii ) );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            mymojo.getLog().info( "No artifacts have been excluded." );
+        //        }
+        //        mymojo.getLog().info( "" );
 
         return libArtifacts;
     }

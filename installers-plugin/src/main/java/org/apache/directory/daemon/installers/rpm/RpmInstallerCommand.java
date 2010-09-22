@@ -22,8 +22,6 @@ package org.apache.directory.daemon.installers.rpm;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,12 +29,10 @@ import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.directory.daemon.installers.Target;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Touch;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.Os;
 
 
@@ -183,7 +179,6 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         //        }
 
         // check first to see if the default spec file is present in src/main/installers
-        File projectRpmFile = new File( mojo.getSourceDirectory(), "spec.template" );
         if ( target.getRpmSpecificationFile() != null && target.getRpmSpecificationFile().exists() )
         {
             try
@@ -197,31 +192,10 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
                     + target.getRpmSpecificationFile() + " to " + rpmConfigurationFile );
             }
         }
-        else if ( projectRpmFile.exists() )
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, projectRpmFile, rpmConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy project provided " + projectRpmFile + " to "
-                    + rpmConfigurationFile );
-            }
-        }
         else
         {
-            InputStream in = getClass().getResourceAsStream( "spec.template" );
-            URL resource = getClass().getResource( "spec.template" );
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, in, rpmConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy bundled " + resource + " to "
-                    + rpmConfigurationFile );
-            }
+            throw new MojoFailureException( "RPM specification file does not exist ("
+                + target.getRpmSpecificationFile() + ")." );
         }
 
         // TODO FIXME

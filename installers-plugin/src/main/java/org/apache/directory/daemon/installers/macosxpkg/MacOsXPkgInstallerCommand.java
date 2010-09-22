@@ -103,7 +103,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         File targetDirectory = getTargetDirectory();
         targetDirectory.mkdirs();
 
-        log.info( "Copying PKG installer files" );
+        log.info( "  Copying PKG installer files" );
 
         // Creating the root directories hierarchy
         File pkgRootDirectory = new File( targetDirectory, "root" );
@@ -204,7 +204,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         }
 
         // Generating the PKG
-        log.info( "Generating Mac OS X PKG Installer" );
+        log.info( "  Generating Mac OS X PKG Installer" );
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
             {
@@ -245,7 +245,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         File dmgDirectory = new File( mojo.getOutputDirectory(), target.getId() + "-dmg" );
         dmgDirectory.mkdirs();
 
-        log.info( "Copying DMG files" );
+        log.info( "  Copying DMG files" );
 
         // Create dmg directory and its sub-directory
         File dmgDmgBackgroundDirectory = new File( dmgDirectory, "dmg/.background" );
@@ -281,7 +281,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
                     .toString() }, dmgDirectory, false );
 
         // Generating the DMG
-        log.info( "Generating Mac OS X DMG Installer" );
+        log.info( "  Generating Mac OS X DMG Installer" );
         String finalName = target.getFinalName();
         if ( !finalName.endsWith( ".dmg" ) )
         {
@@ -323,15 +323,6 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     private void initializeFiltering()
     {
         filterProperties.putAll( mojo.getProject().getProperties() );
-        if ( mojo.getProject().getVersion() != null )
-        {
-            filterProperties.put( "app.version", mojo.getProject().getVersion() );
-        }
-        else
-        {
-            filterProperties.put( "app.version", "1.0" );
-        }
-
         filterProperties.put( "installation.directory", "/usr/local/apacheds-"
             + mojo.getProject().getVersion() );
         filterProperties.put( "instances.directory", "/usr/local/apacheds-"
@@ -378,7 +369,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         // Creating the instance layout and directories
         InstanceLayout instanceLayout = new InstanceLayout( getInstanceDirectory() );
         instanceLayout.mkdirs();
-        
+
         MojoHelperUtils.copyDependencies( mojo, installationLayout );
 
         // Copying the LICENSE and NOTICE files

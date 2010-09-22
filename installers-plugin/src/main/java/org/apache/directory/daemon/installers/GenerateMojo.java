@@ -40,13 +40,6 @@ import org.apache.directory.daemon.installers.rpm.RpmInstallerCommand;
 import org.apache.directory.daemon.installers.rpm.RpmTarget;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgInstallerCommand;
 import org.apache.directory.daemon.installers.solarispkg.SolarisPkgTarget;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.factory.DefaultArtifactFactory;
-import org.apache.maven.artifact.repository.DefaultArtifactRepositoryFactory;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.DefaultArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -72,14 +65,6 @@ public class GenerateMojo extends AbstractMojo
      * @parameter default-value="${project.build.directory}/installers"
      */
     private File outputDirectory;
-
-    /**
-     * The source directory where various configuration files for the installer 
-     * are stored.
-     * 
-     * @parameter default-value="${project.basedir}/src/main/installers"
-     */
-    private File sourceDirectory;
 
     /**
      * The associated maven project.
@@ -139,127 +124,106 @@ public class GenerateMojo extends AbstractMojo
     private ArchiveTarget[] archiveTargets;
 
     /**
-     * The packages files.
-     * 
-     * @parameter
-     */
-    private PackagedFile[] packagedFiles;
-
-    /**
      * The exclusions.
      * 
      * @parameter
      */
     private Set excludes;
 
-    /** daemon bootstrapper */
-    private Artifact bootstrapper;
-    /** logging API need by bootstraper */
-    private Artifact logger;
-    /** commons-daemon dependency needed by native daemon */
-    private Artifact daemon;
-
-    private List<Target> allTargets;
+    /** The list containing all the targets */
+    private List<Target> allTargets = new ArrayList<Target>();
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        FileUtils.mkdir( outputDirectory.getAbsolutePath() );
+        // Printing plugin information in the console
+        getLog().info( "-------------------------------------------------------" );
+        getLog().info( "[installers:generate]" );
 
         // Collecting all targets 
-        initializeAllTargets();
+        collectAllTargets();
 
-        // Makes sure defaulted values are set to globals
-        setDefaults();
-
-        // bail if there is nothing to do 
+        // Returning if there is no target to build 
         if ( allTargets.isEmpty() )
         {
-            getLog().info( "-------------------------------------------------------" );
-            getLog().info( "[installers:generate]" );
             getLog().info( "No installers to generate." );
             getLog().info( "-------------------------------------------------------" );
             return;
         }
 
-        // report what we have to build 
-        reportSetup();
+        // Reporting the targets that have to be built 
+        reportBuildTargets();
 
-        // search for and find the bootstrapper artifact
-        //        setBootstrapArtifacts();
+        // Creating the output directory
+        FileUtils.mkdir( outputDirectory.getAbsolutePath() );
 
-        // generate installers for all targets
+        // Generating installers for all targets
         for ( Target target : allTargets )
         {
-            getLog().info( "Executing target '" + target.getId() + '"' );
+            getLog().info( "Executing target '" + target.getId() + "'" );
 
-            // create the installation image first
-//            CreateImageCommand imgCmd = new CreateImageCommand( this, target );
-//            imgCmd.execute();
-
-            // ---------------------------------------------------------------
-            // Generate all installers
-            // ---------------------------------------------------------------
-
-            if ( target instanceof NsisTarget )
+            // Archive target
+            if ( target instanceof ArchiveTarget )
             {
-                NsisInstallerCommand nsisCmd = null;
-                nsisCmd = new NsisInstallerCommand( this, ( NsisTarget ) target );
-                nsisCmd.execute();
+                ArchiveInstallerCommand archiveCmd = new ArchiveInstallerCommand( this, ( ArchiveTarget ) target );
+                archiveCmd.execute();
             }
 
-            if ( target instanceof RpmTarget )
-            {
-                RpmInstallerCommand rpmCmd = null;
-                rpmCmd = new RpmInstallerCommand( this, ( RpmTarget ) target );
-                rpmCmd.execute();
-            }
-
-            if ( target instanceof MacOsXPkgTarget )
-            {
-                MacOsXPkgInstallerCommand pkgCmd = null;
-                pkgCmd = new MacOsXPkgInstallerCommand( this, ( MacOsXPkgTarget ) target );
-                pkgCmd.execute();
-            }
-
-            if ( target instanceof SolarisPkgTarget )
-            {
-                SolarisPkgInstallerCommand pkgCmd = null;
-                pkgCmd = new SolarisPkgInstallerCommand( this, ( SolarisPkgTarget ) target );
-                pkgCmd.execute();
-            }
-
-            if ( target instanceof DebTarget )
-            {
-                DebInstallerCommand debCmd = null;
-                debCmd = new DebInstallerCommand( this, ( DebTarget ) target );
-                debCmd.execute();
-            }
-
+            // Bin target
             if ( target instanceof BinTarget )
             {
-                BinInstallerCommand binCmd = null;
-                binCmd = new BinInstallerCommand( this, ( BinTarget ) target );
+                BinInstallerCommand binCmd = new BinInstallerCommand( this, ( BinTarget ) target );
                 binCmd.execute();
             }
 
-            if ( target instanceof ArchiveTarget )
+            // Deb target
+            if ( target instanceof DebTarget )
             {
-                ArchiveInstallerCommand archiveCmd = null;
-                archiveCmd = new ArchiveInstallerCommand( this, ( ArchiveTarget ) target );
-                archiveCmd.execute();
+                DebInstallerCommand debCmd = new DebInstallerCommand( this, ( DebTarget ) target );
+                debCmd.execute();
             }
+
+            // Mac OS X PKG target
+            if ( target instanceof MacOsXPkgTarget )
+            {
+                MacOsXPkgInstallerCommand pkgCmd = new MacOsXPkgInstallerCommand( this, ( MacOsXPkgTarget ) target );
+                pkgCmd.execute();
+            }
+
+            // NSIS target
+            if ( target instanceof NsisTarget )
+            {
+                NsisInstallerCommand nsisCmd = new NsisInstallerCommand( this, ( NsisTarget ) target );
+                nsisCmd.execute();
+            }
+
+            // RPM target
+            if ( target instanceof RpmTarget )
+            {
+                RpmInstallerCommand rpmCmd = new RpmInstallerCommand( this, ( RpmTarget ) target );
+                rpmCmd.execute();
+            }
+
+            // Solaris PKG target
+            if ( target instanceof SolarisPkgTarget )
+            {
+                SolarisPkgInstallerCommand pkgCmd = new SolarisPkgInstallerCommand( this, ( SolarisPkgTarget ) target );
+                pkgCmd.execute();
+            }
+
+            getLog().info( "-------------------------------------------------------" );
         }
     }
 
 
     /**
-     * Initializes all targets.
+     * Collects all targets.
      */
-    private void initializeAllTargets()
+    private void collectAllTargets()
     {
-        allTargets = new ArrayList<Target>();
-
         addAllTargets( allTargets, nsisTargets );
         addAllTargets( allTargets, rpmTargets );
         addAllTargets( allTargets, debTargets );
@@ -287,202 +251,11 @@ public class GenerateMojo extends AbstractMojo
     }
 
 
-    private void setDefaults() throws MojoFailureException
+    /**
+     * Reports the targets that need to be built.
+     */
+    public void reportBuildTargets()
     {
-        if ( allTargets == null )
-        {
-            return;
-        }
-
-        // TODO FIXME
-        //        if ( application.getName() == null )
-        //        {
-        //            throw new MojoFailureException( "Installed application name cannot be null." );
-        //        }
-        //
-        //        if ( application.getCompany() == null )
-        //        {
-        //            if ( project.getOrganization() != null )
-        //            {
-        //                application.setCompany( project.getOrganization().getName() );
-        //            }
-        //            else
-        //            {
-        //                application.setCompany( "Apache Software Foundation" );
-        //            }
-        //        }
-        //
-        //        if ( application.getDescription() == null )
-        //        {
-        //            if ( project.getDescription() != null )
-        //            {
-        //                application.setDescription( project.getDescription() );
-        //            }
-        //            else
-        //            {
-        //                application.setDescription( "No description of this application is available." );
-        //            }
-        //        }
-        //
-        //        if ( project.getInceptionYear() != null )
-        //        {
-        //            application.setCopyrightYear( project.getInceptionYear() );
-        //        }
-        //
-        //        if ( application.getUrl() == null )
-        //        {
-        //            if ( project.getUrl() != null )
-        //            {
-        //                application.setUrl( project.getUrl() );
-        //            }
-        //            else if ( project.getOrganization() != null )
-        //            {
-        //                application.setUrl( project.getOrganization().getUrl() );
-        //            }
-        //            else
-        //            {
-        //                application.setUrl( "http://www.apache.org" );
-        //            }
-        //        }
-        //
-        //        if ( application.getVersion() == null )
-        //        {
-        //            application.setVersion( project.getVersion() );
-        //        }
-        //
-        //        if ( application.getMinimumJavaVersion() == null )
-        //        {
-        //            application.setMinimumJavaVersion( JavaEnvUtils.getJavaVersion() );
-        //        }
-        //
-        //        if ( application.getAuthors() == null )
-        //        {
-        //            List<String> authors = new ArrayList<String>();
-        //            @SuppressWarnings(value =
-        //                { "unchecked" })
-        //            List<Developer> developers = project.getDevelopers();
-        //
-        //            for ( Developer developer : developers )
-        //            {
-        //                if ( developer.getEmail() != null )
-        //                {
-        //                    authors.add( developer.getEmail() );
-        //                }
-        //                else
-        //                {
-        //                    authors.add( developer.getName() );
-        //                }
-        //            }
-        //
-        //            application.setAuthors( authors );
-        //        }
-        //
-        //        if ( application.getEmail() == null )
-        //        {
-        //            if ( !project.getMailingLists().isEmpty() )
-        //            {
-        //                application.setEmail( ( ( MailingList ) project.getMailingLists().get( 0 ) ).getPost() );
-        //            }
-        //
-        //            application.setEmail( "general@apache.org" );
-        //        }
-        //
-        //        if ( application.getIcon() == null )
-        //        {
-        //            application.setIcon( new File( "src/main/installers/logo.ico" ) );
-        //        }
-        //
-        //        if ( application.getReadme() == null )
-        //        {
-        //            application.setReadme( new File( "README" ) );
-        //        }
-        //
-        //        if ( application.getLicense() == null )
-        //        {
-        //            application.setLicense( new File( "LICENSE" ) );
-        //        }
-
-        for ( Target target : allTargets )
-        {
-            // TODO FIXME
-            //            if ( target.getApplication() == null )
-            //            {
-            //                target.setApplication( this.application );
-            //            }
-            //
-            //            if ( target.getLoggerConfigurationFile() == null )
-            //            {
-            //                target.setLoggerConfigurationFile( new File( sourceDirectory, "log4j.properties" ) );
-            //            }
-            //
-            //            if ( target.getBootstrapperConfigurationFile() == null )
-            //            {
-            //                target.setBootstrapperConfigurationFile( new File( sourceDirectory, "bootstrapper.properties" ) );
-            //            }
-            //
-            //            if ( target.getServerConfigurationFile() == null )
-            //            {
-            //                target.setServerConfigurationFile( new File( sourceDirectory, "server.xml" ) );
-            //            }
-            //
-            //            if ( target.getOsVersion() == null )
-            //            {
-            //                target.setOsVersion( "*" );
-            //            }
-        }
-    }
-
-
-    //    private void setBootstrapArtifacts() throws MojoFailureException
-    //    {
-    //        Artifact artifact = null;
-    //        Iterator artifacts = project.getDependencyArtifacts().iterator();
-    //
-    //        while ( artifacts.hasNext() )
-    //        {
-    //            artifact = ( Artifact ) artifacts.next();
-    //            if ( artifact.getArtifactId().equals( BOOTSTRAPPER_ARTIFACT_ID )
-    //                && artifact.getGroupId().equals( BOOTSTRAPPER_GROUP_ID ) )
-    //            {
-    //                getLog().info( "Found bootstrapper dependency with version: " + artifact.getVersion() );
-    //                bootstrapper = artifact;
-    //            }
-    //            else if ( artifact.getArtifactId().equals( LOGGER_ARTIFACT_ID )
-    //                && artifact.getGroupId().equals( LOGGER_GROUP_ID ) )
-    //            {
-    //                getLog().info( "Found logger dependency with version: " + artifact.getVersion() );
-    //                logger = artifact;
-    //            }
-    //            else if ( artifact.getArtifactId().equals( DAEMON_ARTIFACT_ID )
-    //                && artifact.getGroupId().equals( DAEMON_GROUP_ID ) )
-    //            {
-    //                getLog().info( "Found daemon dependency with version: " + artifact.getVersion() );
-    //                daemon = artifact;
-    //            }
-    //        }
-    //
-    //        if ( bootstrapper == null )
-    //        {
-    //            throw new MojoFailureException( "Bootstrapper dependency artifact required: " + BOOTSTRAPPER_GROUP_ID + ":"
-    //                + BOOTSTRAPPER_ARTIFACT_ID );
-    //        }
-    //        if ( logger == null )
-    //        {
-    //            throw new MojoFailureException( "Logger dependency artifact required: " + LOGGER_GROUP_ID + ":"
-    //                + LOGGER_ARTIFACT_ID );
-    //        }
-    //        if ( daemon == null )
-    //        {
-    //            throw new MojoFailureException( "Daemon dependency artifact required: " + DAEMON_GROUP_ID + ":"
-    //                + DAEMON_ARTIFACT_ID );
-    //        }
-    //    }
-
-    public void reportSetup()
-    {
-        getLog().info( "-------------------------------------------------------" );
-        getLog().info( "[installers:generate]" );
-        getLog().info( "sourceDirectory = " + sourceDirectory );
         getLog().info( "outputDirectory = " + outputDirectory );
         getLog().info( "---------------------- allTargets ---------------------" );
 
@@ -511,30 +284,24 @@ public class GenerateMojo extends AbstractMojo
     }
 
 
+    /**
+     * Gets the output directory.
+     *
+     * @return
+     *      the output directory
+     */
     public File getOutputDirectory()
     {
         return outputDirectory;
     }
 
 
-    public Artifact getBootstrapper()
-    {
-        return bootstrapper;
-    }
-
-
-    public Artifact getDaemon()
-    {
-        return daemon;
-    }
-
-
-    public Artifact getLogger()
-    {
-        return logger;
-    }
-
-
+    /**
+     * Gets the associated Maven project.
+     *
+     * @return
+     *      the associated Maven project
+     */
     public MavenProject getProject()
     {
         return project;
@@ -544,23 +311,5 @@ public class GenerateMojo extends AbstractMojo
     public Set getExcludes()
     {
         return this.excludes;
-    }
-
-
-    public File getSourceDirectory()
-    {
-        return this.sourceDirectory;
-    }
-
-
-    public void setPackagedFiles( PackagedFile[] packagedFiles )
-    {
-        this.packagedFiles = packagedFiles;
-    }
-
-
-    public PackagedFile[] getPackagedFiles()
-    {
-        return packagedFiles;
     }
 }
