@@ -184,8 +184,8 @@ public abstract class AbstractMojoCommand<T extends Target>
     private void copyWrapperFiles( InstallationLayout installationLayout, InstanceLayout instanceLayout )
         throws MojoFailureException
     {
-        // Mac OS X
-        if ( target.isOsNameMacOSX() )
+        // Mac OS X x86
+        if ( target.isOsNameMacOSX() && target.isOsArchx86() )
         {
             try
             {
@@ -194,6 +194,25 @@ public abstract class AbstractMojoCommand<T extends Target>
                         installationLayout.getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-32.jnilib" ),
+                    new File( installationLayout.getLibDirectory(),
+                        "libwrapper.jnilib" ) );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
+            }
+        }
+
+        // Mac OS X x86_64
+        if ( target.isOsNameMacOSX() && target.isOsArchX86_64() )
+        {
+            try
+            {
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                    "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-64" ), new File(
+                        installationLayout.getBinDirectory(), "wrapper" ) );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-64.jnilib" ),
                     new File( installationLayout.getLibDirectory(),
                         "libwrapper.jnilib" ) );
             }

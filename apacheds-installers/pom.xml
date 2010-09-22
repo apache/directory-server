@@ -60,10 +60,16 @@
               <!-- Targets for Mac OS X .pkg installer package -->
               <macOsXPkgTargets>
                 <macOsXPkgTarget>
-                 <id>apacheds-macosx</id>
-                  <finalName>apacheds-${version}.dmg</finalName>
+                 <id>apacheds-macosx-x86</id>
+                  <finalName>apacheds-x86-${version}.dmg</finalName>
                   <osName>Mac OS X</osName>
                   <osArch>x86</osArch>
+                </macOsXPkgTarget>
+                <macOsXPkgTarget>
+                 <id>apacheds-macosx-x86_64</id>
+                  <finalName>apacheds-x86_64-${version}.dmg</finalName>
+                  <osName>Mac OS X</osName>
+                  <osArch>x86_64</osArch>
                 </macOsXPkgTarget>
               </macOsXPkgTargets>
               
