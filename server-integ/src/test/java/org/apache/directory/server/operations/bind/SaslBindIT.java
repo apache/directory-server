@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.bind;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.net.InetAddress;
@@ -253,8 +254,16 @@ public class SaslBindIT extends AbstractLdapTestUnit
         bindReq.setSaslMechanism( "" ); // invalid mechanism
         bindReq.setSimple( false );
 
-        BindResponse resp = connection.bind( bindReq );
-        assertEquals( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, resp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( bindReq );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            //expected
+        }
+
         connection.close();
     }
 
@@ -433,6 +442,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         for ( int i = 0; i < 1000; i++ )
         {
             System.out.println( "try " + i );
+
             // Digest-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
             resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
