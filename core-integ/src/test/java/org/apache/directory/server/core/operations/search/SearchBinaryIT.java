@@ -47,27 +47,73 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "AddPerfDS", partitions =
     { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { @CreateIndex(attribute = "objectClass", cacheSize = 1000), @CreateIndex(attribute = "sn", cacheSize = 1000),
-            @CreateIndex(attribute = "cn", cacheSize = 1000),
-            @CreateIndex(attribute = "userCertificate", cacheSize = 1000) })
+        +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"), indexes =
+        {
+                    @CreateIndex(attribute = "objectClass", cacheSize = 1000),
+                    @CreateIndex(attribute = "sn", cacheSize = 1000),
+                    @CreateIndex(attribute = "cn", cacheSize = 1000),
+                    @CreateIndex(attribute = "userCertificate", cacheSize = 1000) })
 
     }, enableChangeLog = false)
 @ApplyLdifs(
-    { "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema", "objectclass: metaAttributeType",
-        "objectclass: metaTop", "objectclass: top", "m-oid: 2.2.0", "m-name: binaryAttribute",
-        "m-description: an attribute storing binary values", "m-equality: octetStringMatch",
-        "m-ordering: octetStringOrderingMatch", "m-substr: octetStringSubstringsMatch",
-        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.40", "m-length: 0", "", "dn: ou=testingBin,ou=system",
-        "objectClass: top", "objectClass: organizationalUnit", "objectClass: extensibleObject", "ou: testingBin",
-        "binaryAttribute:: AQIDBA==", "", "dn: cn=testing00,ou=system", "objectClass: top", "objectClass: person",
-        "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "cn: testing00", "sn: Testing 0",
-        "userCertificate:: AQIDBA==", "", "dn: cn=testing01,ou=system", "objectClass: top", "objectClass: person",
-        "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "cn: testing01", "sn: Testing 1", "",
-        "dn: cn=testing02,ou=system", "objectClass: top", "objectClass: person", "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", "cn: testing02", "sn: Testing 2", "userCertificate:: CQoLD==", "",
-        "dn: cn=testing03,ou=system", "objectClass: top", "objectClass: person", "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", "cn: testing03", "sn: Testing 3", "userCertificate:: AQIDBA==" })
+    {
+        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 2.2.0",
+        "m-name: binaryAttribute",
+        "m-description: an attribute storing binary values",
+        "m-equality: octetStringMatch",
+        "m-ordering: octetStringOrderingMatch",
+        "m-substr: octetStringSubstringsMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.40",
+        "m-length: 0",
+        "",
+        "dn: ou=testingBin,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testingBin",
+        "binaryAttribute:: AQIDBA==",
+        "",
+        "dn: cn=testing00,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "cn: testing00",
+        "sn: Testing 0",
+        "userCertificate:: AQIDBA==",
+        "",
+        "dn: cn=testing01,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "cn: testing01",
+        "sn: Testing 1",
+        "",
+        "dn: cn=testing02,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "cn: testing02",
+        "sn: Testing 2",
+        "userCertificate:: CQoLD==",
+        "",
+        "dn: cn=testing03,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "cn: testing03",
+        "sn: Testing 3",
+        "userCertificate:: AQIDBA==" })
 public class SearchBinaryIT extends AbstractLdapTestUnit
 {
     /**
