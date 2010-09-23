@@ -51,7 +51,6 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
@@ -59,7 +58,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -551,6 +549,48 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
+     * Check if we can safely add a role
+     */
+    private void checkAddRole( Value<?> role, EntryAttribute adminPoint, DN dn,
+        DnNode<List<AdministrativePoint>> apCache ) throws LdapException
+    {
+        String roleStr = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+        // Check that the added AdministrativeRole is valid
+        if ( !ROLES.contains( roleStr ) )
+        {
+            String message = "Cannot add the given role, it's not a valid one :" + role;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        // Now we are trying to add an Administrative point. We have to check that 
+        // we only have one role if the added rol eis an AAP
+        if ( roleStr.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
+             roleStr.equals( SchemaConstants.AUTONOMOUS_AREA_OID ) )
+        {
+            if ( adminPoint.size() > 1 )
+            {
+                String message = "Cannot add an Autonomous Administratve Point when some other roles are added : "
+                    + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+
+        // check that we can't mix Inner and Specific areas
+        checkInnerSpecificMix( roleStr, adminPoint );
+
+        // Check that we don't add an IAP with no parent. The IAP must be added under
+        // either a AAP, or a SAP/IAP within the same family
+        if ( isIAP( roleStr ) )
+        {
+            checkIAPHasParent( roleStr, adminPoint, dn );
+        }
+    }
+
+
+    /**
      * Creates an Administrative service interceptor.
      */
     public AdministrativePointInterceptor()
@@ -678,7 +718,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkRoleSyntax( EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
     {
-        
         for ( Value<?> role : adminPoint )
         {
             if ( !ROLES.contains( StringTools.toLowerCase( StringTools.trim( role.getString() ) ) ) )
@@ -717,23 +756,78 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * Check that we don't have an IAP and a SAP with the same familly
-     */
-    private void checkInnerSpecificMix( EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    private boolean isAccessControlInnerRole( String role )
     {
-        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) ) ||
-             ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) ) ||
-             ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) &&
-               ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-                 adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
+        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
+               role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+    }
+
+
+    private boolean isCollectiveAttributeInnerRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+               role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+    }
+
+
+    private boolean isTriggerExecutionInnerRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+               role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+
+    private boolean hasAccessControlSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+    }
+
+
+    private boolean isIAP( String role )
+    {
+        return INNER_AREA_ROLES.contains( role );
+    }
+
+
+    private boolean hasCollectiveAttributeSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+    }
+
+
+    private boolean hasTriggerExecutionSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Check that we don't have an IAP and a SAP with the same family
+     */
+    private void checkInnerSpecificMix( String role, EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    {
+        if ( isAccessControlInnerRole( role ) && hasAccessControlSpecificRole( adminPoint ) )
+        {
+            // This is inconsistent
+            String message = "Cannot add a specific Administrative Point and the same"
+                + " inner Administrative point at the same time : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        if ( isCollectiveAttributeInnerRole( role ) && hasCollectiveAttributeSpecificRole( adminPoint ) )
+        {
+            // This is inconsistent
+            String message = "Cannot add a specific Administrative Point and the same"
+                + " inner Administrative point at the same time : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        if ( isTriggerExecutionInnerRole( role ) && hasTriggerExecutionSpecificRole( adminPoint ) )
         {
             // This is inconsistent
             String message = "Cannot add a specific Administrative Point and the same"
@@ -747,23 +841,28 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Check that the IAPs (if any) have a parent
      */
-    private void checkIAPHasParent( EntryAttribute adminPoint, DN dn ) throws LdapUnwillingToPerformException
+    private void checkIAPHasParent( String role, EntryAttribute adminPoint, DN dn )
+        throws LdapUnwillingToPerformException
     {
-        // First, loop over the AP and process only the IAP
-        for ( Value<?> role : adminPoint )
+        boolean parentFound = false;
+        DnNode<List<AdministrativePoint>> apNodes = directoryService.getAdministrativePoints();
+
+        if ( !apNodes.hasParent( dn ) )
         {
-            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+            // No parents, this is an error
+            String message = "Cannot add an IAP with no parent : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
 
-            if ( !INNER_AREA_ROLES.contains( trimmedRole ) )
-            {
-                // Not an IAP, let's continue
-                continue;
-            }
+        for ( int i = 0; i < dn.size(); i++ )
+        {
+            RDN rdn = dn.getRdn( i );
+
+            // The IAP has a parent, but it may not be the wanted parent
+            DnNode<List<AdministrativePoint>> node = apNodes.getChild( rdn );
             
-            boolean parentFound = false;
-            DnNode<List<AdministrativePoint>> apNodes = directoryService.getAdministrativePoints();
-
-            if ( !apNodes.hasParent( dn ) )
+            if ( node == null )
             {
                 // No parents, this is an error
                 String message = "Cannot add an IAP with no parent : " + adminPoint;
@@ -771,87 +870,68 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 throw new LdapUnwillingToPerformException( message );
             }
 
-            for ( int i = 0; i < dn.size(); i++ )
+            List<AdministrativePoint> adminPoints = node.getElement();
+
+            if ( adminPoints == null )
             {
-                RDN rdn = dn.getRdn( i );
-                
-                // The IAP has a parent, but it may not be the wanted parent
-                DnNode<List<AdministrativePoint>> node = apNodes.getChild( rdn );
-                
-                if ( node == null )
-                {
-                    // No parents, this is an error
-                    String message = "Cannot add an IAP with no parent : " + adminPoint;
-                    LOG.error( message );
-                    throw new LdapUnwillingToPerformException( message );
-                }
-                
-                List<AdministrativePoint> adminPoints = node.getElement();
+                apNodes = node;
+                continue;
+            }
 
-                if ( adminPoints == null )
+            // Check that the parent is either an AA, or contains an IAP
+            // or a SAP with the same role
+            for ( AdministrativePoint parentRole : adminPoints )
+            {
+                if ( parentRole.isAutonomous() )
                 {
-                    apNodes = node;
-                    continue;
+                    parentFound = true;
+                    return;
                 }
 
-                // Check that the parent is either an AA, or contains an IAP
-                // or a SAP with the same role
-                for ( AdministrativePoint parentRole : adminPoints )
+                // AC IAP
+                if ( isAccessControlInnerRole( role ) )
                 {
-                    if ( parentRole.isAutonomous() )
+                    // Check for AC SAP or IAP
+                    if ( ( parentRole.getRole() == AdministrativeRole.AccessControlInnerArea ) ||
+                         ( parentRole.getRole() == AdministrativeRole.AccessControlSpecificArea ) )
                     {
-                        parentFound = true;
                         return;
                     }
+                }
 
-                    // AC IAP
-                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-                         trimmedRole.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) )
+                // CA IAP
+                if ( isCollectiveAttributeInnerRole( role ) )
+                {
+                    // Check for AC SAP or IAP
+                    if ( ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeInnerArea ) ||
+                         ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeSpecificArea ) )
                     {
-                        // Check for AC SAP or IAP
-                        if ( ( parentRole.getRole() == AdministrativeRole.AccessControlInnerArea ) ||
-                             ( parentRole.getRole() == AdministrativeRole.AccessControlSpecificArea ) )
-                        {
-                            return;
-                        }
-                    }
-
-                    // CA IAP
-                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-                         trimmedRole.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) )
-                    {
-                        // Check for AC SAP or IAP
-                        if ( ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeInnerArea ) ||
-                             ( parentRole.getRole() == AdministrativeRole.CollectiveAttributeSpecificArea ) )
-                        {
-                            return;
-                        }
-                    }
-
-                    // TE IAP
-                    if ( trimmedRole.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-                         trimmedRole.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) )
-                    {
-                        // Check for AC SAP or IAP
-                        if ( ( parentRole.getRole() == AdministrativeRole.TriggerExecutionInnerArea ) ||
-                             ( parentRole.getRole() == AdministrativeRole.TriggerExecutionSpecificArea ) )
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
 
-                // recurse now
-                apNodes = node;
+                // TE IAP
+                if ( isTriggerExecutionInnerRole( role ) )
+                {
+                    // Check for AC SAP or IAP
+                    if ( ( parentRole.getRole() == AdministrativeRole.TriggerExecutionInnerArea ) ||
+                         ( parentRole.getRole() == AdministrativeRole.TriggerExecutionSpecificArea ) )
+                    {
+                        return;
+                    }
+                }
             }
 
-            if ( !parentFound )
-            {
-                // This is inconsistent
-                String message = "Cannot add an IAP with no parent : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
+            // recurse now
+            apNodes = node;
+        }
+
+        if ( !parentFound )
+        {
+            // This is inconsistent
+            String message = "Cannot add an IAP with no parent : " + adminPoint;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
         }
     }
 
@@ -916,8 +996,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         LOG.debug( "Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
 
-        System.out.println( entry );
-
         // Check if we are adding an Administrative Point
         EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
@@ -933,45 +1011,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         LOG.debug( "Addition of an administrative point at {} for the role {}", entry.getDn(), adminPoint );
 
-        // Check that the added AdministrativeRoles are valid
-        checkRoleSyntax( adminPoint );
-
-        // Check that we don't add the same role twice now
-        checkRolesNotDuplicated( adminPoint );
-        
-        // Now we are trying to add an Administrative point. We have to check that the added
-        // AP is correct if it's an AAP : it should not have any other role
-        if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
+        // Loop on all the added roles to check if they are valid
+        for ( Value<?> role : adminPoint )
         {
-            if ( adminPoint.size() > 1 )
-            {
-                String message = "Cannot add an Autonomous Administratve Point when some other roles are added : "
-                    + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-            else
-            {
-                // Ok, we can add the AAP immediately
-                LOG.debug( "Adding an Autonomous Administrative Point at {}", entry.getDn() );
-
-                next.add( addContext );
-
-                // Now, update the AdminPoint cache
-                addAdminPointCache( adminPoint, addContext );
-
-                LOG.debug( "Added an Autonomous Administrative Point at {}", entry.getDn() );
-
-                return;
-            }
+            checkAddRole( role, adminPoint, entry.getDn(), directoryService.getAdministrativePoints() );
         }
-
-        // check that we can't mix Inner and Specific areas
-        checkInnerSpecificMix( adminPoint );
-
-        // Check that we don't add an IAP with no parent. The IAP must be added under
-        // either a AAP, or a SAP/IAP within the same family
-        checkIAPHasParent( adminPoint, entry.getDn() );
 
         // Ok, we are golden.
         next.add( addContext );
@@ -1018,75 +1062,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
         }
 
-        // Now we are trying to remove an Administrative point. We have to check that the removed
-        // AP is correct if it's an AAP : it should not have any other role
-        if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
-        {
-            if ( adminPoint.size() > 1 )
-            {
-                String message = "Cannot remove an Autonomous Administratve Point when some other"
-                    + " roles are removed : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-            else
-            {
-                // Ok, we can remove the AAP
-                LOG.debug( "Deleting an Autonomous Administrative Point at {}", entry.getDn() );
-
-                next.delete( deleteContext );
-
-                // Now, update the AdminPoint cache
-                deleteAdminPointCache( adminPoint, deleteContext );
-
-                LOG.debug( "Deleted an Autonomous Administrative Point at {}", entry.getDn() );
-
-                return;
-            }
-        }
-
-        // check that we can't mix Inner and Specific areas
-        if ( ( ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) || adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID ) ) && ( adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) || adminPoint
-            .contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ) )
-            || ( ( adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) || adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID ) ) && ( adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) || adminPoint
-                .contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ) )
-            || ( ( adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) || adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID ) ) && ( adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) || adminPoint
-                .contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) ) ) )
-        {
-            // This is inconsistent
-            String message = "Cannot delete a specific Administrative Point and the same"
-                + " inner Administrative point at the same time : " + adminPoint;
-            LOG.error( message );
-            throw new LdapUnwillingToPerformException( message );
-        }
-
-        // Check that we don't delete the same role twice now
-        Set<String> seenRoles = new HashSet<String>();
-
-        for ( Value<?> role : adminPoint )
-        {
-            String trimmedRole = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
-
-            if ( seenRoles.contains( trimmedRole ) )
-            {
-                // Already seen : an error
-                String message = "The role " + role.getString() + " has already been seen.";
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-
-            // Add the role and its OID into the seen roles
-            seenRoles.add( trimmedRole );
-            seenRoles.add( ROLES_OID.get( trimmedRole ) );
-        }
-
-        // Ok, we are golden.
+        // Ok, we can remove the AP (no more chack, as we can't delete an entry
+        // which has children
         next.delete( deleteContext );
 
         // Now, update the AdminPoint cache
@@ -1099,7 +1076,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
-     * Only the add and remove modifications are fully supported.
+     * Only the add and remove modifications are fully supported. We have to check that the
+     * underlying APs are still consistent.
+     * We first have to compute the final AdministrativeRole, then do a diff with the
+     * initial attribute, to determinate which roles have been added and which ones have
+     * been deleted.
+     * Once this is done, we have to check that when deleting or adding each of those roles
+     * the admin model remains consistent.
+     * 
      * {@inheritDoc}
      */
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
@@ -1107,117 +1091,109 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
 
+        // Create a clone of the current AdminRole AT
         EntryAttribute modifiedAdminRole = ( modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
 
+        if ( modifiedAdminRole == null )
+        {
+            // Create the attribute
+            modifiedAdminRole = new DefaultEntryAttribute( ADMINISTRATIVE_ROLE_AT );
+        }
+        else
+        {
+            modifiedAdminRole = modifiedAdminRole.clone();
+        }
+
+        // Clone the AP cache before we modify it
+        DnNode<List<AdministrativePoint>> adminPointCacheCopy = directoryService.getAdministrativePoints().clone();
+
+        // Loop on the modification to select the AdministrativeRole and process it :
+        // we will create a new AT containing all the roles after having applied the modifications
+        // on it
         for ( Modification modification : modifications )
         {
             EntryAttribute attribute = modification.getAttribute();
 
-            if ( attribute.getAttributeType() != ADMINISTRATIVE_ROLE_AT )
+            // Skip all the attributes but AdministrativeRole
+            if ( attribute.getAttributeType() == ADMINISTRATIVE_ROLE_AT )
             {
-                continue;
-            }
+                // Ok, we have a modification impacting the administrative role
+                // Apply it to a virtual AdministrativeRole attribute
+                switch ( modification.getOperation() )
+                {
+                    case ADD_ATTRIBUTE:
+                        if ( modifiedAdminRole == null )
+                        {
+                            // Create the attribute
+                            modifiedAdminRole = new DefaultEntryAttribute( ADMINISTRATIVE_ROLE_AT, attribute.get() );
+                            break;
+                        }
 
-            // Ok, we have a modification impacting the administrative role
-            // Apply it to a virtual AdministrativeRole attribute
-            switch ( modification.getOperation() )
-            {
-                case ADD_ATTRIBUTE:
-                    if ( modifiedAdminRole == null )
-                    {
-                        // Create the attribute
-                        modifiedAdminRole = new DefaultEntryAttribute( ADMINISTRATIVE_ROLE_AT, attribute.get() );
+                        for ( Value<?> role : attribute )
+                        {
+                            //checkAddRole( role, adminPointCacheCopy );
+
+
+                            // Add the role to the modified attribute
+                            //modifiedAdminRole.add( value );
+                        }
+
                         break;
-                    }
 
-                    for ( Value<?> value : attribute )
-                    {
-                        String role = StringTools.toLowerCase( StringTools.trim( value.getString() ) );
-
-                        if ( !isValidRole( role ) )
+                    case REMOVE_ATTRIBUTE:
+                        if ( modifiedAdminRole == null )
                         {
-                            // Not a valid role : we will throw an exception
-                            String msg = "Invalid role : " + value;
-                            LOG.error( msg );
-                            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-                        }
-
-                        // At this point, we know that the attribute's syntax is correct
-                        // We just have to check that the current attribute does not
-                        // contains the value already
-                        if ( modifiedAdminRole.contains( value ) )
-                        {
-                            // This is an error.
-                            String msg = I18n.err( I18n.ERR_54, value );
-                            LOG.error( msg );
-                            throw new LdapAttributeInUseException( msg );
-                        }
-
-                        // Forbid the addition of an InnerArea if the same SpecificArea
-                        // already exists
-                        if ( isInnerArea( role ) && hasSpecificArea( role, modifiedAdminRole ) )
-                        {
-                            // Not a valid role : we will throw an exception
-                            String msg = "Cannot add an Inner Area ole to an AdministrativePoint which already has the same Specific Area role "
-                                + value;
-                            LOG.error( msg );
-                            throw new LdapUnwillingToPerformException( msg );
-                        }
-
-                        // Add the role to the modified attribute
-                        modifiedAdminRole.add( value );
-                    }
-
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    if ( modifiedAdminRole == null )
-                    {
-                        // We can't remove a value when the attribute does not exist.
-                        String msg = "Cannot remove the administrative role, it does not exist";
-                        LOG.error( msg );
-                        throw new LdapNoSuchAttributeException( msg );
-                    }
-
-                    // It may be a complete removal
-                    if ( attribute.size() == 0 )
-                    {
-                        // Complete removal
-                        modifiedAdminRole = null;
-                        break;
-                    }
-
-                    // Now deal with the values to remove
-                    for ( Value<?> value : attribute )
-                    {
-                        if ( !isValidRole( value.getString() ) )
-                        {
-                            // Not a valid role : we will throw an exception
-                            String msg = "Invalid role : " + value.getString();
-                            LOG.error( msg );
-                            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-                        }
-
-                        if ( !modifiedAdminRole.contains( value ) )
-                        {
-                            // We can't remove a value if it does not exist !
-                            String msg = "Cannot remove the administrative role value" + value + ", it does not exist";
+                            // We can't remove a value when the attribute does not exist.
+                            String msg = "Cannot remove the administrative role, it does not exist";
                             LOG.error( msg );
                             throw new LdapNoSuchAttributeException( msg );
                         }
 
-                        modifiedAdminRole.remove( value );
-                    }
+                        // It may be a complete removal
+                        if ( attribute.size() == 0 )
+                        {
+                            // Complete removal
+                            modifiedAdminRole.clear();
+                            break;
+                        }
 
-                    break;
+                        // Now deal with the values to remove
+                        for ( Value<?> value : attribute )
+                        {
+                            if ( !isValidRole( value.getString() ) )
+                            {
+                                // Not a valid role : we will throw an exception
+                                String msg = "Invalid role : " + value.getString();
+                                LOG.error( msg );
+                                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
+                                    msg );
+                            }
 
-                case REPLACE_ATTRIBUTE:
-                    // Not supported
-                    String msg = "Cannot replace an administrative role, the opertion is not supported";
-                    LOG.error( msg );
-                    throw new LdapUnwillingToPerformException( msg );
+                            if ( !modifiedAdminRole.contains( value ) )
+                            {
+                                // We can't remove a value if it does not exist !
+                                String msg = "Cannot remove the administrative role value" + value
+                                    + ", it does not exist";
+                                LOG.error( msg );
+                                throw new LdapNoSuchAttributeException( msg );
+                            }
+
+                            modifiedAdminRole.remove( value );
+                        }
+
+                        break;
+
+                    case REPLACE_ATTRIBUTE:
+                        // Not supported
+                        String msg = "Cannot replace an administrative role, the opertion is not supported";
+                        LOG.error( msg );
+                        throw new LdapUnwillingToPerformException( msg );
+                }
             }
         }
+
+        // At this point, we have a new AdministrativeRole AT, and we need to get the lists of
+        // added roles and removed roles, in order to process them
 
         next.modify( modifyContext );
     }
