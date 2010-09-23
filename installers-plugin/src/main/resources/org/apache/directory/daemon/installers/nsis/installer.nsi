@@ -31,6 +31,9 @@
     !define JREVersion "1.5.0"
     !define INSTDIR_REG_ROOT "HKLM"
     !define INSTDIR_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Application}"
+    
+    # Variables needed for JRE detection
+    Var JREPath
 
 #
 # Modules inclusions
@@ -41,10 +44,13 @@
     # Sections module
     !include "Sections.nsh"
 
-Var InstallJRE
-Var JREPath
-
-
+#
+# Macros
+#
+    # Creates an Internet shortcut
+    !macro CreateInternetShortcut FILENAME URL ;ICONFILE ICONINDEX
+        WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
+    !macroend
 
 #
 # Configuration
@@ -95,63 +101,35 @@ Var JREPath
     
     # License page
     !insertmacro MUI_PAGE_LICENSE "${InstallationFiles}\LICENSE"
-    
-    # Components page
-    #!insertmacro MUI_PAGE_COMPONENTS
 
-
-
-!macro CreateInternetShortcut FILENAME URL ;ICONFILE ICONINDEX
-WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
-!macroend
-
-;--------------------------------
-;Pages
-
-
-  ; This page checks for JRE. It displays a dialog based on JRE.ini if it needs to install JRE
-  ; Otherwise you won't see it.
-  ;Page custom CheckInstalledJRE
-
-  ; Define headers for the 'Java installation successfully' page
-  #!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Java installation complete"
-  #!define MUI_PAGE_HEADER_TEXT "Installing Java runtime"
-  #!define MUI_PAGE_HEADER_SUBTEXT "Please wait while we install the Java runtime"
-  #!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Java runtime installed successfully."
-  #!insertmacro MUI_PAGE_INSTFILES
-  !define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Installation complete"
-  !define MUI_PAGE_HEADER_TEXT "Installing"
-  !define MUI_PAGE_HEADER_SUBTEXT "Please wait while ${Application} is being installed."
-
-  # The main installation directory
-
+    # Installation directory page
     Var SERVER_HOME_DIR
-    ;!define MUI_PAGE_CUSTOMFUNCTION_PRE PreServerDir
-    !define MUI_DIRECTORYPAGE_VARIABLE          $SERVER_HOME_DIR  ;selected by user
-    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Server Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like to install ${Application}"  ; GUI page title
-    !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
+    !define MUI_DIRECTORYPAGE_VARIABLE $SERVER_HOME_DIR
+    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Server Home Directory"
+    !define MUI_DIRECTORYPAGE_TEXT_TOP "Select the directory where you would like to install ${Application}"
+    !insertmacro MUI_PAGE_DIRECTORY
 
+    # Instances directory page
     Var INSTANCES_HOME_DIR
     !define MUI_PAGE_CUSTOMFUNCTION_PRE PreInstancesDir
-    !define MUI_DIRECTORYPAGE_VARIABLE          $INSTANCES_HOME_DIR  ;selected by user
-    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Server Instances Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like instances data to be stored.$\n$\nThis directory will be the home location for new instances."  ; GUI page title
-    !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
+    !define MUI_DIRECTORYPAGE_VARIABLE $INSTANCES_HOME_DIR
+    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Server Instances Home Directory"
+    !define MUI_DIRECTORYPAGE_TEXT_TOP "Select the directory where you would like instances data to be stored.$\n$\nThis directory will be the home location for new instances."
+    !insertmacro MUI_PAGE_DIRECTORY
 
+    # JRE directory page
     Var JAVA_HOME_DIR
-    !define MUI_DIRECTORYPAGE_VARIABLE          $JAVA_HOME_DIR  ;selected by user
-    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Java Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the Java home directory that you would like to use for running the installed applications."
-    !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
-
-
+    !define MUI_DIRECTORYPAGE_VARIABLE $JAVA_HOME_DIR
+    !define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Java Home Directory"
+    !define MUI_DIRECTORYPAGE_TEXT_TOP "Select the Java home directory that you would like to use for running the installed applications."
+    !insertmacro MUI_PAGE_DIRECTORY
     
     # Installation page
     !insertmacro MUI_PAGE_INSTFILES
     
     # Finish page
     !insertmacro MUI_PAGE_FINISH
+    
     
     #
     # Uninstaller pages
@@ -169,25 +147,13 @@ WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
     !insertmacro MUI_LANGUAGE "English"
     #!insertmacro MUI_LANGUAGE "French"
     #!insertmacro MUI_LANGUAGE "German"
-
-
-;--------------------------------
-;Language Strings
-
-  ;Description
-  LangString DESC_SecServerFiles ${LANG_ENGLISH} "Installs all required ApacheDS server files."
-  LangString DESC_SecInstanceFiles ${LANG_ENGLISH} "Creates and registers a default server instance."
-
-  ;Header
-  LangString TEXT_JRE_TITLE ${LANG_ENGLISH} "Java Runtime Environment"
-  LangString TEXT_JRE_SUBTITLE ${LANG_ENGLISH} "Installation"
-  LangString TEXT_PRODVER_TITLE ${LANG_ENGLISH} "Installed version of ${AppName}"
-  LangString TEXT_PRODVER_SUBTITLE ${LANG_ENGLISH} "Installation canceled"
+    
 #
 # Sections
 #
     # Installer section
     Section
+    
     	# Writing installation files
         SetOutPath "$SERVER_HOME_DIR"
         
@@ -206,7 +172,7 @@ WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
 
     GetFunctionAddress $R0 ReplaceConfig ; handle to callback fn
     Push $R0
-    Push "$SERVER_HOME_DIR\conf\apacheds.conf" ; file to replace in
+    Push "$SERVER_HOME_DIR\conf\wrapper.conf" ; file to replace in
     Call ReplaceInFile
     
         # Creating directory in the start menu
@@ -234,16 +200,14 @@ WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
         SetOutPath "$INSTANCES_HOME_DIR"
         
         # Adding instances source files
-        File /r "${InstanceFiles}\*"
+        File /r "${InstancesFiles}\*"
         
         # Converting files line encoding
         Push "$INSTANCES_HOME_DIR\conf"
         Push "*.*"
         Call ConvertFiles
         
-        
-    #Push "default"
-    #Call CreateInstanceDirs
+   
 
     #;I am hand picking the files for now, but we could simplify this by creating a template for new instances
     #SetOutPath "$INSTANCES_HOME_DIR\default\conf"
@@ -259,14 +223,32 @@ WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
    # Call RegisterInstance
     SectionEnd
 
+    
+    # Uninstaller section
+    Section Uninstall
+    
+        #Need to parse a list of instances or directories somehow
+        Push "default"
+        Call un.RegisterInstance
+        
+        # Remove shortcuts and folders in the start menu
+        RMDir /r "$SMPROGRAMS\ApacheDS"
+        
+        # Removing registry keys
+        DeleteRegKey "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}"
+        
+        # Removing files in root, then all dirs created by the installer (leave user added or instance dirs)
+        Delete "$INSTDIR\*"
+        RMDir /r "$INSTDIR\bin"
+        RMDir /r "$INSTDIR\conf"
+        RMDir /r "$INSTDIR\lib"
 
-;--------------------------------
-;Descriptions
+    SectionEnd
 
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecServerFiles} $(DESC_SecServerFiles)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecInstanceFiles} $(DESC_SecInstanceFiles)
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
+
+
 
 ;---------------------------------
 ; Functions
@@ -292,16 +274,6 @@ Function ConvertFiles
     Pop $R0
 FunctionEnd
 
-Function CreateInstanceDirs
-    Pop $0
-    CreateDirectory "$INSTANCES_HOME_DIR\$0\log"
-    CreateDirectory "$INSTANCES_HOME_DIR\$0\conf"
-    CreateDirectory "$INSTANCES_HOME_DIR\$0\partitions"
-    ; the run dir seems to be irrelevant on Windows, but the InstallationLayout.verifyInstallation() method requires it
-    CreateDirectory "$INSTANCES_HOME_DIR\$0\run"
-    Pop $0
-FunctionEnd
-
 Function RegisterInstance
     Pop $0
     Pop $1
@@ -320,12 +292,10 @@ Function .onInstSuccess
   Push "$INSTANCES_HOME_DIR\conf\apacheds-default.conf"
   Call ConvertUnixNewLines
 
-  StrCmp $R9 "" End
-
   ; Start the server
   MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default server instance?" IDYES startService IDNO End
 startService:  
-  nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" --start "$SERVER_HOME_DIR\conf\${ShortName}.conf" "set.INSTANCE_HOME=$INSTANCES_HOME_DIR" "set.INSTANCE=default" "set.APACHEDS_HOME=$SERVER_HOME_DIR"'
+  nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" --start "$SERVER_HOME_DIR\conf\wrapper.conf" "set.INSTANCE_HOME=$INSTANCES_HOME_DIR" "set.INSTANCE=default" "set.APACHEDS_HOME=$SERVER_HOME_DIR"'
   
 End:
 FunctionEnd
@@ -341,62 +311,30 @@ Function .onInit
     StrCpy $JAVA_HOME_DIR "$JREPath"
 FunctionEnd
 
-Function PreServerDir
-    ;StrCpy $SERVER_HOME_DIR $INSTDIR
-    ;SetAutoClose false
-FunctionEnd
-
 Function PreInstancesDir
     StrCpy $INSTANCES_HOME_DIR $SERVER_HOME_DIR\instances
 FunctionEnd
 
 Function CheckInstalledJRE
-  Push "${JRE_VERSION}"
+  Push "${JREVersion}"
   Call DetectJRE
   Exch $0	; Get return value from stack
-
-  StrCmp $0 "0" NoFound
-  StrCmp $0 "-1" FoundOld
+  StrCmp $0 "0" End
+  StrCmp $0 "-1" End
   Goto JREAlreadyInstalled
 
-FoundOld:
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "/home/ccustine/development/projects/organicelement/libraries/apacheds_trunk/apacheds/server-installers/src/main/installers/jre.ini" "Field 1" "Text" "${AppName} requires a more recent version of the Java Runtime Environment than the one found on your computer.  The installation of JRE ${JRE_VERSION} will start."
-  ;!insertmacro MUI_HEADER_TEXT "$(TEXT_JRE_TITLE)" "$(TEXT_JRE_SUBTITLE)"
-  ;!insertmacro MUI_INSTALLOPTIONS_DISPLAY_RETURN "/home/ccustine/development/projects/organicelement/libraries/apacheds_trunk/apacheds/server-installers/src/main/installers/jre.ini"
-  Goto MustInstallJRE
-
-NoFound:
-  ;MessageBox MB_OK "JRE not found"
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "/home/ccustine/development/projects/organicelement/libraries/apacheds_trunk/apacheds/server-installers/src/main/installers/jre.ini" "Field 1" "Text" "No Java Runtime Environment could be found on your computer. The installation of JRE v${JRE_VERSION} will start."
-  !insertmacro MUI_HEADER_TEXT "$(TEXT_JRE_TITLE)" "$(TEXT_JRE_SUBTITLE)"
-  ;!insertmacro MUI_INSTALLOPTIONS_DISPLAY_RETURN "/home/ccustine/development/projects/organicelement/libraries/apacheds_trunk/apacheds/server-installers/src/main/installers/jre.ini"
-  Goto MustInstallJRE
-
-MustInstallJRE:
-  Exch $0	; $0 now has the installoptions page return value
-  ; Do something with return value here
-  Pop $0	; Restore $0
-  StrCpy $InstallJRE "yes"
-  Return
-
 JREAlreadyInstalled:
-;  MessageBox MB_OK "No download: ${TEMP2}"
-;  MessageBox MB_OK "JRE already installed"
-  StrCpy $InstallJRE "no"
   StrCpy $JREPath "$0"
-
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "/home/ccustine/development/projects/organicelement/libraries/apacheds_trunk/apacheds/server-installers/src/main/installers/jre.ini" "UserDefinedSection" "JREPath" $JREPATH
-  Pop $0		; Restore $0
+  Pop $0 # Restore $0
   Return
-
+  
+End:
 FunctionEnd
 
-; Returns: 0 - JRE not found. -1 - JRE found but too old. Otherwise - Path to JAVA EXE
 
 ; DetectJRE. Version requested is on the stack.
-; Returns (on stack)	"0" on failure (java too old or not installed), otherwise path to java interpreter
+; Returns (on stack): 0 - JRE not found. -1 - JRE found but too old. Otherwise - Path to JAVA EXE
 ; Stack value will be overwritten!
-
 Function DetectJRE
   Exch $0	; Get version requested
 		; Now the previous value of $0 is on the stack, and the asked for version of JDK is in $0
@@ -465,27 +403,8 @@ DetectJREEnd:
 	Pop $0	; => rv
 FunctionEnd
 
-    
-    # Uninstaller section
-    Section Uninstall
-    
-        #Need to parse a list of instances or directories somehow
-        Push "default"
-        Call un.RegisterInstance
-        
-        # Remove shortcuts and folders in the start menu
-        RMDir /r "$SMPROGRAMS\ApacheDS"
-        
-        # Removing registry keys
-        DeleteRegKey "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}"
-        
-        # Removing files in root, then all dirs created by the installer (leave user added or instance dirs)
-        Delete "$INSTDIR\*"
-        RMDir /r "$INSTDIR\bin"
-        RMDir /r "$INSTDIR\conf"
-        RMDir /r "$INSTDIR\lib"
 
-    SectionEnd
+
 
 Function ConvertUnixNewLines
     ; Usage:
@@ -602,40 +521,6 @@ Function ReplaceConfig
 	; restore stack
 	Exch
 	Pop $R1
-FunctionEnd
-
-# Uses $0
-Function openLinkNewWindow
-  Push $3
-  Push $2
-  Push $1
-  Push $0
-  ReadRegStr $0 HKCR "http\shell\open\command" ""
-# Get browser path
-    DetailPrint $0
-  StrCpy $2 '"'
-  StrCpy $1 $0 1
-  StrCmp $1 $2 +2 # if path is not enclosed in " look for space as final char
-    StrCpy $2 ' '
-  StrCpy $3 1
-  loop:
-    StrCpy $1 $0 1 $3
-    DetailPrint $1
-    StrCmp $1 $2 found
-    StrCmp $1 "" found
-    IntOp $3 $3 + 1
-    Goto loop
-
-  found:
-    StrCpy $1 $0 $3
-    StrCmp $2 " " +2
-      StrCpy $1 '$1"'
-
-  Pop $0
-  Exec '$1 $0'
-  Pop $1
-  Pop $2
-  Pop $3
 FunctionEnd
 
 Var STR_REPLACE_VAR_0
