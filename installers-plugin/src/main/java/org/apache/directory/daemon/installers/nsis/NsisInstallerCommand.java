@@ -22,20 +22,14 @@ package org.apache.directory.daemon.installers.nsis;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.directory.daemon.installers.GenerateMojo;
+import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.daemon.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Execute;
-import org.apache.tools.ant.taskdefs.Touch;
-import org.codehaus.plexus.util.FileUtils;
 
 
 /**
@@ -45,17 +39,17 @@ import org.codehaus.plexus.util.FileUtils;
  */
 public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 {
-    private final File nsisConfigurationFile = new File( "" ); // TODO FIXME
-
-    private File nsisCompiler;
-
-
+    /**
+     * Creates a new instance of NsisInstallerCommand.
+     *
+     * @param mojo
+     *      the Server Installers Mojo
+     * @param target
+     *      the NSIS target
+     */
     public NsisInstallerCommand( GenerateMojo mojo, NsisTarget target )
     {
         super( mojo, target );
-        // TODO FIXME
-        //        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
-        //        nsisConfigurationFile = new File( imagesDir, target.getId() + ".nsi" );
         initializeFilterProperties();
     }
 
@@ -63,136 +57,95 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
     /**
      * Performs the following:
      * <ol>
-     *   <li>Bail if target is not for windows</li>
-     *   <li>Filter and copy project supplied .nsi file into place if it has been specified and exists</li>
-     *   <li>If no .nsi file exists filter and deposite into place bundled nsis template & copy wrapper executables</li>
-     *   <li>Bail if we cannot find the nsis compiler executable</li>
-     *   <li>Execute nsis compiler it on the .nsi file</li>
+     *   <li>Bail if target is not for windows or the NSIS compiler utility can't be found.</li>
+     *   <li>Execute NSIS compiler (makensis) to create the NSIS installer.</li>
      * </ol>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // -------------------------------------------------------------------
-        // Step 1 & 4: do some error checking first for compiler and OS
-        // -------------------------------------------------------------------
+        // Verifying the target
+        if ( !verifyTarget() )
+        {
+            return;
+        }
 
-        // TODO FIXME
-        //        if ( !target.getOsFamily().equals( "windows" ) )
-        //        {
-        //            log.warn( "NSIS installer can only be targeted for windows platforms!" );
-        //            log.warn( "The build will continue, but please check the the platform" );
-        //            log.warn( "of this installer target" );
-        //            return;
-        //        }
+        log.info( "Creating NSIS installer..." );
 
-        // @todo this should really be a parameter taken from the user's settings
-        // because the compiler may be installed in different places and is specific
+        // Creating the target directory
+        File targetDirectory = getTargetDirectory();
+        targetDirectory.mkdirs();
+
+        log.info( "  Copying NSIS installer files" );
+
+        File installerFile = new File( targetDirectory, "installer.nsi" );
+
+        try
+        {
+            copyCommonFiles( mojo );
+
+            // Copying the 'installer.nsi' file
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "installer.nsi" ), installerFile, true );
+
+            // Copying the images and icon
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "installer.ico" ), new File(
+                targetDirectory, "installer.ico" ) );
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "header.bmp" ), new File(
+                targetDirectory, "header.bmp" ) );
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "welcome.bmp" ), new File(
+                targetDirectory, "welcome.bmp" ) );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed to copy NSIS installer files." );
+        }
+
+        // Generating the NSIS installer
+        log.info( "  Generating NSIS installer" );
+        Execute createPkgTask = new Execute();
+        String[] cmd = new String[]
+            { target.getNsisCompiler().getAbsolutePath(), installerFile.getAbsolutePath() };
+        createPkgTask.setCommandline( cmd );
+        createPkgTask.setWorkingDirectory( targetDirectory );
+        try
+        {
+            createPkgTask.execute();
+        }
+        catch ( IOException e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed while trying to generate the NSIS installer: " + e.getMessage() );
+        }
+    }
+
+
+    /**
+     * Verifies the target.
+     *
+     * @return
+     *      <code>true</code> if the target is correct, 
+     *      <code>false</code> if not.
+     */
+    private boolean verifyTarget()
+    {
+        // Verifying the target is Mac OS X
+        if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_WINDOWS ) )
+        {
+            log.warn( "NSIS installer can only be targeted for Windows platform!" );
+            log.warn( "The build will continue, but please check the the platform of this installer target." );
+            return false;
+        }
+
+        // Verifying the NSIS compiler utility exists
         if ( !target.getNsisCompiler().exists() )
         {
             log.warn( "Cannot find NSIS compiler at this location: " + target.getNsisCompiler() );
-            log.warn( "The build will continue, but please check the location of your makensis executable " );
-            return;
-        }
-        else
-        {
-            this.nsisCompiler = target.getNsisCompiler();
+            log.warn( "The build will continue, but please check the location of your makensis executable." );
+            return false;
         }
 
-        // -------------------------------------------------------------------
-        // Step 2 & 3: copy nsis file and filter
-        // -------------------------------------------------------------------
-
-        // check first to see if the default install.iss file is present in src/main/installers
-        if ( target.getNsisConfigurationFile() != null && target.getNsisConfigurationFile().exists() )
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, target.getNsisConfigurationFile(),
-                        nsisConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy project provided "
-                    + target.getNsisConfigurationFile() + " to " + nsisConfigurationFile );
-            }
-        }
-        else
-        {
-            throw new MojoFailureException( "NSIS configuration file does not exist ("
-                + target.getNsisConfigurationFile() + ")." );
-        }
-
-        // -------------------------------------------------------------------
-        // 3: copy native files
-        // -------------------------------------------------------------------
-
-        // TODO FIXME
-        //        // now copy over the Prunsrv and Prunmgr executables renaming them to the mojo.getApplicationName() + w for mgr
-        //        if ( target.getOsFamily().equals( "windows" ) )
-        //        {
-        //            File executableTarget = new File( target.getLayout().getBinDirectory(), "apacheds.exe" );
-        //            File override = new File( mojo.getSourceDirectory(), target.getWrapperExecutablePath() );
-        //            if ( override.exists() )
-        //            {
-        //                mojo.getLog().info( "Using native launcher supplied by project: " + override.getAbsolutePath() );
-        //                try
-        //                {
-        //                    FileUtils.copyFile( override, executableTarget );
-        //                }
-        //                catch ( IOException e )
-        //                {
-        //                    throw new MojoFailureException(
-        //                        "Failed to copy project supplied native launcher executable override "
-        //                            + override.getAbsolutePath() + " into position " + executableTarget.getAbsolutePath() );
-        //                }
-        //            }
-        //            else
-        //            {
-        //                try
-        //                {
-        //                    MojoHelperUtils
-        //                        .copyBinaryFile( getClass().getResourceAsStream( "../wrapper/bin/wrapper-windows-x86-32.exe" ),
-        //                            executableTarget );
-        //                    MojoHelperUtils.copyBinaryFile(
-        //                        getClass().getResourceAsStream( "../wrapper/lib/wrapper-windows-x86-32.dll" ),
-        //                            new File( target.getLayout().getLibDirectory(), "wrapper.dll" )
-        //                        );
-        //                }
-        //                catch ( IOException e )
-        //                {
-        //                    throw new MojoFailureException( "Failed to copy native launcher executable file "
-        //                        + getClass().getResource( "../wrapper/bin/wrapper-windows-x86-32.exe" ) + " into position "
-        //                        + executableTarget.getAbsolutePath() );
-        //                }
-        //            }
-        //
-        //        }
-        //
-        //        processPackagedFiles( target, target.getPackagedFiles() );
-        //
-        //        Execute task = new Execute();
-        //        System.out.println( "nsisCompiler = " + nsisCompiler );
-        //        System.out.println( "nsisConfigurationFile = " + nsisConfigurationFile );
-        //        String[] cmd = new String[]
-        //            { nsisCompiler.getAbsolutePath(), nsisConfigurationFile.getAbsolutePath() };
-        //        task.setCommandline( cmd );
-        //        task.setSpawn( true );
-        //        task.setWorkingDirectory( target.getLayout().getInstallationDirectory() );
-        //        try
-        //        {
-        //            task.execute();
-        //        }
-        //        catch ( IOException e )
-        //        {
-        //            throw new MojoFailureException( "Failed while trying to execute " + nsisCompiler.getAbsolutePath() + ": "
-        //                + e.getMessage() );
-        //        }
-        //
-        //        if ( task.getExitValue() != 0 )
-        //        {
-        //            throw new MojoFailureException( nsisCompiler.getAbsolutePath()
-        //                + " execution resulted in a non-zero exit value: " + task.getExitValue() );
-        //        }
+        return true;
     }
 
 
@@ -203,90 +156,29 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
     {
         super.initializeFilterProperties();
 
-        filterProperties.put( "app.base.dir", mojo.getProject().getBasedir().getAbsolutePath() );
-
-        filterProperties.put( "app.displayname", "ApacheDS" );
-
-        if ( mojo.getProject().getVersion() != null )
+        String finalName = target.getFinalName();
+        if ( !finalName.endsWith( ".exe" ) )
         {
-            filterProperties.put( "app.version", mojo.getProject().getVersion() );
+            finalName = finalName + ".exe";
         }
-        else
-        {
-            filterProperties.put( "app.version", "1.0" );
-        }
-
-        // -------------------------------------------------------------------
-        // WARNING: hard code values just to for testing
-        // -------------------------------------------------------------------
-
-        if ( target.getFinalName() != null )
-        {
-            filterProperties.put( "app.final.name", target.getFinalName() );
-        }
-        else
-        {
-            String finalName = "apacheds-" + mojo.getProject().getVersion()
-                + "-win32-setup.exe";
-            filterProperties.put( "app.final.name", finalName );
-        }
-
-        // TODO FIXME
-        //        filterProperties.put( "app.email", target.getApplication().getEmail() );
-        //        filterProperties.put( "app.url", target.getApplication().getUrl() );
-        //        filterProperties.put( "app.java.version", "1.5" );
-        //        filterProperties.put( "app.license", target.getLayout().getLicenseFile().getPath() );
-        //        filterProperties.put( "app.license.name", target.getLayout().getLicenseFile().getName() );
-        //        filterProperties.put( "app.company.name", target.getCompanyName() );
-        //        filterProperties.put( "app.description", target.getApplication().getDescription() );
-        //        filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
-
-        // TODO FIXME
-        //        if ( !target.getLayout().getReadmeFile().exists() )
-        //        {
-        //            touchFile( target.getLayout().getReadmeFile() );
-        //        }
-        //        filterProperties.put( "app.readme", target.getLayout().getReadmeFile().getPath() );
-        //        filterProperties.put( "app.readme.name", target.getLayout().getReadmeFile().getName() );
-        //        filterProperties.put( "app.icon", target.getLayout().getLogoIconFile().getPath() );
-        //        filterProperties.put( "app.icon.name", target.getLayout().getLogoIconFile().getName() );
-        //        filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
-        //        filterProperties.put( "app.lib.jars", getApplicationLibraryJars() );
-        //        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
-
-        // TODO FIXME
-        //        File noticeFile = new File( target.getLayout().getInstallationDirectory(), "NOTICE.txt" );
-        //        if ( noticeFile.exists() )
-        //        {
-        //            filterProperties.put( "notice.file", "Source: {#SourceBase}\\NOTICE.txt; DestDir: "
-        //                + "{app}\\; Flags: ignoreversion recursesubdirs createallsubdirs" );
-        //        }
-        //        else
-        //        {
-        //            filterProperties.put( "notice.file", "" );
-        //        }
+        filterProperties.put( "finalname", target.getFinalName() );
     }
 
 
-    static void touchFile( File file )
-    {
-        Touch touch = new Touch();
-        touch.setProject( new Project() );
-        touch.setFile( file );
-        touch.execute();
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public File getInstallationDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getTargetDirectory(), "files" );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public File getInstanceDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getInstallationDirectory(), "instances/default" );
     }
 }

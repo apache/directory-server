@@ -57,7 +57,7 @@
             <artifactId>installers-plugin</artifactId>
             <configuration>
               
-              <!-- Targets for Mac OS X .pkg installer package -->
+              <!-- Targets for Mac OS X .pkg installer packages -->
               <macOsXPkgTargets>
                 <macOsXPkgTarget>
                  <id>apacheds-macosx-x86</id>
@@ -72,6 +72,16 @@
                   <osArch>x86_64</osArch>
                 </macOsXPkgTarget>
               </macOsXPkgTargets>
+              
+              <!-- Target for Windows installer package -->
+              <nsisTargets>
+                <nsisTarget>
+                  <id>apacheds-win32</id>
+                  <finalName>apacheds-${version}-setup.exe</finalName>
+                  <osName>Windows</osName>
+                  <osArch>x86</osArch>
+                </nsisTarget>
+              </nsisTargets>
               
             </configuration>
             <executions>

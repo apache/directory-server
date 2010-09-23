@@ -309,7 +309,7 @@ public abstract class AbstractMojoCommand<T extends Target>
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/wrapper-windows-x86-32.dll" ), new File(
                         installationLayout.getLibDirectory(),
-                    "libwrapper.so" ) );
+                    "libwrapper.dll" ) );
             }
             catch ( IOException e )
             {

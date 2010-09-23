@@ -42,7 +42,6 @@ import org.apache.tools.ant.taskdefs.Execute;
  */
 public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarget>
 {
-
     /** The hdiutil utility executable */
     private File hdiutilUtility = new File( "/usr/bin/hdiutil" );
 
@@ -65,38 +64,20 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     /**
      * Performs the following:
      * <ol>
-     *   <li>Bail if target is not for macosx or the PackageMaker or hdiutil utilities coud not be found.</li>
+     *   <li>Bail if target is not for macosx or the PackageMaker or hdiutil utilities can't be found.</li>
      *   <li>Creates the Mac OS X PKG Installer for Apache DS</li>
      *   <li>Package it in a Mac OS X DMG (Disk iMaGe)</li>
      * </ol>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // Verifying the target is Mac OS X
-        if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_MAC_OS_X ) )
+        // Verifying the target
+        if ( !verifyTarget() )
         {
-            log.warn( "Mac OS X PKG installer can only be targeted for Mac OS X platform!" );
-            log.warn( "The build will continue, but please check the the platform of this installer target." );
             return;
         }
 
-        // Verifying the PackageMaker utility exists
-        if ( !target.getPackageMakerUtility().exists() )
-        {
-            log.warn( "Cannot find 'PackageMaker' utility at this location: " + target.getPackageMakerUtility() );
-            log.warn( "The build will continue, but please check the location of your 'Package Maker' utility." );
-            return;
-        }
-
-        // Verifying the hdiutil utility exists
-        if ( !hdiutilUtility.exists() )
-        {
-            log.warn( "Cannot find 'hdiutil' utility at this location: " + hdiutilUtility );
-            log.warn( "The build will continue, but please check the location of your 'hdiutil' utility." );
-            return;
-        }
-
-        log.info( "Creating Mac OS X PKG Installer..." );
+        log.info( "Creating Mac OS X PKG installer..." );
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
@@ -130,27 +111,6 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             // Creating the installation layout and copying files to it
             copyCommonFiles( mojo );
 
-            //            // Copying the apacheds.init file
-            //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.init" ),
-            //                new File( pkgRootUsrLocalApachedsDirectory, "bin/apacheds.init" ),
-            //                true );
-            //
-            //            // Replacing the apacheds.conf file
-            //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
-            //                new File( pkgRootUsrLocalApachedsDirectory, "conf/apacheds.conf" ), true );
-
-            //            // Copying the apacheds.conf file in the default instance conf directory
-            //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-            //                "apacheds-default.conf" ), new File( pkgRootInstancesDefaultConfDirectory, "apacheds.conf" ), false );
-
-            // Copying the log4j.properties file in the default instance conf directory
-            //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
-            //                "conf/log4j.properties" ), new File( pkgRootInstancesDefaultConfDirectory, "log4j.properties" ), false );
-
-            //            // Copying the server.xml file in the default instance conf directory
-            //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( pkgRootUsrLocalApachedsDirectory,
-            //                "conf/server.xml" ), new File( pkgRootInstancesDefaultConfDirectory, "server.xml" ), false );
-
             // Copying the apacheds command to /usr/bin
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
                 "apacheds-usr-bin.sh" ), new File( pkgRootUsrBinDirectory, "apacheds" ), true );
@@ -160,30 +120,14 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
                 "org.apache.directory.server.plist" ), new File( pkgRootLibraryLaunchDaemons,
                 "org.apache.directory.server.plist" ), true );
 
-            //            // Removing the redundant server.xml file (see DIRSERVER-1112)
-            //            new File( pkgRootUsrLocalApachedsDirectory, "conf/server.xml" ).delete();
-        }
-        catch ( IOException e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy image () to the PKG directory (" + pkgRootDirectory + ")" );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage() );
-            throw new MojoFailureException( "Failed to copy image () to the PKG directory (" + pkgRootDirectory + ")" );
-        }
+            // Create Resources folder and sub-folder
+            // Copying the resources files and Info.plist file needed for the 
+            // generation of the PKG
+            File pkgResourcesEnglishDirectory = new File( targetDirectory, "Resources/en.lproj" );
+            pkgResourcesEnglishDirectory.mkdirs();
+            File pkgScriptsDirectory = new File( targetDirectory, "scripts" );
+            pkgScriptsDirectory.mkdirs();
 
-        // Create Resources folder and sub-folder
-        // Copying the resources files and Info.plist file needed for the 
-        // generation of the PKG
-        File pkgResourcesEnglishDirectory = new File( targetDirectory, "Resources/en.lproj" );
-        pkgResourcesEnglishDirectory.mkdirs();
-        File pkgScriptsDirectory = new File( targetDirectory, "scripts" );
-        pkgScriptsDirectory.mkdirs();
-
-        try
-        {
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "pkg-background.tiff" ), new File(
                 pkgResourcesEnglishDirectory, "background.tiff" ) );
 
@@ -196,7 +140,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "postflight" ), new File(
                 pkgScriptsDirectory, "postflight" ) );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             log.error( e.getMessage() );
             throw new MojoFailureException( "Failed to copy PKG resources files." );
@@ -206,24 +150,11 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         log.info( "  Generating Mac OS X PKG Installer" );
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
-            {
-                target.getPackageMakerUtility().getAbsolutePath(),
-                "--root",
-                "root/",
-                "--resources",
-                "Resources/",
-                "--info",
-                "Info.plist",
-                "--title",
-                "Apache Directory Server " + mojo.getProject().getVersion(),
-                "--version",
-                mojo.getProject().getVersion(),
-                "--scripts",
-                "scripts",
-                "--out",
+            { target.getPackageMakerUtility().getAbsolutePath(), "--root", "root/", "--resources", "Resources/",
+                "--info", "Info.plist", "--title", "Apache Directory Server " + mojo.getProject().getVersion(),
+                "--version", mojo.getProject().getVersion(), "--scripts", "scripts", "--out",
                 "Apache Directory Server Installer.pkg" };
         createPkgTask.setCommandline( cmd );
-        createPkgTask.setSpawn( true ); // TODO should we remove this?
         createPkgTask.setWorkingDirectory( targetDirectory );
         try
         {
@@ -292,7 +223,6 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             createDmgTask.setCommandline( new String[]
                 { hdiutilUtility.getAbsolutePath(), "makehybrid", "-quiet", "-hfs", "-hfs-volume-name",
                     "Apache Directory Server Installer", "-hfs-openfolder", "dmg/", "dmg/", "-o", "TMP.dmg" } );
-            createDmgTask.setSpawn( true );
             createDmgTask.setWorkingDirectory( dmgDirectory );
             createDmgTask.execute();
 
@@ -320,6 +250,43 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
 
     /**
+     * Verifies the target.
+     *
+     * @return
+     *      <code>true</code> if the target is correct, 
+     *      <code>false</code> if not.
+     */
+    private boolean verifyTarget()
+    {
+        // Verifying the target is Mac OS X
+        if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_MAC_OS_X ) )
+        {
+            log.warn( "Mac OS X PKG installer can only be targeted for Mac OS X platform!" );
+            log.warn( "The build will continue, but please check the the platform of this installer target." );
+            return false;
+        }
+
+        // Verifying the PackageMaker utility exists
+        if ( !target.getPackageMakerUtility().exists() )
+        {
+            log.warn( "Cannot find 'PackageMaker' utility at this location: " + target.getPackageMakerUtility() );
+            log.warn( "The build will continue, but please check the location of your 'Package Maker' utility." );
+            return false;
+        }
+
+        // Verifying the hdiutil utility exists
+        if ( !hdiutilUtility.exists() )
+        {
+            log.warn( "Cannot find 'hdiutil' utility at this location: " + hdiutilUtility );
+            log.warn( "The build will continue, but please check the location of your 'hdiutil' utility." );
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     protected void initializeFilterProperties()
@@ -334,6 +301,9 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public File getInstallationDirectory()
     {
         return new File( getTargetDirectory(), "root/usr/local/apacheds-"
@@ -341,6 +311,9 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public File getInstanceDirectory()
     {
         return new File( getInstallationDirectory(), "instances/default" );

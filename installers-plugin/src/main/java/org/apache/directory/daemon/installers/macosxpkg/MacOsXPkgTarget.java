@@ -39,8 +39,6 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class MacOsXPkgTarget extends Target
 {
-    /** The wrapper executable path */
-    private String wrapperExecutablePath = "src/main/installers/wrapper/bin/wrapper-windows-x86-32.exe";
     /** The PackageMaker utility executable */
     private File packageMakerUtility = new File(
         "/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker" );
@@ -69,18 +67,6 @@ public class MacOsXPkgTarget extends Target
 
 
     /**
-     * Gets the Wrapper executable path.
-     *
-     * @return
-     *      the wrapper executable path
-     */
-    public String getWrapperExecutablePath()
-    {
-        return wrapperExecutablePath;
-    }
-
-
-    /**
      * Sets the PackageMaker utility.
      *
      * @param packageMakerUtility
@@ -89,17 +75,5 @@ public class MacOsXPkgTarget extends Target
     public void setPackageMakerUtility( File packageMakerUtility )
     {
         this.packageMakerUtility = packageMakerUtility;
-    }
-
-
-    /**
-     * Sets the Wrapper executable path.
-     *
-     * @param wrapperExecutablePath
-     *      the wrapper executable path
-     */
-    public void setWrapperExecutablePath( String wrapperExecutablePath )
-    {
-        this.wrapperExecutablePath = wrapperExecutablePath;
     }
 }
