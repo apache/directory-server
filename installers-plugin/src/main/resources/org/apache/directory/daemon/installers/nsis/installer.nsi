@@ -17,58 +17,97 @@
 #  under the License.
 #
 
-!define AppName "ApacheDS"
-!define AppVersion "${version}"
-!define ShortName "${app}"
-!define JRE_VERSION "1.5.0"
-!define Vendor "Apache Software Foundation"
+#
+# Constants and variables
+#
+    !define Application "ApacheDS"
+    !define Version "${version}"
+    !define Icon "installer.ico"
+    !define WelcomeImage "welcome.bmp"
+    !define HeaderImage "header.bmp"
+    !define OutFile "${finalname}"
+    !define InstallationFiles "${installationFiles}"
+    !define InstancesFiles "${instancesFiles}"
+    !define JREVersion "1.5.0"
+    !define INSTDIR_REG_ROOT "HKLM"
+    !define INSTDIR_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Application}"
 
-!define JAVA_URL "http://java.sun.com/javase/downloads/index_jdk5.jsp"
-
-!macro CreateInternetShortcut FILENAME URL ;ICONFILE ICONINDEX
-WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
-!macroend
-
-!include "MUI.nsh"
-!include "Sections.nsh"
+#
+# Modules inclusions
+#
+    # Modern UI module
+    !include "MUI.nsh"
+    
+    # Sections module
+    !include "Sections.nsh"
 
 Var InstallJRE
 Var JREPath
 
 
 
-;--------------------------------
-;Configuration
+#
+# Configuration
+#
+    # Name of the application
+    Name "${Application}"
+    
+    # Output installer file
+    OutFile "../${OutFile}"
+    
+    # Default install directory
+    InstallDir "$PROGRAMFILES\${Application}"
+    
+    # Branding text
+    BrandingText "${Application} - ${Version}"
 
-  ;General
-  Name "${AppName}"
-  OutFile "..\${finalname}"
+    # Activating XPStyle
+    XPStyle on
 
-  ;Folder selection page
-  InstallDir "$PROGRAMFILES\${AppName}"
+    # Installer icon
+    !define MUI_ICON "${Icon}"
+    
+    # Uninstaller icon
+    !define MUI_UNICON "${Icon}"
+    
+    # Welcome image
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "${WelcomeImage}"
+    
+    # Activating header image
+    !define MUI_HEADERIMAGE
+    !define MUI_HEADERIMAGE_BITMAP "${HeaderImage}"
 
-  ;Get install folder from registry if available
-  InstallDirRegKey HKLM "SOFTWARE\${Vendor}\${ShortName}" ""
+    # Activating small description for the components page
+    !define MUI_COMPONENTSPAGE_SMALLDESC
+    
+    # Activating a confirmation when aborting the installation
+    !define MUI_ABORTWARNING
 
-; Installation types
-InstType "Full"
+#
+# Pages
+#
+    #
+    # Installer pages
+    #
+    
+    # Welcome page
+    !insertmacro MUI_PAGE_WELCOME
+    
+    # License page
+    !insertmacro MUI_PAGE_LICENSE "${InstallationFiles}\LICENSE"
+    
+    # Components page
+    #!insertmacro MUI_PAGE_COMPONENTS
 
-BrandingText "${AppName} - ${AppVersion}"
-XPStyle on
 
-!define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "header.bmp"
-!define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
-!define MUI_ICON "installer.ico"
-!define MUI_UNICON "installer.ico"
+
+!macro CreateInternetShortcut FILENAME URL ;ICONFILE ICONINDEX
+WriteINIStr "${FILENAME}.url" "InternetShortcut" "URL" "${URL}"
+!macroend
 
 ;--------------------------------
 ;Pages
 
-  ; License page
-  !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE "files\LICENSE"
 
   ; This page checks for JRE. It displays a dialog based on JRE.ini if it needs to install JRE
   ; Otherwise you won't see it.
@@ -82,9 +121,7 @@ XPStyle on
   #!insertmacro MUI_PAGE_INSTFILES
   !define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Installation complete"
   !define MUI_PAGE_HEADER_TEXT "Installing"
-  !define MUI_PAGE_HEADER_SUBTEXT "Please wait while ${AppName} is being installed."
-
-  !insertmacro MUI_PAGE_COMPONENTS
+  !define MUI_PAGE_HEADER_SUBTEXT "Please wait while ${Application} is being installed."
 
   # The main installation directory
 
@@ -92,7 +129,7 @@ XPStyle on
     ;!define MUI_PAGE_CUSTOMFUNCTION_PRE PreServerDir
     !define MUI_DIRECTORYPAGE_VARIABLE          $SERVER_HOME_DIR  ;selected by user
     !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Server Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like to install ${AppName}"  ; GUI page title
+    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like to install ${Application}"  ; GUI page title
     !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
 
     Var INSTANCES_HOME_DIR
@@ -109,22 +146,29 @@ XPStyle on
     !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
 
 
-  !insertmacro MUI_PAGE_INSTFILES
-  !insertmacro MUI_PAGE_FINISH
+    
+    # Installation page
+    !insertmacro MUI_PAGE_INSTFILES
+    
+    # Finish page
+    !insertmacro MUI_PAGE_FINISH
+    
+    #
+    # Uninstaller pages
+    #
+    
+    # Confirmation page
+    !insertmacro MUI_UNPAGE_CONFIRM
+    
+    # Uninstallation page
+    !insertmacro MUI_UNPAGE_INSTFILES
 
-; Uninstall  
-  !insertmacro MUI_UNPAGE_CONFIRM
-  !insertmacro MUI_UNPAGE_INSTFILES
-
-;--------------------------------
-;Modern UI Configuration
-
-  !define MUI_ABORTWARNING
-
-;--------------------------------
-;Languages
-
-!insertmacro MUI_LANGUAGE "English"
+#
+# Languages (the first one is the default one)
+#
+    !insertmacro MUI_LANGUAGE "English"
+    #!insertmacro MUI_LANGUAGE "French"
+    #!insertmacro MUI_LANGUAGE "German"
 
 
 ;--------------------------------
@@ -139,88 +183,81 @@ XPStyle on
   LangString TEXT_JRE_SUBTITLE ${LANG_ENGLISH} "Installation"
   LangString TEXT_PRODVER_TITLE ${LANG_ENGLISH} "Installed version of ${AppName}"
   LangString TEXT_PRODVER_SUBTITLE ${LANG_ENGLISH} "Installation canceled"
-
-;--------------------------------
-;Installer Sections
-
-SectionGroup "ApacheDS"
-Section "Apache DS Server Files" SecServerFiles
-  SectionIn 1 RO
-  SetOutPath "$SERVER_HOME_DIR\bin"
-  File /r "files\bin\*.*"
-
-  SetOutPath "$SERVER_HOME_DIR\lib"
-  File /r "files\lib\*.*"
-
-  SetOutPath "$SERVER_HOME_DIR\conf"
-  File /r "files\conf\*.*"
-
-  SetOutPath "$SERVER_HOME_DIR"
-  File "*"
-  
-    Push "$SERVER_HOME_DIR"
-    Push "*.txt"
-    Call ConvertFiles
-
-    Push "$SERVER_HOME_DIR\conf"
-    Push "*.*"
-    Call ConvertFiles
+#
+# Sections
+#
+    # Installer section
+    Section
+    	# Writing installation files
+        SetOutPath "$SERVER_HOME_DIR"
+        
+        # Adding installation source files
+        File /r "${InstallationFiles}\*"
+        
+        # Converting files line encoding
+        Push "$SERVER_HOME_DIR"
+        Push "*.txt"
+        Call ConvertFiles
+        
+        # Converting files line encoding
+        Push "$SERVER_HOME_DIR\conf"
+        Push "*.*"
+        Call ConvertFiles
 
     GetFunctionAddress $R0 ReplaceConfig ; handle to callback fn
     Push $R0
     Push "$SERVER_HOME_DIR\conf\apacheds.conf" ; file to replace in
     Call ReplaceInFile
     
-  CreateDirectory "$INSTANCES_HOME_DIR"
+        # Creating directory in the start menu
+        CreateDirectory "$SMPROGRAMS\Apache Directory Studio"
+        
+        # Creating links in the start menu
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Basic Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Advanced Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Developers Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
 
-  ;Store install folder
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayName" "ApacheDS - (remove only)"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoModify" "1"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoRepair" "1"
+        # Configuring registries for the uninstaller
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayName" "${Application} - (remove only)"
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
+        WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoModify" "1"
+        WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoRepair" "1"
 
-  # Probably need to filter the file here (put in instance home)
+        # Creating the uninstaller
+        WriteUninstaller "$INSTDIR\Uninstall.exe"
+        
+        # Creating a shortcut to the uninstaller
+        CreateShortCut "$SMPROGRAMS\ApacheDS\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$SERVER_HOME_DIR\Uninstall.exe" 0
+        
+    	# Writing instances files
+        SetOutPath "$INSTANCES_HOME_DIR"
+        
+        # Adding instances source files
+        File /r "${InstanceFiles}\*"
+        
+        # Converting files line encoding
+        Push "$INSTANCES_HOME_DIR\conf"
+        Push "*.*"
+        Call ConvertFiles
+        
+        
+    #Push "default"
+    #Call CreateInstanceDirs
 
+    #;I am hand picking the files for now, but we could simplify this by creating a template for new instances
+    #SetOutPath "$INSTANCES_HOME_DIR\default\conf"
+    #File "files\instances\default\conf\log4j.properties"
+    #File "files\instances\default\conf\wrapper.conf"
 
-  ;Create uninstaller
-  WriteUninstaller "$SERVER_HOME_DIR\Uninstall.exe"
+#    Push "$INSTANCES_HOME_DIR\default\conf"
+ #   Push "*.*"
+  #  Call ConvertFiles
 
-    CreateDirectory "$SMPROGRAMS\ApacheDS"
-
-    !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Basic Users Guide" \
-      "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
-    !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Advanced Users Guide" \
-      "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
-    !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Developers Guide" \
-      "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
-
-    CreateShortCut "$SMPROGRAMS\ApacheDS\Uninstall.lnk" "$SERVER_HOME_DIR\uninstall.exe" "" "$SERVER_HOME_DIR\uninstall.exe" 0
-
-SectionEnd
-
-; This section needs a custom screen to ask for a name for the instance (replace default)
-Section "Default Instance" SecInstanceFiles
-    SectionIn 1
-    StrCpy $R9 "Passed the Example Instance section"
-    
-    Push "default"
-    Call CreateInstanceDirs
-
-    ;I am hand picking the files for now, but we could simplify this by creating a template for new instances
-    SetOutPath "$INSTANCES_HOME_DIR\default\conf"
-    File "files\instances\default\conf\log4j.properties"
-    File "files\instances\default\conf\wrapper.conf"
-
-    Push "$INSTANCES_HOME_DIR\default\conf"
-    Push "*.*"
-    Call ConvertFiles
-
-    Push "default"
-    Push "$INSTANCES_HOME_DIR"
-    Call RegisterInstance
-SectionEnd
-SectionGroupEnd
+   # Push "default"
+   # Push "$INSTANCES_HOME_DIR"
+   # Call RegisterInstance
+    SectionEnd
 
 
 ;--------------------------------
@@ -268,14 +305,14 @@ FunctionEnd
 Function RegisterInstance
     Pop $0
     Pop $1
-    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -i "$SERVER_HOME_DIR\conf\${ShortName}.conf" set.INSTANCE_HOME="$0" "set.INSTANCE=$1" set.APACHEDS_HOME="$SERVER_HOME_DIR" '
+    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$SERVER_HOME_DIR\conf\wrapper.conf" set.INSTANCE_HOME="$0" "set.INSTANCE=$1" set.APACHEDS_HOME="$SERVER_HOME_DIR" '
     Pop $1
     Pop $0
 FunctionEnd
 
 Function un.RegisterInstance
     Pop $0
-    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -r "$SERVER_HOME_DIR\conf\${ShortName}.conf" "set.INSTANCE=$0"'
+    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$SERVER_HOME_DIR\conf\wrapper.conf" "set.INSTANCE=$0"'
     Pop $0
 FunctionEnd
 
@@ -428,31 +465,27 @@ DetectJREEnd:
 	Pop $0	; => rv
 FunctionEnd
 
-;--------------------------------
-;Uninstaller Section
+    
+    # Uninstaller section
+    Section Uninstall
+    
+        #Need to parse a list of instances or directories somehow
+        Push "default"
+        Call un.RegisterInstance
+        
+        # Remove shortcuts and folders in the start menu
+        RMDir /r "$SMPROGRAMS\ApacheDS"
+        
+        # Removing registry keys
+        DeleteRegKey "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}"
+        
+        # Removing files in root, then all dirs created by the installer (leave user added or instance dirs)
+        Delete "$INSTDIR\*"
+        RMDir /r "$INSTDIR\bin"
+        RMDir /r "$INSTDIR\conf"
+        RMDir /r "$INSTDIR\lib"
 
-Section "Uninstall"
-
-  ; Need to parse a list of instances or directories somehow
-  Push "default"
-  Call un.RegisterInstance
-
-  ; remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS"
-  DeleteRegKey HKLM  "SOFTWARE\${Vendor}\ApacheDS"
-
-  ; remove shortcuts, if any.
-  RMDir /r "$SMPROGRAMS\ApacheDS"
-
-  ; remove files in root, then all dirs created by the installer.... leave user added or instance dirs.
-  Delete "$INSTDIR\*"
-  RMDir /r "$INSTDIR\bin"
-  RMDir /r "$INSTDIR\conf"
-  RMDir /r "$INSTDIR\var"
-  RMDir /r "$INSTDIR\lib"
-  RMDir /r "$INSTDIR\log"
-
-SectionEnd
+    SectionEnd
 
 Function ConvertUnixNewLines
     ; Usage:
@@ -652,4 +685,7 @@ FunctionEnd
 !macroend
 
 !define StrReplace '!insertmacro "_strReplaceConstructor"'
+
+
+
 

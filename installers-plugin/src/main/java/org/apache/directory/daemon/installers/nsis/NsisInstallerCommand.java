@@ -39,6 +39,10 @@ import org.apache.tools.ant.taskdefs.Execute;
  */
 public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 {
+    private static final String INSTALLATION_FILES = "installationFiles";
+    private static final String INSTANCES_FILES = "instancesFiles/default";
+
+
     /**
      * Creates a new instance of NsisInstallerCommand.
      *
@@ -162,6 +166,8 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
             finalName = finalName + ".exe";
         }
         filterProperties.put( "finalname", target.getFinalName() );
+        filterProperties.put( "installationFiles", INSTALLATION_FILES );
+        filterProperties.put( "instancesFiles", INSTANCES_FILES );
     }
 
 
@@ -170,7 +176,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     public File getInstallationDirectory()
     {
-        return new File( getTargetDirectory(), "files" );
+        return new File( getTargetDirectory(), INSTALLATION_FILES );
     }
 
 
@@ -179,6 +185,6 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getInstallationDirectory(), "instances/default" );
+        return new File( getTargetDirectory(), INSTANCES_FILES );
     }
 }
