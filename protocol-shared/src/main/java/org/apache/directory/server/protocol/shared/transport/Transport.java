@@ -63,11 +63,13 @@ public interface Transport
     IoAcceptor getAcceptor();
     
     
-    /**
-     * Set the IoAcceptor
-     * @param acceptor The IoAcceptor to set
-     */
-    void setAcceptor ( IoAcceptor acceptor );
+    // @todo Is this method wanted/needed in the interface? When enabled build is failing ...
+    // /**
+    //  * Set the IoAcceptor
+    //  * @param acceptor The IoAcceptor to set
+    //  */
+    //void setAcceptor ( IoAcceptor acceptor );
+    
 
 
     /**
