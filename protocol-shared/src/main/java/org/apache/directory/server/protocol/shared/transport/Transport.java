@@ -66,7 +66,7 @@ public interface Transport
     /**
      * Set the IoAcceptor
      * @param acceptor The IoAcceptor to set
-     *
+     */
     void setAcceptor ( IoAcceptor acceptor );
 
 
