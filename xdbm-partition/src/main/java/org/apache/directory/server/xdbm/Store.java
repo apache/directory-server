@@ -342,7 +342,7 @@ public interface Store<E, ID extends Comparable<ID>>
 
     /**
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
-     * @param ttributeType The index we are looking for
+     * @param attributeType The index we are looking for
      * @return <code>true</code> if the index is already present in the
      * User's <strong>or</strong> System's index list 
      * @throws Exception If something went wrong

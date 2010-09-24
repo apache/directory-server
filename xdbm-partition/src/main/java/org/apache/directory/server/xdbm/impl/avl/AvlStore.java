@@ -151,7 +151,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
 
     /**
-     * @{inhertDoc}
+     * {@inheritDoc}
      */
     public void sync() throws Exception
     {
@@ -159,7 +159,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
 
     /**
-     * @{inhertDoc}
+     * {@inheritDoc}
      */
     public Long getDefaultId()
     {

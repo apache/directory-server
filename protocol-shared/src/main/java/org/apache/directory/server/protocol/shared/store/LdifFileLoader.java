@@ -77,7 +77,7 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param ctx  the context to load the entries into.
+     * @param coreSession  the context to load the entries into.
      * @param ldif the file of LDIF entries to load.
      */
     public LdifFileLoader( CoreSession coreSession, String ldif )
@@ -89,7 +89,7 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param ctx
+     * @param coreSession
      * @param ldif
      * @param filters
      */
@@ -102,7 +102,7 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param ctx
+     * @param coreSession
      * @param ldif
      * @param filters
      * @param loader

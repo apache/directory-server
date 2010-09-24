@@ -119,7 +119,7 @@ public interface CoreSession
      * Returns true if the effective principal associated with this session is 
      * the administrator.
      * 
-     * @see {@link ServerDNConstants#ADMIN_SYSTEM_DN}
+     * @see ServerDNConstants#ADMIN_SYSTEM_DN
      * @return true if authorized as the administrator, false otherwise
      */
     boolean isAdministrator();
@@ -129,8 +129,8 @@ public interface CoreSession
      * Returns true if the effective principal associated with this session is 
      * the administrator or is within the administrators group.
      *
-     * @see {@link ServerDNConstants#ADMIN_SYSTEM_DN}
-     * @see {@link ServerDNConstants#ADMINISTRATORS_GROUP_DN}
+     * @see ServerDNConstants#ADMIN_SYSTEM_DN
+     * @see ServerDNConstants#ADMINISTRATORS_GROUP_DN
      * @return true if authorized as an administrator, false otherwise
      */
     boolean isAnAdministrator();
@@ -247,7 +247,7 @@ public interface CoreSession
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param AddRequest the request to execute
+     * @param addRequest the request to execute
      * @exception Exception on failures to add the entry
      */
     void add( AddRequest addRequest ) throws LdapException;
@@ -257,7 +257,7 @@ public interface CoreSession
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param AddRequest the request to execute
+     * @param addRequest the request to execute
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception Exception on failures to add the entry
      */

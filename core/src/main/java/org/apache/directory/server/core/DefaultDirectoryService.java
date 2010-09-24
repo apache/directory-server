@@ -1068,7 +1068,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Set the SchemaManager instance.
      *
-     * @param schemaManager The schemaManager
+     * @param schemaManager The server schemaManager
      */
     public void setSchemaManager( SchemaManager schemaManager )
     {

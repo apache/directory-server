@@ -59,7 +59,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
      * evaluator which will be created.
      *
      * @param db the database this evaluator operates upon
-     * @param registries the schema registries
+     * @param schemaManager the schema manager
      * @throws Exception failure to access db or lookup schema in registries
      */
     public EvaluatorBuilder( Store<Entry, ID> db, SchemaManager schemaManager ) throws Exception

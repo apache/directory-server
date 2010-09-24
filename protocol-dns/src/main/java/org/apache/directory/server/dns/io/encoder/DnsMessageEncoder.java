@@ -77,7 +77,7 @@ public class DnsMessageEncoder
 
 
     /**
-     * Encodes the {@link DnsMessage} into the {@link ByteBuffer}.
+     * Encodes the {@link DnsMessage} into the {@link IoBuffer}.
      *
      * @param byteBuffer
      * @param message

@@ -64,8 +64,7 @@ public class ExpressionEvaluator implements Evaluator
      * Creates a top level Evaluator where leaves are delegated to a leaf node
      * evaluator which will be created.
      *
-     * @param oidRegistry the oid reg used for attrID to oid resolution
-     * @param attributeTypeRegistry the attribtype reg used for value comparison
+     * @param schemaManager The server schemaManager
      */
     public ExpressionEvaluator( SchemaManager schemaManager )
     {
@@ -90,7 +89,7 @@ public class ExpressionEvaluator implements Evaluator
     // Evaluator.evaluate() implementation
     // ------------------------------------------------------------------------
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Entry)
+     * {@inheritDoc}
      */
     public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
     {

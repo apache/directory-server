@@ -17,6 +17,7 @@
  *  under the License. 
  *  
  */
+package org.apache.directory.server.kerberos.shared.service;
 
 /**
  * Provides reusable {@link org.apache.mina.handler.chain.IoHandlerCommand}s
@@ -25,4 +26,3 @@
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 
-package org.apache.directory.server.kerberos.shared.service;

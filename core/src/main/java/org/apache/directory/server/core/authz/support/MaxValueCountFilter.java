@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCount} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

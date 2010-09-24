@@ -56,7 +56,7 @@ public class ExpandingVisitor implements FilterVisitor
      * 
      * Creates a new instance of ExpandingVisitor.
      *
-     * @param schemaManager The schemaManager
+     * @param schemaManager The server schemaManager
      */
     public ExpandingVisitor( SchemaManager schemaManager )
     {

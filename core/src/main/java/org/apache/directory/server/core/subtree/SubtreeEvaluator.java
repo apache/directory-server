@@ -45,8 +45,7 @@ public class SubtreeEvaluator
      * Creates a subtreeSpecification evaluatior which can be used to determine
      * if an entry is included within the collection of a subtree.
      *
-     * @param oidRegistry a registry used to lookup objectClass names for OIDs
-     * @param attrRegistry registry to be looked up
+     * @param schemaManager The server schemaManager
      */
     public SubtreeEvaluator( SchemaManager schemaManager )
     {

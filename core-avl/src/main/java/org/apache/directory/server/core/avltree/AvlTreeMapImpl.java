@@ -59,7 +59,8 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * Creates a new instance of AVLTreeMap without support for duplicate keys.
      *
-     * @param comparator1 the comparator to be used for comparing keys
+     * @param keyComparator the comparator to be used for comparing keys
+     * @param valueComparator the comparator to be used for comparing values
      */
     public AvlTreeMapImpl( Comparator<K> keyComparator, Comparator<V> valueComparator )
     {
@@ -67,6 +68,13 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     }
 
 
+    /**
+     * Creates a new instance of AVLTreeMap without support for duplicate keys.
+     *
+     * @param keyComparator the comparator to be used for comparing keys
+     * @param valueComparator the comparator to be used for comparing values
+     * @param allowDuplicates are duplicates keyComparators allowed?
+     */
     public AvlTreeMapImpl( Comparator<K> keyComparator, Comparator<V> valueComparator, boolean allowDuplicates )
     {
         this.keyComparator = keyComparator;

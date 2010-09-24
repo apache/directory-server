@@ -40,9 +40,7 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
 
     
     /**
-     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, DN, 
-     * org.apache.directory.server.core.entry.ClonedServerEntry, 
-     * org.apache.directory.shared.ldap.message.SingleReplyRequest)
+     * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.message.Request)
      */
     @Override
     public void handle( LdapSession session, CompareRequest req )

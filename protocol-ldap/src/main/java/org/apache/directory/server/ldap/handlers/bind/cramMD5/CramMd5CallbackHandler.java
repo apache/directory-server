@@ -65,9 +65,9 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     /**
      * Creates a new instance of CramMd5CallbackHandler.
      *
-     * @param session the mina IoSession
+     * @param ldapSession the mina IoSession
+     * @param adminSession the admin session
      * @param bindRequest the bind message
-     * @param directoryService the directory service core
      */
     public CramMd5CallbackHandler( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {

@@ -98,7 +98,7 @@ public class GroupCache
     /**
      * Creates a static group cache.
      *
-     * @param directoryService the directory service core
+     * @param dirService the directory service core
      * @throws LdapException if there are failures on initialization
      */
     public GroupCache( DirectoryService dirService ) throws LdapException

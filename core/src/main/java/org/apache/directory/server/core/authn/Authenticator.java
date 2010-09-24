@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.name.DN;
  * {@link AuthenticationInterceptor} interceptor.
  * <p>
  * {@link AuthenticationInterceptor} authenticates users by calling
- * {@link #authenticate(DN,ServerContext)}, and then {@link Authenticator}
+ * {@link #authenticate(BindOperationContext)}, and then {@link Authenticator}
  * checks JNDI {@link Context} environment properties
  * ({@link Context#SECURITY_PRINCIPAL} and {@link Context#SECURITY_CREDENTIALS})
  * of current {@link Context}.
@@ -88,7 +88,7 @@ public interface Authenticator
     
     
     /**
-     * @param policyConfig the password policy configuration to be used while authenticating
+     * @param pPolicyConfig the password policy configuration to be used while authenticating
      */
     void setPwdPolicyConfig( PasswordPolicyConfiguration pPolicyConfig );
     

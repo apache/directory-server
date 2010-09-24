@@ -87,7 +87,6 @@ public class SchemaSubentryModifier
      * Creates a new instance of SchemaSubentryModifier.
      *
      * @param schemaManager The server schemaManager
-     * @param dao
      */
     public SchemaSubentryModifier( SchemaManager schemaManager )
     {

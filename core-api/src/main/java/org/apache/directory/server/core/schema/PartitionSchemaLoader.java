@@ -237,9 +237,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
     public final void load( Schema schema, Registries targetRegistries, boolean isDepLoad ) throws Exception
     {
         // if we're loading a dependency and it has not been enabled on 

@@ -51,9 +51,9 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     /**
      * Creates a new instance of GssapiCallbackHandler.
      *
-     * @param session the mina IO session
+     * @param ldapSession the mina IO session
+     * @param adminSession the admin session
      * @param bindRequest the bind message
-     * @param directoryService the directory service core
      */
     public GssapiCallbackHandler( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {

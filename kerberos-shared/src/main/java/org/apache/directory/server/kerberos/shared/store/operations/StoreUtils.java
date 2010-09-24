@@ -96,7 +96,7 @@ public class StoreUtils
      * Constructs a filter expression tree for the filter used to search the 
      * directory.
      * 
-     * @param registry the registry to use for attribute lookups
+     * @param schemaManager The server schemaManager to use for attribute lookups
      * @param principal the principal to use for building the filter
      * @return the filter expression tree
      * @throws Exception if there are problems while looking up attributes

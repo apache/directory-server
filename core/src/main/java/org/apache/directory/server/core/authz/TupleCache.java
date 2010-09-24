@@ -92,7 +92,7 @@ public class TupleCache
     /**
      * Creates a ACITuple cache.
      *
-     * @param directoryService the context factory configuration for the server
+     * @param session the session with the directory core services
      * @throws LdapException if initialization fails
      */
     public TupleCache( CoreSession session ) throws LdapException

@@ -81,7 +81,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * Creates a leaf expression node evaluator.
      *
-     * @param substringEvaluator
+     * @param schemaManager The server schemaManager
      */
     public LeafEvaluator( SchemaManager schemaManager,
         SubstringEvaluator substringEvaluator )
@@ -105,7 +105,7 @@ public class LeafEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Entry)
+     * {@inheritDoc}
      */
     public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
     {

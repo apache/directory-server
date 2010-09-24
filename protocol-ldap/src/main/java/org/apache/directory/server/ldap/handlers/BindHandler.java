@@ -81,8 +81,8 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     /**
      * Handle the Simple authentication.
      *
-     * @param session The associated Session
-     * @param message The BindRequest received
+     * @param ldapSession The associated Session
+     * @param bindRequest The BindRequest received
      * @throws Exception If the authentication cannot be done
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
@@ -499,8 +499,8 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
      * <li></li>
      * </ul><br/>
      *
-     * @param session The associated Session
-     * @param message The BindRequest received
+     * @param ldapSession The associated Session
+     * @param bindRequest The BindRequest received
      * @throws Exception If the authentication cannot be done
      */
     public void handleSaslAuth( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
@@ -575,7 +575,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     /**
      * Deal with a received BindRequest
      * 
-     * @param session The current session
+     * @param ldapSession The current session
      * @param bindRequest The received BindRequest
      * @throws Exception If the authentication cannot be handled
      */

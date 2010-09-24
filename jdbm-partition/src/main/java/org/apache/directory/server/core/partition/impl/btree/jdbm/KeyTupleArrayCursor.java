@@ -46,7 +46,7 @@ public class KeyTupleArrayCursor<K,V> extends AbstractTupleCursor<K,V>
     /**
      * Creates a Cursor over the tuples of an ArrayTree.
      *
-     * @param avlTree the ArrayTree to build a Tuple returning Cursor over
+     * @param arrayTree the ArrayTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      */
     public KeyTupleArrayCursor( ArrayTree<V> arrayTree, K key )

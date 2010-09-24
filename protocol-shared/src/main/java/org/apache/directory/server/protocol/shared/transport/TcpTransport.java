@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Todo : missing javadoc
+ * @todo : missing javadoc
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -77,7 +77,7 @@ public class TcpTransport extends AbstractTransport
     /**
      * Creates an instance of the TcpTransport class 
      * @param address The address
-     * @param port The port
+     * @param tcpPort The port
      */
     public TcpTransport( String address, int tcpPort )
     {
@@ -92,7 +92,7 @@ public class TcpTransport extends AbstractTransport
      * Creates an instance of the TcpTransport class on localhost
      * @param tcpPort The port
      * @param nbThreads The number of threads to create in the acceptor
-     * @param backlog The queue size for incoming messages, waiting for the
+     * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
      */
     public TcpTransport( int tcpPort, int nbThreads, int backLog )
@@ -109,7 +109,7 @@ public class TcpTransport extends AbstractTransport
      * @param address The address
      * @param tcpPort The port
      * @param nbThreads The number of threads to create in the acceptor
-     * @param backlog The queue size for incoming messages, waiting for the
+     * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
      */
     public TcpTransport( String address, int tcpPort, int nbThreads, int backLog )

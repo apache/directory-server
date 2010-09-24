@@ -76,7 +76,7 @@ public class DnsMessageDecoder
 
 
     /**
-     * Decode the {@link ByteBuffer} into a {@link DnsMessage}.
+     * Decode the {@link IoBuffer} into a {@link DnsMessage}.
      *
      * @param in
      * @return The {@link DnsMessage}.

@@ -106,9 +106,9 @@ public abstract class AbstractTransport implements Transport
     
     /**
      * Creates an instance of the AbstractTransport class on LocalHost
-     * @param tcpPort The port
+     * @param port The port
      * @param nbThreads The number of threads to create in the acceptor
-     * @param backlog The queue size for incoming messages, waiting for the
+     * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
      */
     public AbstractTransport( int port, int nbThreads, int backLog )
@@ -123,9 +123,9 @@ public abstract class AbstractTransport implements Transport
     /**
      * Creates an instance of the AbstractTransport class 
      * @param address The address
-     * @param tcpPort The port
+     * @param port The port
      * @param nbThreads The number of threads to create in the acceptor
-     * @param backlog The queue size for incoming messages, waiting for the
+     * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
      */
     public AbstractTransport( String address, int port, int nbThreads, int backLog )
@@ -225,7 +225,7 @@ public abstract class AbstractTransport implements Transport
     
     /**
      * Enable or disable SSL
-     * @param enableSSL if <code>true</code>, SSL is enabled.
+     * @param sslEnabled if <code>true</code>, SSL is enabled.
      */
     public void setEnableSSL( boolean sslEnabled )
     {
@@ -235,7 +235,7 @@ public abstract class AbstractTransport implements Transport
     
     /**
      * Enable or disable SSL
-     * @param enableSSL if <code>true</code>, SSL is enabled.
+     * @param sslEnabled if <code>true</code>, SSL is enabled.
      */
     public void enableSSL( boolean sslEnabled )
     {

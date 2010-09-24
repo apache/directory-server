@@ -33,7 +33,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 public interface RecordEncoder
 {
     /**
-     * Encodes the {@link ResourceRecord} into the {@link ByteBuffer}.
+     * Encodes the {@link ResourceRecord} into the {@link IoBuffer}.
      *
      * @param buffer
      * @param record

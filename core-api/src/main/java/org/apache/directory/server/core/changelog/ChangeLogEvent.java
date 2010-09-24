@@ -200,11 +200,11 @@ public class ChangeLogEvent implements Externalizable
 
 
     /**
-     * @see Externalizable#readExternal(ObjectInput)<p>
+     * @see Externalizable#readExternal(ObjectInput)
      *
-     *@param out The stream in which the ChangeLogEvent will be serialized. 
+     * @param out The stream in which the ChangeLogEvent will be serialized. 
      *
-     *@throws IOException If the serialization fail
+     * @throws IOException If the serialization fail
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {

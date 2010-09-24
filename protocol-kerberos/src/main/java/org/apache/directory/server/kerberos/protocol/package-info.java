@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides the {@link org.apache.mina.common.IoHandler} and associated {@link org.apache.mina.filter.codec.ProtocolCodecFactory}
+ * Provides the {@link org.apache.mina.core.service.IoHandler} and associated {@link org.apache.mina.filter.codec.ProtocolCodecFactory}
  * required to implement the KDC's Authentication Service (AS) and
  * Ticket-Granting Service (TGS) with the MINA NIO framework.
  * 

@@ -51,7 +51,7 @@ public class RefinementLeafEvaluator
     /**
      * Creates a refinement filter's leaf node evaluator.
      *
-     * @param registry the OID registry used to lookup names for objectClass OIDs
+     * @param schemaManager The server schemaManager
      */
     public RefinementLeafEvaluator( SchemaManager schemaManager)
     {

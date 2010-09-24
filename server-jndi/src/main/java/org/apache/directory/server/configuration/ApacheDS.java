@@ -88,8 +88,7 @@ public class ApacheDS
     /**
      * Creates a new instance of the ApacheDS server
      *  
-     * @param directoryService 
-     * @param ldapServer
+     * @param ldapServer The ldap server protocol handler
      */
     public ApacheDS( LdapServer ldapServer ) throws Exception
     {
@@ -223,8 +222,9 @@ public class ApacheDS
 
     
     /**
-     * Get the directory where 
-     * @return
+     * Get the directory where the LDIF files are stored
+     * 
+     * @return The directory where the LDIF files are stored
      */
     public File getLdifDirectory()
     {

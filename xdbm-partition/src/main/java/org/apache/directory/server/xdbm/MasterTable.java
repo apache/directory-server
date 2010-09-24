@@ -59,7 +59,6 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * Deletes a entry from this MasterTable at an index specified by id.
      *
      * @param id unique identifier of the entry to delete
-     * @return the deleted entry
      * @throws Exception if there is a write error on the underlying Db
      */
     void delete( ID id ) throws Exception;

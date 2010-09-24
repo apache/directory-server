@@ -133,7 +133,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      * TODO - terribly inefficient - would benefit from exposing the id of an
      * entry within the Entry
      *
-     * @see Evaluator#evaluate(Object)
+     * {@inheritDoc}
      */
     public boolean evaluateEntry( E candidate ) throws Exception
     {

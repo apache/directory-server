@@ -50,7 +50,7 @@ public interface PartitionFactory
      * Adds a partition-specific index to the partition.
      * 
      * @param partition the partition
-     * @param attrbuteId the attribute id
+     * @param attributeId the attribute id
      * @param cacheSize the cache size
      * @throws Exception the exception
      */

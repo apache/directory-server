@@ -112,6 +112,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     /**
      * Initializes the forward and reverse tables used by this Index.
      * 
+     * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
      * @throws NamingException 

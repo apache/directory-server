@@ -1039,7 +1039,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The AddRequest handler
+     * @param addHandler The AddRequest handler
      */
     public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
@@ -1057,7 +1057,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The BindRequest handler
+     * @param bindHandler The BindRequest handler
      */
     public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
@@ -1076,7 +1076,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The CompareRequest handler
+     * @param compareHandler The CompareRequest handler
      */
     public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
@@ -1094,7 +1094,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The DeleteRequest handler
+     * @param deleteHandler The DeleteRequest handler
      */
     public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
@@ -1112,7 +1112,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The ExtendedRequest handler
+     * @param extendedHandler The ExtendedRequest handler
      */
     public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
@@ -1130,7 +1130,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The ModifyRequest handler
+     * @param modifyHandler The ModifyRequest handler
      */
     public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
@@ -1148,7 +1148,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The ModifyDNRequest handler
+     * @param modifyDnHandler The ModifyDNRequest handler
      */
     public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
@@ -1166,7 +1166,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The SearchRequest handler
+     * @param searchHandler The SearchRequest handler
      */
     public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
@@ -1240,7 +1240,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @param abandonHandler The UnbindRequest handler
+     * @param unbindHandler The UnbindRequest handler
      */
     public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {

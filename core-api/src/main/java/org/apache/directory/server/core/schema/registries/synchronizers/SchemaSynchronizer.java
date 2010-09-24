@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * This class handle modifications made on a global schema. Modifications made
  * on SchemaObjects are handled by the specific shcemaObject synchronizers.
  *
- * @TODO poorly implemented - revisit the SchemaChangeHandler for this puppy
+ * @todo poorly implemented - revisit the SchemaChangeHandler for this puppy
  * and do it right.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -89,8 +89,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /**
      * Creates and initializes a new instance of Schema synchronizer
      *
-     * @param registries The Registries
-     * @param loader The schema loader
+     * @param schemaManager The server schemaManager
      * @throws Exception If something went wrong
      */
     public SchemaSynchronizer( SchemaManager schemaManager ) throws Exception

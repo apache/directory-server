@@ -201,6 +201,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     /**
      * Initializes the forward and reverse tables used by this Index.
      * 
+     * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
      * @throws NamingException 
@@ -430,7 +431,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#reverseLookup(Long)
+     * {@inheritDoc}
      */
     public K reverseLookup( Long id ) throws Exception
     {
@@ -443,7 +444,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     // ------------------------------------------------------------------------
 
     /**
-     * @see Index#add(Object, Long)
+     * {@inheritDoc}
      */
     public synchronized void add( K attrVal, Long id ) throws Exception
     {
@@ -453,7 +454,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see Index#drop(Object,Long)
+     * {@inheritDoc}
      */
     public synchronized void drop( K attrVal, Long id ) throws Exception
     {
@@ -529,7 +530,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     // Value Assertion (a.k.a Index Lookup) Methods //
     // ------------------------------------------------------------------------
     /**
-     * @see Index#forward(Object)
+     * {@inheritDoc}
      */
     public boolean forward( K attrVal ) throws Exception
     {
@@ -538,7 +539,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see Index#forward(Object,Long)
+     * {@inheritDoc}
      */
     public boolean forward( K attrVal, Long id ) throws Exception
     {
@@ -547,7 +548,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see Index#reverse(Long)
+     * {@inheritDoc}
      */
     public boolean reverse( Long id ) throws Exception
     {
@@ -556,7 +557,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see Index#reverse(Long,Object)
+     * {@inheritDoc}
      */
     public boolean reverse( Long id, K attrVal ) throws Exception
     {
@@ -565,7 +566,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#forwardGreaterOrEq(Object)
+     * {@inheritDoc}
      */
     public boolean forwardGreaterOrEq( K attrVal ) throws Exception
     {
@@ -574,7 +575,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#forwardGreaterOrEq(Object, Long)
+     * {@inheritDoc}
      */
     public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
     {
@@ -583,7 +584,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#forwardLessOrEq(Object)
+     * {@inheritDoc}
      */
     public boolean forwardLessOrEq( K attrVal ) throws Exception
     {
@@ -592,7 +593,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#forwardLessOrEq(Object, Long)
+     * {@inheritDoc}
      */
     public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
     {
@@ -601,7 +602,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#reverseGreaterOrEq(Long)
+     * {@inheritDoc}
      */
     public boolean reverseGreaterOrEq( Long id ) throws Exception
     {
@@ -610,7 +611,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#reverseGreaterOrEq(Long,Object)
+     * {@inheritDoc}
      */
     public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
     {
@@ -619,7 +620,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#reverseLessOrEq(Long)
+     * {@inheritDoc}
      */
     public boolean reverseLessOrEq( Long id ) throws Exception
     {
@@ -628,7 +629,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#reverseLessOrEq(Long,Object)
+     * {@inheritDoc}
      */
     public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
     {

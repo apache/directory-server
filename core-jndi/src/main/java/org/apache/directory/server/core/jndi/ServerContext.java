@@ -194,9 +194,9 @@ public abstract class ServerContext implements EventContext
      * environment settings to be used by this Context implementation.  This
      * constructor is used to propagate new contexts from existing contexts.
      *
-     * @param principal the directory user principal that is propagated
-     * @param dn the distinguished name of this context
      * @param service the directory service core
+     * @param principal the directory user principal that is propagated
+     * @param name the distinguished name of this context
      * @throws NamingException if there is a problem creating the new context
      */
     public ServerContext( DirectoryService service, LdapPrincipal principal, Name name ) throws Exception

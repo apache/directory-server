@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 
 /**
- * @TODO : Missing Javadoc
+ * @todo : Missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
 */
 public class DefaultJournalStore implements JournalStore

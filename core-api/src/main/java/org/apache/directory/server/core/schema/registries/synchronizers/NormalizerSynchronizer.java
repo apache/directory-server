@@ -57,7 +57,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Creates a new instance of NormalizerSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The server schemaManager
      * @throws Exception If the initialization failed
      */
     public NormalizerSynchronizer( SchemaManager schemaManager ) throws Exception

@@ -66,7 +66,7 @@ public interface Journal
      *
      * @param principal the authorized LDAP principal triggering the change
      * @param revision the operation revision
-     * @param forward LDIF of the change going to the next state
+     * @param entry LDIF of the change going to the next state
      * @throws Exception if there are problems logging the change
      */
     void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException;

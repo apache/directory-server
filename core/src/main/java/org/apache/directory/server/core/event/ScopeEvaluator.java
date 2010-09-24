@@ -42,7 +42,7 @@ public class ScopeEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode , String, Entry)
+     * {@inheritDoc}
      */
     public boolean evaluate( ExprNode node, DN dn, Entry record ) throws LdapException
     {

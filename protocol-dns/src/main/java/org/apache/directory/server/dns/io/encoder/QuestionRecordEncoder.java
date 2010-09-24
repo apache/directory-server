@@ -33,7 +33,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 public class QuestionRecordEncoder
 {
     /**
-     * Encodes the {@link QuestionRecord} into the {@link ByteBuffer}.
+     * Encodes the {@link QuestionRecord} into the {@link IoBuffer}.
      *
      * @param out
      * @param question

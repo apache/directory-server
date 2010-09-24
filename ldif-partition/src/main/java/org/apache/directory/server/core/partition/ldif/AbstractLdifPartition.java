@@ -113,6 +113,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addIndexOn( Index<? extends Object, Entry, Long> index ) throws Exception
     {
@@ -120,6 +123,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int count() throws Exception
     {
@@ -127,6 +133,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doDestroy() throws Exception
     {
@@ -134,6 +143,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<String, Entry, Long> getAliasIndex()
     {
@@ -141,6 +153,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getChildCount( Long id ) throws LdapException
     {
@@ -148,6 +163,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DN getEntryDn( Long id ) throws Exception
     {
@@ -155,6 +173,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Long getEntryId( DN dn ) throws LdapException
     {
@@ -162,6 +183,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<Long, Entry, Long> getOneAliasIndex()
     {
@@ -169,6 +193,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<Long, Entry, Long> getOneLevelIndex()
     {
@@ -176,6 +203,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<String, Entry, Long> getPresenceIndex()
     {
@@ -183,6 +213,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getProperty( String propertyName ) throws Exception
     {
@@ -190,6 +223,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<Long, Entry, Long> getSubAliasIndex()
     {
@@ -197,6 +233,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<Long, Entry, Long> getSubLevelIndex()
     {
@@ -204,6 +243,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
     {
@@ -211,6 +253,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterator<String> getSystemIndices()
     {
@@ -218,6 +263,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Index<? extends Object, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
     {
@@ -225,6 +273,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterator<String> getUserIndices()
     {
@@ -232,6 +283,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
     {
@@ -239,6 +293,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
     {
@@ -246,6 +303,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isInitialized()
     {
@@ -253,6 +313,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public IndexCursor<Long, Entry, Long> list( Long id ) throws LdapException
     {
@@ -260,6 +323,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ClonedServerEntry lookup( Long id ) throws LdapException
     {
@@ -267,6 +333,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setProperty( String propertyName, String propertyValue ) throws Exception
     {
@@ -274,6 +343,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSchemaManager( SchemaManager schemaManager )
     {
@@ -281,6 +353,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sync() throws Exception
     {
@@ -294,6 +369,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getId()
     {
@@ -301,6 +379,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setId( String id )
     {
@@ -309,6 +390,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSuffix( DN suffix ) throws LdapInvalidDnException
     {

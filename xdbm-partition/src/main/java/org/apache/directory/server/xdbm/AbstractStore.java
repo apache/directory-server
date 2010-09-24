@@ -2022,9 +2022,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * parent a modifyDn operation is conducted to handle name changes
      * propagating down through the moved child and its descendants.
      *
-     * @param oldChildDn the normalized dn of the child to be moved
+     * @param oldDn the normalized dn of the child to be moved
      * @param childId the id of the child being moved
-     * @param newParentDn the normalized dn of the new parent for the child
+     * @param newRdn the normalized dn of the new parent for the child
+     * @param modifiedEntry the modified entry
      * @throws Exception if something goes wrong
      */
     protected void moveAndRename( DN oldDn, ID childId, DN newSuperior, RDN newRdn, Entry modifiedEntry ) throws Exception
@@ -2091,7 +2092,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Updates the SubLevel Index as part of a move operation.
      *
-     * @param entrtyId child id to be moved
+     * @param entryId child id to be moved
      * @param oldParentId old parent's id
      * @param newParentId new parent's id
      * @throws Exception

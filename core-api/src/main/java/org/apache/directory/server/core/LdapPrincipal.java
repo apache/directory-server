@@ -213,12 +213,13 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
 
     /**
-     * @see Externalizable#readExternal(ObjectInput)<p>
+     * Note: The password won't be written !
+     * 
+     * @see Externalizable#readExternal(ObjectInput)
      *
-     *@param out The stream in which the LdapPrincipal will be serialized. 
-     *The password won't be written !
+     * @param out The stream in which the LdapPrincipal will be serialized. 
      *
-     *@throws IOException If the serialization fail
+     * @throws IOException If the serialization fail
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {

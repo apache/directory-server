@@ -64,7 +64,7 @@ public class OutstandingRequestsDialog extends JDialog
      * This is the default constructor
      * @param owner the owning frame
      * @param session the MINA IoSession to get outstanding requests for
-     * @param sessionRegistry the session registry
+     * @param ldapServer the server
      */
     public OutstandingRequestsDialog( JFrame owner, LdapSession session, LdapServer ldapServer )
     {

@@ -127,54 +127,81 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
+    /**
+     * {@inheritDoc}
+     */
     public final void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception
     {
         store.addIndex( index );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<ID, Entry, ID> getOneLevelIndex()
     {
         return store.getOneLevelIndex();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<String, Entry, ID> getAliasIndex()
     {
         return store.getAliasIndex();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<ID, Entry, ID> getOneAliasIndex()
     {
         return store.getOneAliasIndex();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<ID, Entry, ID> getSubAliasIndex()
     {
         return store.getSubAliasIndex();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Iterator<String> getUserIndices()
     {
         return store.userIndices();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Iterator<String> getSystemIndices()
     {
         return store.systemIndices();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
     {
         return store.hasUserIndexOn( attributeType );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
     {
         return store.hasSystemIndexOn( attributeType );
@@ -182,7 +209,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
+     * {@inheritDoc}
      */
     public final Index<? extends Object, Entry, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
@@ -191,14 +218,16 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
 
     /**
-     * @see BTreePartition#getEntryId(String)
+     * {@inheritDoc}
      */
     public final Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         return store.getSystemIndex( attributeType );
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     public final ID getEntryId( DN dn ) throws LdapException
     {
         try
@@ -212,18 +241,27 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final DN getEntryDn( ID id ) throws Exception
     {
         return store.getEntryDn( id );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final int count() throws Exception
     {
         return store.count();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void add( AddOperationContext addContext ) throws LdapException
     {
         try
@@ -237,6 +275,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final ClonedServerEntry lookup( ID id ) throws LdapException
     {
         try
@@ -250,6 +291,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void delete( ID id ) throws LdapException
     {
         try
@@ -263,6 +307,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException
     {
         try
@@ -276,6 +323,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final int getChildCount( ID id ) throws LdapException
     {
         try
@@ -289,18 +339,27 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         store.setProperty( propertyName, propertyValue );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final String getProperty( String propertyName ) throws Exception
     {
         return store.getProperty( propertyName );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         try
@@ -315,6 +374,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void rename( RenameOperationContext renameContext ) throws LdapException
     {
         try
@@ -335,6 +397,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( moveAndRenameContext.getNewSuperiorDn().isChildOf( moveAndRenameContext.getDn() ) )
@@ -365,6 +430,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( moveContext.getNewSuperior().isChildOf( moveContext.getDn() ) )
@@ -398,6 +466,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void bind( BindOperationContext bindContext ) throws LdapException
     {
         // does nothing
@@ -406,17 +477,26 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<String, Entry, ID> getPresenceIndex()
     {
         return store.getPresenceIndex();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Index<ID, Entry, ID> getSubLevelIndex()
     {
         return store.getSubLevelIndex();

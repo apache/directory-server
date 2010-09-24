@@ -53,7 +53,7 @@ public class SubstringEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate( ExprNode, String, Entry )
+     * {@inheritDoc}
      */
     public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
     {

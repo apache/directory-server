@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Todo : Missing Javadoc
+ * @todo : Missing Javadoc
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

@@ -47,7 +47,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
      *
      * @param timeToLive the time before changing state to closed.
      * @param unit the time units for the timeToLive parameter
-     * @see {@link TimeUnit}
+     * @see TimeUnit
      */
     public SearchTimeLimitingMonitor( long timeToLive, TimeUnit unit )
     {

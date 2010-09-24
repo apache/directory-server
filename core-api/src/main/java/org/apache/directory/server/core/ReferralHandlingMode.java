@@ -40,7 +40,7 @@ public enum ReferralHandlingMode
     /** 
      * The JNDI Context.REFERRAL key's value.
      * 
-     * @see {@link Context#REFERRAL}
+     * @see Context#REFERRAL
      */
     private final String jndiValue;
     
@@ -48,7 +48,7 @@ public enum ReferralHandlingMode
     /**
      * Creates a new instance of ReferralHandlingMode.
      *
-     * @see {@link Context#REFERRAL}
+     * @see Context#REFERRAL
      * @param jndiValue the JNDI Context.REFERRAL key's value
      */
     private ReferralHandlingMode( String jndiValue )
@@ -60,7 +60,7 @@ public enum ReferralHandlingMode
     /**
      * Gets the equivalent JNDI Context.REFERRAL key's value for this enumeration constant.
      *
-     * @see {@link Context#REFERRAL}
+     * @see Context#REFERRAL
      * @return the equivalent JNDI Context.REFERRAL key's value
      */
     public String getJndiValue()
@@ -72,7 +72,7 @@ public enum ReferralHandlingMode
     /**
      * Gets the enumeration constant for the JNDI Context.REFERRAL key's value.
      *
-     * @see {@link Context#REFERRAL}
+     * @see Context#REFERRAL
      * @param jndiValue the JNDI Context.REFERRAL key's value
      * @return the referral handling mode enumeration constant
      * @throws IllegalArgumentException if the value is not a recognized value

@@ -145,7 +145,7 @@ public class AciContext
     }
 
     /**
-     * @param username the user DN to set
+     * @param userDn the user DN to set
      */
     public void setUserDn( DN userDn )
     {

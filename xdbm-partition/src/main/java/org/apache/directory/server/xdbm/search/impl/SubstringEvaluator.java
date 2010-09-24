@@ -74,7 +74,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
      *
      * @param node the substring expression node
      * @param db the database this evaluator uses
-     * @param registries the set of registries
+     * @param schemaManager the schema manager
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")

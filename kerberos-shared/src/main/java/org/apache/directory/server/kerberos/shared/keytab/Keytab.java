@@ -221,7 +221,7 @@ public class Keytab
 
 
     /**
-     * Write the contents of the {@link ByteBuffer} to a {@link File}.
+     * Write the contents of the {@link IoBuffer} to a {@link File}.
      *
      * @param buffer
      * @param file

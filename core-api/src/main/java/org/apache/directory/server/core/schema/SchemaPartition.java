@@ -195,6 +195,9 @@ public final class SchemaPartition extends AbstractPartition
     // Partition Interface Method Overrides
     // -----------------------------------------------------------------------
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sync() throws Exception
     {
@@ -202,6 +205,9 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doInit() throws Exception
     {
@@ -238,6 +244,9 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doDestroy()
     {
@@ -284,8 +293,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
@@ -293,8 +302,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
@@ -317,8 +326,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
@@ -366,8 +375,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
@@ -379,8 +388,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
@@ -410,8 +419,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
@@ -419,8 +428,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
@@ -428,8 +437,8 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {

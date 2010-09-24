@@ -802,7 +802,7 @@ public enum I18n
      *
      * @param err The error code
      * @param args The argument(s)
-     * @return
+     * @return The translate error code
      */
     public static String err( I18n err, Object... args )
     {
@@ -840,7 +840,7 @@ public enum I18n
      *
      * @param msg The message
      * @param args The argument(s)
-     * @return
+     * @return The translated message
      */
     public static String msg( String msg, Object... args )
     {

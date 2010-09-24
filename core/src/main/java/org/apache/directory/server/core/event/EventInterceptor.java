@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An {@link Interceptor} based service for notifying {@link
+ * An {@link org.apache.directory.server.core.interceptor.Interceptor} based service for notifying {@link
  * DirectoryListener}s of changes to the DIT.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

@@ -98,7 +98,7 @@ public class DescriptionParsers
     /**
      * Creates a description parser.
      * 
-     * @param globalRegistries the registries to use while creating new schema entities
+     * @param schemaManager The server schemaManager to use while creating new schema entities
      */
     public DescriptionParsers( SchemaManager schemaManager )
     {

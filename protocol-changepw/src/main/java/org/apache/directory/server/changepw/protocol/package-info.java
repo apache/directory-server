@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides the {@link org.apache.mina.common.IoHandler} and associated
+ * Provides the {@link org.apache.mina.core.service.IoHandler} and associated
  * {@link org.apache.mina.filter.codec.ProtocolCodecFactory} required
  * to implement the Change Password Service with the MINA NIO framework.
  * 

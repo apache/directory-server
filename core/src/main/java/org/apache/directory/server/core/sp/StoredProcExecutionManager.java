@@ -75,7 +75,7 @@ public class StoredProcExecutionManager
      * Finds and returns a stored procedure unit entry whose identifier name
      * is extracted from fullSPName.
      * 
-     * @param rootDSE A handle on the root DSE to be used for searching the SP Unit over.
+     * @param session the session with a core directory service
      * @param fullSPName Full name of the Stored Procedure including the unit name.
      * @return The entry associated with the SP Unit.
      * @throws Exception If the unit cannot be located or any other error occurs.

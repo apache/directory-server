@@ -48,19 +48,9 @@ public interface ACITupleFilter
      * Returns the collection of the filtered tuples using the specified
      * extra information.
      * 
-     * @param tuples the collection of tuples to filter
+     * @param aciContext the container for ACI items
      * @param scope the scope of the operation to be performed
-     * @param proxy the proxy interceptor for this filter to access the DIT
-     * @param userGroupNames the collection of group ({@link DN})s which the current user belongs to
-     * @param userName the {@link DN} of the current user
      * @param userEntry the {@link Entry} of the current user entry in the DIT
-     * @param authenticationLevel the level of authentication of the current user
-     * @param entryName the {@link DN} of the entry the current user accesses
-     * @param attributeType the attribute the current user accesses
-     * @param attrValue the value of the attribute the current user accesses
-     * @param entry the {@link Entry} of the entry the current user accesses
-     * @param microOperations the set of {@link MicroOperation}s the current user will perform
-     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @return the collection of filtered tuples
      * @throws LdapException if failed to filter the specific tuples
      */

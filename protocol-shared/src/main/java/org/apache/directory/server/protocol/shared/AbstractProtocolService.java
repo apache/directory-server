@@ -143,7 +143,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * Set the underlying transports
-     * @param transport The transports
+     * @param transports The transports
      */
     public void setTransports( Transport... transports )
     {
@@ -161,7 +161,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     
     /**
      * Add underlying transports
-     * @param transport The transports
+     * @param transports The transports
      */
     public void addTransports( Transport... transports )
     {

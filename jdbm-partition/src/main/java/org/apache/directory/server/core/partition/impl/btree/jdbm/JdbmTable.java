@@ -105,9 +105,9 @@ public class JdbmTable<K,V> implements Table<K,V>
      * Creates a Jdbm BTree based tuple Table abstraction that enables 
      * duplicates.
      *
+     * @param schemaManager The server schemaManager
      * @param name the name of the table
-     * @param numDupLimit the size limit of duplicates before switching to
-     * BTrees for values instead of AvlTrees
+     * @param numDupLimit the size limit of duplicates before switching to BTrees for values instead of AvlTrees
      * @param manager the record manager to be used for this table
      * @param keyComparator a key comparator
      * @param valueComparator a value comparator
@@ -195,6 +195,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      * Creates a Jdbm BTree based tuple Table abstraction without duplicates 
      * enabled using a simple key comparator.
      *
+     * @param schemaManager The server schemaManager
      * @param name the name of the table
      * @param manager the record manager to be used for this table
      * @param keyComparator a tuple comparator

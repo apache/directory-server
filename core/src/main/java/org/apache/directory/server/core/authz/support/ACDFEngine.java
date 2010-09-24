@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 /**
  * An implementation of Access Control Decision Function (18.8, X.501).
- * <p>
+ * <br/>
  * This engine simply filters the collection of tuples using the following
  * {@link ACITupleFilter}s sequentially:
  * <ol>
@@ -63,7 +63,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * <li>{@link MostSpecificUserClassFilter}</li>
  * <li>{@link MostSpecificProtectedItemFilter}</li>
  * </ol>
- * <p>
+ * <br/>
  * Operation is determined to be permitted if and only if there is at least one
  * tuple left and all of them grants the access. (18.8.4. X.501)
  *
@@ -77,8 +77,7 @@ public class ACDFEngine
     /**
      * Creates a new instance.
      *
-     * @param oidRegistry an OID registry to be used by internal components
-     * @param attrTypeRegistry an attribute type registry to be used by internal components
+     * @param schemaManager The server schemaManager
      *
      * @throws LdapException if failed to initialize internal components
      */
@@ -106,17 +105,7 @@ public class ACDFEngine
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      *
-     * @param proxy the proxy to the partition nexus
-     * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
-     * @param username the DN of the user who is trying to access the resource
-     * @param entryName the DN of the entry the user is trying to access
-     * @param attributeType the attribute type of the attribute the user is trying to access.
-     *               <tt>null</tt> if the user is not accessing a specific attribute type.
-     * @param attrValue the attribute value of the attribute the user is trying to access.
-     *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
-     * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
-     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
+     * @param aciContext the container for ACI items
      * @throws LdapException if failed to evaluate ACI items
      */
     public void checkPermission( AciContext aciContext )throws LdapException
@@ -153,17 +142,8 @@ public class ACDFEngine
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      *
-     * @param proxy the proxy to the partition nexus
-     * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
-     * @param userName the DN of the user who is trying to access the resource
-     * @param entryName the DN of the entry the user is trying to access
-     * @param attrId the attribute type of the attribute the user is trying to access.
-     *               <tt>null</tt> if the user is not accessing a specific attribute type.
-     * @param attrValue the attribute value of the attribute the user is trying to access.
-     *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
-     * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
-     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
+     * @param aciContext the container for ACI items
+     * @throws LdapException if failed to evaluate ACI items
      */
     public boolean hasPermission( AciContext aciContext ) throws LdapException
     {

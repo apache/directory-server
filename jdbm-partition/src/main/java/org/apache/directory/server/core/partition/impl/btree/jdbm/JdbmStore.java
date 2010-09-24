@@ -102,7 +102,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     /**
      * Initialize the JDBM storage system.
      *
-     * @param schemaManager the schema manager
+     * @param schemaManager The server schemaManager
      * @throws Exception on failure to lookup elements in schemaManager or create database files
      */
     public synchronized void init( SchemaManager schemaManager ) throws Exception

@@ -308,7 +308,9 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * {@inheritDoc}
+     * Sets the journal in the server.
+     *
+     * @param journal the journal to be used in the server.
      */
     void setJournal( Journal journal );
 
@@ -447,7 +449,7 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Get an Interceptor instance from its name
      * @param interceptorName The interceptor's name for which we want the instance 
-     * @return
+     * @return the interceptor for the given name
      */
     Interceptor getInterceptor( String interceptorName );
     

@@ -41,9 +41,6 @@ public class ChangePasswordTcpDecoder extends CumulativeProtocolDecoder
 
     /**
      * Returns the allowed maximum size of the object to be decoded.
-     * If the size of the object to be decoded exceeds this value, this
-     * decoder will throw a {@link BufferDataException}.  The default
-     * value is <tt>16384</tt> (16KB).
      * 
      * @return The max object size.
      */
@@ -56,7 +53,7 @@ public class ChangePasswordTcpDecoder extends CumulativeProtocolDecoder
     /**
      * Sets the allowed maximum size of the object to be decoded.
      * If the size of the object to be decoded exceeds this value, this
-     * decoder will throw a {@link BufferDataException}.  The default
+     * decoder will throw a {@link IllegalArgumentException}.  The default
      * value is <tt>16384</tt> (16KB).
      * 
      * @param maxObjectSize 
