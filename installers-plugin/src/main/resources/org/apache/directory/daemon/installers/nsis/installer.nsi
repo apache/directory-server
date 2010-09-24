@@ -176,15 +176,16 @@
         Call ReplaceInFile
         
         # Configuring registries for the uninstaller
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayName" "${Application} - (remove only)"
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
-        WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoModify" "1"
-        WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "NoRepair" "1"
+        WriteRegStr "${INSTDIR_REG_ROOT}" "SOFTWARE\${Application}" "SERVER_HOME_DIR" $SERVER_HOME_DIR
+        WriteRegStr "${INSTDIR_REG_ROOT}" "SOFTWARE\${Application}" "INSTANCES_HOME_DIR" $INSTANCES_HOME_DIR
+        WriteRegStr "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}" "DisplayName" "${Application} - (remove only)"
+        WriteRegStr "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
+        WriteRegStr "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
+        WriteRegDWORD "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}" "NoModify" "1"
+        WriteRegDWORD "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}" "NoRepair" "1"
 
         # Creating the uninstaller
         WriteUninstaller "$INSTDIR\Uninstall.exe"
-        
     
         # Creating directory in start menu
         CreateDirectory "$SMPROGRAMS\${Application}"
@@ -223,6 +224,11 @@
 
     # Uninstaller section
     Section Uninstall
+    	# Getting install locations
+        ReadRegStr $R1 "${INSTDIR_REG_ROOT}" "SOFTWARE\${Application}" "SERVER_HOME_DIR"
+        StrCpy $SERVER_HOME_DIR $R1
+        ReadRegStr $R1 "${INSTDIR_REG_ROOT}" "SOFTWARE\${Application}" "INSTANCES_HOME_DIR"
+        StrCpy $INSTANCES_HOME_DIR $R1
     
         #Need to parse a list of instances or directories somehow
         Call un.RegisterInstance
@@ -232,6 +238,7 @@
         
         # Removing registry keys
         DeleteRegKey "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}"
+        DeleteRegKey "${INSTDIR_REG_ROOT}" "SOFTWARE\${Application}"
         
         # Removing files in root, then all dirs created by the installer (leave user added or instance dirs)
         Delete "$INSTDIR\*"
@@ -278,7 +285,7 @@
     #
 
     Function RegisterInstance
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -i "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -290,7 +297,7 @@
     #
 
     Function un.RegisterInstance
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -305,7 +312,7 @@
         # Start the server
         MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default server instance?" IDYES startService IDNO End
         startService:  
-            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
   
         End:
     FunctionEnd

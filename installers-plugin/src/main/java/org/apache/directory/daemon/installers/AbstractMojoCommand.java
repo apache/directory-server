@@ -305,7 +305,7 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-windows-x86-32.exe" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper" ) );
+                    new File( installationLayout.getBinDirectory(), "wrapper.exe" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/wrapper-windows-x86-32.dll" ), new File(
                         installationLayout.getLibDirectory(),
