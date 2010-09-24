@@ -209,12 +209,13 @@
         # Replacing installation directory in config file
         GetFunctionAddress $R0 ReplaceInstallationDirectory # handle to callback fn
         Push $R0
-        Push "$INSTANCES_HOME_DIR\conf\wrapper.conf" # file to replace in
+        Push "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" # file to replace in
         Call ReplaceInFile
-       
-   # Push "default"
-   # Push "$INSTANCES_HOME_DIR"
-   # Call RegisterInstance
+        
+        # Registering the server instance
+        Push "default"
+        Push "$INSTANCES_HOME_DIR\default"
+        Call RegisterInstance
     SectionEnd
 
     # Uninstaller section
@@ -277,7 +278,7 @@
     Function RegisterInstance
         Pop $0
         Pop $1
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$SERVER_HOME_DIR\conf\wrapper.conf" set.INSTANCE_HOME="$0" "set.INSTANCE=$1" set.APACHEDS_HOME="$SERVER_HOME_DIR" '
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$0\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$0" "set.INSTANCE=$1"'
         Pop $1
         Pop $0
     FunctionEnd
@@ -292,7 +293,7 @@
 
     Function un.RegisterInstance
         Pop $0
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$SERVER_HOME_DIR\conf\wrapper.conf" "set.INSTANCE=$0"'
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" "set.INSTANCE=$0"'
         Pop $0
     FunctionEnd
     
@@ -308,7 +309,7 @@
         # Start the server
         MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default server instance?" IDYES startService IDNO End
         startService:  
-            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" --start "$SERVER_HOME_DIR\conf\wrapper.conf" "set.INSTANCE_HOME=$INSTANCES_HOME_DIR" "set.INSTANCE=default" "set.APACHEDS_HOME=$SERVER_HOME_DIR"'
+            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" "set.INSTANCE_DIRECTORY=$INSTANCES_HOME_DIR\default" "set.INSTANCE=default"'
   
         End:
     FunctionEnd
