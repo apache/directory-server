@@ -117,7 +117,7 @@ public class SingleFileLdifPartitionTest
 
         if ( workingDirectory == null )
         {
-            String path = LdifPartitionTest.class.getResource( "" ).getPath();
+            String path = SingleFileLdifPartitionTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -225,6 +225,17 @@ public class SingleFileLdifPartitionTest
         return createPartition( ldifFileInUse.getAbsolutePath(), false );
     }
 
+    
+    private void checkExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
+    {
+        LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setDn( entry.getDn() );
+        
+        Entry fetched = partition.lookup( opCtx );
+        
+        assertNotNull( fetched );
+        assertEquals( entry, fetched );
+    }
 
     //-------------------------------------------------------------------------
     // Partition.add() tests
@@ -248,11 +259,7 @@ public class SingleFileLdifPartitionTest
         assertEquals( getEntryLdifLen( contextEntry ) + 1, file.length() );
 
         partition = reloadPartition();
-        LookupOperationContext lookupContext = new LookupOperationContext( mockSession );
-        lookupContext.setDn( contextEntry.getDn() );
-
-        ClonedServerEntry entry = partition.lookup( lookupContext );
-        assertEquals( contextEntry, entry );
+        checkExists( partition, contextEntry );
     }
 
 
@@ -311,6 +318,12 @@ public class SingleFileLdifPartitionTest
         Entry fromFetched = new DefaultEntry( schemaManager, fetchedLdif.getEntry() );
 
         assertEquals( entryMvrdn, fromFetched );
+        
+        partition = reloadPartition();
+        checkExists( partition, contextEntry );
+        checkExists( partition, entry1 );
+        checkExists( partition, entry2 );
+        checkExists( partition, entryMvrdn );
     }
 
 
@@ -453,6 +466,11 @@ public class SingleFileLdifPartitionTest
         ldifEntry = reader.parseLdif( ldif ).get( 0 );
 
         assertEquals( entry1, new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
+        
+        partition = reloadPartition();
+        checkExists( partition, contextEntry );
+        checkExists( partition, entry1 );
+        checkExists( partition, entry2 );
     }
 
 
@@ -499,6 +517,11 @@ public class SingleFileLdifPartitionTest
         {
             assertTrue( true );
         }
+        
+        partition = reloadPartition();
+        checkExists( partition, contextEntry );
+        checkExists( partition, entry1 );
+        checkExists( partition, entry2 );
     }
 
 
@@ -528,7 +551,11 @@ public class SingleFileLdifPartitionTest
         assertEquals( 0L, file.length() );
         assertNull( partition.getContextEntry() );
 
-        /*
+        addCtx = new AddOperationContext( mockSession );
+        addCtx.setEntry( contextEntry );
+
+        partition.add( addCtx );
+
         ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
@@ -557,14 +584,15 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        DeleteOperationContext delCtx = new DeleteOperationContext( session );
-
-        DN dn = new DN( "dc=test1,dc=test,ou=test,ou=system", schemaManager );
-
-        delCtx.setDn( dn );
+        DeleteOperationContext delCtx = new DeleteOperationContext( mockSession );
+        delCtx.setDn( entryMvrdn.getDn() );
 
         partition.delete( delCtx );
-        */
+        
+        partition = reloadPartition();
+        checkExists( partition, entry1 );
+        checkExists( partition, entry2 );
+        checkExists( partition, entry3 );
     }
 
 
