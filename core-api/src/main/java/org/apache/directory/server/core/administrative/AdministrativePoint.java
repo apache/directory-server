@@ -19,13 +19,19 @@
  */
 package org.apache.directory.server.core.administrative;
 
-import java.util.Map;
-
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
+
 /**
- *
+ * An interface used to describe an AdministrativePoint. An AdministratuvePoint 
+ * holds some elements useful to navigate through the administrative model :
+ * <li>
+ * <ul>The DN : the AP position in the DIT</ul>
+ * <ul>The UUID : The AP unique identifier used when an entry point to the AP it depends on</ul>
+ * <ul>The role : the AP role</ul>
+ * <ul>The parent : the AP this AP is the direct descendant of</ul>
+ * </li>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface AdministrativePoint
@@ -72,28 +78,6 @@ public interface AdministrativePoint
      * @param parent the AdministrativePoint parent
      */
     void setParent( AdministrativePoint parent );
-
-
-    /**
-     * @return The list of children AdministrativePoint. May be empty
-     */
-    Map<String, AdministrativePoint> getChildren();
-
-
-    /**
-     * Add an AdministrativePoint child
-     *
-     * @param child the AdministrativePoint child to add
-     */
-    void addChild( AdministrativePoint child );
-
-
-    /**
-     * Set the AdministrativePoint children
-     *
-     * @param children the AdministrativePoint children
-     */
-    void setChildren( Map<String, AdministrativePoint> children );
 
 
     /**

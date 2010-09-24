@@ -30,6 +30,18 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  */
 public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
 {
+    /** A pointer to the AccessControl SAP, if there is some */
+    private AdministrativePoint accessControlSapParent;
+
+    /** A pointer to the CollectiveAttribute SAP, if there is some */
+    private AdministrativePoint collectiveAttributeSapParent;
+
+    /** A pointer to the TriggerExecution SAP, if there is some */
+    private AdministrativePoint triggerExecutionSapParent;
+
+    /** A pointer to the Subschema SAP, if there is some */
+    private AdministrativePoint subschemaSapParent;
+
     /**
      * Create an instance of AutonomousAdministrativePoint
      *
@@ -48,6 +60,86 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     public boolean isAutonomous()
     {
         return true;
+    }
+
+
+    /**
+     * @return The parent AccessControl SAP if there is some, or the parent AAP
+     */
+    public AdministrativePoint getAccessControlParent()
+    {
+        return accessControlSapParent;
+    }
+
+
+    /**
+     * Set the AccessControl SAP parent (can be an AAP)
+     *
+     * @param accessControlSapParent The AccessControl SAP parent
+     */
+    public void setAccessControlParent( AdministrativePoint accessControlSapParent )
+    {
+        this.accessControlSapParent = accessControlSapParent;
+    }
+
+
+    /**
+     * @return The parent CollectiveAttribute SAP if there is some, or the parent AAP
+     */
+    public AdministrativePoint getCollectiveAttributeParent()
+    {
+        return collectiveAttributeSapParent;
+    }
+
+
+    /**
+     * Set the CollectiveAttribute SAP parent (can be an AAP)
+     *
+     * @param collectiveAttributeSapParent The CollectiveAttribute SAP parent
+     */
+    public void setCollectiveAttributeParent( AdministrativePoint collectiveAttributeSapParent )
+    {
+        this.collectiveAttributeSapParent = collectiveAttributeSapParent;
+    }
+
+
+    /**
+     * @return The parent TriggerExecution SAP if there is some, or the parent AAP
+     */
+    public AdministrativePoint getTriggerExecutionParent()
+    {
+        return triggerExecutionSapParent;
+    }
+
+
+    /**
+     * Set the TriggerExecution SAP parent (can be an AAP)
+     *
+     * @param triggerExecutionSapParent The TriggerExecution SAP parent
+     */
+    public void setTriggerExecutionParent( AdministrativePoint triggerExecutionSapParent )
+    {
+        this.triggerExecutionSapParent = triggerExecutionSapParent;
+    }
+
+
+    /**
+     * @return The parent Subschema SAP if there is some, or the parent AAP
+     */
+    public AdministrativePoint getSubschemaParent()
+    {
+        return subschemaSapParent;
+    }
+
+
+    /**
+     * Set the Subschema SAP parent (can be an AAP)
+     *
+     * @param subschemaSapParent The Subschema SAP parent
+     */
+    public void setSubschemaParent( AdministrativePoint subschemaSapParent )
+    {
+        this.subschemaSapParent = subschemaSapParent;
     }
 
 

@@ -28,7 +28,8 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
 /**
- *
+ * Abstract implementation for the AdministrativePoint
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class AbstractAdministrativePoint implements AdministrativePoint
@@ -127,33 +128,6 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     public void setParent( AdministrativePoint parent )
     {
         this.parent = parent;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Map<String, AdministrativePoint> getChildren()
-    {
-        return children;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setChildren( Map<String, AdministrativePoint> children )
-    {
-        this.children = children;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addChild( AdministrativePoint child )
-    {
-        children.put( child.getUuid(), child );
     }
 
 
