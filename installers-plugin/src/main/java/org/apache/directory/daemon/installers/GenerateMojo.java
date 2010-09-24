@@ -139,10 +139,6 @@ public class GenerateMojo extends AbstractMojo
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // Printing plugin information in the console
-        getLog().info( "-------------------------------------------------------" );
-        getLog().info( "[installers:generate]" );
-
         // Collecting all targets 
         collectAllTargets();
 
@@ -150,12 +146,10 @@ public class GenerateMojo extends AbstractMojo
         if ( allTargets.isEmpty() )
         {
             getLog().info( "No installers to generate." );
-            getLog().info( "-------------------------------------------------------" );
             return;
         }
 
-        // Reporting the targets that have to be built 
-        reportBuildTargets();
+        getLog().info( "-------------------------------------------------------" );
 
         // Creating the output directory
         FileUtils.mkdir( outputDirectory.getAbsolutePath() );
@@ -164,6 +158,10 @@ public class GenerateMojo extends AbstractMojo
         for ( Target target : allTargets )
         {
             getLog().info( "Executing target '" + target.getId() + "'" );
+            getLog().info( "--------------------" );
+            getLog().info( "OS Name: " + target.getOsName() );
+            getLog().info( "OS Arch: " + target.getOsArch() );
+            getLog().info( "--------------------" );
 
             // Archive target
             if ( target instanceof ArchiveTarget )
@@ -248,39 +246,6 @@ public class GenerateMojo extends AbstractMojo
         {
             list.addAll( Arrays.asList( array ) );
         }
-    }
-
-
-    /**
-     * Reports the targets that need to be built.
-     */
-    public void reportBuildTargets()
-    {
-        getLog().info( "outputDirectory = " + outputDirectory );
-        getLog().info( "---------------------- allTargets ---------------------" );
-
-        if ( allTargets != null )
-        {
-            boolean isFirst = true;
-
-            for ( Target target : allTargets )
-            {
-                if ( isFirst )
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    getLog().info( "" );
-                }
-
-                getLog().info( "id: " + target.getId() );
-                getLog().info( "osName: " + target.getOsName() );
-                getLog().info( "osArch: " + target.getOsArch() );
-            }
-        }
-
-        getLog().info( "-------------------------------------------------------" );
     }
 
 

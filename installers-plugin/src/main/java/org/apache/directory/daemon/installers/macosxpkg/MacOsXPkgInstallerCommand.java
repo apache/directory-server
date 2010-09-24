@@ -77,13 +77,13 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             return;
         }
 
-        log.info( "Creating Mac OS X PKG installer..." );
+        log.info( "  Creating Mac OS X PKG installer..." );
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
         targetDirectory.mkdirs();
 
-        log.info( "  Copying PKG installer files" );
+        log.info( "    Copying PKG installer files" );
 
         // Creating the root directories hierarchy
         File pkgRootDirectory = new File( targetDirectory, "root" );
@@ -147,7 +147,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         }
 
         // Generating the PKG
-        log.info( "  Generating Mac OS X PKG Installer" );
+        log.info( "    Generating Mac OS X PKG Installer" );
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
             { target.getPackageMakerUtility().getAbsolutePath(), "--root", "root/", "--resources", "Resources/",
@@ -166,16 +166,13 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             throw new MojoFailureException( "Failed while trying to generate the PKG: " + e.getMessage() );
         }
 
-        log.info( "Mac OS X PKG Installer generated at "
-            + new File( targetDirectory, "Apache Directory Server Installer.pkg" ) );
-
-        log.info( "Creating Mac OS X DMG..." );
+        log.info( "  Creating Mac OS X DMG..." );
 
         // Creating the disc image directory
         File dmgDirectory = new File( mojo.getOutputDirectory(), target.getId() + "-dmg" );
         dmgDirectory.mkdirs();
 
-        log.info( "  Copying DMG files" );
+        log.info( "    Copying DMG files" );
 
         // Create dmg directory and its sub-directory
         File dmgDmgBackgroundDirectory = new File( dmgDirectory, "dmg/.background" );
@@ -204,14 +201,12 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         // (unfortunately, the execution permission has been lost after the 
         // copy of the PKG to the dmg folder)
         MojoHelperUtils.exec( new String[]
-            {
-                "chmod",
-                "755",
+            { "chmod", "755",
                 new File( dmgDirectory, "dmg/Apache Directory Server Installer.pkg/Contents/Resources/postflight" )
                     .toString() }, dmgDirectory, false );
 
         // Generating the DMG
-        log.info( "  Generating Mac OS X DMG Installer" );
+        log.info( "    Generating Mac OS X DMG Installer" );
         String finalName = target.getFinalName();
         if ( !finalName.endsWith( ".dmg" ) )
         {
@@ -245,7 +240,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             throw new MojoFailureException( "Failed while trying to generate the DMG: " + e.getMessage() );
         }
 
-        log.info( "Mac OS X DMG generated at " + new File( mojo.getOutputDirectory(), finalName ) );
+        log.info( "=> Mac OS X DMG generated at " + new File( mojo.getOutputDirectory(), finalName ) );
     }
 
 

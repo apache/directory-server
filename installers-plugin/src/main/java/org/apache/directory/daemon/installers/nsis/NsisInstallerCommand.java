@@ -72,13 +72,13 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
             return;
         }
 
-        log.info( "Creating NSIS installer..." );
+        log.info( "  Creating NSIS installer..." );
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
         targetDirectory.mkdirs();
 
-        log.info( "  Copying NSIS installer files" );
+        log.info( "    Copying NSIS installer files" );
 
         File installerFile = new File( targetDirectory, "installer.nsi" );
 
@@ -111,10 +111,13 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         }
 
         // Generating the NSIS installer
-        log.info( "  Generating NSIS installer" );
+        log.info( "    Generating NSIS installer" );
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
-            { target.getNsisCompiler().getAbsolutePath(), installerFile.getAbsolutePath() };
+            {
+                target.getNsisCompiler().getAbsolutePath(),
+                "-V2" /* V2 means 'only log warnings and errors' */,
+                installerFile.getAbsolutePath() };
         createPkgTask.setCommandline( cmd );
         createPkgTask.setWorkingDirectory( targetDirectory );
         try
@@ -126,6 +129,9 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
             log.error( e.getMessage() );
             throw new MojoFailureException( "Failed while trying to generate the NSIS installer: " + e.getMessage() );
         }
+
+        log.info( "=> NSIS installer generated at "
+            + new File( mojo.getOutputDirectory(), filterProperties.getProperty( "finalname" ) ) );
     }
 
 
