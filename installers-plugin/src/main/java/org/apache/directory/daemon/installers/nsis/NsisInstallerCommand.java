@@ -179,8 +179,8 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         filterProperties.put( "finalname", target.getFinalName() );
         filterProperties.put( "installationFiles", INSTALLATION_FILES );
         filterProperties.put( "instancesFiles", "instancesFiles" );
-
         filterProperties.put( "wrapper.java.command", "wrapper.java.command=@java.home@\\bin\\java.exe" );
+        filterProperties.put( "double.quote", "\"" );
     }
 
 

@@ -294,6 +294,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             + mojo.getProject().getVersion() + "/instances" );
         filterProperties.put( "user", "root" );
         filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
+        filterProperties.put( "double.quote", "" );
     }
 
 
