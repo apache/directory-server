@@ -175,12 +175,12 @@
         Call ReplaceInFile
     
         # Creating directory in start menu
-        CreateDirectory "$SMPROGRAMS\Apache Directory Studio"
+        CreateDirectory "$SMPROGRAMS\${Application}"
         
         # Creating links in start menu
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Basic Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Advanced Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\ApacheDS\Developers Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Basic Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Advanced Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Developers Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
 
         # Configuring registries for the uninstaller
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayName" "${Application} - (remove only)"
@@ -193,7 +193,7 @@
         WriteUninstaller "$INSTDIR\Uninstall.exe"
         
         # Creating a shortcut to the uninstaller
-        CreateShortCut "$SMPROGRAMS\ApacheDS\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$SERVER_HOME_DIR\Uninstall.exe" 0
+        CreateShortCut "$SMPROGRAMS\${Application}\Uninstall.lnk" "$SERVER_HOME_DIR\Uninstall.exe" "" "$SERVER_HOME_DIR\Uninstall.exe" 0
         
     	# Writing instances files
         SetOutPath "$INSTANCES_HOME_DIR"
@@ -213,8 +213,6 @@
         Call ReplaceInFile
         
         # Registering the server instance
-        Push "default"
-        Push "$INSTANCES_HOME_DIR\default"
         Call RegisterInstance
     SectionEnd
 
@@ -222,11 +220,10 @@
     Section Uninstall
     
         #Need to parse a list of instances or directories somehow
-        Push "default"
         Call un.RegisterInstance
         
         # Remove shortcuts and folders in the start menu
-        RMDir /r "$SMPROGRAMS\ApacheDS"
+        RMDir /r "$SMPROGRAMS\${Application}"
         
         # Removing registry keys
         DeleteRegKey "${INSTDIR_REG_ROOT}" "${INSTDIR_REG_KEY}"
@@ -276,11 +273,7 @@
     #
 
     Function RegisterInstance
-        Pop $0
-        Pop $1
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$0\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$0" "set.INSTANCE=$1"'
-        Pop $1
-        Pop $0
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -i "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -292,9 +285,7 @@
     #
 
     Function un.RegisterInstance
-        Pop $0
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" "set.INSTANCE=$0"'
-        Pop $0
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -309,7 +300,7 @@
         # Start the server
         MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default server instance?" IDYES startService IDNO End
         startService:  
-            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" "set.INSTANCE_DIRECTORY=$INSTANCES_HOME_DIR\default" "set.INSTANCE=default"'
+            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
   
         End:
     FunctionEnd
