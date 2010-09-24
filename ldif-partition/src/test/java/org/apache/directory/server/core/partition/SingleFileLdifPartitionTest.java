@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -91,6 +92,7 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+//NOTE: do not use junit concurrent annotations
 public class SingleFileLdifPartitionTest
 {
     private static SchemaManager schemaManager = null;
@@ -225,17 +227,40 @@ public class SingleFileLdifPartitionTest
         return createPartition( ldifFileInUse.getAbsolutePath(), false );
     }
 
-    
-    private void checkExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
+
+    private void assertExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
         opCtx.setDn( entry.getDn() );
-        
+
         Entry fetched = partition.lookup( opCtx );
-        
+
         assertNotNull( fetched );
         assertEquals( entry, fetched );
     }
+
+
+    private void assertExists( SingleFileLdifPartition partition, String dn ) throws LdapException
+    {
+        LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setDn( new DN( dn ) );
+
+        Entry fetched = partition.lookup( opCtx );
+
+        assertNotNull( fetched );
+    }
+
+
+    private void assertNotExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
+    {
+        LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setDn( entry.getDn() );
+
+        Entry fetched = partition.lookup( opCtx );
+
+        assertNull( fetched );
+    }
+
 
     //-------------------------------------------------------------------------
     // Partition.add() tests
@@ -259,7 +284,7 @@ public class SingleFileLdifPartitionTest
         assertEquals( getEntryLdifLen( contextEntry ) + 1, file.length() );
 
         partition = reloadPartition();
-        checkExists( partition, contextEntry );
+        assertExists( partition, contextEntry );
     }
 
 
@@ -318,12 +343,12 @@ public class SingleFileLdifPartitionTest
         Entry fromFetched = new DefaultEntry( schemaManager, fetchedLdif.getEntry() );
 
         assertEquals( entryMvrdn, fromFetched );
-        
+
         partition = reloadPartition();
-        checkExists( partition, contextEntry );
-        checkExists( partition, entry1 );
-        checkExists( partition, entry2 );
-        checkExists( partition, entryMvrdn );
+        assertExists( partition, contextEntry );
+        assertExists( partition, entry1 );
+        assertExists( partition, entry2 );
+        assertExists( partition, entryMvrdn );
     }
 
 
@@ -466,11 +491,11 @@ public class SingleFileLdifPartitionTest
         ldifEntry = reader.parseLdif( ldif ).get( 0 );
 
         assertEquals( entry1, new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
-        
+
         partition = reloadPartition();
-        checkExists( partition, contextEntry );
-        checkExists( partition, entry1 );
-        checkExists( partition, entry2 );
+        assertExists( partition, contextEntry );
+        assertExists( partition, entry1 );
+        assertExists( partition, entry2 );
     }
 
 
@@ -517,11 +542,11 @@ public class SingleFileLdifPartitionTest
         {
             assertTrue( true );
         }
-        
+
         partition = reloadPartition();
-        checkExists( partition, contextEntry );
-        checkExists( partition, entry1 );
-        checkExists( partition, entry2 );
+        assertExists( partition, contextEntry );
+        assertExists( partition, entry1 );
+        assertExists( partition, entry2 );
     }
 
 
@@ -560,7 +585,7 @@ public class SingleFileLdifPartitionTest
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
-        
+
         partition.add( addCtx );
 
         ClonedServerEntry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
@@ -588,11 +613,11 @@ public class SingleFileLdifPartitionTest
         delCtx.setDn( entryMvrdn.getDn() );
 
         partition.delete( delCtx );
-        
+
         partition = reloadPartition();
-        checkExists( partition, entry1 );
-        checkExists( partition, entry2 );
-        checkExists( partition, entry3 );
+        assertExists( partition, entry1 );
+        assertExists( partition, entry2 );
+        assertExists( partition, entry3 );
     }
 
 
@@ -686,11 +711,20 @@ public class SingleFileLdifPartitionTest
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
         partition.move( moveOpCtx );
+
+        partition = reloadPartition();
+        assertExists( partition, childEntry2 );
+        assertNotExists( partition, childEntry1 );
+
+        assertExists( partition, "dc=child1,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild11,dc=child1,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild12,dc=child1,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child1,dc=child2,ou=test,ou=system" );
     }
 
 
     @Test
-    public void testLdifRenameAndDeleteOldDN() throws Exception
+    public void testLdifRenameAndDeleteOldRDN() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
 
@@ -699,11 +733,20 @@ public class SingleFileLdifPartitionTest
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, true );
         partition.rename( renameOpCtx );
+
+        partition = reloadPartition();
+        
+        childDn1 = new DN( "dc=renamedChild1,ou=test,ou=system", schemaManager );
+        
+        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        
+        assertNotNull( entry );
+        assertFalse( entry.get( "dc" ).contains( "child1" ) );
     }
 
 
     @Test
-    public void testLdifRenameAndRetainOldDN() throws Exception
+    public void testLdifRenameAndRetainOldRDN() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
 
@@ -712,11 +755,20 @@ public class SingleFileLdifPartitionTest
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
+        
+        partition = reloadPartition();
+        
+        childDn1 = new DN( "dc=renamedChild1,ou=test,ou=system", schemaManager );
+        
+        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        
+        assertNotNull( entry );
+        assertTrue( entry.get( "dc" ).contains( "child1" ) );
     }
 
 
     @Test
-    public void testLdifMoveAndRenameWithDeletingOldDN() throws Exception
+    public void testLdifMoveAndRenameWithDeletingOldRDN() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
 
@@ -728,11 +780,22 @@ public class SingleFileLdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
         partition.moveAndRename( moveAndRenameOpCtx );
+        
+        partition = reloadPartition();
+        
+        childDn1 = new DN( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
+        
+        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        
+        assertNotNull( entry );
+        EntryAttribute dc = entry.get( "dc" );
+        assertFalse( dc.contains( "child1" ) );
+        assertTrue( dc.contains( "movedChild1" ) );
     }
 
 
     @Test
-    public void testLdifMoveAndRenameRetainingOldDN() throws Exception
+    public void testLdifMoveAndRenameRetainingOldRDN() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
 
@@ -744,6 +807,17 @@ public class SingleFileLdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
+        
+        partition = reloadPartition();
+        
+        childDn1 = new DN( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
+        
+        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        
+        assertNotNull( entry );
+        EntryAttribute dc = entry.get( "dc" );
+        assertTrue( dc.contains( "child1" ) );
+        assertTrue( dc.contains( "movedChild1" ) );
     }
 
 
