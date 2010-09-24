@@ -166,10 +166,13 @@ public abstract class AbstractMojoCommand<T extends Target>
             getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
             new File( instanceLayout.getConfDirectory(), "log4j.properties" ), true );
 
-        // Copying the 'apacheds' script
-        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-            getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds.init" ),
-            new File( installationLayout.getBinDirectory(), "apacheds" ), true );
+        // Copying the 'apacheds' shell script (only for all OSes except Windows)
+        if ( !target.isOsNameWindows() )
+        {
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds.init" ),
+                new File( installationLayout.getBinDirectory(), "apacheds" ), true );
+        }
     }
 
 
