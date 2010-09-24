@@ -22,7 +22,8 @@
 #
     !define Application "ApacheDS"
     !define Version "${version}"
-    !define Icon "installer.ico"
+    !define InstallerIcon "installer.ico"
+    !define UninstallerIcon "uninstaller.ico"
     !define WelcomeImage "welcome.bmp"
     !define HeaderImage "header.bmp"
     !define OutFile "${finalname}"
@@ -71,10 +72,10 @@
     XPStyle on
 
     # Installer icon
-    !define MUI_ICON "${Icon}"
+    !define MUI_ICON "${InstallerIcon}"
     
     # Uninstaller icon
-    !define MUI_UNICON "${Icon}"
+    !define MUI_UNICON "${UninstallerIcon}"
     
     # Welcome image
     !define MUI_WELCOMEFINISHPAGE_BITMAP "${WelcomeImage}"
@@ -173,15 +174,7 @@
         Push $R0
         Push "$SERVER_HOME_DIR\conf\wrapper.conf" # file to replace in
         Call ReplaceInFile
-    
-        # Creating directory in start menu
-        CreateDirectory "$SMPROGRAMS\${Application}"
         
-        # Creating links in start menu
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Basic Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Advanced Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
-        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Developers Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
-
         # Configuring registries for the uninstaller
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayName" "${Application} - (remove only)"
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ApacheDS" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
@@ -192,8 +185,20 @@
         # Creating the uninstaller
         WriteUninstaller "$INSTDIR\Uninstall.exe"
         
+    
+        # Creating directory in start menu
+        CreateDirectory "$SMPROGRAMS\${Application}"
+        
+        # Creating links in start menu
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Basic Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Advanced Users Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-advanced-users-guide.html"
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\${Application}\Developers Guide" "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
+        
+        # Creating a shortcut to the 'Manage ApacheDS' utility
+        CreateShortCut "$SMPROGRAMS\${Application}\Manage ApacheDS.lnk" "$SERVER_HOME_DIR\Manage ApacheDS.exe" "" "$SERVER_HOME_DIR\Manage ApacheDS.exe" 0
+        
         # Creating a shortcut to the uninstaller
-        CreateShortCut "$SMPROGRAMS\${Application}\Uninstall.lnk" "$SERVER_HOME_DIR\Uninstall.exe" "" "$SERVER_HOME_DIR\Uninstall.exe" 0
+        CreateShortCut "$SMPROGRAMS\${Application}\Uninstall ApacheDS.lnk" "$SERVER_HOME_DIR\Uninstall.exe" "" "$SERVER_HOME_DIR\Uninstall.exe" 0
         
     	# Writing instances files
         SetOutPath "$INSTANCES_HOME_DIR"

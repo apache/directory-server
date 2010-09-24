@@ -86,17 +86,23 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         {
             copyCommonFiles( mojo );
 
-            // Copying the 'installer.nsi' file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                "installer.nsi" ), installerFile, true );
+            // Copying the 'Manage ApacheDS' utility
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "Manage ApacheDS.exe" ), new File(
+                getInstallationDirectory(), "Manage ApacheDS.exe" ) );
 
-            // Copying the images and icon
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "installer.ico" ), new File(
-                targetDirectory, "installer.ico" ) );
+            // Copying the images and icons
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "header.bmp" ), new File(
                 targetDirectory, "header.bmp" ) );
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "welcome.bmp" ), new File(
                 targetDirectory, "welcome.bmp" ) );
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "installer.ico" ), new File(
+                targetDirectory, "installer.ico" ) );
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "uninstaller.ico" ), new File(
+                targetDirectory, "uninstaller.ico" ) );
+
+            // Copying the 'installer.nsi' file
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "installer.nsi" ), installerFile, true );
         }
         catch ( Exception e )
         {

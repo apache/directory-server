@@ -77,7 +77,7 @@
               <nsisTargets>
                 <nsisTarget>
                   <id>apacheds-win32</id>
-                  <finalName>apacheds-${version}-setup.exe</finalName>
+                  <finalName>apacheds-${version}.exe</finalName>
                   <osName>Windows</osName>
                   <osArch>x86</osArch>
                 </nsisTarget>
@@ -101,7 +101,7 @@
       <id>deploy-installer-server-win32</id>
       <activation>
         <file>
-          <exists>target/images/apacheds-${server.version}-setup.exe</exists>
+          <exists>target/images/apacheds-${server.version}.exe</exists>
         </file>
       </activation>
       <build>
