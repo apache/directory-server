@@ -289,7 +289,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-
             wrappedPartition.modify( modifyContext );
 
             Entry entry = modifyContext.getAlteredEntry();
@@ -339,8 +338,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
-                System.exit( 0 );
                 throw new LdapException( e );
             }
         }
@@ -350,11 +347,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        //        String threadName = Thread.currentThread().getName();
-        //        System.out.println( threadName + " is trying to get lock on move method" );
         synchronized ( lock )
         {
-            //System.out.println( threadName + " GOT lock on move method " + moveContext.getDn() );
             Long entryId = wrappedPartition.getEntryId( moveContext.getDn() );
 
             wrappedPartition.move( moveContext );
@@ -485,6 +479,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 // copy back to main file
                 tempBuf.transferTo( 0, tempBuf.size(), mainChannel );
                 tempBuf.truncate( 0 );
+                tempBuf.close();
                 tmpFile.delete();
 
                 // change offset of the copied entries
@@ -757,7 +752,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                 tmpBufChannel.truncate( 0 );
-
+                tmpBufChannel.close();
+                
                 deleteTempFiles();
             }
             catch ( IOException e )
@@ -779,19 +775,24 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-            //System.out.println( "replaceLdif called by " + Thread.currentThread().getName() );
             try
             {
                 EntryOffset entryOffset = offsetMap.get( entryId );
                 byte[] utf8Data = StringTools.getBytesUtf8( ldif + "\n" );
-                long fileLen = ldifFile.length();
+                //long fileLen = ldifFile.length();
                 long diff = utf8Data.length - entryOffset.length();
 
+                /* WARN for some unknown reason the below commented
+                 * optimization block is causing data corruption in
+                 * highly concurrent situations, commenting till we
+                 * understand why!
                 // check if modified entry occupies the same space
                 if ( diff == 0 )
                 {
+                    System.out.println( "RENAME DATA is same ============" );
                     ldifFile.seek( entryOffset.getStart() );
                     ldifFile.write( utf8Data );
+                    System.out.print( "" );
                 }
                 else if ( fileLen == entryOffset.getEnd() ) // modified entry is at the end of file
                 {
@@ -801,20 +802,21 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     fileLen = ldifFile.length();
 
                     // change the offsets, the modified entry size changed
-                    if ( fileLen != entryOffset.getEnd() )
+                    //if ( fileLen != entryOffset.getEnd() )
                     {
-                        entryOffset = new EntryOffset( entryId, entryOffset.getStart(), fileLen );
+                        entryOffset = new EntryOffset( entryId, entryOffset.getStart(), ldifFile.getFilePointer() );
                         offsetMap.put( entryId, entryOffset );
                     }
                 }
                 else
+                */
                 // modified entry size got changed and is in the middle somewhere
                 {
                     FileChannel tmpBufChannel = createTempBuf();
                     FileChannel mainChannel = ldifFile.getChannel();
 
                     long count = ( ldifFile.length() - entryOffset.getEnd() );
-
+                    
                     mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
                     ldifFile.setLength( entryOffset.getStart() );
 
@@ -829,12 +831,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                     tmpBufChannel.truncate( 0 );
-
+                    tmpBufChannel.close();
+                    
                     deleteTempFiles();
                 }
             }
             catch ( IOException e )
             {
+                e.printStackTrace();
+                System.exit(0);
                 throw new LdapException( e );
             }
         }
