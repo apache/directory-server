@@ -25,8 +25,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -76,6 +81,29 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
     /** file name of the underlying LDIF store */
     private String fileName;
+
+    /** lock for serializing the operations on the backing LDIF file */
+    private Object lock = new Object();
+
+    /** the list of temporary buffers */
+    private List<File> tempFileList = new ArrayList<File>();
+
+    private Comparator<EntryOffset> comparator = new Comparator<EntryOffset>()
+    {
+        public int compare( EntryOffset o1, EntryOffset o2 )
+        {
+            if ( o1.getEnd() > o2.getEnd() )
+            {
+                return 1;
+            }
+            if ( o1.getEnd() < o2.getEnd() )
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+    };
 
     private static Logger LOG = LoggerFactory.getLogger( SingleFileLdifPartition.class );
 
@@ -214,121 +242,147 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public synchronized void add( AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        wrappedPartition.add( addContext );
-
-        Entry entry = addContext.getEntry();
-
-        DN dn = entry.getDn();
-        Long entryId = wrappedPartition.getEntryId( dn );
-
-        String ldif = LdifUtils.convertEntryToLdif( entry );
-
-        try
+        synchronized ( lock )
         {
-            if ( dn.equals( suffix ) )
-            {
-                contextEntry = entry;
-                appendLdif( entryId, null, ldif );
-                return;
-            }
+            wrappedPartition.add( addContext );
 
-            // entry has a parent
-            Long parentId = wrappedPartition.getEntryId( dn.getParent() );
-            EntryOffset parentOffset = offsetMap.get( parentId );
-            if ( parentOffset.getEnd() == ldifFile.length() )
-            {
-                appendLdif( entryId, parentOffset, ldif );
-            }
-            else
-            {
-                insertNAppendLdif( entryId, parentOffset, ldif );
-            }
-        }
-        catch ( IOException e )
-        {
-            throw new LdapException( e );
-        }
-    }
+            Entry entry = addContext.getEntry();
 
+            DN dn = entry.getDn();
+            Long entryId = wrappedPartition.getEntryId( dn );
 
-    @Override
-    public synchronized void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        wrappedPartition.modify( modifyContext );
-
-        Entry entry = modifyContext.getAlteredEntry();
-
-        DN dn = entry.getDn();
-        Long entryId = wrappedPartition.getEntryId( dn );
-
-        String ldif = LdifUtils.convertEntryToLdif( entry );
-
-        replaceLdif( entryId, ldif );
-    }
-
-
-    @Override
-    public synchronized void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        Long id = wrappedPartition.getEntryId( renameContext.getDn() );
-
-        wrappedPartition.rename( renameContext );
-
-        try
-        {
-            // perform for the first id
-            Entry entry = wrappedPartition.lookup( id );
             String ldif = LdifUtils.convertEntryToLdif( entry );
-            replaceLdif( id, ldif );
 
-            IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getOneLevelIndex().forwardCursor( id );
-            cursor.beforeFirst();
-
-            while ( cursor.next() )
+            try
             {
-                IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
+                if ( dn.equals( suffix ) )
+                {
+                    contextEntry = entry;
+                    appendLdif( entryId, null, ldif );
+                    return;
+                }
 
-                Long tmpId = idxEntry.getId();
-                entry = wrappedPartition.lookup( tmpId );
-                ldif = LdifUtils.convertEntryToLdif( entry );
-                replaceLdif( tmpId, ldif );
-
-                replaceRecursive( tmpId, null );
+                // entry has a parent
+                Long parentId = wrappedPartition.getEntryId( dn.getParent() );
+                EntryOffset parentOffset = offsetMap.get( parentId );
+                if ( parentOffset.getEnd() == ldifFile.length() )
+                {
+                    appendLdif( entryId, parentOffset, ldif );
+                }
+                else
+                {
+                    insertNAppendLdif( entryId, parentOffset, ldif );
+                }
             }
-
-            cursor.close();
-        }
-        catch ( Exception e )
-        {
-            throw new LdapException( e );
+            catch ( IOException e )
+            {
+                throw new LdapException( e );
+            }
         }
     }
 
 
     @Override
-    public synchronized void move( MoveOperationContext moveContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        Long entryId = wrappedPartition.getEntryId( moveContext.getDn() );
+        synchronized ( lock )
+        {
 
-        wrappedPartition.move( moveContext );
-        
-        move( entryId );
+            wrappedPartition.modify( modifyContext );
+
+            Entry entry = modifyContext.getAlteredEntry();
+
+            DN dn = entry.getDn();
+            Long entryId = wrappedPartition.getEntryId( dn );
+
+            String ldif = LdifUtils.convertEntryToLdif( entry );
+
+            replaceLdif( entryId, ldif );
+        }
+    }
+
+
+    @Override
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        synchronized ( lock )
+        {
+            Long id = wrappedPartition.getEntryId( renameContext.getDn() );
+
+            wrappedPartition.rename( renameContext );
+
+            try
+            {
+                // perform for the first id
+                Entry entry = wrappedPartition.lookup( id );
+                String ldif = LdifUtils.convertEntryToLdif( entry );
+                replaceLdif( id, ldif );
+
+                IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getOneLevelIndex().forwardCursor( id );
+                cursor.beforeFirst();
+
+                while ( cursor.next() )
+                {
+                    IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
+
+                    Long tmpId = idxEntry.getId();
+                    entry = wrappedPartition.lookup( tmpId );
+                    ldif = LdifUtils.convertEntryToLdif( entry );
+                    replaceLdif( tmpId, ldif );
+
+                    replaceRecursive( tmpId, null );
+                }
+
+                cursor.close();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                System.exit( 0 );
+                throw new LdapException( e );
+            }
+        }
+    }
+
+
+    @Override
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        //        String threadName = Thread.currentThread().getName();
+        //        System.out.println( threadName + " is trying to get lock on move method" );
+        synchronized ( lock )
+        {
+            //System.out.println( threadName + " GOT lock on move method " + moveContext.getDn() );
+            Long entryId = wrappedPartition.getEntryId( moveContext.getDn() );
+
+            wrappedPartition.move( moveContext );
+
+            Long parentId = wrappedPartition.getEntryId( moveContext.getNewSuperior() );
+
+            move( entryId, parentId );
+        }
     }
 
 
     @Override
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
-        Long entryId = wrappedPartition.getEntryId( opContext.getDn() );
-        
-        wrappedPartition.moveAndRename( opContext );
-        
-        move( entryId );
+        synchronized ( lock )
+        {
+
+            Long entryId = wrappedPartition.getEntryId( opContext.getDn() );
+
+            wrappedPartition.moveAndRename( opContext );
+
+            Long parentId = wrappedPartition.getEntryId( opContext.getNewSuperiorDn() );
+
+            move( entryId, parentId );
+        }
     }
 
-    
+
     /**
      * 
      * changes the LDIF entry content changed as part of move or moveAndRename
@@ -337,189 +391,185 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * FIXME explain in detail the algorithm used to perform move inside the LDIF file
      * 
      * @param entryId the moved entry's ID
+     * @param parentId the moved entry's new parent id
      * @throws LdapException
      */
-    private synchronized void move( Long entryId ) throws LdapException
+    private synchronized void move( Long entryId, Long parentId ) throws LdapException
     {
-        try
+        synchronized ( lock )
         {
-            IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getSubLevelIndex().forwardCursor( entryId );
-            cursor.beforeFirst();
-
-            Set<EntryOffset> sortedOffSets = new TreeSet<EntryOffset>();
-
-            while ( cursor.next() )
+            try
             {
-                IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                sortedOffSets.add( offsetMap.get( idxEntry.getId() ) );
-            }
+                EntryOffset entryOffset = offsetMap.get( entryId );
 
-            cursor.close();
+                // delete the entries which were moved in the wrapped parttion
+                IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getSubLevelIndex().forwardCursor( entryId );
+                cursor.beforeFirst();
 
-            EntryOffset[] offsetArray = sortedOffSets.toArray( new EntryOffset[0] );
-            EntryOffset endOffset = offsetArray[offsetArray.length - 1];
+                Set<EntryOffset> movedTreeOffsets = new TreeSet<EntryOffset>( comparator );
 
-            long count = ( ldifFile.length() - endOffset.getEnd() );
-
-            FileChannel tmpBufChannel = createTempBuf();
-            FileChannel mainChannel = ldifFile.getChannel();
-            
-            mainChannel.transferTo( endOffset.getEnd(), count, tmpBufChannel );
-            ldifFile.setLength( offsetArray[0].getStart() );
-            
-            Set<EntryOffset> belowEntryOffsets = greaterThan( endOffset );
-            
-            long diff = -( endOffset.getEnd() - offsetArray[0].getStart() ); // diff should be marked negative
-            
-            for ( EntryOffset o : belowEntryOffsets )
-            {
-                o.changeOffsetsBy( diff );
-            }
-            
-            tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
-            tmpBufChannel.truncate( 0 );
-
-            DN dnAfterMove = wrappedPartition.getEntryDn( entryId );
-            Long parentId = wrappedPartition.getEntryId( dnAfterMove.getParent() );
-            EntryOffset aboveOffset = offsetMap.get( parentId );
-            
-            Set<EntryOffset> middleOffsets = greaterThan( aboveOffset );
-            middleOffsets.removeAll( sortedOffSets );
-            
-
-            File tmpFile = File.createTempFile( "ldifpartition", ".buf" );
-            tmpFile.deleteOnExit();
-
-            RandomAccessFile tmpMovFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
-            tmpMovFile.setLength( 0 );
-
-            // perform for the first id
-            Entry entry = wrappedPartition.lookup( entryId );
-            String ldif = LdifUtils.convertEntryToLdif( entry );
-            
-            long pos = tmpMovFile.getFilePointer();
-            tmpMovFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
-
-            EntryOffset entryOffset = new EntryOffset( entryId, pos, tmpMovFile.getFilePointer() );
-            offsetMap.put( entryId, entryOffset );
-
-            cursor = wrappedPartition.getOneLevelIndex().forwardCursor( entryId );
-            cursor.beforeFirst();
-
-            while ( cursor.next() )
-            {
-                IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-
-                Long childId = idxEntry.getId();
-                entry = wrappedPartition.lookup( childId );
-                ldif = LdifUtils.convertEntryToLdif( entry );
-                
-                pos = tmpMovFile.getFilePointer();
-                tmpMovFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
-
-                entryOffset = new EntryOffset( childId, pos, tmpMovFile.getFilePointer() );
-                offsetMap.put( childId, entryOffset );
-
-                appendRecursive( childId, null, tmpMovFile );
-            }
-
-            cursor.close();
-
-            count = ( ldifFile.length() - aboveOffset.getEnd() );
-            
-            mainChannel.transferTo( endOffset.getEnd(), count, tmpBufChannel );
-            ldifFile.setLength( aboveOffset.getEnd() );
-            
-            FileChannel tmpMovChannel = tmpMovFile.getChannel();
-            tmpMovChannel.transferTo( 0, tmpMovChannel.size(), mainChannel );
-            tmpMovChannel.truncate( 0 );
-            
-            EntryOffset prevOffset = aboveOffset;
-            // now reset the offsets of the moved entries
-            for ( EntryOffset o : offsetArray )
-            {
-                // get each EentryOffset object from map, cause the objects
-                // present in this array now point to old offset objects
-                
-                Long curId = o.getId();
-                EntryOffset newOffset = offsetMap.get( curId );
-                
-                Long prevEnd = prevOffset.getEnd();
-                
-                EntryOffset latestOffset = new EntryOffset( curId, prevEnd, prevEnd + newOffset.length() );
-                offsetMap.put( curId, latestOffset );
-                
-                prevOffset = latestOffset;
-            }
-
-            // now copy the contents from temp buf
-            
-            tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
-            tmpBufChannel.truncate( 0 );
-            
-            for( EntryOffset o : middleOffsets )
-            {
-                Long curId = o.getId();
-                Long prevEnd = prevOffset.getEnd();
-                EntryOffset latestOffset = new EntryOffset( curId, prevEnd + o.getStart(), prevEnd + o.length() );
-                offsetMap.put( curId, latestOffset );
-                
-                prevOffset = latestOffset;
-            }
-            
-            //System.out.println( prevOffset.getEnd() == ldifFile.length() );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapException( e );
-        }
-    }
-
-    @Override
-    public synchronized void delete( Long id ) throws LdapException
-    {
-        wrappedPartition.delete( id );
-
-        try
-        {
-            EntryOffset entryOffset = offsetMap.get( id );
-
-            // check if the entry to be removed is present at the end of file
-            if ( entryOffset.getEnd() == ldifFile.length() )
-            {
-                ldifFile.setLength( entryOffset.getStart() );
-                // check if entry is the context entry
-                if ( entryOffset.getStart() == 0 )
+                while ( cursor.next() )
                 {
-                    contextEntry = null;
+                    EntryOffset o = offsetMap.get( cursor.get().getId() );
+                    movedTreeOffsets.add( o );
                 }
-            }
-            else
-            {
-                FileChannel tmpBufChannel = createTempBuf();
+
+                cursor.close();
+
+                EntryOffset[] movedTreeOffsetArray = movedTreeOffsets.toArray( new EntryOffset[0] );
+                EntryOffset endMovOffset = movedTreeOffsetArray[movedTreeOffsetArray.length - 1];
+
+                long count = ( ldifFile.length() - endMovOffset.getEnd() );
+
+                File tmpFile = File.createTempFile( "mov", ".ldif" );
+
+                RandomAccessFile tmpMovFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
+
+                FileChannel tempBuf = tmpMovFile.getChannel();
                 FileChannel mainChannel = ldifFile.getChannel();
+                tempBuf.truncate( 0 );
+                if ( count > 0 )
+                {
+                    mainChannel.transferTo( endMovOffset.getEnd(), count, tempBuf );
+                    ldifFile.setLength( movedTreeOffsetArray[0].getStart() ); // delete the now obsolete(cause of move operation) entries
 
-                long count = ( ldifFile.length() - entryOffset.getEnd() );
+                    tempBuf.transferTo( 0, tempBuf.size(), mainChannel );
+                    tempBuf.truncate( 0 );
+                    tmpMovFile.setLength( 0 );
 
-                mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
-                ldifFile.setLength( entryOffset.getStart() );
+                    EntryOffset[] belowOffsets = greaterThan( endMovOffset );
+                    EntryOffset aboveOffset = getAboveEntry( movedTreeOffsetArray[0] );
 
-                Set<EntryOffset> belowParentOffsets = greaterThan( entryOffset );
+                    for ( EntryOffset o : belowOffsets )
+                    {
+                        Long id = o.getId();
 
-                long diff = - ( entryOffset.length() ); // this offset change should always be negative
+                        o = new EntryOffset( id, aboveOffset.getEnd(), aboveOffset.getEnd() + o.length() );
+                        offsetMap.put( id, o );
+                        aboveOffset = o;
+                    }
+                }
+                else
+                // in case if nothing exists after the moving tree
+                {
+                    ldifFile.setLength( movedTreeOffsetArray[0].getStart() );
+                }
+
+                EntryOffset tmpMovFileOffset = null;
+                for ( EntryOffset o : movedTreeOffsets )
+                {
+                    Long childId = o.getId();
+                    Entry entry = wrappedPartition.lookup( childId );
+                    String ldif = LdifUtils.convertEntryToLdif( entry );
+
+                    long pos = tmpMovFile.getFilePointer();
+                    tmpMovFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
+
+                    entryOffset = new EntryOffset( childId, pos, tmpMovFile.getFilePointer() );
+                    offsetMap.put( childId, entryOffset );
+                    tmpMovFileOffset = entryOffset;
+                }
+
+                EntryOffset parentOffset = offsetMap.get( parentId );
+                count = ( ldifFile.length() - parentOffset.getEnd() );
+
+                EntryOffset[] belowParentOffsets = greaterThan( parentOffset );
+
+                if ( count > 0 )
+                {
+                    mainChannel.transferTo( parentOffset.getEnd(), count, tempBuf );
+                }
+
+                ldifFile.setLength( parentOffset.getEnd() );
+
+                // copy back to main file
+                tempBuf.transferTo( 0, tempBuf.size(), mainChannel );
+                tempBuf.truncate( 0 );
+                tmpFile.delete();
+
+                // change offset of the copied entries
+                Set<Long> idset = new HashSet<Long>();
+                for ( EntryOffset o : movedTreeOffsets )
+                {
+                    o = new EntryOffset( o.getId(), parentOffset.getEnd(), parentOffset.getEnd() + o.length() );
+                    offsetMap.put( o.getId(), o );
+                    parentOffset = o;
+                    idset.add( o.getId() );
+                }
 
                 for ( EntryOffset o : belowParentOffsets )
                 {
-                    o.changeOffsetsBy( diff );
+                    Long tmpId = o.getId();
+                    if ( idset.contains( tmpId ) )
+                    {
+                        continue;
+                    }
+
+                    o = new EntryOffset( tmpId, parentOffset.getEnd(), parentOffset.getEnd() + o.length() );
+                    offsetMap.put( tmpId, o );
+                    parentOffset = o;
+                    idset.add( o.getId() );
                 }
 
-                tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
-                tmpBufChannel.truncate( 0 );
+                deleteTempFiles();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapException( e );
             }
         }
-        catch ( IOException e )
+    }
+
+
+    @Override
+    public void delete( Long id ) throws LdapException
+    {
+        synchronized ( lock )
         {
-            throw new LdapException( e );
+            wrappedPartition.delete( id );
+
+            try
+            {
+                EntryOffset entryOffset = offsetMap.get( id );
+
+                // check if the entry to be removed is present at the end of file
+                if ( entryOffset.getEnd() == ldifFile.length() )
+                {
+                    ldifFile.setLength( entryOffset.getStart() );
+                    // check if entry is the context entry
+                    if ( entryOffset.getStart() == 0 )
+                    {
+                        contextEntry = null;
+                    }
+                }
+                else
+                {
+                    FileChannel tmpBufChannel = createTempBuf();
+                    FileChannel mainChannel = ldifFile.getChannel();
+
+                    long count = ( ldifFile.length() - entryOffset.getEnd() );
+
+                    mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
+                    ldifFile.setLength( entryOffset.getStart() );
+
+                    EntryOffset[] belowParentOffsets = greaterThan( entryOffset );
+
+                    long diff = -( entryOffset.length() ); // this offset change should always be negative
+
+                    for ( EntryOffset o : belowParentOffsets )
+                    {
+                        o.changeOffsetsBy( diff );
+                    }
+
+                    tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
+                    tmpBufChannel.truncate( 0 );
+                    deleteTempFiles();
+                }
+            }
+            catch ( IOException e )
+            {
+                throw new LdapException( e );
+            }
         }
     }
 
@@ -535,16 +585,20 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
     private EntryOffset getAboveEntry( EntryOffset offset ) throws LdapException
     {
-        for ( EntryOffset e : offsetMap.values() )
+        synchronized ( lock )
         {
-            if ( e.getEnd() == offset.getStart() )
-            {
-                return e;
-            }
-        }
 
-        // if non exists
-        return null;
+            for ( EntryOffset e : offsetMap.values() )
+            {
+                if ( e.getEnd() == offset.getStart() )
+                {
+                    return e;
+                }
+            }
+
+            // if non exists
+            return null;
+        }
     }
 
 
@@ -557,43 +611,47 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      */
     private void replaceRecursive( Long id, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap ) throws Exception
     {
-        IndexCursor<Long, Entry, Long> cursor = null;
-        if ( cursorMap == null )
+        synchronized ( lock )
         {
-            cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
-        }
 
-        cursor = cursorMap.get( id );
-
-        if ( cursor == null )
-        {
-            cursor = wrappedPartition.getOneLevelIndex().forwardCursor( id );
-            cursor.beforeFirst();
-            cursorMap.put( id, cursor );
-        }
-
-        if ( !cursor.next() ) // if this is a leaf entry's DN
-        {
-            cursorMap.remove( id );
-            cursor.close();
-        }
-        else
-        {
-            do
+            IndexCursor<Long, Entry, Long> cursor = null;
+            if ( cursorMap == null )
             {
-                IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                Entry entry = wrappedPartition.lookup( idxEntry.getId() );
-
-                Long entryId = wrappedPartition.getEntryId( entry.getDn() );
-                String ldif = LdifUtils.convertEntryToLdif( entry );
-
-                replaceLdif( entryId, ldif );
-
-                replaceRecursive( entryId, cursorMap );
+                cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
             }
-            while ( cursor.next() );
-            cursorMap.remove( id );
-            cursor.close();
+
+            cursor = cursorMap.get( id );
+
+            if ( cursor == null )
+            {
+                cursor = wrappedPartition.getOneLevelIndex().forwardCursor( id );
+                cursor.beforeFirst();
+                cursorMap.put( id, cursor );
+            }
+
+            if ( !cursor.next() ) // if this is a leaf entry's DN
+            {
+                cursorMap.remove( id );
+                cursor.close();
+            }
+            else
+            {
+                do
+                {
+                    IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
+                    Entry entry = wrappedPartition.lookup( idxEntry.getId() );
+
+                    Long entryId = wrappedPartition.getEntryId( entry.getDn() );
+                    String ldif = LdifUtils.convertEntryToLdif( entry );
+
+                    replaceLdif( entryId, ldif );
+
+                    replaceRecursive( entryId, cursorMap );
+                }
+                while ( cursor.next() );
+                cursorMap.remove( id );
+                cursor.close();
+            }
         }
     }
 
@@ -606,53 +664,58 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param tmpMovFile a RandomAccessFile to be used as temporary buffer
      * @throws Exception
      */
-    private void appendRecursive( Long entryId, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap, RandomAccessFile tmpMovFile ) throws Exception
+    private void appendRecursive( Long entryId, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap,
+        RandomAccessFile tmpMovFile ) throws Exception
     {
-        IndexCursor<Long, Entry, Long> cursor = null;
-        if ( cursorMap == null )
+        synchronized ( lock )
         {
-            cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
-        }
 
-        cursor = cursorMap.get( entryId );
-
-        if ( cursor == null )
-        {
-            cursor = wrappedPartition.getOneLevelIndex().forwardCursor( entryId );
-            cursor.beforeFirst();
-            cursorMap.put( entryId, cursor );
-        }
-
-        if ( !cursor.next() ) // if this is a leaf entry's DN
-        {
-            cursorMap.remove( entryId );
-            cursor.close();
-        }
-        else
-        {
-            do
+            IndexCursor<Long, Entry, Long> cursor = null;
+            if ( cursorMap == null )
             {
-                IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                Entry entry = wrappedPartition.lookup( idxEntry.getId() );
-
-                Long childId = wrappedPartition.getEntryId( entry.getDn() );
-                String ldif = LdifUtils.convertEntryToLdif( entry );
-
-                long pos = tmpMovFile.getFilePointer();
-                tmpMovFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
-
-                EntryOffset entryOffset = new EntryOffset( childId, pos, tmpMovFile.getFilePointer() );
-                offsetMap.put( childId, entryOffset );
-
-                appendRecursive( childId, cursorMap, tmpMovFile );
+                cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
             }
-            while ( cursor.next() );
-            cursorMap.remove( entryId );
-            cursor.close();
+
+            cursor = cursorMap.get( entryId );
+
+            if ( cursor == null )
+            {
+                cursor = wrappedPartition.getOneLevelIndex().forwardCursor( entryId );
+                cursor.beforeFirst();
+                cursorMap.put( entryId, cursor );
+            }
+
+            if ( !cursor.next() ) // if this is a leaf entry's DN
+            {
+                cursorMap.remove( entryId );
+                cursor.close();
+            }
+            else
+            {
+                do
+                {
+                    IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
+                    Entry entry = wrappedPartition.lookup( idxEntry.getId() );
+
+                    Long childId = wrappedPartition.getEntryId( entry.getDn() );
+                    String ldif = LdifUtils.convertEntryToLdif( entry );
+
+                    long pos = tmpMovFile.getFilePointer();
+                    tmpMovFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
+
+                    EntryOffset entryOffset = new EntryOffset( childId, pos, tmpMovFile.getFilePointer() );
+                    offsetMap.put( childId, entryOffset );
+
+                    appendRecursive( childId, cursorMap, tmpMovFile );
+                }
+                while ( cursor.next() );
+                cursorMap.remove( entryId );
+                cursor.close();
+            }
         }
     }
 
-    
+
     /**
      * inserts a given LDIF entry in the middle of the LDIF entries
      *
@@ -664,38 +727,43 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     private void insertNAppendLdif( Long entryId, EntryOffset aboveEntryOffset, String ldif )
         throws LdapException
     {
-        if ( aboveEntryOffset == null )
+        synchronized ( lock )
         {
-            throw new IllegalStateException( "parent offset is null" );
-        }
-
-        try
-        {
-            FileChannel tmpBufChannel = createTempBuf();
-            FileChannel mainChannel = ldifFile.getChannel();
-
-            long count = ( ldifFile.length() - aboveEntryOffset.getEnd() );
-
-            mainChannel.transferTo( aboveEntryOffset.getEnd(), count, tmpBufChannel );
-            ldifFile.setLength( aboveEntryOffset.getEnd() );
-
-            Set<EntryOffset> belowParentOffsets = greaterThan( aboveEntryOffset );
-
-            EntryOffset entryOffset = appendLdif( entryId, aboveEntryOffset, ldif );
-
-            long diff = entryOffset.length();
-
-            for ( EntryOffset o : belowParentOffsets )
+            if ( aboveEntryOffset == null )
             {
-                o.changeOffsetsBy( diff );
+                throw new IllegalStateException( "parent offset is null" );
             }
 
-            tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
-            tmpBufChannel.truncate( 0 );
-        }
-        catch ( IOException e )
-        {
-            throw new LdapException( e );
+            try
+            {
+                FileChannel tmpBufChannel = createTempBuf();
+                FileChannel mainChannel = ldifFile.getChannel();
+
+                long count = ( ldifFile.length() - aboveEntryOffset.getEnd() );
+
+                mainChannel.transferTo( aboveEntryOffset.getEnd(), count, tmpBufChannel );
+                ldifFile.setLength( aboveEntryOffset.getEnd() );
+
+                EntryOffset[] belowParentOffsets = greaterThan( aboveEntryOffset );
+
+                EntryOffset entryOffset = appendLdif( entryId, aboveEntryOffset, ldif );
+
+                long diff = entryOffset.length();
+
+                for ( EntryOffset o : belowParentOffsets )
+                {
+                    o.changeOffsetsBy( diff );
+                }
+
+                tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
+                tmpBufChannel.truncate( 0 );
+
+                deleteTempFiles();
+            }
+            catch ( IOException e )
+            {
+                throw new LdapException( e );
+            }
         }
     }
 
@@ -709,60 +777,66 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      */
     private void replaceLdif( Long entryId, String ldif ) throws LdapException
     {
-        try
+        synchronized ( lock )
         {
-            EntryOffset entryOffset = offsetMap.get( entryId );
-            byte[] utf8Data = StringTools.getBytesUtf8( ldif + "\n" );
-            long fileLen = ldifFile.length();
-            long diff = utf8Data.length - entryOffset.length();
-
-            // check if modified entry occupies the same space
-            if ( diff == 0 )
+            //System.out.println( "replaceLdif called by " + Thread.currentThread().getName() );
+            try
             {
-                ldifFile.seek( entryOffset.getStart() );
-                ldifFile.write( utf8Data );
-            }
-            else if ( fileLen == entryOffset.getEnd() ) // modified entry is at the end of file
-            {
-                ldifFile.setLength( entryOffset.getStart() );
-                ldifFile.write( utf8Data );
+                EntryOffset entryOffset = offsetMap.get( entryId );
+                byte[] utf8Data = StringTools.getBytesUtf8( ldif + "\n" );
+                long fileLen = ldifFile.length();
+                long diff = utf8Data.length - entryOffset.length();
 
-                fileLen = ldifFile.length();
-
-                // change the offsets, the modified entry size changed
-                if ( fileLen != entryOffset.getEnd() )
+                // check if modified entry occupies the same space
+                if ( diff == 0 )
                 {
-                    entryOffset = new EntryOffset( entryId, entryOffset.getStart(), fileLen );
-                    offsetMap.put( entryId, entryOffset );
+                    ldifFile.seek( entryOffset.getStart() );
+                    ldifFile.write( utf8Data );
+                }
+                else if ( fileLen == entryOffset.getEnd() ) // modified entry is at the end of file
+                {
+                    ldifFile.setLength( entryOffset.getStart() );
+                    ldifFile.write( utf8Data );
+
+                    fileLen = ldifFile.length();
+
+                    // change the offsets, the modified entry size changed
+                    if ( fileLen != entryOffset.getEnd() )
+                    {
+                        entryOffset = new EntryOffset( entryId, entryOffset.getStart(), fileLen );
+                        offsetMap.put( entryId, entryOffset );
+                    }
+                }
+                else
+                // modified entry size got changed and is in the middle somewhere
+                {
+                    FileChannel tmpBufChannel = createTempBuf();
+                    FileChannel mainChannel = ldifFile.getChannel();
+
+                    long count = ( ldifFile.length() - entryOffset.getEnd() );
+
+                    mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
+                    ldifFile.setLength( entryOffset.getStart() );
+
+                    EntryOffset[] belowParentOffsets = greaterThan( entryOffset );
+
+                    entryOffset = appendLdif( entryId, getAboveEntry( entryOffset ), ldif );
+
+                    for ( EntryOffset o : belowParentOffsets )
+                    {
+                        o.changeOffsetsBy( diff );
+                    }
+
+                    tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
+                    tmpBufChannel.truncate( 0 );
+
+                    deleteTempFiles();
                 }
             }
-            else
-            // modified entry size got changed and is in the middle somewhere
+            catch ( IOException e )
             {
-                FileChannel tmpBufChannel = createTempBuf();
-                FileChannel mainChannel = ldifFile.getChannel();
-
-                long count = ( ldifFile.length() - entryOffset.getEnd() );
-
-                mainChannel.transferTo( entryOffset.getEnd(), count, tmpBufChannel );
-                ldifFile.setLength( entryOffset.getStart() );
-
-                Set<EntryOffset> belowParentOffsets = greaterThan( entryOffset );
-
-                entryOffset = appendLdif( entryId, getAboveEntry( entryOffset ), ldif );
-
-                for ( EntryOffset o : belowParentOffsets )
-                {
-                    o.changeOffsetsBy( diff );
-                }
-
-                tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
-                tmpBufChannel.truncate( 0 );
+                throw new LdapException( e );
             }
-        }
-        catch ( IOException e )
-        {
-            throw new LdapException( e );
         }
     }
 
@@ -778,32 +852,35 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     private EntryOffset appendLdif( Long entryId, EntryOffset aboveEntryOffset, String ldif )
         throws LdapException
     {
-        try
+        synchronized ( lock )
         {
-            long pos = 0L;
-
-            if ( aboveEntryOffset != null )
+            try
             {
-                pos = aboveEntryOffset.getEnd();
+                long pos = 0L;
+
+                if ( aboveEntryOffset != null )
+                {
+                    pos = aboveEntryOffset.getEnd();
+                }
+                else
+                {
+                    // erase file
+                    ldifFile.setLength( 0 );
+                }
+
+                ldifFile.seek( pos );
+
+                ldifFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
+
+                EntryOffset entryOffset = new EntryOffset( entryId, pos, ldifFile.getFilePointer() );
+                offsetMap.put( entryId, entryOffset );
+
+                return entryOffset;
             }
-            else
+            catch ( IOException e )
             {
-                // erase file
-                ldifFile.setLength( 0 );
+                throw new LdapException( e );
             }
-
-            ldifFile.seek( pos );
-
-            ldifFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
-
-            EntryOffset entryOffset = new EntryOffset( entryId, pos, ldifFile.getFilePointer() );
-            offsetMap.put( entryId, entryOffset );
-
-            return entryOffset;
-        }
-        catch ( IOException e )
-        {
-            throw new LdapException( e );
         }
     }
 
@@ -868,19 +945,49 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * 
      * @return a sorted set of EntryOffset objects
      */
-    private Set<EntryOffset> greaterThan( EntryOffset mark )
+    private EntryOffset[] greaterThan( EntryOffset mark )
     {
-        Set<EntryOffset> gtSet = new TreeSet<EntryOffset>();
-
-        for ( EntryOffset o : offsetMap.values() )
+        synchronized ( lock )
         {
-            if ( o.getStart() > mark.getStart() )
-            {
-                gtSet.add( o );
-            }
-        }
 
-        return gtSet;
+            Set<EntryOffset> gtSet = new TreeSet<EntryOffset>( comparator );
+
+            for ( EntryOffset o : offsetMap.values() )
+            {
+                if ( o.getStart() > mark.getStart() )
+                {
+                    gtSet.add( o );
+                }
+            }
+
+            EntryOffset[] array = gtSet.toArray( new EntryOffset[0] );
+            Arrays.sort( array, comparator );
+
+            return array;
+        }
+    }
+
+
+    private EntryOffset[] getBetween( EntryOffset topMark, EntryOffset bottomMmark )
+    {
+        synchronized ( lock )
+        {
+
+            Set<EntryOffset> gtSet = new TreeSet<EntryOffset>( comparator );
+
+            for ( EntryOffset o : offsetMap.values() )
+            {
+                if ( ( o.getStart() > topMark.getStart() ) && ( o.getEnd() < bottomMmark.getEnd() ) )
+                {
+                    gtSet.add( o );
+                }
+            }
+
+            EntryOffset[] array = gtSet.toArray( new EntryOffset[0] );
+            Arrays.sort( array, comparator );
+
+            return array;
+        }
     }
 
 
@@ -905,21 +1012,39 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /** a temporary file used for swapping contents while performing update operations */
     private FileChannel createTempBuf() throws IOException
     {
-        File tmpFile = File.createTempFile( "ldifpartition", ".buf" );
-        tmpFile.deleteOnExit();
+        synchronized ( lock )
+        {
+            File tmpFile = File.createTempFile( "ldifpartition", ".buf" );
 
-        RandomAccessFile tempBufFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
-        tempBufFile.setLength( 0 );
+            RandomAccessFile tempBufFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
+            tempBufFile.setLength( 0 );
 
-        return tempBufFile.getChannel();
+            return tempBufFile.getChannel();
+        }
+    }
+
+
+    /**
+     * clears the temp files used as temporary randomaccess buffers
+     */
+    private void deleteTempFiles()
+    {
+        synchronized ( lock )
+        {
+            for ( File f : tempFileList )
+            {
+                f.delete();
+            }
+        }
     }
 }
+
 
 /**
  * a holder class for containing an entry's start and end offset positions
  * in the LDIF file
  */
-class EntryOffset implements Comparable<EntryOffset>
+class EntryOffset
 {
     /** starting position */
     private long start;
@@ -936,21 +1061,6 @@ class EntryOffset implements Comparable<EntryOffset>
         this.start = start;
         this.end = end;
         this.id = id;
-    }
-
-
-    public int compareTo( EntryOffset o )
-    {
-        if ( end > o.end )
-        {
-            return 1;
-        }
-        else if ( end < o.end )
-        {
-            return -1;
-        }
-
-        return 0;
     }
 
 
