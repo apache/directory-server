@@ -724,6 +724,32 @@ public class SingleFileLdifPartitionTest
 
 
     @Test
+    public void testLdifMoveSubChildEntry() throws Exception
+    {
+        SingleFileLdifPartition partition = injectEntries();
+
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=grandChild11,dc=child1,ou=test,ou=system",
+            schemaManager ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system",
+            schemaManager ) ) );
+
+        MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
+            childEntry2.getDn() );
+        partition.move( moveOpCtx );
+
+        partition = reloadPartition();
+        assertExists( partition, childEntry2 );
+        assertNotExists( partition, childEntry1 );
+
+        assertExists( partition, "dc=child1,ou=test,ou=system" );
+        assertExists( partition, "dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild11,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild12,dc=child1,ou=test,ou=system" );
+        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child2,ou=test,ou=system" );
+    }
+
+
+    @Test
     public void testLdifRenameAndDeleteOldRDN() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
@@ -735,11 +761,11 @@ public class SingleFileLdifPartitionTest
         partition.rename( renameOpCtx );
 
         partition = reloadPartition();
-        
+
         childDn1 = new DN( "dc=renamedChild1,ou=test,ou=system", schemaManager );
-        
+
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
-        
+
         assertNotNull( entry );
         assertFalse( entry.get( "dc" ).contains( "child1" ) );
     }
@@ -755,13 +781,13 @@ public class SingleFileLdifPartitionTest
         RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
-        
+
         partition = reloadPartition();
-        
+
         childDn1 = new DN( "dc=renamedChild1,ou=test,ou=system", schemaManager );
-        
+
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
-        
+
         assertNotNull( entry );
         assertTrue( entry.get( "dc" ).contains( "child1" ) );
     }
@@ -780,13 +806,13 @@ public class SingleFileLdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
         partition.moveAndRename( moveAndRenameOpCtx );
-        
+
         partition = reloadPartition();
-        
+
         childDn1 = new DN( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
-        
+
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
-        
+
         assertNotNull( entry );
         EntryAttribute dc = entry.get( "dc" );
         assertFalse( dc.contains( "child1" ) );
@@ -807,17 +833,275 @@ public class SingleFileLdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
-        
+
         partition = reloadPartition();
-        
+
         childDn1 = new DN( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
-        
+
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
-        
+
         assertNotNull( entry );
         EntryAttribute dc = entry.get( "dc" );
         assertTrue( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
+    }
+
+
+    /**
+     * An important test to check the stability of the partition
+     * under high concurrency 
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testConcurrentOperations() throws Exception
+    {
+        SingleFileLdifPartition partition = injectEntries();
+
+        ThreadGroup tg = new ThreadGroup( "singlefileldifpartitionTG" );
+        
+        Thread modifyTask = new Thread( tg, getModifyTask( partition ), "modifyTaskThread" );
+        Thread addAndDeleteTask = new Thread( tg, getAddAndDeleteTask( partition ), "addAndDeleteTaskThread" );
+        Thread renameTask = new Thread( tg, getRenameTask( partition ), "renameTaskThread" );
+        Thread moveTask = new Thread( tg, getMoveTask( partition ), "moveTaskThread" );
+        
+        modifyTask.start();
+        addAndDeleteTask.start();
+        renameTask.start();
+        moveTask.start();
+        
+        while( tg.activeCount() > 0 )
+        {
+            Thread.sleep( 2000 );
+        }
+        
+        // tests to be performed after the threads finish their work
+        partition = reloadPartition();
+
+        // test the work of modify thread
+        LookupOperationContext lookupCtx = new LookupOperationContext( mockSession );
+        lookupCtx.setDn( new DN( "dc=threadDoModify,ou=test,ou=system" ) );
+
+        Entry entry = partition.lookup( lookupCtx );
+        assertNotNull( entry );
+        assertEquals( "description no 999", entry.get( "description" ).getString() );
+        assertExists( partition, contextEntry.getDn().getName() );
+        assertExists( partition, "dc=child1,ou=test,ou=system" );
+        assertExists( partition, "dc=child2,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild11,dc=child1,ou=test,ou=system" );
+        assertExists( partition, "dc=grandChild12,dc=child1,ou=test,ou=system" );
+        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
+    }
+
+
+    /**
+     * add and keep modifying an attribute's value for 1000 times
+     */
+    private Runnable getModifyTask( final SingleFileLdifPartition partition )
+    {
+        Runnable r = new Runnable()
+        {
+
+            public void run()
+            {
+                int i = 0;
+                
+                try
+                {
+                    AddOperationContext addCtx = new AddOperationContext( mockSession );
+
+                    ClonedServerEntry childEntry1 = createEntry( "dc=threadDoModify,ou=test,ou=system" );
+                    childEntry1.put( "ObjectClass", "top", "domain" );
+                    childEntry1.put( "dc", "threadDoModify" );
+                    addCtx.setEntry( childEntry1 );
+                    partition.add( addCtx );
+
+                    ModifyOperationContext modOpCtx = new ModifyOperationContext( mockSession );
+                    modOpCtx.setEntry( childEntry1 );
+
+                    List<Modification> modItems = new ArrayList<Modification>();
+
+                    EntryAttribute attribute = new DefaultEntryAttribute(
+                        schemaManager.lookupAttributeTypeRegistry( "description" ) );
+
+                    Modification mod = new DefaultModification();
+                    mod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
+                    mod.setAttribute( attribute );
+
+                    modItems.add( mod );
+                    modOpCtx.setModItems( modItems );
+
+                    modOpCtx.setDn( childEntry1.getDn() );
+
+                    for ( ; i < 1000; i++ )
+                    {
+                        attribute.clear();
+                        attribute.add( "description no " + i );
+                        partition.modify( modOpCtx );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                    fail( "error while running ModifyTask at iteration count " + i );
+                }
+
+            }
+
+        };
+
+        return r;
+    }
+
+
+    /**
+     * adds and deletes the same entry 1000 times
+     */
+    private Runnable getAddAndDeleteTask( final SingleFileLdifPartition partition )
+    {
+        Runnable r = new Runnable()
+        {
+
+            public void run()
+            {
+                int i = 0;
+                
+                try
+                {
+                    AddOperationContext addCtx = new AddOperationContext( mockSession );
+                    DeleteOperationContext deleteCtx = new DeleteOperationContext( mockSession );
+
+                    for ( ; i < 1000; i++ )
+                    {
+                        ClonedServerEntry entry = createEntry( "dc=threadDoAddAndDelete,ou=test,ou=system" );
+                        entry.put( "ObjectClass", "top", "domain" );
+                        entry.put( "dc", "threadDoAddAndDelete" );
+                        addCtx.setEntry( entry );
+
+                        // add first
+                        partition.add( addCtx );
+
+                        // then delete, net affect on the count of entries at the end is zero
+                        deleteCtx.setDn( entry.getDn() );
+                        partition.delete( deleteCtx );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                    fail( "error while running AddAndDeleteTask at iteration count " + i );
+                }
+            }
+
+        };
+
+        return r;
+
+    }
+
+
+    /**
+     * performs rename operation on an entry 1000 times, at the end of the
+     * last iteration the original entry should remain with the old DN it has
+     * before starting this method
+     */
+    private Runnable getRenameTask( final SingleFileLdifPartition partition )
+    {
+        Runnable r = new Runnable()
+        {
+            public void run()
+            {
+                int i = 0;
+                
+                try
+                {
+                    DN dn = new DN( "dc=grandChild12,dc=child1,ou=test,ou=system", schemaManager );
+
+                    RDN oldRdn = new RDN( SchemaConstants.DC_AT + "=" + "grandChild12" );
+
+                    RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedGrandChild12" );
+
+                    DN tmpDn = dn;
+                    RDN tmpRdn = newRdn;
+
+                    for ( ; i < 500; i++ )
+                    {
+                        RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, tmpDn, tmpRdn,
+                            true );
+
+                        partition.rename( renameOpCtx );
+                        tmpDn = dn.remove( dn.size() - 1 );
+                        tmpDn = tmpDn.add( newRdn );
+                        tmpRdn = oldRdn;
+
+                        renameOpCtx = new RenameOperationContext( mockSession, tmpDn, tmpRdn, true );
+                        partition.rename( renameOpCtx );
+                        tmpDn = dn;
+                        tmpRdn = newRdn;
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                    fail( "error while running RenameTask at iteration count " + i );
+                }
+            }
+
+        };
+
+        return r;
+    }
+    
+    
+
+
+    /**
+     * performs move operation on an entry 1000 times, at the end of the
+     * last iteration the original entry should remain at the place where it
+     * was before starting this method
+     */
+    private Runnable getMoveTask( final SingleFileLdifPartition partition )
+    {
+        Runnable r = new Runnable()
+        {
+
+            public void run()
+            {
+                int i = 0;
+                
+                try
+                {
+                    DN originalDn = new DN( "dc=grandChild11,dc=child1,ou=test,ou=system", schemaManager );
+
+                    DN originalParent = new DN( "dc=child1,ou=test,ou=system", schemaManager );
+                    DN newParent = new DN( "dc=child2,ou=test,ou=system", schemaManager );
+
+                    DN tmpDn = originalDn;
+                    DN tmpParentDn = newParent;
+
+                    for ( ; i < 500; i++ )
+                    {
+                        MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, tmpDn, tmpParentDn );
+                        partition.move( moveOpCtx );
+                        tmpDn = moveOpCtx.getNewDn();
+                        tmpParentDn = originalParent;
+
+                        moveOpCtx = new MoveOperationContext( mockSession, tmpDn, tmpParentDn );
+                        partition.move( moveOpCtx );
+                        tmpDn = moveOpCtx.getNewDn();
+                        tmpParentDn = newParent;
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                    fail( "error while running MoveTask at iteration count " + i );
+                }
+            }
+
+        };
+
+        return r;
     }
 
 
