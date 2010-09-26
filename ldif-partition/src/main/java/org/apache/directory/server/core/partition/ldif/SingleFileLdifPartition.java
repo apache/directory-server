@@ -1026,6 +1026,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         synchronized ( lock )
         {
             File tmpFile = File.createTempFile( "ldifpartition", ".buf" );
+            tmpFile.deleteOnExit();
 
             RandomAccessFile tempBufFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
             tempBufFile.setLength( 0 );
