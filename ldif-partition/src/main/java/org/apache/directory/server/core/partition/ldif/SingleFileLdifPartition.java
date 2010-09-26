@@ -25,13 +25,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -86,7 +84,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     private Object lock = new Object();
 
     /** the list of temporary buffers */
-    private List<File> tempFileList = new ArrayList<File>();
+    private Map<File,RandomAccessFile> tempBufMap = new HashMap<File,RandomAccessFile>();
 
     private Comparator<EntryOffset> comparator = new Comparator<EntryOffset>()
     {
@@ -415,13 +413,12 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 long count = ( ldifFile.length() - endMovOffset.getEnd() );
 
-                File tmpFile = File.createTempFile( "mov", ".ldif" );
-
-                RandomAccessFile tmpMovFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
+                RandomAccessFile tmpMovFile = createTempFile();
 
                 FileChannel tempBuf = tmpMovFile.getChannel();
                 FileChannel mainChannel = ldifFile.getChannel();
                 tempBuf.truncate( 0 );
+                
                 if ( count > 0 )
                 {
                     mainChannel.transferTo( endMovOffset.getEnd(), count, tempBuf );
@@ -449,7 +446,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     ldifFile.setLength( movedTreeOffsetArray[0].getStart() );
                 }
 
-                EntryOffset tmpMovFileOffset = null;
                 for ( EntryOffset o : movedTreeOffsets )
                 {
                     Long childId = o.getId();
@@ -461,7 +457,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     entryOffset = new EntryOffset( childId, pos, tmpMovFile.getFilePointer() );
                     offsetMap.put( childId, entryOffset );
-                    tmpMovFileOffset = entryOffset;
                 }
 
                 EntryOffset parentOffset = offsetMap.get( parentId );
@@ -479,9 +474,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 // copy back to main file
                 tempBuf.transferTo( 0, tempBuf.size(), mainChannel );
                 tempBuf.truncate( 0 );
-                tempBuf.close();
-                tmpMovFile.close();
-                tmpFile.delete();
 
                 // change offset of the copied entries
                 Set<Long> idset = new HashSet<Long>();
@@ -506,12 +498,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     parentOffset = o;
                     idset.add( o.getId() );
                 }
-
-                deleteTempFiles();
             }
             catch ( Exception e )
             {
                 throw new LdapException( e );
+            }
+            finally
+            {
+                deleteTempFiles();
             }
         }
     }
@@ -560,14 +554,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                     tmpBufChannel.truncate( 0 );
-                    tmpBufChannel.close();
-                    tempBufFile.close();
-                    deleteTempFiles();
                 }
             }
             catch ( IOException e )
             {
                 throw new LdapException( e );
+            }
+            finally
+            {
+                deleteTempFiles();
             }
         }
     }
@@ -757,13 +752,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                 tmpBufChannel.truncate( 0 );
-                tmpBufChannel.close();
-                tempBufFile.close();
-                deleteTempFiles();
             }
             catch ( IOException e )
             {
                 throw new LdapException( e );
+            }
+            finally
+            {
+                deleteTempFiles();
             }
         }
     }
@@ -837,16 +833,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                     tmpBufChannel.truncate( 0 );
-                    tmpBufChannel.close();
-                    tempBufFile.close();
-                    deleteTempFiles();
                 }
             }
             catch ( IOException e )
             {
-                e.printStackTrace();
-                System.exit(0);
                 throw new LdapException( e );
+            }
+            finally
+            {
+                deleteTempFiles();
             }
         }
     }
@@ -1031,6 +1026,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             RandomAccessFile tempBufFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
             tempBufFile.setLength( 0 );
 
+            tempBufMap.put( tmpFile, tempBufFile );
             return tempBufFile;
         }
     }
@@ -1043,10 +1039,20 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-            for ( File f : tempFileList )
+            for ( java.util.Map.Entry<File,RandomAccessFile> f : tempBufMap.entrySet() )
             {
-                f.delete();
+                try
+                {
+                    f.getValue().close();
+                    f.getKey().delete();
+                }
+                catch( IOException e )
+                {
+                    LOG.warn( "failed to close the random accessfile {}", f.getKey() );
+                }
             }
+            
+            tempBufMap.clear();
         }
     }
 }
