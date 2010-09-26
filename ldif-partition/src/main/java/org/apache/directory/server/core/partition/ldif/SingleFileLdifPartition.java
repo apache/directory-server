@@ -480,6 +480,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 tempBuf.transferTo( 0, tempBuf.size(), mainChannel );
                 tempBuf.truncate( 0 );
                 tempBuf.close();
+                tmpMovFile.close();
                 tmpFile.delete();
 
                 // change offset of the copied entries
@@ -539,7 +540,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 }
                 else
                 {
-                    FileChannel tmpBufChannel = createTempBuf();
+                    RandomAccessFile tempBufFile = createTempFile();
+                    FileChannel tmpBufChannel = tempBufFile.getChannel();
                     FileChannel mainChannel = ldifFile.getChannel();
 
                     long count = ( ldifFile.length() - entryOffset.getEnd() );
@@ -558,6 +560,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                     tmpBufChannel.truncate( 0 );
+                    tmpBufChannel.close();
+                    tempBufFile.close();
                     deleteTempFiles();
                 }
             }
@@ -731,7 +735,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             try
             {
-                FileChannel tmpBufChannel = createTempBuf();
+                RandomAccessFile tempBufFile = createTempFile();
+                FileChannel tmpBufChannel = tempBufFile.getChannel();
                 FileChannel mainChannel = ldifFile.getChannel();
 
                 long count = ( ldifFile.length() - aboveEntryOffset.getEnd() );
@@ -753,7 +758,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                 tmpBufChannel.truncate( 0 );
                 tmpBufChannel.close();
-                
+                tempBufFile.close();
                 deleteTempFiles();
             }
             catch ( IOException e )
@@ -812,7 +817,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 */
                 // modified entry size got changed and is in the middle somewhere
                 {
-                    FileChannel tmpBufChannel = createTempBuf();
+                    RandomAccessFile tempBufFile = createTempFile();
+                    FileChannel tmpBufChannel = tempBufFile.getChannel();
                     FileChannel mainChannel = ldifFile.getChannel();
 
                     long count = ( ldifFile.length() - entryOffset.getEnd() );
@@ -832,7 +838,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     tmpBufChannel.transferTo( 0, tmpBufChannel.size(), mainChannel );
                     tmpBufChannel.truncate( 0 );
                     tmpBufChannel.close();
-                    
+                    tempBufFile.close();
                     deleteTempFiles();
                 }
             }
@@ -1015,7 +1021,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     /** a temporary file used for swapping contents while performing update operations */
-    private FileChannel createTempBuf() throws IOException
+    private RandomAccessFile createTempFile() throws IOException
     {
         synchronized ( lock )
         {
@@ -1024,7 +1030,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             RandomAccessFile tempBufFile = new RandomAccessFile( tmpFile.getAbsolutePath(), "rws" );
             tempBufFile.setLength( 0 );
 
-            return tempBufFile.getChannel();
+            return tempBufFile;
         }
     }
 
