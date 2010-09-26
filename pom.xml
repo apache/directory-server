@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>17</version>
+    <version>18</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -42,7 +42,7 @@
     <org.apache.directory.daemon.version>1.1.9-SNAPSHOT</org.apache.directory.daemon.version>
     <org.apache.directory.buildtools.directory-checkstyle.version>0.1-SNAPSHOT</org.apache.directory.buildtools.directory-checkstyle.version>
     <org.apache.directory.junit.junit-addons.version>0.1-SNAPSHOT</org.apache.directory.junit.junit-addons.version>
-    <skin.version>1.0.1</skin.version>
+    <skin.version>1.0.2-SNAPSHOT</skin.version>
     
     <!-- Set versions for depending jars -->
     <antlr.version>2.7.7</antlr.version>
@@ -713,20 +713,30 @@
   <reporting>
     <excludeDefaults>true</excludeDefaults>
     <plugins>
+      <!--
+        Note to myself: 
+        Plugin configuration in pluginManagement section are *not* applied to reporting plugins!
+        See http://jira.codehaus.org/browse/MSITE-443
+       -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.6</version>
         <configuration>
           <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
           <aggregate>true</aggregate>
         </configuration>
       </plugin>
+
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.2</version>
         <configuration>
           <aggregate>true</aggregate>
         </configuration>
       </plugin>
+ 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -739,14 +749,17 @@
           <aggregate>true</aggregate>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
         <version>2.2</version>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
+        <version>2.4</version>
         <configuration>
           <tags>
             <tag>TODO</tag>
@@ -756,10 +769,14 @@
           </tags>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
         <configuration>
+          <minmemory>512m</minmemory>
+          <maxmemory>1g</maxmemory>
           <linksource>true</linksource>
           <tags>
             <tag>
@@ -793,6 +810,7 @@
               <head>WARNING</head>
             </tag>
           </tags>
+          <source>1.5</source>
         </configuration>
         <reportSets>
           <reportSet>
@@ -803,17 +821,26 @@
           </reportSet>
         </reportSets>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
         <configuration>
           <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
           <xrefTestLocation>${project.reporting.outputDirectory}/../xref-test</xrefTestLocation>
+          <!-- required by dashboard plugin and hudson -->
+          <xmlOutput>true</xmlOutput>
+          <effort>Max</effort>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.4</version>
         <configuration>
           <instrumentation>
             <excludes>
@@ -822,18 +849,21 @@
           </instrumentation>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.5</version>
+        <version>2.6</version>
         <configuration>
           <configLocation>directory-checks.xml</configLocation>
           <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
+        <version>1.2</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -843,6 +873,43 @@
             </reports>
           </reportSet>
         </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javancss-maven-plugin</artifactId>
+        <version>2.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+        <version>2.0-beta-2</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changes-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <onlyCurrentVersion>true</onlyCurrentVersion>
+          <resolutionIds>Fixed</resolutionIds>
+          <statusIds>Resolved,Closed</statusIds>
+          <columnNames>Type,Key,Summary,Status,Resolution,Fix Version</columnNames>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>jira-report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>dashboard-maven-plugin</artifactId>
+        <version>1.0.0-beta-1</version>
       </plugin>
     </plugins>
   </reporting>
