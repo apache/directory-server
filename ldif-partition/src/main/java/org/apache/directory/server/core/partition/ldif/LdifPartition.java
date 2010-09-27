@@ -595,13 +595,13 @@ public class LdifPartition extends AbstractLdifPartition
         for ( RDN rdn : dn.getRdns() )
         {
             // First, get the AT name, or OID
-            String normAT = rdn.getAtav().getNormType();
+            String normAT = rdn.getAVA().getNormType();
             AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
 
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = rdn.getAtav().getNormValue().getString();
+            String normValue = rdn.getAVA().getNormValue().getString();
 
             if ( isFirst )
             {
