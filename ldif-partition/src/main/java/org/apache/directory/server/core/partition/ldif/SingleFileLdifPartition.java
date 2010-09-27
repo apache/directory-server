@@ -123,6 +123,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             ldifFile = new RandomAccessFile( file, "rws" );
             fileName = file;
+            
+            File partitionDir = new File( file ).getParentFile();
+            setPartitionDir( partitionDir );
+            setWorkingDirectory( partitionDir.getAbsolutePath() );
         }
         catch ( IOException e )
         {
@@ -161,6 +165,28 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
 
         loadEntries();
+    }
+
+
+    @Override
+    public void setPartitionDir( File partitionDir )
+    {
+        // partition directory will always be the directory
+        // in which the backing LDIF file is present 
+        if( getPartitionDir() != null )
+        {
+            super.setPartitionDir( partitionDir );
+        }
+    }
+
+    
+    @Override
+    public void setWorkingDirectory( String workingDirectory )
+    {
+        if( getWorkingDirectory() != null )
+        {
+            super.setWorkingDirectory( workingDirectory );
+        }
     }
 
 
