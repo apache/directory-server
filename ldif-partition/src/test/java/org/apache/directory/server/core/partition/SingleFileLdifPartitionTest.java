@@ -281,7 +281,7 @@ public class SingleFileLdifPartitionTest
 
         RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
 
-        assertEquals( getEntryLdifLen( contextEntry ) + 1, file.length() );
+        assertEquals( getEntryLdifLen( contextEntry ), file.length() );
 
         partition = reloadPartition();
         assertExists( partition, contextEntry );
@@ -323,26 +323,6 @@ public class SingleFileLdifPartitionTest
         addCtx.setEntry( entryMvrdn );
 
         partition.add( addCtx );
-
-        // the below part proves that a child will always get appended
-        // immediately under the parent, not at the end of its siblings
-        // in the LDIF file
-        long ctxEntryLen = getEntryLdifLen( contextEntry );
-        long entry1Len = getEntryLdifLen( entry1 );
-        long len = getEntryLdifLen( entryMvrdn );
-
-        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
-
-        file.seek( ctxEntryLen + entry1Len );
-        byte[] data = new byte[( int ) len];
-        file.read( data );
-        String ldif = StringTools.utf8ToString( data );
-
-        LdifEntry fetchedLdif = reader.parseLdif( ldif ).get( 0 );
-
-        Entry fromFetched = new DefaultEntry( schemaManager, fetchedLdif.getEntry() );
-
-        assertEquals( entryMvrdn, fromFetched );
 
         partition = reloadPartition();
         assertExists( partition, contextEntry );
@@ -844,6 +824,41 @@ public class SingleFileLdifPartitionTest
         EntryAttribute dc = entry.get( "dc" );
         assertTrue( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
+    }
+    
+    
+    @Test
+    public void testEnableRewritingFlag() throws Exception
+    {
+        SingleFileLdifPartition partition = createPartition( null, true );
+        
+        // disable writing
+        partition.setEnableRewriting( false );
+        
+        AddOperationContext addCtx = new AddOperationContext( mockSession );
+        addCtx.setEntry( contextEntry );
+
+        partition.add( addCtx );
+
+        // search works fine
+        Long id = partition.getEntryId( contextEntry.getDn() );
+        assertNotNull( id );
+        assertEquals( contextEntry, partition.lookup( id ) );
+
+        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
+
+        // but the file will be empty
+        assertFalse( getEntryLdifLen( contextEntry ) == file.length() );
+
+        partition = reloadPartition();
+        assertNotExists( partition, contextEntry );
+        
+        // try adding on the reloaded partition
+        partition.add( addCtx );
+        
+        // eable writing, this will let the partition write data back to disk
+        partition.setEnableRewriting( false );
+        assertTrue( getEntryLdifLen( contextEntry ) == file.length() );
     }
 
 
