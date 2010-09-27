@@ -42,6 +42,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 {
     /** The sh utility executable */
     private File shUtility = new File( "/bin/sh" );
+
     /** The final name of the installer */
     private String finalName;
 
@@ -71,25 +72,64 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // TODO FIXME
-        //        // Verifying the target is macosx
-        //        if ( !target.getOsFamily().equals( "linux" ) )
-        //        {
-        //            log.warn( "Bin installer can only be targeted for linux platforms!" );
-        //            log.warn( "The build will continue, but please check the the platform of this installer " );
-        //            log.warn( "target" );
-        //            return;
-        //        }
-        //
-        //        // Verifying the hdiutil utility exists
-        //        if ( !shUtility.exists() )
-        //        {
-        //            log.warn( "Cannot find sh utility at this location: " + shUtility );
-        //            log.warn( "The build will continue, but please check the location of your sh " );
-        //            log.warn( "utility." );
-        //            return;
-        //        }
-        //
+        // Verifying the target
+        if ( !verifyTarget() )
+        {
+            return;
+        }
+
+        log.info( "  Creating Bin installer..." );
+
+        // Creating the target directory
+        getTargetDirectory().mkdirs();
+
+        log.info( "    Copying Bin installer files" );
+
+        try
+        {
+            // Creating the installation layout and copying files to it
+            copyCommonFiles( mojo );
+
+            File binShDirectory = new File( getBinInstallerDirectory(), "sh" );
+            binShDirectory.mkdirs();
+
+            // Copying shell script utilities for the installer
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "bootstrap.sh" ),
+                        new File( getBinInstallerDirectory(), "bootstrap.sh" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                        "createInstaller.sh" ), new File( getBinInstallerDirectory(), "createInstaller.sh" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "functions.sh" ),
+                        new File( binShDirectory, "functions.sh" ), false );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "install.sh" ),
+                        new File( binShDirectory, "install.sh" ), false );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "variables.sh" ),
+                        new File( binShDirectory, "variables.sh" ), false );
+
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed to copy bin installer files." );
+        }
+
+        // Generating the Bin
+        log.info( "    Generating Bin Installer" );
+        Execute createBinTask = new Execute();
+        String[] cmd = new String[]
+                    { shUtility.getAbsolutePath(), "createInstaller.sh" };
+        createBinTask.setCommandline( cmd );
+        createBinTask.setWorkingDirectory( getBinInstallerDirectory() );
+        try
+        {
+            createBinTask.execute();
+        }
+        catch ( IOException e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed while trying to generate the Bin: " + e.getMessage() );
+        }
+
+        //        
         //        File baseDirectory = target.getLayout().getInstallationDirectory();
         //        File imagesDirectory = baseDirectory.getParentFile();
         //
@@ -108,12 +148,13 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         //        try
         //        {
         //            copyFiles( baseDirectory, binRootFolderServerDirectory );
+        //
         //        }
         //        catch ( IOException e )
         //        {
         //            log.error( e.getMessage() );
         //            throw new MojoFailureException( "Failed to copy image (" + target.getLayout().getInstallationDirectory()
-        //                + ") to the Bin directory (" + binRootFolderDirectory + ")" );
+        //                        + ") to the Bin directory (" + binRootFolderDirectory + ")" );
         //        }
         //
         //        // Create instance and sh directory
@@ -127,35 +168,36 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         //        {
         //            // Copying the apacheds.conf file to the server installation layout
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.conf" ),
-        //                new File( binRootFolderServerDirectory, "conf/apacheds.conf" ), false );
+        //                        new File( binRootFolderServerDirectory, "conf/apacheds.conf" ), false );
         //
         //            // Copying the default instance apacheds.conf file
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-        //                "apacheds-default.conf" ), new File( binRootFolderInstanceDirectory, "apacheds.conf" ), false );
+        //                        "apacheds-default.conf" ), new File( binRootFolderInstanceDirectory, "apacheds.conf" ), false );
         //
         //            // Copying the log4j.properties file for the default instance
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( binRootFolderServerDirectory,
-        //                "conf/log4j.properties" ), new File( binRootFolderInstanceDirectory, "log4j.properties" ), false );
+        //                        "conf/log4j.properties" ), new File( binRootFolderInstanceDirectory, "log4j.properties" ),
+        //                false );
         //
         //            // Copying the server.xml file for the default instance
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, new File( binRootFolderServerDirectory,
-        //                "conf/server.xml" ), new File( binRootFolderInstanceDirectory, "server.xml" ), false );
+        //                        "conf/server.xml" ), new File( binRootFolderInstanceDirectory, "server.xml" ), false );
         //
         //            // Copying the apacheds-init script file for the default instance
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds-init" ),
-        //                new File( binRootFolderInstanceDirectory, "apacheds-init" ), true );
+        //                        new File( binRootFolderInstanceDirectory, "apacheds-init" ), true );
         //
         //            // Copying shell script utilities for the installer
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "bootstrap.sh" ),
-        //                new File( binDirectory, "bootstrap.sh" ), true );
+        //                        new File( binDirectory, "bootstrap.sh" ), true );
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-        //                "createInstaller.sh" ), new File( binDirectory, "createInstaller.sh" ), true );
+        //                        "createInstaller.sh" ), new File( binDirectory, "createInstaller.sh" ), true );
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "functions.sh" ),
-        //                new File( binShDirectory, "functions.sh" ), false );
+        //                        new File( binShDirectory, "functions.sh" ), false );
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "install.sh" ),
-        //                new File( binShDirectory, "install.sh" ), false );
+        //                        new File( binShDirectory, "install.sh" ), false );
         //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "variables.sh" ),
-        //                new File( binShDirectory, "variables.sh" ), false );
+        //                        new File( binShDirectory, "variables.sh" ), false );
         //
         //            // Removing the redundant server.xml file (see DIRSERVER-1112)
         //            new File( binRootFolderServerDirectory, "conf/server.xml" ).delete();
@@ -170,7 +212,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         //        log.info( "Generating Bin Installer" );
         //        Execute createBinTask = new Execute();
         //        String[] cmd = new String[]
-        //            { shUtility.getAbsolutePath(), "createInstaller.sh" };
+        //                    { shUtility.getAbsolutePath(), "createInstaller.sh" };
         //        createBinTask.setCommandline( cmd );
         //        createBinTask.setSpawn( true );
         //        createBinTask.setWorkingDirectory( binDirectory );
@@ -183,36 +225,37 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         //            log.error( e.getMessage() );
         //            throw new MojoFailureException( "Failed while trying to generate the Bin: " + e.getMessage() );
         //        }
-        //
-        //        log.info( "Bin Installer generated at " + new File( imagesDirectory, finalName ) );
+
+        log.info( "Bin Installer generated at " + new File( getTargetDirectory(), finalName ) );
     }
 
 
     /**
-     * Recursively copy files from the given source to the given destination.
+     * Verifies the target.
      *
-     * @param src
-     *      the source
-     * @param dest
-     *      the destination
-     * @throws IOException
-     *      If an error occurs when copying a file
+     * @return
+     *      <code>true</code> if the target is correct, 
+     *      <code>false</code> if not.
      */
-    public void copyFiles( File src, File dest ) throws IOException
+    private boolean verifyTarget()
     {
-        if ( src.isDirectory() )
+        // Verifying the target is Linux
+        if ( !target.isOsNameLinux() )
         {
-            dest.mkdirs();
+            log.warn( "Bin installer can only be targeted for Linux platforms!" );
+            log.warn( "The build will continue, but please check the the platform of this installer target" );
+            return false;
+        }
 
-            for ( File file : src.listFiles() )
-            {
-                copyFiles( file, new File( dest, file.getName() ) );
-            }
-        }
-        else
+        // Verifying the sh utility exists
+        if ( !shUtility.exists() )
         {
-            FileUtils.copyFile( src, dest );
+            log.warn( "Cannot find sh utility at this location: " + shUtility );
+            log.warn( "The build will continue, but please check the location of your sh utility." );
+            return false;
         }
+
+        return true;
     }
 
 
@@ -234,16 +277,32 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
     }
 
 
-    public File getInstallationDirectory()
+    /**
+     * Gets the directory for the Bin installer.
+     *
+     * @return
+     *      the directory for the Bin installer.
+     */
+    private File getBinInstallerDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getTargetDirectory(), "bin" );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public File getInstallationDirectory()
+    {
+        return new File( getBinInstallerDirectory(), "server" );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public File getInstanceDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getBinInstallerDirectory(), "instance" );
     }
 }

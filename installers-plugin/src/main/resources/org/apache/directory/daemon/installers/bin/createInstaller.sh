@@ -20,16 +20,16 @@
 # Copying bootstrap.sh to the installer (and replacing the @lines@ variable)
 lines=`wc -l < bootstrap.sh`
 lines=`expr $lines + 1`
-sed -e "s/@LINES@/${lines}/" bootstrap.sh > ../${finalName}
+sed -e "s/@LINES@/${lines}/" bootstrap.sh > ../../${finalName}
 
 # Packing the data and shell scripts
-tar czf ${tmpArchive} rootFolder/* sh/*
+tar czf ${tmpArchive} instance/* server/* sh/*
 
 # Adding the temp archive to the installer
-cat ${tmpArchive} >> ../${finalName}
+cat ${tmpArchive} >> ../../${finalName}
 
 # Modifying permission on the installer so it is executable
-chmod 750 ../${finalName}
+chmod +x ../../${finalName}
 
 # Cleaning
 rm ${tmpArchive}

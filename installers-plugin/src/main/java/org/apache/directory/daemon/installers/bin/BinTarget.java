@@ -33,30 +33,9 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class BinTarget extends Target
 {
-    /** The wrapper executable path */
-    private String wrapperExecutablePath = "src/main/installers/wrapper/bin/wrapper-windows-x86-32.exe";
-
-
-    /**
-     * Gets the Wrapper executable path.
-     *
-     * @return
-     *      the wrapper executable path
-     */
-    public String getWrapperExecutablePath()
+    public BinTarget()
     {
-        return wrapperExecutablePath;
-    }
-
-
-    /**
-     * Sets the Wrapper executable path.
-     *
-     * @param wrapperExecutablePath
-     *      the wrapper executable path
-     */
-    public void setWrapperExecutablePath( String wrapperExecutablePath )
-    {
-        this.wrapperExecutablePath = wrapperExecutablePath;
+        setOsName( Target.OS_NAME_LINUX );
+        setOsArch( Target.OS_ARCH_X86 );
     }
 }

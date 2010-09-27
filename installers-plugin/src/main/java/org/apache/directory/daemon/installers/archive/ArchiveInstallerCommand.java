@@ -215,8 +215,7 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
             && !archiveType.equalsIgnoreCase( "tar.gz" ) && !archiveType.equalsIgnoreCase( "tar.bz2" ) )
         {
             log.warn( "Archive type is unknwown (" + archiveType + ")!" );
-            log.warn( "The build will continue, but please check the archive type of this installer " );
-            log.warn( "target" );
+            log.warn( "The build will continue, but please check the archive type of this installer target" );
             return false;
         }
 

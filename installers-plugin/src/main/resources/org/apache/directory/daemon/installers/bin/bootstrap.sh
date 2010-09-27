@@ -27,8 +27,8 @@ verifyExitCode()
 {
     if [ $? -ne 0 ]
     then
-               echo "An error occurred when installing Apache DS."
-               echo "Apache DS installation failed."
+               echo "An error occurred when installing ApacheDS."
+               echo "ApacheDS installation failed."
                exit 1
     fi
 }
@@ -38,7 +38,7 @@ export APACHEDS_VERSION=${apacheds.version}
 
 # Displaying welcome message and license terms
 more <<"EOF"
-                   WELCOME TO THE APACHE DS INSTALLER PROGRAM
+                   WELCOME TO THE APACHEDS INSTALLER PROGRAM
                     _                     _          ____  ____ 
                    / \   _ __   __ _  ___| |__   ___|  _ \/ ___|
                   / _ \ | '_ \ / _` |/ __| '_ \ / _ \ | | \___ \ 
@@ -46,7 +46,7 @@ more <<"EOF"
                 /_/   \_\ .__/ \__,_|\___|_| |_|\___|____/|____/ 
                         |_|
 
-    Apache DS is distributed under the Apache Software License Version 2.0.
+    ApacheDS is distributed under the Apache Software License Version 2.0.
             
             Please, take some time to read the license terms below.
 
@@ -275,5 +275,5 @@ verifyExitCode
 
 # Finishing
 echo "Done."
-echo "Apache DS has been installed successfully."
+echo "ApacheDS has been installed successfully."
 exit 0
