@@ -34,7 +34,7 @@ else
     exit 1
 fi
 
-# Pring instance information
+# Printing instance information
 echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
 # Getting the fully qualified path to the script

@@ -21,14 +21,12 @@ package org.apache.directory.daemon.installers.archive;
 
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.BZip2;
 import org.apache.tools.ant.taskdefs.GZip;
@@ -189,47 +187,6 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
 
         log.info( "=> Archive Installer (" + archiveType + ") archive generated at "
             + finalFile );
-
-        // TODO FIXME
-        //        File baseDirectory = target.getLayout().getInstallationDirectory();
-        //        File imagesDirectory = baseDirectory.getParentFile();
-        //
-        //        log.info( "Creating Archive Installer..." );
-        //
-        //        // Creating the archive directory
-        //        File targetDirectory = new File( imagesDirectory, target.getId() );
-        //        File archiveDirectory = new File( targetDirectory, "apacheds" + "_"
-        //            + mojo.getProject().getVersion() );
-        //
-        //        log.info( "Copying Archive Installer files" );
-        //
-        //        // Copying the resources files
-        //        try
-        //        {
-        //            // Copying the apacheds.bat file
-        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.bat" ),
-        //                new File( targetDirectory, "apacheds.bat" ), false );
-        //
-        //            // Copying the cpappend.bat file
-        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "cpappend.bat" ),
-        //                new File( targetDirectory, "cpappend.bat" ), false );
-        //
-        //            // Copying the apacheds.sh file
-        //            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "apacheds.sh" ),
-        //                new File( targetDirectory, "apacheds.sh" ), false );
-        //
-        //            // Copying all the files in the final archive directory
-        //            MojoHelperUtils.copyFiles( targetDirectory, archiveDirectory );
-        //        }
-        //        catch ( IOException e )
-        //        {
-        //            log.error( e.getMessage() );
-        //            throw new MojoFailureException( "Failed to copy Archive Installer resources files." );
-        //        }
-        //
-
-        //
-        //        log.info( "Archive Installer generated at " + new File( imagesDirectory, target.getFinalName() ) );
     }
 
 

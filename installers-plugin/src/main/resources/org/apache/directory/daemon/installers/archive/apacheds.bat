@@ -16,11 +16,22 @@ REM  KIND, either express or implied.  See the License for the
 REM  specific language governing permissions and limitations
 REM  under the License.
 
-REM ---------------------------------
-REM dynamically build the classpath
-REM ---------------------------------
-set ADS_CLASSPATH=
-for %%i in (.\lib\*.jar) do call cpappend.bat %%i
-for %%i in (.\lib\ext\*.jar) do call cpappend.bat %%i
 
-java -Dlog4j.configuration="file:conf/log4j.properties" -Dapacheds.log.dir=logs -cp %ADS_CLASSPATH% org.apache.directory.server.UberjarMain example.com
+REM Getting the instance name from the first argument
+set INSTANCE_NAME=%1
+
+
+REM If there is no first argument, setting the instance name to 'default'
+IF [%1]==[] set INSTANCE_NAME=default
+
+
+REM Printing instance information
+echo Starting ApacheDS instance '%INSTANCE_NAME%'...
+
+
+REM Dynamically build the classpath
+set ADS_CLASSPATH=
+for %%i in (..\lib\*.jar) do call cpappend.bat %%i
+
+REM Launching ApacheDS
+java -Dlog4j.configuration="file:../instances/%INSTANCE_NAME%/conf/log4j.properties" -Dapacheds.log.dir=../instances/%INSTANCE_NAME%/log -cp %ADS_CLASSPATH% org.apache.directory.server.UberjarMain ../instances/%INSTANCE_NAME%
