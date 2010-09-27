@@ -72,7 +72,7 @@ import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
 import org.apache.directory.server.dhcp.service.DhcpService;
 import org.apache.directory.server.dhcp.service.StoreBasedDhcpService;
 import org.apache.directory.server.dhcp.store.DhcpStore;
@@ -115,7 +115,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-;
+
 
 /**
  * A class used for reading the configuration present in a Partition
@@ -128,7 +128,7 @@ public class ConfigPartitionReader
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
     /** the partition which holds the configuration data */
-    private LdifPartition configPartition;
+    private AbstractLdifPartition configPartition;
 
     /** the search engine of the partition */
     private SearchEngine<Entry, Long> se;
@@ -162,8 +162,9 @@ public class ConfigPartitionReader
      * Creates a new instance of ConfigPartitionReader.
      *
      * @param configPartition the non null config partition
+     * @param partitionsDir the directory where all the partitions' data is stored
      */
-    public ConfigPartitionReader( LdifPartition configPartition )
+    public ConfigPartitionReader( AbstractLdifPartition configPartition, File partitionsDir )
     {
         if ( configPartition == null )
         {
@@ -178,7 +179,7 @@ public class ConfigPartitionReader
         this.configPartition = configPartition;
         se = configPartition.getSearchEngine();
         this.schemaManager = configPartition.getSchemaManager();
-        workDir = configPartition.getPartitionDir().getParentFile();
+        this.workDir = partitionsDir;
         
         // setup ObjectClass attribute type value
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -1418,6 +1419,11 @@ public class ConfigPartitionReader
                 .get();
             Entry webAppEntry = configPartition.lookup( forwardEntry.getId() );
 
+            if ( ! isEnabled( webAppEntry ) )
+            {
+                continue;
+            }
+            
             WebApp app = new WebApp();
             app.setWarFile( getString( ConfigSchemaConstants.ADS_HTTP_WARFILE, webAppEntry ) );
 
