@@ -32,6 +32,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -101,18 +102,19 @@ public class ConfigPartitionReaderTest
             throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
 
-        LdifConfigExtractor.extract( workDir, true );
+        File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
+        
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, true );
 
-        LdifPartition configPartition = new LdifPartition();
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        configPartition.setWorkingDirectory( workingDirectory + "/config" );
-        configPartition.setPartitionDir( new File( configPartition.getWorkingDirectory() ) );
-
+        
         configPartition.initialize();
-
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
+        
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        
         dirService = cpReader.createDirectoryService();
 
         SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
