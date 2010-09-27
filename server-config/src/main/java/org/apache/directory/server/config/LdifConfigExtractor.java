@@ -29,6 +29,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
@@ -37,6 +40,7 @@ import java.util.regex.Pattern;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.ResourceMap;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +55,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LdifConfigExtractor
 {
+
+    public static final String LDIF_CONFIG_FILE = "config.ldif";
 
     private static final String CONFIG_SUBDIR = "config";
 
@@ -250,4 +256,67 @@ public class LdifConfigExtractor
         return destinationFile;
     }
 
+    
+    /**
+     * extracts or overwrites the configuration LDIF file and returns the absolute path of this file
+     *
+     * @param configDir the directory where the config file should be extracted to
+     * @param overwrite flag to indicate to overwrite the config file if already present in the given config directory
+     * @return complete path of the config file on disk
+     */
+    public static String extractSingleFileConfig( File configDir, boolean overwrite )
+    {
+        File configFile = new File( configDir, LDIF_CONFIG_FILE );
+
+        if ( !configDir.exists() )
+        {
+            LOG.debug( "creating non existing config directory {}", configDir.getAbsolutePath() );
+            configDir.mkdir();
+        }
+        else
+        {
+            if( configFile.exists() && !overwrite )
+            {
+                LOG.warn( "config file already exists, returning, cause overwrite flag was set to false" );
+                return configFile.getAbsolutePath();
+            }
+        }
+        
+        try
+        {
+            
+            URL configUrl = LdifConfigExtractor.class.getClassLoader().getResource( LDIF_CONFIG_FILE );
+
+            LOG.debug( "URL of the config ldif file {}", configUrl );
+
+            InputStream in = configUrl.openStream();
+            byte[] buf = new byte[1024*1024];
+            
+            FileWriter fw = new FileWriter( configFile );
+            
+            while( true )
+            {
+                int read = in.read( buf );
+                
+                if( read <= 0 )
+                {
+                    break;
+                }
+                
+                String s = StringTools.utf8ToString( buf, 0, read );
+                fw.write( s );
+            }
+            
+            fw.close();
+            in.close();
+            
+            LOG.info( "successfully extracted the config file {}", configFile.getAbsoluteFile() );
+            
+            return configFile.getAbsolutePath();
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
 }
