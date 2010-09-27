@@ -45,6 +45,16 @@ public class ArchiveTarget extends Target
 
 
     /**
+     * Creates a new instance of ArchiveTarget.
+     */
+    public ArchiveTarget()
+    {
+        setOsName( Target.OS_NAME_ANY );
+        setOsArch( Target.OS_ARCH_ANY );
+    }
+
+
+    /**
      * Gets the archive type.
      *
      * @return

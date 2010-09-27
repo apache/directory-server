@@ -27,6 +27,8 @@ package org.apache.directory.daemon.installers;
  */
 public class Target
 {
+    /** The OS name for 'Any' */
+    public static final String OS_NAME_ANY = "Any";
     /** The OS name for 'Linux' */
     public static final String OS_NAME_LINUX = "Linux";
     /** The OS name for 'Mac OS X' */
@@ -38,6 +40,8 @@ public class Target
 
     /** The OS architecture for 'amd64' */
     public static final String OS_ARCH_AMD64 = "amd64";
+    /** The OS architecture for 'Any' */
+    public static final String OS_ARCH_ANY = "Any";
     /** The OS architecture for 'i386' */
     public static final String OS_ARCH_I386 = "i386";
     /** The OS architecture for 'sparc' */

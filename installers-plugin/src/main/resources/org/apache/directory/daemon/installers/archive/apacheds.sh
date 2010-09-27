@@ -18,18 +18,47 @@
 #  under the License.
 #
 
-#---------------------------------#
-# dynamically build the classpath #
-#---------------------------------#
+# Checking the number of parameters
+if [ $# -eq 0 ]
+then
+    # Using 'default' as default instance name
+    ADS_INSTANCE_NAME="default"
+elif [ $# -eq 1 ]
+then
+    # Getting the instance name from the arguments
+    ADS_INSTANCE_NAME=$1
+else
+    # Printing usage information
+    echo "Usage: apacheds.sh <instance name>"
+    echo "If <instance name> is ommited, 'default' will be used."
+    exit 1
+fi
+
+# Pring instance information
+echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
+
+# Getting the fully qualified path to the script
+case $0 in 
+    /*) 
+        SCRIPT="$0" 
+        ;; 
+   ./*) 
+        SCRIPT="`pwd`/`echo $0 | sed -e 's/^[ ]*\.\///'`" 
+        ;; 
+     *) 
+        SCRIPT="`pwd`/`echo $0 | sed -e 's/^[ ]*//'`" 
+        ;; 
+esac 
+
+# Getting the working directory of the script
+ADS_PWD=`dirname $SCRIPT`/..
+
+# Building dynamically the classpath
 ADS_CP=
-for i in `ls ./lib/`
+for i in `ls $ADS_PWD/lib/`
 do
-  ADS_CP=${ADS_CP}:lib/${i}
+  ADS_CP=${ADS_CP}:$ADS_PWD/lib/${i}
 done
 
-for i in `ls ./lib/ext/`
-do
-  ADS_CP=${ADS_CP}:lib/ext/${i}
-done
-
-java -Dlog4j.configuration=file:conf/log4j.properties -Dapacheds.log.dir=logs -cp $ADS_CP org.apache.directory.server.UberjarMain example.com
+# Launching ApacheDS
+java -Dlog4j.configuration=file:$ADS_PWD/instances/$ADS_INSTANCE_NAME/conf/log4j.properties -Dapacheds.log.dir=$ADS_PWD/instances/$ADS_INSTANCE_NAME/log -cp $ADS_CP org.apache.directory.server.UberjarMain $ADS_PWD/instances/$ADS_INSTANCE_NAME

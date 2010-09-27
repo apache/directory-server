@@ -139,12 +139,12 @@ public abstract class AbstractMojoCommand<T extends Target>
      */
     public void copyCommonFiles( GenerateMojo mojo ) throws Exception
     {
-        // Creating the installation layout and directories
-        InstallationLayout installationLayout = new InstallationLayout( getInstallationDirectory() );
+        // Getting the installation layout and creating directories
+        InstallationLayout installationLayout = getInstallationLayout();
         installationLayout.mkdirs();
 
-        // Creating the instance layout and directories
-        InstanceLayout instanceLayout = new InstanceLayout( getInstanceDirectory() );
+        // Getting the instance layout and creating directories
+        InstanceLayout instanceLayout = getInstanceLayout();
         instanceLayout.mkdirs();
 
         MojoHelperUtils.copyDependencies( mojo, installationLayout );
@@ -166,13 +166,37 @@ public abstract class AbstractMojoCommand<T extends Target>
             getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
             new File( instanceLayout.getConfDirectory(), "log4j.properties" ), true );
 
-        // Copying the 'apacheds' shell script (only for all OSes except Windows)
-        if ( !target.isOsNameWindows() )
+        // Copying the 'apacheds' shell script (only for Linux, Solaris or Mac OS X)
+        if ( target.isOsNameLinux() || target.isOsNameSolaris() || target.isOsNameMacOSX() )
         {
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                 getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds.init" ),
                 new File( installationLayout.getBinDirectory(), "apacheds" ), true );
         }
+    }
+
+
+    /**
+     * Gets the installation layout.
+     *
+     * @return
+     *      the installation layout
+     */
+    protected InstallationLayout getInstallationLayout()
+    {
+        return new InstallationLayout( getInstallationDirectory() );
+    }
+
+
+    /**
+     * Gets the instance layout.
+     *
+     * @return
+     *      the instance layout
+     */
+    protected InstanceLayout getInstanceLayout()
+    {
+        return new InstanceLayout( getInstanceDirectory() );
     }
 
 

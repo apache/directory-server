@@ -25,8 +25,15 @@ import java.io.IOException;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
+import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.BZip2;
+import org.apache.tools.ant.taskdefs.GZip;
+import org.apache.tools.ant.taskdefs.Tar;
+import org.apache.tools.ant.taskdefs.Zip;
 import org.codehaus.plexus.util.FileUtils;
 
 
@@ -61,27 +68,127 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        // Verifying the target
+        if ( !verifyTarget() )
+        {
+            return;
+        }
+
         // Getting the archive type
         String archiveType = target.getArchiveType();
 
-        // Checking for a null archive type
-        if ( archiveType == null )
+        log.info( "  Creating " + archiveType + " archive..." );
+
+        // Creating the target directory
+        getTargetDirectory().mkdirs();
+
+        log.info( "    Copying archive files" );
+
+        try
         {
-            log.warn( "Archive type is null!" );
-            log.warn( "The build will continue, but please check the archive type of this installer " );
-            log.warn( "target" );
-            return;
+            // Creating the installation layout and copying files to it
+            copyCommonFiles( mojo );
+
+            // Copy bat and sh scripts to bin
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "apacheds.bat" ), new File( getInstallationLayout().getBinDirectory(),
+                "apacheds.bat" ), false );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "apacheds.sh" ), new File( getInstallationLayout().getBinDirectory(),
+                "apacheds.sh" ), false );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
+                "cpappend.bat" ), new File( getInstallationLayout().getBinDirectory(),
+                "cpappend.bat" ), false );
+
+            // Removing unnecessary directories and files
+            FileUtils.deleteDirectory( getInstallationLayout().getConfDirectory() );
+            new File( getInstanceLayout().getConfDirectory(), "wrapper.conf" ).delete();
+            FileUtils.deleteDirectory( getInstanceLayout().getRunDirectory() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed to copy archive files." );
         }
 
-        // Checking for a known archive type
-        if ( !archiveType.equalsIgnoreCase( "zip" ) && !archiveType.equalsIgnoreCase( "tar" )
-            && !archiveType.equalsIgnoreCase( "tar.gz" ) && !archiveType.equalsIgnoreCase( "tar.bz2" ) )
+        // Generating the archive
+        log.info( "    Generating archive" );
+
+        // Creating the final file
+        String finalName = target.getFinalName();
+        if ( !finalName.endsWith( archiveType ) )
         {
-            log.warn( "Archive type is unknwown (" + archiveType + ")!" );
-            log.warn( "The build will continue, but please check the archive type of this installer " );
-            log.warn( "target" );
-            return;
+            finalName = finalName + archiveType;
         }
+        File finalFile = new File( mojo.getOutputDirectory(), finalName );
+
+        // Preparing the Ant project
+        Project project = new Project();
+        project.setBaseDir( mojo.getOutputDirectory() );
+
+        // ZIP Archive
+        if ( archiveType.equalsIgnoreCase( "zip" ) )
+        {
+            Zip zipTask = new Zip();
+            zipTask.setProject( project );
+            zipTask.setDestFile( finalFile );
+            zipTask.setBasedir( getTargetDirectory() );
+            zipTask.setIncludes( getArchiveDirectory().getName() + "/**" );
+            zipTask.execute();
+        }
+        // TAR Archive
+        else if ( archiveType.equalsIgnoreCase( "tar" ) )
+        {
+            Tar tarTask = new Tar();
+            tarTask.setProject( project );
+            tarTask.setDestFile( finalFile );
+            tarTask.setBasedir( getTargetDirectory() );
+            tarTask.setIncludes( getArchiveDirectory().getName() + "/**" );
+            tarTask.execute();
+        }
+        // TAR.GZ Archive
+        else if ( archiveType.equalsIgnoreCase( "tar.gz" ) )
+        {
+            File tarFile = new File( mojo.getOutputDirectory(), target.getId() + ".tar" );
+
+            Tar tarTask = new Tar();
+            tarTask.setProject( project );
+            tarTask.setDestFile( tarFile );
+            tarTask.setBasedir( getTargetDirectory() );
+            tarTask.setIncludes( getArchiveDirectory().getName() + "/**" );
+            tarTask.execute();
+
+            GZip gzipTask = new GZip();
+            gzipTask.setProject( project );
+            gzipTask.setDestfile( finalFile );
+            gzipTask.setSrc( tarFile );
+            gzipTask.execute();
+
+            tarFile.delete();
+        }
+        // TAR.BZ2 Archive
+        else if ( archiveType.equalsIgnoreCase( "tar.bz2" ) )
+        {
+            File tarFile = new File( mojo.getOutputDirectory(), target.getId() + ".tar" );
+
+            Tar tarTask = new Tar();
+            tarTask.setProject( project );
+            tarTask.setDestFile( tarFile );
+            tarTask.setBasedir( getTargetDirectory() );
+            tarTask.setIncludes( getArchiveDirectory().getName() + "/**" );
+            tarTask.execute();
+
+            BZip2 bzip2Task = new BZip2();
+            bzip2Task.setProject( project );
+            bzip2Task.setDestfile( finalFile );
+            bzip2Task.setSrc( tarFile );
+            bzip2Task.execute();
+
+            tarFile.delete();
+        }
+
+        log.info( "=> Archive Installer (" + archiveType + ") archive generated at "
+            + finalFile );
 
         // TODO FIXME
         //        File baseDirectory = target.getLayout().getInstallationDirectory();
@@ -120,115 +227,81 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
         //            throw new MojoFailureException( "Failed to copy Archive Installer resources files." );
         //        }
         //
-        //        // Generating the Bin
-        //        log.info( "Generating Archive Installer" );
-        //
-        //        Project project = new Project();
-        //        project.setBaseDir( targetDirectory );
-        //
-        //        // ZIP Archive
-        //        if ( archiveType.equalsIgnoreCase( "zip" ) )
-        //        {
-        //            Zip zipTask = new Zip();
-        //            zipTask.setProject( project );
-        //            zipTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
-        //            zipTask.setBasedir( targetDirectory );
-        //            zipTask.setIncludes( archiveDirectory.getName() + "/**" );
-        //            zipTask.execute();
-        //        }
-        //        // TAR Archive
-        //        else if ( archiveType.equalsIgnoreCase( "tar" ) )
-        //        {
-        //            Tar tarTask = new Tar();
-        //            tarTask.setProject( project );
-        //            tarTask.setDestFile( new File( imagesDirectory, target.getFinalName() ) );
-        //            tarTask.setBasedir( targetDirectory );
-        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-        //            tarTask.execute();
-        //        }
-        //        // TAR.GZ Archive
-        //        else if ( archiveType.equalsIgnoreCase( "tar.gz" ) )
-        //        {
-        //            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
-        //
-        //            Tar tarTask = new Tar();
-        //            tarTask.setProject( project );
-        //            tarTask.setDestFile( tarFile );
-        //            tarTask.setBasedir( targetDirectory );
-        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-        //            tarTask.execute();
-        //
-        //            GZip gzipTask = new GZip();
-        //            gzipTask.setProject( project );
-        //            gzipTask.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
-        //            gzipTask.setSrc( tarFile );
-        //            gzipTask.execute();
-        //
-        //            tarFile.delete();
-        //        }
-        //        // TAR.BZ2 Archive
-        //        else if ( archiveType.equalsIgnoreCase( "tar.bz2" ) )
-        //        {
-        //            File tarFile = new File( imagesDirectory, target.getId() + ".tar" );
-        //
-        //            Tar tarTask = new Tar();
-        //            tarTask.setProject( project );
-        //            tarTask.setDestFile( tarFile );
-        //            tarTask.setBasedir( targetDirectory );
-        //            tarTask.setIncludes( archiveDirectory.getName() + "/**" );
-        //            tarTask.execute();
-        //
-        //            BZip2 bzip2Task = new BZip2();
-        //            bzip2Task.setProject( project );
-        //            bzip2Task.setDestfile( new File( imagesDirectory, target.getFinalName() ) );
-        //            bzip2Task.setSrc( tarFile );
-        //            bzip2Task.execute();
-        //
-        //            tarFile.delete();
-        //        }
+
         //
         //        log.info( "Archive Installer generated at " + new File( imagesDirectory, target.getFinalName() ) );
     }
 
 
     /**
-     * Recursively copy files from the given source to the given destination.
+     * Verifies the target.
      *
-     * @param src
-     *      the source
-     * @param dest
-     *      the destination
-     * @throws IOException
-     *      If an error occurs when copying a file
+     * @return
+     *      <code>true</code> if the target is correct, 
+     *      <code>false</code> if not.
      */
-    public void copyFiles( File src, File dest ) throws IOException
+    private boolean verifyTarget()
     {
-        if ( src.isDirectory() )
-        {
-            dest.mkdirs();
+        // Getting the archive type
+        String archiveType = target.getArchiveType();
 
-            for ( File file : src.listFiles() )
-            {
-                copyFiles( file, new File( dest, file.getName() ) );
-            }
-        }
-        else
+        // Checking for a null archive type
+        if ( archiveType == null )
         {
-            FileUtils.copyFile( src, dest );
+            log.warn( "Archive type is null!" );
+            log.warn( "The build will continue, but please check the archive type of this installer target" );
+            return false;
         }
+
+        // Checking for a known archive type
+        if ( !archiveType.equalsIgnoreCase( "zip" ) && !archiveType.equalsIgnoreCase( "tar" )
+            && !archiveType.equalsIgnoreCase( "tar.gz" ) && !archiveType.equalsIgnoreCase( "tar.bz2" ) )
+        {
+            log.warn( "Archive type is unknwown (" + archiveType + ")!" );
+            log.warn( "The build will continue, but please check the archive type of this installer " );
+            log.warn( "target" );
+            return false;
+        }
+
+        return true;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected void initializeFilterProperties()
+    {
+        super.initializeFilterProperties();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public File getInstallationDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return getArchiveDirectory();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public File getInstanceDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getArchiveDirectory(), "instances/default" );
+    }
+
+
+    /**
+     * Gets the directory for the archive.
+     *
+     * @return
+     *      the directory for the archive
+     */
+    private File getArchiveDirectory()
+    {
+        return new File( getTargetDirectory(), "apacheds-" + mojo.getProject().getVersion() );
     }
 }
