@@ -27,7 +27,10 @@ import java.util.Set;
 
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
+import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
+import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
+import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -487,7 +490,34 @@ public class MockDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DnNode<List<AdministrativePoint>> getAdministrativePoints()
+    public DnNode<AccessControlAdministrativePoint> getAccessControlAPCache()
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<CollectiveAttributeAdministrativePoint> getCollectiveAttributeAPCache()
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<SubschemaAdministrativePoint> getSubschemaAPCache()
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache()
     {
         return null;
     }
