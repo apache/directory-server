@@ -84,7 +84,8 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 
         try
         {
-            copyCommonFiles( mojo );
+            // Creating the installation and instance layouts
+            createLayouts();
 
             // Copying the 'Manage ApacheDS' utility
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "Manage ApacheDS.exe" ), new File(

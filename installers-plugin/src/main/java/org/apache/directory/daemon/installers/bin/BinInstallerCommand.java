@@ -22,7 +22,6 @@ package org.apache.directory.daemon.installers.bin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
@@ -30,7 +29,6 @@ import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
-import org.codehaus.plexus.util.FileUtils;
 
 
 /**
@@ -87,9 +85,27 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
         try
         {
-            // Creating the installation layout and copying files to it
-            copyCommonFiles( mojo );
+            // Creating the installation layouts
+            createInstallationLayout();
 
+            // Creating the instance directory
+            File instanceDirectory = getInstanceDirectory();
+            instanceDirectory.mkdirs();
+
+            // Copying configuration files to the instance directory
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
+                new File( instanceDirectory, "log4j.properties" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                    getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-instance.conf" ),
+                    new File( instanceDirectory, "wrapper.conf" ), true );
+
+            // Copying the init script to the instance directory
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                    getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/bin/apacheds-init" ),
+                    new File( instanceDirectory, "apacheds-init" ), true );
+
+            // Creating the sh directory for the shell scripts
             File binShDirectory = new File( getBinInstallerDirectory(), "sh" );
             binShDirectory.mkdirs();
 
@@ -274,6 +290,8 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         }
         filterProperties.put( "finalName", finalName );
         filterProperties.put( "apacheds.version", mojo.getProject().getVersion() );
+        filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
+        filterProperties.put( "double.quote", "" );
     }
 
 

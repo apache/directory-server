@@ -22,14 +22,11 @@ package org.apache.directory.daemon.installers.macosxpkg;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.directory.daemon.installers.Target;
-import org.apache.directory.server.InstallationLayout;
-import org.apache.directory.server.InstanceLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -108,8 +105,8 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         // Copying the apacheds files in the root directory
         try
         {
-            // Creating the installation layout and copying files to it
-            copyCommonFiles( mojo );
+            // Creating the installation and instance layouts
+            createLayouts();
 
             // Copying the apacheds command to /usr/bin
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(

@@ -84,8 +84,8 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
 
         try
         {
-            // Creating the installation layout and copying files to it
-            copyCommonFiles( mojo );
+            // Creating the installation and instance layouts
+            createLayouts();
 
             // Copy bat and sh scripts to bin
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(

@@ -45,10 +45,24 @@ done
 # Installing
 echo "Installing..."
 
+# Filtering apacheds script file
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
+verifyExitCode
+mv ../server/bin/apacheds.tmp ../server/bin/apacheds
+verifyExitCode
+sed -e "s;@instances.directory@;${INSTANCES_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
+verifyExitCode
+mv ../server/bin/apacheds.tmp ../server/bin/apacheds
+verifyExitCode
+sed -e "s;@user@;${RUN_AS_USER};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
+verifyExitCode
+mv ../server/bin/apacheds.tmp ../server/bin/apacheds
+verifyExitCode
+
 # Copying the server files
 mkdir -p $APACHEDS_HOME_DIRECTORY
 verifyExitCode
-cp -r ../rootFolder/server/* $APACHEDS_HOME_DIRECTORY
+cp -r ../server/* $APACHEDS_HOME_DIRECTORY
 verifyExitCode
 
 # Creating instances home directory
@@ -62,8 +76,6 @@ mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY
 verifyExitCode
 mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/conf
 verifyExitCode
-mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/ldif
-verifyExitCode
 mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/log
 verifyExitCode
 mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/partitions
@@ -71,38 +83,36 @@ verifyExitCode
 mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/run
 verifyExitCode
 
+# Filtering default instance wrapper.conf file
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper.conf > ../instance/wrapper.conf.tmp
+verifyExitCode
+mv ../instance/wrapper.conf.tmp ../instance/wrapper.conf
+verifyExitCode
+
 # Copying the default instance files
-cp ../rootFolder/instance/apacheds.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+cp ../instance/wrapper.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
-cp ../rootFolder/instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+cp ../instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
-#cp ../rootFolder/instance/server.xml $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
-#verifyExitCode
 
 # Filtering and copying the init.d script
-sed -e "s;@APACHEDS.HOME@;${APACHEDS_HOME_DIRECTORY};" ../rootFolder/instance/apacheds-init > ../rootFolder/instance/apacheds-init.tmp
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/apacheds-init > ../instance/apacheds-init.tmp
 verifyExitCode
-mv ../rootFolder/instance/apacheds-init.tmp ../rootFolder/instance/apacheds-init
+mv ../instance/apacheds-init.tmp ../instance/apacheds-init
 verifyExitCode
-sed -e "s;@INSTANCE.HOME@;${INSTANCES_HOME_DIRECTORY};" ../rootFolder/instance/apacheds-init > ../rootFolder/instance/apacheds-init.tmp
+sed -e "s;@default.instance.name@;$DEFAULT_INSTANCE_NAME;" ../instance/apacheds-init > ../instance/apacheds-init.tmp
 verifyExitCode
-mv ../rootFolder/instance/apacheds-init.tmp ../rootFolder/instance/apacheds-init
+mv ../instance/apacheds-init.tmp ../instance/apacheds-init
 verifyExitCode
-sed -e "s;@INSTANCE@;${DEFAULT_INSTANCE_NAME};" ../rootFolder/instance/apacheds-init > ../rootFolder/instance/apacheds-init.tmp
-verifyExitCode
-mv ../rootFolder/instance/apacheds-init.tmp ../rootFolder/instance/apacheds-init
-verifyExitCode
-sed -e "s;@RUN_AS_USER@;${RUN_AS_USER};" ../rootFolder/instance/apacheds-init > ../rootFolder/instance/apacheds-init.tmp
-verifyExitCode
-mv ../rootFolder/instance/apacheds-init.tmp ../rootFolder/instance/apacheds-init
-verifyExitCode
-cp ../rootFolder/instance/apacheds-init $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
+cp ../instance/apacheds-init $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
 verifyExitCode
 
 # Setting the correct permissions on executable files
 chmod +x $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
 verifyExitCode
 chmod +x $APACHEDS_HOME_DIRECTORY/bin/apacheds
+verifyExitCode
+chmod +x $APACHEDS_HOME_DIRECTORY/bin/wrapper
 verifyExitCode
 
 # Creating the apacheds user (only if needed)

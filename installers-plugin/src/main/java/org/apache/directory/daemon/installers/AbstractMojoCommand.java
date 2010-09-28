@@ -131,22 +131,33 @@ public abstract class AbstractMojoCommand<T extends Target>
 
 
     /**
-     * Creates installation layout and copies files to it.
+     * Creates both installation and instance layouts.
      *
      * @param mojo
      *      the mojo
-     * @throws Exception
+     * @throws MojoFailureException
+     * @throws IOException
      */
-    public void copyCommonFiles( GenerateMojo mojo ) throws Exception
+    public void createLayouts() throws MojoFailureException, IOException
+    {
+        createInstallationLayout();
+        createInstanceLayout();
+    }
+
+
+    /**
+     * Creates the installation layout.
+     *
+     * @throws MojoFailureException
+     * @throws IOException
+     */
+    protected void createInstallationLayout() throws MojoFailureException, IOException
     {
         // Getting the installation layout and creating directories
         InstallationLayout installationLayout = getInstallationLayout();
         installationLayout.mkdirs();
 
-        // Getting the instance layout and creating directories
-        InstanceLayout instanceLayout = getInstanceLayout();
-        instanceLayout.mkdirs();
-
+        // Copying dependencies artifacts to the lib folder of the installation layout
         MojoHelperUtils.copyDependencies( mojo, installationLayout );
 
         // Copying the LICENSE and NOTICE files
@@ -158,21 +169,48 @@ public abstract class AbstractMojoCommand<T extends Target>
                 new File( installationLayout.getInstallationDirectory(),
                     "NOTICE" ) );
 
-        // Copying wrapper files
-        copyWrapperFiles( installationLayout, instanceLayout );
-
-        // Copying the log4j.properties file
-        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-            getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
-            new File( instanceLayout.getConfDirectory(), "log4j.properties" ), true );
-
         // Copying the 'apacheds' shell script (only for Linux, Solaris or Mac OS X)
         if ( target.isOsNameLinux() || target.isOsNameSolaris() || target.isOsNameMacOSX() )
         {
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                 getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds.init" ),
                 new File( installationLayout.getBinDirectory(), "apacheds" ), true );
+
+            MojoHelperUtils.exec( new String[]
+                { "chmod", "755", "apacheds" }, installationLayout.getBinDirectory(), false );
         }
+
+        // Copying the wrappers files (native wrapper executable and library [.jnilib, .so, .dll])
+        copyWrapperFiles();
+
+        // Copying the wrapper configuration file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+            getClass()
+                .getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-installation.conf" ),
+            new File( installationLayout.getConfDirectory(), "wrapper.conf" ), true );
+    }
+
+
+    /**
+     * Creates the instance layout.
+     *
+     * @throws IOException
+     */
+    protected void createInstanceLayout() throws IOException
+    {
+        // Getting the instance layout and creating directories
+        InstanceLayout instanceLayout = getInstanceLayout();
+        instanceLayout.mkdirs();
+
+        // Copying the log4j.properties file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+            getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
+            new File( instanceLayout.getConfDirectory(), "log4j.properties" ), true );
+
+        // Copying the wrapper configuration file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-instance.conf" ),
+                new File( instanceLayout.getConfDirectory(), "wrapper.conf" ), true );
     }
 
 
@@ -205,10 +243,9 @@ public abstract class AbstractMojoCommand<T extends Target>
      *
      * @param installationLayout
      *      the installation layout
-     * @param instanceLayout
      * @throws MojoFailureException
      */
-    private void copyWrapperFiles( InstallationLayout installationLayout, InstanceLayout instanceLayout )
+    private void copyWrapperFiles()
         throws MojoFailureException
     {
         // Mac OS X x86
@@ -218,10 +255,10 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-32" ), new File(
-                        installationLayout.getBinDirectory(), "wrapper" ) );
+                        getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-32.jnilib" ),
-                    new File( installationLayout.getLibDirectory(),
+                    new File( getInstallationLayout().getLibDirectory(),
                         "libwrapper.jnilib" ) );
             }
             catch ( IOException e )
@@ -237,10 +274,10 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-64" ), new File(
-                        installationLayout.getBinDirectory(), "wrapper" ) );
+                        getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-64.jnilib" ),
-                    new File( installationLayout.getLibDirectory(),
+                    new File( getInstallationLayout().getLibDirectory(),
                         "libwrapper.jnilib" ) );
             }
             catch ( IOException e )
@@ -257,10 +294,10 @@ public abstract class AbstractMojoCommand<T extends Target>
                 MojoHelperUtils.copyBinaryFile(
                     getClass().getResourceAsStream(
                         "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-32" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper" ) );
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-32.so" ),
-                    new File( installationLayout.getLibDirectory(), "libwrapper.so" ) );
+                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
             catch ( IOException e )
             {
@@ -276,10 +313,10 @@ public abstract class AbstractMojoCommand<T extends Target>
                 MojoHelperUtils.copyBinaryFile(
                     getClass().getResourceAsStream(
                         "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-64" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper" ) );
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-64.so" ),
-                    new File( installationLayout.getLibDirectory(), "libwrapper.so" ) );
+                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
             catch ( IOException e )
             {
@@ -294,10 +331,10 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-x86-32" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper" ) );
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-x86-32.so" ), new File(
-                        installationLayout.getLibDirectory(),
+                        getInstallationLayout().getLibDirectory(),
                     "libwrapper.so" ) );
             }
             catch ( IOException e )
@@ -313,10 +350,10 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-sparc-32" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper" ) );
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-sparc-32.so" ), new File(
-                        installationLayout.getLibDirectory(),
+                        getInstallationLayout().getLibDirectory(),
                     "libwrapper.so" ) );
             }
             catch ( IOException e )
@@ -332,31 +369,16 @@ public abstract class AbstractMojoCommand<T extends Target>
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-windows-x86-32.exe" ),
-                    new File( installationLayout.getBinDirectory(), "wrapper.exe" ) );
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper.exe" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/lib/wrapper-windows-x86-32.dll" ), new File(
-                        installationLayout.getLibDirectory(),
+                        getInstallationLayout().getLibDirectory(),
                     "wrapper.dll" ) );
             }
             catch ( IOException e )
             {
                 throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
             }
-        }
-
-        // Wrapper configuration files
-        try
-        {
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-installation.conf" ),
-                new File( installationLayout.getConfDirectory(), "wrapper.conf" ), true );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-instance.conf" ),
-                new File( instanceLayout.getConfDirectory(), "wrapper.conf" ), true );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
         }
     }
 }
