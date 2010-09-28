@@ -35,7 +35,7 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class DebTarget extends Target
 {
-    /** The PackageMaker utility executable */
+    /** The dpkg utility executable */
     private File dpkgUtility = new File( "/usr/bin/dpkg" );
 
 
