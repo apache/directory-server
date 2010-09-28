@@ -351,7 +351,18 @@ testpid() {
 }
 
 usage() {
-    echo "Please enter an instance name..."
+    # Command parameter
+    if [ "x$1" = "x" ]; 
+    then
+        echo "Please enter a command..."
+    fi
+
+    # Instance parameter
+    if [ "x$2" = "x" ]; 
+    then
+        echo "Please enter an instance name..."
+    fi
+    
     echo "Usage: $0 <command> <instance name>"
     echo "  Available Commands: "
     echo "      console     - Run in interactive mode with log output to the console."
@@ -490,20 +501,27 @@ dump() {
 
 list() {
   echo "Available instances..."
-  for instance in $INSTANCE_HOME/* ; do
+  for instance in $INSTANCES_DIRECTORY/* ; do
 	echo "	" `basename $instance`;
   done
 }
 
-# Make sure they entered an instance name
-if [[ ( $2 == "" ) && ( $1 == "start" || $1 == "stop" || $1 == "status" || $1 == "dump" ) ]]
+#
+# Checking parameters
+#
+
+# Command parameter
+if [ "x$1" = "x" ]; 
 then
-	usage
-	echo
-	echo "Please enter an instance name to $1..."
-	echo
-	list
-	exit 1
+  usage $*
+  exit 2
+fi
+
+# Instance parameter
+if [ "x$2" = "x" ]; 
+then
+  usage $*
+  exit 2
 fi
 
 case "$1" in
