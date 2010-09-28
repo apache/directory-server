@@ -17,4 +17,21 @@
 #  specific language governing permissions and limitations
 #  under the License.
 #
+
+# *** Linux Standard Base Information ***
+### BEGIN INIT INFO
+# Provides: apacheds
+# Required-Start: $local_fs $network $remote_fs
+# Required-Stop: $local_fs $network $remote_fs
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Start and stop ApacheDS
+# Description: Start and stop ApacheDS
+### END INIT INFO
+
+# *** Information for chkconfig ***
+# chkconfig: 2345 91 35
+# description: Start and stop ApacheDS
+
+# Forwarding the command to the default script
 @installation.directory@/bin/apacheds $1 @default.instance.name@
