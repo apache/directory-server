@@ -149,7 +149,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     {
         String krbConfPath = getClass().getClassLoader().getResource( "krb5.conf" ).getFile();
         System.setProperty( "java.security.krb5.conf", krbConfPath );
-        System.setProperty( "sun.security.krb5.debug", "true" );
+        System.setProperty( "sun.security.krb5.debug", "false" );
     }
 
 
