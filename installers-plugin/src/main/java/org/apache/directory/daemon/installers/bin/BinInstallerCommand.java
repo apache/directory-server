@@ -102,7 +102,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Copying the init script to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "org/apache/directory/daemon/installers/etc-initd-script" ),
+                    getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
                     new File( instanceDirectory, "etc-initd-script" ), true );
 
             // Creating the sh directory for the shell scripts

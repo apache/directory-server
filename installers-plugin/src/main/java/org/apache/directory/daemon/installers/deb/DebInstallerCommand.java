@@ -83,7 +83,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             // Copying the init script in /etc/init.d/
             File debEtcInitdDirectory = new File( getDebDirectory(), "etc/init.d" );
             debEtcInitdDirectory.mkdirs();
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "org/apache/directory/daemon/installers/etc-initd-script" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
                 new File( debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
         }
         catch ( Exception e )
