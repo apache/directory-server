@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -369,7 +371,7 @@ public class ApacheDS
     
     
     /**
-     * Load the ldif files if there are some
+     * Load the existing LDIF files in alphabetic order
      */
     public void loadLdifs() throws Exception
     {
@@ -416,7 +418,7 @@ public class ApacheDS
         }
         else
         {
-            // get all the ldif files within the directory (should be sorted alphabetically)
+            // get all the ldif files within the directory
             File[] ldifFiles = ldifDirectory.listFiles( new FileFilter()
             {
                 public boolean accept( File pathname )
@@ -433,7 +435,16 @@ public class ApacheDS
                     getCanonical( ldifDirectory ) );
                 return;
             }
-    
+
+            // Sort ldifFiles in alphabetic order
+            Arrays.sort( ldifFiles, new Comparator<File>()
+            {
+                public int compare( File f1, File f2)
+                {
+                    return f1.getName().compareTo( f2 .getName() );
+                }
+            });
+            
             // load all the ldif files and load each one that is loaded
             for ( File ldifFile : ldifFiles )
             {
