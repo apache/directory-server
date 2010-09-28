@@ -35,10 +35,18 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class DebTarget extends Target
 {
-    /** The wrapper executable path */
-    private String wrapperExecutablePath = "src/main/installers/wrapper/bin/wrapper-windows-x86-32.exe";
     /** The PackageMaker utility executable */
     private File dpkgUtility = new File( "/usr/bin/dpkg" );
+
+
+    /**
+     * Creates a new instance of DebTarget.
+     */
+    public DebTarget()
+    {
+        setOsName( Target.OS_NAME_LINUX );
+        setOsArch( Target.OS_ARCH_X86_64 );
+    }
 
 
     /**
@@ -54,18 +62,6 @@ public class DebTarget extends Target
 
 
     /**
-     * Gets the Wrapper executable path.
-     *
-     * @return
-     *      the wrapper executable path
-     */
-    public String getWrapperExecutablePath()
-    {
-        return wrapperExecutablePath;
-    }
-
-
-    /**
      * Sets the dpkg utility.
      *
      * @param dpkgUtility
@@ -74,17 +70,5 @@ public class DebTarget extends Target
     public void setDpkgUtility( File dpkgUtility )
     {
         this.dpkgUtility = dpkgUtility;
-    }
-
-
-    /**
-     * Sets the Wrapper executable path.
-     *
-     * @param wrapperExecutablePath
-     *      the wrapper executable path
-     */
-    public void setWrapperExecutablePath( String wrapperExecutablePath )
-    {
-        this.wrapperExecutablePath = wrapperExecutablePath;
     }
 }

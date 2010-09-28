@@ -120,7 +120,6 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
                         new File( binShDirectory, "install.sh" ), false );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "variables.sh" ),
                         new File( binShDirectory, "variables.sh" ), false );
-
         }
         catch ( Exception e )
         {

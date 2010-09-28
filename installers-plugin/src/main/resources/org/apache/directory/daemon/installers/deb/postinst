@@ -20,26 +20,21 @@
 set -e
 
 # Setting executable permissions
-chmod +x /opt/apacheds-${app.version}/bin/apacheds
-chmod +x /etc/init.d/apacheds-${app.version}-default
+chmod +x /opt/apacheds-${version}/bin/apacheds
+chmod +x /opt/apacheds-${version}/bin/wrapper
+chmod +x /etc/init.d/apacheds-${version}-default
 
 # Creating the apacheds user (only if needed)
 USER=`eval "id -u -n apacheds 2>/dev/null || :"`
 if [ ! "Xapacheds" = "X$USER" ]
 then
 	/usr/sbin/groupadd --system apacheds >/dev/null 2>&1 || :
-	/usr/sbin/useradd --system -g apacheds -d /opt/apacheds-${app.version} apacheds >/dev/null 2>&1 || :
+	/usr/sbin/useradd --system -g apacheds -d /opt/apacheds-${version} apacheds >/dev/null 2>&1 || :
 fi
 
 # Modifying owner
-chown -R apacheds:apacheds /opt/apacheds-${app.version}
-chown -R apacheds:apacheds /var/lib/apacheds-${app.version}
-chown apacheds:apacheds /var/run/apacheds-${app.version}
-chown root:root /etc/init.d/apacheds-${app.version}-default
+chown -R apacheds:apacheds /opt/apacheds-${version}
+chown -R apacheds:apacheds /var/lib/apacheds-${version}
+chown root:root /etc/init.d/apacheds-${version}-default
 
-# Create symbolic links for runlevels for default instance
-update-rc.d apacheds-${app.version}-default defaults
-
-# Start the default instance 
-/etc/init.d/apacheds-${app.version}-default start
 
