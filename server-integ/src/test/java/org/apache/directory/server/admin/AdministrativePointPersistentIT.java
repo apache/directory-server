@@ -25,12 +25,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
+import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
+import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -188,16 +190,55 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP2,ou=system" ).getString() );
         assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
-        // Check the cache
-        DnNode<List<AdministrativePoint>> cache = ldapServer.getDirectoryService().getAdministrativePoints();
+        // Check the caches
+        DnNode<AccessControlAdministrativePoint> acCache = ldapServer.getDirectoryService().getAccessControlAPCache();
+        DnNode<CollectiveAttributeAdministrativePoint> caCache = ldapServer.getDirectoryService()
+            .getCollectiveAttributeAPCache();
+        DnNode<TriggerExecutionAdministrativePoint> teCache = ldapServer.getDirectoryService()
+            .getTriggerExecutionAPCache();
+        DnNode<SubschemaAdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
 
-        List<AdministrativePoint> aap1 = cache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        // The ACs
+        AdministrativePoint aap1 = acCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
         assertNotNull( aap1 );
 
-        List<AdministrativePoint> aap2 = cache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        AdministrativePoint aap2 = acCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
         assertNotNull( aap2 );
 
-        List<AdministrativePoint> subAap1 = cache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+        AdministrativePoint subAap1 = acCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+            schemaManager ) );
+        assertNotNull( subAap1 );
+
+        // The ACs
+        aap1 = caCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        assertNotNull( aap1 );
+
+        aap2 = caCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        assertNotNull( aap2 );
+
+        subAap1 = caCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+            schemaManager ) );
+        assertNotNull( subAap1 );
+
+        // The TEs
+        aap1 = teCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        assertNotNull( aap1 );
+
+        aap2 = teCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        assertNotNull( aap2 );
+
+        subAap1 = teCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+            schemaManager ) );
+        assertNotNull( subAap1 );
+
+        // The SSs
+        aap1 = ssCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        assertNotNull( aap1 );
+
+        aap2 = ssCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        assertNotNull( aap2 );
+
+        subAap1 = ssCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
             schemaManager ) );
         assertNotNull( subAap1 );
     }

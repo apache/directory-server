@@ -50,6 +50,9 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     protected Map<String, AdministrativePoint> children;
 
 
+    /**
+     * Creates a new instance of AbstractAdministrativePoint.
+     */
     protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
     {
         this.dn = dn;
@@ -91,6 +94,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
      */
     public boolean isAutonomous()
     {
+        // Default to false
         return false;
     }
 
@@ -98,19 +102,13 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * {@inheritDoc}
      */
-    public boolean isInner()
-    {
-        return false;
-    }
+    public abstract boolean isInner();
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean isSpecific()
-    {
-        return false;
-    }
+    public abstract boolean isSpecific();
 
 
     /**

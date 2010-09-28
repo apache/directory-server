@@ -25,47 +25,22 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
 /**
+ * An abstract class used for AccessControl APs
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class InnerAdministrativePoint extends AbstractAdministrativePoint
+public abstract class AccessControlAdministrativePoint extends AbstractAdministrativePoint
 {
+
     /**
-     * Create an instance of InnerAdministrativePoint
+     * Create an instance of AccessControlAdministrativePoint
      *
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    public InnerAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected AccessControlAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
     {
         super( dn, uuid, role );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isInner()
-    {
-        return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public AdministrativePoint getParent()
-    {
-        return parent;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String toString()
-    {
-        return "IAP : " + super.toString();
     }
 }

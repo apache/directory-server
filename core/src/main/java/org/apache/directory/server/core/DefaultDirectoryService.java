@@ -39,7 +39,10 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
-import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
+import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
+import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
+import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -245,8 +248,17 @@ public class DefaultDirectoryService implements DirectoryService
     /** the ehcache based cache service */
     private CacheService cacheService;
 
-    /** The AdministrativePoint cache */
-    private DnNode<List<AdministrativePoint>> adminPointCache;
+    /** The AccessControl AdministrativePoint cache */
+    private DnNode<AccessControlAdministrativePoint> accessControlAPCache;
+
+    /** The CollectiveAttribute AdministrativePoint cache */
+    private DnNode<CollectiveAttributeAdministrativePoint> collectiveAttributeAPCache;
+
+    /** The Subschema AdministrativePoint cache */
+    private DnNode<SubschemaAdministrativePoint> subschemaAPCache;
+
+    /** The TriggerExecution AdministrativePoint cache */
+    private DnNode<TriggerExecutionAdministrativePoint> triggerExecutionAPCache;
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -1428,8 +1440,11 @@ public class DefaultDirectoryService implements DirectoryService
         cacheService = new CacheService();
         cacheService.initialize( this );
 
-        // Initialize the AP cache
-        adminPointCache = new DnNode<List<AdministrativePoint>>();
+        // Initialize the AP caches
+        accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
+        collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
+        subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
+        triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
         DNFactory.initialize( this );
 
@@ -1793,10 +1808,37 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * @return The AdministrativePoint cache
+     * {@inheritDoc}
      */
-    public DnNode<List<AdministrativePoint>> getAdministrativePoints()
+    public DnNode<AccessControlAdministrativePoint> getAccessControlAPCache()
     {
-        return adminPointCache;
+        return accessControlAPCache;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<CollectiveAttributeAdministrativePoint> getCollectiveAttributeAPCache()
+    {
+        return collectiveAttributeAPCache;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<SubschemaAdministrativePoint> getSubschemaAPCache()
+    {
+        return subschemaAPCache;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache()
+    {
+        return triggerExecutionAPCache;
     }
 }

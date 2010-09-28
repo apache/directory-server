@@ -25,27 +25,28 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
 /**
+ * A class used to create a TriggerExecution AAP
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SpecificAdministrativePoint extends AbstractAdministrativePoint
+public class TriggerExecutionAAP extends TriggerExecutionAdministrativePoint
 {
     /**
-     * Create an instance of SpecificAdministrativePoint
+     * Create an instance of TriggerExecution AAP
      *
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
-     * @param role The AdministrativePoint role
      */
-    public SpecificAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    public TriggerExecutionAAP( DN dn, String uuid )
     {
-        super( dn, uuid, role );
+        super( dn, uuid, AdministrativeRole.TriggerExecutionSpecificArea );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isSpecific()
     {
         return true;
@@ -55,9 +56,19 @@ public class SpecificAdministrativePoint extends AbstractAdministrativePoint
     /**
      * {@inheritDoc}
      */
-    public AdministrativePoint getParent()
+    @Override
+    public boolean isInner()
     {
-        return parent;
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAutonomous()
+    {
+        return true;
     }
 
 
@@ -66,6 +77,6 @@ public class SpecificAdministrativePoint extends AbstractAdministrativePoint
      */
     public String toString()
     {
-        return "SAP : " + super.toString();
+        return "TriggerExecution AAP : " + super.toString();
     }
 }

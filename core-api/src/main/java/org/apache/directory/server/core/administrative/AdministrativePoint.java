@@ -49,18 +49,24 @@ public interface AdministrativePoint
 
 
     /**
+     * Tells if the AdministrativePoint defines an autonomous area
+     * 
      * @return true if the AdministrativePoint is an AutonomousArea
      */
     boolean isAutonomous();
 
 
     /**
+     * Tells if the AdministrativePoint defines a inner area
+     * 
      * @return true if the AdministrativePoint is an InnerArea
      */
     boolean isInner();
 
 
     /**
+     * Tells if the AdministrativePoint defines a specific area
+     * 
      * @return true if the AdministrativePoint is a SpecificArea
      */
     boolean isSpecific();

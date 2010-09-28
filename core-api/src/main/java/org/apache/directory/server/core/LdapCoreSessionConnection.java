@@ -710,6 +710,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         try
         {
             DN newRdn = null;
+
             if ( modDnRequest.getNewRdn() != null )
             {
                 newRdn = new DN( modDnRequest.getNewRdn().getName(), schemaManager );
