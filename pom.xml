@@ -35,7 +35,7 @@
 
   <properties>
     <projectName>Apache Directory Server</projectName>
-    <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${version}/</distMgmtSiteUrl>
+    <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.20-SNAPSHOT</org.apache.directory.shared.version>
@@ -67,7 +67,7 @@
     <maven.artifact.version>2.0.9</maven.artifact.version>
     <maven.plugin.api.version>2.0.9</maven.plugin.api.version>
     <maven.project.version>2.0.9</maven.project.version>
-    <mina.core.version>2.0.0-RC1</mina.core.version>
+    <mina.core.version>2.0.0</mina.core.version>
     <plexus.utils.version>1.0.3</plexus.utils.version>
     <quartz.version>1.6.0</quartz.version>
     <slf4j.api.version>1.5.11</slf4j.api.version>
