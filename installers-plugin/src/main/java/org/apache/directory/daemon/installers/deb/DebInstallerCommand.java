@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.daemon.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -83,7 +84,8 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             // Copying the init script in /etc/init.d/
             File debEtcInitdDirectory = new File( getDebDirectory(), "etc/init.d" );
             debEtcInitdDirectory.mkdirs();
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
                 new File( debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
         }
         catch ( Exception e )
@@ -169,6 +171,14 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         {
             log.warn( "Deb package installer can only be targeted for Linux platforms!" );
             log.warn( "The build will continue, but please check the the platform of this installer target" );
+            return false;
+        }
+
+        // Verifying the currently used OS is Linux
+        if ( !Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
+        {
+            log.warn( "Deb package installer can only be built on a machine running Linux!" );
+            log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }
 

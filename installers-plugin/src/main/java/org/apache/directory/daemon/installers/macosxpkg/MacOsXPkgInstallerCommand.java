@@ -254,7 +254,15 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_MAC_OS_X ) )
         {
             log.warn( "Mac OS X PKG installer can only be targeted for Mac OS X platform!" );
-            log.warn( "The build will continue, but please check the the platform of this installer target." );
+            log.warn( "The build will continue, but please check the platform of this installer target." );
+            return false;
+        }
+
+        // Verifying the currently used OS is Mac OS X
+        if ( !Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
+        {
+            log.warn( "Mac OS X PKG installer can only be built on a machine running Mac OS X!" );
+            log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }
 
