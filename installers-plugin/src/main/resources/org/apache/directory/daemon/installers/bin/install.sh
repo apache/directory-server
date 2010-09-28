@@ -96,15 +96,15 @@ cp ../instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 
 # Filtering and copying the init.d script
-sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/apacheds-init > ../instance/apacheds-init.tmp
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/etc-initd-script > ../instance/etc-initd-script.tmp
 verifyExitCode
-mv ../instance/apacheds-init.tmp ../instance/apacheds-init
+mv ../instance/etc-initd-script.tmp ../instance/etc-initd-script
 verifyExitCode
-sed -e "s;@default.instance.name@;$DEFAULT_INSTANCE_NAME;" ../instance/apacheds-init > ../instance/apacheds-init.tmp
+sed -e "s;@default.instance.name@;$DEFAULT_INSTANCE_NAME;" ../instance/etc-initd-script > ../instance/etc-initd-script.tmp
 verifyExitCode
-mv ../instance/apacheds-init.tmp ../instance/apacheds-init
+mv ../instance/etc-initd-script.tmp ../instance/etc-initd-script
 verifyExitCode
-cp ../instance/apacheds-init $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
+cp ../instance/etc-initd-script $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
 verifyExitCode
 
 # Setting the correct permissions on executable files

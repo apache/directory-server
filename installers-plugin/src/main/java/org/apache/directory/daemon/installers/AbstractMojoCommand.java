@@ -173,7 +173,7 @@ public abstract class AbstractMojoCommand<T extends Target>
         if ( target.isOsNameLinux() || target.isOsNameSolaris() || target.isOsNameMacOSX() )
         {
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds.init" ),
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/apacheds" ),
                 new File( installationLayout.getBinDirectory(), "apacheds" ), true );
 
             MojoHelperUtils.exec( new String[]
