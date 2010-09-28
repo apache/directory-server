@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
-import org.apache.directory.ldap.client.api.listener.DeleteListener;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -190,8 +189,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class,
-            DeleteListener.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
 
         DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, null );
@@ -213,21 +211,10 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class,
-            DeleteListener.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
 
         final AtomicInteger count = new AtomicInteger();
-
-        DeleteListener listener = new DeleteListener()
-        {
-            public void entryDeleted( LdapAsyncConnection connection, DeleteResponse response ) throws LdapException
-            {
-                assertNotNull( response );
-                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-                count.incrementAndGet();
-            }
-        };
 
         try
         {
