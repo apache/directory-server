@@ -24,7 +24,7 @@ for instance_dir in `find /var/lib/apacheds-${version} -maxdepth 1 -mindepth 1 -
   # Get instance and use it to shutdown
   instance=$(echo $instance_dir | sed -e 's/.*apacheds.*\///g')
   echo Shutting down ApacheDS instance $instance
-  /etc/init.d/apacheds-${version}-$instance stop
+  /opt/apacheds-${version}/bin/apacheds stop $instance
 
   # Backup old instance folders before deleting them
   timestamp=$(date '+%Y%m%d_%H%M%S')
