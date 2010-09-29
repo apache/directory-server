@@ -78,7 +78,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
@@ -1018,6 +1017,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         LOG.debug( "Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
+        DN dn = entry.getDn();
 
         // Check if we are adding an Administrative Point
         EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
@@ -1032,25 +1032,27 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             return;
         }
 
-        LOG.debug( "Addition of an administrative point at {} for the role {}", entry.getDn(), adminPoint );
+        LOG.debug( "Addition of an administrative point at {} for the role {}", dn, adminPoint );
 
+        // Protect the AP caches against concurrent access
         lockWrite();
         
         // Loop on all the added roles to check if they are valid
         for ( Value<?> role : adminPoint )
         {
-            checkAddRole( role, adminPoint, entry.getDn() );
+            checkAddRole( role, adminPoint, dn );
         }
 
         // Ok, we are golden.
         next.add( addContext );
 
         // Now, update the AdminPoint cache
-        createAdministrativePoints( adminPoint, entry.getDn(), entry.get( ENTRY_UUID_AT ).getString() );
+        createAdministrativePoints( adminPoint, dn, entry.get( ENTRY_UUID_AT ).getString() );
 
+        // Release the APCaches lock
         unlock();
         
-        LOG.debug( "Added an Administrative Point at {}", entry.getDn() );
+        LOG.debug( "Added an Administrative Point at {}", dn );
 
         return;
     }
@@ -1084,6 +1086,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         LOG.debug( "Deletion of an administrative point at {} for the role {}", dn, adminPoint );
         
+        // Protect the AP caches against concurrent access
         lockWrite();
         
         // Check that the removed AdministrativeRoles are valid
@@ -1103,18 +1106,13 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // which has children
         next.delete( deleteContext );
 
-        DnNode<CollectiveAttributeAdministrativePoint> caApCache = directoryService.getCollectiveAttributeAPCache();
-
-        System.out.println( "+++" + caApCache );
-
         // Now, update the AdminPoint cache
         deleteAdminPointCache( adminPoint, deleteContext );
-        
-        System.out.println( "---" + caApCache );
 
+        // Release the APCaches lock
         unlock();
         
-        LOG.debug( "Deleted an Administrative Point at {}", entry.getDn() );
+        LOG.debug( "Deleted an Administrative Point at {}", dn );
 
         return;
     }
