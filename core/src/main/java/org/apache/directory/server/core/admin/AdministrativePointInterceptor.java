@@ -1089,11 +1089,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Protect the AP caches against concurrent access
         lockWrite();
         
-        // Check that the removed AdministrativeRoles are valid
+        // Check that the removed AdministrativeRoles are valid. We don't have to do
+        // any other check, as the deleted entry has no children.
         for ( Value<?> role : adminPoint )
         {
-            checkDelRole( role, adminPoint, dn );
-
             if ( !isValidRole( role.getString() ) )
             {
                 String message = "Cannot remove the given role, it's not a valid one :" + role;
@@ -1102,8 +1101,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
         }
 
-        // Ok, we can remove the AP (no more check, as we can't delete an entry
-        // which has children
+        // Ok, we can remove the AP
         next.delete( deleteContext );
 
         // Now, update the AdminPoint cache
