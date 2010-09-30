@@ -131,6 +131,22 @@
                 </debTarget>
               </debTargets>
               
+              <!-- Targets for Linux .installer package -->
+              <rpmTargets>
+                <rpmTarget>
+                  <id>apacheds-i386-rpm</id>
+                  <finalName>apacheds-${version}-i386.rpm</finalName>
+                  <osName>Linux</osName>
+                  <osArch>i386</osArch>
+                </rpmTarget>
+                <rpmTarget>
+                  <id>apacheds-x86_64-rpm</id>
+                  <finalName>apacheds-${version}-x86_64.rpm</finalName>
+                  <osName>Linux</osName>
+                  <osArch>x86_64</osArch>
+                </rpmTarget>
+              </rpmTargets>
+              
             </configuration>
             <executions>
               <execution>
