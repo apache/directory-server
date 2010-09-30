@@ -69,8 +69,8 @@ install -m 755 ${build.dir}/%{name}-%{version}/etc-initd-script $RPM_BUILD_ROOT/
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-%{_sbindir}/groupadd --system apacheds >/dev/null 2>&1 || :
-%{_sbindir}/useradd --system -g apacheds -d %{adsdata} apacheds >/dev/null 2>&1 || :
+groupadd --system apacheds >/dev/null 2>&1 || :
+useradd --system -g apacheds -d %{adsdata} apacheds >/dev/null 2>&1 || :
 
 %post
 #/sbin/chkconfig --add %{name}
