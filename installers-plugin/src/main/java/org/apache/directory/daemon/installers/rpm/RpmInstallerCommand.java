@@ -104,7 +104,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
             MojoHelperUtils.exec( new String[]
                                     {
                                         "tar",
-                                        "-zcvf",
+                                        "-zcf",
                                         "apacheds-" + getVersion() + ".tar.gz",
                                         "apacheds-" + getVersion()
                                     },
@@ -123,6 +123,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         MojoHelperUtils.exec( new String[]
                                 {
                                     target.getRpmBuild().getAbsolutePath(),
+                                    "--quiet",
                                     "-ba",
                                     "--target",
                                     target.getOsArch() + "-linux",
