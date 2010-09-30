@@ -128,7 +128,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         }
 
         // Generating the Bin
-        log.info( "    Generating Bin Installer" );
+        log.info( "    Generating Bin installer" );
         Execute createBinTask = new Execute();
         String[] cmd = new String[]
                     { shUtility.getAbsolutePath(), "createInstaller.sh" };

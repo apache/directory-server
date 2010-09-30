@@ -33,6 +33,9 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class BinTarget extends Target
 {
+    /**
+     * Creates a new instance of BinTarget.
+     */
     public BinTarget()
     {
         setOsName( Target.OS_NAME_LINUX );
