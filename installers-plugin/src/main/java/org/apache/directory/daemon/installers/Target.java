@@ -64,48 +64,96 @@ public class Target
     private String finalName;
 
 
+    /**
+     * Gets the final name.
+     *
+     * @return
+     *      the final name
+     */
     public String getFinalName()
     {
         return finalName;
     }
 
 
+    /**
+     * Gets the id.
+     *
+     * @return
+     *      the id
+     */
     public String getId()
     {
         return id;
     }
 
 
+    /**
+     * Gets the OS architecture.
+     *
+     * @return
+     *      the OS architecture
+     */
     public String getOsArch()
     {
         return osArch;
     }
 
 
+    /**
+     * Gets the OS name.
+     *
+     * @return
+     *      the OS name
+     */
     public String getOsName()
     {
         return osName;
     }
 
 
+    /**
+     * Sets the final name.
+     *
+     * @param finalName
+     *      the final name
+     */
     public void setFinalName( String finalName )
     {
         this.finalName = finalName;
     }
 
 
+    /**
+     * Sets the id.
+     *
+     * @param id
+     *      the id
+     */
     public void setId( String id )
     {
         this.id = id;
     }
 
 
+    /**
+     * Sets the OS architecture.
+     *
+     * @param osArch
+     *      the OS architecture
+     */
     public void setOsArch( String osArch )
     {
         this.osArch = osArch;
     }
 
 
+    /**
+     * Sets the OS name.
+     *
+     * @param osName
+     *      the OS name
+     */
     public void setOsName( String osName )
     {
         this.osName = osName;

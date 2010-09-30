@@ -275,6 +275,6 @@ public class GenerateMojo extends AbstractMojo
 
     public Set getExcludes()
     {
-        return this.excludes;
+        return excludes;
     }
 }

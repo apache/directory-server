@@ -248,10 +248,10 @@ public abstract class AbstractMojoCommand<T extends Target>
     private void copyWrapperFiles()
         throws MojoFailureException
     {
-        // Mac OS X x86
-        if ( target.isOsNameMacOSX() && target.isOsArchx86() )
+        try
         {
-            try
+            // Mac OS X x86
+            if ( target.isOsNameMacOSX() && target.isOsArchx86() )
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
                     "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-32" ), new File(
@@ -261,124 +261,83 @@ public abstract class AbstractMojoCommand<T extends Target>
                     new File( getInstallationLayout().getLibDirectory(),
                         "libwrapper.jnilib" ) );
             }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
-        }
 
-        // Mac OS X x86_64
-        if ( target.isOsNameMacOSX() && target.isOsArchX86_64() )
-        {
-            try
+            // Mac OS X x86_64
+            if ( target.isOsNameMacOSX() && target.isOsArchX86_64() )
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-64" ), new File(
+                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-macosx-universal-64" ), new File(
                         getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-64.jnilib" ),
-                    new File( getInstallationLayout().getLibDirectory(),
-                        "libwrapper.jnilib" ) );
+                        "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-macosx-universal-64.jnilib" ),
+                        new File( getInstallationLayout().getLibDirectory(),
+                            "libwrapper.jnilib" ) );
             }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
-        }
 
-        // Linux i386 & x86
-        if ( target.isOsNameLinux() && ( target.isOsArchI386() || target.isOsArchx86() ) )
-        {
-            try
+            // Linux i386 & x86
+            if ( target.isOsNameLinux() && ( target.isOsArchI386() || target.isOsArchx86() ) )
             {
                 MojoHelperUtils.copyBinaryFile(
-                    getClass().getResourceAsStream(
-                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-32" ),
-                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                        getClass().getResourceAsStream(
+                            "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-32" ),
+                        new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-32.so" ),
-                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
+                        "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-32.so" ),
+                        new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
-        }
 
-        // Linux x86_64 & amd64
-        if ( target.isOsNameLinux() && ( target.isOsArchX86_64() || target.isOsArchAmd64() ) )
-        {
-            try
+            // Linux x86_64 & amd64
+            if ( target.isOsNameLinux() && ( target.isOsArchX86_64() || target.isOsArchAmd64() ) )
             {
                 MojoHelperUtils.copyBinaryFile(
-                    getClass().getResourceAsStream(
-                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-64" ),
-                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                        getClass().getResourceAsStream(
+                            "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-linux-x86-64" ),
+                        new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-64.so" ),
-                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
+                        "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-linux-x86-64.so" ),
+                        new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
-            catch ( IOException e )
+
+            // Solaris x86
+            if ( target.isOsNameSolaris() && target.isOsArchx86() )
             {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-x86-32" ),
+                        new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-x86-32.so" ), new File(
+                        getInstallationLayout().getLibDirectory(),
+                        "libwrapper.so" ) );
+            }
+
+            // Solaris Sparc
+            if ( target.isOsNameSolaris() && target.isOsArchSparc() )
+            {
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-sparc-32" ),
+                        new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-sparc-32.so" ),
+                        new File(
+                            getInstallationLayout().getLibDirectory(),
+                            "libwrapper.so" ) );
+            }
+
+            // Windows
+            if ( target.isOsNameWindows() )
+            {
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-windows-x86-32.exe" ),
+                        new File( getInstallationLayout().getBinDirectory(), "wrapper.exe" ) );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
+                        "/org/apache/directory/daemon/installers/wrapper/lib/wrapper-windows-x86-32.dll" ), new File(
+                        getInstallationLayout().getLibDirectory(),
+                        "wrapper.dll" ) );
             }
         }
-
-        // Solaris x86
-        if ( target.isOsNameSolaris() && target.isOsArchx86() )
+        catch ( IOException e )
         {
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-x86-32" ),
-                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-x86-32.so" ), new File(
-                        getInstallationLayout().getLibDirectory(),
-                    "libwrapper.so" ) );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
-        }
-
-        // Solaris Sparc
-        if ( target.isOsNameSolaris() && target.isOsArchSparc() )
-        {
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-solaris-sparc-32" ),
-                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/libwrapper-solaris-sparc-32.so" ), new File(
-                        getInstallationLayout().getLibDirectory(),
-                    "libwrapper.so" ) );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
-        }
-
-        // Windows
-        if ( target.isOsNameWindows() )
-        {
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/bin/wrapper-windows-x86-32.exe" ),
-                    new File( getInstallationLayout().getBinDirectory(), "wrapper.exe" ) );
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream(
-                    "/org/apache/directory/daemon/installers/wrapper/lib/wrapper-windows-x86-32.dll" ), new File(
-                        getInstallationLayout().getLibDirectory(),
-                    "wrapper.dll" ) );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
-            }
+            throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
         }
     }
 }

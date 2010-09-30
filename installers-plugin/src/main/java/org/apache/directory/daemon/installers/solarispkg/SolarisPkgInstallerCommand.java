@@ -21,15 +21,11 @@ package org.apache.directory.daemon.installers.solarispkg;
 
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.taskdefs.Execute;
 
 
 /**
@@ -39,10 +35,6 @@ import org.apache.tools.ant.taskdefs.Execute;
  */
 public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTarget>
 {
-    private File pkgMaker;
-    private File pkgTranslator;
-
-
     /**
      * Creates a new instance of SolarisPkgInstallerCommand.
      *
@@ -84,10 +76,6 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
             log.warn( "utility." );
             return;
         }
-        else
-        {
-            pkgMaker = target.getPkgMaker();
-        }
 
         // Verifying the 'pkgtrans' utility exists
         if ( !target.getPkgTranslator().exists() )
@@ -96,10 +84,6 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
             log.warn( "The build will continue, but please check the location of your Package Maker " );
             log.warn( "utility." );
             return;
-        }
-        else
-        {
-            pkgTranslator = target.getPkgTranslator();
         }
 
         // TODO FIXME
@@ -246,17 +230,17 @@ public class SolarisPkgInstallerCommand extends AbstractMojoCommand<SolarisPkgTa
     {
         super.initializeFilterProperties();
 
-        filterProperties.put( "app", "apacheds" );
-        filterProperties.put( "app.name", "apacheds" );
-        filterProperties.put( "osArch", target.getOsArch() );
-        if ( mojo.getProject().getVersion() != null )
-        {
-            filterProperties.put( "app.version", mojo.getProject().getVersion() );
-        }
-        else
-        {
-            filterProperties.put( "app.version", "1.0" );
-        }
+        //        filterProperties.put( "app", "apacheds" );
+        //        filterProperties.put( "app.name", "apacheds" );
+        //        filterProperties.put( "osArch", target.getOsArch() );
+        //        if ( mojo.getProject().getVersion() != null )
+        //        {
+        //            filterProperties.put( "app.version", mojo.getProject().getVersion() );
+        //        }
+        //        else
+        //        {
+        //            filterProperties.put( "app.version", "1.0" );
+        //        }
     }
 
 
