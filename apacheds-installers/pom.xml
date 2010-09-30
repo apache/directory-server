@@ -134,18 +134,34 @@
               <!-- Targets for Linux .installer package -->
               <rpmTargets>
                 <rpmTarget>
-                  <id>apacheds-i386-rpm</id>
+                  <id>apacheds-rpm-i386</id>
                   <finalName>apacheds-${version}-i386.rpm</finalName>
                   <osName>Linux</osName>
                   <osArch>i386</osArch>
                 </rpmTarget>
                 <rpmTarget>
-                  <id>apacheds-x86_64-rpm</id>
+                  <id>apacheds-rpm-x86_64</id>
                   <finalName>apacheds-${version}-x86_64.rpm</finalName>
                   <osName>Linux</osName>
                   <osArch>x86_64</osArch>
                 </rpmTarget>
               </rpmTargets>
+
+              <!-- Targets for Solaris .pkg installer package -->
+              <!-- <solarisPkgTargets>
+                <solarisPkgTarget>
+                  <id>apacheds-solaris-x86</id>
+                  <finalName>apacheds-${version}-solaris-x86.pkg</finalName>
+                  <osName>solaris</osName>
+                  <osArch>x86</osArch>
+                </solarisPkgTarget>
+                <solarisPkgTarget>
+                  <id>apacheds-solaris-sparc</id>
+                  <finalName>apacheds-${version}-solaris-sparc.pkg</finalName>
+                  <osName>solaris</osName>
+                  <osArch>sparc</osArch>
+                </solarisPkgTarget>
+              </solarisPkgTargets> -->
               
             </configuration>
             <executions>
