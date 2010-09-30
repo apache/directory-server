@@ -22,18 +22,14 @@ package org.apache.directory.daemon.installers.rpm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.directory.daemon.installers.AbstractMojoCommand;
 import org.apache.directory.daemon.installers.GenerateMojo;
 import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Touch;
-import org.codehaus.plexus.util.Os;
+import org.codehaus.plexus.util.FileUtils;
 
 
 /**
@@ -43,16 +39,18 @@ import org.codehaus.plexus.util.Os;
  */
 public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 {
-    private final File rpmConfigurationFile = new File( "" ); // TODO FIXME
-    private File rpmBuilder;
 
-
+    /**
+     * Creates a new instance of RpmInstallerCommand.
+     *
+     * @param mojo
+     *      the Server Installers Mojo
+     * @param target
+     *      the RPM target
+     */
     public RpmInstallerCommand( GenerateMojo mojo, RpmTarget target )
     {
         super( mojo, target );
-        // TODO FIXME
-        //        File imagesDir = target.getLayout().getInstallationDirectory().getParentFile();
-        //        rpmConfigurationFile = new File( imagesDir, target.getId() + ".spec" );
         initializeFilterProperties();
     }
 
@@ -69,169 +67,125 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        // -------------------------------------------------------------------
-        // Step 1 & 4: do some error checking first for builder and OS
-        // -------------------------------------------------------------------
-
-        // TODO FIXME
-        //        if ( !target.getOsFamily().equals( "unix" ) || !target.getOsName().equalsIgnoreCase( "Linux" ) )
-        //        {
-        //            log.warn( "RPM target " + target.getId() + " cannot be built for an non-linux based machine!" );
-        //            log.warn( "The target will not be built." );
-        //            log.warn( "The rest of the build will not fail because of this acceptable situation." );
-        //            return;
-        //        }
-
-        if ( !Os.isName( "linux" ) )
+        // Verifying the target
+        if ( !verifyTarget() )
         {
-            log.warn( "os name = " + System.getProperty( "os.name" ) );
-            log.warn( "RPM target " + target.getId() + " cannot be built on a non-linux based machine!" );
-            log.warn( "The target will not be built." );
-            log.warn( "The rest of the build will not fail because of this acceptable situation." );
             return;
         }
 
-        if ( target.getRpmTopDir() == null )
+        log.info( "  Creating Rpm installer..." );
+
+        // Creating the target directory
+        getTargetDirectory().mkdirs();
+
+        log.info( "    Copying Rpm installer files" );
+
+        try
         {
-            target.setRpmTopDir( new File( "target/rpmbuild" ) );
+            // Create Rpm directories (BUILD, RPMS, SOURCES, SPECS & SRPMS)
+            new File( getTargetDirectory(), "BUILD" ).mkdirs();
+            new File( getTargetDirectory(), "RPMS" ).mkdirs();
+            new File( getTargetDirectory(), "SOURCES" ).mkdirs();
+            new File( getTargetDirectory(), "SPECS" ).mkdirs();
+            new File( getTargetDirectory(), "SRPMS" ).mkdirs();
+
+            // Creating the installation and instance layouts
+            createLayouts();
+
+            // Copying the init script for /etc/init.d/
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
+                new File( getAdsSourcesDirectory(), "etc-initd-script" ), true );
+
+            // Creating the spec file
+            createSpecFile();
+
+            // Generating tar.gz file
+            MojoHelperUtils.exec( new String[]
+                                    {
+                                        "tar",
+                                        "-zcvf",
+                                        "apacheds-" + getVersion() + ".tar.gz",
+                                        "apacheds-" + getVersion()
+                                    },
+                                  new File( getTargetDirectory(), "/SOURCES" ),
+                                  false );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage() );
+            throw new MojoFailureException( "Failed to copy Rpm installer files." );
         }
 
-        if ( !target.getRpmTopDir().exists() )
+        // Generating the Rpm
+        log.info( "    Generating Rpm installer" );
+
+        MojoHelperUtils.exec( new String[]
+                                {
+                                    target.getRpmBuild().getAbsolutePath(),
+                                    "-ba",
+                                    "--target",
+                                    target.getOsArch() + "-linux",
+                                    "--define",
+                                    "_topdir " + getTargetDirectory(),
+                                    "--define",
+                                    "_tmppath /tmp",
+                                    "SPECS/apacheds.spec"
+                                },
+                              getTargetDirectory(),
+                              false );
+
+        // Copying the rpm at the final destination
+        try
         {
-            try
+            String rpmName = "apacheds-" + getVersion() + "-1." + target.getOsArch() + ".rpm";
+            String finalName = target.getFinalName();
+            if ( !finalName.endsWith( ".rpm" ) )
             {
-                target.getRpmTopDir().mkdirs();
-                String baseDir = target.getRpmTopDir().getAbsolutePath();
-                new File( baseDir + "/BUILD" ).mkdirs();
-                new File( baseDir + "/RPMS" ).mkdirs();
-                new File( baseDir + "/SOURCES" ).mkdirs();
-                new File( baseDir + "/SPECS" ).mkdirs();
-                new File( baseDir + "/SRPMS" ).mkdirs();
+                finalName = finalName + ".rpm";
             }
-            catch ( Exception e )
-            {
-                log.warn( "Please set the rpmTopDir in the pom.xml to a directory where the build" );
-                log.warn( "user has proper permissions to create dirs and files." );
-                return;
-            }
-        }
 
-        // @todo this should really be a parameter taken from the user's settings
-        // because the compiler may be installed in different places and is specific
-        if ( !target.getRpmBuilder().exists() )
+            File finalFile = new File( mojo.getOutputDirectory(), finalName );
+
+            FileUtils.copyFile( new File( getTargetDirectory(), "RPMS/" + target.getOsArch() + "/" + rpmName ),
+                finalFile );
+
+            log.info( "=> RPM generated at " + finalFile );
+        }
+        catch ( IOException e )
         {
-            log.warn( "Cannot find rpmbuild utility at this location: " + target.getRpmBuilder() );
-            log.warn( "The build will continue, but please check the location of your rpmbuild " );
-            log.warn( "utility." );
-            return;
+            throw new MojoFailureException( "Failed to copy generated Rpm installer file." );
         }
-        else
+
+    }
+
+
+    /**
+     * Verifies the target.
+     *
+     * @return
+     *      <code>true</code> if the target is correct, 
+     *      <code>false</code> if not.
+     */
+    private boolean verifyTarget()
+    {
+        // Verifying the target is Linux
+        if ( !target.isOsNameLinux() )
         {
-            this.rpmBuilder = target.getRpmBuilder();
+            log.warn( "Rpm installer can only be targeted for Linux platforms!" );
+            log.warn( "The build will continue, but please check the the platform of this installer target" );
+            return false;
         }
 
-        // -------------------------------------------------------------------
-        // Step 2 & 3: copy rpm spec file and filter 
-        // -------------------------------------------------------------------
-
-        String version = mojo.getProject().getVersion().replace( '-', '_' );
-
-        // TODO FIXME
-        //        if ( target.getScriptFile() != null && target.getScriptFile().exists() )
-        //        {
-        //            try
-        //            {
-        //                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, target.getScriptFile(),
-        //                    target.getLayout().getInitScript(), true );
-        //            }
-        //            catch ( IOException e )
-        //            {
-        //                mojo.getLog().error( "Failed to copy project supplied init script " + target.getScriptFile()
-        //                    + " into position " + target.getLayout().getInitScript(), e );
-        //            }
-        //
-        //            if ( mojo.getLog().isInfoEnabled() )
-        //            {
-        //                mojo.getLog().info( "Using project supplied init script file: "
-        //                        + target.getScriptFile() );
-        //            }
-        //        }
-        //        else
-        //        {
-        //            try
-        //            {
-        //                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-        //                    "server.init" ), target.getLayout().getInitScript(), true );
-        //            }
-        //            catch ( IOException e )
-        //            {
-        //                mojo.getLog().error(
-        //                    "Failed to copy init script " + getClass().getResource( "server.init" ) + " into position "
-        //                        + target.getLayout().getInitScript(), e );
-        //            }
-        //        }
-
-        // check first to see if the default spec file is present in src/main/installers
-        if ( target.getRpmSpecificationFile() != null && target.getRpmSpecificationFile().exists() )
+        // Verifying the rpmbuild utility exists
+        if ( !target.getRpmBuild().exists() )
         {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mojo, filterProperties, target.getRpmSpecificationFile(),
-                    rpmConfigurationFile, true );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to filter and copy project provided "
-                    + target.getRpmSpecificationFile() + " to " + rpmConfigurationFile );
-            }
-        }
-        else
-        {
-            throw new MojoFailureException( "RPM specification file does not exist ("
-                + target.getRpmSpecificationFile() + ")." );
+            log.warn( "Cannot find rpmbuild utility at this location: " + target.getRpmBuild() );
+            log.warn( "The build will continue, but please check the location of your rpmbuild utility." );
+            return false;
         }
 
-        // TODO FIXME
-        //        processPackagedFiles( target, target.getPackagedFiles() );
-        //
-        //        buildSourceTarball();
-        //        String[] cmd = new String[]
-        //            {
-        //                rpmBuilder.getAbsolutePath(),
-        //                "-ba",
-        //                "--define",
-        //                "_topdir " + target.getRpmTopDir().getAbsolutePath(),
-        //                rpmConfigurationFile.getAbsolutePath() };
-        //        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
-        //        String rpmName = "apacheds-" + version + "-0." + target.getOsArch() + ".rpm";
-        //        File srcFile = new File( target.getRpmTopDir(), "RPMS/" + target.getOsArch() + "/" + rpmName );
-        //        File dstFile = null;
-        //
-        //        if ( target.getFinalName() == null )
-        //        {
-        //            dstFile = new File( mojo.getOutputDirectory(), rpmName );
-        //        }
-        //        else
-        //        {
-        //            String finalName = target.getFinalName();
-        //            if ( !finalName.endsWith( ".rpm" ) )
-        //            {
-        //                finalName = finalName + ".rpm";
-        //            }
-        //
-        //            dstFile = new File( mojo.getOutputDirectory(), finalName );
-        //        }
-        //
-        //        try
-        //        {
-        //            FileUtils.copyFile( srcFile, dstFile );
-        //            srcFile.delete();
-        //        }
-        //        catch ( IOException e )
-        //        {
-        //            // if this happens we don't stop since RPM could be somewhere else
-        //            e.printStackTrace();
-        //        }
+        return true;
     }
 
 
@@ -242,353 +196,108 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         super.initializeFilterProperties();
 
-        //        filterProperties.put( "app", target.getApplication().getName() );
-        //        filterProperties.put( "app.caps", target.getApplication().getName().toUpperCase() );
-        //        filterProperties.put( "app.java.home", "java" );
-        //
-        //        char firstChar = target.getApplication().getName().charAt( 0 );
-        //        firstChar = Character.toUpperCase( firstChar );
-        //        filterProperties.put( "app.display.name", firstChar + target.getApplication().getName().substring( 1 ) );
-        //        filterProperties.put( "app.release", "0" );
-        //        filterProperties.put( "app.license.type", target.getApplication().getLicenseType() );
-        //
-        //        String version = target.getApplication().getVersion().replace( '-', '_' );
-        //        if ( target.getApplication().getVersion() != null )
-        //        {
-        //            filterProperties.put( "app.version", version );
-        //        }
-        //        else
-        //        {
-        //            filterProperties.put( "app.version", "1.0" );
-        //        }
-
-        // -------------------------------------------------------------------
-        // WARNING: hard code values just to for testing
-        // -------------------------------------------------------------------
-
-        // @todo use the list of committers and add multiple authors to inno
-        //        if ( target.getApplication().getAuthors().isEmpty() )
-        //        {
-        //            filterProperties.put( "app.author", "Apache Software Foundation" );
-        //        }
-        //        else
-        //        {
-        //            filterProperties.put( "app.author", target.getApplication().getAuthors().get( 0 ) );
-        //        }
-        //
-        //        if ( target.getFinalName() != null )
-        //        {
-        //            filterProperties.put( "app.final.name", target.getFinalName() );
-        //        }
-        //        else
-        //        {
-        //            String finalName = target.getApplication().getName() + "-" + target.getApplication().getVersion()
-        //                + "-linux-" + target.getOsArch() + ".rpm";
-        //            filterProperties.put( "app.final.name", finalName );
-        //        }
-        //
-        //        filterProperties.put( "app.email", target.getApplication().getEmail() );
-        //        filterProperties.put( "app.url", target.getApplication().getUrl() );
-        //        filterProperties.put( "app.java.version", target.getApplication().getMinimumJavaVersion() );
-        //        filterProperties.put( "app.license", target.getLayout().getLicenseFile().getPath() );
-        //        filterProperties.put( "app.license.name", target.getLayout().getLicenseFile().getName() );
-        //        filterProperties.put( "app.company.name", target.getCompanyName() );
-        //        filterProperties.put( "app.description", target.getApplication().getDescription() );
-        //        filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
-
-        // TODO FIXME
-        //        if ( !target.getLayout().getReadmeFile().exists() )
-        //        {
-        //            touchFile( target.getLayout().getReadmeFile() );
-        //        }
-        //        filterProperties.put( "app.readme", target.getLayout().getReadmeFile().getPath() );
-        //        filterProperties.put( "app.readme.name", target.getLayout().getReadmeFile().getName() );
-        //        filterProperties.put( "app.icon", target.getLayout().getLogoIconFile().getName() );
-        //        filterProperties.put( "app.icon.name", target.getLayout().getLogoIconFile().getName() );
-        //        filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
-        //        filterProperties.put( "install.append.libs", getInstallLibraryJars() );
-        //        filterProperties.put( "verify.append.libs", getVerifyLibraryJars() );
-        //        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
-        //        filterProperties.put( "server.init", target.getLayout().getInitScript().getName() );
-        //        filterProperties.put( "app.install.base", "/opt/" + target.getApplication().getName() + "-" + version );
-        //
-        //        File noticeFile = new File( target.getLayout().getInstallationDirectory(), "NOTICE.txt" );
-        //        if ( noticeFile.exists() )
-        //        {
-        //            filterProperties.put( "install.notice.file", "install -m 644 "
-        //                + target.getLayout().getInstallationDirectory()
-        //                + "/NOTICE.txt $RPM_BUILD_ROOT/opt/" + target.getApplication().getName() + "-%{version}" );
-        //            filterProperties.put( "verify.notice.file", "/opt/" + target.getApplication().getName()
-        //                + "-%{version}/NOTICE.txt" );
-        //        }
-        //        else
-        //        {
-        //            filterProperties.put( "install.notice.file", "" );
-        //            filterProperties.put( "verify.notice.file", "" );
-        //        }
+        filterProperties.put( "installation.directory", "/opt/apacheds-" + getVersion() );
+        filterProperties.put( "instances.directory", "/var/lib/apacheds-" + getVersion() );
+        filterProperties.put( "default.instance.name", "default" );
+        filterProperties.put( "user", "apacheds" );
+        filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
+        filterProperties.put( "double.quote", "" );
+        filterProperties.put( "version", getVersion() );
     }
 
 
-    static String getMkSourcesDirs( List srcList, Target target )
+    /**
+     * Creates the spec file.
+     * 
+     * @throws IOException 
+     */
+    private void createSpecFile() throws IOException
     {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < srcList.size(); ii++ )
-        //        {
-        //            File file = ( File ) srcList.get( ii );
-        //            if ( file.isFile() )
-        //            {
-        //                continue;
-        //            }
-        //
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
-    }
+        // Creating two strings for libraries
+        StringBuilder installLibs = new StringBuilder();
+        StringBuilder filesLibs = new StringBuilder();
 
-
-    static String getMkDocsDirs( List docList, Target target )
-    {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < docList.size(); ii++ )
-        //        {
-        //            File file = ( File ) docList.get( ii );
-        //            if ( file.isFile() )
-        //            {
-        //                continue;
-        //            }
-        //
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( "mkdir -p $RPM_BUILD_ROOT/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
-    }
-
-
-    static void listFiles( List<File> fileList, File dir )
-    {
-        if ( dir.isFile() )
+        // Getting the lib directory
+        File libDirectory = getInstallationLayout().getLibDirectory();
+        if ( libDirectory.exists() )
         {
-            return;
-        }
-
-        fileList.add( dir );
-        File[] files = dir.listFiles();
-
-        for ( File file : files )
-        {
-            if ( file.isFile() )
+            // Iterating on each file in the lib directory
+            for ( File file : libDirectory.listFiles() )
             {
-                fileList.add( file );
+                if ( file.isFile() )
+                {
+                    installLibs.append( "install -m 644 " + getBuidDirectory() + "/%{name}-%{version}/server/lib/"
+                        + file.getName() + " $RPM_BUILD_ROOT%{adshome}/lib/" + file.getName() + "\n" );
+                    filesLibs.append( "%{adshome}/lib/" + file.getName() + "\n" );
+                }
             }
-
-            listFiles( fileList, file );
         }
+
+        // Creating properties based on these values
+        Properties properties = new Properties();
+        properties.put( "version", getVersion() );
+        properties.put( "build.dir", getBuidDirectory() );
+        properties.put( "install.libs", installLibs.toString() );
+        properties.put( "files.libs", filesLibs.toString() );
+
+        // Copying and filtering the spec file
+        MojoHelperUtils.copyAsciiFile( mojo, properties,
+            getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/rpm/apacheds.spec" ),
+            new File( getTargetDirectory(), "SPECS/apacheds.spec" ), true );
+
     }
 
 
-    static String getInstallDocs( List docList, Target target )
+    /**
+     * Gets the 'apacheds-${version}' directory inside 'SOURCES'.
+     *
+     * @return
+     *      the 'apacheds-${version}' directory inside 'SOURCES'
+     */
+    private File getAdsSourcesDirectory()
     {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < docList.size(); ii++ )
-        //        {
-        //            File file = ( File ) docList.get( ii );
-        //            if ( file.isDirectory() )
-        //            {
-        //                continue;
-        //            }
-        //
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( "install -m 644 " );
-        //            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
-        //            buf.append( path );
-        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
+        return new File( getTargetDirectory(), "SOURCES/apacheds-" + getVersion() );
     }
 
 
-    static String getVerifyDocs( List docList, Target target )
-    {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < docList.size(); ii++ )
-        //        {
-        //            File file = ( File ) docList.get( ii );
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( target.getLayout().getInstallationDirectory() );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
-    }
-
-
-    static String getInstallSources( List sourceList, Target target )
-    {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < sourceList.size(); ii++ )
-        //        {
-        //            File file = ( File ) sourceList.get( ii );
-        //            if ( file.isDirectory() )
-        //            {
-        //                continue;
-        //            }
-        //
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( "install -m 644 " );
-        //            buf.append( target.getLayout().getInstallationDirectory() ).append( "/" );
-        //            buf.append( path );
-        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
-    }
-
-
-    static String getVerifySources( List sourceList, Target target )
-    {
-        StringBuffer buf = new StringBuffer();
-        // +1 for '/' char 
-        //        // TODO FIXME
-        //        int basePathSize = target.getLayout().getInstallationDirectory().getAbsolutePath().length() + 1;
-        //
-        //        for ( int ii = 0; ii < sourceList.size(); ii++ )
-        //        {
-        //            File file = ( File ) sourceList.get( ii );
-        //            String path = file.getAbsolutePath().substring( basePathSize );
-        //            buf.append( "/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/" );
-        //            buf.append( path );
-        //            buf.append( "\n" );
-        //        }
-        return buf.toString();
-    }
-
-
-    private Object getVerifyLibraryJars()
-    {
-        // TODO FIXME
-        StringBuffer buf = new StringBuffer();
-        //        List artifacts = target.getLibArtifacts();
-        //        for ( int ii = 0; ii < artifacts.size(); ii++ )
-        //        {
-        //            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
-        //            buf.append( "/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/lib/" );
-        //            buf.append( artifact.getName() );
-        //            buf.append( "\n" );
-        //        }
-
-        return buf.toString();
-    }
-
-
-    private String getInstallLibraryJars()
-    {
-        // TODO FIXME
-        StringBuffer buf = new StringBuffer();
-        //        List artifacts = target.getLibArtifacts();
-        //        for ( int ii = 0; ii < artifacts.size(); ii++ )
-        //        {
-        //            buf.append( "install -m 644 " );
-        //            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
-        //            buf.append( artifact.getAbsoluteFile() );
-        //            buf.append( " $RPM_BUILD_ROOT/opt/" );
-        //            buf.append( "apacheds" );
-        //            buf.append( "-%{version}/lib/" );
-        //            buf.append( artifact.getName() );
-        //            buf.append( "\n" );
-        //        }
-
-        return buf.toString();
-    }
-
-
-    static void touchFile( File file )
-    {
-        Touch touch = new Touch();
-        touch.setProject( new Project() );
-        touch.setFile( file );
-        touch.execute();
-    }
-
-
-    private void buildSourceTarball() throws MojoFailureException
-    {
-        // TODO FIXME
-        //        String version = mojo.getProject().getVersion().replace( '-', '_' );
-        //        String dirname = "apacheds-" + version;
-        //        File sourcesDir = new File( target.getLayout().getInstallationDirectory().getParentFile(), dirname );
-        //        try
-        //        {
-        //            FileUtils.copyDirectoryStructure( target.getLayout().getInstallationDirectory(), sourcesDir );
-        //        }
-        //        catch ( IOException e1 )
-        //        {
-        //            throw new MojoFailureException( "failed to copy directory structure at " + target.getLayout() + " to "
-        //                + sourcesDir );
-        //        }
-        //
-        //        String[] cmd = new String[]
-        //            {
-        //                "tar",
-        //                "-zcvf",
-        //                target.getRpmTopDir().getAbsolutePath() + "/SOURCES/apacheds-" + version + ".tar.gz",
-        //                sourcesDir.getAbsolutePath() };
-        //
-        //        MojoHelperUtils.exec( cmd, target.getLayout().getInstallationDirectory().getParentFile(), target.isDoSudo() );
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public File getInstallationDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getAdsSourcesDirectory(), "server" );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public File getInstanceDirectory()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new File( getAdsSourcesDirectory(), "instances/default" );
+    }
+
+
+    /**
+     * Gets the version number.
+     *
+     * @return
+     *      the version number
+     */
+    private String getVersion()
+    {
+        return mojo.getProject().getVersion().replace( '-', '_' );
+    }
+
+
+    /**
+     * Gets the BUILD directory path.
+     *
+     * @return
+     *      the BUILD directory path
+     */
+    private String getBuidDirectory()
+    {
+        return getTargetDirectory().getAbsolutePath() + "/BUILD";
     }
 }

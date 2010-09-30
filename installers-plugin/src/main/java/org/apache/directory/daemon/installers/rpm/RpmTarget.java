@@ -32,54 +32,40 @@ import org.apache.directory.daemon.installers.Target;
  */
 public class RpmTarget extends Target
 {
-    private File rpmBuilder = new File( "/usr/bin/rpmbuild" );
-    private File rpmSpecificationFile;
-    private File rpmTopDir;
-    private boolean doSudo = false;
+    /** The rpmbuild utility executable */
+    private File rpmBuild = new File( "/usr/bin/rpmbuild" );
 
 
-    public void setRpmBuilder( File rpmBuilder )
+    /**
+     * Creates a new instance of RpmTarget.
+     */
+    public RpmTarget()
     {
-        this.rpmBuilder = rpmBuilder;
+        setOsName( Target.OS_NAME_LINUX );
+        setOsArch( Target.OS_ARCH_I386 );
     }
 
 
-    public File getRpmBuilder()
+    /**
+     * Sets the rpmbuild utility.
+     *
+     * @param rpmBuild
+     *      the the rpmbuild utility
+     */
+    public void setRpmBuild( File rpmBuild )
     {
-        return rpmBuilder;
+        this.rpmBuild = rpmBuild;
     }
 
 
-    public void setRpmSpecificationFile( File rpmConfigurationFile )
+    /**
+     * Gets the rpmbuild utility.
+     *
+     * @return
+     *      the rpmbuild utility
+     */
+    public File getRpmBuild()
     {
-        this.rpmSpecificationFile = rpmConfigurationFile;
-    }
-
-
-    public File getRpmSpecificationFile()
-    {
-        return rpmSpecificationFile;
-    }
-
-
-    public void setDoSudo( boolean doSudo )
-    {
-        this.doSudo = doSudo;
-    }
-
-
-    public boolean isDoSudo()
-    {
-        return doSudo;
-    }
-
-    public File getRpmTopDir()
-    {
-        return rpmTopDir;
-    }
-
-    public void setRpmTopDir(File rpmTopDir)
-    {
-        this.rpmTopDir = rpmTopDir;
+        return rpmBuild;
     }
 }
