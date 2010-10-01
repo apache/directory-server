@@ -38,6 +38,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
@@ -103,7 +104,7 @@ public class ApacheDsService
 
     private SchemaManager schemaManager;
 
-    private LdifPartition configPartition;
+    private SingleFileLdifPartition configPartition;
 
     private ConfigPartitionReader cpReader;
 
@@ -135,7 +136,7 @@ public class ApacheDsService
         initSchemaLdifPartition( partitionsDir );
         initConfigPartition( partitionsDir );
 
-        cpReader = new ConfigPartitionReader( configPartition );
+        cpReader = new ConfigPartitionReader( configPartition, partitionsDir );
 
         // Initialize the LDAP server
         initLdap( instanceLayout );
@@ -211,25 +212,25 @@ public class ApacheDsService
      */
     private void initConfigPartition( File partitionsDir ) throws Exception
     {
+        File configRepository = new File( partitionsDir.getParentFile(), "conf" );
 
-        File configRepository = new File( partitionsDir, "config" );
+        File confFile = new File( configRepository, LdifConfigExtractor.LDIF_CONFIG_FILE );
 
-        if ( configRepository.exists() )
+        if ( confFile.exists() )
         {
             LOG.info( "config partition already exists, skipping default config extraction" );
         }
         else
         {
-            LdifConfigExtractor.extract( partitionsDir, true );
+            LdifConfigExtractor.extractSingleFileConfig( configRepository, true );
             isConfigPartitionFirstExtraction = true;
         }
 
-        configPartition = new LdifPartition();
+        configPartition = new SingleFileLdifPartition( confFile.getAbsolutePath() );
+
         configPartition.setId( "config" );
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        configPartition.setWorkingDirectory( partitionsDir.getPath() + "/config" );
-        configPartition.setPartitionDir( new File( configPartition.getWorkingDirectory() ) );
 
         configPartition.initialize();
     }
@@ -280,7 +281,14 @@ public class ApacheDsService
         {
             LOG.info( "begining to update config partition LDIF files after modifying manadatory attributes" );
 
+            // disable writes to the disk upon every modification to improve performance
+            configPartition.setEnableRewriting( false );
+
+            // perform updates
             updateMandatoryOpAttributes( configPartition, directoryService );
+
+            // enable writes to disk, this will save the partition data first if found dirty
+            configPartition.setEnableRewriting( true );
 
             LOG.info( "config partition data was successfully updated" );
         }
@@ -374,7 +382,7 @@ public class ApacheDsService
     /**
      * Initialize the KERBEROS server
      */
-    private void initKerberos( ) throws Exception
+    private void initKerberos() throws Exception
     {
         kdcServer = cpReader.createKdcServer();
         if ( kdcServer == null )
@@ -407,7 +415,7 @@ public class ApacheDsService
     /**
      * Initialize the Change Password server
      */
-    private void initChangePwd( ) throws Exception
+    private void initChangePwd() throws Exception
     {
 
         changePwdServer = cpReader.createChangePwdServer();
@@ -482,7 +490,6 @@ public class ApacheDsService
 
     public void stop() throws Exception
     {
-
         // Stops the server
         if ( ldapServer != null )
         {
