@@ -60,7 +60,7 @@
         <plugins>
           <plugin>
             <groupId>${project.groupId}</groupId>
-            <artifactId>installers-plugin</artifactId>
+            <artifactId>installers-maven-plugin</artifactId>
             <configuration>
               
               <!-- Targets for Mac OS X .pkg installer packages -->
