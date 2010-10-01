@@ -53,7 +53,6 @@ mkdir -p $RPM_BUILD_ROOT/etc/init.d
 install -m 755 ${build.dir}/%{name}-%{version}/server/LICENSE $RPM_BUILD_ROOT%{adshome}/LICENSE
 install -m 755 ${build.dir}/%{name}-%{version}/server/NOTICE $RPM_BUILD_ROOT%{adshome}/NOTICE
 install -m 755 ${build.dir}/%{name}-%{version}/server/bin/apacheds $RPM_BUILD_ROOT%{adshome}/bin/apacheds
-install -m 755 ${build.dir}/%{name}-%{version}/server/bin/apacheds $RPM_BUILD_ROOT%{adshome}/bin/apacheds
 install -m 755 ${build.dir}/%{name}-%{version}/server/bin/wrapper $RPM_BUILD_ROOT%{adshome}/bin/wrapper
 install -m 644 ${build.dir}/%{name}-%{version}/server/conf/wrapper.conf $RPM_BUILD_ROOT%{adshome}/conf/wrapper.conf
 ${install.libs}
