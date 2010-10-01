@@ -35,4 +35,4 @@ cp log4j.properties target/instance/conf/log4j.properties
 mkdir -p target/instance/partitions
 mkdir -p target/instance/log
 
-java -Dlog4j.debug -Dlog4j.configuration=file:./target/instance/conf/log4j.properties -Dapacheds.log.dir=./target/instance/log -jar $JAR ./target/instance
+java -Dlog4j.configuration=file:./target/instance/conf/log4j.properties -Dapacheds.log.dir=./target/instance/log -jar $JAR ./target/instance
