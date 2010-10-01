@@ -133,8 +133,8 @@ public class ApacheDsService
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
-        initSchemaLdifPartition( partitionsDir );
-        initConfigPartition( partitionsDir );
+        initSchemaLdifPartition( instanceLayout );
+        initConfigPartition( instanceLayout );
 
         cpReader = new ConfigPartitionReader( configPartition, partitionsDir );
 
@@ -164,29 +164,30 @@ public class ApacheDsService
     /**
      * initialize the schema partition by loading the schema LDIF files
      * 
+     * @param instanceLayout the instance layout
      * @throws Exception in case of any problems while extracting and writing the schema files
      */
-    private void initSchemaLdifPartition( File partitionsDir ) throws Exception
+    private void initSchemaLdifPartition( InstanceLayout instanceLayout ) throws Exception
     {
+        File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
+
         // Init the LdifPartition
         schemaLdifPartition = new LdifPartition();
-        schemaLdifPartition.setWorkingDirectory( partitionsDir.getPath() + "/schema" );
+        schemaLdifPartition.setWorkingDirectory( schemaPartitionDirectory.getPath() );
 
         // Extract the schema on disk (a brand new one) and load the registries
-        File schemaRepository = new File( partitionsDir, "schema" );
-
-        if ( schemaRepository.exists() )
+        if ( schemaPartitionDirectory.exists() )
         {
             LOG.info( "schema partition already exists, skipping schema extraction" );
         }
         else
         {
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( partitionsDir );
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( instanceLayout.getPartitionsDirectory() );
             extractor.extractOrCopy();
             isSchemaPartitionFirstExtraction = true;
         }
 
-        SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
         schemaManager = new DefaultSchemaManager( loader );
 
         // We have to load the schema now, otherwise we won't be able
@@ -207,14 +208,12 @@ public class ApacheDsService
      * 
      * initializes a LDIF partition for configuration
      * 
-     * @param partitionsDir the directory where all the partitions' data is stored
+     * @param instanceLayout the instance layout
      * @throws Exception in case of any issues while extracting the schema
      */
-    private void initConfigPartition( File partitionsDir ) throws Exception
+    private void initConfigPartition( InstanceLayout instanceLayout ) throws Exception
     {
-        File configRepository = new File( partitionsDir.getParentFile(), "conf" );
-
-        File confFile = new File( configRepository, LdifConfigExtractor.LDIF_CONFIG_FILE );
+        File confFile = new File( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE );
 
         if ( confFile.exists() )
         {
@@ -222,7 +221,7 @@ public class ApacheDsService
         }
         else
         {
-            LdifConfigExtractor.extractSingleFileConfig( configRepository, true );
+            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(), true );
             isConfigPartitionFirstExtraction = true;
         }
 
