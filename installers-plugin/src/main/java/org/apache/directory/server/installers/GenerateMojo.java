@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers;
+package org.apache.directory.server.installers;
 
 
 import java.io.File;
@@ -26,20 +26,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.daemon.installers.archive.ArchiveInstallerCommand;
-import org.apache.directory.daemon.installers.archive.ArchiveTarget;
-import org.apache.directory.daemon.installers.bin.BinInstallerCommand;
-import org.apache.directory.daemon.installers.bin.BinTarget;
-import org.apache.directory.daemon.installers.deb.DebInstallerCommand;
-import org.apache.directory.daemon.installers.deb.DebTarget;
-import org.apache.directory.daemon.installers.macosxpkg.MacOsXPkgInstallerCommand;
-import org.apache.directory.daemon.installers.macosxpkg.MacOsXPkgTarget;
-import org.apache.directory.daemon.installers.nsis.NsisInstallerCommand;
-import org.apache.directory.daemon.installers.nsis.NsisTarget;
-import org.apache.directory.daemon.installers.rpm.RpmInstallerCommand;
-import org.apache.directory.daemon.installers.rpm.RpmTarget;
-import org.apache.directory.daemon.installers.solarispkg.SolarisPkgInstallerCommand;
-import org.apache.directory.daemon.installers.solarispkg.SolarisPkgTarget;
+import org.apache.directory.server.installers.archive.ArchiveInstallerCommand;
+import org.apache.directory.server.installers.archive.ArchiveTarget;
+import org.apache.directory.server.installers.bin.BinInstallerCommand;
+import org.apache.directory.server.installers.bin.BinTarget;
+import org.apache.directory.server.installers.deb.DebInstallerCommand;
+import org.apache.directory.server.installers.deb.DebTarget;
+import org.apache.directory.server.installers.macosxpkg.MacOsXPkgInstallerCommand;
+import org.apache.directory.server.installers.macosxpkg.MacOsXPkgTarget;
+import org.apache.directory.server.installers.nsis.NsisInstallerCommand;
+import org.apache.directory.server.installers.nsis.NsisTarget;
+import org.apache.directory.server.installers.rpm.RpmInstallerCommand;
+import org.apache.directory.server.installers.rpm.RpmTarget;
+import org.apache.directory.server.installers.solarispkg.SolarisPkgInstallerCommand;
+import org.apache.directory.server.installers.solarispkg.SolarisPkgTarget;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

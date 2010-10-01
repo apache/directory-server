@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers;
+package org.apache.directory.server.installers;
 
 
 /**

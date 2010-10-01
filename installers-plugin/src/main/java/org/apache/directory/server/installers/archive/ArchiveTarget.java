@@ -17,10 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.archive;
+package org.apache.directory.server.installers.archive;
 
 
-import org.apache.directory.daemon.installers.Target;
+import org.apache.directory.server.installers.Target;
 
 
 /**

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers;
+package org.apache.directory.server.installers;
 
 
 import java.io.BufferedReader;
@@ -124,9 +124,9 @@ public class MojoHelperUtils
         Artifact artifact = null;
         List<String> rejects = new ArrayList<String>();
 
-//        mymojo.getLog().info( "" );
-//        mymojo.getLog().info( "    Including artifacts: " );
-//        mymojo.getLog().info( "    -------------------" );
+        //        mymojo.getLog().info( "" );
+        //        mymojo.getLog().info( "    Including artifacts: " );
+        //        mymojo.getLog().info( "    -------------------" );
         Iterator artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
 
         while ( artifacts.hasNext() )
@@ -144,7 +144,7 @@ public class MojoHelperUtils
             {
                 FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
                 libArtifacts.add( artifact );
-//                mymojo.getLog().info( "        o " + key );
+                //                mymojo.getLog().info( "        o " + key );
             }
             catch ( IOException e )
             {

@@ -17,16 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.nsis;
+package org.apache.directory.server.installers.nsis;
 
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.Target;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;

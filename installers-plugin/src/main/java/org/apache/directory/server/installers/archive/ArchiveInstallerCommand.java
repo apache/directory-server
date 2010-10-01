@@ -17,14 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.archive;
+package org.apache.directory.server.installers.archive;
 
 
 import java.io.File;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.Project;

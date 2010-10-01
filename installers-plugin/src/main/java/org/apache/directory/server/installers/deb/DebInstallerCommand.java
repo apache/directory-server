@@ -17,16 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.deb;
+package org.apache.directory.server.installers.deb;
 
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
-import org.apache.directory.daemon.installers.Target;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -85,7 +85,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             File debEtcInitdDirectory = new File( getDebDirectory(), "etc/init.d" );
             debEtcInitdDirectory.mkdirs();
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
                 new File( debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
         }
         catch ( Exception e )

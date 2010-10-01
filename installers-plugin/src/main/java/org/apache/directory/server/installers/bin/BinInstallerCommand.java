@@ -17,15 +17,15 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.bin;
+package org.apache.directory.server.installers.bin;
 
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -94,15 +94,15 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Copying configuration files to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/log4j.properties" ),
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/log4j.properties" ),
                 new File( instanceDirectory, "log4j.properties" ), true );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/wrapper-instance.conf" ),
+                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
                     new File( instanceDirectory, "wrapper.conf" ), true );
 
             // Copying the init script to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
+                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
                     new File( instanceDirectory, "etc-initd-script" ), true );
 
             // Creating the sh directory for the shell scripts

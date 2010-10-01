@@ -17,54 +17,58 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.nsis;
+package org.apache.directory.server.installers.deb;
 
 
 import java.io.File;
 
-import org.apache.directory.daemon.installers.Target;
+import org.apache.directory.server.installers.Target;
 
 
 /**
- * A Nullsoft Installer System (NSIS) installer for the Windows platform.
+ * A Deb package for the Debian platform.
+ * 
+ * To create a Deb package we use the dpkg utility that is bundled in the 
+ * Debian operating system.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NsisTarget extends Target
+public class DebTarget extends Target
 {
-    private File nsisCompiler = new File( "/usr/bin/makensis" );
+    /** The dpkg utility executable */
+    private File dpkgUtility = new File( "/usr/bin/dpkg" );
 
 
     /**
-     * Creates a new instance of NsisTarget.
+     * Creates a new instance of DebTarget.
      */
-    public NsisTarget()
+    public DebTarget()
     {
-        setOsName( Target.OS_NAME_WINDOWS );
-        setOsArch( Target.OS_ARCH_X86 );
+        setOsName( Target.OS_NAME_LINUX );
+        setOsArch( Target.OS_ARCH_X86_64 );
     }
 
 
     /**
-     * Sets the NSIS compiler utility.
-     *
-     * @param nsisCompiler
-     *      the NSIS compiler utility
-     */
-    public void setNsisCompiler( File nsisCompiler )
-    {
-        this.nsisCompiler = nsisCompiler;
-    }
-
-
-    /**
-     * Gets the NSIS compiler utility.
+     * Gets the dpkg utility.
      *
      * @return
-     *      the NSIS compiler utility
+     *      the dpkg utility
      */
-    public File getNsisCompiler()
+    public File getDpkgUtility()
     {
-        return nsisCompiler;
+        return dpkgUtility;
+    }
+
+
+    /**
+     * Sets the dpkg utility.
+     *
+     * @param dpkgUtility
+     *      the dpkg utility
+     */
+    public void setDpkgUtility( File dpkgUtility )
+    {
+        this.dpkgUtility = dpkgUtility;
     }
 }

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers;
+package org.apache.directory.server.installers;
 
 
 import org.apache.maven.project.MavenProject;
@@ -41,7 +41,7 @@ public class ReflectionProperties extends Properties
     boolean escapedBackslashesInFilePath;
 
 
-    public ReflectionProperties(MavenProject aProject, boolean escapedBackslashesInFilePath)
+    public ReflectionProperties( MavenProject aProject, boolean escapedBackslashesInFilePath )
     {
         super();
         project = aProject;

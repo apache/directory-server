@@ -17,12 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.solarispkg;
+package org.apache.directory.server.installers.solarispkg;
 
 
 import java.io.File;
 
-import org.apache.directory.daemon.installers.Target;
+import org.apache.directory.server.installers.Target;
 
 
 /**

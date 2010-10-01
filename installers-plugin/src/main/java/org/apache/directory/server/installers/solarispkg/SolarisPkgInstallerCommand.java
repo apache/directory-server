@@ -17,13 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.solarispkg;
+package org.apache.directory.server.installers.solarispkg;
 
 
 import java.io.File;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 

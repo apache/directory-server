@@ -17,16 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.daemon.installers.rpm;
+package org.apache.directory.server.installers.rpm;
 
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.daemon.installers.AbstractMojoCommand;
-import org.apache.directory.daemon.installers.GenerateMojo;
-import org.apache.directory.daemon.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.AbstractMojoCommand;
+import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -94,7 +94,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
             // Copying the init script for /etc/init.d/
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/etc-initd-script" ),
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
                 new File( getAdsSourcesDirectory(), "etc-initd-script" ), true );
 
             // Creating the spec file
@@ -243,7 +243,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
         // Copying and filtering the spec file
         MojoHelperUtils.copyAsciiFile( mojo, properties,
-            getClass().getResourceAsStream( "/org/apache/directory/daemon/installers/rpm/apacheds.spec" ),
+            getClass().getResourceAsStream( "apacheds.spec" ),
             new File( getTargetDirectory(), "SPECS/apacheds.spec" ), true );
 
     }
