@@ -29,5 +29,10 @@ IF NOT exist target/apacheds-service-1.5.8-SNAPSHOT.jar GOTO :MVN
    GOTO :JAVA
 
 :JAVA
+   md target/instance
+   md target/instance/conf
+   cp log4j.properties target/instance/conf/log4j.properties
+   md target/instance/partitions
+   md target/instance/log
    java -Dlog4j.configuration="file:///%cd%/target/instance/conf/log4j.properties" -jar target/apacheds-service-1.5.8-SNAPSHOT.jar %cd%/target/instance
    
