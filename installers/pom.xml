@@ -631,7 +631,7 @@
         <artifactId>maven-eclipse-plugin</artifactId>
         <configuration>
           <!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 -->
-          <eclipseProjectDir>..</eclipseProjectDir>
+          <eclipseProjectDir>.</eclipseProjectDir>
         </configuration>
       </plugin>
     </plugins>
