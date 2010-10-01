@@ -24,6 +24,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.8-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-installers</artifactId>
   <name>ApacheDS Installers</name>
   <packaging>pom</packaging>
@@ -624,5 +625,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 -->
+          <eclipseProjectDir>..</eclipseProjectDir>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
