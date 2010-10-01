@@ -1,0 +1,628 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.8-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-installers</artifactId>
+  <name>ApacheDS Installers</name>
+  <packaging>pom</packaging>
+
+  <description>
+    Generates installers for ApacheDS
+  </description>
+  
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-service</artifactId>
+    </dependency>  
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-wrapper</artifactId>
+    </dependency>
+    
+    <!--
+      Forcing this dependency as provided to avoid it 
+      being bundled in the final installers
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+  <profiles>
+    <!-- Profile for Server Installers -->
+    <profile>
+      <id>server-installer</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>installers-maven-plugin</artifactId>
+            <configuration>
+              
+              <!-- Targets for Mac OS X .pkg installer packages -->
+              <macOsXPkgTargets>
+                <macOsXPkgTarget>
+                 <id>apacheds-macosx-32bit</id>
+                  <finalName>apacheds-${version}-32bit.dmg</finalName>
+                  <osArch>x86</osArch>
+                </macOsXPkgTarget>
+                <macOsXPkgTarget>
+                 <id>apacheds-macosx-64bit</id>
+                  <finalName>apacheds-${version}-64bit.dmg</finalName>
+                  <osArch>x86_64</osArch>
+                </macOsXPkgTarget>
+              </macOsXPkgTargets>
+
+              <!-- Target for Windows installer package -->
+              <nsisTargets>
+                <nsisTarget>
+                  <id>apacheds-win32</id>
+                  <finalName>apacheds-${version}.exe</finalName>
+                </nsisTarget>
+              </nsisTargets>
+
+              <!-- Targets for Archive installer -->
+              <archiveTargets>
+                <archiveTarget>
+                  <id>apacheds-archive-zip</id>
+                  <finalName>apacheds-${version}.zip</finalName>
+                  <archiveType>zip</archiveType>
+                </archiveTarget>
+                <archiveTarget>
+                  <id>apacheds-archive-tar.gz</id>
+                  <finalName>apacheds-${version}.tar.gz</finalName>
+                  <archiveType>tar.gz</archiveType>
+                </archiveTarget>
+              </archiveTargets>
+              
+              <!-- Targets for Linux Binary .bin installer -->
+              <binTargets>
+                <binTarget>
+                 <id>apacheds-bin-installer-32bit</id>
+                  <finalName>apacheds-${version}-32bit.bin</finalName>
+                  <osName>Linux</osName>
+                  <osArch>x86</osArch>
+                </binTarget>
+                 <binTarget>
+                 <id>apacheds-bin-installer-64bit</id>
+                  <finalName>apacheds-${version}-64bit.bin</finalName>
+                  <osName>Linux</osName>
+                  <osArch>x86_64</osArch>
+                </binTarget>
+              </binTargets>
+              
+              <!-- Targets for Debian .deb installer package -->
+              <debTargets>
+                <debTarget>
+                 <id>apacheds-debian-i386</id>
+                  <finalName>apacheds-${version}-i386.deb</finalName>
+                  <osName>Linux</osName>
+                  <osArch>i386</osArch>
+                </debTarget>
+                <debTarget>
+                 <id>apacheds-debian-amd64</id>
+                  <finalName>apacheds-${version}-amd64.deb</finalName>
+                  <osName>Linux</osName>
+                  <osArch>amd64</osArch>
+                </debTarget>
+              </debTargets>
+              
+              <!-- Targets for Linux .installer package -->
+              <rpmTargets>
+                <rpmTarget>
+                  <id>apacheds-rpm-i386</id>
+                  <finalName>apacheds-${version}-i386.rpm</finalName>
+                  <osName>Linux</osName>
+                  <osArch>i386</osArch>
+                </rpmTarget>
+                <rpmTarget>
+                  <id>apacheds-rpm-x86_64</id>
+                  <finalName>apacheds-${version}-x86_64.rpm</finalName>
+                  <osName>Linux</osName>
+                  <osArch>x86_64</osArch>
+                </rpmTarget>
+              </rpmTargets>
+
+              <!-- Targets for Solaris .pkg installer package -->
+              <!-- <solarisPkgTargets>
+                <solarisPkgTarget>
+                  <id>apacheds-solaris-x86</id>
+                  <finalName>apacheds-${version}-solaris-x86.pkg</finalName>
+                  <osName>solaris</osName>
+                  <osArch>x86</osArch>
+                </solarisPkgTarget>
+                <solarisPkgTarget>
+                  <id>apacheds-solaris-sparc</id>
+                  <finalName>apacheds-${version}-solaris-sparc.pkg</finalName>
+                  <osName>solaris</osName>
+                  <osArch>sparc</osArch>
+                </solarisPkgTarget>
+              </solarisPkgTargets> -->
+              
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Profile for deploying the Windows installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-win32</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}.exe</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-win32</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-setup.exe</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>exe</packaging>
+                  <version>server-win32-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Profile for deploying the Linux RPM x86 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-rpm-x86</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-server-${server.version}-x86.rpm</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-rpm-x86</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-server-${server.version}-x86.rpm</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>rpm</packaging>
+                  <version>server-x86-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Profile for deploying the Linux RPM x86_64 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-rpm-x86_64</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-server-${server.version}-x86_64.rpm</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-rpm-x86_64</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-server-${server.version}-x86_64.rpm</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>rpm</packaging>
+                  <version>server-x86_64-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Profile for deploying the Mac OS X installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-macosx</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}.dmg</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-macosx</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}.dmg</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>dmg</packaging>
+                  <version>server-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Profile for deploying the Solaris x86 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-solaris-x86</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-solaris-x86.pkg</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-solaris-x86</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-solaris-x86.pkg</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>pkg</packaging>
+                  <version>server-solaris-x86-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Solaris Sparc installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-solaris-sparc</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-solaris-x86.pkg</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-solaris-sparc</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-solaris-sparc.pkg</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>pkg</packaging>
+                  <version>server-solaris-sparc-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Debian i386 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-debian-i386</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-i386.deb</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-debian-i386</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-i386.deb</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>deb</packaging>
+                  <version>server-i386-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Debian adm64 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-debian-amd64</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-amd64.deb</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-debian-amd64</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-amd64.deb</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>deb</packaging>
+                  <version>server-amd64-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Linux Binary i386 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-binary-i386</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-i386.bin</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-binary-i386</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-i386.bin</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>bin</packaging>
+                  <version>server-i386-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Linux Binary x86_64 installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-binary-x86_64</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}-x86_64.bin</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-binary-x86_64</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}-x86_64.bin</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>bin</packaging>
+                  <version>server-x86_64-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Archive zip installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-archive-zip</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}.zip</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-archive-zip</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}.zip</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>zip</packaging>
+                  <version>server-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+          
+    <!-- Profile for deploying the Archive tar.gz installer (if and only if it has been created) -->
+    <profile>
+      <id>deploy-installer-server-archive-tar.gz</id>
+      <activation>
+        <file>
+          <exists>target/images/apacheds-${server.version}.tar.gz</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-installer-server-archive-tar.gz</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <file>target/images/apacheds-${server.version}.tar.gz</file>
+                  <url>${pom.distributionManagement.snapshotRepository.url}</url>
+                  <artifactId>ApacheDirectoryInstaller</artifactId>
+                  <groupId>${pom.groupId}</groupId>
+                  <packaging>tar.gz</packaging>
+                  <version>server-${server.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+  </profiles>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>installers-maven-plugin</artifactId>
+          <version>${project.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
