@@ -44,6 +44,10 @@
       <artifactId>apacheds-wrapper</artifactId>
     </dependency>
     
+    <!--
+      Forcing this dependency as provided to avoid it 
+      being bundled in the final installers
+    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -615,7 +619,7 @@
       <plugins>
         <plugin>
           <groupId>${project.groupId}</groupId>
-          <artifactId>installers-plugin</artifactId>
+          <artifactId>installers-maven-plugin</artifactId>
           <version>${project.version}</version>
         </plugin>
       </plugins>
