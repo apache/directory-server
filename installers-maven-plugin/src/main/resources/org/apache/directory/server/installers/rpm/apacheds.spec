@@ -58,8 +58,9 @@ install -m 644 ${build.dir}/%{name}-%{version}/server/conf/wrapper.conf $RPM_BUI
 ${install.libs}
 
 # Instance files
-install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/wrapper.conf $RPM_BUILD_ROOT%{adsdata}/default/conf/wrapper.conf
+install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/config.ldif $RPM_BUILD_ROOT%{adsdata}/default/conf/config.ldif
 install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/log4j.properties $RPM_BUILD_ROOT%{adsdata}/default/conf/log4j.properties
+install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/wrapper.conf $RPM_BUILD_ROOT%{adsdata}/default/conf/wrapper.conf
 
 # Init script
 install -m 755 ${build.dir}/%{name}-%{version}/etc-initd-script $RPM_BUILD_ROOT/etc/init.d/apacheds-%{version}-default
@@ -93,5 +94,6 @@ ${files.libs}
 %{adsdata}/default/log
 %{adsdata}/default/partitions
 %{adsdata}/default/run
+%config %{adsdata}/default/conf/config.ldif
 %config %{adsdata}/default/conf/log4j.properties
 %config %{adsdata}/default/conf/wrapper.conf

@@ -211,6 +211,11 @@ public abstract class AbstractMojoCommand<T extends Target>
         MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                 getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
                 new File( instanceLayout.getConfDirectory(), "wrapper.conf" ), true );
+
+        // Copying ApacheDS LDIF configuration file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
+                new File( instanceLayout.getConfDirectory(), "config.ldif" ), false );
     }
 
 

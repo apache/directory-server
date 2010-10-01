@@ -90,9 +90,11 @@ mv ../instance/wrapper.conf.tmp ../instance/wrapper.conf
 verifyExitCode
 
 # Copying the default instance files
-cp ../instance/wrapper.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+cp ../instance/config.ldif $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 cp ../instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+verifyExitCode
+cp ../instance/wrapper.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 
 # Filtering and copying the init.d script
