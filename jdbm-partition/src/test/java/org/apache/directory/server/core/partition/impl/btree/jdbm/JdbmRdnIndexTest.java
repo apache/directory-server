@@ -285,11 +285,17 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key", schemaManager ) );
         
         assertNull( idx.forwardLookup( key ) );
 
         idx.add( key, 0l );
+        assertEquals( 0, ( long ) idx.forwardLookup( key ) );
+        assertEquals( key, idx.reverseLookup( 0l ) );
+        
+        // check with the different case in UP name, this ensures that the custom
+        // key comparator is used
+        key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=KEY", schemaManager ) );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
         assertEquals( key, idx.reverseLookup( 0l ) );
     }
