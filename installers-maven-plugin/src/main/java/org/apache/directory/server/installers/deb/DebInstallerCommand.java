@@ -174,10 +174,11 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             return false;
         }
 
-        // Verifying the currently used OS is Linux
-        if ( !Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
+        // Verifying the currently used OS to build the installer is Linux or Mac OS X
+        if ( !Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) )
+            || !Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
         {
-            log.warn( "Deb package installer can only be built on a machine running Linux!" );
+            log.warn( "Deb package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }

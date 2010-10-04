@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -99,6 +100,9 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                     getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
                     new File( instanceDirectory, "wrapper.conf" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
+                    new File( instanceDirectory, "config.ldif" ), false );
 
             // Copying the init script to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
@@ -162,6 +166,15 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         {
             log.warn( "Bin installer can only be targeted for Linux platforms!" );
             log.warn( "The build will continue, but please check the the platform of this installer target" );
+            return false;
+        }
+
+        // Verifying the currently used OS to build the installer is Linux or Mac OS X
+        if ( !Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) )
+            || !Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
+        {
+            log.warn( "Bin package installer can only be built on a machine running Linux or Mac OS X!" );
+            log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }
 

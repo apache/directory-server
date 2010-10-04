@@ -27,6 +27,7 @@ import java.util.Properties;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -175,6 +176,15 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         {
             log.warn( "Rpm installer can only be targeted for Linux platforms!" );
             log.warn( "The build will continue, but please check the the platform of this installer target" );
+            return false;
+        }
+
+        // Verifying the currently used OS to build the installer is Linux or Mac OS X
+        if ( !Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) )
+            || !Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( System.getProperty( "os.name" ) ) )
+        {
+            log.warn( "Rpm package installer can only be built on a machine running Linux or Mac OS X!" );
+            log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }
 
