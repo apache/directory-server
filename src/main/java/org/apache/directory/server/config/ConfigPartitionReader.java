@@ -57,6 +57,10 @@ import java.util.TreeSet;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.config.beans.JournalBean;
+import org.apache.directory.server.config.beans.TcpTransportBean;
+import org.apache.directory.server.config.beans.TransportBean;
+import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -1246,6 +1250,58 @@ public class ConfigPartitionReader
         return transports.toArray( new Transport[]
             {} );
     }
+    
+    
+    public TransportBean readTransport( Entry transportEntry ) throws Exception
+    {
+        TransportBean transportBean = null;
+
+        EntryAttribute ocAttr = transportEntry.get( OBJECT_CLASS_AT );
+
+        if ( ocAttr.contains( ConfigSchemaConstants.ADS_TCP_TRANSPORT ) )
+        {
+            transportBean = new TcpTransportBean();
+        }
+        else if ( ocAttr.contains( ConfigSchemaConstants.ADS_UDP_TRANSPORT ) )
+        {
+            transportBean = new UdpTransportBean();
+        }
+
+        transportBean.setPort( getInt( ConfigSchemaConstants.ADS_SYSTEM_PORT, transportEntry ) );
+        EntryAttribute addressAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ADDRESS );
+
+        if ( addressAttr != null )
+        {
+            transportBean.setAddress( addressAttr.getString() );
+        }
+        else
+        {
+            transportBean.setAddress( "0.0.0.0" );
+        }
+
+        EntryAttribute backlogAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_BACKLOG );
+
+        if ( backlogAttr != null )
+        {
+            transportBean.setBackLog( Integer.parseInt( backlogAttr.getString() ) );
+        }
+
+        EntryAttribute sslAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ENABLE_SSL );
+
+        if ( sslAttr != null )
+        {
+            transportBean.setEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
+        }
+
+        EntryAttribute nbThreadsAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_NBTHREADS );
+
+        if ( nbThreadsAttr != null )
+        {
+            transportBean.setNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
+        }
+
+        return transportBean;
+    }
 
 
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
@@ -1254,49 +1310,22 @@ public class ConfigPartitionReader
     {
         Transport transport = null;
 
-        EntryAttribute ocAttr = transportEntry.get( OBJECT_CLASS_AT );
-
-        if ( ocAttr.contains( ConfigSchemaConstants.ADS_TCP_TRANSPORT ) )
+        TransportBean transportBean = readTransport( transportEntry );
+        
+        if ( transportBean instanceof TcpTransportBean )
         {
             transport = new TcpTransport();
         }
-        else if ( ocAttr.contains( ConfigSchemaConstants.ADS_UDP_TRANSPORT ) )
+        else if ( transportBean instanceof UdpTransportBean )
         {
             transport = new UdpTransport();
         }
 
-        transport.setPort( getInt( ConfigSchemaConstants.ADS_SYSTEM_PORT, transportEntry ) );
-        EntryAttribute addressAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ADDRESS );
-
-        if ( addressAttr != null )
-        {
-            transport.setAddress( addressAttr.getString() );
-        }
-        else
-        {
-            transport.setAddress( "0.0.0.0" );
-        }
-
-        EntryAttribute backlogAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_BACKLOG );
-
-        if ( backlogAttr != null )
-        {
-            transport.setBackLog( Integer.parseInt( backlogAttr.getString() ) );
-        }
-
-        EntryAttribute sslAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ENABLE_SSL );
-
-        if ( sslAttr != null )
-        {
-            transport.setEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
-        }
-
-        EntryAttribute nbThreadsAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_NBTHREADS );
-
-        if ( nbThreadsAttr != null )
-        {
-            transport.setNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
-        }
+        transport.setPort( transportBean.getPort() );
+        transport.setAddress( transportBean.getAddress() );
+        transport.setBackLog( transportBean.getBackLog() );
+        transport.setEnableSSL( transportBean.isSSLEnabled() );
+        transport.setNbThreads( transportBean.getNbThreads() );
 
         return transport;
     }
@@ -1324,40 +1353,65 @@ public class ConfigPartitionReader
 
         return cl;
     }
+    
+    
+    /**
+     * Load the Journal configuration
+     * 
+     * @param journalDN The DN which contains the journal configuration
+     * @return A bean containing the journal configuration
+     * @throws Exception If there is somethng wrong in the configuration
+     */
+    public JournalBean readJournal( DN journalDN ) throws Exception
+    {
+        JournalBean journalBean = new JournalBean();
+
+        long id = configPartition.getEntryId( journalDN );
+        Entry entry = configPartition.lookup( id );
+        
+        journalBean.setFileName( entry.get( ConfigSchemaConstants.ADS_JOURNAL_FILENAME ).getString() );
+
+        EntryAttribute workingDirAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_WORKINGDIR );
+
+        if ( workingDirAttr != null )
+        {
+            journalBean.setWorkingDir( workingDirAttr.getString() );
+        }
+        
+        EntryAttribute rotationAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ROTATION );
+
+        if ( rotationAttr != null )
+        {
+            journalBean.setRotation( Integer.parseInt( rotationAttr.getString() ) );
+        }
+        
+        EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ENABLED );
+
+        if ( enabledAttr != null )
+        {
+            journalBean.setEnabled( Boolean.parseBoolean( enabledAttr.getString() ) );
+        }
+        
+        return journalBean;
+    }
 
 
     public Journal createJournal( DN journalDN ) throws Exception
     {
-        long id = configPartition.getEntryId( journalDN );
-        Entry jlEntry = configPartition.lookup( id );
-
+        JournalBean journalBean = readJournal( journalDN );
+        
         Journal journal = new DefaultJournal();
+
+        journal.setRotation( journalBean.getRotation() );
+        journal.setEnabled( journalBean.isEnabled() );
+
         JournalStore store = new DefaultJournalStore();
 
-        store.setFileName( getString( ConfigSchemaConstants.ADS_JOURNAL_FILENAME, jlEntry ) );
-
-        EntryAttribute jlWorkDirAttr = jlEntry.get( ConfigSchemaConstants.ADS_JOURNAL_WORKINGDIR );
-
-        if ( jlWorkDirAttr != null )
-        {
-            store.setWorkingDirectory( jlWorkDirAttr.getString() );
-        }
-
-        EntryAttribute jlRotAttr = jlEntry.get( ConfigSchemaConstants.ADS_JOURNAL_ROTATION );
-
-        if ( jlRotAttr != null )
-        {
-            journal.setRotation( Integer.parseInt( jlRotAttr.getString() ) );
-        }
-
-        EntryAttribute jlEnabledAttr = jlEntry.get( ConfigSchemaConstants.ADS_JOURNAL_ENABLED );
-
-        if ( jlEnabledAttr != null )
-        {
-            journal.setEnabled( Boolean.parseBoolean( jlEnabledAttr.getString() ) );
-        }
+        store.setFileName( journalBean.getFileName() );
+        store.setWorkingDirectory( journalBean.getWorkingDir() );
 
         journal.setJournalStore( store );
+        
         return journal;
     }
 
