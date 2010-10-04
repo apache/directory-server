@@ -57,130 +57,144 @@
 
   </dependencies>
 
-  <profiles>
-    <!-- Profile for Server Installers -->
-    <profile>
-      <id>server-installer</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>installers-maven-plugin</artifactId>
-            <configuration>
-              
-              <!-- Targets for Mac OS X .pkg installer packages -->
-              <macOsXPkgTargets>
-                <macOsXPkgTarget>
-                 <id>apacheds-macosx-32bit</id>
-                  <finalName>apacheds-${version}-32bit.dmg</finalName>
-                  <osArch>x86</osArch>
-                </macOsXPkgTarget>
-                <macOsXPkgTarget>
-                 <id>apacheds-macosx-64bit</id>
-                  <finalName>apacheds-${version}-64bit.dmg</finalName>
-                  <osArch>x86_64</osArch>
-                </macOsXPkgTarget>
-              </macOsXPkgTargets>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-installers-maven-plugin</artifactId>
+        <configuration>
+          
+          <!-- Targets for Mac OS X .pkg installer packages -->
+          <macOsXPkgTargets>
+            <macOsXPkgTarget>
+             <id>apacheds-macosx-32bit</id>
+              <finalName>apacheds-${version}-32bit.dmg</finalName>
+              <osArch>x86</osArch>
+            </macOsXPkgTarget>
+            <macOsXPkgTarget>
+             <id>apacheds-macosx-64bit</id>
+              <finalName>apacheds-${version}-64bit.dmg</finalName>
+              <osArch>x86_64</osArch>
+            </macOsXPkgTarget>
+          </macOsXPkgTargets>
 
-              <!-- Target for Windows installer package -->
-              <nsisTargets>
-                <nsisTarget>
-                  <id>apacheds-win32</id>
-                  <finalName>apacheds-${version}.exe</finalName>
-                </nsisTarget>
-              </nsisTargets>
+          <!-- Target for Windows installer package -->
+          <nsisTargets>
+            <nsisTarget>
+              <id>apacheds-win32</id>
+              <finalName>apacheds-${version}.exe</finalName>
+            </nsisTarget>
+          </nsisTargets>
 
-              <!-- Targets for Archive installer -->
-              <archiveTargets>
-                <archiveTarget>
-                  <id>apacheds-archive-zip</id>
-                  <finalName>apacheds-${version}.zip</finalName>
-                  <archiveType>zip</archiveType>
-                </archiveTarget>
-                <archiveTarget>
-                  <id>apacheds-archive-tar.gz</id>
-                  <finalName>apacheds-${version}.tar.gz</finalName>
-                  <archiveType>tar.gz</archiveType>
-                </archiveTarget>
-              </archiveTargets>
-              
-              <!-- Targets for Linux Binary .bin installer -->
-              <binTargets>
-                <binTarget>
-                 <id>apacheds-bin-installer-32bit</id>
-                  <finalName>apacheds-${version}-32bit.bin</finalName>
-                  <osName>Linux</osName>
-                  <osArch>x86</osArch>
-                </binTarget>
-                 <binTarget>
-                 <id>apacheds-bin-installer-64bit</id>
-                  <finalName>apacheds-${version}-64bit.bin</finalName>
-                  <osName>Linux</osName>
-                  <osArch>x86_64</osArch>
-                </binTarget>
-              </binTargets>
-              
-              <!-- Targets for Debian .deb installer package -->
-              <debTargets>
-                <debTarget>
-                 <id>apacheds-debian-i386</id>
-                  <finalName>apacheds-${version}-i386.deb</finalName>
-                  <osName>Linux</osName>
-                  <osArch>i386</osArch>
-                </debTarget>
-                <debTarget>
-                 <id>apacheds-debian-amd64</id>
-                  <finalName>apacheds-${version}-amd64.deb</finalName>
-                  <osName>Linux</osName>
-                  <osArch>amd64</osArch>
-                </debTarget>
-              </debTargets>
-              
-              <!-- Targets for Linux .installer package -->
-              <rpmTargets>
-                <rpmTarget>
-                  <id>apacheds-rpm-i386</id>
-                  <finalName>apacheds-${version}-i386.rpm</finalName>
-                  <osName>Linux</osName>
-                  <osArch>i386</osArch>
-                </rpmTarget>
-                <rpmTarget>
-                  <id>apacheds-rpm-x86_64</id>
-                  <finalName>apacheds-${version}-x86_64.rpm</finalName>
-                  <osName>Linux</osName>
-                  <osArch>x86_64</osArch>
-                </rpmTarget>
-              </rpmTargets>
+          <!-- Targets for Archive installer -->
+          <archiveTargets>
+            <archiveTarget>
+              <id>apacheds-archive-zip</id>
+              <finalName>apacheds-${version}.zip</finalName>
+              <archiveType>zip</archiveType>
+            </archiveTarget>
+            <archiveTarget>
+              <id>apacheds-archive-tar.gz</id>
+              <finalName>apacheds-${version}.tar.gz</finalName>
+              <archiveType>tar.gz</archiveType>
+            </archiveTarget>
+          </archiveTargets>
+          
+          <!-- Targets for Linux .bin installer -->
+          <binTargets>
+            <binTarget>
+             <id>apacheds-bin-installer-32bit</id>
+              <finalName>apacheds-${version}-32bit.bin</finalName>
+              <osName>Linux</osName>
+              <osArch>x86</osArch>
+            </binTarget>
+             <binTarget>
+             <id>apacheds-bin-installer-64bit</id>
+              <finalName>apacheds-${version}-64bit.bin</finalName>
+              <osName>Linux</osName>
+              <osArch>x86_64</osArch>
+            </binTarget>
+          </binTargets>
+          
+          <!-- Targets for Linux .deb installer package -->
+          <debTargets>
+            <debTarget>
+             <id>apacheds-debian-i386</id>
+              <finalName>apacheds-${version}-i386.deb</finalName>
+              <osName>Linux</osName>
+              <osArch>i386</osArch>
+            </debTarget>
+            <debTarget>
+             <id>apacheds-debian-amd64</id>
+              <finalName>apacheds-${version}-amd64.deb</finalName>
+              <osName>Linux</osName>
+              <osArch>amd64</osArch>
+            </debTarget>
+          </debTargets>
+          
+          <!-- Targets for Linux .rpm installer package -->
+          <rpmTargets>
+            <rpmTarget>
+              <id>apacheds-rpm-i386</id>
+              <finalName>apacheds-${version}-i386.rpm</finalName>
+              <osName>Linux</osName>
+              <osArch>i386</osArch>
+            </rpmTarget>
+            <rpmTarget>
+              <id>apacheds-rpm-x86_64</id>
+              <finalName>apacheds-${version}-x86_64.rpm</finalName>
+              <osName>Linux</osName>
+              <osArch>x86_64</osArch>
+            </rpmTarget>
+          </rpmTargets>
 
-              <!-- Targets for Solaris .pkg installer package -->
-              <!-- <solarisPkgTargets>
-                <solarisPkgTarget>
-                  <id>apacheds-solaris-x86</id>
-                  <finalName>apacheds-${version}-solaris-x86.pkg</finalName>
-                  <osName>solaris</osName>
-                  <osArch>x86</osArch>
-                </solarisPkgTarget>
-                <solarisPkgTarget>
-                  <id>apacheds-solaris-sparc</id>
-                  <finalName>apacheds-${version}-solaris-sparc.pkg</finalName>
-                  <osName>solaris</osName>
-                  <osArch>sparc</osArch>
-                </solarisPkgTarget>
-              </solarisPkgTargets> -->
-              
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+          <!-- Targets for Solaris .pkg installer package -->
+          <!-- <solarisPkgTargets>
+            <solarisPkgTarget>
+              <id>apacheds-solaris-x86</id>
+              <finalName>apacheds-${version}-solaris-x86.pkg</finalName>
+              <osName>solaris</osName>
+              <osArch>x86</osArch>
+            </solarisPkgTarget>
+            <solarisPkgTarget>
+              <id>apacheds-solaris-sparc</id>
+              <finalName>apacheds-${version}-solaris-sparc.pkg</finalName>
+              <osName>solaris</osName>
+              <osArch>sparc</osArch>
+            </solarisPkgTarget>
+          </solarisPkgTargets> -->
+          
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 -->
+          <eclipseProjectDir>.</eclipseProjectDir>
+        </configuration>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>installers-maven-plugin</artifactId>
+          <version>${project.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+      
     
+  <profiles>
     <!-- Profile for deploying the Windows installer (if and only if it has been created) -->
     <profile>
       <id>deploy-installer-server-win32</id>
@@ -614,26 +628,4 @@
     </profile>
     
   </profiles>
-  
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>installers-maven-plugin</artifactId>
-          <version>${project.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <!-- Workaround for http://jira.codehaus.org/browse/MECLIPSE-94 -->
-          <eclipseProjectDir>.</eclipseProjectDir>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
