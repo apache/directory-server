@@ -20,8 +20,6 @@
 package org.apache.directory.server.installers.nsis;
 
 
-import java.io.File;
-
 import org.apache.directory.server.installers.Target;
 
 
@@ -32,9 +30,6 @@ import org.apache.directory.server.installers.Target;
  */
 public class NsisTarget extends Target
 {
-    private File nsisCompiler = new File( "/usr/bin/makensis" );
-
-
     /**
      * Creates a new instance of NsisTarget.
      */
@@ -42,29 +37,5 @@ public class NsisTarget extends Target
     {
         setOsName( Target.OS_NAME_WINDOWS );
         setOsArch( Target.OS_ARCH_X86 );
-    }
-
-
-    /**
-     * Sets the NSIS compiler utility.
-     *
-     * @param nsisCompiler
-     *      the NSIS compiler utility
-     */
-    public void setNsisCompiler( File nsisCompiler )
-    {
-        this.nsisCompiler = nsisCompiler;
-    }
-
-
-    /**
-     * Gets the NSIS compiler utility.
-     *
-     * @return
-     *      the NSIS compiler utility
-     */
-    public File getNsisCompiler()
-    {
-        return nsisCompiler;
     }
 }

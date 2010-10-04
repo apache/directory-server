@@ -147,7 +147,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         log.info( "    Generating Mac OS X PKG Installer" );
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
-            { target.getPackageMakerUtility().getAbsolutePath(), "--root", "root/", "--resources", "Resources/",
+            { mojo.getPackageMakerUtility().getAbsolutePath(), "--root", "root/", "--resources", "Resources/",
                 "--info", "Info.plist", "--title", "Apache Directory Server " + mojo.getProject().getVersion(),
                 "--version", mojo.getProject().getVersion(), "--scripts", "scripts", "--out",
                 "Apache Directory Server Installer.pkg" };
@@ -267,9 +267,9 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         }
 
         // Verifying the PackageMaker utility exists
-        if ( !target.getPackageMakerUtility().exists() )
+        if ( !mojo.getPackageMakerUtility().exists() )
         {
-            log.warn( "Cannot find 'PackageMaker' utility at this location: " + target.getPackageMakerUtility() );
+            log.warn( "Cannot find 'PackageMaker' utility at this location: " + mojo.getPackageMakerUtility() );
             log.warn( "The build will continue, but please check the location of your 'Package Maker' utility." );
             return false;
         }

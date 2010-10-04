@@ -116,7 +116,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         Execute createPkgTask = new Execute();
         String[] cmd = new String[]
             {
-                target.getNsisCompiler().getAbsolutePath(),
+                mojo.getMakensisUtility().getAbsolutePath(),
                 "-V2" /* V2 means 'only log warnings and errors' */,
                 installerFile.getAbsolutePath() };
         createPkgTask.setCommandline( cmd );
@@ -154,9 +154,9 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         }
 
         // Verifying the NSIS compiler utility exists
-        if ( !target.getNsisCompiler().exists() )
+        if ( !mojo.getMakensisUtility().exists() )
         {
-            log.warn( "Cannot find NSIS compiler at this location: " + target.getNsisCompiler() );
+            log.warn( "Cannot find NSIS compiler at this location: " + mojo.getMakensisUtility() );
             log.warn( "The build will continue, but please check the location of your makensis executable." );
             return false;
         }

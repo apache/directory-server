@@ -20,8 +20,6 @@
 package org.apache.directory.server.installers.macosxpkg;
 
 
-import java.io.File;
-
 import org.apache.directory.server.installers.Target;
 
 
@@ -39,11 +37,6 @@ import org.apache.directory.server.installers.Target;
  */
 public class MacOsXPkgTarget extends Target
 {
-    /** The PackageMaker utility executable */
-    private File packageMakerUtility = new File(
-        "/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker" );
-
-
     /**
      * Creates a new instance of MacOsXPkgTarget.
      */
@@ -51,29 +44,5 @@ public class MacOsXPkgTarget extends Target
     {
         setOsName( Target.OS_NAME_MAC_OS_X );
         setOsArch( Target.OS_ARCH_X86_64 );
-    }
-
-
-    /**
-     * Gets the PackageMaker utility.
-     *
-     * @return
-     *      the PackageMaker utility
-     */
-    public File getPackageMakerUtility()
-    {
-        return packageMakerUtility;
-    }
-
-
-    /**
-     * Sets the PackageMaker utility.
-     *
-     * @param packageMakerUtility
-     *      the PackageMaker utility
-     */
-    public void setPackageMakerUtility( File packageMakerUtility )
-    {
-        this.packageMakerUtility = packageMakerUtility;
     }
 }

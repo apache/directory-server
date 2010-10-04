@@ -123,7 +123,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
         MojoHelperUtils.exec( new String[]
                                 {
-                                    target.getRpmBuild().getAbsolutePath(),
+                                    mojo.getRpmbuildUtility().getAbsolutePath(),
                                     "--quiet",
                                     "-ba",
                                     "--target",
@@ -189,9 +189,9 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         }
 
         // Verifying the rpmbuild utility exists
-        if ( !target.getRpmBuild().exists() )
+        if ( !mojo.getRpmbuildUtility().exists() )
         {
-            log.warn( "Cannot find rpmbuild utility at this location: " + target.getRpmBuild() );
+            log.warn( "Cannot find rpmbuild utility at this location: " + mojo.getRpmbuildUtility() );
             log.warn( "The build will continue, but please check the location of your rpmbuild utility." );
             return false;
         }

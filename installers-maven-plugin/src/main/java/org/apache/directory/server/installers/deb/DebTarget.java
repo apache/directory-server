@@ -20,8 +20,6 @@
 package org.apache.directory.server.installers.deb;
 
 
-import java.io.File;
-
 import org.apache.directory.server.installers.Target;
 
 
@@ -35,10 +33,6 @@ import org.apache.directory.server.installers.Target;
  */
 public class DebTarget extends Target
 {
-    /** The dpkg utility executable */
-    private File dpkgUtility = new File( "/usr/bin/dpkg" );
-
-
     /**
      * Creates a new instance of DebTarget.
      */
@@ -46,29 +40,5 @@ public class DebTarget extends Target
     {
         setOsName( Target.OS_NAME_LINUX );
         setOsArch( Target.OS_ARCH_X86_64 );
-    }
-
-
-    /**
-     * Gets the dpkg utility.
-     *
-     * @return
-     *      the dpkg utility
-     */
-    public File getDpkgUtility()
-    {
-        return dpkgUtility;
-    }
-
-
-    /**
-     * Sets the dpkg utility.
-     *
-     * @param dpkgUtility
-     *      the dpkg utility
-     */
-    public void setDpkgUtility( File dpkgUtility )
-    {
-        this.dpkgUtility = dpkgUtility;
     }
 }

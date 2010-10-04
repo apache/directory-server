@@ -135,7 +135,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         Execute createDebTask = new Execute();
         String[] cmd = new String[]
                     {
-                        target.getDpkgUtility().getAbsolutePath(),
+                        mojo.getDpkgUtility().getAbsolutePath(),
                         "-b",
                         getTargetDirectory().getName() + "/" + getDebDirectory().getName(),
                         finalName
@@ -184,9 +184,9 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         }
 
         // Verifying the dpkg utility exists
-        if ( !target.getDpkgUtility().exists() )
+        if ( !mojo.getDpkgUtility().exists() )
         {
-            log.warn( "Cannot find dpkg utility at this location: " + target.getDpkgUtility() );
+            log.warn( "Cannot find dpkg utility at this location: " + mojo.getDpkgUtility() );
             log.warn( "The build will continue, but please check the location of your dpkg utility." );
             return false;
         }

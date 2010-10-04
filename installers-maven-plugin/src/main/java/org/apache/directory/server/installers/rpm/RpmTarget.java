@@ -20,8 +20,6 @@
 package org.apache.directory.server.installers.rpm;
 
 
-import java.io.File;
-
 import org.apache.directory.server.installers.Target;
 
 
@@ -32,10 +30,6 @@ import org.apache.directory.server.installers.Target;
  */
 public class RpmTarget extends Target
 {
-    /** The rpmbuild utility executable */
-    private File rpmBuild = new File( "/usr/bin/rpmbuild" );
-
-
     /**
      * Creates a new instance of RpmTarget.
      */
@@ -43,29 +37,5 @@ public class RpmTarget extends Target
     {
         setOsName( Target.OS_NAME_LINUX );
         setOsArch( Target.OS_ARCH_I386 );
-    }
-
-
-    /**
-     * Sets the rpmbuild utility.
-     *
-     * @param rpmBuild
-     *      the the rpmbuild utility
-     */
-    public void setRpmBuild( File rpmBuild )
-    {
-        this.rpmBuild = rpmBuild;
-    }
-
-
-    /**
-     * Gets the rpmbuild utility.
-     *
-     * @return
-     *      the rpmbuild utility
-     */
-    public File getRpmBuild()
-    {
-        return rpmBuild;
     }
 }

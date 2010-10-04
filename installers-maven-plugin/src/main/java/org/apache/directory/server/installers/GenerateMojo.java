@@ -130,6 +130,42 @@ public class GenerateMojo extends AbstractMojo
      */
     private Set excludes;
 
+    /**
+     *  The dpkg utility executable.
+     *  
+     *  @parameter
+     *      expression="${installers.dpkg}"
+     *      default-value="/usr/bin/dpkg"
+     */
+    private File dpkgUtility;
+
+    /**
+     *  The PackageMaker utility executable.
+     *  
+     *  @parameter
+     *      expression="${installers.packageMaker}"
+     *      default-value="/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker"
+     */
+    private File packageMakerUtility;
+
+    /**
+     *  The makensis utility executable.
+     *  
+     *  @parameter
+     *      expression="${installers.makensis}"
+     *      default-value="/usr/bin/makensis"
+     */
+    private File makensisUtility;
+
+    /**
+     *  The rpmbuild utility executable.
+     *  
+     *  @parameter
+     *      expression="${installers.rpmbuild}"
+     *      default-value="/usr/bin/rpmbuild"
+     */
+    private File rpmbuildUtility;
+
     /** The list containing all the targets */
     private List<Target> allTargets = new ArrayList<Target>();
 
@@ -273,8 +309,56 @@ public class GenerateMojo extends AbstractMojo
     }
 
 
+    /**
+     * Gets the excluded artifacts.
+     *
+     * @return
+     *      the excluded artifacts
+     */
     public Set getExcludes()
     {
         return excludes;
+    }
+
+
+    /**
+     * Gets the dpkg utility.
+     *
+     * @return
+     *      the dpkg utility
+     */
+    public File getDpkgUtility()
+    {
+        return dpkgUtility;
+    }
+
+
+    /**
+     * Gets the dpkg utility.
+     *
+     * @return
+     *      the dpkg utility
+     */
+    public File getPackageMakerUtility()
+    {
+        return packageMakerUtility;
+    }
+
+
+    /**
+     * Gets the makensis utility.
+     *
+     * @return
+     *      the dpkg utility
+     */
+    public File getMakensisUtility()
+    {
+        return makensisUtility;
+    }
+
+
+    public File getRpmbuildUtility()
+    {
+        return rpmbuildUtility;
     }
 }
