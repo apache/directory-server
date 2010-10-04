@@ -134,7 +134,6 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
         attribute.add( "accessControlSpecificArea" );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
@@ -161,9 +160,6 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
     }
     
 
-    /*
-     * FIXME: The test fails badly.
-     */
     @Test
     public void testTrackingOfSubentryOperationals() throws Exception
     {

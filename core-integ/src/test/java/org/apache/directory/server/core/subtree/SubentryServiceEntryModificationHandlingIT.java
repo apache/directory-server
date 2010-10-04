@@ -93,7 +93,6 @@ public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTest
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
         sysRoot.modifyAttributes( "", new ModificationItem[]
