@@ -203,6 +203,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         rootDSE.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
+        
+        // The rootDSE uuid has been randomly created
+        rootDSE.put( SchemaConstants.ENTRY_UUID_AT, "f290425c-8272-4e62-8a67-92b06f38dbf5" );
     }
 
 
