@@ -39,7 +39,6 @@
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.20-SNAPSHOT</org.apache.directory.shared.version>
-    <org.apache.directory.daemon.version>1.1.9-SNAPSHOT</org.apache.directory.daemon.version>
     <org.apache.directory.buildtools.directory-checkstyle.version>0.1-SNAPSHOT</org.apache.directory.buildtools.directory-checkstyle.version>
     <org.apache.directory.junit.junit-addons.version>0.1-SNAPSHOT</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.2-SNAPSHOT</skin.version>
@@ -55,7 +54,6 @@
     <commons.lang.version>2.5</commons.lang.version>
     <commons.net.version>2.0</commons.net.version>
     <commons.pool.version>1.5.4</commons.pool.version>
-    <daemon.bootstrappers.version>1.1.9-SNAPSHOT</daemon.bootstrappers.version>
     <derby.version>10.4.2.0</derby.version>
     <dnsjava.version>2.0.1</dnsjava.version>
     <jetty.version>6.1.14</jetty.version>
@@ -120,7 +118,8 @@
     <module>protocol-dns</module>
     <module>protocol-changepw</module>
     <module>server-integ</module>
-    <module>server-tools</module>
+    <!-- Tools are broken and need to be fixed -->
+    <!--<module>server-tools</module>-->
     <module>server-config</module>
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
@@ -476,14 +475,6 @@
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
-      <!-- Daemon dependencies -->
-      
-      <dependency>
-        <groupId>org.apache.directory.daemon</groupId>
-        <artifactId>daemon-bootstrappers</artifactId>
-        <version>${daemon.bootstrappers.version}</version>
-      </dependency>
-
       <!-- Mina dependencies -->
       
       <dependency>
