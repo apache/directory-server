@@ -169,8 +169,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         String hostName;
         try
         {
-            InetAddress loopback = InetAddress.getLocalHost();
-            //InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
+            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
             hostName = loopback.getHostName();
         }
         catch ( UnknownHostException e )
