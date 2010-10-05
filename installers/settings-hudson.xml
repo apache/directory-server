@@ -4,7 +4,7 @@
     <profile>
       <id>installers</id>
       <properties>
-        <installers.dpkg>/opt/local/bin/dpkg</installers.dpkg>
+        <installers.dpkg>/opt/local/bin/dpkg-deb</installers.dpkg>
         <installers.rpmbuild>/opt/local/bin/rpmbuild</installers.rpmbuild>
         <installers.makensis>/opt/local/bin/makensis</installers.makensis>
         <!--<installers.packageMaker></installers.packageMaker>-->
