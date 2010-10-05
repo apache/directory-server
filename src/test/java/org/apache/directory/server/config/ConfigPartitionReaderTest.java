@@ -136,6 +136,7 @@ public class ConfigPartitionReaderTest
         // configured in the actual configuration data
         // in case the configured port is already in use during the test run
         Transport[] transports = server.getTransports();
+        
         for( Transport t : transports )
         {
             int port = t.getPort();

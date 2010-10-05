@@ -290,7 +290,7 @@ public class ConfigPartitionReader
         
         cursor.close();
         
-        // read the extnded operation handlers' config
+        // read the extended operation handlers' config
         filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_EXT_OP_HANDLER_OC ) );
         cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
@@ -1221,8 +1221,7 @@ public class ConfigPartitionReader
         return index;
     }
 
-
-    private Transport[] createTransports( DN adsServerDN ) throws Exception
+    private TransportBean[] readTransports( DN adsServerDN ) throws Exception
     {
         AttributeType adsTransportIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_TRANSPORT_ID );
         PresenceNode filter = new PresenceNode( adsTransportIdAt );
@@ -1231,27 +1230,50 @@ public class ConfigPartitionReader
         IndexCursor<Long, Entry, Long> cursor = se.cursor( adsServerDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
-        List<Transport> transports = new ArrayList<Transport>();
+        List<TransportBean> transports = new ArrayList<TransportBean>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-                .get();
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
             Entry transportEntry = configPartition.lookup( forwardEntry.getId() );
-
+    
             if ( !isEnabled( transportEntry ) )
             {
                 continue;
             }
-
-            transports.add( createTransport( transportEntry ) );
+    
+            transports.add( readTransport( transportEntry ) );
         }
 
-        return transports.toArray( new Transport[]
-            {} );
+        return transports.toArray( new TransportBean[]
+                                                 {} );
+    }
+
+    /**
+     * Creates the array of transports read from the DIT 
+     */
+    private Transport[] createTransports( DN adsServerDN ) throws Exception
+    {
+        TransportBean[] transportBeans = readTransports( adsServerDN );
+        Transport[] transports = new Transport[ transportBeans.length ];
+        int i = 0;
+        
+        for ( TransportBean transportBean : transportBeans )
+        {
+            transports[i++] = createTransport( transportBean );
+        }
+        
+        return transports;
     }
     
     
+    /**
+     * Read a Transport for the DIT
+     * 
+     * @param transportEntry The Entry containing the transport's configuration
+     * @return A instance containing the transport configuration
+     * @throws Exception If the configuration cannot be read
+     */
     public TransportBean readTransport( Entry transportEntry ) throws Exception
     {
         TransportBean transportBean = null;
@@ -1304,14 +1326,17 @@ public class ConfigPartitionReader
     }
 
 
-    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
-    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public Transport createTransport( Entry transportEntry ) throws Exception
+    /**
+     * Creates a Transport reading its configuration from the DIT
+     * 
+     * @param transportBean The created instance of transport
+     * @return An instance of transport
+     * @throws Exception If the instance cannot be read 
+     */
+    public Transport createTransport( TransportBean transportBean ) throws Exception
     {
         Transport transport = null;
 
-        TransportBean transportBean = readTransport( transportEntry );
-        
         if ( transportBean instanceof TcpTransportBean )
         {
             transport = new TcpTransport();
@@ -1761,6 +1786,7 @@ public class ConfigPartitionReader
     private boolean isEnabled( Entry entry ) throws Exception
     {
         EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_ENABLED );
+        
         if ( enabledAttr != null )
         {
             return Boolean.parseBoolean( enabledAttr.getString() );
