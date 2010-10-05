@@ -66,12 +66,12 @@
           <macOsXPkgTargets>
             <macOsXPkgTarget>
              <id>apacheds-macosx-32bit</id>
-              <finalName>apacheds-${version}-32bit.dmg</finalName>
+              <finalName>apacheds-${project.version}-32bit.dmg</finalName>
               <osArch>x86</osArch>
             </macOsXPkgTarget>
             <macOsXPkgTarget>
              <id>apacheds-macosx-64bit</id>
-              <finalName>apacheds-${version}-64bit.dmg</finalName>
+              <finalName>apacheds-${project.version}-64bit.dmg</finalName>
               <osArch>x86_64</osArch>
             </macOsXPkgTarget>
           </macOsXPkgTargets>
@@ -80,7 +80,7 @@
           <nsisTargets>
             <nsisTarget>
               <id>apacheds-win32</id>
-              <finalName>apacheds-${version}.exe</finalName>
+              <finalName>apacheds-${project.version}.exe</finalName>
             </nsisTarget>
           </nsisTargets>
 
@@ -88,12 +88,12 @@
           <archiveTargets>
             <archiveTarget>
               <id>apacheds-archive-zip</id>
-              <finalName>apacheds-${version}.zip</finalName>
+              <finalName>apacheds-${project.version}.zip</finalName>
               <archiveType>zip</archiveType>
             </archiveTarget>
             <archiveTarget>
               <id>apacheds-archive-tar.gz</id>
-              <finalName>apacheds-${version}.tar.gz</finalName>
+              <finalName>apacheds-${project.version}.tar.gz</finalName>
               <archiveType>tar.gz</archiveType>
             </archiveTarget>
           </archiveTargets>
@@ -102,13 +102,13 @@
           <binTargets>
             <binTarget>
              <id>apacheds-bin-installer-32bit</id>
-              <finalName>apacheds-${version}-32bit.bin</finalName>
+              <finalName>apacheds-${project.version}-32bit.bin</finalName>
               <osName>Linux</osName>
               <osArch>x86</osArch>
             </binTarget>
              <binTarget>
              <id>apacheds-bin-installer-64bit</id>
-              <finalName>apacheds-${version}-64bit.bin</finalName>
+              <finalName>apacheds-${project.version}-64bit.bin</finalName>
               <osName>Linux</osName>
               <osArch>x86_64</osArch>
             </binTarget>
@@ -118,13 +118,13 @@
           <debTargets>
             <debTarget>
              <id>apacheds-debian-i386</id>
-              <finalName>apacheds-${version}-i386.deb</finalName>
+              <finalName>apacheds-${project.version}-i386.deb</finalName>
               <osName>Linux</osName>
               <osArch>i386</osArch>
             </debTarget>
             <debTarget>
              <id>apacheds-debian-amd64</id>
-              <finalName>apacheds-${version}-amd64.deb</finalName>
+              <finalName>apacheds-${project.version}-amd64.deb</finalName>
               <osName>Linux</osName>
               <osArch>amd64</osArch>
             </debTarget>
@@ -134,13 +134,13 @@
           <rpmTargets>
             <rpmTarget>
               <id>apacheds-rpm-i386</id>
-              <finalName>apacheds-${version}-i386.rpm</finalName>
+              <finalName>apacheds-${project.version}-i386.rpm</finalName>
               <osName>Linux</osName>
               <osArch>i386</osArch>
             </rpmTarget>
             <rpmTarget>
               <id>apacheds-rpm-x86_64</id>
-              <finalName>apacheds-${version}-x86_64.rpm</finalName>
+              <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
               <osName>Linux</osName>
               <osArch>x86_64</osArch>
             </rpmTarget>
@@ -150,13 +150,13 @@
           <!-- <solarisPkgTargets>
             <solarisPkgTarget>
               <id>apacheds-solaris-x86</id>
-              <finalName>apacheds-${version}-solaris-x86.pkg</finalName>
+              <finalName>apacheds-${project.version}-solaris-x86.pkg</finalName>
               <osName>solaris</osName>
               <osArch>x86</osArch>
             </solarisPkgTarget>
             <solarisPkgTarget>
               <id>apacheds-solaris-sparc</id>
-              <finalName>apacheds-${version}-solaris-sparc.pkg</finalName>
+              <finalName>apacheds-${project.version}-solaris-sparc.pkg</finalName>
               <osName>solaris</osName>
               <osArch>sparc</osArch>
             </solarisPkgTarget>
@@ -185,7 +185,7 @@
       <plugins>
         <plugin>
           <groupId>${project.groupId}</groupId>
-          <artifactId>installers-maven-plugin</artifactId>
+          <artifactId>apacheds-installers-maven-plugin</artifactId>
           <version>${project.version}</version>
         </plugin>
       </plugins>
