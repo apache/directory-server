@@ -1,0 +1,16 @@
+<settings>
+  <!-- These settings are used on Hudson OSX slave to build installers -->
+  <profiles>
+    <profile>
+      <id>installers</id>
+      <properties>
+        <installers.dpkg>/opt/local/bin/dpkg</installers.dpkg>
+        <installers.rpmbuild>/opt/local/bin/rpmbuild</installers.rpmbuild>
+        <installers.makensis>/opt/local/bin/makensis</installers.makensis>
+        <!--<installers.packageMaker></installers.packageMaker>-->
+      </properties>
+    </profile>
+  </profiles>
+
+</settings>
+
