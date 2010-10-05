@@ -30,10 +30,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.directory.server.InstallationLayout;
 import org.apache.maven.artifact.Artifact;
@@ -117,59 +117,51 @@ public class MojoHelperUtils
     }
 
 
-    public static List copyDependencies( GenerateMojo mymojo, InstallationLayout layout )
+    public static void copyDependencies( GenerateMojo mymojo, InstallationLayout layout )
         throws MojoFailureException
     {
-        List<Artifact> libArtifacts = new ArrayList<Artifact>();
-        Artifact artifact = null;
-        List<String> rejects = new ArrayList<String>();
+        copyDependencies( mymojo, layout, true );
+    }
 
-        //        mymojo.getLog().info( "" );
-        //        mymojo.getLog().info( "    Including artifacts: " );
-        //        mymojo.getLog().info( "    -------------------" );
-        Iterator artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
 
-        while ( artifacts.hasNext() )
+    public static void copyDependencies( GenerateMojo mymojo, InstallationLayout layout,
+        boolean includeWrapperDependencies )
+        throws MojoFailureException
+    {
+        // Creating the excludes set
+        Set<String> excludes = new HashSet<String>();
+        if ( mymojo.getExcludes() != null )
         {
-            artifact = ( Artifact ) artifacts.next();
-            String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
-
-            if ( ( mymojo.getExcludes() != null ) && ( mymojo.getExcludes().contains( key ) ) )
-            {
-                rejects.add( key );
-                continue;
-            }
-
-            try
-            {
-                FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
-                libArtifacts.add( artifact );
-                //                mymojo.getLog().info( "        o " + key );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy dependency artifact " + artifact
-                        + " into position " + layout.getLibDirectory() );
-            }
+            excludes.addAll( mymojo.getExcludes() );
         }
 
-        //        if ( ( mymojo.getExcludes() != null ) && ( !mymojo.getExcludes().isEmpty() ) )
-        //        {
-        //            mymojo.getLog().info( "" );
-        //            mymojo.getLog().info( "    Excluded artifacts: " );
-        //            mymojo.getLog().info( "    ------------------" );
-        //            for ( int ii = 0; ii < rejects.size(); ii++ )
-        //            {
-        //                mymojo.getLog().info( "        o " + rejects.get( ii ) );
-        //            }
-        //        }
-        //        else
-        //        {
-        //            mymojo.getLog().info( "No artifacts have been excluded." );
-        //        }
-        //        mymojo.getLog().info( "" );
+        // Adding the wrapper dependencies to the excludes set
+        if ( !includeWrapperDependencies )
+        {
+            excludes.add( "org.apache.directory.server:apacheds-wrapper" );
+            excludes.add( "tanukisoft:wrapper" );
+        }
 
-        return libArtifacts;
+        // Filtering and copying dependencies
+        Iterator<?> artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
+        while ( artifacts.hasNext() )
+        {
+            Artifact artifact = ( Artifact ) artifacts.next();
+            String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+
+            if ( !excludes.contains( key ) )
+            {
+                try
+                {
+                    FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy dependency artifact " + artifact
+                        + " into position " + layout.getLibDirectory() );
+                }
+            }
+        }
     }
 
 
@@ -177,7 +169,6 @@ public class MojoHelperUtils
     {
         Execute task = new Execute();
         task.setCommandline( cmd );
-        task.setSpawn( true );
         task.setWorkingDirectory( workDir );
 
         if ( doSudo )

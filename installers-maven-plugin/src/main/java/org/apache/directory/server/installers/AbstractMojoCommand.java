@@ -132,33 +132,65 @@ public abstract class AbstractMojoCommand<T extends Target>
 
     /**
      * Creates both installation and instance layouts.
-     *
-     * @param mojo
-     *      the mojo
+     * 
      * @throws MojoFailureException
      * @throws IOException
      */
     public void createLayouts() throws MojoFailureException, IOException
     {
-        createInstallationLayout();
+        createLayouts( true );
+    }
+
+
+    /**
+     * Creates both installation and instance layouts.
+     *
+     * @param includeWrapperDependencies
+     *      <code>true</code> if wrapper dependencies are included,
+     *      <code>false</code> if wrapper dependencies are excluded
+     *      
+     * @throws MojoFailureException
+     * @throws IOException
+     */
+    public void createLayouts( boolean includeWrapperDependencies ) throws MojoFailureException, IOException
+    {
+        createInstallationLayout( includeWrapperDependencies );
         createInstanceLayout();
     }
 
 
     /**
      * Creates the installation layout.
-     *
+     *      
      * @throws MojoFailureException
      * @throws IOException
      */
-    protected void createInstallationLayout() throws MojoFailureException, IOException
+    protected void createInstallationLayout() throws MojoFailureException,
+        IOException
+    {
+        createInstallationLayout( true );
+    }
+
+
+    /**
+     * Creates the installation layout.
+     *
+     * @param includeWrapperDependencies
+     *      <code>true</code> if wrapper dependencies are included,
+     *      <code>false</code> if wrapper dependencies are excluded
+     *      
+     * @throws MojoFailureException
+     * @throws IOException
+     */
+    protected void createInstallationLayout( boolean includeWrapperDependencies ) throws MojoFailureException,
+        IOException
     {
         // Getting the installation layout and creating directories
         InstallationLayout installationLayout = getInstallationLayout();
         installationLayout.mkdirs();
 
         // Copying dependencies artifacts to the lib folder of the installation layout
-        MojoHelperUtils.copyDependencies( mojo, installationLayout );
+        MojoHelperUtils.copyDependencies( mojo, installationLayout, includeWrapperDependencies );
 
         // Copying the LICENSE and NOTICE files
         MojoHelperUtils.copyBinaryFile(
