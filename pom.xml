@@ -32,9 +32,7 @@
     <module>directory-checkstyle</module>
     <module>junit-addons</module>
     <module>shared</module>
-    <module>daemon</module>
     <module>apacheds</module>
-    <module>installers</module>
     <module>apacheds-manuals</module>
     <!-- module>kerberos-client</module -->
   </modules>
