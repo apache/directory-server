@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.Request;
@@ -29,6 +30,10 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -66,14 +71,47 @@ class LdapProtocolHandler extends DemuxingIoHandler
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.common.IoHandlerAdapter#sessionCreated(org.apache.mina.common.IoSession)
+    /**
+     * This method is called when a new session is created. We will store some
+     * informations that the session will need to process incoming requests.
+     * 
+     * @param session the newly created session
      */
     public void sessionCreated( IoSession session ) throws Exception
     {
+        // First, create a new LdapSession and store it i the manager
         LdapSession ldapSession = new LdapSession( session );
         ldapServer.getLdapSessionManager().addLdapSession( ldapSession );
+        
+        // Now, we have to store the DirectoryService instance into the session
+        session.setAttribute( "maxPDUSize", ldapServer.getDirectoryService().getMaxPDUSize() );
+        
+        // Last, store the message container
+        LdapMessageContainer ldapMessageContainer = new LdapMessageContainer( 
+            new BinaryAttributeDetector()
+            {
+                public boolean isBinary( String id )
+                {
+                    SchemaManager schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+    
+                    try
+                    {
+                        AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
+                        return !type.getSyntax().isHumanReadable();
+                    }
+                    catch ( Exception e )
+                    {
+                        if ( StringTools.isEmpty( id ) )
+                        {
+                            return false;
+                        }
+    
+                        return id.endsWith( ";binary" );
+                    }
+                }
+            } );
+
+        session.setAttribute( "messageContainer", ldapMessageContainer );
     }
 
 
@@ -129,9 +167,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.handler.demux.DemuxingIoHandler#messageReceived(org.apache.mina.common.IoSession, java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public void messageSent( IoSession session, Object message ) throws Exception
     {
@@ -140,9 +177,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.handler.demux.DemuxingIoHandler#messageReceived(org.apache.mina.common.IoSession, java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
@@ -194,9 +230,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mina.common.IoHandlerAdapter#exceptionCaught(org.apache.mina.common.IoSession, java.lang.Throwable)
+    /**
+     * {@inheritDoc}
      */
     public void exceptionCaught( IoSession session, Throwable cause )
     {

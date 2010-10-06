@@ -58,6 +58,8 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -67,11 +69,9 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapEncoder;
-import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -512,13 +512,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             request.setVersion3( true );
 
             // Setup the ASN1 Encoder and Decoder
-            MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector()
-            {
-                public boolean isBinary( String attributeId )
-                {
-                    return false;
-                }
-            } );
+            LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
             LdapEncoder encoder = new LdapEncoder();
@@ -535,6 +529,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
+            LdapMessageContainer container = new LdapMessageContainer();
+            decoder.setLdapMessageContainer( container );
             return ( BindResponse ) decoder.decode( null, _input_ );
         }
 
@@ -555,13 +551,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             request.setVersion3( true );
 
             // Setup the ASN1 Enoder and Decoder
-            MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector()
-            {
-                public boolean isBinary( String attributeId )
-                {
-                    return false;
-                }
-            } );
+            LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
             LdapEncoder encoder = new LdapEncoder();
@@ -577,6 +567,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
+            LdapMessageContainer container = new LdapMessageContainer();
+            decoder.setLdapMessageContainer( container );
             return ( BindResponse ) decoder.decode( null, _input_ );
         }
     }

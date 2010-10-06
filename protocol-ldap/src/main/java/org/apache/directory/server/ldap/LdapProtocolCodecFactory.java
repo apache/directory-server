@@ -22,20 +22,10 @@ package org.apache.directory.server.ldap;
 
 import org.apache.directory.ldap.client.api.protocol.LdapProtocolEncoder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
-import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
-import org.apache.directory.shared.ldap.message.MessageDecoder;
-import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 
@@ -46,49 +36,11 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 final class LdapProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private class Asn1CodecDecoder extends ProtocolDecoderAdapter
-    {
-        /** The stateful decoder */
-        private final StatefulDecoder decoder;
-
-        /** The Output queue */
-        private ProtocolDecoderOutput decOut;
-
-
-        /**
-         * Creates a new instance of Asn1CodecDecoder.
-         * 
-         * @param decoder The associated decoder
-         */
-        public Asn1CodecDecoder( StatefulDecoder decoder )
-        {
-            this.decoder = decoder;
-            this.decoder.setCallback( new DecoderCallback()
-            {
-                public void decodeOccurred( StatefulDecoder decoder, Object decoded )
-                {
-                    decOut.write( decoded );
-                }
-            } );
-        }
-
-
-        /**
-         * {@inheritDoc}
-         */
-        public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws DecoderException
-        {
-            decOut = out;
-            decoder.decode( in.buf() );
-        }
-    }
-
-
-    /** the directory service for which this factor generates codecs */
-    final private DirectoryService directoryService;
-
     /** The tag stored into the session if we want to set a max PDU size */
     public final static String MAX_PDU_SIZE = "MAX_PDU_SIZE";
+
+    private ProtocolDecoder decoder;
+    private ProtocolEncoder encoder;
 
 
     /**
@@ -97,9 +49,10 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      * @param directoryService the {@link DirectoryService} for which this 
      * factory generates codecs.
      */
-    public LdapProtocolCodecFactory( DirectoryService directoryService )
+    public LdapProtocolCodecFactory( final DirectoryService directoryService )
     {
-        this.directoryService = directoryService;
+        encoder = new LdapProtocolEncoder();
+        decoder = new LdapDecoder();
     }
 
 
@@ -108,7 +61,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      */
     public ProtocolEncoder getEncoder( IoSession session )
     {
-        return new LdapProtocolEncoder();
+        return encoder;
     }
 
 
@@ -117,27 +70,6 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      */
     public ProtocolDecoder getDecoder( IoSession session )
     {
-        return new Asn1CodecDecoder( new MessageDecoder( new BinaryAttributeDetector()
-        {
-            public boolean isBinary( String id )
-            {
-                SchemaManager schemaManager = directoryService.getSchemaManager();
-
-                try
-                {
-                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
-                    return !type.getSyntax().isHumanReadable();
-                }
-                catch ( Exception e )
-                {
-                    if ( StringTools.isEmpty( id ) )
-                    {
-                        return false;
-                    }
-
-                    return id.endsWith( ";binary" );
-                }
-            }
-        }, directoryService.getMaxPDUSize() ) );
+        return decoder;
     }
 }
