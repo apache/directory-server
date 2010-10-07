@@ -487,15 +487,18 @@ public class GroupCache
             return true;
         }
 
-        Set<String> members = ( Set<String> ) ehCache.get( administratorsGroupDn.getNormName() ).getValue();
-
-        if ( members == null )
+        Element cacheElement = ehCache.get( administratorsGroupDn.getNormName() );
+        
+        if ( cacheElement == null )
         {
             LOG.warn( "What do you mean there is no administrators group? This is bad news." );
             return false;
         }
-
-        return members.contains( principalDn.getNormName() );
+        else
+        {
+            Set<String> members = ( Set<String> ) cacheElement.getValue();            
+            return members.contains( principalDn.getNormName() );
+        }
     }
 
 
