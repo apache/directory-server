@@ -336,4 +336,34 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     {
         return scopeCursor.isElementReused() || ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
     }
+
+
+    private void closeCursors() throws Exception
+    {
+        if( dereferencedCursor != null )
+        {
+            dereferencedCursor.close();
+        }
+        
+        if( scopeCursor != null )
+        {
+            scopeCursor.close();
+        }
+    }
+    
+    
+    @Override
+    public void close() throws Exception
+    {
+        closeCursors();
+        super.close();
+    }
+
+
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        closeCursors();
+        super.close( cause );
+    }
 }

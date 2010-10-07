@@ -176,4 +176,20 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         checkNotClosed( "previous()" );
         return wrapped.previous();
     }
+
+
+    @Override
+    public void close() throws Exception
+    {
+        wrapped.close();
+        super.close();
+    }
+
+
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        wrapped.close();
+        super.close( cause );
+    }
 }
