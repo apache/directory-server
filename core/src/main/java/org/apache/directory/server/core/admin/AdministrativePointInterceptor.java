@@ -798,6 +798,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                 entries.add( entry );
             }
+            
+            results.close();
         }
         catch ( Exception e )
         {
