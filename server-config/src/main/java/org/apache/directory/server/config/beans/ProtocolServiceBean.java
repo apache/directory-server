@@ -35,9 +35,6 @@ public class ProtocolServiceBean
     /** The server ID */
     private String serviceId;
     
-    /** The service name */
-    private String serviceName;
-    
     /** The service transports. We may have more than one */
     protected Set<TransportBean> transports = new HashSet<TransportBean>();
 
