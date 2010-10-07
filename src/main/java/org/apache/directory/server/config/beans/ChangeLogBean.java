@@ -20,31 +20,25 @@
 package org.apache.directory.server.config.beans;
 
 /**
- * A class used to store the Journal configuration.
+ * A class used to store the ChangeLog configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JournalBean 
+public class ChangeLogBean 
 {
-    /** The journal file name */
-    private String fileName;
+    /** Tells if the ChangeLog is exposed to the users */
+    private boolean exposed;
     
-    /** The journal working directory */
-    private String workingDir;
-    
-    /** The journal rotation */
-    private int rotation;
-    
-    /** Tells if the journal is enabled */
+    /** Tells if the ChangeLog is enabled */
     private boolean enabled;
 
     /**
-     * Create a new JournalBean instance
+     * Create a new ChangeLogBean instance
      */
-    public JournalBean()
+    public ChangeLogBean()
     {
-        // Default to infinite
-        rotation = 0;
+        // Not exposed by default
+        exposed = false;
         
         // Not enabled by default
         enabled = false;
@@ -52,61 +46,25 @@ public class JournalBean
     
     
     /**
-     * @return the fileName
+     * @return <code>true</code> if the ChangeLog is exposed
      */
-    public String getFileName() 
+    public boolean isExposed() 
     {
-        return fileName;
+        return exposed;
     }
 
     
     /**
-     * @param fileName the fileName to set
+     * @param exposed Set the exposed flag
      */
-    public void setFileName( String fileName ) 
+    public void setExposed( boolean exposed ) 
     {
-        this.fileName = fileName;
+        this.exposed = exposed;
     }
-
+    
     
     /**
-     * @return the workingDir
-     */
-    public String getWorkingDir() 
-    {
-        return workingDir;
-    }
-
-    
-    /**
-     * @param workingDir the workingDir to set
-     */
-    public void setWorkingDir( String workingDir ) 
-    {
-        this.workingDir = workingDir;
-    }
-
-    
-    /**
-     * @return the rotation
-     */
-    public int getRotation() 
-    {
-        return rotation;
-    }
-
-    
-    /**
-     * @param rotation the rotation to set
-     */
-    public void setRotation( int rotation ) 
-    {
-        this.rotation = rotation;
-    }
-
-    
-    /**
-     * @return <code>true</code> if the Journal is enabled
+     * @return <code>true</code> if ChangeLog is enabled
      */
     public boolean isEnabled() 
     {

@@ -57,6 +57,7 @@ import java.util.TreeSet;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
@@ -1356,27 +1357,54 @@ public class ConfigPartitionReader
     }
 
 
-    public ChangeLog createChangeLog( DN changelogDN ) throws Exception
+    /**
+     * Read the ChangeLog configuration
+     * 
+     * @param changelogDN The DN in teh DIT for the ChangeLog configuration
+     * @return The instanciated bean containing the ChangeLog configuration
+     * @throws Exception If the configuration can't be read
+     */
+    public ChangeLogBean readChangeLog( DN changelogDN ) throws Exception
     {
         long id = configPartition.getEntryId( changelogDN );
         Entry clEntry = configPartition.lookup( id );
 
-        ChangeLog cl = new DefaultChangeLog();
+        ChangeLogBean changeLogBean = new ChangeLogBean();
+        
         EntryAttribute clEnabledAttr = clEntry.get( ConfigSchemaConstants.ADS_CHANGELOG_ENABLED );
 
         if ( clEnabledAttr != null )
         {
-            cl.setEnabled( Boolean.parseBoolean( clEnabledAttr.getString() ) );
+            changeLogBean.setEnabled( Boolean.parseBoolean( clEnabledAttr.getString() ) );
         }
 
         EntryAttribute clExpAttr = clEntry.get( ConfigSchemaConstants.ADS_CHANGELOG_EXPOSED );
 
         if ( clExpAttr != null )
         {
-            cl.setExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
+            changeLogBean.setExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
         }
 
-        return cl;
+        return changeLogBean;
+    }
+
+
+    /**
+     * Read the configuration for the ChangeLog system
+     * 
+     * @param changelogDN The DN for the ChngeLog configuration
+     * @return
+     * @throws Exception
+     */
+    public ChangeLog createChangeLog( DN changelogDN ) throws Exception
+    {
+        ChangeLogBean changeLogBean = readChangeLog( changelogDN );
+        
+        ChangeLog changeLog = new DefaultChangeLog();
+        changeLog.setEnabled( changeLogBean.isEnabled() );
+        changeLog.setExposed( changeLogBean.isExposed() );
+
+        return changeLog;
     }
     
     
@@ -1421,6 +1449,13 @@ public class ConfigPartitionReader
     }
 
 
+    /**
+     * Instanciate the Journal object from the stored configuration
+     * 
+     * @param journalDN The DN in the DIt for the Journal configuration
+     * @return An instance of Journal
+     * @throws Exception If the Journal creation failed
+     */
     public Journal createJournal( DN journalDN ) throws Exception
     {
         JournalBean journalBean = readJournal( journalDN );
