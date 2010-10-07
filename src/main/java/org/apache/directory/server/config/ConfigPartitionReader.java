@@ -59,6 +59,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.JournalBean;
+import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
@@ -330,7 +331,7 @@ public class ConfigPartitionReader
     }
 
 
-    public KdcServer createKdcServer() throws Exception
+    public KdcServerBean readKdcServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC ) );
@@ -350,7 +351,7 @@ public class ConfigPartitionReader
             .get();
         cursor.close();
 
-        ClonedServerEntry kdcEntry = configPartition.lookup( forwardEntry.getId() );
+        Entry kdcEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "kerberos server entry {}", kdcEntry );
 
         if ( !isEnabled( kdcEntry ) )
@@ -358,19 +359,20 @@ public class ConfigPartitionReader
             return null;
         }
 
-        KdcServer kdcServer = new KdcServer();
+        KdcServerBean kdcServerBean = new KdcServerBean();
 
-        kdcServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
+        // The serviceID
+        kdcServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
 
-        Transport[] transports = createTransports( kdcEntry.getDn() );
-        kdcServer.setTransports( transports );
+        TransportBean[] transports = readTransports( kdcEntry.getDn() );
+        kdcServerBean.setTransports( transports );
 
         // MAY attributes
         EntryAttribute clockSkewAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_ALLOWABLE_CLOCKSKEW );
 
         if ( clockSkewAttr != null )
         {
-            kdcServer.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
+            kdcServerBean.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
         }
 
         EntryAttribute encryptionTypeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_ENCRYPTION_TYPES );
@@ -378,100 +380,138 @@ public class ConfigPartitionReader
         if ( encryptionTypeAttr != null )
         {
             EncryptionType[] encryptionTypes = new EncryptionType[encryptionTypeAttr.size()];
-            Iterator<Value<?>> itr = encryptionTypeAttr.getAll();
             int count = 0;
 
-            while ( itr.hasNext() )
+            for ( Value<?> value : encryptionTypeAttr )
             {
-                Value<?> val = itr.next();
-                encryptionTypes[count++] = EncryptionType.getByName( val.getString() );
+                encryptionTypes[count++] = EncryptionType.getByName( value.getString() );
             }
 
-            kdcServer.setEncryptionTypes( encryptionTypes );
+            kdcServerBean.setEncryptionTypes( encryptionTypes );
         }
 
         EntryAttribute emptyAddrAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_EMPTY_ADDRESSES_ALLOWED );
 
         if ( emptyAddrAttr != null )
         {
-            kdcServer.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
+            kdcServerBean.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
         }
 
         EntryAttribute fwdAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_FORWARDABLE_ALLOWED );
 
         if ( fwdAllowedAttr != null )
         {
-            kdcServer.setForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
+            kdcServerBean.setForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
         }
 
         EntryAttribute paEncTmstpAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PAENC_TIMESTAMP_REQUIRED );
 
         if ( paEncTmstpAttr != null )
         {
-            kdcServer.setPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
+            kdcServerBean.setPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
         }
 
         EntryAttribute posdtAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_POSTDATED_ALLOWED );
 
         if ( posdtAllowedAttr != null )
         {
-            kdcServer.setPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
+            kdcServerBean.setPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
         }
 
         EntryAttribute prxyAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PROXIABLE_ALLOWED );
 
         if ( prxyAllowedAttr != null )
         {
-            kdcServer.setProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
+            kdcServerBean.setProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
         }
 
         EntryAttribute rnwAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_RENEWABLE_ALLOWED );
 
         if ( rnwAllowedAttr != null )
         {
-            kdcServer.setRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
+            kdcServerBean.setRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
         }
 
         EntryAttribute kdcPrncplAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_KDC_PRINCIPAL );
 
         if ( kdcPrncplAttr != null )
         {
-            kdcServer.setKdcPrincipal( kdcPrncplAttr.getString() );
+            kdcServerBean.setKdcPrincipal( kdcPrncplAttr.getString() );
         }
 
         EntryAttribute maxRnwLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_RENEWABLE_LIFETIME );
 
         if ( maxRnwLfTimeAttr != null )
         {
-            kdcServer.setMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
+            kdcServerBean.setMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
         }
 
         EntryAttribute maxTcktLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_TICKET_LIFETIME );
 
         if ( maxTcktLfTimeAttr != null )
         {
-            kdcServer.setMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
+            kdcServerBean.setMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
         }
 
         EntryAttribute prmRealmAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PRIMARY_REALM );
 
         if ( prmRealmAttr != null )
         {
-            kdcServer.setPrimaryRealm( prmRealmAttr.getString() );
+            kdcServerBean.setPrimaryRealm( prmRealmAttr.getString() );
         }
 
         EntryAttribute bdyCkhsmVerifyAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_BODY_CHECKSUM_VERIFIED );
 
         if ( bdyCkhsmVerifyAttr != null )
         {
-            kdcServer.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
+            kdcServerBean.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
         }
 
         EntryAttribute searchBaseAttr = kdcEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
+        
         if( searchBaseAttr != null )
         {
-            kdcServer.setSearchBaseDn( searchBaseAttr.getString() );
+            kdcServerBean.setSearchBaseDn( searchBaseAttr.getString() );
         }
+        
+        return kdcServerBean;
+    }
+    
+    
+    /**
+     * Create an instance of KdcServer reading its configuration in the DIT
+     * 
+     * @return An instance of a KdcServer
+     * @throws Exception If the instance cannot be created
+     */
+    public KdcServer createKdcServer() throws Exception
+    {
+        KdcServerBean kdcServerBean = readKdcServer();
+        
+        KdcServer kdcServer = new KdcServer();
+        
+        for ( TransportBean transportBean : kdcServerBean.getTransports() )
+        {
+            Transport transport = createTransport( transportBean );
+            
+            kdcServer.addTransports( transport );
+        }
+        
+        kdcServer.setServiceId( kdcServerBean.getServiceId() );
+        kdcServer.setAllowableClockSkew( kdcServerBean.getAllowableClockSkew() );
+        kdcServer.setEncryptionTypes( kdcServerBean.getEncryptionTypes() );
+        kdcServer.setEmptyAddressesAllowed( kdcServerBean.isEmptyAddressesAllowed() );
+        kdcServer.setForwardableAllowed( kdcServerBean.isForwardableAllowed() );
+        kdcServer.setPaEncTimestampRequired( kdcServerBean.isPaEncTimestampRequired() );
+        kdcServer.setPostdatedAllowed( kdcServerBean.isPostdatedAllowed() );
+        kdcServer.setProxiableAllowed( kdcServerBean.isProxiableAllowed() );
+        kdcServer.setRenewableAllowed( kdcServerBean.isRenewableAllowed() );
+        kdcServer.setKdcPrincipal( kdcServerBean.getServicePrincipal().getName() );
+        kdcServer.setMaximumRenewableLifetime( kdcServerBean.getMaximumRenewableLifetime() );
+        kdcServer.setMaximumTicketLifetime( kdcServerBean.getMaximumTicketLifetime() );
+        kdcServer.setPrimaryRealm( kdcServerBean.getPrimaryRealm() );
+        kdcServer.setBodyChecksumVerified( kdcServerBean.isBodyChecksumVerified() );
+        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn() );
         
         return kdcServer;
     }
