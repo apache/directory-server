@@ -60,6 +60,7 @@ import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
+import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
@@ -331,6 +332,12 @@ public class ConfigPartitionReader
     }
 
 
+    /**
+     * Read the KdcServer configuration from the DIT
+     * 
+     * @return A bean containing the KdcServer configuration
+     * @throws Exception If the configuration cannot be read
+     */
     public KdcServerBean readKdcServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
@@ -592,7 +599,13 @@ public class ConfigPartitionReader
     }
 
 
-    public NtpServer createNtpServer() throws Exception
+    /**
+     * Read the NtpServer configuration from the DIT
+     * 
+     * @return A bean containing the NtpServer configuration
+     * @throws Exception If the configuration cannot be read
+     */
+    public NtpServerBean readNtpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_NTP_SERVER_OC ) );
@@ -620,13 +633,38 @@ public class ConfigPartitionReader
             return null;
         }
 
+        NtpServerBean ntpServerBean = new NtpServerBean();
+
+        ntpServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
+
+        TransportBean[] transports = readTransports( ntpEntry.getDn() );
+        ntpServerBean.setTransports( transports );
+
+        return ntpServerBean;
+    }
+
+    
+    /**
+     * Create the NtpServer instance from configuration in the DIT
+     * 
+     * @return An instance of NtpServer
+     * @throws Exception If the configuration cannot be read
+     */
+    public NtpServer createNtpServer() throws Exception
+    {
+        NtpServerBean ntpServerBean = readNtpServer();
+        
         NtpServer ntpServer = new NtpServer();
-
-        ntpServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
-
-        Transport[] transports = createTransports( ntpEntry.getDn() );
-        ntpServer.setTransports( transports );
-
+        
+        for ( TransportBean transportBean : ntpServerBean.getTransports() )
+        {
+            Transport transport = createTransport( transportBean );
+            
+            ntpServer.addTransports( transport );
+        }
+        
+        ntpServer.setServiceId( ntpServerBean.getServiceId() );
+        
         return ntpServer;
     }
 
