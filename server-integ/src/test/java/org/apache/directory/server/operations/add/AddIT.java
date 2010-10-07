@@ -63,6 +63,7 @@ import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -82,8 +83,12 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -1082,7 +1087,7 @@ public class AddIT extends AbstractLdapTestUnit
      * @throws NamingException 
      */
     @Test
-    public void testAddPDUExceedingMaxSize() throws Exception
+    public void testAddPDUExceedingMaxSizeJNDI() throws Exception
     {
         // Limit the PDU size to 1024
         ldapServer.getDirectoryService().setMaxPDUSize( 1024 );
@@ -1141,6 +1146,45 @@ public class AddIT extends AbstractLdapTestUnit
         Attribute newOcls = attributes.get( "objectClass" );
 
         assertNotNull( newOcls );
+    }
+
+
+    /**
+     * Test that if we inject a PDU above the max allowed size,
+     * the connection is closed. 
+     * 
+     * @throws NamingException 
+     */
+    @Test
+    public void testAddPDUExceedingMaxSizeLdapApi() throws Exception
+    {
+        // Limit the PDU size to 1024
+        ldapServer.getDirectoryService().setMaxPDUSize( 1024 );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.setTimeOut( Integer.MAX_VALUE );
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Inject a 1024 bytes long description
+        StringBuilder sb = new StringBuilder();
+
+        for ( int i = 0; i < 128; i++ )
+        {
+            sb.append( "0123456789ABCDEF" );
+        }
+
+        EntryAttribute description = new DefaultEntryAttribute( "description", sb.toString() );
+
+        try
+        {
+            Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, description );
+            connection.modify( "cn=the person, ou=system", modification );
+            fail();
+        }
+        catch ( Exception e )
+        {
+            // We are expecting the session to be close here.
+            assertFalse( connection.isConnected() );
+        }
     }
 
 
