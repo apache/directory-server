@@ -324,9 +324,6 @@ public class ApacheDsService
             return;
         }
 
-        getDirectoryService().startup();
-        ntpServer.setDirectoryService( getDirectoryService() );
-
         System.out.println( "Starting the NTP server" );
         LOG.info( "Starting the NTP server" );
 
