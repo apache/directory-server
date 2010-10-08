@@ -60,6 +60,7 @@ import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.DnsServerBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
+import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
@@ -1239,41 +1240,71 @@ public class ConfigPartitionReader
         return partitions;
     }
 
-
-    public JdbmPartition createJdbmPartition( Entry partitionEntry ) throws Exception
+    
+    /**
+     * Read the JdbmPartitionBean from the configuration in DIT
+     * 
+     * @param partitionEntry The Entry containing the configuration for this partition
+     * @return An bean containing the JdbmPartition configuration
+     * @throws Exception If the configuration cannot be read
+     */
+    public JdbmPartitionBean readJdbmPartition( Entry partitionEntry ) throws Exception
     {
-        JdbmPartition partition = new JdbmPartition();
-        partition.setSchemaManager( schemaManager );
-
-        partition.setId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
-        partition.setPartitionDir( new File( workDir, partition.getId() ) );
+        JdbmPartitionBean jdbmPartitionBean = new JdbmPartitionBean();
+        
+        jdbmPartitionBean.setId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
+        jdbmPartitionBean.setPartitionDir( workDir + File.separator + jdbmPartitionBean.getId() );
 
         DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ), schemaManager );
-        partition.setSuffix( systemDn );
+        jdbmPartitionBean.setSuffix( systemDn );
 
         EntryAttribute cacheAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_CACHE_SIZE );
 
         if ( cacheAttr != null )
         {
-            partition.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
+            jdbmPartitionBean.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
 
         EntryAttribute optimizerAttr = partitionEntry.get( ConfigSchemaConstants.ADS_JDBM_PARTITION_OPTIMIZER_ENABLED );
 
         if ( optimizerAttr != null )
         {
-            partition.setOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
+            jdbmPartitionBean.setOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
         }
 
         EntryAttribute syncAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_SYNCONWRITE );
 
         if ( syncAttr != null )
         {
-            partition.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
+            jdbmPartitionBean.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
         }
 
-        Set<Index<?, Entry, Long>> indexedAttributes = createIndexes( partitionEntry.getDn() );
-        partition.setIndexedAttributes( indexedAttributes );
+        Set<JdbmIndexBean<String, Entry>> indexedAttributes = readIndexes( partitionEntry.getDn() );
+        jdbmPartitionBean.setIndexedAttributes( indexedAttributes );
+
+        return jdbmPartitionBean;
+    }
+
+    /**
+     * Create a new instance of a JdbmPartition from an instance of JdbmIndexBean
+     * 
+     * @param partitionEntry The entry containing the JdbmPartition configuration
+     * @return An JdbmPartition instance
+     * @throws Exception If the instance cannot be created
+     */
+    public JdbmPartition createJdbmPartition( Entry partitionEntry ) throws Exception
+    {
+        JdbmPartition partition = new JdbmPartition();
+        JdbmPartitionBean jdbmPartitionBean = readJdbmPartition( partitionEntry );
+        
+        partition.setSchemaManager( schemaManager );
+        partition.setCacheSize( jdbmPartitionBean.getCacheSize() );
+        partition.setId( jdbmPartitionBean.getId() );
+        partition.setOptimizerEnabled( jdbmPartitionBean.isOptimizerEnabled() );
+        partition.setPartitionDir( new File( jdbmPartitionBean.getPartitionDir() ) );
+        partition.setSuffix( jdbmPartitionBean.getSuffix() );
+        partition.setSyncOnWrite( jdbmPartitionBean.isSyncOnWrite() );
+        partition.setIndexedAttributes( createIndexes( jdbmPartitionBean.getIndexedAttributes() ) );
 
         return partition;
     }
@@ -1321,6 +1352,19 @@ public class ConfigPartitionReader
     {
         Set<JdbmIndexBean<String, Entry>> indexesBean = readIndexes( partitionDN );
         
+        Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
+
+        for ( JdbmIndexBean<String, Entry> indexBean : indexesBean )
+        {
+            indexes.add( createJdbmIndex( indexBean ) );
+        }
+
+        return indexes;
+    }
+
+
+    private Set<Index<?, Entry, Long>> createIndexes( Set<JdbmIndexBean<String, Entry>> indexesBean ) throws Exception
+    {
         Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
 
         for ( JdbmIndexBean<String, Entry> indexBean : indexesBean )
