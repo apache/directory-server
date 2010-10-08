@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.CoreSession;
@@ -212,21 +213,28 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             String providerHost = config.getProviderHost();
             int port = config.getPort();
-
+            
             // Create a connection
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
+                
+                if( config.isUseTls() )
+                {
+                    connection.getConfig().setTrustManagers( config.getTrustManager() );
+                    connection.startTls();
+                }
+                
                 connection.addConnectionClosedEventListener( this );
             }
 
             // Do a bind
             BindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
 
-            // Check that it' not null and valid
+            // Check that it is not null and valid
             if ( bindResponse == null )
             {
-                LOG.error( "Failed to bind with the given bindDN and credentials", bindResponse );
+                LOG.error( "Failed to bind with the given bindDN and credentials" );
                 return false;
             }
 

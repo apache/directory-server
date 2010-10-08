@@ -23,10 +23,13 @@ package org.apache.directory.server.ldap.replication;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.net.ssl.X509TrustManager;
 
 
 /**
@@ -95,6 +98,15 @@ public class SyncreplConfiguration
 
     /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
     private boolean chaseReferrals = false;
+
+    /** flag to indicate the use of TLS, default is true */
+    private boolean useTls = true;
+
+    /** flag to indicate the use of strict certificate verification, default is true */
+    private boolean strictCertVerification = true;
+
+    /** the X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager} */
+    private X509TrustManager trustManager = new NoVerificationTrustManager();
 
 
     public SyncreplConfiguration()
@@ -286,11 +298,11 @@ public class SyncreplConfiguration
 
         // if user specified some attributes then remove the * from attributes
         // NOTE: if the user specifies * in the given array that eventually gets added later
-        if( attr.length > 0 )
+        if ( attr.length > 0 )
         {
             attributes.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
         }
-        
+
         for ( String at : attr )
         {
             at = at.trim();
@@ -317,11 +329,11 @@ public class SyncreplConfiguration
      */
     public void setSearchSizeLimit( int searchSizeLimit )
     {
-        if( searchTimeout < 0 )
+        if ( searchTimeout < 0 )
         {
             throw new IllegalArgumentException( "search size limit value cannot be negative " + searchSizeLimit );
         }
-        
+
         this.searchSizeLimit = searchSizeLimit;
     }
 
@@ -340,11 +352,11 @@ public class SyncreplConfiguration
      */
     public void setSearchTimeout( int searchTimeout )
     {
-        if( searchTimeout < 0 )
+        if ( searchTimeout < 0 )
         {
             throw new IllegalArgumentException( "search timeout value cannot be negative " + searchTimeout );
         }
-        
+
         this.searchTimeout = searchTimeout;
     }
 
@@ -450,4 +462,52 @@ public class SyncreplConfiguration
         return "ads-dsReplicaId=" + replicaId + "," + REPL_CONFIG_AREA;
     }
 
+
+    public boolean isUseTls()
+    {
+        return useTls;
+    }
+
+
+    /**
+     * set the option to turn on/off use of TLS
+     * 
+     * @param useTls
+     */
+    public void setUseTls( boolean useTls )
+    {
+        this.useTls = useTls;
+    }
+
+
+    public boolean isStrictCertVerification()
+    {
+        return strictCertVerification;
+    }
+
+
+    /**
+     * set the strict certificate verification
+     * 
+     * @param strictCertVerification
+     */
+    public void setStrictCertVerification( boolean strictCertVerification )
+    {
+        if ( strictCertVerification )
+        {
+            trustManager = ReplicationTrustManager.getInstance();
+        }
+        else
+        {
+            trustManager = new NoVerificationTrustManager();
+        }
+
+        this.strictCertVerification = strictCertVerification;
+    }
+
+
+    public X509TrustManager getTrustManager()
+    {
+        return trustManager;
+    }
 }
