@@ -58,6 +58,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
+import org.apache.directory.server.config.beans.DnsServerBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
@@ -525,7 +526,13 @@ public class ConfigPartitionReader
     }
 
 
-    public DnsServer createDnsServer() throws Exception
+    /**
+     * Read the DnsServer configuration from the DIT
+     * 
+     * @return A bean containing the DnsServer configuration
+     * @throws Exception If the configuration cannot be read
+     */
+    public DnsServerBean readDnsServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DNS_SERVER_OC ) );
@@ -553,19 +560,43 @@ public class ConfigPartitionReader
             return null;
         }
 
+        DnsServerBean dnsServerBean = new DnsServerBean();
+
+        dnsServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
+
+        TransportBean[] transports = readTransports( dnsEntry.getDn() );
+        dnsServerBean.setTransports( transports );
+
+        return dnsServerBean;
+    }
+
+    
+    /**
+     * Create an instance of DnsServer reading its configuration in the DIT
+     * 
+     * @return An instance of a DnsServer
+     * @throws Exception If the instance cannot be created
+     */
+    public DnsServer createDnsServer() throws Exception
+    {
+        DnsServerBean dnsServerBean = readDnsServer();
         DnsServer dnsServer = new DnsServer();
+        
+        for ( TransportBean transportBean : dnsServerBean.getTransports() )
+        {
+            Transport transport = createTransport( transportBean );
+            
+            dnsServer.addTransports( transport );
+        }
+        
+        dnsServer.setServiceId( dnsServerBean.getServiceId() );
 
-        dnsServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
-
-        Transport[] transports = createTransports( dnsEntry.getDn() );
-        dnsServer.setTransports( transports );
 
         return dnsServer;
     }
 
-
     //TODO making this method invisible cause there is no DhcpServer exists as of now
-    private DhcpService createDhcpServer() throws Exception
+    private DhcpService readDhcpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_DHCP_SERVER_OC ) );
@@ -593,12 +624,18 @@ public class ConfigPartitionReader
             return null;
         }
 
+        return null;
+    }
+    
+    
+    //TODO making this method invisible cause there is no DhcpServer exists as of now
+    private DhcpService createDhcpServer() throws Exception
+    {
         DhcpStore dhcpStore = new SimpleDhcpStore();
         DhcpService dhcpService = new StoreBasedDhcpService( dhcpStore );
 
         return dhcpService;
     }
-
 
     /**
      * Read the NtpServer configuration from the DIT
