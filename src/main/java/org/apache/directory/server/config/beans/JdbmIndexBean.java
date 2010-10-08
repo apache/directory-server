@@ -21,7 +21,7 @@ package org.apache.directory.server.config.beans;
 
 
 /**
- * A class used to store the NtpServer configuration.
+ * A class used to store the JdbmIndex configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -47,7 +47,7 @@ public class JdbmIndexBean<K, E>
     protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
 
     /**
-     * Create a new NtpServerBean instance
+     * Create a new JdbmIndexBean instance
      */
     public JdbmIndexBean()
     {
