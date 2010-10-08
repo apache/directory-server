@@ -58,6 +58,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
+import org.apache.directory.server.config.beans.JdbmIndexBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
@@ -1279,9 +1280,16 @@ public class ConfigPartitionReader
     }
 
 
-    public JdbmIndex<?, Entry> createJdbmIndex( Entry indexEntry ) throws Exception
+    /**
+     * Read the JdbmIndex from the configuration in DIT
+     * 
+     * @param indexEntry The Entry containing the configuration for this index
+     * @return An bean containing the JdbmEntry configuration
+     * @throws Exception If the configuration cannot be read
+     */
+    public JdbmIndexBean<String, Entry> readJdbmIndex( Entry indexEntry ) throws Exception
     {
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        JdbmIndexBean<String, Entry> index = new JdbmIndexBean<String, Entry>();
         index.setAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
         EntryAttribute cacheAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_CACHESIZE );
 
@@ -1296,6 +1304,27 @@ public class ConfigPartitionReader
         {
             index.setNumDupLimit( Integer.parseInt( numDupAttr.getString() ) );
         }
+
+        return index;
+    }
+
+
+    /**
+     * Create a new instance of a JdbmIndex from the configuration read from the DIT
+     * 
+     * @param indexEntry The entry contianing the JdbmIndex configuration
+     * @return An JdbmIndex instance
+     * @throws Exception If the instance cannot be created
+     */
+    public JdbmIndex<?, Entry> createJdbmIndex( Entry indexEntry ) throws Exception
+    {
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        JdbmIndexBean<String, Entry> indexBean = readJdbmIndex( indexEntry );
+        
+        index.setAttributeId( indexBean.getAttributeId() );
+        index.setCacheSize( indexBean.getCacheSize() );
+        index.setNumDupLimit( indexBean.getNumDupLimit() );
+        
 
         return index;
     }
