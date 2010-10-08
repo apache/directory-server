@@ -70,17 +70,25 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     /** the search engine used to search the database */
     protected SearchEngine<Entry, ID> searchEngine;
+    
     protected Optimizer optimizer;
 
     protected SchemaManager schemaManager;
 
+    /** The partition ID */
     protected String id;
+    
+    /** The Entry cache size for this partition */
     protected int cacheSize = -1;
+    
+    /** The root DN for this partition */
     protected DN suffix;
     private File partitionDir;
 
     /** The rootDSE context */
     protected Entry contextEntry;
+    
+    /** The set of indexed attributes */
     private Set<Index<? extends Object, Entry, ID>> indexedAttributes;
 
 
