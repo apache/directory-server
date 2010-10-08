@@ -1277,9 +1277,9 @@ public class ConfigPartitionReader
 
         return partition;
     }
+    
 
-
-    private Set<Index<?, Entry, Long>> createIndexes( DN partitionDN ) throws Exception
+    private Set<JdbmIndexBean<String, Entry>> readIndexes( DN partitionDN ) throws Exception
     {
         AttributeType adsIndexAttributeIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
         PresenceNode filter = new PresenceNode( adsIndexAttributeIdAt );
@@ -1288,7 +1288,7 @@ public class ConfigPartitionReader
         IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
             controls );
 
-        Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
+        Set<JdbmIndexBean<String, Entry>> indexesBean = new HashSet<JdbmIndexBean<String, Entry>>();
 
         while ( cursor.next() )
         {
@@ -1305,12 +1305,27 @@ public class ConfigPartitionReader
 
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMINDEX ) )
             {
-                indexes.add( createJdbmIndex( indexEntry ) );
+                indexesBean.add( readJdbmIndex( indexEntry ) );
             }
             else
             {
                 throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
             }
+        }
+        
+        return indexesBean;
+    }
+
+
+    private Set<Index<?, Entry, Long>> createIndexes( DN partitionDN ) throws Exception
+    {
+        Set<JdbmIndexBean<String, Entry>> indexesBean = readIndexes( partitionDN );
+        
+        Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
+
+        for ( JdbmIndexBean<String, Entry> indexBean : indexesBean )
+        {
+            indexes.add( createJdbmIndex( indexBean ) );
         }
 
         return indexes;
@@ -1349,7 +1364,7 @@ public class ConfigPartitionReader
     /**
      * Create a new instance of a JdbmIndex from the configuration read from the DIT
      * 
-     * @param indexEntry The entry contianing the JdbmIndex configuration
+     * @param indexEntry The entry containing the JdbmIndex configuration
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
@@ -1362,10 +1377,29 @@ public class ConfigPartitionReader
         index.setCacheSize( indexBean.getCacheSize() );
         index.setNumDupLimit( indexBean.getNumDupLimit() );
         
-
         return index;
     }
 
+
+    /**
+     * Create a new instance of a JdbmIndex from an instance of JdbmIndexBean
+     * 
+     * @param JdbmIndexBean The JdbmIndexBean to convert
+     * @return An JdbmIndex instance
+     * @throws Exception If the instance cannot be created
+     */
+    private JdbmIndex<?, Entry> createJdbmIndex( JdbmIndexBean<String, Entry> indexBean ) throws Exception
+    {
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        
+        index.setAttributeId( indexBean.getAttributeId() );
+        index.setCacheSize( indexBean.getCacheSize() );
+        index.setNumDupLimit( indexBean.getNumDupLimit() );
+        
+        return index;
+    }
+
+    
     private TransportBean[] readTransports( DN adsServerDN ) throws Exception
     {
         AttributeType adsTransportIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_TRANSPORT_ID );
