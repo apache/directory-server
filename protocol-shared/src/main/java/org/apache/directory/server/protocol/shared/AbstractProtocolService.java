@@ -22,7 +22,6 @@ package org.apache.directory.server.protocol.shared;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
@@ -51,24 +50,10 @@ public abstract class AbstractProtocolService implements ProtocolService
     /** The service transports. We may have more than one */
     protected Set<Transport> transports = new HashSet<Transport>();
     
-    /** directory service core where protocol data is backed */
-    private DirectoryService directoryService;
-
-
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
 
     /**
+     * {@inheritDoc}
      */
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-
     public boolean isStarted()
     {
         return started;
@@ -84,6 +69,9 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isEnabled()
     {
         return enabled;
@@ -99,6 +87,9 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getServiceId()
     {
         return serviceId;
@@ -106,6 +97,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
+     * {@inheritDoc}
      */
     public void setServiceId( String serviceId )
     {
@@ -114,7 +106,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * @return The server name
+     * {@inheritDoc}
      */
     public String getServiceName()
     {
@@ -123,8 +115,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * Set the current server's name.
-     * @param name The server name
+     * {@inheritDoc}
      */
     public void setServiceName( String name )
     {

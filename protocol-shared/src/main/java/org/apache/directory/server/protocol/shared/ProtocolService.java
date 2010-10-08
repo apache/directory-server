@@ -19,7 +19,6 @@
 package org.apache.directory.server.protocol.shared;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
@@ -123,20 +122,4 @@ public interface ProtocolService
      * @param name a descriptive name for the kind of this service
      */
     void setServiceName( String name );
-
-
-    /**
-     * Gets the DirectoryService assigned to this ProtocolService.
-     *
-     * @return the directory service core assigned to this service
-     */
-    DirectoryService getDirectoryService();
-
-
-    /**
-     * Sets the DirectoryService assigned to this ProtocolService.
-     *
-     * @param directoryService the directory service core assigned to this service
-     */
-    void setDirectoryService( DirectoryService directoryService );
 }

@@ -20,6 +20,7 @@
 package org.apache.directory.server.protocol.shared;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DirectoryService;
 
 
 /**
@@ -39,6 +40,23 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
     
     /** determines if the search base is pointer to a catalog or a single entry point */
     private boolean catelogBased;
+    
+    /** directory service core where protocol data is backed */
+    private DirectoryService directoryService;
+
+
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+
+    /**
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
 
 
     /**
