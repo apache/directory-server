@@ -37,7 +37,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * TODO ReplicationTrustManager.
+ * A X509TrustManager implementation used by the replication subsystem.
+ * This implementation doesn't require the certificates to be stored in a file, instead
+ * it parses the given certificates of replica peers using Bouncycastle's X509CertParser 
+ * and stores them in the in-memory KeyStore.
+ * 
+ * The SunX509 TrustManagerFactory is then initialized using this KeyStore and the
+ * resulting X509TrustManager present in this factory's TrustManagers will be used
+ * internally to perform the certificate verification 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
