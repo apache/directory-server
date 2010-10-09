@@ -27,6 +27,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -40,6 +41,9 @@ public abstract class AbstractPartition implements Partition
 {
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
+
+    /** The SchemaManager instance */
+    protected SchemaManager schemaManager;
 
     protected AbstractPartition()
     {
@@ -156,4 +160,22 @@ public abstract class AbstractPartition implements Partition
      * this method if there is more effective way for your implementation.
      */
     public abstract ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException;
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
 }

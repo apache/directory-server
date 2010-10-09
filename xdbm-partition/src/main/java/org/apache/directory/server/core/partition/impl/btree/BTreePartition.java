@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -72,8 +71,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     protected SearchEngine<Entry, ID> searchEngine;
     
     protected Optimizer optimizer;
-
-    protected SchemaManager schemaManager;
 
     /** The partition ID */
     protected String id;
@@ -108,25 +105,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public SchemaManager getSchemaManager()
-    {
-        return schemaManager;
-    }
-
-
     /**
      * Gets the directory in which this Partition stores files.
      *

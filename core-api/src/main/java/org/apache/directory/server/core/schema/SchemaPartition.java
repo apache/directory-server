@@ -55,7 +55,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
@@ -112,9 +111,6 @@ public final class SchemaPartition extends AbstractPartition
 
     /** the wrapped Partition */
     private Partition wrapped = new NullPartition();
-
-    /** schema manager */
-    private SchemaManager schemaManager;
 
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
@@ -473,24 +469,6 @@ public final class SchemaPartition extends AbstractPartition
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 
         opContext.modify( schemaModificationDN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
-    }
-
-
-    /**
-     * @param schemaManager the SchemaManager to set
-     */
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
-    }
-
-
-    /**
-     * @return The schemaManager
-     */
-    public SchemaManager getSchemaManager()
-    {
-        return schemaManager;
     }
 
 

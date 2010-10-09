@@ -96,7 +96,6 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -129,9 +128,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     /** The DirectoryService instance */
     private DirectoryService directoryService;
-
-    /** The global schemaManager */
-    private SchemaManager schemaManager;
 
     /** the partitions keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
@@ -397,24 +393,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void setId( String id )
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_264 ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public SchemaManager getSchemaManager()
-    {
-        return schemaManager;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
     }
 
 
