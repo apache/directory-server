@@ -98,6 +98,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
+import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
 import org.apache.directory.server.ldap.replication.SyncReplProvider;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
@@ -1130,6 +1131,23 @@ public class ConfigPartitionReader
             if( replCookieAttr != null )
             {
                 config.setCookie( replCookieAttr.getBytes() );
+            }
+            
+            EntryAttribute replUseTls = entry.get( ConfigSchemaConstants.ADS_REPL_USE_TLS );
+            if( replUseTls != null )
+            {
+                config.setUseTls( Boolean.parseBoolean( replUseTls.getString() ) );
+            }
+            
+            EntryAttribute replPeerCertificate = entry.get( ConfigSchemaConstants.ADS_REPL_PEER_CERTIFICATE );
+            if( replPeerCertificate != null )
+            {
+                // directly add to the ReplicationTrustManager instead of storing it in the config
+                ReplicationTrustManager.addCertificate( String.valueOf( config.getReplicaId() ), replPeerCertificate.getBytes() );
+            }
+            else
+            {
+                config.setStrictCertVerification( false );
             }
             
             syncReplConfigLst.add( config );
