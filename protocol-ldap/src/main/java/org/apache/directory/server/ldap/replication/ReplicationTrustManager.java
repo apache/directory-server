@@ -58,8 +58,8 @@ public class ReplicationTrustManager implements X509TrustManager
     /** the in-memory keystore in JKS format */
     private static KeyStore ks;
 
-    /** flag used for marking the intialization phase status */
-    private static boolean initialized;
+    /** the X509 certificate parser */
+    private static X509CertParser parser = new X509CertParser();
 
     /** the singleton instance of this trust manager */
     private static ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
@@ -71,10 +71,25 @@ public class ReplicationTrustManager implements X509TrustManager
         {
             ks = KeyStore.getInstance( "JKS" );
             ks.load( null, null ); // initiate with null stream and password, this keystore resides in-memory only
+
+            TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( "SunX509" );
+            tmFactory.init( ks );
+
+            TrustManager trustManagers[] = tmFactory.getTrustManagers();
+
+            for ( int i = 0; i < trustManagers.length; i++ )
+            {
+                if ( trustManagers[i] instanceof X509TrustManager )
+                {
+                    trustManager = ( X509TrustManager ) trustManagers[i];
+                    LOG.debug( "found X509TrustManager {}", trustManager );
+                    break;
+                }
+            }
         }
         catch ( Exception e )
         {
-            LOG.error( "failed to initiate the keystore", e );
+            LOG.error( "failed to initialize the keystore and X509 trustmanager", e );
             throw new RuntimeException( e );
         }
     }
@@ -85,61 +100,45 @@ public class ReplicationTrustManager implements X509TrustManager
      * to be used by the trust manager
      *
      * @param aliasCertMap the map of [alias-name, certificate-data] entries
-     * @throws Exception in case of any issues related to certificate data parsing or finding SunX509 TrustManagerFactory implementation
+     * @throws Exception in case of any issues related to certificate data parsing
      */
-    public static void init( Map<String, byte[]> aliasCertMap ) throws Exception
+    public static void addCertificates( Map<String, byte[]> aliasCertMap ) throws Exception
     {
-        if ( initialized )
-        {
-            LOG.warn( "ReplicationTrustManager was already initialized, ignoring call to init" );
-            return;
-        }
-
-        X509CertParser parser = new X509CertParser();
-
         for ( Map.Entry<String, byte[]> entry : aliasCertMap.entrySet() )
         {
-            try
-            {
-                parser.engineInit( new ByteArrayInputStream( entry.getValue() ) );
-
-                X509Certificate cert = ( X509Certificate ) parser.engineRead();
-
-                ks.setCertificateEntry( entry.getKey(), cert );
-            }
-            catch ( Exception ex )
-            {
-                LOG.warn( "failed to load the certificate associated with the alias {}", entry.getKey(), ex );
-            }
+            addCertificate( entry.getKey(), entry.getValue() );
         }
+    }
 
-        TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( "SunX509" );
-        tmFactory.init( ks );
 
-        TrustManager trustManagers[] = tmFactory.getTrustManagers();
-
-        for ( int i = 0; i < trustManagers.length; i++ )
+    /**
+     * stores the given certificate into the keystore with the given alias name
+     * 
+     * @param certAlias the alias name to be used for this certificate
+     * @param certificate the X509 certificate data
+     * @throws Exception in case of any issues related to certificate data parsing
+     */
+    public static void addCertificate( String certAlias, byte[] certificate ) throws Exception
+    {
+        try
         {
-            if ( trustManagers[i] instanceof X509TrustManager )
-            {
-                trustManager = ( X509TrustManager ) trustManagers[i];
-                LOG.debug( "found X509TrustManager {}", trustManager );
-                break;
-            }
-        }
+            parser.engineInit( new ByteArrayInputStream( certificate ) );
 
-        if ( trustManager == null )
+            X509Certificate cert = ( X509Certificate ) parser.engineRead();
+
+            ks.setCertificateEntry( certAlias, cert );
+        }
+        catch ( Exception ex )
         {
-            throw new Exception( "no X509TrustManagerS were found" );
+            LOG.warn( "failed to load the certificate associated with the alias {}", certAlias, ex );
+            throw ex;
         }
-
-        initialized = true;
     }
 
 
     /**
      * returns the singleton instance of ReplicationTrustManager, note that this
-     * return instance can only be used after calling the {@link #init(Map)} method 
+     * return instance can only be used after calling the {@link #addCertificates(Map)} method 
      * 
      * @return the instance of the ReplicationTrustManager
      */
