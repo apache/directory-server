@@ -210,6 +210,10 @@ public interface ConfigSchemaConstants
     
     String ADS_REPL_ENABLE_PROVIDER = "ads-enableReplProvider";
     
+    String ADS_REPL_PEER_CERTIFICATE = "ads-replPeerCertificate";
+    
+    String ADS_REPL_USE_TLS = "ads-replUseTls";
+    
     String ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC = "ads-ldapServerSaslMechanismHandler";
     
     String ADS_LDAP_SERVER_SASL_MECH_NAME = "ads-ldapServerSaslMechName";
