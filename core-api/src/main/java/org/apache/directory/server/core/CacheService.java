@@ -33,6 +33,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A ehcache based cache service to be used for various caching requirement in the server. 
+ * 
+ * If a cache config file with the name {@link #DIRECTORY_CACHESERVICE_XML} is present in
+ * the "workdirectory" of the DirectoryService then that file will be used for configuring 
+ * the {@link CacheManager}, if not a default cache configuration file bundled along with 
+ * this class is used
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -61,7 +66,7 @@ public class CacheService
         }
 
         File configFile = new File( dirService.getWorkingDirectory(), DIRECTORY_CACHESERVICE_XML );
-        
+
         if ( !configFile.exists() )
         {
             LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
