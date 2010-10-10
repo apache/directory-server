@@ -423,10 +423,11 @@ public class GroupCache
         {
             if ( memberAttrId.equalsIgnoreCase( modification.getAttribute().getId() ) )
             {
-                Set<String> memberSet = ( Set<String> ) ehCache.get( name.getNormName() ).getValue();
-
-                if ( memberSet != null )
+                Element memSetElement = ehCache.get( name.getNormName() );
+                
+                if ( memSetElement != null )
                 {
+                    Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
                     modify( memberSet, modification.getOperation(), modification.getAttribute() );
                 }
 
@@ -459,10 +460,11 @@ public class GroupCache
             return;
         }
 
-        Set<String> memberSet = ( Set<String> ) ehCache.get( name.getNormName() ).getValue();
+        Element memSetElement = ehCache.get( name.getNormName() );
 
-        if ( memberSet != null )
+        if ( memSetElement != null )
         {
+            Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
             modify( memberSet, modOp, members );
         }
 
