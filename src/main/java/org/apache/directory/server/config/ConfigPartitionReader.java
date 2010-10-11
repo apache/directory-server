@@ -59,6 +59,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.DnsServerBean;
+import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
 import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
@@ -1164,10 +1165,10 @@ public class ConfigPartitionReader
      * reads the Interceptor configuration and instantiates them in the order specified
      *
      * @param dirServiceDN the DN under which interceptors are configured
-     * @return a list of instantiated Interceptor objects
-     * @throws Exception
+     * @return a list of InterceptorBean objects
+     * @throws Exception If the configuraton cannot be read
      */
-    private List<Interceptor> createInterceptors( DN dirServiceDN ) throws Exception
+    private Set<InterceptorBean> readInterceptors( DN dirServiceDN ) throws Exception
     {
         AttributeType adsInterceptorIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
         PresenceNode filter = new PresenceNode( adsInterceptorIdAt );
@@ -1176,7 +1177,7 @@ public class ConfigPartitionReader
         IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
-        Set<InterceptorConfig> set = new TreeSet<InterceptorConfig>();
+        Set<InterceptorBean> interceptorBeans = new TreeSet<InterceptorBean>();
 
         while ( cursor.next() )
         {
@@ -1193,20 +1194,40 @@ public class ConfigPartitionReader
             String fqcn = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_CLASSNAME, interceptorEntry );
             int order = getInt( ConfigSchemaConstants.ADS_INTERCEPTOR_ORDER, interceptorEntry );
 
-            InterceptorConfig intConfig = new InterceptorConfig( id, fqcn, order );
-            set.add( intConfig );
+            InterceptorBean interceptorBean = new InterceptorBean();
+            
+            interceptorBean.setId( id );
+            interceptorBean.setFqcn( fqcn );
+            interceptorBean.setOrder( order );
+            
+            interceptorBeans.add( interceptorBean );
         }
 
         cursor.close();
+        
+        return interceptorBeans;
+    }
 
-        List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
-        for ( InterceptorConfig iconfig : set )
+    /**
+     * Creates the Interceptor instances from the configuration
+     *
+     * @param dirServiceDN the DN under which interceptors are configured
+     * @return a list of instantiated Interceptor objects
+     * @throws Exception If the instanciation failed
+     */
+    private List<Interceptor> createInterceptors( DN dirServiceDN ) throws Exception
+    {
+        Set<InterceptorBean> interceptorBeans = readInterceptors( dirServiceDN );
+        
+        List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
+        
+        for ( InterceptorBean interceptorBean : interceptorBeans )
         {
             try
             {
-                LOG.debug( "loading the interceptor class {} and instantiating", iconfig.getFqcn() );
-                Interceptor ic = ( Interceptor ) Class.forName( iconfig.getFqcn() ).newInstance();
+                LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getFqcn() );
+                Interceptor ic = ( Interceptor ) Class.forName( interceptorBean.getFqcn() ).newInstance();
                 interceptors.add( ic );
             }
             catch ( Exception e )
@@ -1214,11 +1235,11 @@ public class ConfigPartitionReader
                 throw e;
             }
         }
-
+        
         return interceptors;
     }
-
-
+    
+    
     private Map<String, Partition> createPartitions( DN dirServiceDN ) throws Exception
     {
         AttributeType adsPartitionIdeAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_PARTITION_ID );
@@ -1988,55 +2009,6 @@ public class ConfigPartitionReader
         policyConfig.validate();
         
         return policyConfig;
-    }
-    
-    
-    /**
-     * internal class used for holding the Interceptor classname and order configuration
-     */
-    private class InterceptorConfig implements Comparable<InterceptorConfig>
-    {
-        private String id;
-        private String fqcn;
-        private int order;
-
-
-        public InterceptorConfig( String id, String fqcn, int order )
-        {
-            if ( order < 1 )
-            {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_507 ) );
-            }
-
-            this.id = id;
-            this.fqcn = fqcn;
-            this.order = order;
-        }
-
-
-        public int compareTo( InterceptorConfig o )
-        {
-            if ( order > o.order )
-            {
-                return 1;
-            }
-            else if ( order < o.order )
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-
-
-        /**
-         * @return the fqcn
-         */
-        public String getFqcn()
-        {
-            return fqcn;
-        }
-
     }
 
 
