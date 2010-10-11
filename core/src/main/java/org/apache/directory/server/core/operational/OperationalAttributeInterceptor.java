@@ -71,9 +71,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An {@link Interceptor} that adds or modifies the default attributes
- * of entries. There are four default attributes for now;
+ * of entries. There are six default attributes for now;
  * <tt>'creatorsName'</tt>, <tt>'createTimestamp'</tt>, <tt>'modifiersName'</tt>,
- * and <tt>'modifyTimestamp'</tt>.
+ * <tt>'modifyTimestamp'</tt>, <tt>entryUUID</tt> and <tt>entryCSN</tt>.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
