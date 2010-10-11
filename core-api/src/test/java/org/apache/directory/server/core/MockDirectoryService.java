@@ -405,16 +405,7 @@ public class MockDirectoryService implements DirectoryService
     {
     }
     
-    public boolean isPasswordHidden()
-    {
-        return false;
-    }
     
-    public void setPasswordHidden( boolean passwordHidden )
-    {
-    }
-
-
     public int getMaxPDUSize()
     {
         return Integer.MAX_VALUE;

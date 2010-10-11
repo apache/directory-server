@@ -991,13 +991,6 @@ public class ConfigPartitionReader
             dirService.setMaxPDUSize( Integer.parseInt( maxPduAttr.getString() ) );
         }
 
-        EntryAttribute passwordHidAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_PASSWORD_HIDDEN );
-
-        if ( passwordHidAttr != null )
-        {
-            dirService.setPasswordHidden( Boolean.parseBoolean( passwordHidAttr.getString() ) );
-        }
-
         EntryAttribute replAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_REPLICATION );
 
         if ( replAttr != null )

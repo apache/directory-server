@@ -155,9 +155,6 @@ public class DefaultDirectoryService implements DirectoryService
     /** The referral manager */
     private ReferralManager referralManager;
 
-    /** A flag to tell if the userPassword attribute's value must be hidden */
-    private boolean passwordHidden = false;
-
     /** The service's CSN factory */
     private CsnFactory csnFactory;
 
@@ -1607,24 +1604,6 @@ public class DefaultDirectoryService implements DirectoryService
     public void setEventService( EventService eventService )
     {
         this.eventService = eventService;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPasswordHidden()
-    {
-        return passwordHidden;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPasswordHidden( boolean passwordHidden )
-    {
-        this.passwordHidden = passwordHidden;
     }
 
 
