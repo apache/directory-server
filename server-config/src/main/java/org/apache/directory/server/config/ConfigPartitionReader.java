@@ -1853,7 +1853,7 @@ public class ConfigPartitionReader
      * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
      * @throws Exception
      */
-    public PasswordPolicyConfiguration createPwdPolicyConfig( DN dirServiceDN ) throws Exception
+    public PasswordPolicyConfiguration readPwdPolicyConfig( DN dirServiceDN ) throws Exception
     {
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<String> filter = new EqualityNode<String>( ocAt, new StringValue( PWD_POLICY_OC ) );
@@ -1876,7 +1876,7 @@ public class ConfigPartitionReader
             return null;
         }
         
-        PasswordPolicyConfiguration policyConfig = new PasswordPolicyConfiguration();
+        PasswordPolicyConfiguration passwordPolicyConfig = new PasswordPolicyConfiguration();
         
         String pwdAttrVal = entry.get( PWD_ATTRIBUTE_AT ).getString();
         
@@ -1884,7 +1884,7 @@ public class ConfigPartitionReader
         try
         {
             schemaManager.lookupAttributeTypeRegistry( pwdAttrVal );
-            policyConfig.setPwdAttribute( pwdAttrVal );
+            passwordPolicyConfig.setPwdAttribute( pwdAttrVal );
         }
         catch( Exception e )
         {
@@ -1893,122 +1893,157 @@ public class ConfigPartitionReader
         }
         
         EntryAttribute pwdMinAgeAttr = entry.get( PWD_MIN_AGE_AT );
+        
         if( pwdMinAgeAttr != null )
         {
-            policyConfig.setPwdMinAge( getInt( pwdMinAgeAttr ) );
+            passwordPolicyConfig.setPwdMinAge( getInt( pwdMinAgeAttr ) );
         }
         
         EntryAttribute pwdMaxAgeAttr = entry.get( PWD_MAX_AGE_AT );
+        
         if( pwdMaxAgeAttr != null )
         {
-            policyConfig.setPwdMaxAge( getInt( pwdMaxAgeAttr ) );
+            passwordPolicyConfig.setPwdMaxAge( getInt( pwdMaxAgeAttr ) );
         }
         
         EntryAttribute pwdInHistoryAttr = entry.get( PWD_IN_HISTORY_AT );
+        
         if( pwdInHistoryAttr != null )
         {
-            policyConfig.setPwdInHistory( getInt( pwdInHistoryAttr ) );
+            passwordPolicyConfig.setPwdInHistory( getInt( pwdInHistoryAttr ) );
         }
         
         EntryAttribute pwdCheckQualityAttr = entry.get( PWD_CHECK_QUALITY_AT );
+        
         if( pwdCheckQualityAttr != null )
         {
-            policyConfig.setPwdCheckQuality( getInt( pwdCheckQualityAttr ) );
+            passwordPolicyConfig.setPwdCheckQuality( getInt( pwdCheckQualityAttr ) );
         }
         
         EntryAttribute pwdMinLengthAttr = entry.get( PWD_MIN_LENGTH_AT );
+        
         if( pwdMinLengthAttr != null )
         {
-            policyConfig.setPwdMinLength( getInt( pwdMinLengthAttr ) );
+            passwordPolicyConfig.setPwdMinLength( getInt( pwdMinLengthAttr ) );
         }
         
         EntryAttribute pwdMaxLengthAttr = entry.get( PWD_MAX_LENGTH_AT );
+        
         if( pwdMaxLengthAttr != null )
         {
-            policyConfig.setPwdMaxLength( getInt( pwdMaxLengthAttr ) );
+            passwordPolicyConfig.setPwdMaxLength( getInt( pwdMaxLengthAttr ) );
         }
         
         EntryAttribute pwdExpireWarningAttr = entry.get( PWD_EXPIRE_WARNING_AT );
+        
         if( pwdExpireWarningAttr != null )
         {
-            policyConfig.setPwdExpireWarning( getInt( pwdExpireWarningAttr ) );
+            passwordPolicyConfig.setPwdExpireWarning( getInt( pwdExpireWarningAttr ) );
         }
         
         EntryAttribute pwdGraceAuthNLimitAttr = entry.get( PWD_GRACE_AUTHN_LIMIT_AT );
+        
         if( pwdGraceAuthNLimitAttr != null )
         {
-            policyConfig.setPwdGraceAuthNLimit( getInt( pwdGraceAuthNLimitAttr ) );
+            passwordPolicyConfig.setPwdGraceAuthNLimit( getInt( pwdGraceAuthNLimitAttr ) );
         }
         
         EntryAttribute pwdGraceExpireAttr = entry.get( PWD_GRACE_EXPIRE_AT );
+        
         if( pwdGraceExpireAttr != null )
         {
-            policyConfig.setPwdGraceExpire( getInt( pwdGraceExpireAttr ) );
+            passwordPolicyConfig.setPwdGraceExpire( getInt( pwdGraceExpireAttr ) );
         }
         
         EntryAttribute pwdLockoutAttr = entry.get( PWD_LOCKOUT_AT );
+        
         if( pwdLockoutAttr != null )
         {
-            policyConfig.setPwdLockout( Boolean.parseBoolean( pwdLockoutAttr.getString() ) );
+            passwordPolicyConfig.setPwdLockout( Boolean.parseBoolean( pwdLockoutAttr.getString() ) );
         }
         
         EntryAttribute pwdLockoutDurationAttr = entry.get( PWD_LOCKOUT_DURATION_AT );
+        
         if( pwdLockoutDurationAttr != null )
         {
-            policyConfig.setPwdLockoutDuration( getInt( pwdLockoutDurationAttr ) );
+            passwordPolicyConfig.setPwdLockoutDuration( getInt( pwdLockoutDurationAttr ) );
         }
         
         EntryAttribute pwdMaxFailureAttr = entry.get( PWD_MAX_FAILURE_AT );
+        
         if( pwdMaxFailureAttr != null )
         {
-            policyConfig.setPwdMaxFailure( getInt( pwdMaxFailureAttr ) );
+            passwordPolicyConfig.setPwdMaxFailure( getInt( pwdMaxFailureAttr ) );
         }
         
         EntryAttribute pwdFailureCountIntervalAttr = entry.get( PWD_FAILURE_COUNT_INTERVAL_AT );
+        
         if( pwdFailureCountIntervalAttr != null )
         {
-            policyConfig.setPwdFailureCountInterval( getInt( pwdFailureCountIntervalAttr ) );
+            passwordPolicyConfig.setPwdFailureCountInterval( getInt( pwdFailureCountIntervalAttr ) );
         }
         
         EntryAttribute pwdMustChangeAttr = entry.get( PWD_MUST_CHANGE_AT );
+        
         if( pwdMustChangeAttr != null )
         {
-            policyConfig.setPwdMustChange( Boolean.parseBoolean( pwdMustChangeAttr.getString() ) );
+            passwordPolicyConfig.setPwdMustChange( Boolean.parseBoolean( pwdMustChangeAttr.getString() ) );
         }
         
         EntryAttribute pwdAllowUserChangeAttr = entry.get( PWD_ALLOW_USER_CHANGE_AT );
+        
         if( pwdAllowUserChangeAttr != null )
         {
-            policyConfig.setPwdAllowUserChange( Boolean.parseBoolean( pwdAllowUserChangeAttr.getString() ) );
+            passwordPolicyConfig.setPwdAllowUserChange( Boolean.parseBoolean( pwdAllowUserChangeAttr.getString() ) );
         }
         
         EntryAttribute pwdSafeModifyAttr = entry.get( PWD_SAFE_MODIFY_AT );
+        
         if( pwdSafeModifyAttr != null )
         {
-            policyConfig.setPwdSafeModify( Boolean.parseBoolean( pwdSafeModifyAttr.getString() ) );
+            passwordPolicyConfig.setPwdSafeModify( Boolean.parseBoolean( pwdSafeModifyAttr.getString() ) );
         }
         
         EntryAttribute pwdMinDelayAttr = entry.get( PWD_MIN_DELAY_AT );
+        
         if( pwdMinDelayAttr != null )
         {
-            policyConfig.setPwdMinDelay( getInt( pwdMinDelayAttr ) );
+            passwordPolicyConfig.setPwdMinDelay( getInt( pwdMinDelayAttr ) );
         }
         
         EntryAttribute pwdMaxDelayAttr = entry.get( PWD_MAX_DELAY_AT );
+        
         if( pwdMaxDelayAttr != null )
         {
-            policyConfig.setPwdMaxDelay( getInt( pwdMaxDelayAttr ) );
+            passwordPolicyConfig.setPwdMaxDelay( getInt( pwdMaxDelayAttr ) );
         }
         
         EntryAttribute pwdMaxIdleAttr = entry.get( PWD_MAX_IDLE_AT );
+        
         if( pwdMaxIdleAttr != null )
         {
-            policyConfig.setPwdMaxIdle( getInt( pwdMaxIdleAttr ) );
+            passwordPolicyConfig.setPwdMaxIdle( getInt( pwdMaxIdleAttr ) );
         }
         
-        policyConfig.validate();
+        passwordPolicyConfig.validate();
         
-        return policyConfig;
+        return passwordPolicyConfig;
+    }
+    
+    
+    /**
+     * creates the PassworddPolicyConfiguration object after reading the config entry containing pwdpolicy OC
+     * under the directory service config DN.
+     *
+     * @param dirServiceDN the DN of the diretcory service configuration entry
+     * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
+     * @throws Exception
+     */
+    public PasswordPolicyConfiguration createPwdPolicyConfig( DN dirServiceDN ) throws Exception
+    {
+        PasswordPolicyConfiguration passwordPolicy = readPwdPolicyConfig( dirServiceDN );
+        
+        return passwordPolicy;
     }
 
 
