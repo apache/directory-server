@@ -298,26 +298,25 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Add root context entry for system partition
         DN systemSuffixDn = DNFactory.create( ServerDNConstants.SYSTEM_DN, schemaManager );
-        Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
+        CoreSession adminSession = directoryService.getAdminSession();
 
-        // Add the ObjectClasses
-        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-            SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-
-        // Add some operational attributes
-        systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-        systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
-        systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ), NamespaceTools
-            .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, schemaManager );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
-            directoryService );
-        AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-
-        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemEntry.getDn() ) ) )
+        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
         {
+            Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
+            
+            // Add the ObjectClasses
+            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            
+            // Add some operational attributes
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
+            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
+            systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+            systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ), NamespaceTools
+                .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+            
+            AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
             system.add( addOperationContext );
         }
 
