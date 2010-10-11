@@ -62,9 +62,6 @@ public class UberjarMain
                 LOG.error( "Failed to start the service.", e );
                 System.exit( 1 );
             }
-
-            // Starting the service
-            service.start();
         }
         else
         {
