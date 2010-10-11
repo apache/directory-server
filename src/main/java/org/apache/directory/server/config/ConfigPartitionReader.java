@@ -1000,7 +1000,7 @@ public class ConfigPartitionReader
         if ( testEntryAttr != null )
         {
             String entryFilePath = testEntryAttr.getString();
-            dirService.setTestEntries( createTestEntries( entryFilePath ) );
+            dirService.setTestEntries( readTestEntries( entryFilePath ) );
         }
 
         if ( !isEnabled( dsEntry ) )
@@ -1737,7 +1737,14 @@ public class ConfigPartitionReader
     }
 
 
-    private List<LdifEntry> createTestEntries( String entryFilePath ) throws Exception
+    /**
+     * Load the Test entries
+     * 
+     * @param entryFilePath The place on disk where the test entris are stored
+     * @return A list of difEntry elements
+     * @throws Exception If we weren't able to read the config
+     */
+    public List<LdifEntry> readTestEntries( String entryFilePath ) throws Exception
     {
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
@@ -1755,7 +1762,6 @@ public class ConfigPartitionReader
 
         return entries;
     }
-
 
     private void loadEntries( File ldifFile, List<LdifEntry> entries ) throws Exception
     {
