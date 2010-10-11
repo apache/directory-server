@@ -501,6 +501,11 @@ public class ConfigPartitionReader
     {
         KdcServerBean kdcServerBean = readKdcServer();
         
+        if ( kdcServerBean == null )
+        {
+            return null;
+        }
+        
         KdcServer kdcServer = new KdcServer();
         
         for ( TransportBean transportBean : kdcServerBean.getTransports() )
@@ -584,6 +589,12 @@ public class ConfigPartitionReader
     public DnsServer createDnsServer() throws Exception
     {
         DnsServerBean dnsServerBean = readDnsServer();
+        
+        if ( dnsServerBean == null )
+        {
+            return null;
+        }
+        
         DnsServer dnsServer = new DnsServer();
         
         for ( TransportBean transportBean : dnsServerBean.getTransports() )
@@ -695,6 +706,11 @@ public class ConfigPartitionReader
     public NtpServer createNtpServer() throws Exception
     {
         NtpServerBean ntpServerBean = readNtpServer();
+        
+        if ( ntpServerBean == null )
+        {
+            return null;
+        }
         
         NtpServer ntpServer = new NtpServer();
         
