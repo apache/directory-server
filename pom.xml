@@ -29,7 +29,7 @@
 
   <modules>
     <module>project</module>
-    <module>directory-checkstyle</module>
+    <module>checkstyle-configuration</module>
     <module>junit-addons</module>
     <module>shared</module>
     <module>apacheds</module>
