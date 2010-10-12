@@ -445,15 +445,27 @@ public class LdapServer extends DirectoryBackedService
             ( ( DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(
                 new UnorderedThreadPoolExecutor( transport.getNbThreads() ), IoEventType.MESSAGE_RECEIVED ) );
 
-            /*
-             * The server is now initialized, we can
-             * install the default requests handlers, which need 
-             * access to the DirectoryServer instance.
-             */
-            installDefaultHandlers();
 
             startNetwork( transport, chain );
         }
+        
+        /*
+         * The server is now initialized, we can
+         * install the default requests handlers, which need 
+         * access to the DirectoryServer instance.
+         */
+        installDefaultHandlers();
+
+        PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+
+        for ( ExtendedOperationHandler h : extendedOperationHandlers )
+        {
+            LOG.info( "Added Extended Request Handler: " + h.getOid() );
+            h.setLdapServer( this );
+            nexus.registerSupportedExtensions( h.getExtensionOids() );
+        }
+
+        nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
         if ( replicationProvider != null )
         {
@@ -556,17 +568,6 @@ public class LdapServer extends DirectoryBackedService
         }
 
         chainBuilders.add( chainBuilder );
-
-        PartitionNexus nexus = getDirectoryService().getPartitionNexus();
-
-        for ( ExtendedOperationHandler h : extendedOperationHandlers )
-        {
-            LOG.info( "Added Extended Request Handler: " + h.getOid() );
-            h.setLdapServer( this );
-            nexus.registerSupportedExtensions( h.getExtensionOids() );
-        }
-
-        nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
         try
         {

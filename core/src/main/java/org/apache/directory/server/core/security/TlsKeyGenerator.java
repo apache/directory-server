@@ -216,9 +216,13 @@ public class TlsKeyGenerator
         {
             entry.put( SchemaConstants.OBJECT_CLASS_AT, TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );
         }
-        else
+        else if ( !objectClass.contains( SchemaConstants.INET_ORG_PERSON_OC ) )
         {
-            objectClass.add( TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );
+            objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
+        }
+        else if ( !objectClass.contains( TLS_KEY_INFO_OC ) )
+        {
+            objectClass.add( TLS_KEY_INFO_OC );
         }
         
         KeyPairGenerator generator = null;
