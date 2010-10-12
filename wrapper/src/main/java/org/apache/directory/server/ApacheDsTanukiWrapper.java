@@ -64,19 +64,16 @@ public class ApacheDsTanukiWrapper implements WrapperListener
             // Creating instance layouts from the argument
             InstanceLayout instanceLayout = new InstanceLayout( args[0] );
 
-            // Initializing the service
+            // Starting the service
             try
             {
-                service.init( instanceLayout );
+                service.start( instanceLayout );
             }
             catch ( Exception e )
             {
                 log.error( "Failed to start the service.", e );
                 System.exit( ExitCodes.START );
             }
-
-            // Starting the service
-            service.start();
         }
         else
         {
