@@ -67,7 +67,7 @@ public class DefaultChangeLog implements ChangeLog
     /** A volatile flag used to avoid store switching when in use */
     private volatile boolean storeInitialized = false;
 
-    /** A flag used to tell if the changeLog system is vivible by the clients */
+    /** A flag used to tell if the changeLog system is visible by the clients */
     private boolean exposed;
 
     // default values for ChangeLogStorePartition containers
