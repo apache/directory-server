@@ -1834,7 +1834,7 @@ public class ConfigPartitionReader
     /**
      * Read the ChangeLog configuration
      * 
-     * @param changelogDN The DN in teh DIT for the ChangeLog configuration
+     * @param changelogDN The DN in the DIT for the ChangeLog configuration
      * @return The instanciated bean containing the ChangeLog configuration
      * @throws Exception If the configuration can't be read
      */
