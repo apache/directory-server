@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * DirectoryServer bean used by both the daemon code and by the ServerMain here.
+ * A class used to start various servers in a give {@link InstanceLayout}
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -123,7 +123,14 @@ public class ApacheDsService
     private boolean isSchemaPartitionFirstExtraction = false;
 
 
-    public void init( InstanceLayout instanceLayout ) throws Exception
+    /**
+     * starts various services configured according to the 
+     * configuration present in the given instance's layout
+     *
+     * @param instanceLayout the on disk location's layout of the intance to be started
+     * @throws Exception
+     */
+    public void start( InstanceLayout instanceLayout ) throws Exception
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
         if ( !partitionsDir.exists() )
@@ -138,11 +145,11 @@ public class ApacheDsService
 
         cpReader = new ConfigPartitionReader( configPartition, partitionsDir );
 
-        // Initialize the LDAP server
-        initLdap( instanceLayout );
+        // start the LDAP server
+        startLdap( instanceLayout );
 
-        // Initialize the NTP server
-        initNtp();
+        // start the NTP server
+        startNtp();
 
         // Initialize the DNS server (Not ready yet)
         // initDns( layout );
@@ -150,14 +157,14 @@ public class ApacheDsService
         // Initialize the DHCP server (Not ready yet)
         // initDhcp( layout );
 
-        // Initialize the ChangePwd server (Not ready yet)
-        initChangePwd();
+        // start the ChangePwd server (Not ready yet)
+        startChangePwd();
 
-        // Initialize the Kerberos server
-        initKerberos();
+        // start the Kerberos server
+        startKerberos();
 
-        // initialize the jetty http server
-        initHttpServer();
+        // start the jetty http server
+        startHttpServer();
     }
 
 
@@ -236,9 +243,9 @@ public class ApacheDsService
 
 
     /**
-     * Initialize the LDAP server
+     * start the LDAP server
      */
-    private void initLdap( InstanceLayout instanceLayout ) throws Exception
+    private void startLdap( InstanceLayout instanceLayout ) throws Exception
     {
         LOG.info( "Starting the LDAP server" );
 
@@ -302,7 +309,14 @@ public class ApacheDsService
         }
 
         // And start the server now
-        start();
+        try
+        {
+            ldapServer.start();
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Cannot start the server : " + e.getMessage() );
+        }
 
         if ( LOG.isInfoEnabled() )
         {
@@ -312,9 +326,9 @@ public class ApacheDsService
 
 
     /**
-     * Initialize the NTP server
+     * start the NTP server
      */
-    private void initNtp() throws Exception
+    private void startNtp() throws Exception
     {
         ntpServer = cpReader.createNtpServer();
         if ( ntpServer == null )
@@ -376,9 +390,9 @@ public class ApacheDsService
     //    }
 
     /**
-     * Initialize the KERBEROS server
+     * start the KERBEROS server
      */
-    private void initKerberos() throws Exception
+    private void startKerberos() throws Exception
     {
         kdcServer = cpReader.createKdcServer();
         if ( kdcServer == null )
@@ -409,9 +423,9 @@ public class ApacheDsService
 
 
     /**
-     * Initialize the Change Password server
+     * start the Change Password server
      */
-    private void initChangePwd() throws Exception
+    private void startChangePwd() throws Exception
     {
 
         changePwdServer = cpReader.createChangePwdServer();
@@ -442,7 +456,10 @@ public class ApacheDsService
     }
 
 
-    private void initHttpServer() throws Exception
+    /**
+     * start the embedded HTTP server
+     */
+    private void startHttpServer() throws Exception
     {
         httpServer = cpReader.createHttpServer();
         if ( httpServer == null )
@@ -468,19 +485,6 @@ public class ApacheDsService
     public void synch() throws Exception
     {
         ldapServer.getDirectoryService().sync();
-    }
-
-
-    public void start()
-    {
-        try
-        {
-            ldapServer.start();
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Cannot start the server : " + e.getMessage() );
-        }
     }
 
 
@@ -516,10 +520,6 @@ public class ApacheDsService
         ldapServer.getDirectoryService().shutdown();
     }
 
-
-    public void destroy()
-    {
-    }
 
     private static final String BANNER_LDAP = "           _                     _          ____  ____   \n"
         + "          / \\   _ __    ___  ___| |__   ___|  _ \\/ ___|  \n"

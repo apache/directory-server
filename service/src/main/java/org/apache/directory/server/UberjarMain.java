@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The command line main for the server.  Warning this used to be a simple test
- * case so there really is not much here.
+ * The command line main for the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -55,7 +54,7 @@ public class UberjarMain
             // Initializing the service
             try
             {
-                service.init( instanceLayout );
+                service.start( instanceLayout );
             }
             catch ( Exception e )
             {
