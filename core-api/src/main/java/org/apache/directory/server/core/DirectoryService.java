@@ -268,6 +268,23 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
+     * Returns <tt>true</tt> if the service requires the userPassword attribute
+     * to be masked. It's an option in the server.xml file.
+     *
+     * @return true if the service requires that the userPassword is to be hidden
+     */
+    boolean isPasswordHidden();
+
+
+    /**
+     * Sets whether the userPassword attribute is readable, or hidden.
+     *
+     * @param passwordHidden true to enable hide the userPassword attribute, false otherwise
+     */
+    void setPasswordHidden( boolean passwordHidden );
+
+
+    /**
      * Sets whether to allow anonymous access to entries other than the RootDSE.  If the
      * access control subsystem is enabled then access to some entries may not be allowed
      * even when full anonymous access is enabled.

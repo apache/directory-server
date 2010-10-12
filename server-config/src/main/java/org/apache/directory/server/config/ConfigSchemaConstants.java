@@ -92,8 +92,7 @@ public interface ConfigSchemaConstants
 
     String ADS_DS_MAXPDU_SIZE = "ads-dsMaxPDUSize";
 
-    // this AT is no longer in use, can be renamed for reuse
-    //String ADS_DS_PASSWORD_HIDDEN = "ads-dsPasswordHidden";
+    String ADS_DS_PASSWORD_HIDDEN = "ads-dsPasswordHidden";
 
     String ADS_DS_REPLICATION = "ads-dsReplication";
 

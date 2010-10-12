@@ -892,7 +892,146 @@ public class ConfigPartitionReader
 
 
     /**
-     * 
+     * instantiates a DirectoryService based on the configuration present in the partition 
+     *
+     * @throws Exception
+     *
+    public DirectoryServiceBean readDirectoryService() throws Exception
+    {
+        AttributeType adsDirectoryServiceidAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
+        PresenceNode filter = new PresenceNode( adsDirectoryServiceidAt );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+
+        if ( !cursor.next() )
+        {
+            // the DirectoryService is mandatory so throwing exception
+            throw new Exception( "No directoryService instance was configured under the DN "
+                + configPartition.getSuffix() );
+        }
+
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
+            .get();
+        cursor.close();
+
+        Entry dsEntry = configPartition.lookup( forwardEntry.getId() );
+
+        LOG.debug( "directory service entry {}", dsEntry );
+
+        DirectoryServiceBean dirServicebean = new DirectoryServiceBean();
+        
+        // MUST attributes
+        dirServicebean.setInstanceId( getString( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID, dsEntry ) );
+        dirServicebean.setReplicaId( getInt( ConfigSchemaConstants.ADS_DS_REPLICA_ID, dsEntry ) );
+
+        Set<InterceptorBean> interceptors = readInterceptors( dsEntry.getDn() );
+        dirServicebean.setInterceptors( interceptors );
+        
+        AuthenticationInterceptor authnInterceptor = ( AuthenticationInterceptor ) dirServicebean.getInterceptor( AuthenticationInterceptor.class.getName() );
+        authnInterceptor.setPwdPolicyConfig( createPwdPolicyConfig( dsEntry.getDn() ) );
+
+        Map<String, Partition> partitions = createPartitions( dsEntry.getDn() );
+
+        Partition systemPartition = partitions.remove( "system" );
+
+        if ( systemPartition == null )
+        {
+            throw new Exception( I18n.err( I18n.ERR_505 ) );
+        }
+
+        dirServicebean.setSystemPartition( systemPartition );
+        dirServicebean.setPartitions( new HashSet<Partition>( partitions.values() ) );
+
+        // MAY attributes
+        EntryAttribute acEnabledAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_ACCESSCONTROL_ENABLED );
+
+        if ( acEnabledAttr != null )
+        {
+            dirServicebean.setAccessControlEnabled( Boolean.parseBoolean( acEnabledAttr.getString() ) );
+        }
+
+        EntryAttribute anonAccessAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_ALLOW_ANONYMOUS_ACCESS );
+
+        if ( anonAccessAttr != null )
+        {
+            dirServicebean.setAllowAnonymousAccess( Boolean.parseBoolean( anonAccessAttr.getString() ) );
+        }
+
+        EntryAttribute changeLogAttr = dsEntry.get( ConfigSchemaConstants.ADS_DSCHANGELOG );
+
+        if ( changeLogAttr != null )
+        {
+            DN clDN = new DN( changeLogAttr.getString(), schemaManager );
+            ChangeLog cl = createChangeLog( clDN );
+            dirServicebean.setChangeLog( cl );
+        }
+
+        EntryAttribute denormAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_DENORMALIZE_OPATTRS_ENABLED );
+
+        if ( denormAttr != null )
+        {
+            dirServicebean.setDenormalizeOpAttrsEnabled( Boolean.parseBoolean( denormAttr.getString() ) );
+        }
+
+        EntryAttribute journalAttr = dsEntry.get( ConfigSchemaConstants.ADS_DSJOURNAL );
+
+        if ( journalAttr != null )
+        {
+            DN journalDN = new DN( journalAttr.getString(), schemaManager );
+            dirServicebean.setJournal( createJournal( journalDN ) );
+        }
+
+        EntryAttribute maxPduAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_MAXPDU_SIZE );
+
+        if ( maxPduAttr != null )
+        {
+            dirServicebean.setMaxPDUSize( Integer.parseInt( maxPduAttr.getString() ) );
+        }
+
+        EntryAttribute passwordHidAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_PASSWORD_HIDDEN );
+
+        if ( passwordHidAttr != null )
+        {
+            dirServicebean.setPasswordHidden( Boolean.parseBoolean( passwordHidAttr.getString() ) );
+        }
+
+        EntryAttribute replAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_REPLICATION );
+
+        if ( replAttr != null )
+        {
+            // configure replication
+        }
+
+        EntryAttribute syncPeriodAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_SYNCPERIOD_MILLIS );
+
+        if ( syncPeriodAttr != null )
+        {
+            dirServicebean.setSyncPeriodMillis( Long.parseLong( syncPeriodAttr.getString() ) );
+        }
+
+        EntryAttribute testEntryAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_TEST_ENTRIES );
+
+        if ( testEntryAttr != null )
+        {
+            String entryFilePath = testEntryAttr.getString();
+            dirServicebean.setTestEntries( readTestEntries( entryFilePath ) );
+        }
+
+        if ( !isEnabled( dsEntry ) )
+        {
+            // will only be useful if we ever allow more than one DS to be configured and
+            // switch between them
+            // decide which one to use based on this flag
+        }
+
+        return dirServicebean;
+    }
+    
+    
+    /**
      * instantiates a DirectoryService based on the configuration present in the partition 
      *
      * @throws Exception
@@ -989,6 +1128,13 @@ public class ConfigPartitionReader
         if ( maxPduAttr != null )
         {
             dirService.setMaxPDUSize( Integer.parseInt( maxPduAttr.getString() ) );
+        }
+
+        EntryAttribute passwordHidAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_PASSWORD_HIDDEN );
+
+        if ( passwordHidAttr != null )
+        {
+            dirService.setPasswordHidden( Boolean.parseBoolean( passwordHidAttr.getString() ) );
         }
 
         EntryAttribute replAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_REPLICATION );
