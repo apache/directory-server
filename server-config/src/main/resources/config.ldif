@@ -4,6 +4,7 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-directoryServiceId=default,ou=config
+ads-dsPasswordHidden: false
 ads-dsreplicaid: 1
 ads-dssyncperiodmillis: 15000
 ads-dsmaxpdusize: 2000000
