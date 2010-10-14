@@ -28,13 +28,13 @@ package org.apache.directory.server.config.beans;
 public class InterceptorBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
-    private String id;
+    private String interceptorId;
     
     /** The interceptor FQCN */
-    private String fqcn;
+    private String interceptorClassName;
     
     /** The interceptor position in the chain */
-    private int order;
+    private int interceptorOrder;
 
 
     /**
@@ -53,11 +53,11 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public int compareTo( InterceptorBean o )
     {
-        if ( order > o.order )
+        if ( interceptorOrder > o.interceptorOrder )
         {
             return 1;
         }
-        else if ( order < o.order )
+        else if ( interceptorOrder < o.interceptorOrder )
         {
             return -1;
         }
@@ -69,53 +69,53 @@ public class InterceptorBean implements Comparable<InterceptorBean>
     /**
      * @return the id
      */
-    public String getId() 
+    public String getInterceptorId() 
     {
-        return id;
+        return interceptorId;
     }
 
 
     /**
      * @param id the id to set
      */
-    public void setId( String id ) 
+    public void setInterceptorId( String id ) 
     {
-        this.id = id;
+        this.interceptorId = id;
     }
 
 
     /**
-     * @return the order
+     * @return the interceptor Order
      */
-    public int getOrder() 
+    public int getInterceptorOrder() 
     {
-        return order;
+        return interceptorOrder;
     }
 
 
     /**
-     * @param order the order to set
+     * @param interceptorOrder the interceptor Order to set
      */
-    public void setOrder( int order ) 
+    public void setInterceptorOrder( int interceptorOrder ) 
     {
-        this.order = order;
+        this.interceptorOrder = interceptorOrder;
     }
 
 
     /**
-     * @return the fqcn
+     * @return the interceptor ClassName
      */
-    public String getFqcn()
+    public String getInterceptorClassName()
     {
-        return fqcn;
+        return interceptorClassName;
     }
 
 
     /**
-     * @param fqcn the fqcn to set
+     * @param interceptorClassName the interceptor ClassName to set
      */
-    public void setFqcn( String fqcn )
+    public void setFqcn( String interceptorClassName )
     {
-        this.fqcn = fqcn;
+        this.interceptorClassName = interceptorClassName;
     }
 }

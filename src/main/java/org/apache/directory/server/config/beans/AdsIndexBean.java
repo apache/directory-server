@@ -19,22 +19,37 @@
  */
 package org.apache.directory.server.config.beans;
 
-
 /**
- * A class used to store the NtpServer configuration.
+ * A class used to store the IndexBean configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NtpServerBean extends AdsServerBean
+public abstract class AdsIndexBean extends BaseAdsBean
 {
+    /** The index unique identifier */
+    private String indexAttributeId;
+    
     /**
-     * Create a new NtpServerBean instance
+     * Create a new IndexBean instance
      */
-    public NtpServerBean()
+    protected AdsIndexBean()
     {
-        super();
-        
-        // Enabled by default
-        setEnabled( true );
+    }
+
+    /**
+     * @return the indexAttributeId
+     */
+    public String getIndexAttributeId()
+    {
+        return indexAttributeId;
+    }
+
+    
+    /**
+     * @param indexAttributeId the indexAttributeId to set
+     */
+    public void setIndexAttributeId( String indexAttributeId )
+    {
+        this.indexAttributeId = indexAttributeId;
     }
 }

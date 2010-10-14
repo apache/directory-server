@@ -24,19 +24,16 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JournalBean 
+public class JournalBean extends BaseAdsBean
 {
     /** The journal file name */
-    private String fileName;
+    private String journalFileName;
     
     /** The journal working directory */
-    private String workingDir;
+    private String journalWorkingDir;
     
     /** The journal rotation */
-    private int rotation;
-    
-    /** Tells if the journal is enabled */
-    private boolean enabled;
+    private int journalRotation;
 
     /**
      * Create a new JournalBean instance
@@ -44,81 +41,63 @@ public class JournalBean
     public JournalBean()
     {
         // Default to infinite
-        rotation = 0;
+        journalRotation = 0;
         
         // Not enabled by default
-        enabled = false;
+        setEnabled( false );
     }
     
     
     /**
      * @return the fileName
      */
-    public String getFileName() 
+    public String getJournalFileName() 
     {
-        return fileName;
+        return journalFileName;
     }
 
     
     /**
-     * @param fileName the fileName to set
+     * @param journalFileName the journalFileName to set
      */
-    public void setFileName( String fileName ) 
+    public void setJournalFileName( String journalFileName ) 
     {
-        this.fileName = fileName;
+        this.journalFileName = journalFileName;
     }
 
     
     /**
-     * @return the workingDir
+     * @return the journal WorkingDir
      */
-    public String getWorkingDir() 
+    public String getJournalWorkingDir() 
     {
-        return workingDir;
+        return journalWorkingDir;
     }
 
     
     /**
-     * @param workingDir the workingDir to set
+     * @param journalWorkingDir the journal WorkingDir to set
      */
-    public void setWorkingDir( String workingDir ) 
+    public void setJournalWorkingDir( String journalWorkingDir ) 
     {
-        this.workingDir = workingDir;
+        this.journalWorkingDir = journalWorkingDir;
     }
 
     
     /**
-     * @return the rotation
+     * @return the journal Rotation
      */
-    public int getRotation() 
+    public int getJournalRotation() 
     {
-        return rotation;
+        return journalRotation;
     }
 
     
     /**
-     * @param rotation the rotation to set
+     * @param journalRotation the journal Rotation to set
      */
-    public void setRotation( int rotation ) 
+    public void setJournalRotation( int journalRotation ) 
     {
-        this.rotation = rotation;
-    }
-
-    
-    /**
-     * @return <code>true</code> if the Journal is enabled
-     */
-    public boolean isEnabled() 
-    {
-        return enabled;
-    }
-
-    
-    /**
-     * @param enabled Set the enabled flag
-     */
-    public void setEnabled( boolean enabled ) 
-    {
-        this.enabled = enabled;
+        this.journalRotation = journalRotation;
     }
 }

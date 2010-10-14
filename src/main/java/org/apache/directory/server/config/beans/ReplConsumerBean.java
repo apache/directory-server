@@ -21,16 +21,31 @@ package org.apache.directory.server.config.beans;
 
 
 /**
- * A class used to store the NtpServer configuration.
+ * A class used to store the Replication Consumer configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NtpServerBean extends AdsServerBean
+public class ReplConsumerBean extends BaseAdsBean
 {
+    /** The replicaConsumer unique ID */
+    private String dsReplicaId;
+    
+    /*
+    m-must: ads-replAliasDerefMode;
+    private String searchBaseDN;
+    private String replLastSentCsn;
+    m-must: ads-replSearchScope;
+    private String replSearchFilter;
+    m-may: ads-replRefreshNPersist;
+    m-may: ads-replUseTls;
+    m-may: ads-replStrictCertValidation;
+    m-may: ads-replPeerCertificate;
+    */
+
     /**
-     * Create a new NtpServerBean instance
+     * Create a new Replication Consumer instance
      */
-    public NtpServerBean()
+    public ReplConsumerBean()
     {
         super();
         
