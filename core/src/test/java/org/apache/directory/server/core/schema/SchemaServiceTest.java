@@ -98,11 +98,11 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
 
-        // We should only have 18 AT
+        // We should only have 19 AT
         String[] expectedNames = new String[]
             { "sn", "generationQualifier", "ou", "c", "o", "l", "c-st", "givenName", "title", "cn", "initials",
                 "dmdName", "c-ou", "c-o", "apacheExistence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
-                "ads-transportId", "ads-directoryServiceId", "ads-Id" };
+                "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId" };
 
         for ( String name : expectedNames )
         {
