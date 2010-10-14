@@ -25,13 +25,15 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DnsServerBean extends DirectoryBackedServiceBean
+public class DnsServerBean extends CatalogBasedServerBean
 {
     /**
      * Create a new DnsServerBean instance
      */
     public DnsServerBean()
     {
+        super();
+        
         // Enabled by default
         setEnabled( true );
     }

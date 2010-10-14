@@ -57,7 +57,6 @@ import java.util.TreeSet;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
-import org.apache.directory.server.config.beans.BTreePartitionBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.DnsServerBean;
 import org.apache.directory.server.config.beans.InterceptorBean;
@@ -66,6 +65,7 @@ import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
+import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
@@ -225,7 +225,7 @@ public class ConfigPartitionReader
             .get();
         cursor.close();
 
-        ClonedServerEntry ldapServerEntry = configPartition.lookup( forwardEntry.getId() );
+        Entry ldapServerEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "LDAP Server Entry {}", ldapServerEntry );
 
         if ( !isEnabled( ldapServerEntry ) )
@@ -249,7 +249,7 @@ public class ConfigPartitionReader
                 
                 String fqcn = null;
                 
-                if( replProvImplAttr != null )
+                if ( replProvImplAttr != null )
                 {
                     fqcn = replProvImplAttr.getString();
                 }
@@ -375,7 +375,7 @@ public class ConfigPartitionReader
         KdcServerBean kdcServerBean = new KdcServerBean();
 
         // The serviceID
-        kdcServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
+        kdcServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
 
         TransportBean[] transports = readTransports( kdcEntry.getDn() );
         kdcServerBean.setTransports( transports );
@@ -385,7 +385,7 @@ public class ConfigPartitionReader
 
         if ( clockSkewAttr != null )
         {
-            kdcServerBean.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
+            kdcServerBean.setKrbAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
         }
 
         EntryAttribute encryptionTypeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_ENCRYPTION_TYPES );
@@ -400,91 +400,91 @@ public class ConfigPartitionReader
                 encryptionTypes[count++] = EncryptionType.getByName( value.getString() );
             }
 
-            kdcServerBean.setEncryptionTypes( encryptionTypes );
+            kdcServerBean.setKrbEncryptionTypes( encryptionTypes );
         }
 
         EntryAttribute emptyAddrAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_EMPTY_ADDRESSES_ALLOWED );
 
         if ( emptyAddrAttr != null )
         {
-            kdcServerBean.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
+            kdcServerBean.setKrbEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
         }
 
         EntryAttribute fwdAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_FORWARDABLE_ALLOWED );
 
         if ( fwdAllowedAttr != null )
         {
-            kdcServerBean.setForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
+            kdcServerBean.setKrbForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
         }
 
         EntryAttribute paEncTmstpAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PAENC_TIMESTAMP_REQUIRED );
 
         if ( paEncTmstpAttr != null )
         {
-            kdcServerBean.setPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
+            kdcServerBean.setKrbPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
         }
 
         EntryAttribute posdtAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_POSTDATED_ALLOWED );
 
         if ( posdtAllowedAttr != null )
         {
-            kdcServerBean.setPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
+            kdcServerBean.setKrbPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
         }
 
         EntryAttribute prxyAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PROXIABLE_ALLOWED );
 
         if ( prxyAllowedAttr != null )
         {
-            kdcServerBean.setProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
+            kdcServerBean.setKrbProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
         }
 
         EntryAttribute rnwAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_RENEWABLE_ALLOWED );
 
         if ( rnwAllowedAttr != null )
         {
-            kdcServerBean.setRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
+            kdcServerBean.setKrbRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
         }
 
         EntryAttribute kdcPrncplAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_KDC_PRINCIPAL );
 
         if ( kdcPrncplAttr != null )
         {
-            kdcServerBean.setKdcPrincipal( kdcPrncplAttr.getString() );
+            kdcServerBean.setKrbKdcPrincipal( kdcPrncplAttr.getString() );
         }
 
         EntryAttribute maxRnwLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_RENEWABLE_LIFETIME );
 
         if ( maxRnwLfTimeAttr != null )
         {
-            kdcServerBean.setMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
+            kdcServerBean.setKrbMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
         }
 
         EntryAttribute maxTcktLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_TICKET_LIFETIME );
 
         if ( maxTcktLfTimeAttr != null )
         {
-            kdcServerBean.setMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
+            kdcServerBean.setKrbMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
         }
 
         EntryAttribute prmRealmAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PRIMARY_REALM );
 
         if ( prmRealmAttr != null )
         {
-            kdcServerBean.setPrimaryRealm( prmRealmAttr.getString() );
+            kdcServerBean.setKrbPrimaryRealm( prmRealmAttr.getString() );
         }
 
         EntryAttribute bdyCkhsmVerifyAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_BODY_CHECKSUM_VERIFIED );
 
         if ( bdyCkhsmVerifyAttr != null )
         {
-            kdcServerBean.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
+            kdcServerBean.setKrbBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
         }
 
         EntryAttribute searchBaseAttr = kdcEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
         
         if( searchBaseAttr != null )
         {
-            kdcServerBean.setSearchBaseDn( searchBaseAttr.getString() );
+            kdcServerBean.setSearchBaseDN( searchBaseAttr.getString() );
         }
         
         return kdcServerBean;
@@ -515,21 +515,21 @@ public class ConfigPartitionReader
             kdcServer.addTransports( transport );
         }
         
-        kdcServer.setServiceId( kdcServerBean.getServiceId() );
-        kdcServer.setAllowableClockSkew( kdcServerBean.getAllowableClockSkew() );
-        kdcServer.setEncryptionTypes( kdcServerBean.getEncryptionTypes() );
-        kdcServer.setEmptyAddressesAllowed( kdcServerBean.isEmptyAddressesAllowed() );
-        kdcServer.setForwardableAllowed( kdcServerBean.isForwardableAllowed() );
-        kdcServer.setPaEncTimestampRequired( kdcServerBean.isPaEncTimestampRequired() );
-        kdcServer.setPostdatedAllowed( kdcServerBean.isPostdatedAllowed() );
-        kdcServer.setProxiableAllowed( kdcServerBean.isProxiableAllowed() );
-        kdcServer.setRenewableAllowed( kdcServerBean.isRenewableAllowed() );
-        kdcServer.setKdcPrincipal( kdcServerBean.getServicePrincipal().getName() );
-        kdcServer.setMaximumRenewableLifetime( kdcServerBean.getMaximumRenewableLifetime() );
-        kdcServer.setMaximumTicketLifetime( kdcServerBean.getMaximumTicketLifetime() );
-        kdcServer.setPrimaryRealm( kdcServerBean.getPrimaryRealm() );
-        kdcServer.setBodyChecksumVerified( kdcServerBean.isBodyChecksumVerified() );
-        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn() );
+        kdcServer.setServiceId( kdcServerBean.getServerId() );
+        kdcServer.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
+        kdcServer.setEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
+        kdcServer.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
+        kdcServer.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
+        kdcServer.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
+        kdcServer.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
+        kdcServer.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
+        kdcServer.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
+        kdcServer.setKdcPrincipal( kdcServerBean.getKrbKdcPrincipal().getName() );
+        kdcServer.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
+        kdcServer.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
+        kdcServer.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
+        kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
+        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDN() );
         
         return kdcServer;
     }
@@ -571,7 +571,7 @@ public class ConfigPartitionReader
 
         DnsServerBean dnsServerBean = new DnsServerBean();
 
-        dnsServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
+        dnsServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
 
         TransportBean[] transports = readTransports( dnsEntry.getDn() );
         dnsServerBean.setTransports( transports );
@@ -604,7 +604,7 @@ public class ConfigPartitionReader
             dnsServer.addTransports( transport );
         }
         
-        dnsServer.setServiceId( dnsServerBean.getServiceId() );
+        dnsServer.setServiceId( dnsServerBean.getServerId() );
 
 
         return dnsServer;
@@ -688,7 +688,7 @@ public class ConfigPartitionReader
 
         NtpServerBean ntpServerBean = new NtpServerBean();
 
-        ntpServerBean.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
+        ntpServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
 
         TransportBean[] transports = readTransports( ntpEntry.getDn() );
         ntpServerBean.setTransports( transports );
@@ -721,7 +721,7 @@ public class ConfigPartitionReader
             ntpServer.addTransports( transport );
         }
         
-        ntpServer.setServiceId( ntpServerBean.getServiceId() );
+        ntpServer.setServiceId( ntpServerBean.getServerId() );
         
         return ntpServer;
     }
@@ -858,7 +858,7 @@ public class ConfigPartitionReader
             .get();
         cursor.close();
 
-        ClonedServerEntry httpEntry = configPartition.lookup( forwardEntry.getId() );
+        Entry httpEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "HTTP server entry {}", httpEntry );
 
         if ( !isEnabled( httpEntry ) )
@@ -1352,9 +1352,9 @@ public class ConfigPartitionReader
 
             InterceptorBean interceptorBean = new InterceptorBean();
             
-            interceptorBean.setId( id );
+            interceptorBean.setInterceptorId( id );
             interceptorBean.setFqcn( fqcn );
-            interceptorBean.setOrder( order );
+            interceptorBean.setInterceptorOrder( order );
             
             interceptorBeans.add( interceptorBean );
         }
@@ -1382,8 +1382,8 @@ public class ConfigPartitionReader
         {
             try
             {
-                LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getFqcn() );
-                Interceptor ic = ( Interceptor ) Class.forName( interceptorBean.getFqcn() ).newInstance();
+                LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getInterceptorClassName() );
+                Interceptor ic = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() ).newInstance();
                 interceptors.add( ic );
             }
             catch ( Exception e )
@@ -1403,7 +1403,7 @@ public class ConfigPartitionReader
      * @return A map of partitions 
      * @throws Exception If we cannot read some partition
      */
-    private Map<String, BTreePartitionBean> readPartitions( DN dirServiceDN ) throws Exception
+    private Map<String, PartitionBean> readPartitions( DN dirServiceDN ) throws Exception
     {
         AttributeType adsPartitionIdeAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_PARTITION_ID );
         PresenceNode filter = new PresenceNode( adsPartitionIdeAt );
@@ -1412,7 +1412,7 @@ public class ConfigPartitionReader
         IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
-        Map<String, BTreePartitionBean> partitionBeans = new HashMap<String, BTreePartitionBean>();
+        Map<String, PartitionBean> partitionBeans = new HashMap<String, PartitionBean>();
 
         while ( cursor.next() )
         {
@@ -1430,7 +1430,7 @@ public class ConfigPartitionReader
             if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMPARTITION ) )
             {
                 JdbmPartitionBean jdbmPartitionBean = readJdbmPartition( partitionEntry );
-                partitionBeans.put( jdbmPartitionBean.getId(), jdbmPartitionBean );
+                partitionBeans.put( jdbmPartitionBean.getPartitionId(), jdbmPartitionBean );
             }
             else
             {
@@ -1453,12 +1453,12 @@ public class ConfigPartitionReader
      */
     public Map<String, Partition> createPartitions( DN dirServiceDN ) throws Exception
     {
-        Map<String, BTreePartitionBean> partitionBeans = readPartitions( dirServiceDN );
+        Map<String, PartitionBean> partitionBeans = readPartitions( dirServiceDN );
         Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
         
         for ( String key : partitionBeans.keySet() )
         {
-            BTreePartitionBean partitionBean = partitionBeans.get( key );
+            PartitionBean partitionBean = partitionBeans.get( key );
             
             JdbmPartition partition = createJdbmPartition( (JdbmPartitionBean)partitionBean );
             partitions.put( key, partition );
@@ -1479,31 +1479,31 @@ public class ConfigPartitionReader
     {
         JdbmPartitionBean jdbmPartitionBean = new JdbmPartitionBean();
         
-        jdbmPartitionBean.setId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
-        jdbmPartitionBean.setPartitionDir( workDir + File.separator + jdbmPartitionBean.getId() );
+        jdbmPartitionBean.setPartitionId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
+        //jdbmPartitionBean.setPartitionDir( workDir + File.separator + jdbmPartitionBean.getPartitionId() );
 
         DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ), schemaManager );
-        jdbmPartitionBean.setSuffix( systemDn );
+        jdbmPartitionBean.setPartitionSuffix( systemDn );
 
         EntryAttribute cacheAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_CACHE_SIZE );
 
         if ( cacheAttr != null )
         {
-            jdbmPartitionBean.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
+            jdbmPartitionBean.setPartitionCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
 
         EntryAttribute optimizerAttr = partitionEntry.get( ConfigSchemaConstants.ADS_JDBM_PARTITION_OPTIMIZER_ENABLED );
 
         if ( optimizerAttr != null )
         {
-            jdbmPartitionBean.setOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
+            jdbmPartitionBean.setJdbmPartitionOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
         }
 
         EntryAttribute syncAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_SYNCONWRITE );
 
         if ( syncAttr != null )
         {
-            jdbmPartitionBean.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
+            jdbmPartitionBean.setPartitionSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
         }
 
         Set<JdbmIndexBean<String, Entry>> indexedAttributes = readIndexes( partitionEntry.getDn() );
@@ -1526,13 +1526,13 @@ public class ConfigPartitionReader
         JdbmPartitionBean jdbmPartitionBean = readJdbmPartition( partitionEntry );
         
         partition.setSchemaManager( schemaManager );
-        partition.setCacheSize( jdbmPartitionBean.getCacheSize() );
-        partition.setId( jdbmPartitionBean.getId() );
-        partition.setOptimizerEnabled( jdbmPartitionBean.isOptimizerEnabled() );
-        partition.setPartitionDir( new File( jdbmPartitionBean.getPartitionDir() ) );
-        partition.setSuffix( jdbmPartitionBean.getSuffix() );
-        partition.setSyncOnWrite( jdbmPartitionBean.isSyncOnWrite() );
-        partition.setIndexedAttributes( createIndexes( jdbmPartitionBean.getIndexedAttributes() ) );
+        partition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
+        partition.setId( jdbmPartitionBean.getPartitionId() );
+        partition.setOptimizerEnabled( jdbmPartitionBean.isJdbmPartitionOptimizerEnabled() );
+        partition.setPartitionDir( new File( workDir + File.separator + jdbmPartitionBean.getPartitionId() ) );
+        partition.setSuffix( jdbmPartitionBean.getPartitionSuffix() );
+        partition.setSyncOnWrite( jdbmPartitionBean.isPartitionSyncOnWrite() );
+        partition.setIndexedAttributes( createIndexes( jdbmPartitionBean.getJdbmIndexes() ) );
 
         return partition;
     }
@@ -1550,13 +1550,13 @@ public class ConfigPartitionReader
         JdbmPartition partition = new JdbmPartition();
         
         partition.setSchemaManager( schemaManager );
-        partition.setCacheSize( jdbmPartitionBean.getCacheSize() );
-        partition.setId( jdbmPartitionBean.getId() );
-        partition.setOptimizerEnabled( jdbmPartitionBean.isOptimizerEnabled() );
-        partition.setPartitionDir( new File( jdbmPartitionBean.getPartitionDir() ) );
-        partition.setSuffix( jdbmPartitionBean.getSuffix() );
-        partition.setSyncOnWrite( jdbmPartitionBean.isSyncOnWrite() );
-        partition.setIndexedAttributes( createIndexes( jdbmPartitionBean.getIndexedAttributes() ) );
+        partition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
+        partition.setId( jdbmPartitionBean.getPartitionId() );
+        partition.setOptimizerEnabled( jdbmPartitionBean.isJdbmPartitionOptimizerEnabled() );
+        partition.setPartitionDir( new File( workDir + File.separator + jdbmPartitionBean.getPartitionId() ) );
+        partition.setSuffix( jdbmPartitionBean.getPartitionSuffix() );
+        partition.setSyncOnWrite( jdbmPartitionBean.isPartitionSyncOnWrite() );
+        partition.setIndexedAttributes( createIndexes( jdbmPartitionBean.getJdbmIndexes() ) );
 
         return partition;
     }
@@ -1638,19 +1638,19 @@ public class ConfigPartitionReader
     public JdbmIndexBean<String, Entry> readJdbmIndex( Entry indexEntry ) throws Exception
     {
         JdbmIndexBean<String, Entry> index = new JdbmIndexBean<String, Entry>();
-        index.setAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
+        index.setIndexAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
         EntryAttribute cacheAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_CACHESIZE );
 
         if ( cacheAttr != null )
         {
-            index.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
+            index.setIndexCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
 
         EntryAttribute numDupAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_NUM_DUP_LIMIT );
 
         if ( numDupAttr != null )
         {
-            index.setNumDupLimit( Integer.parseInt( numDupAttr.getString() ) );
+            index.setIndexNumDupLimit( Integer.parseInt( numDupAttr.getString() ) );
         }
 
         return index;
@@ -1669,9 +1669,9 @@ public class ConfigPartitionReader
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         JdbmIndexBean<String, Entry> indexBean = readJdbmIndex( indexEntry );
         
-        index.setAttributeId( indexBean.getAttributeId() );
-        index.setCacheSize( indexBean.getCacheSize() );
-        index.setNumDupLimit( indexBean.getNumDupLimit() );
+        index.setAttributeId( indexBean.getIndexAttributeId() );
+        index.setCacheSize( indexBean.getIndexCacheSize() );
+        index.setNumDupLimit( indexBean.getIndexNumDupLimit() );
         
         return index;
     }
@@ -1688,9 +1688,9 @@ public class ConfigPartitionReader
     {
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         
-        index.setAttributeId( indexBean.getAttributeId() );
-        index.setCacheSize( indexBean.getCacheSize() );
-        index.setNumDupLimit( indexBean.getNumDupLimit() );
+        index.setAttributeId( indexBean.getIndexAttributeId() );
+        index.setCacheSize( indexBean.getIndexCacheSize() );
+        index.setNumDupLimit( indexBean.getIndexNumDupLimit() );
         
         return index;
     }
@@ -1764,37 +1764,37 @@ public class ConfigPartitionReader
             transportBean = new UdpTransportBean();
         }
 
-        transportBean.setPort( getInt( ConfigSchemaConstants.ADS_SYSTEM_PORT, transportEntry ) );
+        transportBean.setSystemPort( getInt( ConfigSchemaConstants.ADS_SYSTEM_PORT, transportEntry ) );
         EntryAttribute addressAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ADDRESS );
 
         if ( addressAttr != null )
         {
-            transportBean.setAddress( addressAttr.getString() );
+            transportBean.setTransportAddress( addressAttr.getString() );
         }
         else
         {
-            transportBean.setAddress( "0.0.0.0" );
+            transportBean.setTransportAddress( "0.0.0.0" );
         }
 
         EntryAttribute backlogAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_BACKLOG );
 
         if ( backlogAttr != null )
         {
-            transportBean.setBackLog( Integer.parseInt( backlogAttr.getString() ) );
+            transportBean.setTransportBackLog( Integer.parseInt( backlogAttr.getString() ) );
         }
 
         EntryAttribute sslAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ENABLE_SSL );
 
         if ( sslAttr != null )
         {
-            transportBean.setEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
+            transportBean.setTransportEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
         }
 
         EntryAttribute nbThreadsAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_NBTHREADS );
 
         if ( nbThreadsAttr != null )
         {
-            transportBean.setNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
+            transportBean.setTransportNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
         }
 
         return transportBean;
@@ -1821,11 +1821,11 @@ public class ConfigPartitionReader
             transport = new UdpTransport();
         }
 
-        transport.setPort( transportBean.getPort() );
-        transport.setAddress( transportBean.getAddress() );
-        transport.setBackLog( transportBean.getBackLog() );
-        transport.setEnableSSL( transportBean.isSSLEnabled() );
-        transport.setNbThreads( transportBean.getNbThreads() );
+        transport.setPort( transportBean.getSystemPort() );
+        transport.setAddress( transportBean.getTransportAddress() );
+        transport.setBackLog( transportBean.getTransportBackLog() );
+        transport.setEnableSSL( transportBean.isTransportEnableSSL() );
+        transport.setNbThreads( transportBean.getTransportNbThreads() );
 
         return transport;
     }
@@ -1856,7 +1856,7 @@ public class ConfigPartitionReader
 
         if ( clExpAttr != null )
         {
-            changeLogBean.setExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
+            changeLogBean.setChangeLogExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
         }
 
         return changeLogBean;
@@ -1876,7 +1876,7 @@ public class ConfigPartitionReader
         
         ChangeLog changeLog = new DefaultChangeLog();
         changeLog.setEnabled( changeLogBean.isEnabled() );
-        changeLog.setExposed( changeLogBean.isExposed() );
+        changeLog.setExposed( changeLogBean.isChangeLogExposed() );
 
         return changeLog;
     }
@@ -1896,20 +1896,20 @@ public class ConfigPartitionReader
         long id = configPartition.getEntryId( journalDN );
         Entry entry = configPartition.lookup( id );
         
-        journalBean.setFileName( entry.get( ConfigSchemaConstants.ADS_JOURNAL_FILENAME ).getString() );
+        journalBean.setJournalFileName( entry.get( ConfigSchemaConstants.ADS_JOURNAL_FILENAME ).getString() );
 
         EntryAttribute workingDirAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_WORKINGDIR );
 
         if ( workingDirAttr != null )
         {
-            journalBean.setWorkingDir( workingDirAttr.getString() );
+            journalBean.setJournalWorkingDir( workingDirAttr.getString() );
         }
         
         EntryAttribute rotationAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ROTATION );
 
         if ( rotationAttr != null )
         {
-            journalBean.setRotation( Integer.parseInt( rotationAttr.getString() ) );
+            journalBean.setJournalRotation( Integer.parseInt( rotationAttr.getString() ) );
         }
         
         EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ENABLED );
@@ -1936,13 +1936,13 @@ public class ConfigPartitionReader
         
         Journal journal = new DefaultJournal();
 
-        journal.setRotation( journalBean.getRotation() );
+        journal.setRotation( journalBean.getJournalRotation() );
         journal.setEnabled( journalBean.isEnabled() );
 
         JournalStore store = new DefaultJournalStore();
 
-        store.setFileName( journalBean.getFileName() );
-        store.setWorkingDirectory( journalBean.getWorkingDir() );
+        store.setFileName( journalBean.getJournalFileName() );
+        store.setWorkingDirectory( journalBean.getJournalWorkingDir() );
 
         journal.setJournalStore( store );
         

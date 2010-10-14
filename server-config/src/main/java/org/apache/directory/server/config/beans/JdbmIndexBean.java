@@ -25,26 +25,25 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndexBean<K, E>
+public class JdbmIndexBean<K, E> extends AdsIndexBean
 {
-    private int DEFAULT_INDEX_CACHE_SIZE = 100;
+    /** The default cache size */
+    private static final int DEFAULT_INDEX_CACHE_SIZE = 100;
     
     /** default duplicate limit before duplicate keys switch to using a btree for values */
-    public static final int DEFAULT_DUPLICATE_LIMIT = 512;
-
-    /**
-     * the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     */
-    private String attributeId;
+    private static final int DEFAULT_DUPLICATE_LIMIT = 512;
 
     /** the size (number of index entries) for the cache */
-    private int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
+    private int indexCacheSize = DEFAULT_INDEX_CACHE_SIZE;
 
-    /**
-     * duplicate limit before duplicate keys switch to using a btree for values
-     */
-    protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    /** duplicate limit before duplicate keys switch to using a btree for values */
+    private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    
+    /** The index file name */
+    private String indexFileName;
+    
+    /** The index working directory */
+    private String indexWorkingDir;
 
     /**
      * Create a new JdbmIndexBean instance
@@ -55,48 +54,24 @@ public class JdbmIndexBean<K, E>
 
 
     /**
-     * Gets the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     *
-     * @return configured attribute oid or alias name
-     */
-    public String getAttributeId()
-    {
-        return attributeId;
-    }
-
-
-    /**
-     * Sets the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     *
-     * @param attributeId configured attribute oid or alias name
-     */
-    public void setAttributeId( String attributeId )
-    {
-        this.attributeId = attributeId;
-    }
-
-
-    /**
      * Gets the size of the index cache in terms of the number of index entries to be cached.
      *
      * @return the size of the index cache
      */
-    public int getCacheSize()
+    public int getIndexCacheSize()
     {
-        return cacheSize;
+        return indexCacheSize;
     }
 
 
     /**
      * Sets the size of the index cache in terms of the number of index entries to be cached.
      *
-     * @param cacheSize the size of the index cache
+     * @param IndexCacheSize the size of the index cache
      */
-    public void setCacheSize( int cacheSize )
+    public void setIndexCacheSize( int indexCacheSize )
     {
-        this.cacheSize = cacheSize;
+        this.indexCacheSize = indexCacheSize;
     }
 
 
@@ -106,9 +81,9 @@ public class JdbmIndexBean<K, E>
      *
      * @return the threshold for storing a keys values in another btree
      */
-    public int getNumDupLimit()
+    public int getIndexNumDupLimit()
     {
-        return numDupLimit;
+        return indexNumDupLimit;
     }
 
 
@@ -116,10 +91,46 @@ public class JdbmIndexBean<K, E>
      * Sets the threshold at which point duplicate keys use btree indirection to store
      * their values.
      *
-     * @param numDupLimit the threshold for storing a keys values in another btree
+     * @param indexNumDupLimit the threshold for storing a keys values in another btree
      */
-    public void setNumDupLimit( int numDupLimit )
+    public void setIndexNumDupLimit( int indexNumDupLimit )
     {
-        this.numDupLimit = numDupLimit;
+        this.indexNumDupLimit = indexNumDupLimit;
+    }
+
+
+    /**
+     * @return the indexFileName
+     */
+    public String getIndexFileName()
+    {
+        return indexFileName;
+    }
+
+
+    /**
+     * @param indexFileName the indexFileName to set
+     */
+    public void setIndexFileName( String indexFileName )
+    {
+        this.indexFileName = indexFileName;
+    }
+
+
+    /**
+     * @return the indexWorkingDir
+     */
+    public String getIndexWorkingDir()
+    {
+        return indexWorkingDir;
+    }
+
+
+    /**
+     * @param indexWorkingDir the indexWorkingDir to set
+     */
+    public void setIndexWorkingDir( String indexWorkingDir )
+    {
+        this.indexWorkingDir = indexWorkingDir;
     }
 }

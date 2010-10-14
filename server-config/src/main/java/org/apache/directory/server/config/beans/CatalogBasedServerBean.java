@@ -19,43 +19,61 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 /**
- * A class used to store the ChangeLog configuration.
+ * A class used to store the CatalogBasedServer configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogBean extends BaseAdsBean
+public abstract class CatalogBasedServerBean extends AdsServerBean
 {
-    /** Tells if the ChangeLog is exposed to the users */
-    private boolean changeLogExposed;
+    /** The server unique identifier */
+    private String searchBaseDN;
+    
+    /** The reference to the underlaying DirectoryService */
+    private DirectoryServiceBean serverDS;
 
     /**
-     * Create a new ChangeLogBean instance
+     * Create a new CatalogBasedServerBean instance
      */
-    public ChangeLogBean()
+    protected CatalogBasedServerBean()
     {
-        // Not exposed by default
-        changeLogExposed = false;
-        
-        // Not enabled by default
-        setEnabled( false );
-    }
-    
-    
-    /**
-     * @return <code>true</code> if the ChangeLog is exposed
-     */
-    public boolean isChangeLogExposed() 
-    {
-        return changeLogExposed;
+        super();
     }
 
     
     /**
-     * @param exposed Set the exposed flag
+     * @return the searchBaseDN
      */
-    public void setChangeLogExposed( boolean changeLogExposed ) 
+    public String getSearchBaseDN()
     {
-        this.changeLogExposed = changeLogExposed;
+        return searchBaseDN;
+    }
+
+    
+    /**
+     * @param searchBaseDN the searchBaseDN to set
+     */
+    public void setSearchBaseDN( String searchBaseDN )
+    {
+        this.searchBaseDN = searchBaseDN;
+    }
+
+    
+    /**
+     * @return the serverDS
+     */
+    public DirectoryServiceBean getServerDS()
+    {
+        return serverDS;
+    }
+
+    
+    /**
+     * @param serverDS the serverDS to set
+     */
+    public void setServerDS( DirectoryServiceBean serverDS )
+    {
+        this.serverDS = serverDS;
     }
 }

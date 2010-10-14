@@ -20,42 +20,61 @@
 package org.apache.directory.server.config.beans;
 
 /**
- * A class used to store the ChangeLog configuration.
+ * A class used to store the Base ADS configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogBean extends BaseAdsBean
+public abstract class BaseAdsBean 
 {
-    /** Tells if the ChangeLog is exposed to the users */
-    private boolean changeLogExposed;
+    /** The enabled flag */
+    private boolean enabled = false;
+    
+    /** The description */
+    private String description;
 
     /**
-     * Create a new ChangeLogBean instance
+     * Create a new BaseBean instance
      */
-    public ChangeLogBean()
+    protected BaseAdsBean()
     {
-        // Not exposed by default
-        changeLogExposed = false;
-        
-        // Not enabled by default
-        setEnabled( false );
     }
     
     
     /**
-     * @return <code>true</code> if the ChangeLog is exposed
+     * @return <code>true</code> if the component is enabled
      */
-    public boolean isChangeLogExposed() 
+    public boolean isEnabled()
     {
-        return changeLogExposed;
+        return enabled;
     }
-
+    
     
     /**
-     * @param exposed Set the exposed flag
+     * Enable or disable the component
+     * @param enabled if <code>true</code>, the component is enabled.
      */
-    public void setChangeLogExposed( boolean changeLogExposed ) 
+    public void setEnabled( boolean enabled )
     {
-        this.changeLogExposed = changeLogExposed;
+        this.enabled = enabled;
+    }
+    
+    
+    /**
+     * @return the description for this component
+     */
+    public String getDescription() 
+    {
+        return description;
+    }
+    
+    
+    /**
+     * Sets the component description
+     * 
+     * @param description The description
+     */
+    public void setDescription( String description )
+    {
+        this.description = description;
     }
 }

@@ -19,18 +19,111 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.Set;
+
+import org.apache.directory.shared.ldap.entry.Entry;
+
 
 /**
- * A class used to store the JdbmIndex configuration.
+ * A class used to store the JdbmPartition configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmPartitionBean extends BTreePartitionBean
+public class JdbmPartitionBean extends PartitionBean
 {
+    /** The Entry cache size for this partition */
+    protected int partitionCacheSize = -1;
+
+    /** Tells if the optimizer is enabled or not */
+    private boolean jdbmPartitionOptimizerEnabled = true;
+    
+    /** The set of indexed attributes */
+    private Set<JdbmIndexBean<String, Entry>> jdbmIndexes;
+
     /**
      * Create a new JdbmPartitionBean instance
      */
     public JdbmPartitionBean()
     {
+    }
+
+
+    /**
+     * Used to specify the entry cache size for a Partition.  Various Partition
+     * implementations may interpret this value in different ways: i.e. total cache
+     * size limit verses the number of entries to cache.
+     *
+     * @param partitionCacheSize the maximum size of the cache in the number of entries
+     */
+    public void setPartitionCacheSize( int partitionCacheSize )
+    {
+        this.partitionCacheSize = partitionCacheSize;
+    }
+
+
+    /**
+     * Gets the entry cache size for this JdbmPartition.
+     *
+     * @return the maximum size of the cache as the number of entries maximum before paging out
+     */
+    public int getPartitionCacheSize()
+    {
+        return partitionCacheSize;
+    }
+
+    
+    /**
+     * @return <code>true</code> if the optimizer is enabled
+     */
+    public boolean isJdbmPartitionOptimizerEnabled()
+    {
+        return jdbmPartitionOptimizerEnabled;
+    }
+
+
+    /**
+     * Enable or disable the optimizer
+     * 
+     * @param jdbmPartitionOptimizerEnabled True or false
+     */
+    public void setJdbmPartitionOptimizerEnabled( boolean jdbmPartitionOptimizerEnabled )
+    {
+        this.jdbmPartitionOptimizerEnabled = jdbmPartitionOptimizerEnabled;
+    }
+    
+    
+    /**
+     * Stores the list of index defined for this partition
+     * 
+     * @param jdbmIndexes The list of indexes to store
+     */
+    public void setIndexedAttributes( Set<JdbmIndexBean<String, Entry>> jdbmIndexes )
+    {
+        this.jdbmIndexes = jdbmIndexes;
+    }
+
+
+    /**
+     * Add some indexes to this partition
+     * 
+     * @param jdbmIndexes The added jdbmIndexes
+     */
+    public void addJdbmIndexes( JdbmIndexBean<String, Entry>... jdbmIndexes )
+    {
+        for ( JdbmIndexBean<String, Entry> jdbmIndex : jdbmIndexes )
+        {
+            this.jdbmIndexes.add( jdbmIndex );
+        }
+    }
+
+
+    /**
+     * Get the list of index defined for this partition
+     * 
+     * @return The list of defined indexes
+     */
+    public Set<JdbmIndexBean<String, Entry>> getJdbmIndexes()
+    {
+        return jdbmIndexes;
     }
 }

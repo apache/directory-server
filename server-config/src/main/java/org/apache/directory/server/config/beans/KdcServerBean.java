@@ -30,7 +30,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcServerBean extends DirectoryBackedServiceBean
+public class KdcServerBean extends CatalogBasedServerBean
 {
     /** The default allowable clockskew */
     private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
@@ -39,7 +39,7 @@ public class KdcServerBean extends DirectoryBackedServiceBean
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
 
     /** The allowable clock skew. */
-    private long allowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
+    private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
 
     /** The default for allowing forwardable tickets */
     private static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
@@ -71,90 +71,71 @@ public class KdcServerBean extends DirectoryBackedServiceBean
     /** The default kdc service principal */
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
-    /** Tells if the KdcServer is enabled */
-    private boolean enabled;
-
     /** Whether empty addresses are allowed. */
-    private boolean isEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
+    private boolean krbEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
 
     /** Whether forwardable addresses are allowed. */
-    private boolean isForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
+    private boolean krbForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
 
     /** Whether pre-authentication by encrypted timestamp is required. */
-    private boolean isPaEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
+    private boolean krbPaEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
 
     /** Whether postdated tickets are allowed. */
-    private boolean isPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
+    private boolean krbPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether proxiable addresses are allowed. */
-    private boolean isProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
+    private boolean krbProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
-    private boolean isRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
+    private boolean krbRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
     /** The maximum renewable lifetime. */
-    private long maximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
+    private long krbMaximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
 
     /** The maximum ticket lifetime. */
-    private long maximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
+    private long krbMaximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
 
     /** The primary realm */
-    private String primaryRealm = DEFAULT_REALM;
+    private String krbPrimaryRealm = DEFAULT_REALM;
 
     /** Whether to verify the body checksum. */
-    private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
+    private boolean krbBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    private Set<EncryptionType> encryptionTypes;
+    private Set<EncryptionType> krbEncryptionTypes;
 
     /** The service principal name. */
-    private String servicePrincipal = DEFAULT_PRINCIPAL;
+    private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
 
     /**
      * Create a new KdcServerBean instance
      */
     public KdcServerBean()
     {
+        super();
+        
         // Enabled by default
-        enabled = true;
+        setEnabled( true );
     }
     
     
-    /**
-     * @return <code>true</code> if the Journal is enabled
-     */
-    public boolean isEnabled() 
-    {
-        return enabled;
-    }
-
-    
-    /**
-     * @param enabled Set the enabled flag
-     */
-    public void setEnabled( boolean enabled ) 
-    {
-        this.enabled = enabled;
-    }
-
-
     /**
      * Returns the allowable clock skew.
      *
      * @return The allowable clock skew.
      */
-    public long getAllowableClockSkew()
+    public long getKrbAllowableClockSkew()
     {
-        return allowableClockSkew;
+        return krbAllowableClockSkew;
     }
 
 
     /**
-     * @param allowableClockSkew the allowableClockSkew to set
+     * @param krbAllowableClockSkew the allowableClockSkew to set
      */
-    public void setAllowableClockSkew( long allowableClockSkew )
+    public void setKrbAllowableClockSkew( long krbAllowableClockSkew )
     {
-        this.allowableClockSkew = allowableClockSkew;
+        this.krbAllowableClockSkew = krbAllowableClockSkew;
     }
 
 
@@ -163,26 +144,26 @@ public class KdcServerBean extends DirectoryBackedServiceBean
      *
      * @return The encryption types.
      */
-    public Set<EncryptionType> getEncryptionTypes()
+    public Set<EncryptionType> getKrbEncryptionTypes()
     {
-        return encryptionTypes;
+        return krbEncryptionTypes;
     }
 
 
     /**
      * Initialize the encryptionTypes set
      * 
-     * @param encryptionTypes the encryptionTypes to set
+     * @param krbEncryptionTypes the encryptionTypes to set
      */
-    public void setEncryptionTypes( EncryptionType... encryptionTypes )
+    public void setKrbEncryptionTypes( EncryptionType... krbEncryptionTypes )
     {
-        if ( encryptionTypes != null )
+        if ( krbEncryptionTypes != null )
         {
-            this.encryptionTypes.clear();
+            this.krbEncryptionTypes.clear();
             
-            for ( EncryptionType encryptionType:encryptionTypes )
+            for ( EncryptionType encryptionType:krbEncryptionTypes )
             {
-                this.encryptionTypes.add( encryptionType );
+                this.krbEncryptionTypes.add( encryptionType );
             }
         }
     }
@@ -191,36 +172,36 @@ public class KdcServerBean extends DirectoryBackedServiceBean
     /**
      * @return the isEmptyAddressesAllowed
      */
-    public boolean isEmptyAddressesAllowed()
+    public boolean isKrbEmptyAddressesAllowed()
     {
-        return isEmptyAddressesAllowed;
+        return krbEmptyAddressesAllowed;
     }
 
 
     /**
-     * @param isEmptyAddressesAllowed the isEmptyAddressesAllowed to set
+     * @param krbEmptyAddressesAllowed the krbEmptyAddressesAllowed to set
      */
-    public void setEmptyAddressesAllowed( boolean isEmptyAddressesAllowed )
+    public void setKrbEmptyAddressesAllowed( boolean krbEmptyAddressesAllowed )
     {
-        this.isEmptyAddressesAllowed = isEmptyAddressesAllowed;
+        this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
     }
 
 
     /**
-     * @return the isForwardableAllowed
+     * @return the krbForwardableAllowed
      */
-    public boolean isForwardableAllowed()
+    public boolean isKrbForwardableAllowed()
     {
-        return isForwardableAllowed;
+        return krbForwardableAllowed;
     }
 
 
     /**
-     * @param isForwardableAllowed the isForwardableAllowed to set
+     * @param krbForwardableAllowed the krbForwardableAllowed to set
      */
-    public void setForwardableAllowed( boolean isForwardableAllowed )
+    public void setKrbForwardableAllowed( boolean krbForwardableAllowed )
     {
-        this.isForwardableAllowed = isForwardableAllowed;
+        this.krbForwardableAllowed = krbForwardableAllowed;
     }
 
 
@@ -229,108 +210,108 @@ public class KdcServerBean extends DirectoryBackedServiceBean
      *
      * @return Whether pre-authentication by encrypted timestamp is required.
      */
-    public boolean isPaEncTimestampRequired()
+    public boolean isKrbPaEncTimestampRequired()
     {
-        return isPaEncTimestampRequired;
+        return krbPaEncTimestampRequired;
     }
 
 
     /**
-     * @param isPaEncTimestampRequired the isPaEncTimestampRequired to set
+     * @param krbPaEncTimestampRequired the krbPaEncTimestampRequired to set
      */
-    public void setPaEncTimestampRequired( boolean isPaEncTimestampRequired )
+    public void setKrbPaEncTimestampRequired( boolean krbPaEncTimestampRequired )
     {
-        this.isPaEncTimestampRequired = isPaEncTimestampRequired;
+        this.krbPaEncTimestampRequired = krbPaEncTimestampRequired;
     }
 
 
     /**
-     * @return the isPostdatedAllowed
+     * @return the krbPostdatedAllowed
      */
-    public boolean isPostdatedAllowed()
+    public boolean isKrbPostdatedAllowed()
     {
-        return isPostdatedAllowed;
+        return krbPostdatedAllowed;
     }
 
 
     /**
-     * @param isPostdatedAllowed the isPostdatedAllowed to set
+     * @param krbPostdatedAllowed the krbPostdatedAllowed to set
      */
-    public void setPostdatedAllowed( boolean isPostdatedAllowed )
+    public void setKrbPostdatedAllowed( boolean krbPostdatedAllowed )
     {
-        this.isPostdatedAllowed = isPostdatedAllowed;
+        this.krbPostdatedAllowed = krbPostdatedAllowed;
     }
 
 
     /**
-     * @return the isProxiableAllowed
+     * @return the krbProxiableAllowed
      */
-    public boolean isProxiableAllowed()
+    public boolean isKrbProxiableAllowed()
     {
-        return isProxiableAllowed;
+        return krbProxiableAllowed;
     }
 
 
     /**
-     * @param isProxiableAllowed the isProxiableAllowed to set
+     * @param krbProxiableAllowed the krbProxiableAllowed to set
      */
-    public void setProxiableAllowed( boolean isProxiableAllowed )
+    public void setKrbProxiableAllowed( boolean krbProxiableAllowed )
     {
-        this.isProxiableAllowed = isProxiableAllowed;
+        this.krbProxiableAllowed = krbProxiableAllowed;
     }
 
 
     /**
-     * @return the isRenewableAllowed
+     * @return the krbRenewableAllowed
      */
-    public boolean isRenewableAllowed()
+    public boolean isKrbRenewableAllowed()
     {
-        return isRenewableAllowed;
+        return krbRenewableAllowed;
     }
 
 
     /**
-     * @param isRenewableAllowed the isRenewableAllowed to set
+     * @param krbRenewableAllowed the krbRenewableAllowed to set
      */
-    public void setRenewableAllowed( boolean isRenewableAllowed )
+    public void setKrbRenewableAllowed( boolean krbRenewableAllowed )
     {
-        this.isRenewableAllowed = isRenewableAllowed;
+        this.krbRenewableAllowed = krbRenewableAllowed;
     }
 
 
     /**
-     * @return the maximumRenewableLifetime
+     * @return the krbMaximumRenewableLifetime
      */
-    public long getMaximumRenewableLifetime()
+    public long getKrbMaximumRenewableLifetime()
     {
-        return maximumRenewableLifetime;
+        return krbMaximumRenewableLifetime;
     }
 
 
     /**
-     * @param maximumRenewableLifetime the maximumRenewableLifetime to set
+     * @param krbMaximumRenewableLifetime the krbMaximumRenewableLifetime to set
      */
-    public void setMaximumRenewableLifetime( long maximumRenewableLifetime )
+    public void setKrbMaximumRenewableLifetime( long krbMaximumRenewableLifetime )
     {
-        this.maximumRenewableLifetime = maximumRenewableLifetime;
+        this.krbMaximumRenewableLifetime = krbMaximumRenewableLifetime;
     }
 
 
     /**
-     * @return the maximumTicketLifetime
+     * @return the krbMaximumTicketLifetime
      */
-    public long getMaximumTicketLifetime()
+    public long getKrbMaximumTicketLifetime()
     {
-        return maximumTicketLifetime;
+        return krbMaximumTicketLifetime;
     }
 
 
     /**
-     * @param maximumTicketLifetime the maximumTicketLifetime to set
+     * @param krbMaximumTicketLifetime the krbMaximumTicketLifetime to set
      */
-    public void setMaximumTicketLifetime( long maximumTicketLifetime )
+    public void setKrbMaximumTicketLifetime( long krbMaximumTicketLifetime )
     {
-        this.maximumTicketLifetime = maximumTicketLifetime;
+        this.krbMaximumTicketLifetime = krbMaximumTicketLifetime;
     }
 
 
@@ -339,36 +320,36 @@ public class KdcServerBean extends DirectoryBackedServiceBean
      *
      * @return The primary realm.
      */
-    public String getPrimaryRealm()
+    public String getKrbPrimaryRealm()
     {
-        return primaryRealm;
+        return krbPrimaryRealm;
     }
 
 
     /**
-     * @param primaryRealm the primaryRealm to set
+     * @param krbPrimaryRealm the krbPrimaryRealm to set
      */
-    public void setPrimaryRealm( String primaryRealm )
+    public void setKrbPrimaryRealm( String krbPrimaryRealm )
     {
-        this.primaryRealm = primaryRealm;
+        this.krbPrimaryRealm = krbPrimaryRealm;
     }
 
 
     /**
-     * @return the isBodyChecksumVerified
+     * @return the krbBodyChecksumVerified
      */
-    public boolean isBodyChecksumVerified()
+    public boolean isKrbBodyChecksumVerified()
     {
-        return isBodyChecksumVerified;
+        return krbBodyChecksumVerified;
     }
 
 
     /**
-     * @param isBodyChecksumVerified the isBodyChecksumVerified to set
+     * @param krbBodyChecksumVerified the krbBodyChecksumVerified to set
      */
-    public void setBodyChecksumVerified( boolean isBodyChecksumVerified )
+    public void setKrbBodyChecksumVerified( boolean krbBodyChecksumVerified )
     {
-        this.isBodyChecksumVerified = isBodyChecksumVerified;
+        this.krbBodyChecksumVerified = krbBodyChecksumVerified;
     }
 
 
@@ -377,17 +358,17 @@ public class KdcServerBean extends DirectoryBackedServiceBean
      *
      * @return The service principal for this KDC service.
      */
-    public KerberosPrincipal getServicePrincipal()
+    public KerberosPrincipal getKrbKdcPrincipal()
     {
-        return new KerberosPrincipal( servicePrincipal );
+        return new KerberosPrincipal( krbKdcPrincipal );
     }
 
 
     /**
-     * @param kdcPrincipal the kdcPrincipal to set
+     * @param krbKdcPrincipal the krbKdcPrincipal to set
      */
-    public void setKdcPrincipal( String kdcPrincipal )
+    public void setKrbKdcPrincipal( String krbKdcPrincipal )
     {
-        this.servicePrincipal = kdcPrincipal;
+        this.krbKdcPrincipal = krbKdcPrincipal;
     }
 }

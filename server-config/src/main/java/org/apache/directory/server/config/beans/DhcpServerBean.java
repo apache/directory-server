@@ -25,13 +25,15 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DhcpServerBean extends DirectoryBackedServiceBean
+public class DhcpServerBean extends CatalogBasedServerBean
 {
     /**
      * Create a new DhcpServerBean instance
      */
     public DhcpServerBean()
     {
+        super();
+        
         // Enabled by default
         setEnabled( true );
     }

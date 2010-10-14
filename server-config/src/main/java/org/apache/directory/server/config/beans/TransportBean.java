@@ -24,28 +24,32 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TransportBean 
+public class TransportBean extends BaseAdsBean
 {
-    /** The server address */
-    private String address;
-    
-    /** The port number */
-    private int port = -1;
-
-    /** A flag set if SSL is enabled */
-    private boolean sslEnabled = false;
-    
     /** The default backlog queue size */
     protected static final int DEFAULT_BACKLOG_NB = 50;
     
     /** The default number of threads */
     protected static final int DEFAULT_NB_THREADS = 3;
 
+    /** The unique identifier for this transport */
+    private String transportId;
+    
+    /** The transport address */
+    private String transportAddress;
+    
+    /** The port number */
+    private int systemPort = -1;
+    
+
+    /** A flag set if SSL is enabled */
+    private boolean transportEnableSSL = false;
+    
     /** The number of threads to use for the IoAcceptor executor */
-    private int nbThreads = DEFAULT_NB_THREADS;
+    private int transportNbThreads = DEFAULT_NB_THREADS;
     
     /** The backlog for the transport services */
-    private int backlog = DEFAULT_BACKLOG_NB;
+    private int transportBacklog = DEFAULT_BACKLOG_NB;
     
 
     /**
@@ -57,90 +61,113 @@ public class TransportBean
 
     
     /**
-     * @param port the port to set
+     * @param systemPort the port to set
      */
-    public void setPort( int port ) 
+    public void setSystemPort( int systemPort ) 
     {
-        this.port = port;
+        this.systemPort = systemPort;
     }
 
     
     /**
      * @return the port
      */
-    public int getPort() 
+    public int getSystemPort() 
     {
-        return port;
+        return systemPort;
     }
 
     
     /**
-     * @param address the address to set
+     * @param transportAddress the address to set
      */
-    public void setAddress( String address ) {
-        this.address = address;
+    public void setTransportAddress( String transportAddress ) {
+        this.transportAddress = transportAddress;
     }
 
     
     /**
      * @return the address
      */
-    public String getAddress() {
-        return address;
+    public String getTransportAddress() {
+        return transportAddress;
     }
     
     
     /**
      * @return <code>true</code> id SSL is enabled for this transport
      */
-    public boolean isSSLEnabled()
+    public boolean isTransportEnableSSL()
     {
-        return sslEnabled;
+        return transportEnableSSL;
     }
     
     
     /**
      * Enable or disable SSL
-     * @param sslEnabled if <code>true</code>, SSL is enabled.
+     * 
+     * @param transportEnableSSL if <code>true</code>, SSL is enabled.
      */
-    public void setEnableSSL( boolean sslEnabled )
+    public void setTransportEnableSSL( boolean transportEnableSSL )
     {
-        this.sslEnabled = sslEnabled;
+        this.transportEnableSSL = transportEnableSSL;
     }
     
     
     /**
-     * {@inheritDoc}
+     * @return The number of threads used to handle the incoming requests
      */
-    public int getNbThreads() 
+    public int getTransportNbThreads() 
     {
-        return nbThreads;
+        return transportNbThreads;
     }
     
     
     /**
-     * {@inheritDoc}
+     * Sets the number of thread to use to process incoming requests
+     * 
+     * @param The number of threads
      */
-    public void setNbThreads( int nbThreads )
+    public void setTransportNbThreads( int transportNbThreads )
     {
-        this.nbThreads = nbThreads;
+        this.transportNbThreads = transportNbThreads;
     }
     
     
     /**
-     * {@inheritDoc}
+     * @return the size of the incoming request waiting queue
      */
-    public int getBackLog()
+    public int getTransportBackLog()
     {
-        return backlog;
+        return transportBacklog;
     }
     
     
     /**
-     * {@inheritDoc}
+     * Sets the size of the incoming requests waiting queue
+     * 
+     * @param The size of waiting request queue
      */
-    public void setBackLog( int backLog )
+    public void setTransportBackLog( int transportBacklog )
     {
-        this.backlog = backLog;
+        this.transportBacklog = transportBacklog;
+    }
+
+
+    /**
+     * @return the transportId
+     */
+    public String getTransportId()
+    {
+        return transportId;
+    }
+
+
+    /**
+     * @param transportId the transportId to set
+     */
+    public void setTransportId( String transportId )
+    {
+        this.transportId = transportId;
     }
 }
