@@ -902,6 +902,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         DN dn = bindContext.getDn();
         Entry userEntry = bindContext.getEntry();
+        
+        // check if the user entry is null, it will be null
+        // in cases of anonymous bind
+        if ( authenticated && ( userEntry == null ) && directoryService.isAllowAnonymousAccess() ) 
+        {
+            return;
+        }
 
         if ( !authenticated )
         {
