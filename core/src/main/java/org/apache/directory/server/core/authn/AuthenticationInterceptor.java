@@ -917,9 +917,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 LOG.info( "Cannot bind to the server " );
             }
 
-            if ( policyConfig != null )
+            if ( ( policyConfig != null ) && ( userEntry != null ) )
             {
-                EntryAttribute pwdFailTimeAt = bindContext.getEntry().get( PWD_FAILURE_TIME_AT );
+                EntryAttribute pwdFailTimeAt = userEntry.get( PWD_FAILURE_TIME_AT );
                 if ( pwdFailTimeAt == null )
                 {
                     pwdFailTimeAt = new DefaultEntryAttribute( AT_PWD_FAILURE_TIME );
