@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.junit.After;
@@ -228,4 +229,13 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertTrue( map.containsKey( "ou=schema" ) );
     }
 
+    
+    @Test
+    public void testAnonBind() throws Exception
+    {
+        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        
+        BindResponse resp = connection.bind();
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+    }
 }
