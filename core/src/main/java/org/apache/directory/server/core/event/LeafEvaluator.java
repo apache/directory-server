@@ -190,7 +190,7 @@ public class LeafEvaluator implements Evaluator
                 Object normValue = normalizer.normalize( value );
 
                 // Found a value that is greater than or equal to the ava value
-                if ( 0 >= comparator.compare( normValue, filterValue ) )
+                if ( comparator.compare( normValue, filterValue ) >= 0 )
                 {
                     return true;
                 }
@@ -203,7 +203,7 @@ public class LeafEvaluator implements Evaluator
                 Object normValue = normalizer.normalize( value );
 
                 // Found a value that is less than or equal to the ava value
-                if ( 0 <= comparator.compare( normValue, filterValue ) )
+                if ( comparator.compare( normValue, filterValue ) <= 0 )
                 {
                     return true;
                 }
