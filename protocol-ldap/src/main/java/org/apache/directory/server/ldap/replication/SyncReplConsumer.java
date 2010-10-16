@@ -519,6 +519,21 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             try
             {
+                boolean exists;
+                
+                do
+                {
+                    // first check for the existence of base DN, if not, keep checking at the default refresh intervals
+                    exists = connection.exists( config.getBaseDn() );
+                    
+                    if ( !exists )
+                    {
+                        LOG.warn( "replica base DN {} doesn't exist on the peer, retrying after {} milliseconds", config.getBaseDn(), config.getRefreshInterval() );
+                        Thread.sleep( config.getRefreshInterval() );
+                    }
+                }
+                while( !exists );
+                
                 LOG.debug( "==================== Refresh And Persist ==========" );
                 doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
             }
