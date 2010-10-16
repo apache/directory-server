@@ -1043,23 +1043,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         catch ( Exception e )
         {
-            /*
-             * From RFC 2251 Section 4.11:
-             *
-             * In the event that a server receives an Abandon Request on a Search
-             * operation in the midst of transmitting responses to the Search, that
-             * server MUST cease transmitting entry responses to the abandoned
-             * request immediately, and MUST NOT send the SearchResultDone. Of
-             * course, the server MUST ensure that only properly encoded LDAPMessage
-             * PDUs are transmitted.
-             *
-             * SO DON'T SEND BACK ANYTHING!!!!!
-             */
-            if ( e instanceof OperationAbandonedException )
-            {
-                return;
-            }
-
             // If it was a persistent search and if we had an exception,
             // we set the flag to remove the request from the session
             if ( isPersistentSearch )
@@ -1531,6 +1514,23 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
+        /*
+         * From RFC 2251 Section 4.11:
+         *
+         * In the event that a server receives an Abandon Request on a Search
+         * operation in the midst of transmitting responses to the Search, that
+         * server MUST cease transmitting entry responses to the abandoned
+         * request immediately, and MUST NOT send the SearchResultDone. Of
+         * course, the server MUST ensure that only properly encoded LDAPMessage
+         * PDUs are transmitted.
+         *
+         * SO DON'T SEND BACK ANYTHING!!!!!
+         */
+        if ( e instanceof OperationAbandonedException )
+        {
+            return;
+        }
+
         LdapResult result = req.getResultResponse().getLdapResult();
 
         /*
@@ -1664,7 +1664,15 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     public void handleSyncreplSearch( LdapSession session, SearchRequest req ) throws LdapException
     {
-        replicationProvider.handleSyncRequest( session, req );
+        try
+        {
+            replicationProvider.handleSyncRequest( session, req );
+        }
+        catch( Exception e )
+        {
+            session.unregisterOutstandingRequest( req );
+            handleException( session, req, e );
+        }
     }
 
 }
