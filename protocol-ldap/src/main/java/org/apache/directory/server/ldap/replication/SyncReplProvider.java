@@ -248,6 +248,10 @@ public class SyncReplProvider implements ReplicationProvider
                 }
             }
         }
+        catch( LdapException e )
+        {
+            throw e;
+        }
         catch ( Exception e )
         {
             LOG.error( "Failed to handle the syncrepl request", e );
