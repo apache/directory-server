@@ -45,6 +45,9 @@ import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaCon
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +60,9 @@ import java.util.TreeSet;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
+import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.DnsServerBean;
 import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
@@ -125,6 +130,7 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,6 +144,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigPartitionReader
 {
+    /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
     /** the partition which holds the configuration data */
@@ -168,6 +175,10 @@ public class ConfigPartitionReader
             return file.getName().toLowerCase().endsWith( ".ldif" );
         }
     };
+    
+    /** Those two flags are used to tell the reader if an element of configuration is mandatory or not */
+    private static final boolean MANDATORY = true;
+    private static final boolean OPTIONNAL = false;
 
 
     /**
@@ -889,36 +900,315 @@ public class ConfigPartitionReader
 
         return httpServer;
     }
+    
+    
+    private ObjectClass findObjectClass( EntryAttribute objectClass ) throws Exception
+    {
+        Set<ObjectClass> candidates = new HashSet<ObjectClass>();
+        
+        // Create the set of candidates
+        for ( Value<?> ocValue : objectClass )
+        {
+            String ocName = ocValue.getString();
+            String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
+            ObjectClass oc = (ObjectClass)schemaManager.getObjectClassRegistry().get( ocOid );
+            
+            if ( oc.isStructural() )
+            {
+                candidates.add( oc );
+            }
+        }
+        
+        // Now find the parent OC
+        for ( Value<?> ocValue : objectClass )
+        {
+            String ocName = ocValue.getString();
+            String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
+            ObjectClass oc = (ObjectClass)schemaManager.getObjectClassRegistry().get( ocOid );
+            
+            for ( ObjectClass superior : oc.getSuperiors() )
+            {
+                if ( oc.isStructural() )
+                {
+                    if ( candidates.contains( superior ) )
+                    {
+                        candidates.remove( superior );
+                    }
+                }
+            }
+        }
+        
+        // The remaining OC in the candidates set is the one we are looking for
+        ObjectClass result = candidates.toArray( new ObjectClass[]{} )[0];
+        
+        return result;
+    }
+    
+    
+    private AdsBaseBean readBean( ObjectClass objectClass ) throws Exception
+    {
+        // The remaining OC in the candidates set is the one we are looking for
+        String objectClassName = objectClass.getName();
 
+        // Now, let's instanciate the associated bean. Get rid of the 'ads-' in front of the name,
+        // and uppercase the first letter. Finally add "Bean" at the end and add the package.
+        String beanName = "org.apache.directory.server.config.beans." + Character.toUpperCase( objectClassName.charAt( 4 ) ) + objectClassName.substring( 5 ) + "Bean";
+        
+        try
+        {
+            Class<?> clazz = Class.forName( beanName );
+            Constructor<?> constructor = clazz.getConstructor();
+            AdsBaseBean bean = (AdsBaseBean)constructor.newInstance();
+            
+            return bean;
+        } 
+        catch ( ClassNotFoundException cnfe )
+        {
+            cnfe.printStackTrace();
+        }
+        catch (SecurityException se)
+        {
+            se.printStackTrace();
+        } 
+        catch (NoSuchMethodException nsme)
+        {
+            nsme.printStackTrace();
+        }
+        catch ( InvocationTargetException ite )
+        {
+            ite.printStackTrace();
+        }
+        catch ( IllegalAccessException iae )
+        {
+            iae.printStackTrace();
+        }
+        catch ( InstantiationException ie )
+        {
+            ie.printStackTrace();
+        }
+        
+        return null;
+    }
+
+    private static Field getField ( Class<?> clazz, String fieldName ) throws NoSuchFieldException 
+    {
+        try 
+        {
+            return clazz.getDeclaredField( fieldName );
+        } 
+        catch ( NoSuchFieldException e ) 
+        {
+            Class<?> superClass = clazz.getSuperclass();
+            
+            if ( superClass == null ) 
+            {
+                throw e;
+            } 
+            else 
+            {
+                return getField( superClass, fieldName );
+            }
+        }
+    }
+    
+    
+    private static boolean isBaseAdsBeanChild( Class<?> clazz )
+    {
+        if ( clazz == null )
+        {
+            return false;
+        }
+        
+        if ( clazz == AdsBaseBean.class )
+        {
+            return true;
+        }
+        else
+        {
+            return isBaseAdsBeanChild( clazz.getSuperclass() );
+        }
+    }
+
+    
+    private void readFields( AdsBaseBean bean, Entry entry, List<AttributeType> attributeTypes, boolean mandatory ) throws NoSuchFieldException, IllegalAccessException, Exception
+    {
+        for ( AttributeType attributeType : attributeTypes )
+        {
+            String fieldName = attributeType.getName();
+            String beanFieldName = fieldName;
+            
+            // Remove the "ads-" from the beginning of the field name
+            if ( fieldName.startsWith( "ads-" ) )
+            {
+                beanFieldName = fieldName.substring( 4 );
+            }
+            
+            // Get the field
+            Field beanField = getField( bean.getClass(), beanFieldName );
+            beanField.setAccessible( true );
+            
+            // Get the entry attribute for this field
+            EntryAttribute fieldAttr = entry.get( fieldName );
+            
+            AttributeType beanAT = schemaManager.getAttributeType( fieldName );
+            
+            if ( beanAT.isSingleValued() )
+            {
+                Class<?> type = beanField.getType();
+
+                if ( fieldAttr == null )
+                {
+                    if ( isBaseAdsBeanChild( type ) )
+                    {
+                        // This is another bean, which must be one level below in the tree. Let's read it
+                        Set<AdsBaseBean> beans = read( entry.getDn(), fieldName, SearchScope.ONELEVEL, mandatory );
+                        
+                        if ( ( beans != null ) && ( beans.size() != 0 ) )
+                        {
+                            beanField.set( bean, beans.toArray()[0] );
+                        }
+                        
+                        continue;
+                    }
+                    
+                    continue;
+                }
+                
+                Value<?> value = fieldAttr.get();
+                String valueStr = value.getString();
+                
+                
+                if ( type == String.class )
+                {
+                    beanField.set( bean, value.getString() );
+                }
+                else if ( type == int.class )
+                {
+                    beanField.setInt( bean, Integer.parseInt( valueStr )  );
+                }
+                else if ( type == long.class )
+                {
+                    beanField.setLong( bean, Long.parseLong( valueStr )  );
+                }
+                else if ( type == boolean.class )
+                {
+                    beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+                }
+            }
+            else
+            {
+                if ( fieldAttr == null )
+                {
+                    continue;
+                }
+                
+                // loop on the values and inject them in the bean
+                for ( Value<?> value : fieldAttr )
+                {
+                    Class<?> type = beanField.getType();
+                    
+                    String valueStr = value.getString();
+                    
+                    if ( type == String.class )
+                    {
+                        beanField.set( bean, value.getString() );
+                    }
+                    else if ( type == int.class )
+                    {
+                        beanField.setInt( bean, Integer.parseInt( valueStr )  );
+                    }
+                    else if ( type == long.class )
+                    {
+                        beanField.setLong( bean, Long.parseLong( valueStr )  );
+                    }
+                    else if ( type == boolean.class )
+                    {
+                        beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+                    }
+                }
+            }
+        }
+    }
 
     /**
-     * instantiates a DirectoryService based on the configuration present in the partition 
+     * Read some configuration element from the DIT using its name 
      *
      * @throws Exception
-     *
-    public DirectoryServiceBean readDirectoryService() throws Exception
+     */
+    public Set<AdsBaseBean> read( DN base, String name, SearchScope scope, boolean mandatory ) throws Exception
     {
-        AttributeType adsDirectoryServiceidAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
-        PresenceNode filter = new PresenceNode( adsDirectoryServiceidAt );
+        // Search for the element starting at some pooint in the DIT
+        AttributeType adsdAt = schemaManager.getAttributeType( name );
+        PresenceNode filter = new PresenceNode( adsdAt );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setSearchScope( scope.ordinal() );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( base,
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            // the DirectoryService is mandatory so throwing exception
-            throw new Exception( "No directoryService instance was configured under the DN "
-                + configPartition.getSuffix() );
+            if ( mandatory )
+            {
+                cursor.close();
+                
+                // the DirectoryService is mandatory so throwing exception
+                throw new Exception( "No directoryService instance was configured under the DN "
+                    + configPartition.getSuffix() );
+            }
+            else
+            {
+                return null;
+            }
         }
+        
+        Set<AdsBaseBean> beans = new HashSet<AdsBaseBean>();
 
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-            .get();
-        cursor.close();
+        // Loop on all the found elements
+        try
+        {
+            do
+            {
+                ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
+                .get();
 
-        Entry dsEntry = configPartition.lookup( forwardEntry.getId() );
+                // Now, get the entry
+                Entry entry = configPartition.lookup( forwardEntry.getId() );
+                LOG.debug( "Entry read : {}", entry );
+                
+                // Let's instanciate the bean we need. The upper ObjectClass's name
+                // will be used to do that
+                EntryAttribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+                
+                ObjectClass objectClass = findObjectClass( objectClassAttr );
+                AdsBaseBean bean = readBean( objectClass );
+                
+                // Now, read the AttributeTypes and store the values into the bean fields
+                // The MAY
+                List<AttributeType> mays = objectClass.getMayAttributeTypes();
+                readFields( bean, entry, mays, OPTIONNAL );
+                
+                // The MUST
+                List<AttributeType> musts = objectClass.getMustAttributeTypes();
+                readFields( bean, entry, musts, MANDATORY );
+                
+                beans.add( bean );
+            }
+            while ( cursor.next() );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            cursor.close();
+        }
+        
+        return beans;
 
+        // Get the elements : we might have more than one
+        /*
         LOG.debug( "directory service entry {}", dsEntry );
 
         DirectoryServiceBean dirServicebean = new DirectoryServiceBean();
@@ -1028,6 +1318,7 @@ public class ConfigPartitionReader
         }
 
         return dirServicebean;
+        */
     }
     
     
@@ -1038,6 +1329,8 @@ public class ConfigPartitionReader
      */
     public DirectoryService createDirectoryService() throws Exception
     {
+        DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)read( configPartition.getSuffix(), ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID, SearchScope.SUBTREE, MANDATORY );
+        
         AttributeType adsDirectoryServiceidAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID );
         PresenceNode filter = new PresenceNode( adsDirectoryServiceidAt );
         SearchControls controls = new SearchControls();
@@ -1137,12 +1430,12 @@ public class ConfigPartitionReader
             dirService.setPasswordHidden( Boolean.parseBoolean( passwordHidAttr.getString() ) );
         }
 
-        EntryAttribute replAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_REPLICATION );
+        //EntryAttribute replAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_REPLICATION );
 
-        if ( replAttr != null )
-        {
+        //if ( replAttr != null )
+        //{
             // configure replication
-        }
+        //}
 
         EntryAttribute syncPeriodAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_SYNCPERIOD_MILLIS );
 

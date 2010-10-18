@@ -94,7 +94,7 @@ public interface ConfigSchemaConstants
 
     String ADS_DS_PASSWORD_HIDDEN = "ads-dsPasswordHidden";
 
-    String ADS_DS_REPLICATION = "ads-dsReplication";
+    //String ADS_DS_REPLICATION = "ads-dsReplication";
 
     String ADS_DS_SYNCPERIOD_MILLIS = "ads-dsSyncPeriodMillis";
 
