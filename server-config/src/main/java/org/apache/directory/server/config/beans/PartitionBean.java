@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.name.DN;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class PartitionBean extends BaseAdsBean
+public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
     private String partitionId;

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DirectoryServiceBean extends BaseAdsBean
+public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
     private String directoryServiceId;
@@ -65,8 +65,8 @@ public class DirectoryServiceBean extends BaseAdsBean
     /** The journal component */
     private JournalBean dsJournal;
 
-    /** The replication component */
-    //private ReplicationBean dsReplication;
+    /** The servers */
+    private Set<ServerBean> servers;
 
     /** The list of declared interceptors */
     private Set<InterceptorBean> interceptors;

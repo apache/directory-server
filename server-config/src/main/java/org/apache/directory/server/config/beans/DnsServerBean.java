@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DnsServerBean extends CatalogBasedServerBean
+public class DnsServerBean extends DSBasedServerBean
 {
     /**
      * Create a new DnsServerBean instance

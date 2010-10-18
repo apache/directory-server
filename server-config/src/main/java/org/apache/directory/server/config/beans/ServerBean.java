@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AdsServerBean extends BaseAdsBean
+public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
     private String serverId;
@@ -38,7 +38,7 @@ public abstract class AdsServerBean extends BaseAdsBean
     /**
      * Create a new ServerBean instance
      */
-    protected AdsServerBean()
+    protected ServerBean()
     {
     }
     

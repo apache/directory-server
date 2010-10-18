@@ -20,19 +20,14 @@
 package org.apache.directory.server.config.beans;
 
 
+
 /**
  * A class used to store the HttpServer configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HttpServerBean extends AdsServerBean
+public class HttpServerBean extends ServerBean
 {
-    /** The server identifier */
-    private String serverId;
-    
-    /** The port */
-    private int systemPort;
-    
     /** The configuration file */
     private String httpConfFile;
 
@@ -45,42 +40,6 @@ public class HttpServerBean extends AdsServerBean
         
         // Enabled by default
         setEnabled( true );
-    }
-
-    
-    /**
-     * @return the serverId
-     */
-    public String getServerId()
-    {
-        return serverId;
-    }
-
-    
-    /**
-     * @param serverId the serverId to set
-     */
-    public void setServerId( String serverId )
-    {
-        this.serverId = serverId;
-    }
-
-    
-    /**
-     * @return the systemPort
-     */
-    public int getSystemPort()
-    {
-        return systemPort;
-    }
-
-    
-    /**
-     * @param systemPort the systemPort to set
-     */
-    public void setSystemPort( int systemPort )
-    {
-        this.systemPort = systemPort;
     }
 
     

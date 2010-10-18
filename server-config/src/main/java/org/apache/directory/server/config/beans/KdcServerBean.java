@@ -30,7 +30,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcServerBean extends CatalogBasedServerBean
+public class KdcServerBean extends DSBasedServerBean
 {
     /** The default allowable clockskew */
     private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;

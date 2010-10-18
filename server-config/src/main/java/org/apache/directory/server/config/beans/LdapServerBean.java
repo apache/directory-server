@@ -28,7 +28,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapServerBean extends CatalogBasedServerBean
+public class LdapServerBean extends DSBasedServerBean
 {
     /** */
     private boolean ldapServerConfidentialityRequired;
@@ -54,17 +54,14 @@ public class LdapServerBean extends CatalogBasedServerBean
     /** The certificate password */
     private String ldapServerCertificatePassword;
     
-    /** The ReplicationProvider configuration */
-    //private ReplicationProviderBean replProviderImpl;
-    
     /** tells if the replication is enabled */
     private boolean enableReplProvider; 
     
     /** The list of supported mechanisms */
-    private Set<LdapServerSaslMechanisHandlerBean> saslMechHandlers = new HashSet<LdapServerSaslMechanisHandlerBean>();
+    private Set<SaslMechanisHandlerBean> saslMechHandlers = new HashSet<SaslMechanisHandlerBean>();
     
     /** The list of supported extedned operations */
-    private Set<LdapServerExtendedOpHandlerBean> extendedOps = new HashSet<LdapServerExtendedOpHandlerBean>();
+    private Set<ExtendedOpHandlerBean> extendedOps = new HashSet<ExtendedOpHandlerBean>();
 
     /**
      * Create a new LdapServerBean instance
@@ -273,7 +270,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @return the saslMechHandlers
      */
-    public Set<LdapServerSaslMechanisHandlerBean> getSaslMechHandlers()
+    public Set<SaslMechanisHandlerBean> getSaslMechHandlers()
     {
         return saslMechHandlers;
     }
@@ -282,7 +279,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to set
      */
-    public void setSaslMechHandlers( Set<LdapServerSaslMechanisHandlerBean> saslMechHandlers )
+    public void setSaslMechHandlers( Set<SaslMechanisHandlerBean> saslMechHandlers )
     {
         this.saslMechHandlers = saslMechHandlers;
     }
@@ -291,9 +288,9 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to add
      */
-    public void setSaslMechHandlers( LdapServerSaslMechanisHandlerBean... saslMechHandlers )
+    public void setSaslMechHandlers( SaslMechanisHandlerBean... saslMechHandlers )
     {
-        for ( LdapServerSaslMechanisHandlerBean saslMechHandler : saslMechHandlers )
+        for ( SaslMechanisHandlerBean saslMechHandler : saslMechHandlers )
         {
             this.saslMechHandlers.add( saslMechHandler );
         }
@@ -303,7 +300,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @return the extendedOps
      */
-    public Set<LdapServerExtendedOpHandlerBean> getExtendedOps()
+    public Set<ExtendedOpHandlerBean> getExtendedOps()
     {
         return extendedOps;
     }
@@ -312,7 +309,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param extendedOps the extendedOps to set
      */
-    public void setExtendedOps( Set<LdapServerExtendedOpHandlerBean> extendedOps )
+    public void setExtendedOps( Set<ExtendedOpHandlerBean> extendedOps )
     {
         this.extendedOps = extendedOps;
     }
@@ -321,9 +318,9 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param extendedOps the extendedOps to add
      */
-    public void addExtendedOps( LdapServerExtendedOpHandlerBean... extendedOps )
+    public void addExtendedOps( ExtendedOpHandlerBean... extendedOps )
     {
-        for ( LdapServerExtendedOpHandlerBean extendedOp : extendedOps )
+        for ( ExtendedOpHandlerBean extendedOp : extendedOps )
         {   
             this.extendedOps.add( extendedOp );
         }

@@ -28,7 +28,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswordServerBean extends CatalogBasedServerBean
+public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
     private long krbAllowableClockSkew;

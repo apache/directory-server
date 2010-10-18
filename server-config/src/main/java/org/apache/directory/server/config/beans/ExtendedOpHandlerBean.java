@@ -19,64 +19,61 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 /**
- * A class used to store the ChangeLog configuration.
+ * A class used to store the LdapServerExtendedOpHandler configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogBean extends AdsBaseBean
+public class ExtendedOpHandlerBean
 {
-    /** The ChangeLog unique ID */
-    private String changeLogId;
-
-    /** Tells if the ChangeLog is exposed to the users */
-    private boolean changeLogExposed;
-
-    /**
-     * Create a new ChangeLogBean instance
-     */
-    public ChangeLogBean()
-    {
-        // Not exposed by default
-        changeLogExposed = false;
-        
-        // Not enabled by default
-        setEnabled( false );
-    }
-
-
-    /**
-     * @return the changeLogId
-     */
-    public String getChangeLogId()
-    {
-        return changeLogId;
-    }
-
-
-    /**
-     * @param changeLogId the changeLogId to set
-     */
-    public void setChangeLogId( String changeLogId )
-    {
-        this.changeLogId = changeLogId;
-    }
+    /** The Extended Operation ID */
+    private String extendedOpId;
     
-    
+    /** The Extended Operation FQCN */
+    private String extendedOpHandlerClass;
+
     /**
-     * @return <code>true</code> if the ChangeLog is exposed
+     * Create a new LdapServerExtendedOpHandlerBean instance
      */
-    public boolean isChangeLogExposed() 
+    public ExtendedOpHandlerBean()
     {
-        return changeLogExposed;
+        super();
     }
 
     
     /**
-     * @param exposed Set the exposed flag
+     * @return the extendedOpId
      */
-    public void setChangeLogExposed( boolean changeLogExposed ) 
+    public String getExtendedOpId()
     {
-        this.changeLogExposed = changeLogExposed;
+        return extendedOpId;
+    }
+
+    
+    /**
+     * @param extendedOpId the extendedOpId to set
+     */
+    public void setExtendedOpId( String extendedOpId )
+    {
+        this.extendedOpId = extendedOpId;
+    }
+
+    
+    /**
+     * @return the ldapServerExtendedOpHandlerClass
+     */
+    public String getExtendedOpHandlerClass()
+    {
+        return extendedOpHandlerClass;
+    }
+
+    
+    /**
+     * @param extendedOpHandlerClass the ExtendedOpHandlerClass to set
+     */
+    public void setExtendedOpHandlerClass( String extendedOpHandlerClass )
+    {
+        this.extendedOpHandlerClass = extendedOpHandlerClass;
     }
 }

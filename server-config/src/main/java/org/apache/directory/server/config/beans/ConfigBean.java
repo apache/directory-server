@@ -19,61 +19,54 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.Set;
 
 /**
- * A class used to store the CatalogBasedServer configuration. It can't be instanciated
+ * The base class containing all the configuration hierarchy. This hierarchy
+ * starts with the DirectoryService elements.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class CatalogBasedServerBean extends AdsServerBean
+public abstract class ConfigBean 
 {
-    /** The server unique identifier */
-    private String searchBaseDN;
-    
-    /** The reference to the underlaying DirectoryService */
-    private DirectoryServiceBean serverDS;
+    /** The DirectoryService beans */
+    private Set<DirectoryServiceBean> directoryServiceBeans;
 
     /**
-     * Create a new CatalogBasedServerBean instance
+     * Create a new ConfigBean instance
      */
-    protected CatalogBasedServerBean()
+    protected ConfigBean()
     {
-        super();
+    }
+    
+    
+    /**
+     * Add underlying DirectoryServiceBean
+     * @param directoryServiceBeans The DirectoryServiceBeans
+     */
+    public void addDirectoryService( DirectoryServiceBean... directoryServiceBeans )
+    {
+        for ( DirectoryServiceBean directoryServiceBean : directoryServiceBeans )
+        {
+            this.directoryServiceBeans.add( directoryServiceBean );
+        }
     }
 
-    
+
     /**
-     * @return the searchBaseDN
+     * @return the directoryServiceBeans
      */
-    public String getSearchBaseDN()
+    public Set<DirectoryServiceBean> getDirectoryServiceBeans()
     {
-        return searchBaseDN;
+        return directoryServiceBeans;
     }
 
-    
-    /**
-     * @param searchBaseDN the searchBaseDN to set
-     */
-    public void setSearchBaseDN( String searchBaseDN )
-    {
-        this.searchBaseDN = searchBaseDN;
-    }
 
-    
     /**
-     * @return the serverDS
+     * @param directoryServiceBeans the directoryServiceBeans to set
      */
-    public DirectoryServiceBean getServerDS()
+    public void setDirectoryServiceBeans( Set<DirectoryServiceBean> directoryServiceBeans )
     {
-        return serverDS;
-    }
-
-    
-    /**
-     * @param serverDS the serverDS to set
-     */
-    public void setServerDS( DirectoryServiceBean serverDS )
-    {
-        this.serverDS = serverDS;
+        this.directoryServiceBeans = directoryServiceBeans;
     }
 }

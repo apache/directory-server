@@ -19,61 +19,62 @@
  */
 package org.apache.directory.server.config.beans;
 
-
 /**
- * A class used to store the LdapServerExtendedOpHandler configuration.
+ * A class used to store the Base ADS configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapServerExtendedOpHandlerBean extends AdsServerBean
+public abstract class AdsBaseBean 
 {
-    /** The Extended Operation ID */
-    private String extendedOpId;
+    /** The enabled flag */
+    private boolean enabled = false;
     
-    /** The Extended Operation FQCN */
-    private String ldapServerExtendedOpHandlerClass;
+    /** The description */
+    private String description;
 
     /**
-     * Create a new LdapServerExtendedOpHandlerBean instance
+     * Create a new BaseBean instance
      */
-    public LdapServerExtendedOpHandlerBean()
+    protected AdsBaseBean()
     {
-        super();
     }
-
+    
     
     /**
-     * @return the extendedOpId
+     * @return <code>true</code> if the component is enabled
      */
-    public String getExtendedOpId()
+    public boolean isEnabled()
     {
-        return extendedOpId;
+        return enabled;
     }
-
+    
     
     /**
-     * @param extendedOpId the extendedOpId to set
+     * Enable or disable the component
+     * @param enabled if <code>true</code>, the component is enabled.
      */
-    public void setExtendedOpId( String extendedOpId )
+    public void setEnabled( boolean enabled )
     {
-        this.extendedOpId = extendedOpId;
+        this.enabled = enabled;
     }
-
+    
     
     /**
-     * @return the ldapServerExtendedOpHandlerClass
+     * @return the description for this component
      */
-    public String getLdapServerExtendedOpHandlerClass()
+    public String getDescription() 
     {
-        return ldapServerExtendedOpHandlerClass;
+        return description;
     }
-
+    
     
     /**
-     * @param ldapServerExtendedOpHandlerClass the ldapServerExtendedOpHandlerClass to set
+     * Sets the component description
+     * 
+     * @param description The description
      */
-    public void setLdapServerExtendedOpHandlerClass( String ldapServerExtendedOpHandlerClass )
+    public void setDescription( String description )
     {
-        this.ldapServerExtendedOpHandlerClass = ldapServerExtendedOpHandlerClass;
+        this.description = description;
     }
 }

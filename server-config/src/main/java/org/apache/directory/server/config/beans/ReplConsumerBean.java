@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReplConsumerBean extends BaseAdsBean
+public class ReplConsumerBean extends AdsBaseBean
 {
     /** The replicaConsumer unique ID */
     private String dsReplicaId;

@@ -25,21 +25,21 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapServerSaslMechanisHandlerBean extends BaseAdsBean
+public class SaslMechanisHandlerBean extends AdsBaseBean
 {
     /** The SASL mechanism handler */
-    private String ldapServerSaslMechName;
+    private String saslMechName;
     
     /** The SASL mechanism handler FQCN */
-    private String ldapServerSaslMechClassName;
+    private String saslMechClassName;
     
     /** The NTLM provider */
-    private String ldapServerNtlmMechProvider;
+    private String ntlmMechProvider;
 
     /**
      * Create a new LdapServerSaslMechanisHandlerBean instance
      */
-    public LdapServerSaslMechanisHandlerBean()
+    public SaslMechanisHandlerBean()
     {
         super();
     }
@@ -47,53 +47,53 @@ public class LdapServerSaslMechanisHandlerBean extends BaseAdsBean
     /**
      * @return the ldapServerSaslMechName
      */
-    public String getLdapServerSaslMechName()
+    public String getSaslMechName()
     {
-        return ldapServerSaslMechName;
+        return saslMechName;
     }
     
 
     /**
-     * @param ldapServerSaslMechName the ldapServerSaslMechName to set
+     * @param saslMechName the SaslMechName to set
      */
-    public void setLdapServerSaslMechName( String ldapServerSaslMechName )
+    public void setSaslMechName( String saslMechName )
     {
-        this.ldapServerSaslMechName = ldapServerSaslMechName;
+        this.saslMechName = saslMechName;
     }
 
     
     /**
-     * @return the ldapServerSaslMechClassName
+     * @return the SaslMechClassName
      */
-    public String getLdapServerSaslMechClassName()
+    public String getSaslMechClassName()
     {
-        return ldapServerSaslMechClassName;
+        return saslMechClassName;
     }
 
     
     /**
-     * @param ldapServerSaslMechClassName the ldapServerSaslMechClassName to set
+     * @param SaslMechClassName the SaslMechClassName to set
      */
-    public void setLdapServerSaslMechClassName( String ldapServerSaslMechClassName )
+    public void setSaslMechClassName( String saslMechClassName )
     {
-        this.ldapServerSaslMechClassName = ldapServerSaslMechClassName;
+        this.saslMechClassName = saslMechClassName;
     }
 
     
     /**
-     * @return the ldapServerNtlmMechProvider
+     * @return the NtlmMechProvider
      */
-    public String getLdapServerNtlmMechProvider()
+    public String getNtlmMechProvider()
     {
-        return ldapServerNtlmMechProvider;
+        return ntlmMechProvider;
     }
 
     
     /**
-     * @param ldapServerNtlmMechProvider the ldapServerNtlmMechProvider to set
+     * @param NtlmMechProvider the NtlmMechProvider to set
      */
-    public void setLdapServerNtlmMechProvider( String ldapServerNtlmMechProvider )
+    public void setNtlmMechProvider( String ntlmMechProvider )
     {
-        this.ldapServerNtlmMechProvider = ldapServerNtlmMechProvider;
+        this.ntlmMechProvider = ntlmMechProvider;
     }
 }

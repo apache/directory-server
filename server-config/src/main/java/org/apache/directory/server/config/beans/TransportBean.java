@@ -24,13 +24,13 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TransportBean extends BaseAdsBean
+public class TransportBean extends AdsBaseBean
 {
     /** The default backlog queue size */
-    protected static final int DEFAULT_BACKLOG_NB = 50;
+    private static final int DEFAULT_BACKLOG_NB = 50;
     
     /** The default number of threads */
-    protected static final int DEFAULT_NB_THREADS = 3;
+    private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
     private String transportId;
@@ -41,7 +41,6 @@ public class TransportBean extends BaseAdsBean
     /** The port number */
     private int systemPort = -1;
     
-
     /** A flag set if SSL is enabled */
     private boolean transportEnableSSL = false;
     
@@ -51,7 +50,6 @@ public class TransportBean extends BaseAdsBean
     /** The backlog for the transport services */
     private int transportBacklog = DEFAULT_BACKLOG_NB;
     
-
     /**
      * Create a new TransportBean instance
      */

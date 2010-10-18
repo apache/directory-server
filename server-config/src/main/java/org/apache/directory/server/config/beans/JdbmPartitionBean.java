@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 public class JdbmPartitionBean extends PartitionBean
 {
     /** The Entry cache size for this partition */
-    protected int partitionCacheSize = -1;
+    private int partitionCacheSize = -1;
 
     /** Tells if the optimizer is enabled or not */
     private boolean jdbmPartitionOptimizerEnabled = true;

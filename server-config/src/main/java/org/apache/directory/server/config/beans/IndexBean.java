@@ -19,48 +19,37 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.constants.ServerDNConstants;
-
 /**
- * A class used to store the KdcServer configuration.
+ * A class used to store the IndexBean configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DirectoryBackedServiceBean extends ProtocolServiceBean
+public abstract class IndexBean extends AdsBaseBean
 {
-    /**
-     * The single location where entries are stored.  If this service
-     * is catalog based the store will search the system partition
-     * configuration for catalog entries.  Otherwise it will use this
-     * search base as a single point of searching the DIT.
-     */
-    private String searchBaseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
-
-    /**
-     * Create a new JournalBean instance
-     */
-    public DirectoryBackedServiceBean()
-    {
-    }
+    /** The index unique identifier */
+    private String indexAttributeId;
     
-
-
     /**
-     * Returns the search base DN.
-     *
-     * @return The search base DN.
+     * Create a new IndexBean instance
      */
-    public String getSearchBaseDn()
+    protected IndexBean()
     {
-        return searchBaseDn;
     }
 
-
     /**
-     * @param searchBaseDn The searchBaseDn to set.
+     * @return the indexAttributeId
      */
-    public void setSearchBaseDn( String searchBaseDn )
+    public String getIndexAttributeId()
     {
-        this.searchBaseDn = searchBaseDn;
+        return indexAttributeId;
+    }
+
+    
+    /**
+     * @param indexAttributeId the indexAttributeId to set
+     */
+    public void setIndexAttributeId( String indexAttributeId )
+    {
+        this.indexAttributeId = indexAttributeId;
     }
 }
