@@ -241,6 +241,14 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
+        finally
+        {
+            // Reset LDAP session bind status to anonymous if authentication failed
+            if ( !ldapSession.isAuthenticated() )
+            {
+                ldapSession.setAnonymous();
+            }
+        }
     }
 
 
