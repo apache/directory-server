@@ -60,10 +60,10 @@ public class DirectoryServiceBean extends AdsBaseBean
     private String dsTestEntries;
 
     /** The ChangeLog component */
-    private ChangeLogBean dsChangeLog;
+    private ChangeLogBean changeLog;
 
     /** The journal component */
-    private JournalBean dsJournal;
+    private JournalBean journal;
 
     /** The servers */
     private Set<ServerBean> servers;
@@ -74,14 +74,11 @@ public class DirectoryServiceBean extends AdsBaseBean
     /** The set of associated partitions */
     private Set<PartitionBean> partitions;
 
-    /** The reference to the replication provider component */
-    //private ReplicationProviderBean replicationProvider;
-
-    /** The reference to the replication consumer component */
-    //private ReplicationConsumerBean replicationConsumer;
-
     /** The reference to the Password Policy component */
     private PasswordPolicyConfiguration passwordPolicy;
+
+    /** The working directory */
+    private String dsWorkingDirectory;
 
 
     /**
@@ -285,56 +282,38 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return the dsChangeLog
+     * @return the ChangeLog
      */
-    public ChangeLogBean getDsChangeLog()
+    public ChangeLogBean getChangeLog()
     {
-        return dsChangeLog;
+        return changeLog;
     }
 
 
     /**
-     * @param dsChangeLog the dsChangeLog to set
+     * @param cChangeLog the ChangeLog to set
      */
-    public void setDsChangeLog( ChangeLogBean dsChangeLog )
+    public void setChangeLog( ChangeLogBean changeLog )
     {
-        this.dsChangeLog = dsChangeLog;
+        this.changeLog = changeLog;
     }
 
 
     /**
-     * @return the dsJournal
+     * @return the journal
      */
-    public JournalBean getDsJournal()
+    public JournalBean getJournal()
     {
-        return dsJournal;
+        return journal;
     }
 
 
     /**
-     * @param dsJournal the dsJournal to set
+     * @param journal the journal to set
      */
-    public void setDsJournal( JournalBean dsJournal )
+    public void setJournal( JournalBean journal )
     {
-        this.dsJournal = dsJournal;
-    }
-
-
-    /**
-     * @return the dsReplication
-     *
-    public ReplicationBean getDsReplication()
-    {
-        return dsReplication;
-    }
-
-
-    /**
-     * @param dsReplication the dsReplication to set
-     *
-    public void setDsReplication( ReplicationBean dsReplication )
-    {
-        this.dsReplication = dsReplication;
+        this.journal = journal;
     }
 
 
@@ -357,42 +336,6 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return the replicationProvider
-     *
-    public ReplicationProviderBean getReplicationProvider()
-    {
-        return replicationProvider;
-    }
-
-
-    /**
-     * @param replicationProvider the replicationProvider to set
-     *
-    public void setReplicationProvider( ReplicationProviderBean replicationProvider )
-    {
-        this.replicationProvider = replicationProvider;
-    }
-
-
-    /**
-     * @return the replicationConsumer
-     *
-    public ReplicationConsumerBean getReplicationConsumer()
-    {
-        return replicationConsumer;
-    }
-
-
-    /**
-     * @param replicationConsumer the replicationConsumer to set
-     *
-    public void setReplicationConsumer( ReplicationConsumerBean replicationConsumer )
-    {
-        this.replicationConsumer = replicationConsumer;
-    }
-
-
-    /**
      * @return the passwordPolicy
      */
     public PasswordPolicyConfiguration getPasswordPolicy()
@@ -407,5 +350,34 @@ public class DirectoryServiceBean extends AdsBaseBean
     public void setPasswordPolicy( PasswordPolicyConfiguration passwordPolicy )
     {
         this.passwordPolicy = passwordPolicy;
+    }
+
+
+    /**
+     * @return the dsWorkingDirectory
+     */
+    public String getDsWorkingDirectory()
+    {
+        return dsWorkingDirectory;
+    }
+
+
+    /**
+     * @param dsWorkingDirectory the dsWorkingDirectory to set
+     */
+    public void setDsWorkingDirectory( String dsWorkingDirectory )
+    {
+        this.dsWorkingDirectory = dsWorkingDirectory;
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        return sb.toString();
     }
 }

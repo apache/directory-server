@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class ConfigBean 
+public class ConfigBean 
 {
     /** The DirectoryService beans */
     private Set<DirectoryServiceBean> directoryServiceBeans;
@@ -35,7 +35,7 @@ public abstract class ConfigBean
     /**
      * Create a new ConfigBean instance
      */
-    protected ConfigBean()
+    public ConfigBean()
     {
     }
     
