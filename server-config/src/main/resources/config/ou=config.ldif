@@ -1,5 +1,5 @@
 version: 1
 dn: ou=config
 ou: config
-objectclass: organizationalUnit
 objectclass: top
+objectclass: organizationalUnit
