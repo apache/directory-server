@@ -76,4 +76,28 @@ public class ExtendedOpHandlerBean
     {
         this.extendedophandlerclass = extendedOpHandlerClass;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "Extended operation handler :\n" );
+        sb.append( tabs ).append( "  extended operation ID :" ).append( extendedopid ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation handler class :" ).append( extendedophandlerclass ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

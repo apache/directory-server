@@ -325,4 +325,65 @@ public class LdapServerBean extends DSBasedServerBean
             this.extendedophandlers.add( extendedOp );
         }
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "LdapServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  max size limit : " ).append( maxsizelimit );
+        sb.append( tabs ).append( "  max time limit : " ).append( maxtimelimit );
+        sb.append( toString( tabs, "  certificate password", certificatepassword ) );
+        sb.append( toString( tabs, "  keystore file", keystorefile ) );
+        sb.append( toString( tabs, "  sasl principal", saslprincipal ) );
+        sb.append( tabs ).append( "  sasl host : " ).append( saslhost );
+        sb.append( toStringBoolean( tabs, "  confidentiality required", confidentialityrequired ) );
+        sb.append( toStringBoolean( tabs, "  enable replication provider", enablereplprovider ) );
+        
+        if ( extendedophandlers != null )
+        {
+            sb.append( tabs ).append( "  extended operation handlers :\n" );
+            
+            for ( ExtendedOpHandlerBean extendedOpHandler : extendedophandlers )
+            {
+                sb.append( extendedOpHandler.toString( tabs + "    " ) );
+            }
+        }
+        
+        if ( saslmechhandlers != null )
+        {
+            sb.append( tabs ).append( "  SASL mechanism handlers :\n" );
+            
+            for ( SaslMechanisHandlerBean saslMechHandler : saslmechhandlers )
+            {
+                sb.append( saslMechHandler.toString( tabs + "    " ) );
+            }
+        }
+        
+        if ( saslrealms != null )
+        {
+            sb.append( tabs ).append( "  SASL realms :\n" );
+            
+            for ( String saslRealm : saslrealms )
+            {
+                sb.append( tabs ).append( "  " ).append( saslRealm ).append( "\n" );
+            }
+        }
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

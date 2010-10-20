@@ -52,4 +52,27 @@ public abstract class IndexBean extends AdsBaseBean
     {
         this.indexattributeid = indexAttributeId;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  indexed attribute ID : " ).append( indexattributeid ).append( '\n' );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

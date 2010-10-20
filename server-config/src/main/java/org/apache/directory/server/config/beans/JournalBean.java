@@ -121,4 +121,30 @@ public class JournalBean extends AdsBaseBean
     {
         this.journalrotation = journalRotation;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "Journal :\n" );
+        sb.append( tabs ).append( "  journal id :" ).append( journalid ).append( '\n' );
+        sb.append( tabs ).append( "  journal file name :" ).append( journalfilename ).append( '\n' );
+        sb.append( tabs ).append( "  journal working dir :" ).append( journalworkingdir ).append( '\n' );
+        sb.append( tabs ).append( "  journal rotation :" ).append( journalrotation ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

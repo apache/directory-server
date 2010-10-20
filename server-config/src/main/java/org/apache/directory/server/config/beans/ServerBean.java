@@ -94,4 +94,36 @@ public abstract class ServerBean extends AdsBaseBean
     {
         this.serverid = serverId;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  server id :" ).append( serverid ).append( '\n' );
+        sb.append( tabs ).append( "  transports : \n" );
+        
+        if ( transports != null )
+        {
+            for ( TransportBean transport : transports )
+            {
+                sb.append( transport.toString( tabs + "    " ) );
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

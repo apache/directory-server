@@ -204,4 +204,44 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     {
         this.chgpwdserviceprincipal = chgPwdServicePrincipal;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "ChangePasswordServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  change password service principal :" ).append( chgpwdserviceprincipal ).append( '\n' );
+        sb.append( tabs ).append( "  KRB primary realm :" ).append( krbprimaryrealm ).append( '\n' );
+        sb.append( tabs ).append( "  encryption types : \n" );
+        
+        if ( krbencryptiontypes != null )
+        {
+            for ( String encryptionType : krbencryptiontypes )
+            {
+                sb.append( tabs ).append( "    encryptionType :" ).append( encryptionType ).append( '\n' );
+            }
+        }
+        
+        sb.append( tabs ).append( "  change password policy category count :" ).append( chgpwdpolicycategorycount ).append( '\n' );
+        sb.append( tabs ).append( "  change password policy password length :" ).append( chgpwdpolicypasswordlength ).append( '\n' );
+        sb.append( tabs ).append( "  change password policy token size :" ).append( chgpwdpolicytokensize ).append( '\n' );
+        sb.append( tabs ).append( "  KRB allowable clock skew :" ).append( krballowableclockskew ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

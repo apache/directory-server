@@ -63,4 +63,22 @@ public class DSBasedServerBean extends ServerBean
     {
         this.searchbasedn = searchBaseDn;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        return super.toString( tabs ) + tabs + "SearchBaseDN : \n" + searchbasedn + "\n";
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

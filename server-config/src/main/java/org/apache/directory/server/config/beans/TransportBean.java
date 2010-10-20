@@ -168,4 +168,41 @@ public class TransportBean extends AdsBaseBean
     {
         this.transportid = transportId;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "  transport id :" ).append( transportid ).append( '\n' );
+        sb.append( tabs ).append( "  transport address :" );
+        
+        if ( transportaddress == null )
+        {
+            sb.append( tabs ).append( "  localhost" ).append( '\n' );
+        }
+        else
+        {
+            sb.append( transportaddress ).append( '\n' );
+        }
+
+        sb.append( tabs ).append( "  transport port :" ).append( systemport ).append( '\n' );
+        sb.append( tabs ).append( "  transport backlog :" ).append( transportbacklog ).append( '\n' );
+        sb.append( tabs ).append( "  transport nb threads :" ).append( transportnbthreads ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  SSL enabled", transportenablessl ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

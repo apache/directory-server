@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.Set;
+
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -37,6 +39,9 @@ public abstract class PartitionBean extends AdsBaseBean
     /** Tells if the data should be flushed to disk immediately */
     private boolean partitionsynconwrite;
 
+    /** The list of declared indexes */
+    private Set<IndexBean> indexes;
+
     /**
      * Create a new PartitionBean instance
      */
@@ -44,6 +49,7 @@ public abstract class PartitionBean extends AdsBaseBean
     {
     }
 
+    
     /**
      * @return the partitionId
      */
@@ -52,6 +58,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionid;
     }
 
+    
     /**
      * @param partitionId the partitionId to set
      */
@@ -60,6 +67,7 @@ public abstract class PartitionBean extends AdsBaseBean
         this.partitionid = partitionId;
     }
 
+    
     /**
      * @return the partitionSuffix
      */
@@ -68,6 +76,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionsuffix;
     }
 
+    
     /**
      * @param partitionSuffix the partitionSuffix to set
      */
@@ -76,6 +85,7 @@ public abstract class PartitionBean extends AdsBaseBean
         this.partitionsuffix = partitionSuffix;
     }
 
+    
     /**
      * @return the partitionSyncOnWrite
      */
@@ -84,6 +94,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionsynconwrite;
     }
 
+    
     /**
      * @param partitionSyncOnWrite the partitionSyncOnWrite to set
      */
@@ -94,26 +105,44 @@ public abstract class PartitionBean extends AdsBaseBean
     
     
     /**
+     * @return the indexes
+     */
+    public Set<IndexBean> getIndexes()
+    {
+        return indexes;
+    }
+
+
+    /**
+     * @param partitions the indexes to set
+     */
+    public void setIndexes( Set<IndexBean> indexes )
+    {
+        this.indexes = indexes;
+    }
+    
+    
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( tabs ).append( "partition ID" ).append( partitionid ).append( '\n' );
-        sb.append( tabs ).append( "suffix : " ).append( partitionsuffix ).append( '\n' );
-        sb.append( tabs ).append( "sync on write : " );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  partition ID" ).append( partitionid ).append( '\n' );
+        sb.append( tabs ).append( "  suffix : " ).append( partitionsuffix ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  sync on write", partitionsynconwrite ) );
         
-        if ( partitionsynconwrite )
-        {
-            sb.append(  "TRUE" );
-        }
-        else
-        {
-            sb.append(  "FALSE" );
-        }
+        sb.append( tabs ).append( "  indexes : \n" );
         
-        sb.append( '\n' );
+        if ( indexes != null )
+        {
+            for ( IndexBean index : indexes )
+            {
+                sb.append( index.toString( tabs + "    " ) );
+            }
+        }
         
         return sb.toString();
     }

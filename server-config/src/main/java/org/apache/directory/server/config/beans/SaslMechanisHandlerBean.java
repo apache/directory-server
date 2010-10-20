@@ -96,4 +96,29 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
     {
         this.ntlmmechprovider = ntlmMechProvider;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "SASL mechanism handler :\n" );
+        sb.append( tabs ).append( "  SASL mechanism name :" ).append( saslmechname ).append( '\n' );
+        sb.append( tabs ).append( "  SASL mechanism class name :" ).append( saslmechclassname ).append( '\n' );
+        sb.append( tabs ).append( "  NTLM mechanism provider :" ).append( ntlmmechprovider ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

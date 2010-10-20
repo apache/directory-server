@@ -133,4 +133,31 @@ public class JdbmIndexBean<K, E> extends IndexBean
     {
         this.indexworkingdir = indexWorkingDir;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "JdbmIndexBean :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  index file name : " ).append( indexfilename );
+        sb.append( tabs ).append( "  index working directory : " ).append( indexworkingdir );
+        sb.append( tabs ).append( "  index cache size : " ).append( indexcachesize );
+        sb.append( tabs ).append( "  index num dup limit : " ).append( indexnumduplimit );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

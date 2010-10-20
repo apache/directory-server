@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 /**
  * A class used to store the ChangeLog configuration.
  *
@@ -78,5 +79,29 @@ public class ChangeLogBean extends AdsBaseBean
     public void setChangeLogExposed( boolean changeLogExposed ) 
     {
         this.changelogexposed = changeLogExposed;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "ChangeLog :\n" );
+        sb.append( tabs ).append( "  changeLog id :" ).append( changelogid ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  changeLog exposed", changelogexposed ) );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

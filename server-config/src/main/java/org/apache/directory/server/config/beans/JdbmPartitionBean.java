@@ -19,9 +19,6 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.Set;
-
-import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -37,9 +34,6 @@ public class JdbmPartitionBean extends PartitionBean
     /** Tells if the optimizer is enabled or not */
     private boolean jdbmpartitionoptimizerenabled = true;
     
-    /** The set of indexed attributes */
-    private Set<JdbmIndexBean<String, Entry>> jdbmindexes;
-
     /**
      * Create a new JdbmPartitionBean instance
      */
@@ -93,37 +87,26 @@ public class JdbmPartitionBean extends PartitionBean
     
     
     /**
-     * Stores the list of index defined for this partition
-     * 
-     * @param jdbmIndexes The list of indexes to store
+     * {@inheritDoc}
      */
-    public void setIndexedAttributes( Set<JdbmIndexBean<String, Entry>> jdbmIndexes )
+    public String toString( String tabs )
     {
-        this.jdbmindexes = jdbmIndexes;
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "JdbmPartitionBean :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  partition cache size" ).append( partitioncachesize ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  jdbm partition optimizer enabled", jdbmpartitionoptimizerenabled ) );
+        
+        return sb.toString();
     }
-
-
+    
+    
     /**
-     * Add some indexes to this partition
-     * 
-     * @param jdbmIndexes The added jdbmIndexes
+     * {@inheritDoc}
      */
-    public void addJdbmIndexes( JdbmIndexBean<String, Entry>... jdbmIndexes )
+    public String toString()
     {
-        for ( JdbmIndexBean<String, Entry> jdbmIndex : jdbmIndexes )
-        {
-            this.jdbmindexes.add( jdbmIndex );
-        }
-    }
-
-
-    /**
-     * Get the list of index defined for this partition
-     * 
-     * @return The list of defined indexes
-     */
-    public Set<JdbmIndexBean<String, Entry>> getJdbmIndexes()
-    {
-        return jdbmindexes;
+        return toString( "" );
     }
 }

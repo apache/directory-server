@@ -380,40 +380,68 @@ public class DirectoryServiceBean extends AdsBaseBean
         
         sb.append( super.toString() );
         
+        sb.append( "DirectoryServiceBean : \n" );
+        
         // Dump the must attributes
-        sb.append( "directoryService ID : " ).append( directoryserviceid ).append( '\n' );
-        sb.append( "replica ID : " ).append( dsreplicaid ).append( '\n' );
-        sb.append( "working directory : " ).append( dsworkingdirectory ).append( '\n' );
-        sb.append( "interceptors : \n" );
+        sb.append( "  directoryService ID : " ).append( directoryserviceid ).append( '\n' );
+        sb.append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
+        sb.append( "  working directory : " ).append( dsworkingdirectory ).append( '\n' );
+        sb.append( "  interceptors : \n" );
         
         if ( interceptors != null )
         {
             for ( InterceptorBean interceptor : interceptors )
             {
-                sb.append( interceptor.toString( "  " ) );
+                sb.append( interceptor.toString( "    " ) );
             }
         }
         
-        sb.append( "partitions : \n" );
+        sb.append( "  partitions : \n" );
         
         if ( partitions != null )
         {
             for ( PartitionBean partition : partitions )
             {
-                sb.append( partition.toString( "  " ) );
+                sb.append( partition.toString( "    " ) );
             }
         }
         
         
-        sb.append( "servers : \n" );
+        sb.append( "  servers : \n" );
         
         if ( servers != null )
         {
             for ( ServerBean server : servers )
             {
-                sb.append( server.toString() );
+                sb.append( server.toString( "    " ) );
             }
         }
+
+        sb.append( toStringBoolean( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
+        sb.append( toStringBoolean( "  ", "allow anonymous access", dsallowanonymousaccess ) );
+        sb.append( toStringBoolean( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
+        sb.append( toStringBoolean( "  ", "password hidden", dspasswordhidden ) );
+        sb.append( "  max PDU size : " ).append( dsmaxpdusize ).append( '\n' );
+        sb.append( "  sync period millisecond : " ).append( dssyncperiodmillis ).append( '\n' );
+        sb.append( "  test entries : " ).append( dstestentries ).append( '\n' );
+        
+        if ( journal != null )
+        {
+            sb.append( "  journal : \n" );
+            sb.append( journal.toString( "    " ) );
+        }
+        
+        if ( changelog != null )
+        {
+            sb.append( changelog.toString( "    " ) );
+        }
+        
+        if ( passwordpolicy != null )
+        {
+            sb.append( passwordpolicy.toString( "    " ) );
+        }
+        
+        sb.append( '\n' );
 
         return sb.toString();
     }

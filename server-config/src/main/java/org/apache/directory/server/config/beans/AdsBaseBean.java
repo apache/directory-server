@@ -81,16 +81,13 @@ public abstract class AdsBaseBean
     }
     
     
-    /**
-     * {@inheritDoc}
-     */
-    public String toString()
+    protected String toStringBoolean( String tabs, String name, boolean value )
     {
         StringBuilder sb = new StringBuilder();
+
+        sb.append( name ).append( " : " );
         
-        sb.append( "Enabled : " );
-        
-        if ( enabled )
+        if ( value )
         {
             sb.append( "TRUE" );
         }
@@ -101,11 +98,46 @@ public abstract class AdsBaseBean
         
         sb.append( '\n' );
         
+        return sb.toString();
+    }
+    
+    
+    protected String toString( String tabs, String name, String value )
+    {
+        if ( value != null )
+        {
+            return name + " : " + value + "\n";
+        }
+        else
+        {
+            return "";
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( toStringBoolean( tabs, "enabled", enabled ) );
+        
         if ( !StringTools.isEmpty( description ) )
         {
-            sb.append( "Description : '" ).append( description ).append( "'\n" );
+            sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }
         
         return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
