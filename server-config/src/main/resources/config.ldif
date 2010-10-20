@@ -403,7 +403,7 @@ objectclass: top
 dn: ads-serverId=changepasswordserver,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: ads-server
 objectclass: ads-changePasswordServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 ads-serverid: changepasswordserver
 ads-chgPwdServicePrincipal: kadmin/changepw@EXAMPLE.COM
 ads-enabled: false
@@ -443,7 +443,7 @@ ads-serverid: dns
 ads-enabled: false
 objectclass: ads-server
 objectclass: ads-dnsServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 objectclass: top
 
 dn: ou=transports,ads-serverId=dns,ou=servers,ads-directoryServiceId=default,ou=config
@@ -490,7 +490,7 @@ ads-enabled: false
 dn: ads-serverId=kerberos,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: ads-server
 objectclass: ads-kerberosServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 objectclass: top
 ads-serverid: kerberos
 ads-enabled: false
@@ -538,7 +538,7 @@ ads-enabled: true
 dn: ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: ads-server
 objectclass: ads-ldapServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 objectclass: top
 ads-serverid: ldapServer
 ads-ldapServerConfidentialityRequired: false
