@@ -31,37 +31,37 @@ import java.util.Set;
 public class LdapServerBean extends DSBasedServerBean
 {
     /** */
-    private boolean ldapServerConfidentialityRequired;
+    private boolean confidentialityrequired;
     
     /** The maximum number of entries returned by the server */
-    private int ldapServerMaxSizeLimit;
+    private int maxsizelimit;
     
     /** The maximum time to execute a request on the server */
-    private int ldapServerMaxTimeLimit;
+    private int maxtimelimit;
     
     /** The SASL host */
-    private String ldapServerSaslHost;
+    private String saslhost;
     
     /** The SASL  principal */
-    private String ldapServerSaslPrincipal;
+    private String saslprincipal;
     
     /** The SASL realms */
-    private Set<String> ldapServerSaslRealms = new HashSet<String>();;
+    private Set<String> saslrealms = new HashSet<String>();;
     
     /** The keystore file */
-    private String ldapServerKeystoreFile;
+    private String keystorefile;
     
     /** The certificate password */
-    private String ldapServerCertificatePassword;
+    private String certificatepassword;
     
     /** tells if the replication is enabled */
-    private boolean enableReplProvider; 
+    private boolean enablereplprovider; 
     
     /** The list of supported mechanisms */
-    private Set<SaslMechanisHandlerBean> saslMechHandlers = new HashSet<SaslMechanisHandlerBean>();
+    private Set<SaslMechanisHandlerBean> saslmechhandlers = new HashSet<SaslMechanisHandlerBean>();
     
-    /** The list of supported extedned operations */
-    private Set<ExtendedOpHandlerBean> extendedOps = new HashSet<ExtendedOpHandlerBean>();
+    /** The list of supported extended operation handlers */
+    private Set<ExtendedOpHandlerBean> extendedophandlers = new HashSet<ExtendedOpHandlerBean>();
 
     /**
      * Create a new LdapServerBean instance
@@ -80,7 +80,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public boolean isLdapServerConfidentialityRequired()
     {
-        return ldapServerConfidentialityRequired;
+        return confidentialityrequired;
     }
 
     
@@ -89,7 +89,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerConfidentialityRequired( boolean ldapServerConfidentialityRequired )
     {
-        this.ldapServerConfidentialityRequired = ldapServerConfidentialityRequired;
+        this.confidentialityrequired = ldapServerConfidentialityRequired;
     }
 
     
@@ -98,7 +98,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public int getLdapServerMaxSizeLimit()
     {
-        return ldapServerMaxSizeLimit;
+        return maxsizelimit;
     }
 
     
@@ -107,7 +107,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerMaxSizeLimit( int ldapServerMaxSizeLimit )
     {
-        this.ldapServerMaxSizeLimit = ldapServerMaxSizeLimit;
+        this.maxsizelimit = ldapServerMaxSizeLimit;
     }
 
     
@@ -116,7 +116,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public int getLdapServerMaxTimeLimit()
     {
-        return ldapServerMaxTimeLimit;
+        return maxtimelimit;
     }
 
     
@@ -125,7 +125,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerMaxTimeLimit( int ldapServerMaxTimeLimit )
     {
-        this.ldapServerMaxTimeLimit = ldapServerMaxTimeLimit;
+        this.maxtimelimit = ldapServerMaxTimeLimit;
     }
 
     
@@ -134,7 +134,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerSaslHost()
     {
-        return ldapServerSaslHost;
+        return saslhost;
     }
 
     
@@ -143,7 +143,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslHost( String ldapServerSaslHost )
     {
-        this.ldapServerSaslHost = ldapServerSaslHost;
+        this.saslhost = ldapServerSaslHost;
     }
 
     
@@ -152,7 +152,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerSaslPrincipal()
     {
-        return ldapServerSaslPrincipal;
+        return saslprincipal;
     }
 
     
@@ -161,7 +161,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslPrincipal( String ldapServerSaslPrincipal )
     {
-        this.ldapServerSaslPrincipal = ldapServerSaslPrincipal;
+        this.saslprincipal = ldapServerSaslPrincipal;
     }
 
     
@@ -170,7 +170,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public Set<String> getLdapServerSaslRealms()
     {
-        return ldapServerSaslRealms;
+        return saslrealms;
     }
 
     
@@ -179,7 +179,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslRealms( Set<String> ldapServerSaslRealms )
     {
-        this.ldapServerSaslRealms = ldapServerSaslRealms;
+        this.saslrealms = ldapServerSaslRealms;
     }
 
     
@@ -190,7 +190,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         for ( String saslRealm : ldapServerSaslRealms )
         {
-            this.ldapServerSaslRealms.add( saslRealm );
+            this.saslrealms.add( saslRealm );
         }
     }
 
@@ -200,7 +200,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerKeystoreFile()
     {
-        return ldapServerKeystoreFile;
+        return keystorefile;
     }
 
     
@@ -209,7 +209,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerKeystoreFile( String ldapServerKeystoreFile )
     {
-        this.ldapServerKeystoreFile = ldapServerKeystoreFile;
+        this.keystorefile = ldapServerKeystoreFile;
     }
 
     
@@ -218,7 +218,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerCertificatePassword()
     {
-        return ldapServerCertificatePassword;
+        return certificatepassword;
     }
 
     
@@ -227,7 +227,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerCertificatePassword( String ldapServerCertificatePassword )
     {
-        this.ldapServerCertificatePassword = ldapServerCertificatePassword;
+        this.certificatepassword = ldapServerCertificatePassword;
     }
 
     
@@ -254,7 +254,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public boolean isEnableReplProvider()
     {
-        return enableReplProvider;
+        return enablereplprovider;
     }
 
     
@@ -263,7 +263,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setEnableReplProvider( boolean enableReplProvider )
     {
-        this.enableReplProvider = enableReplProvider;
+        this.enablereplprovider = enableReplProvider;
     }
 
     
@@ -272,7 +272,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public Set<SaslMechanisHandlerBean> getSaslMechHandlers()
     {
-        return saslMechHandlers;
+        return saslmechhandlers;
     }
 
     
@@ -281,7 +281,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setSaslMechHandlers( Set<SaslMechanisHandlerBean> saslMechHandlers )
     {
-        this.saslMechHandlers = saslMechHandlers;
+        this.saslmechhandlers = saslMechHandlers;
     }
 
     
@@ -292,7 +292,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         for ( SaslMechanisHandlerBean saslMechHandler : saslMechHandlers )
         {
-            this.saslMechHandlers.add( saslMechHandler );
+            this.saslmechhandlers.add( saslMechHandler );
         }
     }
 
@@ -302,7 +302,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public Set<ExtendedOpHandlerBean> getExtendedOps()
     {
-        return extendedOps;
+        return extendedophandlers;
     }
 
     
@@ -311,7 +311,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setExtendedOps( Set<ExtendedOpHandlerBean> extendedOps )
     {
-        this.extendedOps = extendedOps;
+        this.extendedophandlers = extendedOps;
     }
 
     
@@ -322,7 +322,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         for ( ExtendedOpHandlerBean extendedOp : extendedOps )
         {   
-            this.extendedOps.add( extendedOp );
+            this.extendedophandlers.add( extendedOp );
         }
     }
 }

@@ -33,22 +33,22 @@ public class TransportBean extends AdsBaseBean
     private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
-    private String transportId;
+    private String transportid;
     
     /** The transport address */
-    private String transportAddress;
+    private String transportaddress;
     
     /** The port number */
-    private int systemPort = -1;
+    private int systemport = -1;
     
     /** A flag set if SSL is enabled */
-    private boolean transportEnableSSL = false;
+    private boolean transportenablessl = false;
     
     /** The number of threads to use for the IoAcceptor executor */
-    private int transportNbThreads = DEFAULT_NB_THREADS;
+    private int transportnbthreads = DEFAULT_NB_THREADS;
     
     /** The backlog for the transport services */
-    private int transportBacklog = DEFAULT_BACKLOG_NB;
+    private int transportbacklog = DEFAULT_BACKLOG_NB;
     
     /**
      * Create a new TransportBean instance
@@ -63,7 +63,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setSystemPort( int systemPort ) 
     {
-        this.systemPort = systemPort;
+        this.systemport = systemPort;
     }
 
     
@@ -72,7 +72,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getSystemPort() 
     {
-        return systemPort;
+        return systemport;
     }
 
     
@@ -80,7 +80,7 @@ public class TransportBean extends AdsBaseBean
      * @param transportAddress the address to set
      */
     public void setTransportAddress( String transportAddress ) {
-        this.transportAddress = transportAddress;
+        this.transportaddress = transportAddress;
     }
 
     
@@ -88,7 +88,7 @@ public class TransportBean extends AdsBaseBean
      * @return the address
      */
     public String getTransportAddress() {
-        return transportAddress;
+        return transportaddress;
     }
     
     
@@ -97,7 +97,7 @@ public class TransportBean extends AdsBaseBean
      */
     public boolean isTransportEnableSSL()
     {
-        return transportEnableSSL;
+        return transportenablessl;
     }
     
     
@@ -108,7 +108,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportEnableSSL( boolean transportEnableSSL )
     {
-        this.transportEnableSSL = transportEnableSSL;
+        this.transportenablessl = transportEnableSSL;
     }
     
     
@@ -117,7 +117,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getTransportNbThreads() 
     {
-        return transportNbThreads;
+        return transportnbthreads;
     }
     
     
@@ -128,7 +128,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportNbThreads( int transportNbThreads )
     {
-        this.transportNbThreads = transportNbThreads;
+        this.transportnbthreads = transportNbThreads;
     }
     
     
@@ -137,7 +137,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getTransportBackLog()
     {
-        return transportBacklog;
+        return transportbacklog;
     }
     
     
@@ -148,7 +148,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportBackLog( int transportBacklog )
     {
-        this.transportBacklog = transportBacklog;
+        this.transportbacklog = transportBacklog;
     }
 
 
@@ -157,7 +157,7 @@ public class TransportBean extends AdsBaseBean
      */
     public String getTransportId()
     {
-        return transportId;
+        return transportid;
     }
 
 
@@ -166,6 +166,6 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportId( String transportId )
     {
-        this.transportId = transportId;
+        this.transportid = transportId;
     }
 }

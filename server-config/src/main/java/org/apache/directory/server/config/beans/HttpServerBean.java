@@ -29,7 +29,7 @@ package org.apache.directory.server.config.beans;
 public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
-    private String httpConfFile;
+    private String httpconffile;
 
     /**
      * Create a new HttpServerBean instance
@@ -48,7 +48,7 @@ public class HttpServerBean extends ServerBean
      */
     public String getHttpConfFile()
     {
-        return httpConfFile;
+        return httpconffile;
     }
 
     
@@ -57,6 +57,6 @@ public class HttpServerBean extends ServerBean
      */
     public void setHttpConfFile( String httpConfFile )
     {
-        this.httpConfFile = httpConfFile;
+        this.httpconffile = httpConfFile;
     }
 }

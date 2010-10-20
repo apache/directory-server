@@ -20,6 +20,7 @@
 package org.apache.directory.server.config.beans;
 
 
+
 /**
  * A class used to store the Interceptors configuration.
  *
@@ -28,13 +29,13 @@ package org.apache.directory.server.config.beans;
 public class InterceptorBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
-    private String interceptorId;
+    private String interceptorid;
     
     /** The interceptor FQCN */
-    private String interceptorClassName;
+    private String interceptorclassname;
     
     /** The interceptor position in the chain */
-    private int interceptorOrder;
+    private int interceptororder;
 
 
     /**
@@ -53,11 +54,11 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public int compareTo( InterceptorBean o )
     {
-        if ( interceptorOrder > o.interceptorOrder )
+        if ( interceptororder > o.interceptororder )
         {
             return 1;
         }
-        else if ( interceptorOrder < o.interceptorOrder )
+        else if ( interceptororder < o.interceptororder )
         {
             return -1;
         }
@@ -71,7 +72,7 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public String getInterceptorId() 
     {
-        return interceptorId;
+        return interceptorid;
     }
 
 
@@ -80,7 +81,7 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public void setInterceptorId( String id ) 
     {
-        this.interceptorId = id;
+        this.interceptorid = id;
     }
 
 
@@ -89,7 +90,7 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public int getInterceptorOrder() 
     {
-        return interceptorOrder;
+        return interceptororder;
     }
 
 
@@ -98,7 +99,7 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public void setInterceptorOrder( int interceptorOrder ) 
     {
-        this.interceptorOrder = interceptorOrder;
+        this.interceptororder = interceptorOrder;
     }
 
 
@@ -107,7 +108,7 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public String getInterceptorClassName()
     {
-        return interceptorClassName;
+        return interceptorclassname;
     }
 
 
@@ -116,6 +117,30 @@ public class InterceptorBean implements Comparable<InterceptorBean>
      */
     public void setFqcn( String interceptorClassName )
     {
-        this.interceptorClassName = interceptorClassName;
+        this.interceptorclassname = interceptorClassName;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "interceptor[" );
+        sb.append( interceptorid ).append( "] ID : " ).append(  interceptorid ).append( '\n' );
+        sb.append( tabs ).append( "class name : " ).append(  interceptorclassname ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

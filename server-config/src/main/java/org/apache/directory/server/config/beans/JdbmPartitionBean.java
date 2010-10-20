@@ -32,13 +32,13 @@ import org.apache.directory.shared.ldap.entry.Entry;
 public class JdbmPartitionBean extends PartitionBean
 {
     /** The Entry cache size for this partition */
-    private int partitionCacheSize = -1;
+    private int partitioncachesize = -1;
 
     /** Tells if the optimizer is enabled or not */
-    private boolean jdbmPartitionOptimizerEnabled = true;
+    private boolean jdbmpartitionoptimizerenabled = true;
     
     /** The set of indexed attributes */
-    private Set<JdbmIndexBean<String, Entry>> jdbmIndexes;
+    private Set<JdbmIndexBean<String, Entry>> jdbmindexes;
 
     /**
      * Create a new JdbmPartitionBean instance
@@ -57,7 +57,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public void setPartitionCacheSize( int partitionCacheSize )
     {
-        this.partitionCacheSize = partitionCacheSize;
+        this.partitioncachesize = partitionCacheSize;
     }
 
 
@@ -68,7 +68,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public int getPartitionCacheSize()
     {
-        return partitionCacheSize;
+        return partitioncachesize;
     }
 
     
@@ -77,7 +77,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public boolean isJdbmPartitionOptimizerEnabled()
     {
-        return jdbmPartitionOptimizerEnabled;
+        return jdbmpartitionoptimizerenabled;
     }
 
 
@@ -88,7 +88,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public void setJdbmPartitionOptimizerEnabled( boolean jdbmPartitionOptimizerEnabled )
     {
-        this.jdbmPartitionOptimizerEnabled = jdbmPartitionOptimizerEnabled;
+        this.jdbmpartitionoptimizerenabled = jdbmPartitionOptimizerEnabled;
     }
     
     
@@ -99,7 +99,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public void setIndexedAttributes( Set<JdbmIndexBean<String, Entry>> jdbmIndexes )
     {
-        this.jdbmIndexes = jdbmIndexes;
+        this.jdbmindexes = jdbmIndexes;
     }
 
 
@@ -112,7 +112,7 @@ public class JdbmPartitionBean extends PartitionBean
     {
         for ( JdbmIndexBean<String, Entry> jdbmIndex : jdbmIndexes )
         {
-            this.jdbmIndexes.add( jdbmIndex );
+            this.jdbmindexes.add( jdbmIndex );
         }
     }
 
@@ -124,6 +124,6 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public Set<JdbmIndexBean<String, Entry>> getJdbmIndexes()
     {
-        return jdbmIndexes;
+        return jdbmindexes;
     }
 }

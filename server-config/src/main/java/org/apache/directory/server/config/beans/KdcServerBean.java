@@ -39,7 +39,7 @@ public class KdcServerBean extends DSBasedServerBean
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
 
     /** The allowable clock skew. */
-    private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
+    private long krballowableclockskew = DEFAULT_ALLOWABLE_CLOCKSKEW;
 
     /** The default for allowing forwardable tickets */
     private static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
@@ -72,40 +72,40 @@ public class KdcServerBean extends DSBasedServerBean
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
     /** Whether empty addresses are allowed. */
-    private boolean krbEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
+    private boolean krbemptyaddressesallowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
 
     /** Whether forwardable addresses are allowed. */
-    private boolean krbForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
+    private boolean krbforwardableallowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
 
     /** Whether pre-authentication by encrypted timestamp is required. */
-    private boolean krbPaEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
+    private boolean krbpaenctimestamprequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
 
     /** Whether postdated tickets are allowed. */
-    private boolean krbPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
+    private boolean krbpostdatedallowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether proxiable addresses are allowed. */
-    private boolean krbProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
+    private boolean krbproxiableallowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
-    private boolean krbRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
+    private boolean krbrenewableallowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
     /** The maximum renewable lifetime. */
-    private long krbMaximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
+    private long krbmaximumrenewablelifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
 
     /** The maximum ticket lifetime. */
-    private long krbMaximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
+    private long krbmaximumticketlifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
 
     /** The primary realm */
-    private String krbPrimaryRealm = DEFAULT_REALM;
+    private String krbprimaryrealm = DEFAULT_REALM;
 
     /** Whether to verify the body checksum. */
-    private boolean krbBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
+    private boolean krbbodychecksumverified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    private Set<EncryptionType> krbEncryptionTypes;
+    private Set<EncryptionType> krbencryptiontypes;
 
     /** The service principal name. */
-    private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
+    private String krbkdcprincipal = DEFAULT_PRINCIPAL;
 
     /**
      * Create a new KdcServerBean instance
@@ -126,7 +126,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public long getKrbAllowableClockSkew()
     {
-        return krbAllowableClockSkew;
+        return krballowableclockskew;
     }
 
 
@@ -135,7 +135,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbAllowableClockSkew( long krbAllowableClockSkew )
     {
-        this.krbAllowableClockSkew = krbAllowableClockSkew;
+        this.krballowableclockskew = krbAllowableClockSkew;
     }
 
 
@@ -146,7 +146,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public Set<EncryptionType> getKrbEncryptionTypes()
     {
-        return krbEncryptionTypes;
+        return krbencryptiontypes;
     }
 
 
@@ -159,11 +159,11 @@ public class KdcServerBean extends DSBasedServerBean
     {
         if ( krbEncryptionTypes != null )
         {
-            this.krbEncryptionTypes.clear();
+            this.krbencryptiontypes.clear();
             
             for ( EncryptionType encryptionType:krbEncryptionTypes )
             {
-                this.krbEncryptionTypes.add( encryptionType );
+                this.krbencryptiontypes.add( encryptionType );
             }
         }
     }
@@ -174,7 +174,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbEmptyAddressesAllowed()
     {
-        return krbEmptyAddressesAllowed;
+        return krbemptyaddressesallowed;
     }
 
 
@@ -183,7 +183,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbEmptyAddressesAllowed( boolean krbEmptyAddressesAllowed )
     {
-        this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
+        this.krbemptyaddressesallowed = krbEmptyAddressesAllowed;
     }
 
 
@@ -192,7 +192,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbForwardableAllowed()
     {
-        return krbForwardableAllowed;
+        return krbforwardableallowed;
     }
 
 
@@ -201,7 +201,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbForwardableAllowed( boolean krbForwardableAllowed )
     {
-        this.krbForwardableAllowed = krbForwardableAllowed;
+        this.krbforwardableallowed = krbForwardableAllowed;
     }
 
 
@@ -212,7 +212,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbPaEncTimestampRequired()
     {
-        return krbPaEncTimestampRequired;
+        return krbpaenctimestamprequired;
     }
 
 
@@ -221,7 +221,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbPaEncTimestampRequired( boolean krbPaEncTimestampRequired )
     {
-        this.krbPaEncTimestampRequired = krbPaEncTimestampRequired;
+        this.krbpaenctimestamprequired = krbPaEncTimestampRequired;
     }
 
 
@@ -230,7 +230,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbPostdatedAllowed()
     {
-        return krbPostdatedAllowed;
+        return krbpostdatedallowed;
     }
 
 
@@ -239,7 +239,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbPostdatedAllowed( boolean krbPostdatedAllowed )
     {
-        this.krbPostdatedAllowed = krbPostdatedAllowed;
+        this.krbpostdatedallowed = krbPostdatedAllowed;
     }
 
 
@@ -248,7 +248,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbProxiableAllowed()
     {
-        return krbProxiableAllowed;
+        return krbproxiableallowed;
     }
 
 
@@ -257,7 +257,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbProxiableAllowed( boolean krbProxiableAllowed )
     {
-        this.krbProxiableAllowed = krbProxiableAllowed;
+        this.krbproxiableallowed = krbProxiableAllowed;
     }
 
 
@@ -266,7 +266,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbRenewableAllowed()
     {
-        return krbRenewableAllowed;
+        return krbrenewableallowed;
     }
 
 
@@ -275,7 +275,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbRenewableAllowed( boolean krbRenewableAllowed )
     {
-        this.krbRenewableAllowed = krbRenewableAllowed;
+        this.krbrenewableallowed = krbRenewableAllowed;
     }
 
 
@@ -284,7 +284,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public long getKrbMaximumRenewableLifetime()
     {
-        return krbMaximumRenewableLifetime;
+        return krbmaximumrenewablelifetime;
     }
 
 
@@ -293,7 +293,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbMaximumRenewableLifetime( long krbMaximumRenewableLifetime )
     {
-        this.krbMaximumRenewableLifetime = krbMaximumRenewableLifetime;
+        this.krbmaximumrenewablelifetime = krbMaximumRenewableLifetime;
     }
 
 
@@ -302,7 +302,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public long getKrbMaximumTicketLifetime()
     {
-        return krbMaximumTicketLifetime;
+        return krbmaximumticketlifetime;
     }
 
 
@@ -311,7 +311,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbMaximumTicketLifetime( long krbMaximumTicketLifetime )
     {
-        this.krbMaximumTicketLifetime = krbMaximumTicketLifetime;
+        this.krbmaximumticketlifetime = krbMaximumTicketLifetime;
     }
 
 
@@ -322,7 +322,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public String getKrbPrimaryRealm()
     {
-        return krbPrimaryRealm;
+        return krbprimaryrealm;
     }
 
 
@@ -331,7 +331,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbPrimaryRealm( String krbPrimaryRealm )
     {
-        this.krbPrimaryRealm = krbPrimaryRealm;
+        this.krbprimaryrealm = krbPrimaryRealm;
     }
 
 
@@ -340,7 +340,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public boolean isKrbBodyChecksumVerified()
     {
-        return krbBodyChecksumVerified;
+        return krbbodychecksumverified;
     }
 
 
@@ -349,7 +349,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbBodyChecksumVerified( boolean krbBodyChecksumVerified )
     {
-        this.krbBodyChecksumVerified = krbBodyChecksumVerified;
+        this.krbbodychecksumverified = krbBodyChecksumVerified;
     }
 
 
@@ -360,7 +360,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public KerberosPrincipal getKrbKdcPrincipal()
     {
-        return new KerberosPrincipal( krbKdcPrincipal );
+        return new KerberosPrincipal( krbkdcprincipal );
     }
 
 
@@ -369,6 +369,6 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbKdcPrincipal( String krbKdcPrincipal )
     {
-        this.krbKdcPrincipal = krbKdcPrincipal;
+        this.krbkdcprincipal = krbKdcPrincipal;
     }
 }

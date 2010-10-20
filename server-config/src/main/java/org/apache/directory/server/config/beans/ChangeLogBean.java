@@ -27,10 +27,10 @@ package org.apache.directory.server.config.beans;
 public class ChangeLogBean extends AdsBaseBean
 {
     /** The ChangeLog unique ID */
-    private String changeLogId;
+    private String changelogid;
 
     /** Tells if the ChangeLog is exposed to the users */
-    private boolean changeLogExposed;
+    private boolean changelogexposed;
 
     /**
      * Create a new ChangeLogBean instance
@@ -38,7 +38,7 @@ public class ChangeLogBean extends AdsBaseBean
     public ChangeLogBean()
     {
         // Not exposed by default
-        changeLogExposed = false;
+        changelogexposed = false;
         
         // Not enabled by default
         setEnabled( false );
@@ -50,7 +50,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public String getChangeLogId()
     {
-        return changeLogId;
+        return changelogid;
     }
 
 
@@ -59,7 +59,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public void setChangeLogId( String changeLogId )
     {
-        this.changeLogId = changeLogId;
+        this.changelogid = changeLogId;
     }
     
     
@@ -68,7 +68,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public boolean isChangeLogExposed() 
     {
-        return changeLogExposed;
+        return changelogexposed;
     }
 
     
@@ -77,6 +77,6 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public void setChangeLogExposed( boolean changeLogExposed ) 
     {
-        this.changeLogExposed = changeLogExposed;
+        this.changelogexposed = changeLogExposed;
     }
 }

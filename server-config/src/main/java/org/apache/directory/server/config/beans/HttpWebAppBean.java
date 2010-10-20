@@ -31,10 +31,10 @@ public class HttpWebAppBean extends AdsBaseBean
     private String id;
     
     /** The context path */
-    private String httpAppCtxPath;
+    private String httpappctxpath;
     
     /** The war file */
-    private String httpWarFile;
+    private String httpwarfile;
 
     /**
      * Create a new HttpWebAppBean instance
@@ -71,7 +71,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public String getHttpAppCtxPath()
     {
-        return httpAppCtxPath;
+        return httpappctxpath;
     }
 
     
@@ -80,7 +80,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public void setHttpAppCtxPath( String httpAppCtxPath )
     {
-        this.httpAppCtxPath = httpAppCtxPath;
+        this.httpappctxpath = httpAppCtxPath;
     }
 
     
@@ -89,7 +89,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public String getHttpWarFile()
     {
-        return httpWarFile;
+        return httpwarfile;
     }
 
     
@@ -98,6 +98,6 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public void setHttpWarFile( String httpWarFile )
     {
-        this.httpWarFile = httpWarFile;
+        this.httpwarfile = httpWarFile;
     }
 }

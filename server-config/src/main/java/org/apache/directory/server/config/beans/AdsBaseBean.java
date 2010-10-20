@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.util.StringTools;
+
 /**
  * A class used to store the Base ADS configuration. It can't be instanciated
  *
@@ -76,5 +78,34 @@ public abstract class AdsBaseBean
     public void setDescription( String description )
     {
         this.description = description;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "Enabled : " );
+        
+        if ( enabled )
+        {
+            sb.append( "TRUE" );
+        }
+        else
+        {
+            sb.append( "FALSE" );
+        }
+        
+        sb.append( '\n' );
+        
+        if ( !StringTools.isEmpty( description ) )
+        {
+            sb.append( "Description : '" ).append( description ).append( "'\n" );
+        }
+        
+        return sb.toString();
     }
 }

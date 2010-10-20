@@ -30,7 +30,7 @@ import java.util.Set;
 public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
-    private String serverId;
+    private String serverid;
     
     /** The set of transports to use for this server */
     private Set<TransportBean> transports = new HashSet<TransportBean>();;
@@ -83,7 +83,7 @@ public abstract class ServerBean extends AdsBaseBean
      */
     public String getServerId()
     {
-        return serverId;
+        return serverid;
     }
 
 
@@ -92,6 +92,6 @@ public abstract class ServerBean extends AdsBaseBean
      */
     public void setServerId( String serverId )
     {
-        this.serverId = serverId;
+        this.serverid = serverId;
     }
 }

@@ -31,28 +31,28 @@ import java.util.Set;
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
-    private long krbAllowableClockSkew;
+    private long krballowableclockskew;
     
     /** Whether empty addresses are allowed. */
-    private boolean krbEmptyAddressesAllowed;
+    private boolean krbemptyaddressesallowed;
     
     /** The encryption types. */
-    private Set<String> krbEncryptionTypes = new HashSet<String>();
+    private Set<String> krbencryptiontypes = new HashSet<String>();
     
     /** The primary realm. */
-    private String krbPrimaryRealm;
+    private String krbprimaryrealm;
     
     /** The policy for category count. */
-    private int chgPwdPolicyCategoryCount;
+    private int chgpwdpolicycategorycount;
     
     /** The policy for password length. */
-    private int chgPwdPolicyPasswordLength;
+    private int chgpwdpolicypasswordlength;
     
     /** The policy for token size. */
-    private int chgPwdPolicyTokenSize;
+    private int chgpwdpolicytokensize;
     
     /** The service principal name. */
-    private String chgPwdServicePrincipal;
+    private String chgpwdserviceprincipal;
 
     /**
      * Create a new ChangePasswordServer instance
@@ -67,7 +67,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public long getKrbAllowableClockSkew()
     {
-        return krbAllowableClockSkew;
+        return krballowableclockskew;
     }
 
     
@@ -76,7 +76,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbAllowableClockSkew( long krbAllowableClockSkew )
     {
-        this.krbAllowableClockSkew = krbAllowableClockSkew;
+        this.krballowableclockskew = krbAllowableClockSkew;
     }
 
     
@@ -85,7 +85,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public boolean isKrbEmptyAddressesAllowed()
     {
-        return krbEmptyAddressesAllowed;
+        return krbemptyaddressesallowed;
     }
 
     
@@ -94,7 +94,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbEmptyAddressesAllowed( boolean krbEmptyAddressesAllowed )
     {
-        this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
+        this.krbemptyaddressesallowed = krbEmptyAddressesAllowed;
     }
 
     
@@ -103,7 +103,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public Set<String> getKrbEncryptionTypes()
     {
-        return krbEncryptionTypes;
+        return krbencryptiontypes;
     }
 
     
@@ -112,7 +112,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbEncryptionTypes( Set<String> krbEncryptionTypes )
     {
-        this.krbEncryptionTypes = krbEncryptionTypes;
+        this.krbencryptiontypes = krbEncryptionTypes;
     }
 
     
@@ -121,7 +121,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public String getKrbPrimaryRealm()
     {
-        return krbPrimaryRealm;
+        return krbprimaryrealm;
     }
 
     
@@ -130,7 +130,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbPrimaryRealm( String krbPrimaryRealm )
     {
-        this.krbPrimaryRealm = krbPrimaryRealm;
+        this.krbprimaryrealm = krbPrimaryRealm;
     }
 
     
@@ -139,7 +139,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyCategoryCount()
     {
-        return chgPwdPolicyCategoryCount;
+        return chgpwdpolicycategorycount;
     }
 
     
@@ -148,7 +148,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyCategoryCount( int chgPwdPolicyCategoryCount )
     {
-        this.chgPwdPolicyCategoryCount = chgPwdPolicyCategoryCount;
+        this.chgpwdpolicycategorycount = chgPwdPolicyCategoryCount;
     }
 
     
@@ -157,7 +157,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyPasswordLength()
     {
-        return chgPwdPolicyPasswordLength;
+        return chgpwdpolicypasswordlength;
     }
 
     
@@ -166,7 +166,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyPasswordLength( int chgPwdPolicyPasswordLength )
     {
-        this.chgPwdPolicyPasswordLength = chgPwdPolicyPasswordLength;
+        this.chgpwdpolicypasswordlength = chgPwdPolicyPasswordLength;
     }
 
     
@@ -175,7 +175,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyTokenSize()
     {
-        return chgPwdPolicyTokenSize;
+        return chgpwdpolicytokensize;
     }
 
     
@@ -184,7 +184,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyTokenSize( int chgPwdPolicyTokenSize )
     {
-        this.chgPwdPolicyTokenSize = chgPwdPolicyTokenSize;
+        this.chgpwdpolicytokensize = chgPwdPolicyTokenSize;
     }
 
     
@@ -193,7 +193,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public String getChgPwdServicePrincipal()
     {
-        return chgPwdServicePrincipal;
+        return chgpwdserviceprincipal;
     }
 
     
@@ -202,6 +202,6 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdServicePrincipal( String chgPwdServicePrincipal )
     {
-        this.chgPwdServicePrincipal = chgPwdServicePrincipal;
+        this.chgpwdserviceprincipal = chgPwdServicePrincipal;
     }
 }

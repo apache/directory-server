@@ -28,10 +28,10 @@ package org.apache.directory.server.config.beans;
 public class ExtendedOpHandlerBean
 {
     /** The Extended Operation ID */
-    private String extendedOpId;
+    private String extendedopid;
     
     /** The Extended Operation FQCN */
-    private String extendedOpHandlerClass;
+    private String extendedophandlerclass;
 
     /**
      * Create a new LdapServerExtendedOpHandlerBean instance
@@ -47,7 +47,7 @@ public class ExtendedOpHandlerBean
      */
     public String getExtendedOpId()
     {
-        return extendedOpId;
+        return extendedopid;
     }
 
     
@@ -56,7 +56,7 @@ public class ExtendedOpHandlerBean
      */
     public void setExtendedOpId( String extendedOpId )
     {
-        this.extendedOpId = extendedOpId;
+        this.extendedopid = extendedOpId;
     }
 
     
@@ -65,7 +65,7 @@ public class ExtendedOpHandlerBean
      */
     public String getExtendedOpHandlerClass()
     {
-        return extendedOpHandlerClass;
+        return extendedophandlerclass;
     }
 
     
@@ -74,6 +74,6 @@ public class ExtendedOpHandlerBean
      */
     public void setExtendedOpHandlerClass( String extendedOpHandlerClass )
     {
-        this.extendedOpHandlerClass = extendedOpHandlerClass;
+        this.extendedophandlerclass = extendedOpHandlerClass;
     }
 }

@@ -29,13 +29,13 @@ import org.apache.directory.shared.ldap.name.DN;
 public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
-    private String partitionId;
+    private String partitionid;
     
     /** The Partition suffix */
-    private DN partitionSuffix;
+    private DN partitionsuffix;
     
     /** Tells if the data should be flushed to disk immediately */
-    private boolean partitionSyncOnWrite;
+    private boolean partitionsynconwrite;
 
     /**
      * Create a new PartitionBean instance
@@ -49,7 +49,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public String getPartitionId()
     {
-        return partitionId;
+        return partitionid;
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionId( String partitionId )
     {
-        this.partitionId = partitionId;
+        this.partitionid = partitionId;
     }
 
     /**
@@ -65,7 +65,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public DN getPartitionSuffix()
     {
-        return partitionSuffix;
+        return partitionsuffix;
     }
 
     /**
@@ -73,7 +73,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionSuffix( DN partitionSuffix )
     {
-        this.partitionSuffix = partitionSuffix;
+        this.partitionsuffix = partitionSuffix;
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public boolean isPartitionSyncOnWrite()
     {
-        return partitionSyncOnWrite;
+        return partitionsynconwrite;
     }
 
     /**
@@ -89,6 +89,41 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionSyncOnWrite( boolean partitionSyncOnWrite )
     {
-        this.partitionSyncOnWrite = partitionSyncOnWrite;
+        this.partitionsynconwrite = partitionSyncOnWrite;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "partition ID" ).append( partitionid ).append( '\n' );
+        sb.append( tabs ).append( "suffix : " ).append( partitionsuffix ).append( '\n' );
+        sb.append( tabs ).append( "sync on write : " );
+        
+        if ( partitionsynconwrite )
+        {
+            sb.append(  "TRUE" );
+        }
+        else
+        {
+            sb.append(  "FALSE" );
+        }
+        
+        sb.append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

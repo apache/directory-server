@@ -28,7 +28,7 @@ package org.apache.directory.server.config.beans;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The replicaConsumer unique ID */
-    private String dsReplicaId;
+    private String dsreplicaid;
     
     /*
     m-must: ads-replAliasDerefMode;

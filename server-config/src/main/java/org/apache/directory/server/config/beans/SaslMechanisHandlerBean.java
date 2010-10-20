@@ -28,13 +28,13 @@ package org.apache.directory.server.config.beans;
 public class SaslMechanisHandlerBean extends AdsBaseBean
 {
     /** The SASL mechanism handler */
-    private String saslMechName;
+    private String saslmechname;
     
     /** The SASL mechanism handler FQCN */
-    private String saslMechClassName;
+    private String saslmechclassname;
     
     /** The NTLM provider */
-    private String ntlmMechProvider;
+    private String ntlmmechprovider;
 
     /**
      * Create a new LdapServerSaslMechanisHandlerBean instance
@@ -49,7 +49,7 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public String getSaslMechName()
     {
-        return saslMechName;
+        return saslmechname;
     }
     
 
@@ -58,7 +58,7 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public void setSaslMechName( String saslMechName )
     {
-        this.saslMechName = saslMechName;
+        this.saslmechname = saslMechName;
     }
 
     
@@ -67,7 +67,7 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public String getSaslMechClassName()
     {
-        return saslMechClassName;
+        return saslmechclassname;
     }
 
     
@@ -76,7 +76,7 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public void setSaslMechClassName( String saslMechClassName )
     {
-        this.saslMechClassName = saslMechClassName;
+        this.saslmechclassname = saslMechClassName;
     }
 
     
@@ -85,7 +85,7 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public String getNtlmMechProvider()
     {
-        return ntlmMechProvider;
+        return ntlmmechprovider;
     }
 
     
@@ -94,6 +94,6 @@ public class SaslMechanisHandlerBean extends AdsBaseBean
      */
     public void setNtlmMechProvider( String ntlmMechProvider )
     {
-        this.ntlmMechProvider = ntlmMechProvider;
+        this.ntlmmechprovider = ntlmMechProvider;
     }
 }
