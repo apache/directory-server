@@ -1,5 +1,0 @@
-version: 1
-dn: ou=servers,ou=config
-ou: servers
-objectclass: organizationalUnit
-objectclass: top
