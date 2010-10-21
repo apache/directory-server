@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -37,7 +37,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     private boolean krbemptyaddressesallowed;
     
     /** The encryption types. */
-    private Set<String> krbencryptiontypes = new HashSet<String>();
+    private List<String> krbencryptiontypes = new ArrayList<String>();
     
     /** The primary realm. */
     private String krbprimaryrealm;
@@ -101,7 +101,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     /**
      * @return the krbEncryptionTypes
      */
-    public Set<String> getKrbEncryptionTypes()
+    public List<String> getKrbEncryptionTypes()
     {
         return krbencryptiontypes;
     }
@@ -110,7 +110,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     /**
      * @param krbEncryptionTypes the krbEncryptionTypes to set
      */
-    public void setKrbEncryptionTypes( Set<String> krbEncryptionTypes )
+    public void setKrbEncryptionTypes( List<String> krbEncryptionTypes )
     {
         this.krbencryptiontypes = krbEncryptionTypes;
     }
@@ -214,23 +214,24 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "ChangePasswordServer :\n" );
-        sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  change password service principal :" ).append( chgpwdserviceprincipal ).append( '\n' );
-        sb.append( tabs ).append( "  KRB primary realm :" ).append( krbprimaryrealm ).append( '\n' );
-        sb.append( tabs ).append( "  encryption types : \n" );
+        sb.append( super.toString( tabs ) );
+        sb.append( tabs ).append( "  change password service principal : " ).append( chgpwdserviceprincipal ).append( '\n' );
+        sb.append( tabs ).append( "  KRB primary realm : " ).append( krbprimaryrealm ).append( '\n' );
         
-        if ( krbencryptiontypes != null )
+        if ( ( krbencryptiontypes != null ) && ( krbencryptiontypes.size() != 0 ) )
         {
+            sb.append( tabs ).append( "  encryption types : \n" );
+
             for ( String encryptionType : krbencryptiontypes )
             {
-                sb.append( tabs ).append( "    encryptionType :" ).append( encryptionType ).append( '\n' );
+                sb.append( tabs ).append( "    encryptionType : " ).append( encryptionType ).append( '\n' );
             }
         }
         
-        sb.append( tabs ).append( "  change password policy category count :" ).append( chgpwdpolicycategorycount ).append( '\n' );
-        sb.append( tabs ).append( "  change password policy password length :" ).append( chgpwdpolicypasswordlength ).append( '\n' );
-        sb.append( tabs ).append( "  change password policy token size :" ).append( chgpwdpolicytokensize ).append( '\n' );
-        sb.append( tabs ).append( "  KRB allowable clock skew :" ).append( krballowableclockskew ).append( '\n' );
+        sb.append( tabs ).append( "  change password policy category count : " ).append( chgpwdpolicycategorycount ).append( '\n' );
+        sb.append( tabs ).append( "  change password policy password length : " ).append( chgpwdpolicypasswordlength ).append( '\n' );
+        sb.append( tabs ).append( "  change password policy token size : " ).append( chgpwdpolicytokensize ).append( '\n' );
+        sb.append( tabs ).append( "  KRB allowable clock skew : " ).append( krballowableclockskew ).append( '\n' );
         sb.append( toStringBoolean( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
 
         return sb.toString();

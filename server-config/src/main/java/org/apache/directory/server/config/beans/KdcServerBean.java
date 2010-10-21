@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -102,7 +102,7 @@ public class KdcServerBean extends DSBasedServerBean
     private boolean krbbodychecksumverified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    private Set<EncryptionType> krbencryptiontypes;
+    private List<EncryptionType> krbencryptiontypes;
 
     /** The service principal name. */
     private String krbkdcprincipal = DEFAULT_PRINCIPAL;
@@ -144,7 +144,7 @@ public class KdcServerBean extends DSBasedServerBean
      *
      * @return The encryption types.
      */
-    public Set<EncryptionType> getKrbEncryptionTypes()
+    public List<EncryptionType> getKrbEncryptionTypes()
     {
         return krbencryptiontypes;
     }

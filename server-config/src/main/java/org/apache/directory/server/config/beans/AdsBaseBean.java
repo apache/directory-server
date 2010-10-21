@@ -85,7 +85,7 @@ public abstract class AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( name ).append( " : " );
+        sb.append( tabs ).append( name ).append( " : " );
         
         if ( value )
         {
@@ -106,7 +106,7 @@ public abstract class AdsBaseBean
     {
         if ( value != null )
         {
-            return name + " : " + value + "\n";
+            return tabs + name + " : " + value + "\n";
         }
         else
         {

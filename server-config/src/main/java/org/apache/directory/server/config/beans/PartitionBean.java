@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.Set;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -40,7 +40,7 @@ public abstract class PartitionBean extends AdsBaseBean
     private boolean partitionsynconwrite;
 
     /** The list of declared indexes */
-    private Set<IndexBean> indexes;
+    private List<IndexBean> indexes;
 
     /**
      * Create a new PartitionBean instance
@@ -107,7 +107,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @return the indexes
      */
-    public Set<IndexBean> getIndexes()
+    public List<IndexBean> getIndexes()
     {
         return indexes;
     }
@@ -116,7 +116,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @param partitions the indexes to set
      */
-    public void setIndexes( Set<IndexBean> indexes )
+    public void setIndexes( List<IndexBean> indexes )
     {
         this.indexes = indexes;
     }

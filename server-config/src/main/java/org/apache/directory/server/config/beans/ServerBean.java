@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class used to store the Server configuration. It can't be instanciated
@@ -33,7 +33,7 @@ public abstract class ServerBean extends AdsBaseBean
     private String serverid;
     
     /** The set of transports to use for this server */
-    private Set<TransportBean> transports = new HashSet<TransportBean>();;
+    private List<TransportBean> transports = new ArrayList<TransportBean>();
 
     /**
      * Create a new ServerBean instance
@@ -104,7 +104,7 @@ public abstract class ServerBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  server id :" ).append( serverid ).append( '\n' );
+        sb.append( tabs ).append( "  server id : " ).append( serverid ).append( '\n' );
         sb.append( tabs ).append( "  transports : \n" );
         
         if ( transports != null )

@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * The base class containing all the configuration hierarchy. This hierarchy
@@ -30,7 +30,7 @@ import java.util.Set;
 public class ConfigBean 
 {
     /** The DirectoryService beans */
-    private Set<DirectoryServiceBean> directoryServiceBeans;
+    private List<AdsBaseBean> directoryServiceBeans;
 
     /**
      * Create a new ConfigBean instance
@@ -56,7 +56,7 @@ public class ConfigBean
     /**
      * @return the directoryServiceBeans
      */
-    public Set<DirectoryServiceBean> getDirectoryServiceBeans()
+    public List<AdsBaseBean> getDirectoryServiceBeans()
     {
         return directoryServiceBeans;
     }
@@ -65,7 +65,7 @@ public class ConfigBean
     /**
      * @param directoryServiceBeans the directoryServiceBeans to set
      */
-    public void setDirectoryServiceBeans( Set<DirectoryServiceBean> directoryServiceBeans )
+    public void setDirectoryServiceBeans( List<AdsBaseBean> directoryServiceBeans )
     {
         this.directoryServiceBeans = directoryServiceBeans;
     }

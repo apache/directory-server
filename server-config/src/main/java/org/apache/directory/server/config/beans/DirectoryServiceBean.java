@@ -20,6 +20,7 @@
 package org.apache.directory.server.config.beans;
 
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
@@ -69,10 +70,10 @@ public class DirectoryServiceBean extends AdsBaseBean
     private Set<ServerBean> servers;
 
     /** The list of declared interceptors */
-    private Set<InterceptorBean> interceptors;
+    private List<InterceptorBean> interceptors;
 
     /** The set of associated partitions */
-    private Set<PartitionBean> partitions;
+    private List<PartitionBean> partitions;
 
     /** The reference to the Password Policy component */
     private PasswordPolicyConfiguration passwordpolicy;
@@ -138,7 +139,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      *
      * @return the interceptors in the server.
      */
-    public Set<InterceptorBean> getInterceptors()
+    public List<InterceptorBean> getInterceptors()
     {
         return interceptors;
     }
@@ -149,7 +150,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      *
      * @param interceptors the interceptors to be used in the server.
      */
-    public void setInterceptors( Set<InterceptorBean> interceptors )
+    public void setInterceptors( List<InterceptorBean> interceptors )
     {
         this.interceptors = interceptors;
     }
@@ -320,7 +321,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @return the partitions
      */
-    public Set<PartitionBean> getPartitions()
+    public List<PartitionBean> getPartitions()
     {
         return partitions;
     }
@@ -329,7 +330,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @param partitions the partitions to set
      */
-    public void setPartitions( Set<PartitionBean> partitions )
+    public void setPartitions( List<PartitionBean> partitions )
     {
         this.partitions = partitions;
     }
@@ -378,9 +379,8 @@ public class DirectoryServiceBean extends AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( super.toString() );
-        
         sb.append( "DirectoryServiceBean : \n" );
+        sb.append( super.toString( "  " ) );
         
         // Dump the must attributes
         sb.append( "  directoryService ID : " ).append( directoryserviceid ).append( '\n' );

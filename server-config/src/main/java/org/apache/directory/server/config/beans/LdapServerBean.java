@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -61,7 +63,7 @@ public class LdapServerBean extends DSBasedServerBean
     private Set<SaslMechanisHandlerBean> saslmechhandlers = new HashSet<SaslMechanisHandlerBean>();
     
     /** The list of supported extended operation handlers */
-    private Set<ExtendedOpHandlerBean> extendedophandlers = new HashSet<ExtendedOpHandlerBean>();
+    private List<ExtendedOpHandlerBean> extendedophandlers = new ArrayList<ExtendedOpHandlerBean>();
 
     /**
      * Create a new LdapServerBean instance
@@ -300,7 +302,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return the extendedOps
      */
-    public Set<ExtendedOpHandlerBean> getExtendedOps()
+    public List<ExtendedOpHandlerBean> getExtendedOps()
     {
         return extendedophandlers;
     }
@@ -309,7 +311,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @param extendedOps the extendedOps to set
      */
-    public void setExtendedOps( Set<ExtendedOpHandlerBean> extendedOps )
+    public void setExtendedOps( List<ExtendedOpHandlerBean> extendedOps )
     {
         this.extendedophandlers = extendedOps;
     }
