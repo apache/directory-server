@@ -489,7 +489,7 @@ ads-enabled: false
 
 dn: ads-serverId=kerberos,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: ads-server
-objectclass: ads-kerberosServer
+objectclass: ads-kdcServer
 objectclass: ads-dsBasedServer
 objectclass: top
 ads-serverid: kerberos

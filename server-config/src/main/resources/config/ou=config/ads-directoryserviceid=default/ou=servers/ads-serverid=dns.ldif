@@ -4,5 +4,5 @@ ads-serverid: dns
 ads-enabled: false
 objectclass: ads-server
 objectclass: ads-dnsServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 objectclass: top
