@@ -70,7 +70,7 @@ public class DSBasedServerBean extends ServerBean
      */
     public String toString( String tabs )
     {
-        return super.toString( tabs ) + tabs + "  SearchBaseDN : " + searchbasedn + "\n";
+        return super.toString( tabs ) + tabs + "searchBaseDN : " + searchbasedn + "\n";
     }
     
     

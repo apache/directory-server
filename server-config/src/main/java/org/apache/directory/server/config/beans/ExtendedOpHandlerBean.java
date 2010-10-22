@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedOpHandlerBean
+public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
     private String extendedopid;
@@ -86,8 +86,8 @@ public class ExtendedOpHandlerBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "Extended operation handler :\n" );
-        sb.append( tabs ).append( "  extended operation ID :" ).append( extendedopid ).append( '\n' );
-        sb.append( tabs ).append( "  extended operation handler class :" ).append( extendedophandlerclass ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation ID : " ).append( extendedopid ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedophandlerclass ).append( '\n' );
         
         return sb.toString();
     }

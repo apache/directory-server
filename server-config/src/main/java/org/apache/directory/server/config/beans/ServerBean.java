@@ -103,15 +103,15 @@ public abstract class ServerBean extends AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  server id : " ).append( serverid ).append( '\n' );
-        sb.append( tabs ).append( "  transports : \n" );
+        sb.append( super.toString( tabs ) );
+        sb.append( tabs ).append( "server id : " ).append( serverid ).append( '\n' );
+        sb.append( tabs ).append( "transports : \n" );
         
         if ( transports != null )
         {
             for ( TransportBean transport : transports )
             {
-                sb.append( transport.toString( tabs + "    " ) );
+                sb.append( transport.toString( tabs + "  " ) );
             }
         }
         

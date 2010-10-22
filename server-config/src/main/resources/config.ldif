@@ -540,15 +540,15 @@ objectclass: ads-server
 objectclass: ads-ldapServer
 objectclass: ads-dsBasedServer
 objectclass: top
-ads-serverid: ldapServer
-ads-ldapServerConfidentialityRequired: false
-ads-ldapservermaxsizelimit: 1000
-ads-ldapservermaxtimelimit: 15000
-ads-ldapserversaslhost: ldap.example.com
-ads-ldapserversaslprincipal: ldap/ldap.example.com@EXAMPLE.COM
-ads-ldapserversaslrealms: example.com
-ads-ldapserversaslrealms: apache.org
-ads-searchbasedn: ou=users,ou=system
+ads-serverId: ldapServer
+ads-confidentialityRequired: false
+ads-maxSizeLimit: 1000
+ads-maxTimeLimit: 15000
+ads-saslHost: ldap.example.com
+ads-saslPrincipal: ldap/ldap.example.com@EXAMPLE.COM
+ads-saslRealms: example.com
+ads-saslRealms: apache.org
+ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
 ads-enableReplProvider: false
 
@@ -557,7 +557,7 @@ ou: transports
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-transportid=ldap,ou=transports,ads-serverId=ldapServer,ou=servers,ou=config
+dn: ads-transportid=ldap,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 10389
 ads-transportenablessl: false
 ads-transportbacklog: 50
@@ -569,7 +569,7 @@ objectclass: ads-tcpTransport
 objectclass: top
 ads-enabled: true
 
-dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ou=config
+dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 10636
 ads-transportenablessl: true
 ads-transportaddress: localhost
@@ -579,52 +579,52 @@ objectclass: ads-tcpTransport
 objectclass: top
 ads-enabled: true
 
-dn: ou=extendedoperatiohandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ou: extendedoperatiohandlers
+dn: ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: extendedophandlers
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-extendedOpId=gracefulShutdownHandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-extendedOpId=gracefulShutdownHandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-extendedOpId: gracefulShutdownHandler
-ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler
-objectclass: ads-ldapServerExtendedOpHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler
+objectclass: ads-extendedOpHandler
 objectclass: top
 ads-enabled: true
 
-dn: ads-extendedOpId=starttlshandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-extendedOpId=starttlshandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-extendedOpId: starttlshandler
-ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTlsHandler
-objectclass: ads-ldapServerExtendedOpHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTlsHandler
+objectclass: ads-extendedOpHandler
 objectclass: top
 ads-enabled: true
 
-dn: ads-extendedOpId=storedprochandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-extendedOpId=storedprochandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-enabled: false
 ads-extendedOpId: storedprochandler
-ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler
-objectclass: ads-ldapServerExtendedOpHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler
+objectclass: ads-extendedOpHandler
 objectclass: top
 
-dn: ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ou: saslmechanisms
+dn: ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: saslmechhandlers
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-ldapServerSaslMechName=cram-md5,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=cram-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: CRAM-MD5
 ads-enabled: true
 
-dn: ads-ldapServerSaslMechName=digest-md5,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=digest-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: DIGEST-MD5
 ads-enabled: true
 
-dn: ads-ldapServerSaslMechName=gss-spnego,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=gss-spnego,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
@@ -632,14 +632,14 @@ ads-ldapserversaslmechname: GSS-SPNEGO
 ads-ldapserverntlmmechprovider: com.foo.Bar
 ads-enabled: true
 
-dn: ads-ldapServerSaslMechName=gssapi,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=gssapi,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
 ads-ldapserversaslmechname: GSSAPI
 ads-enabled: true
 
-dn: ads-ldapServerSaslMechName=ntlm,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=ntlm,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top
@@ -647,7 +647,7 @@ ads-ldapserversaslmechname: NTLM
 ads-ldapserverntlmmechprovider: com.foo.Bar
 ads-enabled: true
 
-dn: ads-ldapServerSaslMechName=simple,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-ldapServerSaslMechName=simple,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler
 objectclass: ads-ldapServerSaslMechanismHandler
 objectclass: top

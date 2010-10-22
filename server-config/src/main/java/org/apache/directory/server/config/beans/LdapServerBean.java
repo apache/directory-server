@@ -48,7 +48,7 @@ public class LdapServerBean extends DSBasedServerBean
     private String saslprincipal;
     
     /** The SASL realms */
-    private Set<String> saslrealms = new HashSet<String>();;
+    private Set<String> saslrealms = new HashSet<String>();
     
     /** The keystore file */
     private String keystorefile;
@@ -58,6 +58,9 @@ public class LdapServerBean extends DSBasedServerBean
     
     /** tells if the replication is enabled */
     private boolean enablereplprovider; 
+    
+    private int replconsumer;
+    private int replprovider;
     
     /** The list of supported mechanisms */
     private Set<SaslMechanisHandlerBean> saslmechhandlers = new HashSet<SaslMechanisHandlerBean>();
@@ -188,7 +191,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @param ldapServerSaslRealms the ldapServerSaslRealms to add
      */
-    public void addLdapServerSaslRealms( String... ldapServerSaslRealms )
+    public void addsaslrealms( String... ldapServerSaslRealms )
     {
         for ( String saslRealm : ldapServerSaslRealms )
         {
@@ -338,16 +341,16 @@ public class LdapServerBean extends DSBasedServerBean
         
         sb.append( tabs ).append( "LdapServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  max size limit : " ).append( maxsizelimit );
-        sb.append( tabs ).append( "  max time limit : " ).append( maxtimelimit );
+        sb.append( tabs ).append( "  max size limit : " ).append( maxsizelimit ).append( '\n' );
+        sb.append( tabs ).append( "  max time limit : " ).append( maxtimelimit ).append( '\n' );
         sb.append( toString( tabs, "  certificate password", certificatepassword ) );
         sb.append( toString( tabs, "  keystore file", keystorefile ) );
         sb.append( toString( tabs, "  sasl principal", saslprincipal ) );
-        sb.append( tabs ).append( "  sasl host : " ).append( saslhost );
+        sb.append( tabs ).append( "  sasl host : " ).append( saslhost ).append( '\n' );
         sb.append( toStringBoolean( tabs, "  confidentiality required", confidentialityrequired ) );
         sb.append( toStringBoolean( tabs, "  enable replication provider", enablereplprovider ) );
         
-        if ( extendedophandlers != null )
+        if ( ( extendedophandlers != null ) && ( extendedophandlers.size() > 0 ) )
         {
             sb.append( tabs ).append( "  extended operation handlers :\n" );
             
@@ -367,13 +370,13 @@ public class LdapServerBean extends DSBasedServerBean
             }
         }
         
-        if ( saslrealms != null )
+        if ( ( saslrealms != null ) && ( saslrealms.size() > 0 ) )
         {
             sb.append( tabs ).append( "  SASL realms :\n" );
             
             for ( String saslRealm : saslrealms )
             {
-                sb.append( tabs ).append( "  " ).append( saslRealm ).append( "\n" );
+                sb.append( tabs ).append( "    " ).append( saslRealm ).append( "\n" );
             }
         }
 
