@@ -21,48 +21,27 @@
 package org.apache.directory.server.config;
 
 
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_ALLOW_USER_CHANGE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_ATTRIBUTE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_CHECK_QUALITY_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_EXPIRE_WARNING_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_FAILURE_COUNT_INTERVAL_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_GRACE_AUTHN_LIMIT_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_GRACE_EXPIRE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_IN_HISTORY_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_LOCKOUT_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_LOCKOUT_DURATION_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MAX_AGE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MAX_DELAY_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MAX_FAILURE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MAX_IDLE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MAX_LENGTH_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MIN_AGE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MIN_DELAY_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MIN_LENGTH_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_MUST_CHANGE_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_POLICY_OC;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_SAFE_MODIFY_AT;
-
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
-import org.apache.directory.server.config.beans.DirectoryServiceBean;
+import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DnsServerBean;
 import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
@@ -74,13 +53,9 @@ import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.DefaultJournalStore;
@@ -96,18 +71,10 @@ import org.apache.directory.server.dhcp.store.DhcpStore;
 import org.apache.directory.server.dhcp.store.SimpleDhcpStore;
 import org.apache.directory.server.dns.DnsServer;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
-import org.apache.directory.server.ldap.replication.SyncReplProvider;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -116,7 +83,6 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -132,6 +98,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,7 +182,7 @@ public class ConfigPartitionReader
      *
      * @return the LdapServer instance without a DirectoryService
      * @throws Exception
-     */
+     *
     public LdapServer createLdapServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
@@ -350,168 +317,13 @@ public class ConfigPartitionReader
 
 
     /**
-     * Read the KdcServer configuration from the DIT
-     * 
-     * @return A bean containing the KdcServer configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public KdcServerBean readKdcServer() throws Exception
-    {
-        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        if ( !cursor.next() )
-        {
-            LOG.warn( "No kerberos server was configured under the DN {}", configPartition.getSuffix() );
-            return null;
-        }
-
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-            .get();
-        cursor.close();
-
-        Entry kdcEntry = configPartition.lookup( forwardEntry.getId() );
-        LOG.debug( "kerberos server entry {}", kdcEntry );
-
-        if ( !isEnabled( kdcEntry ) )
-        {
-            return null;
-        }
-
-        KdcServerBean kdcServerBean = new KdcServerBean();
-
-        // The serviceID
-        kdcServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
-
-        TransportBean[] transports = readTransports( kdcEntry.getDn() );
-        kdcServerBean.setTransports( transports );
-
-        // MAY attributes
-        EntryAttribute clockSkewAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_ALLOWABLE_CLOCKSKEW );
-
-        if ( clockSkewAttr != null )
-        {
-            kdcServerBean.setKrbAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
-        }
-
-        EntryAttribute encryptionTypeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_ENCRYPTION_TYPES );
-
-        if ( encryptionTypeAttr != null )
-        {
-            EncryptionType[] encryptionTypes = new EncryptionType[encryptionTypeAttr.size()];
-            int count = 0;
-
-            for ( Value<?> value : encryptionTypeAttr )
-            {
-                encryptionTypes[count++] = EncryptionType.getByName( value.getString() );
-            }
-
-            kdcServerBean.setKrbEncryptionTypes( encryptionTypes );
-        }
-
-        EntryAttribute emptyAddrAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_EMPTY_ADDRESSES_ALLOWED );
-
-        if ( emptyAddrAttr != null )
-        {
-            kdcServerBean.setKrbEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
-        }
-
-        EntryAttribute fwdAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_FORWARDABLE_ALLOWED );
-
-        if ( fwdAllowedAttr != null )
-        {
-            kdcServerBean.setKrbForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
-        }
-
-        EntryAttribute paEncTmstpAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PAENC_TIMESTAMP_REQUIRED );
-
-        if ( paEncTmstpAttr != null )
-        {
-            kdcServerBean.setKrbPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
-        }
-
-        EntryAttribute posdtAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_POSTDATED_ALLOWED );
-
-        if ( posdtAllowedAttr != null )
-        {
-            kdcServerBean.setKrbPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
-        }
-
-        EntryAttribute prxyAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PROXIABLE_ALLOWED );
-
-        if ( prxyAllowedAttr != null )
-        {
-            kdcServerBean.setKrbProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
-        }
-
-        EntryAttribute rnwAllowedAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_RENEWABLE_ALLOWED );
-
-        if ( rnwAllowedAttr != null )
-        {
-            kdcServerBean.setKrbRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
-        }
-
-        EntryAttribute kdcPrncplAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_KDC_PRINCIPAL );
-
-        if ( kdcPrncplAttr != null )
-        {
-            kdcServerBean.setKrbKdcPrincipal( kdcPrncplAttr.getString() );
-        }
-
-        EntryAttribute maxRnwLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_RENEWABLE_LIFETIME );
-
-        if ( maxRnwLfTimeAttr != null )
-        {
-            kdcServerBean.setKrbMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
-        }
-
-        EntryAttribute maxTcktLfTimeAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_MAXIMUM_TICKET_LIFETIME );
-
-        if ( maxTcktLfTimeAttr != null )
-        {
-            kdcServerBean.setKrbMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
-        }
-
-        EntryAttribute prmRealmAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_PRIMARY_REALM );
-
-        if ( prmRealmAttr != null )
-        {
-            kdcServerBean.setKrbPrimaryRealm( prmRealmAttr.getString() );
-        }
-
-        EntryAttribute bdyCkhsmVerifyAttr = kdcEntry.get( ConfigSchemaConstants.ADS_KRB_BODY_CHECKSUM_VERIFIED );
-
-        if ( bdyCkhsmVerifyAttr != null )
-        {
-            kdcServerBean.setKrbBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
-        }
-
-        EntryAttribute searchBaseAttr = kdcEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
-        
-        if( searchBaseAttr != null )
-        {
-            kdcServerBean.setSearchBaseDN( searchBaseAttr.getString() );
-        }
-        
-        return kdcServerBean;
-    }
-    
-    
-    /**
      * Create an instance of KdcServer reading its configuration in the DIT
      * 
      * @return An instance of a KdcServer
      * @throws Exception If the instance cannot be created
      */
-    public KdcServer createKdcServer() throws Exception
+    public KdcServer createKdcServer( KdcServerBean kdcServerBean ) throws Exception
     {
-        KdcServerBean kdcServerBean = readKdcServer();
-        
         if ( kdcServerBean == null )
         {
             return null;
@@ -540,54 +352,9 @@ public class ConfigPartitionReader
         kdcServer.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
         kdcServer.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
         kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
-        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDN() );
+        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn() );
         
         return kdcServer;
-    }
-
-
-    /**
-     * Read the DnsServer configuration from the DIT
-     * 
-     * @return A bean containing the DnsServer configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public DnsServerBean readDnsServer() throws Exception
-    {
-        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_DNS_SERVER_OC ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        if ( !cursor.next() )
-        {
-            LOG.warn( "No DNS server was configured under the DN {}", configPartition.getSuffix() );
-            return null;
-        }
-
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-            .get();
-        cursor.close();
-
-        ClonedServerEntry dnsEntry = configPartition.lookup( forwardEntry.getId() );
-        LOG.debug( "DNS server entry {}", dnsEntry );
-
-        if ( !isEnabled( dnsEntry ) )
-        {
-            return null;
-        }
-
-        DnsServerBean dnsServerBean = new DnsServerBean();
-
-        dnsServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
-
-        TransportBean[] transports = readTransports( dnsEntry.getDn() );
-        dnsServerBean.setTransports( transports );
-
-        return dnsServerBean;
     }
 
     
@@ -597,10 +364,8 @@ public class ConfigPartitionReader
      * @return An instance of a DnsServer
      * @throws Exception If the instance cannot be created
      */
-    public DnsServer createDnsServer() throws Exception
+    public DnsServer createDnsServer( DnsServerBean dnsServerBean ) throws Exception
     {
-        DnsServerBean dnsServerBean = readDnsServer();
-        
         if ( dnsServerBean == null )
         {
             return null;
@@ -622,39 +387,6 @@ public class ConfigPartitionReader
     }
 
     //TODO making this method invisible cause there is no DhcpServer exists as of now
-    private DhcpService readDhcpServer() throws Exception
-    {
-        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_DHCP_SERVER_OC ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        if ( !cursor.next() )
-        {
-            LOG.warn( "No DHCP server was configured under the DN {}", configPartition.getSuffix() );
-            return null;
-        }
-
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-            .get();
-        cursor.close();
-
-        ClonedServerEntry dhcpEntry = configPartition.lookup( forwardEntry.getId() );
-        LOG.debug( "DHCP server entry {}", dhcpEntry );
-
-        if ( !isEnabled( dhcpEntry ) )
-        {
-            return null;
-        }
-
-        return null;
-    }
-    
-    
-    //TODO making this method invisible cause there is no DhcpServer exists as of now
     private DhcpService createDhcpServer() throws Exception
     {
         DhcpStore dhcpStore = new SimpleDhcpStore();
@@ -663,49 +395,6 @@ public class ConfigPartitionReader
         return dhcpService;
     }
 
-    /**
-     * Read the NtpServer configuration from the DIT
-     * 
-     * @return A bean containing the NtpServer configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public NtpServerBean readNtpServer() throws Exception
-    {
-        EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_NTP_SERVER_OC ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        if ( !cursor.next() )
-        {
-            LOG.warn( "No NTP server was configured under the DN {}", configPartition.getSuffix() );
-            return null;
-        }
-
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-            .get();
-        cursor.close();
-
-        ClonedServerEntry ntpEntry = configPartition.lookup( forwardEntry.getId() );
-        LOG.debug( "NTP server entry {}", ntpEntry );
-
-        if ( !isEnabled( ntpEntry ) )
-        {
-            return null;
-        }
-
-        NtpServerBean ntpServerBean = new NtpServerBean();
-
-        ntpServerBean.setServerId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
-
-        TransportBean[] transports = readTransports( ntpEntry.getDn() );
-        ntpServerBean.setTransports( transports );
-
-        return ntpServerBean;
-    }
 
     
     /**
@@ -714,10 +403,8 @@ public class ConfigPartitionReader
      * @return An instance of NtpServer
      * @throws Exception If the configuration cannot be read
      */
-    public NtpServer createNtpServer() throws Exception
+    public NtpServer createNtpServer( NtpServerBean ntpServerBean ) throws Exception
     {
-        NtpServerBean ntpServerBean = readNtpServer();
-        
         if ( ntpServerBean == null )
         {
             return null;
@@ -738,6 +425,7 @@ public class ConfigPartitionReader
     }
 
     
+    /*
     public ChangePasswordServer createChangePwdServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
@@ -900,23 +588,32 @@ public class ConfigPartitionReader
 
         return httpServer;
     }
+    */
     
     
     private ObjectClass findObjectClass( EntryAttribute objectClass ) throws Exception
     {
         Set<ObjectClass> candidates = new HashSet<ObjectClass>();
         
-        // Create the set of candidates
-        for ( Value<?> ocValue : objectClass )
+        try
         {
-            String ocName = ocValue.getString();
-            String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
-            ObjectClass oc = (ObjectClass)schemaManager.getObjectClassRegistry().get( ocOid );
-            
-            if ( oc.isStructural() )
+            // Create the set of candidates
+            for ( Value<?> ocValue : objectClass )
             {
-                candidates.add( oc );
+                String ocName = ocValue.getString();
+                String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
+                ObjectClass oc = (ObjectClass)schemaManager.getObjectClassRegistry().get( ocOid );
+                
+                if ( oc.isStructural() )
+                {
+                    candidates.add( oc );
+                }
             }
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
         }
         
         // Now find the parent OC
@@ -1028,9 +725,94 @@ public class ConfigPartitionReader
             return isBaseAdsBeanChild( clazz.getSuperclass() );
         }
     }
+    
+    
+    private void readSingleValueField( AdsBaseBean bean, Field beanField, EntryAttribute fieldAttr, boolean mandatory ) throws Exception
+    {
+        if ( fieldAttr == null )
+        {
+            return;
+        }
+        
+        Value<?> value = fieldAttr.get();
+        String valueStr = value.getString();
+        Class<?> type = beanField.getType();
+        
+        if ( type == String.class )
+        {
+            beanField.set( bean, value.getString() );
+        }
+        else if ( type == int.class )
+        {
+            beanField.setInt( bean, Integer.parseInt( valueStr )  );
+        }
+        else if ( type == long.class )
+        {
+            beanField.setLong( bean, Long.parseLong( valueStr )  );
+        }
+        else if ( type == boolean.class )
+        {
+            beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+        }
+    }
+    
+    
+    private void readMultiValuedField( AdsBaseBean bean, Field beanField, EntryAttribute fieldAttr, boolean mandatory ) throws Exception
+    {
+        if ( fieldAttr == null )
+        {
+            return;
+        }
+
+        Class<?> type = beanField.getType();
+        
+        // loop on the values and inject them in the bean
+        for ( Value<?> value : fieldAttr )
+        {
+            String valueStr = value.getString();
+            
+            if ( type == String.class )
+            {
+                beanField.set( bean, value.getString() );
+            }
+            else if ( type == int.class )
+            {
+                beanField.setInt( bean, Integer.parseInt( valueStr )  );
+            }
+            else if ( type == long.class )
+            {
+                beanField.setLong( bean, Long.parseLong( valueStr )  );
+            }
+            else if ( type == boolean.class )
+            {
+                beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+            }
+            else if ( type == Set.class )
+            {
+                Type genericFieldType = beanField.getGenericType();
+                Class<?> fieldArgClass = null;
+                    
+                if ( genericFieldType instanceof ParameterizedType ) 
+                {
+                    ParameterizedType parameterizedType = (ParameterizedType) genericFieldType;
+                    Type[] fieldArgTypes = parameterizedType.getActualTypeArguments();
+                    
+                    for ( Type fieldArgType : fieldArgTypes )
+                    {
+                        fieldArgClass = (Class<?>) fieldArgType;
+                    }
+                }
+
+                Method method = bean.getClass().getMethod( "add" + beanField.getName(), Array.newInstance( fieldArgClass, 0 ).getClass() );
+
+                method.invoke( bean, new Object[]{ new String[]{valueStr} } );
+            }
+        }
+
+    }
 
     
-    private void readFields( AdsBaseBean bean, Entry entry, List<AttributeType> attributeTypes, boolean mandatory ) throws NoSuchFieldException, IllegalAccessException, Exception
+    private void readFields( AdsBaseBean bean, Entry entry, Set<AttributeType> attributeTypes, boolean mandatory ) throws NoSuchFieldException, IllegalAccessException, Exception
     {
         for ( AttributeType attributeType : attributeTypes )
         {
@@ -1044,7 +826,7 @@ public class ConfigPartitionReader
             }
             
             // Get the field
-            Field beanField = getField( bean.getClass(), beanFieldName );
+            Field beanField = getField( bean.getClass(), StringTools.toLowerCase( beanFieldName ) );
             beanField.setAccessible( true );
             
             // Get the entry attribute for this field
@@ -1052,94 +834,112 @@ public class ConfigPartitionReader
             
             AttributeType beanAT = schemaManager.getAttributeType( fieldName );
             
-            if ( beanAT.isSingleValued() )
+            // Check if this AT has the ads-compositeElement as a superior
+            AttributeType superior = beanAT.getSuperior();
+            
+            if ( ( superior != null ) && superior.getOid().equals( ConfigSchemaConstants.ADS_COMPOSITE_ELEMENT_AT.getOid() ) )
             {
-                Class<?> type = beanField.getType();
-
-                if ( fieldAttr == null )
+                // This is a composite element, we have to go one level down to read it.
+                // First, check if it's a SingleValued element
+                if ( beanAT.isSingleValued() )
                 {
-                    if ( isBaseAdsBeanChild( type ) )
+                    // Yes : get the frist element if it's mandatory
+                    if ( mandatory )
                     {
-                        // This is another bean, which must be one level below in the tree. Let's read it
-                        Set<AdsBaseBean> beans = read( entry.getDn(), fieldName, SearchScope.ONELEVEL, mandatory );
+                        DN newBase = entry.getDn().add( "ou=" + beanFieldName );
+                        List<AdsBaseBean> beans = read( newBase, fieldName, SearchScope.ONELEVEL, mandatory );
+
+                        AdsBaseBean readBean = beans.get( 0 );
                         
-                        if ( ( beans != null ) && ( beans.size() != 0 ) )
-                        {
-                            beanField.set( bean, beans.toArray()[0] );
-                        }
-                        
-                        continue;
+                        beanField.set( bean, readBean );
                     }
+                }
+                else
+                {
+                    // No : we have to loop recursively on all the elements which are
+                    // under the ou=<element-name> branch
+                    DN newBase = entry.getDn().add( "ou=" + beanFieldName );
                     
-                    continue;
-                }
-                
-                Value<?> value = fieldAttr.get();
-                String valueStr = value.getString();
-                
-                
-                if ( type == String.class )
-                {
-                    beanField.set( bean, value.getString() );
-                }
-                else if ( type == int.class )
-                {
-                    beanField.setInt( bean, Integer.parseInt( valueStr )  );
-                }
-                else if ( type == long.class )
-                {
-                    beanField.setLong( bean, Long.parseLong( valueStr )  );
-                }
-                else if ( type == boolean.class )
-                {
-                    beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+                    // We have to remove the 's' at the end of the field name
+                    String attributeName = fieldName.substring( 0, fieldName.length() - 1 );
+                    
+                    List<AdsBaseBean> beans = read( newBase, attributeName, SearchScope.ONELEVEL, mandatory );
+                    beanField.set( bean, beans );
                 }
             }
             else
             {
-                if ( fieldAttr == null )
+                // Process the field accordingly to its cardinality
+                if ( beanAT.isSingleValued() )
                 {
-                    continue;
+                    readSingleValueField( bean, beanField, fieldAttr, mandatory );
                 }
-                
-                // loop on the values and inject them in the bean
-                for ( Value<?> value : fieldAttr )
+                else
                 {
-                    Class<?> type = beanField.getType();
-                    
-                    String valueStr = value.getString();
-                    
-                    if ( type == String.class )
-                    {
-                        beanField.set( bean, value.getString() );
-                    }
-                    else if ( type == int.class )
-                    {
-                        beanField.setInt( bean, Integer.parseInt( valueStr )  );
-                    }
-                    else if ( type == long.class )
-                    {
-                        beanField.setLong( bean, Long.parseLong( valueStr )  );
-                    }
-                    else if ( type == boolean.class )
-                    {
-                        beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
-                    }
+                    readMultiValuedField( bean, beanField, fieldAttr, mandatory );
                 }
             }
         }
     }
+    
+    
+    private Set<AttributeType> getAllMusts( ObjectClass objectClass )
+    {
+        Set<AttributeType> musts = new HashSet<AttributeType>();
+        
+        // First, gets the direct MUST
+        musts.addAll( objectClass.getMustAttributeTypes() );
+        
+        // then add all the superiors MUST (recursively)
+        List<ObjectClass> superiors = objectClass.getSuperiors();
+        
+        if ( superiors != null )
+        {
+            for ( ObjectClass superior : superiors )
+            {
+                musts.addAll( getAllMusts( superior) );
+            }
+        }
+        
+        return musts;
+    }
+    
+    
+    private Set<AttributeType> getAllMays( ObjectClass objectClass )
+    {
+        Set<AttributeType> mays = new HashSet<AttributeType>();
+        
+        // First, gets the direct MAY
+        mays.addAll( objectClass.getMayAttributeTypes() );
+        
+        // then add all the superiors MAY (recursively)
+        List<ObjectClass> superiors = objectClass.getSuperiors();
+        
+        if ( superiors != null )
+        {
+            for ( ObjectClass superior : superiors )
+            {
+                mays.addAll( getAllMays( superior) );
+            }
+        }
+        
+        return mays;
+    }
+    
+    
 
     /**
      * Read some configuration element from the DIT using its name 
      *
      * @throws Exception
      */
-    public Set<AdsBaseBean> read( DN base, String name, SearchScope scope, boolean mandatory ) throws Exception
+    public List<AdsBaseBean> read( DN base, String name, SearchScope scope, boolean mandatory ) throws Exception
     {
-        // Search for the element starting at some pooint in the DIT
-        AttributeType adsdAt = schemaManager.getAttributeType( name );
-        PresenceNode filter = new PresenceNode( adsdAt );
+        System.out.println( "Reading from '" + base + "' entry " + name + ", mandatory :  " + mandatory);
+        
+        // Search for the element starting at some point in the DIT
+        AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        EqualityNode filter = new EqualityNode( adsdAt, new StringValue( name ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope.ordinal() );
 
@@ -1162,7 +962,7 @@ public class ConfigPartitionReader
             }
         }
         
-        Set<AdsBaseBean> beans = new HashSet<AdsBaseBean>();
+        List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
 
         // Loop on all the found elements
         try
@@ -1185,11 +985,11 @@ public class ConfigPartitionReader
                 
                 // Now, read the AttributeTypes and store the values into the bean fields
                 // The MAY
-                List<AttributeType> mays = objectClass.getMayAttributeTypes();
+                Set<AttributeType> mays = getAllMays( objectClass );
                 readFields( bean, entry, mays, OPTIONNAL );
                 
                 // The MUST
-                List<AttributeType> musts = objectClass.getMustAttributeTypes();
+                Set<AttributeType> musts = getAllMusts( objectClass );
                 readFields( bean, entry, musts, MANDATORY );
                 
                 beans.add( bean );
@@ -1322,11 +1122,38 @@ public class ConfigPartitionReader
     }
     
     
+    public ConfigBean readConfig( DN base, String objectClass ) throws Exception
+    {
+        try
+        {
+            ConfigBean configBean = new ConfigBean();
+            
+            if ( base == null )
+            {
+                base = configPartition.getSuffix();
+            }
+            
+            List<AdsBaseBean> beans = read( base, objectClass, SearchScope.ONELEVEL, MANDATORY );
+            
+            System.out.println( beans.get( 0 ) );
+            
+            configBean.setDirectoryServiceBeans( beans );
+            
+            return configBean;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    
     /**
      * instantiates a DirectoryService based on the configuration present in the partition 
      *
      * @throws Exception
-     */
+     *
     public DirectoryService createDirectoryService() throws Exception
     {
         DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)read( configPartition.getSuffix(), ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID, SearchScope.SUBTREE, MANDATORY );
@@ -1611,64 +1438,14 @@ public class ConfigPartitionReader
     
     
     /**
-     * reads the Interceptor configuration and instantiates them in the order specified
-     *
-     * @param dirServiceDN the DN under which interceptors are configured
-     * @return a list of InterceptorBean objects
-     * @throws Exception If the configuraton cannot be read
-     */
-    private Set<InterceptorBean> readInterceptors( DN dirServiceDN ) throws Exception
-    {
-        AttributeType adsInterceptorIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
-        PresenceNode filter = new PresenceNode( adsInterceptorIdAt );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
-            filter, controls );
-
-        Set<InterceptorBean> interceptorBeans = new TreeSet<InterceptorBean>();
-
-        while ( cursor.next() )
-        {
-            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-                .get();
-            Entry interceptorEntry = configPartition.lookup( forwardEntry.getId() );
-            
-            if( ! isEnabled( interceptorEntry ) )
-            {
-                continue;
-            }
-
-            String id = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_ID, interceptorEntry );
-            String fqcn = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_CLASSNAME, interceptorEntry );
-            int order = getInt( ConfigSchemaConstants.ADS_INTERCEPTOR_ORDER, interceptorEntry );
-
-            InterceptorBean interceptorBean = new InterceptorBean();
-            
-            interceptorBean.setInterceptorId( id );
-            interceptorBean.setFqcn( fqcn );
-            interceptorBean.setInterceptorOrder( order );
-            
-            interceptorBeans.add( interceptorBean );
-        }
-
-        cursor.close();
-        
-        return interceptorBeans;
-    }
-
-
-    /**
      * Creates the Interceptor instances from the configuration
      *
      * @param dirServiceDN the DN under which interceptors are configured
      * @return a list of instantiated Interceptor objects
      * @throws Exception If the instanciation failed
      */
-    private List<Interceptor> createInterceptors( DN dirServiceDN ) throws Exception
+    private List<Interceptor> createInterceptors( Set<InterceptorBean> interceptorBeans ) throws Exception
     {
-        Set<InterceptorBean> interceptorBeans = readInterceptors( dirServiceDN );
-        
         List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
         
         for ( InterceptorBean interceptorBean : interceptorBeans )
@@ -1690,63 +1467,14 @@ public class ConfigPartitionReader
     
     
     /**
-     * Read the Partition from the configuration in DIT
-     * 
-     * @param dirServiceDN the DN under which Partitions are configured
-     * @return A map of partitions 
-     * @throws Exception If we cannot read some partition
-     */
-    private Map<String, PartitionBean> readPartitions( DN dirServiceDN ) throws Exception
-    {
-        AttributeType adsPartitionIdeAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_PARTITION_ID );
-        PresenceNode filter = new PresenceNode( adsPartitionIdeAt );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
-            filter, controls );
-
-        Map<String, PartitionBean> partitionBeans = new HashMap<String, PartitionBean>();
-
-        while ( cursor.next() )
-        {
-            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-                .get();
-            Entry partitionEntry = configPartition.lookup( forwardEntry.getId() );
-
-            if ( !isEnabled( partitionEntry ) )
-            {
-                continue;
-            }
-            
-            EntryAttribute ocAttr = partitionEntry.get( OBJECT_CLASS_AT );
-
-            if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMPARTITION ) )
-            {
-                JdbmPartitionBean jdbmPartitionBean = readJdbmPartition( partitionEntry );
-                partitionBeans.put( jdbmPartitionBean.getPartitionId(), jdbmPartitionBean );
-            }
-            else
-            {
-                throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
-            }
-        }
-
-        cursor.close();
-
-        return partitionBeans;
-    }
-    
-    
-    /**
      * Create the set of Partitions instanciated from the configuration
      * 
      * @param dirServiceDN the DN under which Partitions are configured
      * @return A Map of all the instanciated partitions
      * @throws Exception If we cannot process some Partition
      */
-    public Map<String, Partition> createPartitions( DN dirServiceDN ) throws Exception
+    public Map<String, Partition> createPartitions( Map<String, PartitionBean> partitionBeans ) throws Exception
     {
-        Map<String, PartitionBean> partitionBeans = readPartitions( dirServiceDN );
         Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
         
         for ( String key : partitionBeans.keySet() )
@@ -1760,51 +1488,6 @@ public class ConfigPartitionReader
         return partitions;
     }
     
-    
-    /**
-     * Read the JdbmPartitionBean from the configuration in DIT
-     * 
-     * @param partitionEntry The Entry containing the configuration for this partition
-     * @return An bean containing the JdbmPartition configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public JdbmPartitionBean readJdbmPartition( Entry partitionEntry ) throws Exception
-    {
-        JdbmPartitionBean jdbmPartitionBean = new JdbmPartitionBean();
-        
-        jdbmPartitionBean.setPartitionId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
-        //jdbmPartitionBean.setPartitionDir( workDir + File.separator + jdbmPartitionBean.getPartitionId() );
-
-        DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ), schemaManager );
-        jdbmPartitionBean.setPartitionSuffix( systemDn );
-
-        EntryAttribute cacheAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_CACHE_SIZE );
-
-        if ( cacheAttr != null )
-        {
-            jdbmPartitionBean.setPartitionCacheSize( Integer.parseInt( cacheAttr.getString() ) );
-        }
-
-        EntryAttribute optimizerAttr = partitionEntry.get( ConfigSchemaConstants.ADS_JDBM_PARTITION_OPTIMIZER_ENABLED );
-
-        if ( optimizerAttr != null )
-        {
-            jdbmPartitionBean.setJdbmPartitionOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
-        }
-
-        EntryAttribute syncAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_SYNCONWRITE );
-
-        if ( syncAttr != null )
-        {
-            jdbmPartitionBean.setPartitionSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
-        }
-
-        Set<JdbmIndexBean<String, Entry>> indexedAttributes = readIndexes( partitionEntry.getDn() );
-        jdbmPartitionBean.setIndexedAttributes( indexedAttributes );
-
-        return jdbmPartitionBean;
-    }
-
     
     /**
      * Create a new instance of a JdbmPartition from an instance of JdbmIndexBean
@@ -1855,44 +1538,6 @@ public class ConfigPartitionReader
     }
     
 
-    private Set<JdbmIndexBean<String, Entry>> readIndexes( DN partitionDN ) throws Exception
-    {
-        AttributeType adsIndexAttributeIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
-        PresenceNode filter = new PresenceNode( adsIndexAttributeIdAt );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
-
-        Set<JdbmIndexBean<String, Entry>> indexesBean = new HashSet<JdbmIndexBean<String, Entry>>();
-
-        while ( cursor.next() )
-        {
-            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
-                .get();
-            Entry indexEntry = configPartition.lookup( forwardEntry.getId() );
-
-            if ( !isEnabled( indexEntry ) )
-            {
-                continue;
-            }
-
-            EntryAttribute ocAttr = indexEntry.get( OBJECT_CLASS_AT );
-
-            if ( ocAttr.contains( ConfigSchemaConstants.ADS_JDBMINDEX ) )
-            {
-                indexesBean.add( readJdbmIndex( indexEntry ) );
-            }
-            else
-            {
-                throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
-            }
-        }
-        
-        return indexesBean;
-    }
-
-
     private Set<Index<?, Entry, Long>> createIndexes( DN partitionDN ) throws Exception
     {
         Set<JdbmIndexBean<String, Entry>> indexesBean = readIndexes( partitionDN );
@@ -1918,35 +1563,6 @@ public class ConfigPartitionReader
         }
 
         return indexes;
-    }
-
-
-    /**
-     * Read the JdbmIndex from the configuration in DIT
-     * 
-     * @param indexEntry The Entry containing the configuration for this index
-     * @return An bean containing the JdbmEntry configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public JdbmIndexBean<String, Entry> readJdbmIndex( Entry indexEntry ) throws Exception
-    {
-        JdbmIndexBean<String, Entry> index = new JdbmIndexBean<String, Entry>();
-        index.setIndexAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
-        EntryAttribute cacheAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_CACHESIZE );
-
-        if ( cacheAttr != null )
-        {
-            index.setIndexCacheSize( Integer.parseInt( cacheAttr.getString() ) );
-        }
-
-        EntryAttribute numDupAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_NUM_DUP_LIMIT );
-
-        if ( numDupAttr != null )
-        {
-            index.setIndexNumDupLimit( Integer.parseInt( numDupAttr.getString() ) );
-        }
-
-        return index;
     }
 
 
@@ -1989,40 +1605,11 @@ public class ConfigPartitionReader
     }
 
     
-    private TransportBean[] readTransports( DN adsServerDN ) throws Exception
-    {
-        AttributeType adsTransportIdAt = schemaManager.getAttributeType( ConfigSchemaConstants.ADS_TRANSPORT_ID );
-        PresenceNode filter = new PresenceNode( adsTransportIdAt );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( adsServerDN, AliasDerefMode.NEVER_DEREF_ALIASES,
-            filter, controls );
-
-        List<TransportBean> transports = new ArrayList<TransportBean>();
-
-        while ( cursor.next() )
-        {
-            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
-            Entry transportEntry = configPartition.lookup( forwardEntry.getId() );
-    
-            if ( !isEnabled( transportEntry ) )
-            {
-                continue;
-            }
-    
-            transports.add( readTransport( transportEntry ) );
-        }
-
-        return transports.toArray( new TransportBean[]
-                                                 {} );
-    }
-
     /**
      * Creates the array of transports read from the DIT 
      */
-    private Transport[] createTransports( DN adsServerDN ) throws Exception
+    private Transport[] createTransports(TransportBean[] transportBeans ) throws Exception
     {
-        TransportBean[] transportBeans = readTransports( adsServerDN );
         Transport[] transports = new Transport[ transportBeans.length ];
         int i = 0;
         
@@ -2035,65 +1622,6 @@ public class ConfigPartitionReader
     }
     
     
-    /**
-     * Read a Transport for the DIT
-     * 
-     * @param transportEntry The Entry containing the transport's configuration
-     * @return A instance containing the transport configuration
-     * @throws Exception If the configuration cannot be read
-     */
-    public TransportBean readTransport( Entry transportEntry ) throws Exception
-    {
-        TransportBean transportBean = null;
-
-        EntryAttribute ocAttr = transportEntry.get( OBJECT_CLASS_AT );
-
-        if ( ocAttr.contains( ConfigSchemaConstants.ADS_TCP_TRANSPORT ) )
-        {
-            transportBean = new TcpTransportBean();
-        }
-        else if ( ocAttr.contains( ConfigSchemaConstants.ADS_UDP_TRANSPORT ) )
-        {
-            transportBean = new UdpTransportBean();
-        }
-
-        transportBean.setSystemPort( getInt( ConfigSchemaConstants.ADS_SYSTEM_PORT, transportEntry ) );
-        EntryAttribute addressAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ADDRESS );
-
-        if ( addressAttr != null )
-        {
-            transportBean.setTransportAddress( addressAttr.getString() );
-        }
-        else
-        {
-            transportBean.setTransportAddress( "0.0.0.0" );
-        }
-
-        EntryAttribute backlogAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_BACKLOG );
-
-        if ( backlogAttr != null )
-        {
-            transportBean.setTransportBackLog( Integer.parseInt( backlogAttr.getString() ) );
-        }
-
-        EntryAttribute sslAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_ENABLE_SSL );
-
-        if ( sslAttr != null )
-        {
-            transportBean.setTransportEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
-        }
-
-        EntryAttribute nbThreadsAttr = transportEntry.get( ConfigSchemaConstants.ADS_TRANSPORT_NBTHREADS );
-
-        if ( nbThreadsAttr != null )
-        {
-            transportBean.setTransportNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
-        }
-
-        return transportBean;
-    }
-
-
     /**
      * Creates a Transport reading its configuration from the DIT
      * 
@@ -2125,48 +1653,14 @@ public class ConfigPartitionReader
 
 
     /**
-     * Read the ChangeLog configuration
-     * 
-     * @param changelogDN The DN in the DIT for the ChangeLog configuration
-     * @return The instanciated bean containing the ChangeLog configuration
-     * @throws Exception If the configuration can't be read
-     */
-    public ChangeLogBean readChangeLog( DN changelogDN ) throws Exception
-    {
-        long id = configPartition.getEntryId( changelogDN );
-        Entry clEntry = configPartition.lookup( id );
-
-        ChangeLogBean changeLogBean = new ChangeLogBean();
-        
-        EntryAttribute clEnabledAttr = clEntry.get( ConfigSchemaConstants.ADS_CHANGELOG_ENABLED );
-
-        if ( clEnabledAttr != null )
-        {
-            changeLogBean.setEnabled( Boolean.parseBoolean( clEnabledAttr.getString() ) );
-        }
-
-        EntryAttribute clExpAttr = clEntry.get( ConfigSchemaConstants.ADS_CHANGELOG_EXPOSED );
-
-        if ( clExpAttr != null )
-        {
-            changeLogBean.setChangeLogExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
-        }
-
-        return changeLogBean;
-    }
-
-
-    /**
      * Read the configuration for the ChangeLog system
      * 
      * @param changelogDN The DN for the ChngeLog configuration
      * @return
      * @throws Exception
      */
-    public ChangeLog createChangeLog( DN changelogDN ) throws Exception
+    public ChangeLog createChangeLog( ChangeLogBean changeLogBean ) throws Exception
     {
-        ChangeLogBean changeLogBean = readChangeLog( changelogDN );
-        
         ChangeLog changeLog = new DefaultChangeLog();
         changeLog.setEnabled( changeLogBean.isEnabled() );
         changeLog.setExposed( changeLogBean.isChangeLogExposed() );
@@ -2176,57 +1670,14 @@ public class ConfigPartitionReader
     
     
     /**
-     * Load the Journal configuration
-     * 
-     * @param journalDN The DN which contains the journal configuration
-     * @return A bean containing the journal configuration
-     * @throws Exception If there is somethng wrong in the configuration
-     */
-    public JournalBean readJournal( DN journalDN ) throws Exception
-    {
-        JournalBean journalBean = new JournalBean();
-
-        long id = configPartition.getEntryId( journalDN );
-        Entry entry = configPartition.lookup( id );
-        
-        journalBean.setJournalFileName( entry.get( ConfigSchemaConstants.ADS_JOURNAL_FILENAME ).getString() );
-
-        EntryAttribute workingDirAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_WORKINGDIR );
-
-        if ( workingDirAttr != null )
-        {
-            journalBean.setJournalWorkingDir( workingDirAttr.getString() );
-        }
-        
-        EntryAttribute rotationAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ROTATION );
-
-        if ( rotationAttr != null )
-        {
-            journalBean.setJournalRotation( Integer.parseInt( rotationAttr.getString() ) );
-        }
-        
-        EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_JOURNAL_ENABLED );
-
-        if ( enabledAttr != null )
-        {
-            journalBean.setEnabled( Boolean.parseBoolean( enabledAttr.getString() ) );
-        }
-        
-        return journalBean;
-    }
-
-
-    /**
      * Instanciate the Journal object from the stored configuration
      * 
      * @param journalDN The DN in the DIt for the Journal configuration
      * @return An instance of Journal
      * @throws Exception If the Journal creation failed
      */
-    public Journal createJournal( DN journalDN ) throws Exception
+    public Journal createJournal( JournalBean journalBean ) throws Exception
     {
-        JournalBean journalBean = readJournal( journalDN );
-        
         Journal journal = new DefaultJournal();
 
         journal.setRotation( journalBean.getJournalRotation() );
@@ -2365,192 +1816,6 @@ public class ConfigPartitionReader
      * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
      * @throws Exception
      */
-    public PasswordPolicyConfiguration readPwdPolicyConfig( DN dirServiceDN ) throws Exception
-    {
-        AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        EqualityNode<String> filter = new EqualityNode<String>( ocAt, new StringValue( PWD_POLICY_OC ) );
-        
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        
-        if ( ! cursor.next() )
-        {
-            return null;
-        }
-
-        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
-        Entry entry = configPartition.lookup( forwardEntry.getId() );//pwdPolicyEntry
-
-        if ( ! isEnabled( entry ) )
-        {
-            return null;
-        }
-        
-        PasswordPolicyConfiguration passwordPolicyConfig = new PasswordPolicyConfiguration();
-        
-        String pwdAttrVal = entry.get( PWD_ATTRIBUTE_AT ).getString();
-        
-        // check if this is a valid attribute name
-        try
-        {
-            schemaManager.lookupAttributeTypeRegistry( pwdAttrVal );
-            passwordPolicyConfig.setPwdAttribute( pwdAttrVal );
-        }
-        catch( Exception e )
-        {
-            LOG.error( "invalid password attribute name '{}' set in password policy configuration", pwdAttrVal );
-            throw e;
-        }
-        
-        EntryAttribute pwdMinAgeAttr = entry.get( PWD_MIN_AGE_AT );
-        
-        if( pwdMinAgeAttr != null )
-        {
-            passwordPolicyConfig.setPwdMinAge( getInt( pwdMinAgeAttr ) );
-        }
-        
-        EntryAttribute pwdMaxAgeAttr = entry.get( PWD_MAX_AGE_AT );
-        
-        if( pwdMaxAgeAttr != null )
-        {
-            passwordPolicyConfig.setPwdMaxAge( getInt( pwdMaxAgeAttr ) );
-        }
-        
-        EntryAttribute pwdInHistoryAttr = entry.get( PWD_IN_HISTORY_AT );
-        
-        if( pwdInHistoryAttr != null )
-        {
-            passwordPolicyConfig.setPwdInHistory( getInt( pwdInHistoryAttr ) );
-        }
-        
-        EntryAttribute pwdCheckQualityAttr = entry.get( PWD_CHECK_QUALITY_AT );
-        
-        if( pwdCheckQualityAttr != null )
-        {
-            passwordPolicyConfig.setPwdCheckQuality( getInt( pwdCheckQualityAttr ) );
-        }
-        
-        EntryAttribute pwdMinLengthAttr = entry.get( PWD_MIN_LENGTH_AT );
-        
-        if( pwdMinLengthAttr != null )
-        {
-            passwordPolicyConfig.setPwdMinLength( getInt( pwdMinLengthAttr ) );
-        }
-        
-        EntryAttribute pwdMaxLengthAttr = entry.get( PWD_MAX_LENGTH_AT );
-        
-        if( pwdMaxLengthAttr != null )
-        {
-            passwordPolicyConfig.setPwdMaxLength( getInt( pwdMaxLengthAttr ) );
-        }
-        
-        EntryAttribute pwdExpireWarningAttr = entry.get( PWD_EXPIRE_WARNING_AT );
-        
-        if( pwdExpireWarningAttr != null )
-        {
-            passwordPolicyConfig.setPwdExpireWarning( getInt( pwdExpireWarningAttr ) );
-        }
-        
-        EntryAttribute pwdGraceAuthNLimitAttr = entry.get( PWD_GRACE_AUTHN_LIMIT_AT );
-        
-        if( pwdGraceAuthNLimitAttr != null )
-        {
-            passwordPolicyConfig.setPwdGraceAuthNLimit( getInt( pwdGraceAuthNLimitAttr ) );
-        }
-        
-        EntryAttribute pwdGraceExpireAttr = entry.get( PWD_GRACE_EXPIRE_AT );
-        
-        if( pwdGraceExpireAttr != null )
-        {
-            passwordPolicyConfig.setPwdGraceExpire( getInt( pwdGraceExpireAttr ) );
-        }
-        
-        EntryAttribute pwdLockoutAttr = entry.get( PWD_LOCKOUT_AT );
-        
-        if( pwdLockoutAttr != null )
-        {
-            passwordPolicyConfig.setPwdLockout( Boolean.parseBoolean( pwdLockoutAttr.getString() ) );
-        }
-        
-        EntryAttribute pwdLockoutDurationAttr = entry.get( PWD_LOCKOUT_DURATION_AT );
-        
-        if( pwdLockoutDurationAttr != null )
-        {
-            passwordPolicyConfig.setPwdLockoutDuration( getInt( pwdLockoutDurationAttr ) );
-        }
-        
-        EntryAttribute pwdMaxFailureAttr = entry.get( PWD_MAX_FAILURE_AT );
-        
-        if( pwdMaxFailureAttr != null )
-        {
-            passwordPolicyConfig.setPwdMaxFailure( getInt( pwdMaxFailureAttr ) );
-        }
-        
-        EntryAttribute pwdFailureCountIntervalAttr = entry.get( PWD_FAILURE_COUNT_INTERVAL_AT );
-        
-        if( pwdFailureCountIntervalAttr != null )
-        {
-            passwordPolicyConfig.setPwdFailureCountInterval( getInt( pwdFailureCountIntervalAttr ) );
-        }
-        
-        EntryAttribute pwdMustChangeAttr = entry.get( PWD_MUST_CHANGE_AT );
-        
-        if( pwdMustChangeAttr != null )
-        {
-            passwordPolicyConfig.setPwdMustChange( Boolean.parseBoolean( pwdMustChangeAttr.getString() ) );
-        }
-        
-        EntryAttribute pwdAllowUserChangeAttr = entry.get( PWD_ALLOW_USER_CHANGE_AT );
-        
-        if( pwdAllowUserChangeAttr != null )
-        {
-            passwordPolicyConfig.setPwdAllowUserChange( Boolean.parseBoolean( pwdAllowUserChangeAttr.getString() ) );
-        }
-        
-        EntryAttribute pwdSafeModifyAttr = entry.get( PWD_SAFE_MODIFY_AT );
-        
-        if( pwdSafeModifyAttr != null )
-        {
-            passwordPolicyConfig.setPwdSafeModify( Boolean.parseBoolean( pwdSafeModifyAttr.getString() ) );
-        }
-        
-        EntryAttribute pwdMinDelayAttr = entry.get( PWD_MIN_DELAY_AT );
-        
-        if( pwdMinDelayAttr != null )
-        {
-            passwordPolicyConfig.setPwdMinDelay( getInt( pwdMinDelayAttr ) );
-        }
-        
-        EntryAttribute pwdMaxDelayAttr = entry.get( PWD_MAX_DELAY_AT );
-        
-        if( pwdMaxDelayAttr != null )
-        {
-            passwordPolicyConfig.setPwdMaxDelay( getInt( pwdMaxDelayAttr ) );
-        }
-        
-        EntryAttribute pwdMaxIdleAttr = entry.get( PWD_MAX_IDLE_AT );
-        
-        if( pwdMaxIdleAttr != null )
-        {
-            passwordPolicyConfig.setPwdMaxIdle( getInt( pwdMaxIdleAttr ) );
-        }
-        
-        passwordPolicyConfig.validate();
-        
-        return passwordPolicyConfig;
-    }
-    
-    
-    /**
-     * creates the PassworddPolicyConfiguration object after reading the config entry containing pwdpolicy OC
-     * under the directory service config DN.
-     *
-     * @param dirServiceDN the DN of the diretcory service configuration entry
-     * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
-     * @throws Exception
-     */
     public PasswordPolicyConfiguration createPwdPolicyConfig( DN dirServiceDN ) throws Exception
     {
         PasswordPolicyConfiguration passwordPolicy = readPwdPolicyConfig( dirServiceDN );
@@ -2574,20 +1839,5 @@ public class ConfigPartitionReader
     private int getInt( EntryAttribute attr ) throws Exception
     {
         return Integer.parseInt( attr.getString() );
-    }
-
-    
-    private boolean isEnabled( Entry entry ) throws Exception
-    {
-        EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_ENABLED );
-        
-        if ( enabledAttr != null )
-        {
-            return Boolean.parseBoolean( enabledAttr.getString() );
-        }
-        else
-        {
-            return true;
-        }
     }
 }

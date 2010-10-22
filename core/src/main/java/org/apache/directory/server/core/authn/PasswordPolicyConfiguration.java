@@ -152,7 +152,7 @@ public class PasswordPolicyConfiguration
     private int pwdmaxidle;
 
     /** flag used to tell if the passwordPolicy is enable dor not  */
-    private boolean enabled = true;
+    private boolean pwdenabled = true;
 
 
     public String getPwdAttribute()
@@ -534,18 +534,18 @@ public class PasswordPolicyConfiguration
     /**
      * @return the enabled
      */
-    public boolean isEnabled()
+    public boolean isPwdEnabled()
     {
-        return enabled;
+        return pwdenabled;
     }
 
 
     /**
      * @param enabled the enabled to set
      */
-    public void setEnabled( boolean enabled )
+    public void setPwdEnabled( boolean pwdenabled )
     {
-        this.enabled = enabled;
+        this.pwdenabled = pwdenabled;
     }
     
     
@@ -556,7 +556,7 @@ public class PasswordPolicyConfiguration
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( toStringBoolean( "enabled", "", enabled ) );
+        sb.append( toStringBoolean( "enabled", "", pwdenabled ) );
         sb.append( tabs ).append( "password attribute :" ).append( pwdattribute ).append( '\n' );
         sb.append( tabs ).append( "password min age :" ).append( pwdminage ).append( '\n' );
         sb.append( tabs ).append( "password max age :" ).append( pwdmaxage ).append( '\n' );

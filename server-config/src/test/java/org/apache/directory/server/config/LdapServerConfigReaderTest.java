@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class ConfigPartitionReaderTest
+public class LdapServerConfigReaderTest
 {
 
     private static DirectoryService dirService;
@@ -99,9 +99,9 @@ public class ConfigPartitionReaderTest
             throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
 
-        File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
+        File configDir = new File( workDir, "ldapserver" ); // could be any directory, cause the config is now in a single file
         
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, true );
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapserver.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
@@ -112,40 +112,7 @@ public class ConfigPartitionReaderTest
         
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
-        ConfigBean configBean = cpReader.readConfig( new DN( "ou=config" ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
-        /*
-        dirService = createDirectoryService( configBean );
-
-        SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
-
-        // Init the schema partition's wrapped LdifPartition
-        LdifPartition wrappedPartition = new LdifPartition();
-        wrappedPartition.setWorkingDirectory( new File( workDir, schemaPartition.getId() ).getAbsolutePath() );
-        schemaPartition.setWrappedPartition( wrappedPartition );
-        schemaPartition.setSchemaManager( schemaManager );
-
-        dirService.setWorkingDirectory( workDir );
-        dirService.setSchemaManager( schemaManager );
-        dirService.startup();
-
-        server = cpReader.createLdapServer();
-        server.setDirectoryService( dirService );
-
-        // this is a hack to use a different port than the one
-        // configured in the actual configuration data
-        // in case the configured port is already in use during the test run
-        Transport[] transports = server.getTransports();
-        
-        for( Transport t : transports )
-        {
-            int port = t.getPort();
-            port = AvailablePortFinder.getNextAvailable( port );
-            t.setPort( port );
-            t.init();
-        }
-
-        server.start();
-        */
+        ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_LDAP_SERVER_OC.getValue() );
     }
 
 
