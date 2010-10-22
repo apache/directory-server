@@ -63,7 +63,7 @@ public class LdapServerBean extends DSBasedServerBean
     private int replprovider;
     
     /** The list of supported mechanisms */
-    private Set<SaslMechanisHandlerBean> saslmechhandlers = new HashSet<SaslMechanisHandlerBean>();
+    private List<SaslMechHandlerBean> saslmechhandlers = new ArrayList<SaslMechHandlerBean>();
     
     /** The list of supported extended operation handlers */
     private List<ExtendedOpHandlerBean> extendedophandlers = new ArrayList<ExtendedOpHandlerBean>();
@@ -275,7 +275,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return the saslMechHandlers
      */
-    public Set<SaslMechanisHandlerBean> getSaslMechHandlers()
+    public List<SaslMechHandlerBean> getSaslMechHandlers()
     {
         return saslmechhandlers;
     }
@@ -284,7 +284,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to set
      */
-    public void setSaslMechHandlers( Set<SaslMechanisHandlerBean> saslMechHandlers )
+    public void setSaslMechHandlers( List<SaslMechHandlerBean> saslMechHandlers )
     {
         this.saslmechhandlers = saslMechHandlers;
     }
@@ -293,9 +293,9 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to add
      */
-    public void setSaslMechHandlers( SaslMechanisHandlerBean... saslMechHandlers )
+    public void setSaslMechHandlers( SaslMechHandlerBean... saslMechHandlers )
     {
-        for ( SaslMechanisHandlerBean saslMechHandler : saslMechHandlers )
+        for ( SaslMechHandlerBean saslMechHandler : saslMechHandlers )
         {
             this.saslmechhandlers.add( saslMechHandler );
         }
@@ -364,7 +364,7 @@ public class LdapServerBean extends DSBasedServerBean
         {
             sb.append( tabs ).append( "  SASL mechanism handlers :\n" );
             
-            for ( SaslMechanisHandlerBean saslMechHandler : saslmechhandlers )
+            for ( SaslMechHandlerBean saslMechHandler : saslmechhandlers )
             {
                 sb.append( saslMechHandler.toString( tabs + "    " ) );
             }
