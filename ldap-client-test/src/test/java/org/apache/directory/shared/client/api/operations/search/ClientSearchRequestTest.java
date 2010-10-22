@@ -121,7 +121,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             count++;
         }
 
-        SearchResultDone done = cursor.getSearchDone();
+        SearchResultDone done = cursor.getSearchResultDone();
 
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
