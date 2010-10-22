@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -77,12 +76,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 {
     /** A speedup for logger in debug mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-    /** The SHA1 hash length */
-    private static final int SHA1_LENGTH = 20;
-
-    /** The MD5 hash length */
-    private static final int MD5_LENGTH = 16;
 
     /**
      * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
@@ -150,37 +143,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         super( AuthenticationLevel.SIMPLE );
 
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
-    }
-
-    /**
-     * A private class to store all informations about the existing
-     * password found in the cache or get from the backend.
-     *
-     * This is necessary as we have to compute :
-     * - the used algorithm
-     * - the salt if any
-     * - the password itself.
-     *
-     * If we have a on-way encrypted password, it is stored using this
-     * format :
-     * {<algorithm>}<encrypted password>
-     * where the encrypted password format can be :
-     * - MD5/SHA : base64([<salt (4 or 8 bytes)>]<password>)
-     * - crypt : <salt (2 btytes)><password>
-     *
-     * Algorithm are currently MD5, SMD5, SHA, SSHA, CRYPT and empty
-     */
-    private class EncryptionMethod
-    {
-        private byte[] salt;
-        private LdapSecurityConstants algorithm;
-
-
-        private EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
-        {
-            this.algorithm = algorithm;
-            this.salt = salt;
-        }
     }
 
 
@@ -305,11 +267,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             // and the salt, if any.
             // But we should also get the algorithm and salt to
             // be able to encrypt the submitted user password in the next step
-            byte[] encryptedStored = splitCredentials( storedPassword, encryptionMethod );
+            byte[] encryptedStored = PasswordUtil.splitCredentials( storedPassword, encryptionMethod );
 
             // Reuse the saltedPassword informations to construct the encrypted
             // password given by the user.
-            byte[] userPassword = PasswordUtil.encryptPassword( credentials, encryptionMethod.algorithm, encryptionMethod.salt );
+            byte[] userPassword = PasswordUtil.encryptPassword( credentials, encryptionMethod.getAlgorithm(), encryptionMethod.getSalt() );
 
             // Now, compare the two passwords.
             if ( Arrays.equals( userPassword, encryptedStored ) )
@@ -349,111 +311,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
-        }
-    }
-
-
-    private static void split( byte[] all, int offset, byte[] left, byte[] right )
-    {
-        System.arraycopy( all, offset, left, 0, left.length );
-        System.arraycopy( all, offset + left.length, right, 0, right.length );
-    }
-
-
-    /**
-     * Decompose the stored password in an algorithm, an eventual salt
-     * and the password itself.
-     *
-     * If the algorithm is SHA, SSHA, MD5 or SMD5, the part following the algorithm
-     * is base64 encoded
-     *
-     * @param encryptionMethod The structure to feed
-     * @return The password
-     * @param credentials the credentials to split
-     */
-    private byte[] splitCredentials( byte[] credentials, EncryptionMethod encryptionMethod )
-    {
-        int algoLength = encryptionMethod.algorithm.getName().length() + 2;
-
-        switch ( encryptionMethod.algorithm )
-        {
-            case HASH_METHOD_MD5:
-            case HASH_METHOD_SHA:
-            case HASH_METHOD_SHA256:
-                try
-                {
-                    // We just have the password just after the algorithm, base64 encoded.
-                    // Just decode the password and return it.
-                    return Base64
-                        .decode( new String( credentials, algoLength, credentials.length - algoLength, "UTF-8" )
-                            .toCharArray() );
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    // do nothing
-                    return credentials;
-                }
-
-            case HASH_METHOD_SMD5:
-                try
-                {
-                    // The password is associated with a salt. Decompose it
-                    // in two parts, after having decoded the password.
-                    // The salt will be stored into the EncryptionMethod structure
-                    // The salt is at the end of the credentials, and is 8 bytes long
-                    byte[] passwordAndSalt = Base64.decode( new String( credentials, algoLength, credentials.length
-                        - algoLength, "UTF-8" ).toCharArray() );
-
-                    int saltLength = passwordAndSalt.length - MD5_LENGTH;
-                    encryptionMethod.salt = new byte[saltLength];
-                    byte[] password = new byte[MD5_LENGTH];
-                    split( passwordAndSalt, 0, password, encryptionMethod.salt );
-
-                    return password;
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    // do nothing
-                    return credentials;
-                }
-
-            case HASH_METHOD_SSHA:
-                try
-                {
-                    // The password is associated with a salt. Decompose it
-                    // in two parts, after having decoded the password.
-                    // The salt will be stored into the EncryptionMethod structure
-                    // The salt is at the end of the credentials, and is 8 bytes long
-                    byte[] passwordAndSalt = Base64.decode( new String( credentials, algoLength, credentials.length
-                        - algoLength, "UTF-8" ).toCharArray() );
-
-                    int saltLength = passwordAndSalt.length - SHA1_LENGTH;
-                    encryptionMethod.salt = new byte[saltLength];
-                    byte[] password = new byte[SHA1_LENGTH];
-                    split( passwordAndSalt, 0, password, encryptionMethod.salt );
-
-                    return password;
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    // do nothing
-                    return credentials;
-                }
-
-            case HASH_METHOD_CRYPT:
-                // The password is associated with a salt. Decompose it
-                // in two parts, storing the salt into the EncryptionMethod structure.
-                // The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
-                encryptionMethod.salt = new byte[2];
-                byte[] password = new byte[credentials.length - encryptionMethod.salt.length - algoLength];
-                split( credentials, algoLength, encryptionMethod.salt, password );
-
-                return password;
-
-            default:
-                // unknown method
-                return credentials;
-
         }
     }
 
