@@ -44,33 +44,33 @@ ou: servers
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-serverId=ntpServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-serverId=dhcpServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-server
-objectclass: ads-ntpServer
-ads-serverId: ntpServer
-description: NTP server
+objectclass: ads-dhcpServer
+ads-serverId: dhcpServer
+description: DHCP server
 
-dn: ou=transports,ads-serverId=ntpServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ou=transports,ads-serverId=dhcpServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-transportid=ntp-tcp,ou=transports,ads-serverId=ntpServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-transportid=ntp-tcp,ou=transports,ads-serverId=dhcpServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-transport
 objectclass: ads-tcpTransport
 ads-transportid: ntp-tcp
+ads-transportaddress: 0.0.0.0
 ads-systemport: 123
 ads-transportenablessl: false
 ads-transportbacklog: 50
 ads-transportnbthreads: 8
-ads-transportaddress: 0.0.0.0
 ads-enabled: true
 
-dn: ads-transportid=ntp-udp,ou=transports,ads-serverId=ntpServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-transportid=ntp-udp,ou=transports,ads-serverId=dhcpServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-transport

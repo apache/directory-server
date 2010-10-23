@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.constants.ServerDNConstants;
 
 /**
  * A class used to store the KdcServer configuration.
@@ -34,7 +33,7 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    private String searchbasedn = ServerDNConstants.USER_EXAMPLE_COM_DN;
+    private String searchbasedn;
 
     /**
      * Create a new JournalBean instance
@@ -70,7 +69,12 @@ public class DSBasedServerBean extends ServerBean
      */
     public String toString( String tabs )
     {
-        return super.toString( tabs ) + tabs + "searchBaseDN : " + searchbasedn + "\n";
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs ) );
+        sb.append( toString( tabs, "searchBaseDN", searchbasedn ) );
+        
+        return sb.toString();
     }
     
     
