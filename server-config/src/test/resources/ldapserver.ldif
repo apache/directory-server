@@ -62,7 +62,6 @@ ads-certificatePassword: secret
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
 ads-enableReplProvider: false
-ads-replProvider: 
 
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -166,8 +165,43 @@ objectclass: top
 ads-saslMechName: SIMPLE
 ads-enabled: true
 
-dn: ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: ads-server
-objectclass: ads-ldapServer
-objectclass: ads-dsBasedServer
+dn: ads-pwdId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
+objectclass: ads-base
+objectclass: ads-passwordPolicy
+ads-pwdId: test
+ads-pwdAttribute: userPassword
+ads-pwdMinAge: 100
+ads-pwdMaxAge: 200
+ads-pwdInHistory: 5
+ads-pwdCheckQuality: 2
+ads-pwdMinLength: 5
+ads-pwdMaxLength: 32
+ads-pwdExpireWarning: 100
+ads-pwdGraceAuthNLimit: 50
+ads-pwdGraceExpire: 20
+ads-pwdLockout: TRUE
+ads-pwdLockoutDuration: 20
+ads-pwdMaxFailure: 3
+ads-pwdFailureCountInterval: 5
+ads-pwdMustChange: TRUE
+ads-pwdAllowUserChange: TRUE
+ads-pwdSafeModify: FALSE
+ads-pwdMinDelay: 20
+ads-pwdMaxDelay: 200
+ads-pwdMaxIdle: 100
+
+dn: ads-dsReplicaId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-replConsumer
+ads-dsReplicaId: test
+ads-replAliasDerefMode: NEVER_DEREF
+ads-searchBaseDN: ads-directoryServiceId=default,ou=config
+ads-replLastSentCsn: 20100509111949.005000Z#000000#000#000000
+ads-replSearchScope: SUBTREE
+ads-replSearchFilter: (&(objectClass=top)(ou=test))
+ads-replRefreshNPersist: TRUE
+ads-replUseTls: TRUE
+ads-replStrictCertValidation: TRUE
+ads-replPeerCertificate: ABCD

@@ -62,7 +62,9 @@ public class LdapServerBean extends DSBasedServerBean
     /** The PasswordPolicy component */
     private PasswordPolicyBean passwordpolicy;
 
-    private int replconsumer;
+    /** The replication consumer Bean */
+    private ReplConsumerBean replconsumer;
+    
     private int replprovider;
     
     /** The list of supported mechanisms */
@@ -352,6 +354,24 @@ public class LdapServerBean extends DSBasedServerBean
         this.passwordpolicy = pwdPolicy;
     }
 
+
+    /**
+     * @return the Replication Consumer Bean
+     */
+    public ReplConsumerBean getReplconsumer()
+    {
+        return replconsumer;
+    }
+
+
+    /**
+     * @param replconsumer the Replication Consumer Bean to set
+     */
+    public void setReplconsumer( ReplConsumerBean replconsumer )
+    {
+        this.replconsumer = replconsumer;
+    }
+
     
     /**
      * {@inheritDoc}
@@ -404,6 +424,11 @@ public class LdapServerBean extends DSBasedServerBean
         if ( passwordpolicy != null )
         {
             sb.append( tabs ).append( passwordpolicy.toString( tabs + "  " ) );
+        }
+        
+        if ( replconsumer != null )
+        {
+            sb.append( tabs ).append( replconsumer.toString( tabs + "  " ) );
         }
         
         return sb.toString();
