@@ -132,7 +132,7 @@ public abstract class PartitionBean extends AdsBaseBean
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  partition ID" ).append( partitionid ).append( '\n' );
         sb.append( tabs ).append( "  suffix : " ).append( partitionsuffix ).append( '\n' );
-        sb.append( toStringBoolean( tabs, "  sync on write", partitionsynconwrite ) );
+        sb.append( toString( tabs, "  sync on write", partitionsynconwrite ) );
         
         sb.append( tabs ).append( "  indexes : \n" );
         

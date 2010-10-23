@@ -232,7 +232,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         sb.append( tabs ).append( "  change password policy password length : " ).append( chgpwdpolicypasswordlength ).append( '\n' );
         sb.append( tabs ).append( "  change password policy token size : " ).append( chgpwdpolicytokensize ).append( '\n' );
         sb.append( tabs ).append( "  KRB allowable clock skew : " ).append( krballowableclockskew ).append( '\n' );
-        sb.append( toStringBoolean( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
+        sb.append( toString( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
 
         return sb.toString();
     }

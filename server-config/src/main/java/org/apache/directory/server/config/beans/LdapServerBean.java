@@ -65,7 +65,8 @@ public class LdapServerBean extends DSBasedServerBean
     /** The replication consumer Bean */
     private ReplConsumerBean replconsumer;
     
-    private int replprovider;
+    /** The replication producer Bean */
+    private ReplProviderBean replprovider;
     
     /** The list of supported mechanisms */
     private List<SaslMechHandlerBean> saslmechhandlers = new ArrayList<SaslMechHandlerBean>();
@@ -358,18 +359,36 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return the Replication Consumer Bean
      */
-    public ReplConsumerBean getReplconsumer()
+    public ReplConsumerBean getReplConsumer()
     {
         return replconsumer;
     }
 
 
     /**
-     * @param replconsumer the Replication Consumer Bean to set
+     * @param replConsumer the Replication Consumer Bean to set
      */
-    public void setReplconsumer( ReplConsumerBean replconsumer )
+    public void setReplConsumer( ReplConsumerBean replConsumer )
     {
-        this.replconsumer = replconsumer;
+        this.replconsumer = replConsumer;
+    }
+
+
+    /**
+     * @return the replProvider
+     */
+    public ReplProviderBean getReplProvider()
+    {
+        return replprovider;
+    }
+
+
+    /**
+     * @param replProvider the replProvider to set
+     */
+    public void setReplProvider( ReplProviderBean replProvider )
+    {
+        this.replprovider = replProvider;
     }
 
     
@@ -388,8 +407,8 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  keystore file", keystorefile ) );
         sb.append( toString( tabs, "  sasl principal", saslprincipal ) );
         sb.append( tabs ).append( "  sasl host : " ).append( saslhost ).append( '\n' );
-        sb.append( toStringBoolean( tabs, "  confidentiality required", confidentialityrequired ) );
-        sb.append( toStringBoolean( tabs, "  enable replication provider", enablereplprovider ) );
+        sb.append( toString( tabs, "  confidentiality required", confidentialityrequired ) );
+        sb.append( toString( tabs, "  enable replication provider", enablereplprovider ) );
         
         if ( ( extendedophandlers != null ) && ( extendedophandlers.size() > 0 ) )
         {
@@ -429,6 +448,11 @@ public class LdapServerBean extends DSBasedServerBean
         if ( replconsumer != null )
         {
             sb.append( tabs ).append( replconsumer.toString( tabs + "  " ) );
+        }
+        
+        if ( replprovider != null )
+        {
+            sb.append( tabs ).append( replprovider.toString( tabs + "  " ) );
         }
         
         return sb.toString();

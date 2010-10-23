@@ -81,7 +81,7 @@ public abstract class AdsBaseBean
     }
     
     
-    protected String toStringBoolean( String tabs, String name, boolean value )
+    protected String toString( String tabs, String name, boolean value )
     {
         StringBuilder sb = new StringBuilder();
 
@@ -122,7 +122,7 @@ public abstract class AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( toStringBoolean( tabs, "enabled", enabled ) );
+        sb.append( toString( tabs, "enabled", enabled ) );
         
         if ( !StringTools.isEmpty( description ) )
         {

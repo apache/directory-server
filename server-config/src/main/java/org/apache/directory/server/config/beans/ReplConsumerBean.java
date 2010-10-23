@@ -27,7 +27,10 @@ package org.apache.directory.server.config.beans;
  */
 public class ReplConsumerBean extends AdsBaseBean
 {
-    /** The replicaConsumer unique ID */
+    /** The consumer id */
+    private String replconsumerid;
+    
+    /** The replication unique ID */
     private String dsreplicaid;
     
     /** The Alias Dereferencing mode */
@@ -66,6 +69,24 @@ public class ReplConsumerBean extends AdsBaseBean
         
         // Enabled by default
         setEnabled( true );
+    }
+
+    
+    /**
+     * @return the replConsumerId
+     */
+    public String getReplConsumerId()
+    {
+        return replconsumerid;
+    }
+
+
+    /**
+     * @param replConsumerId the replConsumerId to set
+     */
+    public void setReplConsumerId( String replConsumerId )
+    {
+        this.replconsumerid = replConsumerId;
     }
 
     
@@ -256,9 +277,10 @@ public class ReplConsumerBean extends AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( tabs ).append( "replication consumer :\n" );
+        sb.append( tabs ).append( "Replication consumer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
+        sb.append( tabs ).append( "  consumer ID : " ).append( replconsumerid ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
         sb.append( tabs ).append( "  last sent CSN : " ).append( repllastsentcsn ).append( '\n' );
         sb.append( tabs ).append( "  search base DN : " ).append( searchbasedn ).append( '\n' );
@@ -267,9 +289,9 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replaliasderefmode ).append( '\n' );
 
         sb.append( toString( tabs, "  peer certificate", replpeercertificate ) );
-        sb.append( toStringBoolean( tabs, "  refresh and persist mode", replrefreshnpersist ) );
-        sb.append( toStringBoolean( tabs, "  struct certivicate validation", replstrictcertvalidation ) );
-        sb.append( toStringBoolean( tabs, "  use TLS", replusetls ) );
+        sb.append( toString( tabs, "  refresh and persist mode", replrefreshnpersist ) );
+        sb.append( toString( tabs, "  struct certivicate validation", replstrictcertvalidation ) );
+        sb.append( toString( tabs, "  use TLS", replusetls ) );
 
         return sb.toString();
     }

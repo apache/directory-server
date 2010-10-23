@@ -439,10 +439,10 @@ public class PasswordPolicyBean extends AdsBaseBean
         sb.append( tabs ).append( "  password in history : " ).append( pwdinhistory ).append( '\n' );
         sb.append( tabs ).append( "  password check quality : " ).append( pwdcheckquality ).append( '\n' );
         sb.append( tabs ).append( "  password failure count interval : " ).append( pwdfailurecountinterval ).append( '\n' );
-        sb.append( toStringBoolean( tabs, "  password lockout", pwdlockout ) );
-        sb.append( toStringBoolean( tabs, "  password must change", pwdmustchange ) );
-        sb.append( toStringBoolean( tabs, "  password allow user change", pwdallowuserchange ) );
-        sb.append( toStringBoolean( tabs, "  password safe modify", pwdsafemodify ) );
+        sb.append( toString( tabs, "  password lockout", pwdlockout ) );
+        sb.append( toString( tabs, "  password must change", pwdmustchange ) );
+        sb.append( toString( tabs, "  password allow user change", pwdallowuserchange ) );
+        sb.append( toString( tabs, "  password safe modify", pwdsafemodify ) );
 
         return sb.toString();
     }

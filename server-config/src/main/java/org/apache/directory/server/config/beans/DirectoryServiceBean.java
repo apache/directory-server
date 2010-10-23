@@ -417,10 +417,10 @@ public class DirectoryServiceBean extends AdsBaseBean
             }
         }
 
-        sb.append( toStringBoolean( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
-        sb.append( toStringBoolean( "  ", "allow anonymous access", dsallowanonymousaccess ) );
-        sb.append( toStringBoolean( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
-        sb.append( toStringBoolean( "  ", "password hidden", dspasswordhidden ) );
+        sb.append( toString( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
+        sb.append( toString( "  ", "allow anonymous access", dsallowanonymousaccess ) );
+        sb.append( toString( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
+        sb.append( toString( "  ", "password hidden", dspasswordhidden ) );
         sb.append( "  max PDU size : " ).append( dsmaxpdusize ).append( '\n' );
         sb.append( "  sync period millisecond : " ).append( dssyncperiodmillis ).append( '\n' );
         sb.append( "  test entries : " ).append( dstestentries ).append( '\n' );

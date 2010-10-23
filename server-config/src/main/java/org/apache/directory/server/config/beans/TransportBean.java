@@ -192,7 +192,7 @@ public class TransportBean extends AdsBaseBean
         sb.append( tabs ).append( "transport port : " ).append( systemport ).append( '\n' );
         sb.append( tabs ).append( "transport backlog : " ).append( transportbacklog ).append( '\n' );
         sb.append( tabs ).append( "transport nb threads : " ).append( transportnbthreads ).append( '\n' );
-        sb.append( toStringBoolean( tabs, "SSL enabled", transportenablessl ) );
+        sb.append( toString( tabs, "SSL enabled", transportenablessl ) );
 
         return sb.toString();
     }

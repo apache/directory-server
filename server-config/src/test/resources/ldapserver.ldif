@@ -191,10 +191,11 @@ ads-pwdMinDelay: 20
 ads-pwdMaxDelay: 200
 ads-pwdMaxIdle: 100
 
-dn: ads-dsReplicaId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-replConsumerId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-replConsumer
+ads-replConsumerId: test
 ads-dsReplicaId: test
 ads-replAliasDerefMode: NEVER_DEREF
 ads-searchBaseDN: ads-directoryServiceId=default,ou=config
@@ -205,3 +206,24 @@ ads-replRefreshNPersist: TRUE
 ads-replUseTls: TRUE
 ads-replStrictCertValidation: TRUE
 ads-replPeerCertificate: ABCD
+
+dn: ads-replProviderId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-replProvider
+ads-replProducerId: test
+ads-dsReplicaId: test
+ads-searchBaseDN: ads-directoryServiceId=default,ou=config
+ads-replProvHostName: localhost
+ads-replProvPort: 12345
+ads-replAliasDerefMode: NEVER_DEREF
+ads-replAttribute: acme
+ads-replRefreshInterval: 100
+ads-replRefreshNPersist: TRUE
+ads-replSearchScope: SUBTREE
+ads-replSearchFilter: (&(objectClass=top)(ou=test))
+ads-replSearchSizeLimit: 100
+ads-replSearchTimeOut: 100
+ads-replUserDn: ou=config
+ads-replUserPassword: secret
+ads-replCookie: abcdef
