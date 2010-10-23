@@ -115,6 +115,12 @@ public abstract class AdsBaseBean
     }
     
     
+    protected String toString( String tabs, String name, long value )
+    {
+        return tabs + name + " : " + value + "\n";
+    }
+    
+    
     /**
      * {@inheritDoc}
      */

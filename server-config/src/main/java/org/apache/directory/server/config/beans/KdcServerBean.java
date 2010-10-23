@@ -19,11 +19,10 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
-
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 
 /**
  * A class used to store the KdcServer configuration.
@@ -102,7 +101,7 @@ public class KdcServerBean extends DSBasedServerBean
     private boolean krbbodychecksumverified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    private List<EncryptionType> krbencryptiontypes;
+    private List<String> krbencryptiontypes = new ArrayList<String>();
 
     /** The service principal name. */
     private String krbkdcprincipal = DEFAULT_PRINCIPAL;
@@ -144,7 +143,7 @@ public class KdcServerBean extends DSBasedServerBean
      *
      * @return The encryption types.
      */
-    public List<EncryptionType> getKrbEncryptionTypes()
+    public List<String> getKrbEncryptionTypes()
     {
         return krbencryptiontypes;
     }
@@ -155,16 +154,11 @@ public class KdcServerBean extends DSBasedServerBean
      * 
      * @param krbEncryptionTypes the encryptionTypes to set
      */
-    public void setKrbEncryptionTypes( EncryptionType... krbEncryptionTypes )
+    public void addkrbencryptiontypes( String... krbEncryptionTypes )
     {
-        if ( krbEncryptionTypes != null )
+        for ( String encryptionType:krbEncryptionTypes )
         {
-            this.krbencryptiontypes.clear();
-            
-            for ( EncryptionType encryptionType:krbEncryptionTypes )
-            {
-                this.krbencryptiontypes.add( encryptionType );
-            }
+            this.krbencryptiontypes.add( encryptionType );
         }
     }
 
@@ -370,5 +364,50 @@ public class KdcServerBean extends DSBasedServerBean
     public void setKrbKdcPrincipal( String krbKdcPrincipal )
     {
         this.krbkdcprincipal = krbKdcPrincipal;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "KDCServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( toString( tabs, "  body checksum verified", krbbodychecksumverified ) );
+        sb.append( toString( tabs, "  empty address alowed", krbemptyaddressesallowed ) );
+        sb.append( toString( tabs, "  forwardable allowed", krbforwardableallowed ) );
+        sb.append( toString( tabs, "  PA encode timestamp required", krbpaenctimestamprequired ) );
+        sb.append( toString( tabs, "  postdated allowed", krbpostdatedallowed ) );
+        sb.append( toString( tabs, "  proxiable allowed", krbproxiableallowed ) );
+        sb.append( toString( tabs, "  renew allowed", krbrenewableallowed ) );
+        sb.append( toString( tabs, "  allowable clock skew", krballowableclockskew ) );
+        sb.append( toString( tabs, "  KDC principal", krbkdcprincipal ) );
+        sb.append( toString( tabs, "  maximum renewable lifetime", krbmaximumrenewablelifetime ) );
+        sb.append( toString( tabs, "  maximum ticket lifetime", krbmaximumticketlifetime ) );
+        sb.append( toString( tabs, "  primary realm", krbprimaryrealm ) );
+
+        if ( ( krbencryptiontypes != null ) && ( krbencryptiontypes.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  encryption types :\n" );
+            
+            for ( String encryptionType : krbencryptiontypes )
+            {
+                sb.append( toString( tabs, "    encryption type", encryptionType ) );
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

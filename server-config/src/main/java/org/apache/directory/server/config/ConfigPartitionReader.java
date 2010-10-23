@@ -807,6 +807,26 @@ public class ConfigPartitionReader
 
                 method.invoke( bean, new Object[]{ new String[]{valueStr} } );
             }
+            else if ( type == List.class )
+            {
+                Type genericFieldType = beanField.getGenericType();
+                Class<?> fieldArgClass = null;
+                    
+                if ( genericFieldType instanceof ParameterizedType ) 
+                {
+                    ParameterizedType parameterizedType = (ParameterizedType) genericFieldType;
+                    Type[] fieldArgTypes = parameterizedType.getActualTypeArguments();
+                    
+                    for ( Type fieldArgType : fieldArgTypes )
+                    {
+                        fieldArgClass = (Class<?>) fieldArgType;
+                    }
+                }
+
+                Method method = bean.getClass().getMethod( "add" + beanField.getName(), Array.newInstance( fieldArgClass, 0 ).getClass() );
+
+                method.invoke( bean, new Object[]{ new String[]{valueStr} } );
+            }
         }
 
     }
