@@ -59,6 +59,9 @@ public class LdapServerBean extends DSBasedServerBean
     /** tells if the replication is enabled */
     private boolean enablereplprovider; 
     
+    /** The PasswordPolicy component */
+    private PasswordPolicyBean passwordpolicy;
+
     private int replconsumer;
     private int replprovider;
     
@@ -330,7 +333,25 @@ public class LdapServerBean extends DSBasedServerBean
             this.extendedophandlers.add( extendedOp );
         }
     }
-    
+
+
+    /**
+     * @return the pwdPolicy
+     */
+    public PasswordPolicyBean getPwdPolicy()
+    {
+        return passwordpolicy;
+    }
+
+
+    /**
+     * @param pwdPolicy the pwdPolicy to set
+     */
+    public void setPwdPolicy( PasswordPolicyBean pwdPolicy )
+    {
+        this.passwordpolicy = pwdPolicy;
+    }
+
     
     /**
      * {@inheritDoc}
@@ -379,7 +400,12 @@ public class LdapServerBean extends DSBasedServerBean
                 sb.append( tabs ).append( "    " ).append( saslRealm ).append( "\n" );
             }
         }
-
+        
+        if ( passwordpolicy != null )
+        {
+            sb.append( tabs ).append( passwordpolicy.toString( tabs + "  " ) );
+        }
+        
         return sb.toString();
     }
     

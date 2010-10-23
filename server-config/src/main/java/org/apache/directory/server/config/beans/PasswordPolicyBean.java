@@ -32,6 +32,11 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  */
 public class PasswordPolicyBean extends AdsBaseBean
 {
+    /**
+     * The PasswordPolicy unique identifier
+     */
+    private String pwdid;
+    
     /** the name of the attribute to which the password policy is applied. 
      * Currently only "userPassword" attribute is supported
      */
@@ -391,6 +396,24 @@ public class PasswordPolicyBean extends AdsBaseBean
 
 
     /**
+     * @return the pwdId
+     */
+    public String getPwdId()
+    {
+        return pwdid;
+    }
+
+
+    /**
+     * @param pwdId the pwdId to set
+     */
+    public void setPwdId( String pwdId )
+    {
+        this.pwdid = pwdId;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
@@ -399,26 +422,27 @@ public class PasswordPolicyBean extends AdsBaseBean
         
         sb.append( tabs ).append( "PasswordPolicy :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( toString( tabs, "password attribute", pwdattribute ) );
-        sb.append( tabs ).append( "password min age : " ).append( pwdminage ).append( '\n' );
-        sb.append( tabs ).append( "password max age : " ).append( pwdmaxage ).append( '\n' );
-        sb.append( tabs ).append( "password min length : " ).append( pwdminlength ).append( '\n' );
-        sb.append( tabs ).append( "password max length : " ).append( pwdmaxlength ).append( '\n' );
-        sb.append( tabs ).append( "password min delay : " ).append( pwdmindelay ).append( '\n' );
-        sb.append( tabs ).append( "password max delay : " ).append( pwdmaxdelay ).append( '\n' );
-        sb.append( tabs ).append( "password max idle : " ).append( pwdmaxidle ).append( '\n' );
-        sb.append( tabs ).append( "password max failure : " ).append( pwdmaxfailure ).append( '\n' );
-        sb.append( tabs ).append( "password lockout duration : " ).append( pwdlockoutduration ).append( '\n' );
-        sb.append( tabs ).append( "password expire warning : " ).append( pwdexpirewarning ).append( '\n' );
-        sb.append( tabs ).append( "password grace expire : " ).append( pwdgraceexpire ).append( '\n' );
-        sb.append( tabs ).append( "password grace Auth N limit : " ).append( pwdgraceauthnlimit ).append( '\n' );
-        sb.append( tabs ).append( "password in history : " ).append( pwdinhistory ).append( '\n' );
-        sb.append( tabs ).append( "password check quality : " ).append( pwdcheckquality ).append( '\n' );
-        sb.append( tabs ).append( "password failure count interval : " ).append( pwdfailurecountinterval ).append( '\n' );
-        sb.append( toStringBoolean( "password lockout", "", pwdlockout ) );
-        sb.append( toStringBoolean( "password must change", "", pwdmustchange ) );
-        sb.append( toStringBoolean( "password allow user change", "", pwdallowuserchange ) );
-        sb.append( toStringBoolean( "password safe modify", "", pwdsafemodify ) );
+        sb.append( tabs ).append( "  identifier : " ).append( pwdid ).append( '\n' );
+        sb.append( toString( tabs, "  password attribute", pwdattribute ) );
+        sb.append( tabs ).append( "  password min age : " ).append( pwdminage ).append( '\n' );
+        sb.append( tabs ).append( "  password max age : " ).append( pwdmaxage ).append( '\n' );
+        sb.append( tabs ).append( "  password min length : " ).append( pwdminlength ).append( '\n' );
+        sb.append( tabs ).append( "  password max length : " ).append( pwdmaxlength ).append( '\n' );
+        sb.append( tabs ).append( "  password min delay : " ).append( pwdmindelay ).append( '\n' );
+        sb.append( tabs ).append( "  password max delay : " ).append( pwdmaxdelay ).append( '\n' );
+        sb.append( tabs ).append( "  password max idle : " ).append( pwdmaxidle ).append( '\n' );
+        sb.append( tabs ).append( "  password max failure : " ).append( pwdmaxfailure ).append( '\n' );
+        sb.append( tabs ).append( "  password lockout duration : " ).append( pwdlockoutduration ).append( '\n' );
+        sb.append( tabs ).append( "  password expire warning : " ).append( pwdexpirewarning ).append( '\n' );
+        sb.append( tabs ).append( "  password grace expire : " ).append( pwdgraceexpire ).append( '\n' );
+        sb.append( tabs ).append( "  password grace Auth N limit : " ).append( pwdgraceauthnlimit ).append( '\n' );
+        sb.append( tabs ).append( "  password in history : " ).append( pwdinhistory ).append( '\n' );
+        sb.append( tabs ).append( "  password check quality : " ).append( pwdcheckquality ).append( '\n' );
+        sb.append( tabs ).append( "  password failure count interval : " ).append( pwdfailurecountinterval ).append( '\n' );
+        sb.append( toStringBoolean( tabs, "  password lockout", pwdlockout ) );
+        sb.append( toStringBoolean( tabs, "  password must change", pwdmustchange ) );
+        sb.append( toStringBoolean( tabs, "  password allow user change", pwdallowuserchange ) );
+        sb.append( toStringBoolean( tabs, "  password safe modify", pwdsafemodify ) );
 
         return sb.toString();
     }

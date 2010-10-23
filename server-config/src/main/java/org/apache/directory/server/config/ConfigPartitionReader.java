@@ -843,12 +843,21 @@ public class ConfigPartitionReader
                 // First, check if it's a SingleValued element
                 if ( beanAT.isSingleValued() )
                 {
-                    // Yes : get the frist element if it's mandatory
-                    if ( mandatory )
-                    {
-                        DN newBase = entry.getDn().add( "ou=" + beanFieldName );
-                        List<AdsBaseBean> beans = read( newBase, fieldName, SearchScope.ONELEVEL, mandatory );
+                    // Yes : get the first element if it's mandatory
+                    //DN newBase = entry.getDn().add( "ou=" + beanFieldName );
+                    List<AdsBaseBean> beans = read( entry.getDn(), fieldName, SearchScope.ONELEVEL, mandatory );
 
+                    if ( ( beans == null ) || ( beans.size() == 0 ) )
+                    {
+                        if ( mandatory )
+                        {
+                            // This is an error !
+                            System.out.println( "ERROR !!!" );
+                            throw new Exception();
+                        }
+                    }
+                    else
+                    { 
                         AdsBaseBean readBean = beans.get( 0 );
                         
                         beanField.set( bean, readBean );
