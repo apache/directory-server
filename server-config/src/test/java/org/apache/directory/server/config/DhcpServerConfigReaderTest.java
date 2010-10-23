@@ -96,8 +96,6 @@ public class DhcpServerConfigReaderTest
     }
 
 
-
-
     @Test
     public void testDhcpService() throws Exception
     {
