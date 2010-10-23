@@ -21,8 +21,7 @@
 package org.apache.directory.server.config;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.util.List;
@@ -31,9 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -42,7 +40,6 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,18 +54,14 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class NtpServerConfigReaderTest
 {
-
-    private static DirectoryService dirService;
-
-    private static LdapServer server;
-
     private static SchemaManager schemaManager;
+
+    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
 
     @BeforeClass
     public static void readConfig() throws Exception
     {
-        File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
         FileUtils.deleteDirectory( workDir );
         workDir.mkdir();
 
@@ -98,9 +91,13 @@ public class NtpServerConfigReaderTest
         {
             throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
+    }
 
+
+    @Test
+    public void testNtpService() throws Exception
+    {
         File configDir = new File( workDir, "ntpserver" ); // could be any directory, cause the config is now in a single file
-        
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ntpserver.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
@@ -109,33 +106,12 @@ public class NtpServerConfigReaderTest
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
-        
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_NTP_SERVER_OC.getValue() );
-    }
 
-
-    @AfterClass
-    public static void cleanup() throws Exception
-    {
-        server.stop();
-        dirService.shutdown();
-    }
-
-
-    @Test
-    public void testDirService()
-    {
-        assertTrue( dirService.isStarted() );
-        assertEquals( "default", dirService.getInstanceId() );
-    }
-    
-    
-    @Test
-    public void testLdapServer()
-    {
-        assertTrue( server.isStarted() );
-        assertEquals( dirService, server.getDirectoryService() );
+        assertNotNull( configBean );
+        NtpServerBean ntpServerBean = (NtpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        assertNotNull( ntpServerBean );
     }
 }

@@ -948,7 +948,7 @@ public class ConfigPartitionReader
         
         // Search for the element starting at some point in the DIT
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        EqualityNode filter = new EqualityNode( adsdAt, new StringValue( name ) );
+        EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope.ordinal() );
 
