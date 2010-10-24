@@ -29,8 +29,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.ConfigBean;
-import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class LdapServerConfigReaderTest
+public class ChangePasswordConfigReaderTest
 {
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
@@ -96,10 +96,10 @@ public class LdapServerConfigReaderTest
 
 
     @Test
-    public void testLdapServer() throws Exception
+    public void testChangePasswordServer() throws Exception
     {
-        File configDir = new File( workDir, "ldapserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapserver.ldif", true );
+        File configDir = new File( workDir, "changePasswordServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "changePasswordServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
@@ -109,10 +109,10 @@ public class LdapServerConfigReaderTest
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
-        ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_LDAP_SERVER_OC.getValue() );
+        ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_CHANGE_PASSWORD_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
-        LdapServerBean ldapServerBean = (LdapServerBean)configBean.getDirectoryServiceBeans().get( 0 );
-        assertNotNull( ldapServerBean );
+        ChangePasswordServerBean changePasswordServerBean = (ChangePasswordServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        assertNotNull( changePasswordServerBean );
     }
 }

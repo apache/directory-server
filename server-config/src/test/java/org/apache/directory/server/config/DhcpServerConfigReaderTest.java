@@ -97,7 +97,7 @@ public class DhcpServerConfigReaderTest
 
 
     @Test
-    public void testDhcpService() throws Exception
+    public void testDhcpServer() throws Exception
     {
         File configDir = new File( workDir, "dhcpserver" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dhcpserver.ldif", true );

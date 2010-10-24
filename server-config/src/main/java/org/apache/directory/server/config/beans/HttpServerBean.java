@@ -59,4 +59,28 @@ public class HttpServerBean extends ServerBean
     {
         this.httpconffile = httpConfFile;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "HttpServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append(  toString( tabs, "  http configuration file", httpconffile ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

@@ -117,6 +117,20 @@ public class ChangePasswordServerBean extends DSBasedServerBean
 
     
     /**
+     * Initialize the encryptionTypes set
+     * 
+     * @param krbEncryptionTypes the encryptionTypes to set
+     */
+    public void addkrbencryptiontypes( String... krbEncryptionTypes )
+    {
+        for ( String encryptionType:krbEncryptionTypes )
+        {
+            this.krbencryptiontypes.add( encryptionType );
+        }
+    }
+
+
+    /**
      * @return the krbPrimaryRealm
      */
     public String getKrbPrimaryRealm()
@@ -215,8 +229,8 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         
         sb.append( tabs ).append( "ChangePasswordServer :\n" );
         sb.append( super.toString( tabs ) );
-        sb.append( tabs ).append( "  change password service principal : " ).append( chgpwdserviceprincipal ).append( '\n' );
-        sb.append( tabs ).append( "  KRB primary realm : " ).append( krbprimaryrealm ).append( '\n' );
+        sb.append( toString( tabs, "  change password service principal", chgpwdserviceprincipal ) );
+        sb.append( toString( tabs, "  KRB primary realm", krbprimaryrealm ) );
         
         if ( ( krbencryptiontypes != null ) && ( krbencryptiontypes.size() != 0 ) )
         {
@@ -228,10 +242,10 @@ public class ChangePasswordServerBean extends DSBasedServerBean
             }
         }
         
-        sb.append( tabs ).append( "  change password policy category count : " ).append( chgpwdpolicycategorycount ).append( '\n' );
-        sb.append( tabs ).append( "  change password policy password length : " ).append( chgpwdpolicypasswordlength ).append( '\n' );
-        sb.append( tabs ).append( "  change password policy token size : " ).append( chgpwdpolicytokensize ).append( '\n' );
-        sb.append( tabs ).append( "  KRB allowable clock skew : " ).append( krballowableclockskew ).append( '\n' );
+        sb.append( toString( tabs, "  change password policy category count", chgpwdpolicycategorycount ) );
+        sb.append( toString( tabs, "  change password policy password length", chgpwdpolicypasswordlength ) );
+        sb.append( toString( tabs, "  change password policy token size", chgpwdpolicytokensize ) );
+        sb.append( toString( tabs, "  KRB allowable clock skew", krballowableclockskew ) );
         sb.append( toString( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
 
         return sb.toString();

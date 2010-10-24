@@ -96,7 +96,7 @@ public class KerberosServerConfigReaderTest
 
 
     @Test
-    public void testDhcpService() throws Exception
+    public void testKerberosServer() throws Exception
     {
         File configDir = new File( workDir, "kerberosserver" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosserver.ldif", true );

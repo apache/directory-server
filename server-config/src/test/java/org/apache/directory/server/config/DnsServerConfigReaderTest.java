@@ -95,7 +95,7 @@ public class DnsServerConfigReaderTest
 
 
     @Test
-    public void testNtpService() throws Exception
+    public void testDnsServer() throws Exception
     {
         File configDir = new File( workDir, "dnsserver" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dnsserver.ldif", true );
