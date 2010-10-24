@@ -31,16 +31,65 @@ public enum ConfigSchemaConstants
     //------------------------------------------------------------------------------------
     // The ObjectClasses
     //------------------------------------------------------------------------------------
-    // ads-directoryService objectClass
+    ADS_BASE_OC( "ads-base", "1.3.6.1.4.1.18060.0.4.1.3.1" ),
+
+    ADS_TRANSPORT_OC( "ads-transport", "1.3.6.1.4.1.18060.0.4.1.3.18" ),
+
+    ADS_TCP_TRANSPORT_OC( "ads-tpTransport", "1.3.6.1.4.1.18060.0.4.1.3.19" ),
+
+    ADS_UDP_TRANSPORT_OC( "ads-udpTransport", "1.3.6.1.4.1.18060.0.4.1.3.20" ),
+
     ADS_DIRECTORY_SERVICE_OC( "ads-directoryService", "1.3.6.1.4.1.18060.0.4.1.3.100" ),
 
+    ADS_CHANGE_LOG_OC( "ads-changeLog", "1.3.6.1.4.1.18060.0.4.1.3.120" ),
+
+    ADS_INTERCEPTOR_LOG_OC( "ads-interceptor", "1.3.6.1.4.1.18060.0.4.1.3.130" ),
+
+    ADS_JOURNAL_OC( "ads-journal", "1.3.6.1.4.1.18060.0.4.1.3.140" ),
+
+    ADS_PARTITION_OC( "ads-partition", "1.3.6.1.4.1.18060.0.4.1.3.150" ),
+
+    ADS_JDBM_PARTITION_OC( "ads-jdbmPartition", "1.3.6.1.4.1.18060.0.4.1.3.151" ),
+
+    ADS_INDEX_OC( "ads-index", "1.3.6.1.4.1.18060.0.4.1.3.160" ),
+    
+    ADS_JDBM_INDEX_OC( "ads-jdbmIndex", "1.3.6.1.4.1.18060.0.4.1.3.161" ),
+
+    ADS_SERVER_OC( "ads-server", "1.3.6.1.4.1.18060.0.4.1.3.250" ),
+
+    ADS_DS_BASED_SERVER_OC( "ads-dsBasedServer", "1.3.6.1.4.1.18060.0.4.1.3.260" ),
+
+    ADS_LDAP_SERVER_OC( "ads-ldapServer", "1.3.6.1.4.1.18060.0.4.1.3.300" ),
+
+    ADS_KERBEROS_SERVER_OC( "ads-kdcServer", "1.3.6.1.4.1.18060.0.4.1.3.400" ),
+
+    ADS_DNS_SERVER_OC( "ads-dnsServer", "1.3.6.1.4.1.18060.0.4.1.3.500" ),
+
+    ADS_DHCP_SERVER_OC( "ads-dhcpServer", "1.3.6.1.4.1.18060.0.4.1.3.600" ),
+
+    ADS_NTP_SERVER_OC( "ads-ntpServer", "1.3.6.1.4.1.18060.0.4.1.3.700" ),
+
+    ADS_CHANGE_PASSWORD_SERVER_OC( "ads-changePasswordServer", "1.3.6.1.4.1.18060.0.4.1.3.800" ),
+    
+    ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC( "ads-ldapServerSaslMechanismHandler", "1.3.6.1.4.1.18060.0.4.1.3.801" ),
+    
+    ADS_LDAP_SERVER_EXT_OP_HANDLER_OC( "ads-ldapServerExtendedOpHandler", "1.3.6.1.4.1.18060.0.4.1.3.802" ),
+
+    ADS_HTTP_WEB_APP_OC( "ads-httpWebApp", "1.3.6.1.4.1.18060.0.4.1.3.803" ),
+
+    ADS_HTTP_SERVER_OC( "ads-httpServer", "1.3.6.1.4.1.18060.0.4.1.3.804" ),
+
+    ADS_REPL_CONSUMER_OC( "ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
+    
+    ADS_REPL_PROVIDER_OC( "ads-replProvider", "1.3.6.1.4.1.18060.0.4.1.3.806" ),
+    
+    ADS_PWD_POLICY_OC( "ads-pwdPolicy", "1.3.6.1.4.1.18060.0.4.1.3.900" ),
+    
+    
+    
     ADS_CONFIG_ID( "ads-configId", "" ),
     
     ADS_COMPOSITE_ELEMENT_AT( "ads-compositeElement", "1.3.6.1.4.1.18060.0.4.1.2.0" ),
-
-    ADS_LDAP_SERVER_OC( "ads-ldapServer", "" ),
-
-    ADS_KERBEROS_SERVER_OC( "ads-kdcServer", "1.3.6.1.4.1.18060.0.4.1.3.400" ),
 
     ADS_SERVER_ID( "ads-serverId", "" ),
 
@@ -71,14 +120,6 @@ public enum ConfigSchemaConstants
     ADS_KRB_PRIMARY_REALM( "ads-krbPrimaryRealm", "" ),
 
     ADS_KRB_BODY_CHECKSUM_VERIFIED( "ads-krbBodyChecksumVerified", "" ),
-
-    ADS_DNS_SERVER_OC( "ads-dnsServer", "" ),
-
-    ADS_DHCP_SERVER_OC( "ads-dhcpServer", "" ),
-
-    ADS_NTP_SERVER_OC( "ads-ntpServer", "" ),
-
-    ADS_HTTP_SERVER_OC( "ads-httpServer", "" ),
 
     ADS_HTTP_CONFFILE( "ads-httpConfFile", "" ),
 
@@ -180,8 +221,6 @@ public enum ConfigSchemaConstants
     
     ADS_CHANGEPWD_SERVICE_PRINCIPAL( "ads-chgPwdServicePrincipal", "" ),
     
-    ADS_CHANGEPWD_SERVER_OC( "ads-changePasswordServer", "" ),
-    
     ADS_REPL_SEARCH_FILTER( "ads-replSearchFilter", "" ),
     
     ADS_REPL_LAST_SENT_CSN( "ads-replLastSentCsn", "" ),
@@ -212,10 +251,6 @@ public enum ConfigSchemaConstants
     
     ADS_REPL_COOKIE( "ads-replCookie", "" ),
     
-    ADS_REPL_CONSUMER_OC( "ads-replConsumer", "" ),
-    
-    ADS_REPL_PROVIDER_OC( "ads-replProvider", "" ),
-    
     ADS_REPL_PROVIDER_IMPL( "ads-replProviderImpl", "" ),
     
     ADS_REPL_ENABLE_PROVIDER( "ads-enableReplProvider", "" ),
@@ -224,15 +259,11 @@ public enum ConfigSchemaConstants
     
     ADS_REPL_USE_TLS( "ads-replUseTls", "" ),
     
-    ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC( "ads-ldapServerSaslMechanismHandler", "" ),
-    
     ADS_LDAP_SERVER_SASL_MECH_NAME( "ads-ldapServerSaslMechName", "" ),
     
     ADS_LDAP_SERVER_SASL_MECH_CLASS_NAME( "ads-ldapServerSaslMechClassName", "" ),
     
     ADS_LDAP_SERVER_NTLM_MECH_PROVIDER( "ads-ldapServerNtlmMechProvider", "" ),
-    
-    ADS_LDAP_SERVER_EXT_OP_HANDLER_OC( "ads-ldapServerExtendedOpHandler", "" ),
     
     ADS_LDAP_SERVER_EXT_OP_HANDLER_FQCN( "ads-ldapServerExtendedOpHandlerClass", "" ),
     
