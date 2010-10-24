@@ -97,8 +97,8 @@ public class DnsServerConfigReaderTest
     @Test
     public void testDnsServer() throws Exception
     {
-        File configDir = new File( workDir, "dnsserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dnsserver.ldif", true );
+        File configDir = new File( workDir, "dnsServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dnsServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );

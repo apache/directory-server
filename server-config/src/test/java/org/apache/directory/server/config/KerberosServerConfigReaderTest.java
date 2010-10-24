@@ -98,8 +98,8 @@ public class KerberosServerConfigReaderTest
     @Test
     public void testKerberosServer() throws Exception
     {
-        File configDir = new File( workDir, "kerberosserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosserver.ldif", true );
+        File configDir = new File( workDir, "kerberosServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );

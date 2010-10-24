@@ -99,8 +99,8 @@ public class DhcpServerConfigReaderTest
     @Test
     public void testDhcpServer() throws Exception
     {
-        File configDir = new File( workDir, "dhcpserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dhcpserver.ldif", true );
+        File configDir = new File( workDir, "dhcpServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dhcpServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );

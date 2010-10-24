@@ -97,8 +97,8 @@ public class NtpServerConfigReaderTest
     @Test
     public void testNtpServer() throws Exception
     {
-        File configDir = new File( workDir, "ntpserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ntpserver.ldif", true );
+        File configDir = new File( workDir, "ntpServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ntpServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );

@@ -98,8 +98,8 @@ public class LdapServerConfigReaderTest
     @Test
     public void testLdapServer() throws Exception
     {
-        File configDir = new File( workDir, "ldapserver" ); // could be any directory, cause the config is now in a single file
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapserver.ldif", true );
+        File configDir = new File( workDir, "ldapServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
