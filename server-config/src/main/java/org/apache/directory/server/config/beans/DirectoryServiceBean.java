@@ -470,13 +470,12 @@ public class DirectoryServiceBean extends AdsBaseBean
 
         if ( journal != null )
         {
-            sb.append( "  journal : \n" );
-            sb.append( journal.toString( "    " ) );
+            sb.append( journal.toString( "  " ) );
         }
         
         if ( changelog != null )
         {
-            sb.append( changelog.toString( "    " ) );
+            sb.append( changelog.toString( "  " ) );
         }
         
         if ( passwordpolicy != null )

@@ -45,6 +45,24 @@ ads-interceptors: subentryInterceptor
 ads-interceptors: triggerInterceptor
 ads-enabled: true
 
+dn: ads-changeLogId=defaultChangeLog,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-changeLog
+ads-changeLogId: defaultChangeLog
+ads-changeLogExposed: FALSE
+
+
+dn: ads-journalId=defaultJournal,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-journal
+ads-journalId: defaultJournal
+ads-journalFileName: Journal.txt
+ads-journalWorkingDir: /
+ads-journalRotation: 2
+
+
 dn: ou=interceptors,ads-directoryServiceId=default,ou=config
 ou: interceptors
 objectclass: organizationalUnit

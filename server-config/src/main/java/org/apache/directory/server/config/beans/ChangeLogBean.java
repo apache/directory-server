@@ -90,7 +90,7 @@ public class ChangeLogBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "ChangeLog :\n" );
-        sb.append( tabs ).append( "  changeLog id :" ).append( changelogid ).append( '\n' );
+        sb.append( tabs ).append( "  changeLog id : " ).append( changelogid ).append( '\n' );
         sb.append( toString( tabs, "  changeLog exposed", changelogexposed ) );
         
         return sb.toString();

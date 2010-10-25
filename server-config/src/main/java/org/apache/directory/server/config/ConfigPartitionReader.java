@@ -1034,9 +1034,6 @@ public class ConfigPartitionReader
                 Set<AttributeType> musts = getAllMusts( objectClass );
                 readFields( bean, entry, musts, MANDATORY );
                 
-                System.out.println("----------------------------");
-                System.out.println( "Read ben : " + bean );
-                
                 beans.add( bean );
             }
             while ( cursor.next() );

@@ -131,10 +131,10 @@ public class JournalBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "Journal :\n" );
-        sb.append( tabs ).append( "  journal id :" ).append( journalid ).append( '\n' );
-        sb.append( tabs ).append( "  journal file name :" ).append( journalfilename ).append( '\n' );
-        sb.append( tabs ).append( "  journal working dir :" ).append( journalworkingdir ).append( '\n' );
-        sb.append( tabs ).append( "  journal rotation :" ).append( journalrotation ).append( '\n' );
+        sb.append( tabs ).append( "  journal id : " ).append( journalid ).append( '\n' );
+        sb.append( tabs ).append( "  journal file name : " ).append( journalfilename ).append( '\n' );
+        sb.append( toString( tabs, "  journal working dir", journalworkingdir ) );
+        sb.append( toString( tabs, "  journal rotation", journalrotation ) );
         
         return sb.toString();
     }
