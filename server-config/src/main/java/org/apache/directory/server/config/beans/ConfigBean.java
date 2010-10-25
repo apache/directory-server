@@ -69,4 +69,20 @@ public class ConfigBean
     {
         this.directoryServiceBeans = directoryServiceBeans;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+     
+        for ( AdsBaseBean directoryService : directoryServiceBeans )
+        {
+            sb.append( directoryService ).append( "\n\n" );
+        }
+        
+        return sb.toString();
+    }
 }
