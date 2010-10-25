@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the Replication Producer configuration.
@@ -34,7 +36,7 @@ public class ReplProviderBean extends AdsBaseBean
     private String dsReplicaId;
     
     /** The Search Base DN */
-    private String searchBaseDN;
+    private DN searchBaseDN;
     
     /** The replication provider host name */
     private String replProvHostName;
@@ -67,7 +69,7 @@ public class ReplProviderBean extends AdsBaseBean
     private int replSearchTimeout;
     
     /** The replication user DN */
-    private String replUserDN;
+    private DN replUserDN;
     
     /** The replication user password */
     private String replUserPassword;
@@ -126,7 +128,7 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @return the searchBaseDn
      */
-    public String getSearchBaseDn()
+    public DN getSearchBaseDn()
     {
         return searchBaseDN;
     }
@@ -135,7 +137,7 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @param searchBaseDN the searchBaseDn to set
      */
-    public void setSearchBaseDn( String searchBaseDn )
+    public void setSearchBaseDn( DN searchBaseDn )
     {
         this.searchBaseDN = searchBaseDn;
     }
@@ -324,7 +326,7 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @return the replUserDn
      */
-    public String isReplUserDn()
+    public DN isReplUserDn()
     {
         return replUserDN;
     }
@@ -333,7 +335,7 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @param replUserDn the replUserDn to set
      */
-    public void setReplUserDn( String replUserDn )
+    public void setReplUserDn( DN replUserDn )
     {
         this.replUserDN = replUserDn;
     }
@@ -387,7 +389,7 @@ public class ReplProviderBean extends AdsBaseBean
 
         sb.append( tabs ).append( "  provider ID : " ).append( replProviderId ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN ).append( '\n' );
+        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN.getName() ).append( '\n' );
         sb.append( tabs ).append( "  provider host name : " ).append( replProvHostName ).append( '\n' );
         sb.append( tabs ).append( "  provider port : " ).append( replProvPort ).append( '\n' );
         sb.append( toString( tabs, "  alias dereferencing mode", replAliasDerefMode ) );

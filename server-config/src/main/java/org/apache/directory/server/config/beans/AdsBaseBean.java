@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -81,6 +82,9 @@ public abstract class AdsBaseBean
     }
     
     
+    /**
+     * Formated print of a boolean
+     */
     protected String toString( String tabs, String name, boolean value )
     {
         StringBuilder sb = new StringBuilder();
@@ -102,6 +106,9 @@ public abstract class AdsBaseBean
     }
     
     
+    /**
+     * Formated print of a String that can be null
+     */
     protected String toString( String tabs, String name, String value )
     {
         if ( value != null )
@@ -115,6 +122,25 @@ public abstract class AdsBaseBean
     }
     
     
+    /**
+     * Formated print of a DN that can be null
+     */
+    protected String toString( String tabs, String name, DN value )
+    {
+        if ( value != null )
+        {
+            return tabs + name + " : " + value.getName() + "\n";
+        }
+        else
+        {
+            return "";
+        }
+    }
+    
+    
+    /**
+     * Formated print of a long
+     */
     protected String toString( String tabs, String name, long value )
     {
         return tabs + name + " : " + value + "\n";

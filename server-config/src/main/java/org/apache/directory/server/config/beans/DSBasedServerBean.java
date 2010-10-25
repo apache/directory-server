@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the KdcServer configuration.
@@ -33,7 +35,7 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    private String searchBaseDN;
+    private DN searchBaseDN;
 
     /**
      * Create a new JournalBean instance
@@ -49,7 +51,7 @@ public class DSBasedServerBean extends ServerBean
      *
      * @return The search base DN.
      */
-    public String getSearchBaseDn()
+    public DN getSearchBaseDn()
     {
         return searchBaseDN;
     }
@@ -58,7 +60,7 @@ public class DSBasedServerBean extends ServerBean
     /**
      * @param searchBaseDn The searchBaseDn to set.
      */
-    public void setSearchBaseDn( String searchBaseDn )
+    public void setSearchBaseDn( DN searchBaseDn )
     {
         this.searchBaseDN = searchBaseDn;
     }

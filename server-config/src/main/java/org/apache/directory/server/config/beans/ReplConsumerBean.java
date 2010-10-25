@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the Replication Consumer configuration.
@@ -37,7 +39,7 @@ public class ReplConsumerBean extends AdsBaseBean
     private String replAliasDerefMode;
     
     /** The Search Base DN */
-    private String searchBaseDN;
+    private DN searchBaseDN;
     
     /** The last CSN sent */
     private String replLastSentCsn;
@@ -129,7 +131,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @return the searchBaseDN
      */
-    public String getSearchBaseDN()
+    public DN getSearchBaseDN()
     {
         return searchBaseDN;
     }
@@ -138,7 +140,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @param searchBaseDN the searchBaseDN to set
      */
-    public void setSearchBaseDN( String searchBaseDN )
+    public void setSearchBaseDN( DN searchBaseDN )
     {
         this.searchBaseDN = searchBaseDN;
     }
@@ -283,7 +285,7 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
         sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN ).append( '\n' );
+        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN.getName() ).append( '\n' );
         sb.append( tabs ).append( "  search filter : " ).append( replSearchFilter ).append( '\n' );
         sb.append( tabs ).append( "  search scope : " ).append( replSearchScope ).append( '\n' );
         sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replAliasDerefMode ).append( '\n' );

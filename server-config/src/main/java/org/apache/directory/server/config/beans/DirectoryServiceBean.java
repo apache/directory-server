@@ -159,7 +159,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      *
      * @param interceptors the interceptors to be added in the server.
      */
-    public void addinterceptors( InterceptorBean... interceptors )
+    public void addInterceptors( InterceptorBean... interceptors )
     {
         for ( InterceptorBean interceptor : interceptors )
         {
@@ -351,7 +351,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @param partitions the partitions to add
      */
-    public void addpartitions( PartitionBean... partitions )
+    public void addPartitions( PartitionBean... partitions )
     {
         for ( PartitionBean partition : partitions )
         {
@@ -381,7 +381,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @param servers the servers to add
      */
-    public void addservers( ServerBean... servers )
+    public void addServers( ServerBean... servers )
     {
         for ( ServerBean server : servers )
         {

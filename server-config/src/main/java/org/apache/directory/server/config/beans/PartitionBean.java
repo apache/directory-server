@@ -21,6 +21,8 @@ package org.apache.directory.server.config.beans;
 
 import java.util.List;
 
+import org.apache.directory.shared.ldap.name.DN;
+
 /**
  * A class used to store the Partition configuration. It can't be instanciated
  *
@@ -32,7 +34,7 @@ public abstract class PartitionBean extends AdsBaseBean
     private String partitionId;
     
     /** The Partition suffix */
-    private String partitionSuffix;
+    private DN partitionSuffix;
     
     /** Tells if the data should be flushed to disk immediately */
     private boolean partitionSyncOnWrite;
@@ -69,7 +71,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @return the partitionSuffix
      */
-    public String getPartitionSuffix()
+    public DN getPartitionSuffix()
     {
         return partitionSuffix;
     }
@@ -78,7 +80,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @param partitionSuffix the partitionSuffix to set
      */
-    public void setPartitionSuffix( String partitionSuffix )
+    public void setPartitionSuffix( DN partitionSuffix )
     {
         this.partitionSuffix = partitionSuffix;
     }
@@ -129,7 +131,7 @@ public abstract class PartitionBean extends AdsBaseBean
         
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  partition ID : " ).append( partitionId ).append( '\n' );
-        sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix ).append( '\n' );
+        sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix.getName() ).append( '\n' );
         sb.append( toString( tabs, "  sync on write", partitionSyncOnWrite ) );
         
         sb.append( tabs ).append( "  indexes : \n" );

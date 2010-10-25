@@ -104,7 +104,7 @@ public class KdcServerBean extends DSBasedServerBean
     private List<String> krbEncryptionTypes = new ArrayList<String>();
 
     /** The service principal name. */
-    private String krbkdcprincipal = DEFAULT_PRINCIPAL;
+    private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
 
     /**
      * Create a new KdcServerBean instance
@@ -354,7 +354,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public KerberosPrincipal getKrbKdcPrincipal()
     {
-        return new KerberosPrincipal( krbkdcprincipal );
+        return new KerberosPrincipal( krbKdcPrincipal );
     }
 
 
@@ -363,7 +363,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void setKrbKdcPrincipal( String krbKdcPrincipal )
     {
-        this.krbkdcprincipal = krbKdcPrincipal;
+        this.krbKdcPrincipal = krbKdcPrincipal;
     }
 
     
@@ -384,7 +384,7 @@ public class KdcServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  proxiable allowed", krbProxiableAllowed ) );
         sb.append( toString( tabs, "  renew allowed", krbRenewableAllowed ) );
         sb.append( toString( tabs, "  allowable clock skew", krbAllowableClockSkew ) );
-        sb.append( toString( tabs, "  KDC principal", krbkdcprincipal ) );
+        sb.append( toString( tabs, "  KDC principal", krbKdcPrincipal ) );
         sb.append( toString( tabs, "  maximum renewable lifetime", krbMaximumRenewableLifetime ) );
         sb.append( toString( tabs, "  maximum ticket lifetime", krbMaximumTicketLifetime ) );
         sb.append( toString( tabs, "  primary realm", krbPrimaryRealm ) );
