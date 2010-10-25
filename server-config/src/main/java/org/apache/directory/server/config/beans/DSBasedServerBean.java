@@ -33,7 +33,7 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    private String searchbasedn;
+    private String searchBaseDN;
 
     /**
      * Create a new JournalBean instance
@@ -51,7 +51,7 @@ public class DSBasedServerBean extends ServerBean
      */
     public String getSearchBaseDn()
     {
-        return searchbasedn;
+        return searchBaseDN;
     }
 
 
@@ -60,7 +60,7 @@ public class DSBasedServerBean extends ServerBean
      */
     public void setSearchBaseDn( String searchBaseDn )
     {
-        this.searchbasedn = searchBaseDn;
+        this.searchBaseDN = searchBaseDn;
     }
     
     
@@ -72,7 +72,7 @@ public class DSBasedServerBean extends ServerBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( super.toString( tabs ) );
-        sb.append( toString( tabs, "searchBaseDN", searchbasedn ) );
+        sb.append( toString( tabs, "searchBaseDN", searchBaseDN ) );
         
         return sb.toString();
     }

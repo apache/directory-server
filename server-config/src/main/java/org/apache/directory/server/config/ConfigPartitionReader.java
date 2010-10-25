@@ -101,7 +101,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -727,7 +726,7 @@ public class ConfigPartitionReader
     /**
      * Retrieve the Field associated with an AttributeType name, if any.
      */
-    private static Field getField( Class<?> clazz, String attributeName ) throws ConfigurationException 
+    private static Field getField( Class<?> clazz, String attributeName, Class<?> originalClazz ) throws ConfigurationException 
     {
         // We will check all the fields, as the AT name is case insentitive
         // when the field is case sensitive
@@ -746,10 +745,10 @@ public class ConfigPartitionReader
         // May be in the paren'ts class ?
         if ( clazz.getSuperclass() != null )
         {
-            return getField( clazz.getSuperclass(), attributeName );
+            return getField( clazz.getSuperclass(), attributeName, originalClazz );
         }
         
-        String message = "Cannot find a field named " + attributeName + " in class " + clazz.getName();
+        String message = "Cannot find a field named " + attributeName + " in class " + originalClazz.getName();
         LOG.error( message );
         throw new ConfigurationException( message );
     }
@@ -847,7 +846,10 @@ public class ConfigPartitionReader
         }
 
         Class<?> type = beanField.getType();
-        
+
+        String fieldName = beanField.getName();
+        String addMethodName = "add" + Character.toUpperCase( fieldName.charAt( 0 ) ) + fieldName.substring( 1 );
+
         // loop on the values and inject them in the bean
         for ( Value<?> value : fieldAttr )
         {
@@ -901,7 +903,7 @@ public class ConfigPartitionReader
                         }
                     }
     
-                    Method method = bean.getClass().getMethod( "add" + beanField.getName(), Array.newInstance( fieldArgClass, 0 ).getClass() );
+                    Method method = bean.getClass().getMethod( addMethodName, Array.newInstance( fieldArgClass, 0 ).getClass() );
     
                     method.invoke( bean, new Object[]{ new String[]{valueStr} } );
                 }
@@ -920,8 +922,8 @@ public class ConfigPartitionReader
                             fieldArgClass = (Class<?>) fieldArgType;
                         }
                     }
-    
-                    Method method = bean.getClass().getMethod( "add" + beanField.getName(), Array.newInstance( fieldArgClass, 0 ).getClass() );
+                    
+                    Method method = bean.getClass().getMethod( addMethodName, Array.newInstance( fieldArgClass, 0 ).getClass() );
     
                     method.invoke( bean, new Object[]{ new String[]{valueStr} } );
                 }
@@ -946,7 +948,7 @@ public class ConfigPartitionReader
             } 
             catch ( NoSuchMethodException nsme )
             {
-                String message = "Cannot find a constructor for the class " + bean.getClass().getName();
+                String message = "Cannot find a method " + addMethodName + " in the class " + bean.getClass().getName();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
@@ -981,7 +983,7 @@ public class ConfigPartitionReader
             }
             
             // Get the field
-            Field beanField = getField( bean.getClass(), StringTools.toLowerCase( beanFieldName ) );
+            Field beanField = getField( bean.getClass(), beanFieldName, bean.getClass() );
             
             // The field is private, we need to modify it to be able to access it.
             beanField.setAccessible( true );

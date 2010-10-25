@@ -27,16 +27,16 @@ package org.apache.directory.server.config.beans;
 public class JournalBean extends AdsBaseBean
 {
     /** The journal unique Id */
-    private String journalid;
+    private String journalId;
     
     /** The journal file name */
-    private String journalfilename;
+    private String journalFileName;
     
     /** The journal working directory */
-    private String journalworkingdir;
+    private String journalWorkingDir;
     
     /** The journal rotation */
-    private int journalrotation;
+    private int journalRotation;
 
     /**
      * Create a new JournalBean instance
@@ -44,7 +44,7 @@ public class JournalBean extends AdsBaseBean
     public JournalBean()
     {
         // Default to infinite
-        journalrotation = 0;
+        journalRotation = 0;
         
         // Not enabled by default
         setEnabled( false );
@@ -56,7 +56,7 @@ public class JournalBean extends AdsBaseBean
      */
     public String getJournalId()
     {
-        return journalid;
+        return journalId;
     }
 
 
@@ -65,7 +65,7 @@ public class JournalBean extends AdsBaseBean
      */
     public void setJournalId( String journalId )
     {
-        this.journalid = journalId;
+        this.journalId = journalId;
     }
     
     
@@ -74,7 +74,7 @@ public class JournalBean extends AdsBaseBean
      */
     public String getJournalFileName() 
     {
-        return journalfilename;
+        return journalFileName;
     }
 
     
@@ -83,7 +83,7 @@ public class JournalBean extends AdsBaseBean
      */
     public void setJournalFileName( String journalFileName ) 
     {
-        this.journalfilename = journalFileName;
+        this.journalFileName = journalFileName;
     }
 
     
@@ -92,7 +92,7 @@ public class JournalBean extends AdsBaseBean
      */
     public String getJournalWorkingDir() 
     {
-        return journalworkingdir;
+        return journalWorkingDir;
     }
 
     
@@ -101,7 +101,7 @@ public class JournalBean extends AdsBaseBean
      */
     public void setJournalWorkingDir( String journalWorkingDir ) 
     {
-        this.journalworkingdir = journalWorkingDir;
+        this.journalWorkingDir = journalWorkingDir;
     }
 
     
@@ -110,7 +110,7 @@ public class JournalBean extends AdsBaseBean
      */
     public int getJournalRotation() 
     {
-        return journalrotation;
+        return journalRotation;
     }
 
     
@@ -119,7 +119,7 @@ public class JournalBean extends AdsBaseBean
      */
     public void setJournalRotation( int journalRotation ) 
     {
-        this.journalrotation = journalRotation;
+        this.journalRotation = journalRotation;
     }
     
     
@@ -131,10 +131,10 @@ public class JournalBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "Journal :\n" );
-        sb.append( tabs ).append( "  journal id : " ).append( journalid ).append( '\n' );
-        sb.append( tabs ).append( "  journal file name : " ).append( journalfilename ).append( '\n' );
-        sb.append( toString( tabs, "  journal working dir", journalworkingdir ) );
-        sb.append( toString( tabs, "  journal rotation", journalrotation ) );
+        sb.append( tabs ).append( "  journal id : " ).append( journalId ).append( '\n' );
+        sb.append( tabs ).append( "  journal file name : " ).append( journalFileName ).append( '\n' );
+        sb.append( toString( tabs, "  journal working dir", journalWorkingDir ) );
+        sb.append( toString( tabs, "  journal rotation", journalRotation ) );
         
         return sb.toString();
     }

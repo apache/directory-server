@@ -31,28 +31,28 @@ import java.util.List;
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
-    private long krballowableclockskew;
+    private long krbAllowableClockSkew;
     
     /** Whether empty addresses are allowed. */
-    private boolean krbemptyaddressesallowed;
+    private boolean krbEmptyAddressesAllowed;
     
     /** The encryption types. */
-    private List<String> krbencryptiontypes = new ArrayList<String>();
+    private List<String> krbEncryptionTypes = new ArrayList<String>();
     
     /** The primary realm. */
-    private String krbprimaryrealm;
+    private String krbPrimaryRealm;
     
     /** The policy for category count. */
-    private int chgpwdpolicycategorycount;
+    private int chgPwdPolicyCategoryCount;
     
     /** The policy for password length. */
-    private int chgpwdpolicypasswordlength;
+    private int chgPwdPolicyPasswordLength;
     
     /** The policy for token size. */
-    private int chgpwdpolicytokensize;
+    private int chgPwdPolicyTokenSize;
     
     /** The service principal name. */
-    private String chgpwdserviceprincipal;
+    private String chgPwdServicePrincipal;
 
     /**
      * Create a new ChangePasswordServer instance
@@ -67,7 +67,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public long getKrbAllowableClockSkew()
     {
-        return krballowableclockskew;
+        return krbAllowableClockSkew;
     }
 
     
@@ -76,7 +76,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbAllowableClockSkew( long krbAllowableClockSkew )
     {
-        this.krballowableclockskew = krbAllowableClockSkew;
+        this.krbAllowableClockSkew = krbAllowableClockSkew;
     }
 
     
@@ -85,7 +85,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public boolean isKrbEmptyAddressesAllowed()
     {
-        return krbemptyaddressesallowed;
+        return krbEmptyAddressesAllowed;
     }
 
     
@@ -94,7 +94,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbEmptyAddressesAllowed( boolean krbEmptyAddressesAllowed )
     {
-        this.krbemptyaddressesallowed = krbEmptyAddressesAllowed;
+        this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
     }
 
     
@@ -103,7 +103,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public List<String> getKrbEncryptionTypes()
     {
-        return krbencryptiontypes;
+        return krbEncryptionTypes;
     }
 
     
@@ -112,7 +112,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbEncryptionTypes( List<String> krbEncryptionTypes )
     {
-        this.krbencryptiontypes = krbEncryptionTypes;
+        this.krbEncryptionTypes = krbEncryptionTypes;
     }
 
     
@@ -121,11 +121,11 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      * 
      * @param krbEncryptionTypes the encryptionTypes to set
      */
-    public void addkrbencryptiontypes( String... krbEncryptionTypes )
+    public void addKrbEncryptionTypes( String... krbEncryptionTypes )
     {
         for ( String encryptionType:krbEncryptionTypes )
         {
-            this.krbencryptiontypes.add( encryptionType );
+            this.krbEncryptionTypes.add( encryptionType );
         }
     }
 
@@ -135,7 +135,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public String getKrbPrimaryRealm()
     {
-        return krbprimaryrealm;
+        return krbPrimaryRealm;
     }
 
     
@@ -144,7 +144,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setKrbPrimaryRealm( String krbPrimaryRealm )
     {
-        this.krbprimaryrealm = krbPrimaryRealm;
+        this.krbPrimaryRealm = krbPrimaryRealm;
     }
 
     
@@ -153,7 +153,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyCategoryCount()
     {
-        return chgpwdpolicycategorycount;
+        return chgPwdPolicyCategoryCount;
     }
 
     
@@ -162,7 +162,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyCategoryCount( int chgPwdPolicyCategoryCount )
     {
-        this.chgpwdpolicycategorycount = chgPwdPolicyCategoryCount;
+        this.chgPwdPolicyCategoryCount = chgPwdPolicyCategoryCount;
     }
 
     
@@ -171,7 +171,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyPasswordLength()
     {
-        return chgpwdpolicypasswordlength;
+        return chgPwdPolicyPasswordLength;
     }
 
     
@@ -180,7 +180,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyPasswordLength( int chgPwdPolicyPasswordLength )
     {
-        this.chgpwdpolicypasswordlength = chgPwdPolicyPasswordLength;
+        this.chgPwdPolicyPasswordLength = chgPwdPolicyPasswordLength;
     }
 
     
@@ -189,7 +189,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public int getChgPwdPolicyTokenSize()
     {
-        return chgpwdpolicytokensize;
+        return chgPwdPolicyTokenSize;
     }
 
     
@@ -198,7 +198,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdPolicyTokenSize( int chgPwdPolicyTokenSize )
     {
-        this.chgpwdpolicytokensize = chgPwdPolicyTokenSize;
+        this.chgPwdPolicyTokenSize = chgPwdPolicyTokenSize;
     }
 
     
@@ -207,7 +207,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public String getChgPwdServicePrincipal()
     {
-        return chgpwdserviceprincipal;
+        return chgPwdServicePrincipal;
     }
 
     
@@ -216,7 +216,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void setChgPwdServicePrincipal( String chgPwdServicePrincipal )
     {
-        this.chgpwdserviceprincipal = chgPwdServicePrincipal;
+        this.chgPwdServicePrincipal = chgPwdServicePrincipal;
     }
     
     
@@ -229,24 +229,24 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         
         sb.append( tabs ).append( "ChangePasswordServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( toString( tabs, "  change password service principal", chgpwdserviceprincipal ) );
-        sb.append( toString( tabs, "  KRB primary realm", krbprimaryrealm ) );
+        sb.append( toString( tabs, "  change password service principal", chgPwdServicePrincipal ) );
+        sb.append( toString( tabs, "  KRB primary realm", krbPrimaryRealm ) );
         
-        if ( ( krbencryptiontypes != null ) && ( krbencryptiontypes.size() != 0 ) )
+        if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() != 0 ) )
         {
             sb.append( tabs ).append( "  encryption types : \n" );
 
-            for ( String encryptionType : krbencryptiontypes )
+            for ( String encryptionType : krbEncryptionTypes )
             {
                 sb.append( tabs ).append( "    encryptionType : " ).append( encryptionType ).append( '\n' );
             }
         }
         
-        sb.append( toString( tabs, "  change password policy category count", chgpwdpolicycategorycount ) );
-        sb.append( toString( tabs, "  change password policy password length", chgpwdpolicypasswordlength ) );
-        sb.append( toString( tabs, "  change password policy token size", chgpwdpolicytokensize ) );
-        sb.append( toString( tabs, "  KRB allowable clock skew", krballowableclockskew ) );
-        sb.append( toString( tabs, "  KRB empty addresses allowed", krbemptyaddressesallowed ) );
+        sb.append( toString( tabs, "  change password policy category count", chgPwdPolicyCategoryCount ) );
+        sb.append( toString( tabs, "  change password policy password length", chgPwdPolicyPasswordLength ) );
+        sb.append( toString( tabs, "  change password policy token size", chgPwdPolicyTokenSize ) );
+        sb.append( toString( tabs, "  KRB allowable clock skew", krbAllowableClockSkew ) );
+        sb.append( toString( tabs, "  KRB empty addresses allowed", krbEmptyAddressesAllowed ) );
 
         return sb.toString();
     }

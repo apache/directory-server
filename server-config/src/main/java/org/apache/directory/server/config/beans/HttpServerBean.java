@@ -33,10 +33,10 @@ import java.util.List;
 public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
-    private String httpconffile;
+    private String httpConfFile;
     
     /** The list of supported web apps */
-    private List<HttpWebAppBean> httpwebapps = new ArrayList<HttpWebAppBean>();
+    private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
 
     /**
      * Create a new HttpServerBean instance
@@ -55,7 +55,7 @@ public class HttpServerBean extends ServerBean
      */
     public String getHttpConfFile()
     {
-        return httpconffile;
+        return httpConfFile;
     }
 
     
@@ -64,7 +64,7 @@ public class HttpServerBean extends ServerBean
      */
     public void setHttpConfFile( String httpConfFile )
     {
-        this.httpconffile = httpConfFile;
+        this.httpConfFile = httpConfFile;
     }
 
     
@@ -73,7 +73,7 @@ public class HttpServerBean extends ServerBean
      */
     public List<HttpWebAppBean> getExtendedOps()
     {
-        return httpwebapps;
+        return httpWebApps;
     }
 
     
@@ -82,7 +82,7 @@ public class HttpServerBean extends ServerBean
      */
     public void setExtendedOps( List<HttpWebAppBean> httpWebApps )
     {
-        this.httpwebapps = httpWebApps;
+        this.httpWebApps = httpWebApps;
     }
 
     
@@ -93,7 +93,7 @@ public class HttpServerBean extends ServerBean
     {
         for ( HttpWebAppBean httpWebApp : httpWebApps )
         {   
-            this.httpwebapps.add( httpWebApp );
+            this.httpWebApps.add( httpWebApp );
         }
     }
 
@@ -107,13 +107,13 @@ public class HttpServerBean extends ServerBean
         
         sb.append( tabs ).append( "HttpServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append(  toString( tabs, "  http configuration file", httpconffile ) );
+        sb.append(  toString( tabs, "  http configuration file", httpConfFile ) );
         
-        if ( ( httpwebapps != null ) && ( httpwebapps.size() > 0 ) )
+        if ( ( httpWebApps != null ) && ( httpWebApps.size() > 0 ) )
         {
             sb.append( tabs ).append( "  web applications :\n" );
             
-            for ( HttpWebAppBean httpWebApp : httpwebapps )
+            for ( HttpWebAppBean httpWebApp : httpWebApps )
             {
                 sb.append( httpWebApp.toString( tabs + "    " ) );
             }

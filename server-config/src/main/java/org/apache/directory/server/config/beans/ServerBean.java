@@ -30,7 +30,7 @@ import java.util.List;
 public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
-    private String serverid;
+    private String serverId;
     
     /** The set of transports to use for this server */
     private List<TransportBean> transports = new ArrayList<TransportBean>();
@@ -83,7 +83,7 @@ public abstract class ServerBean extends AdsBaseBean
      */
     public String getServerId()
     {
-        return serverid;
+        return serverId;
     }
 
 
@@ -92,7 +92,7 @@ public abstract class ServerBean extends AdsBaseBean
      */
     public void setServerId( String serverId )
     {
-        this.serverid = serverId;
+        this.serverId = serverId;
     }
     
     
@@ -104,7 +104,7 @@ public abstract class ServerBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( super.toString( tabs ) );
-        sb.append( tabs ).append( "server id : " ).append( serverid ).append( '\n' );
+        sb.append( tabs ).append( "server id : " ).append( serverId ).append( '\n' );
         sb.append( tabs ).append( "transports : \n" );
         
         if ( transports != null )

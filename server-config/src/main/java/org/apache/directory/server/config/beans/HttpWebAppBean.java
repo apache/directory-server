@@ -31,10 +31,10 @@ public class HttpWebAppBean extends AdsBaseBean
     private String id;
     
     /** The context path */
-    private String httpappctxpath;
+    private String httpAppCtxPath;
     
     /** The war file */
-    private String httpwarfile;
+    private String httpWarFile;
 
     /**
      * Create a new HttpWebAppBean instance
@@ -71,7 +71,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public String getHttpAppCtxPath()
     {
-        return httpappctxpath;
+        return httpAppCtxPath;
     }
 
     
@@ -80,7 +80,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public void setHttpAppCtxPath( String httpAppCtxPath )
     {
-        this.httpappctxpath = httpAppCtxPath;
+        this.httpAppCtxPath = httpAppCtxPath;
     }
 
     
@@ -89,7 +89,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public String getHttpWarFile()
     {
-        return httpwarfile;
+        return httpWarFile;
     }
 
     
@@ -98,7 +98,7 @@ public class HttpWebAppBean extends AdsBaseBean
      */
     public void setHttpWarFile( String httpWarFile )
     {
-        this.httpwarfile = httpWarFile;
+        this.httpWarFile = httpWarFile;
     }
 
     
@@ -112,8 +112,8 @@ public class HttpWebAppBean extends AdsBaseBean
         sb.append( tabs ).append( "HttpWebApp :\n" );
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  id : " ).append( id ).append( '\n' );
-        sb.append( tabs ).append( "  war file : " ).append( httpwarfile ).append( '\n' );
-        sb.append(  toString( tabs, "  application context path", httpappctxpath ) );
+        sb.append( tabs ).append( "  war file : " ).append( httpWarFile ).append( '\n' );
+        sb.append(  toString( tabs, "  application context path", httpAppCtxPath ) );
 
         return sb.toString();
     }

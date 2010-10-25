@@ -33,22 +33,22 @@ public class TransportBean extends AdsBaseBean
     private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
-    private String transportid;
+    private String transportId;
     
     /** The transport address */
-    private String transportaddress;
+    private String transportAddress;
     
     /** The port number */
-    private int systemport = -1;
+    private int systemPort = -1;
     
     /** A flag set if SSL is enabled */
-    private boolean transportenablessl = false;
+    private boolean transportEnableSsl = false;
     
     /** The number of threads to use for the IoAcceptor executor */
-    private int transportnbthreads = DEFAULT_NB_THREADS;
+    private int transportNbThreads = DEFAULT_NB_THREADS;
     
     /** The backlog for the transport services */
-    private int transportbacklog = DEFAULT_BACKLOG_NB;
+    private int transportBackLog = DEFAULT_BACKLOG_NB;
     
     /**
      * Create a new TransportBean instance
@@ -63,7 +63,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setSystemPort( int systemPort ) 
     {
-        this.systemport = systemPort;
+        this.systemPort = systemPort;
     }
 
     
@@ -72,7 +72,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getSystemPort() 
     {
-        return systemport;
+        return systemPort;
     }
 
     
@@ -80,7 +80,7 @@ public class TransportBean extends AdsBaseBean
      * @param transportAddress the address to set
      */
     public void setTransportAddress( String transportAddress ) {
-        this.transportaddress = transportAddress;
+        this.transportAddress = transportAddress;
     }
 
     
@@ -88,7 +88,7 @@ public class TransportBean extends AdsBaseBean
      * @return the address
      */
     public String getTransportAddress() {
-        return transportaddress;
+        return transportAddress;
     }
     
     
@@ -97,7 +97,7 @@ public class TransportBean extends AdsBaseBean
      */
     public boolean isTransportEnableSSL()
     {
-        return transportenablessl;
+        return transportEnableSsl;
     }
     
     
@@ -108,7 +108,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportEnableSSL( boolean transportEnableSSL )
     {
-        this.transportenablessl = transportEnableSSL;
+        this.transportEnableSsl = transportEnableSSL;
     }
     
     
@@ -117,7 +117,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getTransportNbThreads() 
     {
-        return transportnbthreads;
+        return transportNbThreads;
     }
     
     
@@ -128,7 +128,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportNbThreads( int transportNbThreads )
     {
-        this.transportnbthreads = transportNbThreads;
+        this.transportNbThreads = transportNbThreads;
     }
     
     
@@ -137,7 +137,7 @@ public class TransportBean extends AdsBaseBean
      */
     public int getTransportBackLog()
     {
-        return transportbacklog;
+        return transportBackLog;
     }
     
     
@@ -148,7 +148,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportBackLog( int transportBacklog )
     {
-        this.transportbacklog = transportBacklog;
+        this.transportBackLog = transportBacklog;
     }
 
 
@@ -157,7 +157,7 @@ public class TransportBean extends AdsBaseBean
      */
     public String getTransportId()
     {
-        return transportid;
+        return transportId;
     }
 
 
@@ -166,7 +166,7 @@ public class TransportBean extends AdsBaseBean
      */
     public void setTransportId( String transportId )
     {
-        this.transportid = transportId;
+        this.transportId = transportId;
     }
     
     
@@ -177,22 +177,22 @@ public class TransportBean extends AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( toString( tabs, "transport id", transportid ) );
+        sb.append( toString( tabs, "transport id", transportId ) );
         sb.append( tabs ).append( "transport address : " );
         
-        if ( transportaddress == null )
+        if ( transportAddress == null )
         {
             sb.append( "localhost" ).append( '\n' );
         }
         else
         {
-            sb.append( transportaddress ).append( '\n' );
+            sb.append( transportAddress ).append( '\n' );
         }
 
-        sb.append( tabs ).append( "transport port : " ).append( systemport ).append( '\n' );
-        sb.append( tabs ).append( "transport backlog : " ).append( transportbacklog ).append( '\n' );
-        sb.append( tabs ).append( "transport nb threads : " ).append( transportnbthreads ).append( '\n' );
-        sb.append( toString( tabs, "SSL enabled", transportenablessl ) );
+        sb.append( tabs ).append( "transport port : " ).append( systemPort ).append( '\n' );
+        sb.append( tabs ).append( "transport backlog : " ).append( transportBackLog ).append( '\n' );
+        sb.append( tabs ).append( "transport nb threads : " ).append( transportNbThreads ).append( '\n' );
+        sb.append( toString( tabs, "SSL enabled", transportEnableSsl ) );
 
         return sb.toString();
     }

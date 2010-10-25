@@ -28,10 +28,10 @@ package org.apache.directory.server.config.beans;
 public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
-    private String extendedopid;
+    private String extendedOpId;
     
     /** The Extended Operation FQCN */
-    private String extendedophandlerclass;
+    private String extendedOpHandlerClass;
 
     /**
      * Create a new LdapServerExtendedOpHandlerBean instance
@@ -47,7 +47,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
      */
     public String getExtendedOpId()
     {
-        return extendedopid;
+        return extendedOpId;
     }
 
     
@@ -56,7 +56,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
      */
     public void setExtendedOpId( String extendedOpId )
     {
-        this.extendedopid = extendedOpId;
+        this.extendedOpId = extendedOpId;
     }
 
     
@@ -65,7 +65,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
      */
     public String getExtendedOpHandlerClass()
     {
-        return extendedophandlerclass;
+        return extendedOpHandlerClass;
     }
 
     
@@ -74,7 +74,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
      */
     public void setExtendedOpHandlerClass( String extendedOpHandlerClass )
     {
-        this.extendedophandlerclass = extendedOpHandlerClass;
+        this.extendedOpHandlerClass = extendedOpHandlerClass;
     }
     
     
@@ -86,8 +86,8 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "Extended operation handler :\n" );
-        sb.append( tabs ).append( "  extended operation ID : " ).append( extendedopid ).append( '\n' );
-        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedophandlerclass ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation ID : " ).append( extendedOpId ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedOpHandlerClass ).append( '\n' );
         
         return sb.toString();
     }

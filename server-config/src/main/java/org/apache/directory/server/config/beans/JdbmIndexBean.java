@@ -34,16 +34,16 @@ public class JdbmIndexBean<K, E> extends IndexBean
     private static final int DEFAULT_DUPLICATE_LIMIT = 512;
 
     /** the size (number of index entries) for the cache */
-    private int indexcachesize = DEFAULT_INDEX_CACHE_SIZE;
+    private int indexCacheSize = DEFAULT_INDEX_CACHE_SIZE;
 
     /** duplicate limit before duplicate keys switch to using a btree for values */
-    private int indexnumduplimit = DEFAULT_DUPLICATE_LIMIT;
+    private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
     
     /** The index file name */
-    private String indexfilename;
+    private String indexFileName;
     
     /** The index working directory */
-    private String indexworkingdir;
+    private String indexWorkingDir;
 
     /**
      * Create a new JdbmIndexBean instance
@@ -60,7 +60,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public int getIndexCacheSize()
     {
-        return indexcachesize;
+        return indexCacheSize;
     }
 
 
@@ -71,7 +71,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public void setIndexCacheSize( int indexCacheSize )
     {
-        this.indexcachesize = indexCacheSize;
+        this.indexCacheSize = indexCacheSize;
     }
 
 
@@ -83,7 +83,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public int getIndexNumDupLimit()
     {
-        return indexnumduplimit;
+        return indexNumDupLimit;
     }
 
 
@@ -95,7 +95,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public void setIndexNumDupLimit( int indexNumDupLimit )
     {
-        this.indexnumduplimit = indexNumDupLimit;
+        this.indexNumDupLimit = indexNumDupLimit;
     }
 
 
@@ -104,7 +104,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public String getIndexFileName()
     {
-        return indexfilename;
+        return indexFileName;
     }
 
 
@@ -113,7 +113,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public void setIndexFileName( String indexFileName )
     {
-        this.indexfilename = indexFileName;
+        this.indexFileName = indexFileName;
     }
 
 
@@ -122,7 +122,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public String getIndexWorkingDir()
     {
-        return indexworkingdir;
+        return indexWorkingDir;
     }
 
 
@@ -131,7 +131,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
      */
     public void setIndexWorkingDir( String indexWorkingDir )
     {
-        this.indexworkingdir = indexWorkingDir;
+        this.indexWorkingDir = indexWorkingDir;
     }
     
     
@@ -144,10 +144,10 @@ public class JdbmIndexBean<K, E> extends IndexBean
         
         sb.append( tabs ).append( "JdbmIndexBean :\n" );
         sb.append( super.toString( tabs ) );
-        sb.append( toString( tabs, "  index file name", indexfilename ) );
-        sb.append( toString( tabs, "  index working directory", indexworkingdir ) );
-        sb.append( toString( tabs, "  index cache size", indexcachesize ) );
-        sb.append( toString( tabs, "  index num dup limit", indexnumduplimit ) );
+        sb.append( toString( tabs, "  index file name", indexFileName ) );
+        sb.append( toString( tabs, "  index working directory", indexWorkingDir ) );
+        sb.append( toString( tabs, "  index cache size", indexCacheSize ) );
+        sb.append( toString( tabs, "  index num dup limit", indexNumDupLimit ) );
         
         return sb.toString();
     }

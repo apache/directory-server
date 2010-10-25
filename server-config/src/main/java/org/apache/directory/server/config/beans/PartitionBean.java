@@ -29,13 +29,13 @@ import java.util.List;
 public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
-    private String partitionid;
+    private String partitionId;
     
     /** The Partition suffix */
-    private String partitionsuffix;
+    private String partitionSuffix;
     
     /** Tells if the data should be flushed to disk immediately */
-    private boolean partitionsynconwrite;
+    private boolean partitionSyncOnWrite;
 
     /** The list of declared indexes */
     private List<IndexBean> indexes;
@@ -53,7 +53,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public String getPartitionId()
     {
-        return partitionid;
+        return partitionId;
     }
 
     
@@ -62,7 +62,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionId( String partitionId )
     {
-        this.partitionid = partitionId;
+        this.partitionId = partitionId;
     }
 
     
@@ -71,7 +71,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public String getPartitionSuffix()
     {
-        return partitionsuffix;
+        return partitionSuffix;
     }
 
     
@@ -80,7 +80,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionSuffix( String partitionSuffix )
     {
-        this.partitionsuffix = partitionSuffix;
+        this.partitionSuffix = partitionSuffix;
     }
 
     
@@ -89,7 +89,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public boolean isPartitionSyncOnWrite()
     {
-        return partitionsynconwrite;
+        return partitionSyncOnWrite;
     }
 
     
@@ -98,7 +98,7 @@ public abstract class PartitionBean extends AdsBaseBean
      */
     public void setPartitionSyncOnWrite( boolean partitionSyncOnWrite )
     {
-        this.partitionsynconwrite = partitionSyncOnWrite;
+        this.partitionSyncOnWrite = partitionSyncOnWrite;
     }
     
     
@@ -128,9 +128,9 @@ public abstract class PartitionBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  partition ID : " ).append( partitionid ).append( '\n' );
-        sb.append( tabs ).append( "  suffix : " ).append( partitionsuffix ).append( '\n' );
-        sb.append( toString( tabs, "  sync on write", partitionsynconwrite ) );
+        sb.append( tabs ).append( "  partition ID : " ).append( partitionId ).append( '\n' );
+        sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix ).append( '\n' );
+        sb.append( toString( tabs, "  sync on write", partitionSyncOnWrite ) );
         
         sb.append( tabs ).append( "  indexes : \n" );
         

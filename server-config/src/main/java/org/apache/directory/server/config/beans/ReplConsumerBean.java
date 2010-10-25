@@ -28,37 +28,37 @@ package org.apache.directory.server.config.beans;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The consumer id */
-    private String replconsumerid;
+    private String replConsumerId;
     
     /** The replication unique ID */
-    private String dsreplicaid;
+    private String dsReplicaId;
     
     /** The Alias Dereferencing mode */
-    private String replaliasderefmode;
+    private String replAliasDerefMode;
     
     /** The Search Base DN */
-    private String searchbasedn;
+    private String searchBaseDN;
     
     /** The last CSN sent */
-    private String repllastsentcsn;
+    private String replLastSentCsn;
     
     /** The search scope */
-    private String replsearchscope;
+    private String replSearchScope;
     
     /** The replication search filter */
-    private String replsearchfilter;
+    private String replSearchFilter;
     
     /** Tells if we should persist */
-    private boolean replrefreshnpersist;
+    private boolean replRefreshNPersist;
     
     /** Tells if TLS should be used during replication */
-    private boolean replusetls;
+    private boolean replUseTls;
     
     /** Tells if the certificate validation should be strict or not */
-    private boolean replstrictcertvalidation;
+    private boolean replStrictCertValidation;
     
     /** The peer certificate */
-    private String replpeercertificate;
+    private String replPeerCertificate;
 
     /**
      * Create a new Replication Consumer instance
@@ -77,7 +77,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplConsumerId()
     {
-        return replconsumerid;
+        return replConsumerId;
     }
 
 
@@ -86,7 +86,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplConsumerId( String replConsumerId )
     {
-        this.replconsumerid = replConsumerId;
+        this.replConsumerId = replConsumerId;
     }
 
     
@@ -95,7 +95,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getDsreplicaid()
     {
-        return dsreplicaid;
+        return dsReplicaId;
     }
 
     
@@ -104,7 +104,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setDsreplicaid( String dsreplicaid )
     {
-        this.dsreplicaid = dsreplicaid;
+        this.dsReplicaId = dsreplicaid;
     }
 
     
@@ -113,7 +113,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplAliasDerefMode()
     {
-        return replaliasderefmode;
+        return replAliasDerefMode;
     }
 
     
@@ -122,7 +122,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplAliasDerefMode( String replAliasDerefMode )
     {
-        this.replaliasderefmode = replAliasDerefMode;
+        this.replAliasDerefMode = replAliasDerefMode;
     }
 
     
@@ -131,7 +131,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getSearchBaseDN()
     {
-        return searchbasedn;
+        return searchBaseDN;
     }
 
     
@@ -140,7 +140,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setSearchBaseDN( String searchBaseDN )
     {
-        this.searchbasedn = searchBaseDN;
+        this.searchBaseDN = searchBaseDN;
     }
 
     
@@ -149,7 +149,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplLastSentCsn()
     {
-        return repllastsentcsn;
+        return replLastSentCsn;
     }
 
     
@@ -158,7 +158,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplLastSentCsn( String replLastSentCsn )
     {
-        this.repllastsentcsn = replLastSentCsn;
+        this.replLastSentCsn = replLastSentCsn;
     }
 
     
@@ -167,7 +167,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplSearchScope()
     {
-        return replsearchscope;
+        return replSearchScope;
     }
 
     
@@ -176,7 +176,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplSearchScope( String replSearchScope )
     {
-        this.replsearchscope = replSearchScope;
+        this.replSearchScope = replSearchScope;
     }
 
     
@@ -185,7 +185,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplSearchFilter()
     {
-        return replsearchfilter;
+        return replSearchFilter;
     }
 
     
@@ -194,7 +194,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplSearchFilter( String replSearchFilter )
     {
-        this.replsearchfilter = replSearchFilter;
+        this.replSearchFilter = replSearchFilter;
     }
 
     
@@ -203,7 +203,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public boolean isReplRefreshNPersist()
     {
-        return replrefreshnpersist;
+        return replRefreshNPersist;
     }
 
     
@@ -212,7 +212,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplRefreshNPersist( boolean replRefreshNPersist )
     {
-        this.replrefreshnpersist = replRefreshNPersist;
+        this.replRefreshNPersist = replRefreshNPersist;
     }
 
     
@@ -221,7 +221,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public boolean isReplUseTls()
     {
-        return replusetls;
+        return replUseTls;
     }
 
     
@@ -230,7 +230,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplUseTls( boolean replUseTls )
     {
-        this.replusetls = replUseTls;
+        this.replUseTls = replUseTls;
     }
 
     
@@ -239,7 +239,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public boolean isReplStrictCertValidation()
     {
-        return replstrictcertvalidation;
+        return replStrictCertValidation;
     }
 
     
@@ -248,7 +248,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplStrictCertValidation( boolean replStrictCertValidation )
     {
-        this.replstrictcertvalidation = replStrictCertValidation;
+        this.replStrictCertValidation = replStrictCertValidation;
     }
 
     
@@ -257,7 +257,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public String getReplPeerCertificate()
     {
-        return replpeercertificate;
+        return replPeerCertificate;
     }
 
     
@@ -266,7 +266,7 @@ public class ReplConsumerBean extends AdsBaseBean
      */
     public void setReplPeerCertificate( String replPeerCertificate )
     {
-        this.replpeercertificate = replPeerCertificate;
+        this.replPeerCertificate = replPeerCertificate;
     }
 
     
@@ -280,18 +280,18 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( tabs ).append( "Replication consumer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
-        sb.append( tabs ).append( "  consumer ID : " ).append( replconsumerid ).append( '\n' );
-        sb.append( tabs ).append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
-        sb.append( tabs ).append( "  last sent CSN : " ).append( repllastsentcsn ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchbasedn ).append( '\n' );
-        sb.append( tabs ).append( "  search filter : " ).append( replsearchfilter ).append( '\n' );
-        sb.append( tabs ).append( "  search scope : " ).append( replsearchscope ).append( '\n' );
-        sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replaliasderefmode ).append( '\n' );
+        sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
+        sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
+        sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );
+        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN ).append( '\n' );
+        sb.append( tabs ).append( "  search filter : " ).append( replSearchFilter ).append( '\n' );
+        sb.append( tabs ).append( "  search scope : " ).append( replSearchScope ).append( '\n' );
+        sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replAliasDerefMode ).append( '\n' );
 
-        sb.append( toString( tabs, "  peer certificate", replpeercertificate ) );
-        sb.append( toString( tabs, "  refresh and persist mode", replrefreshnpersist ) );
-        sb.append( toString( tabs, "  struct certivicate validation", replstrictcertvalidation ) );
-        sb.append( toString( tabs, "  use TLS", replusetls ) );
+        sb.append( toString( tabs, "  peer certificate", replPeerCertificate ) );
+        sb.append( toString( tabs, "  refresh and persist mode", replRefreshNPersist ) );
+        sb.append( toString( tabs, "  struct certivicate validation", replStrictCertValidation ) );
+        sb.append( toString( tabs, "  use TLS", replUseTls ) );
 
         return sb.toString();
     }

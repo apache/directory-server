@@ -27,7 +27,7 @@ package org.apache.directory.server.config.beans;
 public abstract class IndexBean extends AdsBaseBean
 {
     /** The index unique identifier */
-    private String indexattributeid;
+    private String indexAttributeId;
     
     /**
      * Create a new IndexBean instance
@@ -41,7 +41,7 @@ public abstract class IndexBean extends AdsBaseBean
      */
     public String getIndexAttributeId()
     {
-        return indexattributeid;
+        return indexAttributeId;
     }
 
     
@@ -50,7 +50,7 @@ public abstract class IndexBean extends AdsBaseBean
      */
     public void setIndexAttributeId( String indexAttributeId )
     {
-        this.indexattributeid = indexAttributeId;
+        this.indexAttributeId = indexAttributeId;
     }
     
     
@@ -62,7 +62,7 @@ public abstract class IndexBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  indexed attribute ID : " ).append( indexattributeid ).append( '\n' );
+        sb.append( tabs ).append( "  indexed attribute ID : " ).append( indexAttributeId ).append( '\n' );
 
         return sb.toString();
     }

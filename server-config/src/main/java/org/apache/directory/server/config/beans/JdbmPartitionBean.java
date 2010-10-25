@@ -29,10 +29,10 @@ package org.apache.directory.server.config.beans;
 public class JdbmPartitionBean extends PartitionBean
 {
     /** The Entry cache size for this partition */
-    private int partitioncachesize = -1;
+    private int partitionCacheSize = -1;
 
     /** Tells if the optimizer is enabled or not */
-    private boolean jdbmpartitionoptimizerenabled = true;
+    private boolean jdbmPartitionOptimizerEnabled = true;
     
     /**
      * Create a new JdbmPartitionBean instance
@@ -51,7 +51,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public void setPartitionCacheSize( int partitionCacheSize )
     {
-        this.partitioncachesize = partitionCacheSize;
+        this.partitionCacheSize = partitionCacheSize;
     }
 
 
@@ -62,7 +62,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public int getPartitionCacheSize()
     {
-        return partitioncachesize;
+        return partitionCacheSize;
     }
 
     
@@ -71,7 +71,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public boolean isJdbmPartitionOptimizerEnabled()
     {
-        return jdbmpartitionoptimizerenabled;
+        return jdbmPartitionOptimizerEnabled;
     }
 
 
@@ -82,7 +82,7 @@ public class JdbmPartitionBean extends PartitionBean
      */
     public void setJdbmPartitionOptimizerEnabled( boolean jdbmPartitionOptimizerEnabled )
     {
-        this.jdbmpartitionoptimizerenabled = jdbmPartitionOptimizerEnabled;
+        this.jdbmPartitionOptimizerEnabled = jdbmPartitionOptimizerEnabled;
     }
     
     
@@ -95,8 +95,8 @@ public class JdbmPartitionBean extends PartitionBean
         
         sb.append( tabs ).append( "JdbmPartitionBean :\n" );
         sb.append( super.toString( tabs ) );
-        sb.append( tabs ).append( "  partition cache size : " ).append( partitioncachesize ).append( '\n' );
-        sb.append( toString( tabs, "  jdbm partition optimizer enabled", jdbmpartitionoptimizerenabled ) );
+        sb.append( tabs ).append( "  partition cache size : " ).append( partitionCacheSize ).append( '\n' );
+        sb.append( toString( tabs, "  jdbm partition optimizer enabled", jdbmPartitionOptimizerEnabled ) );
         
         return sb.toString();
     }

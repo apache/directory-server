@@ -35,363 +35,363 @@ public class PasswordPolicyBean extends AdsBaseBean
     /**
      * The PasswordPolicy unique identifier
      */
-    private String pwdid;
+    private String pwdId;
     
     /** the name of the attribute to which the password policy is applied. 
      * Currently only "userPassword" attribute is supported
      */
-    private String pwdattribute = SchemaConstants.USER_PASSWORD_AT;
+    private String pwdAttribute = SchemaConstants.USER_PASSWORD_AT;
 
     /** 
      * holds the number of seconds that must elapse between modifications to the password. 
      * Default value is 0 
      */
-    private int pwdminage = 0;
+    private int pwdMinAge = 0;
 
     /**
      *  holds the number of seconds after which a modified password will expire.
      *  Default value is 0, does not expire.  If not 0, the value must be greater than or equal
      *  to the value of the pwdMinAge.
      */
-    private int pwdmaxage;
+    private int pwdMaxAge;
 
     /**
      *  specifies the maximum number of used passwords stored in the pwdHistory attribute.
      *  Default value is 0, no password history maintained
      */
-    private int pwdinhistory = 0;
+    private int pwdInHistory = 0;
 
     /** indicates how the password quality will be verified while being modified or added.
      *  Default value 0, do not check 
      */
-    private int pwdcheckquality = 0;
+    private int pwdCheckQuality = 0;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
      *  Default value 0, no minimum length enforced
      */
-    private int pwdminlength = 0;
+    private int pwdMinLength = 0;
 
     /**
      * this attribute holds the maximum number of characters that may be used in a password.
      * Default value 0, no maximum length enforced
      */
-    private int pwdmaxlength = 0;
+    private int pwdMaxLength = 0;
 
     /**
      * the maximum number of seconds before a password is due to expire that expiration warning
      * messages will be returned to an authenticating user.
      * Default value is 0, never send a warning message.
      */
-    private int pwdexpirewarning = 0;
+    private int pwdExpireWarning = 0;
 
     /** 
      * the number of times an expired password can be used to authenticate.
      * Default value is 0, do not allow a expired password for authentication.
      */
-    private int pwdgraceauthnlimit = 0;
+    private int pwdGraceAuthNLimit = 0;
 
     /** 
      * specifies the number of seconds the grace authentications are valid
      * Default value is 0, no limit.
      */
-    private int pwdgraceexpire = 0;
+    private int pwdGraceExpire = 0;
 
     /**
      * flag to indicate if the account needs to be locked after a specified number of
      * consecutive failed bind attempts. The maximum number of consecutive
-     * failed bind attempts is specified in {@link #pwdmaxfailure}
+     * failed bind attempts is specified in {@link #pwdMaxFailure}
      */
-    private boolean pwdlockout;
+    private boolean pwdLockout;
 
     /**
      * the number of seconds that the password cannot be used to authenticate due to 
      * too many failed bind attempts.
      * Default value is 300 seconds.
      */
-    private int pwdlockoutduration = 300;
+    private int pwdLockoutDuration = 300;
 
     /**
      * the number of consecutive failed bind attempts after which the password may not 
      * be used to authenticate.
      * Default value is 0, no limit on the number of authentication failures
      */
-    private int pwdmaxfailure;
+    private int pwdMaxFailure;
 
     /**
      * the number of seconds after which the password failures are purged from the failure counter.
      * Default value is 0, reset all pwdFailureTimes after a successful authentication.
      */
-    private int pwdfailurecountinterval;
+    private int pwdFailureCountInterval;
 
     /** 
      * flag to indicate if the password must be changed by the user after they bind to the 
      * directory after a password is set or reset by a password administrator.
      * Default value is false, no need to change the password by user.
      */
-    private boolean pwdmustchange = false;
+    private boolean pwdMustChange = false;
 
     /** indicates whether users can change their own passwords. Default value is true, allow change */
-    private boolean pwdallowuserchange = true;
+    private boolean pwdAllowUserChange = true;
 
     /**
      *  flag to specify whether or not the existing password must be sent along with the
      *  new password when being changed.
      *  Default value is false.
      */
-    private boolean pwdsafemodify = false;
+    private boolean pwdSafeModify = false;
 
     /** 
      * the number of seconds to delay responding to the first failed authentication attempt
      * Default value 0, no delay.
      */
-    private int pwdmindelay = 0;
+    private int pwdMinDelay = 0;
 
     /** the maximum number of seconds to delay when responding to a failed authentication attempt.*/
-    private int pwdmaxdelay;
+    private int pwdMaxDelay;
 
     /** 
      * the number of seconds an account may remain unused before it becomes locked
      * Default value is 0, no check for idle time.
      */
-    private int pwdmaxidle;
+    private int pwdMaxIdle;
 
     public String getPwdAttribute()
     {
-        return pwdattribute;
+        return pwdAttribute;
     }
 
 
     public void setPwdAttribute( String pwdAttribute )
     {
-        this.pwdattribute = pwdAttribute;
+        this.pwdAttribute = pwdAttribute;
     }
 
 
     public int getPwdMinAge()
     {
-        return pwdminage;
+        return pwdMinAge;
     }
 
 
     public void setPwdMinAge( int pwdMinAge )
     {
-        this.pwdminage = pwdMinAge;
+        this.pwdMinAge = pwdMinAge;
     }
 
 
     public int getPwdMaxAge()
     {
-        return pwdmaxage;
+        return pwdMaxAge;
     }
 
 
     public void setPwdMaxAge( int pwdMaxAge )
     {
-        this.pwdmaxage = pwdMaxAge;
+        this.pwdMaxAge = pwdMaxAge;
     }
 
 
     public int getPwdInHistory()
     {
-        return pwdinhistory;
+        return pwdInHistory;
     }
 
 
     public void setPwdInHistory( int pwdInHistory )
     {
-        this.pwdinhistory = pwdInHistory;
+        this.pwdInHistory = pwdInHistory;
     }
 
 
     public int getPwdCheckQuality()
     {
-        return pwdcheckquality;
+        return pwdCheckQuality;
     }
 
 
     public void setPwdCheckQuality( int pwdCheckQuality )
     {
-        this.pwdcheckquality = pwdCheckQuality;
+        this.pwdCheckQuality = pwdCheckQuality;
     }
 
 
     public int getPwdMinLength()
     {
-        return pwdminlength;
+        return pwdMinLength;
     }
 
 
     public void setPwdMinLength( int pwdMinLength )
     {
-        this.pwdminlength = pwdMinLength;
+        this.pwdMinLength = pwdMinLength;
     }
 
 
     public int getPwdMaxLength()
     {
-        return pwdmaxlength;
+        return pwdMaxLength;
     }
 
 
     public void setPwdMaxLength( int pwdMaxLength )
     {
-        this.pwdmaxlength = pwdMaxLength;
+        this.pwdMaxLength = pwdMaxLength;
     }
 
 
     public int getPwdExpireWarning()
     {
-        return pwdexpirewarning;
+        return pwdExpireWarning;
     }
 
 
     public void setPwdExpireWarning( int pwdExpireWarning )
     {
-        this.pwdexpirewarning = pwdExpireWarning;
+        this.pwdExpireWarning = pwdExpireWarning;
     }
 
 
     public int getPwdGraceAuthNLimit()
     {
-        return pwdgraceauthnlimit;
+        return pwdGraceAuthNLimit;
     }
 
 
     public void setPwdGraceAuthNLimit( int pwdGraceAuthNLimit )
     {
-        this.pwdgraceauthnlimit = pwdGraceAuthNLimit;
+        this.pwdGraceAuthNLimit = pwdGraceAuthNLimit;
     }
 
 
     public int getPwdGraceExpire()
     {
-        return pwdgraceexpire;
+        return pwdGraceExpire;
     }
 
 
     public void setPwdGraceExpire( int pwdGraceExpire )
     {
-        this.pwdgraceexpire = pwdGraceExpire;
+        this.pwdGraceExpire = pwdGraceExpire;
     }
 
 
     public boolean isPwdLockout()
     {
-        return pwdlockout;
+        return pwdLockout;
     }
 
 
     public void setPwdLockout( boolean pwdLockout )
     {
-        this.pwdlockout = pwdLockout;
+        this.pwdLockout = pwdLockout;
     }
 
 
     public int getPwdLockoutDuration()
     {
-        return pwdlockoutduration;
+        return pwdLockoutDuration;
     }
 
 
     public void setPwdLockoutDuration( int pwdLockoutDuration )
     {
-        this.pwdlockoutduration = pwdLockoutDuration;
+        this.pwdLockoutDuration = pwdLockoutDuration;
     }
 
 
     public int getPwdMaxFailure()
     {
-        return pwdmaxfailure;
+        return pwdMaxFailure;
     }
 
 
     public void setPwdMaxFailure( int pwdMaxFailure )
     {
-        this.pwdmaxfailure = pwdMaxFailure;
+        this.pwdMaxFailure = pwdMaxFailure;
     }
 
 
     public int getPwdFailureCountInterval()
     {
-        return pwdfailurecountinterval;
+        return pwdFailureCountInterval;
     }
 
 
     public void setPwdFailureCountInterval( int pwdFailureCountInterval )
     {
-        this.pwdfailurecountinterval = pwdFailureCountInterval;
+        this.pwdFailureCountInterval = pwdFailureCountInterval;
     }
 
 
     public boolean isPwdMustChange()
     {
-        return pwdmustchange;
+        return pwdMustChange;
     }
 
 
     public void setPwdMustChange( boolean pwdMustChange )
     {
-        this.pwdmustchange = pwdMustChange;
+        this.pwdMustChange = pwdMustChange;
     }
 
 
     public boolean isPwdAllowUserChange()
     {
-        return pwdallowuserchange;
+        return pwdAllowUserChange;
     }
 
 
     public void setPwdAllowUserChange( boolean pwdAllowUserChange )
     {
-        this.pwdallowuserchange = pwdAllowUserChange;
+        this.pwdAllowUserChange = pwdAllowUserChange;
     }
 
 
     public boolean isPwdSafeModify()
     {
-        return pwdsafemodify;
+        return pwdSafeModify;
     }
 
 
     public void setPwdSafeModify( boolean pwdSafeModify )
     {
-        this.pwdsafemodify = pwdSafeModify;
+        this.pwdSafeModify = pwdSafeModify;
     }
 
 
     public int getPwdMinDelay()
     {
-        return pwdmindelay;
+        return pwdMinDelay;
     }
 
 
     public void setPwdMinDelay( int pwdMinDelay )
     {
-        this.pwdmindelay = pwdMinDelay;
+        this.pwdMinDelay = pwdMinDelay;
     }
 
 
     public int getPwdMaxDelay()
     {
-        return pwdmaxdelay;
+        return pwdMaxDelay;
     }
 
 
     public void setPwdMaxDelay( int pwdMaxDelay )
     {
-        this.pwdmaxdelay = pwdMaxDelay;
+        this.pwdMaxDelay = pwdMaxDelay;
     }
 
 
     public int getPwdMaxIdle()
     {
-        return pwdmaxidle;
+        return pwdMaxIdle;
     }
 
 
     public void setPwdMaxIdle( int pwdMaxIdle )
     {
-        this.pwdmaxidle = pwdMaxIdle;
+        this.pwdMaxIdle = pwdMaxIdle;
     }
 
 
@@ -400,7 +400,7 @@ public class PasswordPolicyBean extends AdsBaseBean
      */
     public String getPwdId()
     {
-        return pwdid;
+        return pwdId;
     }
 
 
@@ -409,7 +409,7 @@ public class PasswordPolicyBean extends AdsBaseBean
      */
     public void setPwdId( String pwdId )
     {
-        this.pwdid = pwdId;
+        this.pwdId = pwdId;
     }
 
 
@@ -422,27 +422,27 @@ public class PasswordPolicyBean extends AdsBaseBean
         
         sb.append( tabs ).append( "PasswordPolicy :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  identifier : " ).append( pwdid ).append( '\n' );
-        sb.append( toString( tabs, "  password attribute", pwdattribute ) );
-        sb.append( tabs ).append( "  password min age : " ).append( pwdminage ).append( '\n' );
-        sb.append( tabs ).append( "  password max age : " ).append( pwdmaxage ).append( '\n' );
-        sb.append( tabs ).append( "  password min length : " ).append( pwdminlength ).append( '\n' );
-        sb.append( tabs ).append( "  password max length : " ).append( pwdmaxlength ).append( '\n' );
-        sb.append( tabs ).append( "  password min delay : " ).append( pwdmindelay ).append( '\n' );
-        sb.append( tabs ).append( "  password max delay : " ).append( pwdmaxdelay ).append( '\n' );
-        sb.append( tabs ).append( "  password max idle : " ).append( pwdmaxidle ).append( '\n' );
-        sb.append( tabs ).append( "  password max failure : " ).append( pwdmaxfailure ).append( '\n' );
-        sb.append( tabs ).append( "  password lockout duration : " ).append( pwdlockoutduration ).append( '\n' );
-        sb.append( tabs ).append( "  password expire warning : " ).append( pwdexpirewarning ).append( '\n' );
-        sb.append( tabs ).append( "  password grace expire : " ).append( pwdgraceexpire ).append( '\n' );
-        sb.append( tabs ).append( "  password grace Auth N limit : " ).append( pwdgraceauthnlimit ).append( '\n' );
-        sb.append( tabs ).append( "  password in history : " ).append( pwdinhistory ).append( '\n' );
-        sb.append( tabs ).append( "  password check quality : " ).append( pwdcheckquality ).append( '\n' );
-        sb.append( tabs ).append( "  password failure count interval : " ).append( pwdfailurecountinterval ).append( '\n' );
-        sb.append( toString( tabs, "  password lockout", pwdlockout ) );
-        sb.append( toString( tabs, "  password must change", pwdmustchange ) );
-        sb.append( toString( tabs, "  password allow user change", pwdallowuserchange ) );
-        sb.append( toString( tabs, "  password safe modify", pwdsafemodify ) );
+        sb.append( tabs ).append( "  identifier : " ).append( pwdId ).append( '\n' );
+        sb.append( toString( tabs, "  password attribute", pwdAttribute ) );
+        sb.append( tabs ).append( "  password min age : " ).append( pwdMinAge ).append( '\n' );
+        sb.append( tabs ).append( "  password max age : " ).append( pwdMaxAge ).append( '\n' );
+        sb.append( tabs ).append( "  password min length : " ).append( pwdMinLength ).append( '\n' );
+        sb.append( tabs ).append( "  password max length : " ).append( pwdMaxLength ).append( '\n' );
+        sb.append( tabs ).append( "  password min delay : " ).append( pwdMinDelay ).append( '\n' );
+        sb.append( tabs ).append( "  password max delay : " ).append( pwdMaxDelay ).append( '\n' );
+        sb.append( tabs ).append( "  password max idle : " ).append( pwdMaxIdle ).append( '\n' );
+        sb.append( tabs ).append( "  password max failure : " ).append( pwdMaxFailure ).append( '\n' );
+        sb.append( tabs ).append( "  password lockout duration : " ).append( pwdLockoutDuration ).append( '\n' );
+        sb.append( tabs ).append( "  password expire warning : " ).append( pwdExpireWarning ).append( '\n' );
+        sb.append( tabs ).append( "  password grace expire : " ).append( pwdGraceExpire ).append( '\n' );
+        sb.append( tabs ).append( "  password grace Auth N limit : " ).append( pwdGraceAuthNLimit ).append( '\n' );
+        sb.append( tabs ).append( "  password in history : " ).append( pwdInHistory ).append( '\n' );
+        sb.append( tabs ).append( "  password check quality : " ).append( pwdCheckQuality ).append( '\n' );
+        sb.append( tabs ).append( "  password failure count interval : " ).append( pwdFailureCountInterval ).append( '\n' );
+        sb.append( toString( tabs, "  password lockout", pwdLockout ) );
+        sb.append( toString( tabs, "  password must change", pwdMustChange ) );
+        sb.append( toString( tabs, "  password allow user change", pwdAllowUserChange ) );
+        sb.append( toString( tabs, "  password safe modify", pwdSafeModify ) );
 
         return sb.toString();
     }

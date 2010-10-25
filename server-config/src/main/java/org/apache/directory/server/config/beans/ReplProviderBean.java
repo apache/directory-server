@@ -28,52 +28,52 @@ package org.apache.directory.server.config.beans;
 public class ReplProviderBean extends AdsBaseBean
 {
     /** The provider id */
-    private String replproviderid;
+    private String replProviderId;
     
     /** The replication unique ID */
-    private String dsreplicaid;
+    private String dsReplicaId;
     
     /** The Search Base DN */
-    private String searchbasedn;
+    private String searchBaseDN;
     
     /** The replication provider host name */
-    private String replprovhostname;
+    private String replProvHostName;
     
     /** The replication provider port */
-    private String replprovport;
+    private String replProvPort;
     
     /** The Alias Dereferencing mode */
-    private String replaliasderefmode;
+    private String replAliasDerefMode;
     
     /** The replication provider attribute */
-    private String replattribute;
+    private String replAttribute;
     
     /** The refresh interval */
-    private String replrefreshinterval;
+    private String replRefreshInterval;
     
     /** Tells if we should persist */
-    private boolean replrefreshnpersist;
+    private boolean replRefreshNPersist;
     
     /** The search scope */
-    private String replsearchscope;
+    private String replSearchScope;
     
     /** The replication search filter */
-    private String replsearchfilter;
+    private String replSearchFilter;
 
     /** The search size limit */
-    private int replsearchsizelimit;
+    private int replSearchSizeLimit;
     
     /** The search time limit */
-    private int replsearchtimeout;
+    private int replSearchTimeout;
     
     /** The replication user DN */
-    private String repluserdn;
+    private String replUserDN;
     
     /** The replication user password */
-    private String repluserpassword;
+    private String replUserPassword;
     
     /** The replication cookie */
-    private String replcookie;
+    private String replCookie;
 
     /**
      * Create a new Replication Consumer instance
@@ -92,7 +92,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplProviderId()
     {
-        return replproviderid;
+        return replProviderId;
     }
 
 
@@ -101,7 +101,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplProviderId( String replProviderId )
     {
-        this.replproviderid = replProviderId;
+        this.replProviderId = replProviderId;
     }
 
     
@@ -110,16 +110,16 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getDsReplicaId()
     {
-        return dsreplicaid;
+        return dsReplicaId;
     }
 
 
     /**
-     * @param dsreplicaid the Replica ID to set
+     * @param dsReplicaId the Replica ID to set
      */
     public void setDsReplicaId( String dsReplicaId )
     {
-        this.dsreplicaid = dsReplicaId;
+        this.dsReplicaId = dsReplicaId;
     }
 
 
@@ -128,16 +128,16 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getSearchBaseDn()
     {
-        return searchbasedn;
+        return searchBaseDN;
     }
 
 
     /**
-     * @param searchbasedn the searchBaseDn to set
+     * @param searchBaseDN the searchBaseDn to set
      */
     public void setSearchBaseDn( String searchBaseDn )
     {
-        this.searchbasedn = searchBaseDn;
+        this.searchBaseDN = searchBaseDn;
     }
 
 
@@ -146,7 +146,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplProvHostName()
     {
-        return replprovhostname;
+        return replProvHostName;
     }
 
 
@@ -155,7 +155,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplProvHostName( String replProvHostName )
     {
-        this.replprovhostname = replProvHostName;
+        this.replProvHostName = replProvHostName;
     }
 
 
@@ -164,7 +164,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplProvPort()
     {
-        return replprovport;
+        return replProvPort;
     }
 
 
@@ -173,7 +173,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplProvPort( String replProvPort )
     {
-        this.replprovport = replProvPort;
+        this.replProvPort = replProvPort;
     }
 
 
@@ -182,7 +182,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplAliasDerefMode()
     {
-        return replaliasderefmode;
+        return replAliasDerefMode;
     }
 
 
@@ -191,7 +191,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplAliasDerefMode( String replAliasDerefMode )
     {
-        this.replaliasderefmode = replAliasDerefMode;
+        this.replAliasDerefMode = replAliasDerefMode;
     }
 
 
@@ -200,7 +200,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplAttribute()
     {
-        return replattribute;
+        return replAttribute;
     }
 
 
@@ -209,7 +209,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplAttribute( String replAttribute )
     {
-        this.replattribute = replAttribute;
+        this.replAttribute = replAttribute;
     }
 
 
@@ -218,7 +218,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplRefreshInterval()
     {
-        return replrefreshinterval;
+        return replRefreshInterval;
     }
 
 
@@ -227,7 +227,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplRefreshInterval( String replRefreshInterval )
     {
-        this.replrefreshinterval = replRefreshInterval;
+        this.replRefreshInterval = replRefreshInterval;
     }
 
 
@@ -236,7 +236,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public boolean isReplRefreshNPersist()
     {
-        return replrefreshnpersist;
+        return replRefreshNPersist;
     }
 
 
@@ -245,7 +245,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplRefreshNPersist( boolean replRefreshNPersist )
     {
-        this.replrefreshnpersist = replRefreshNPersist;
+        this.replRefreshNPersist = replRefreshNPersist;
     }
 
 
@@ -254,7 +254,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplSearchScope()
     {
-        return replsearchscope;
+        return replSearchScope;
     }
 
 
@@ -263,7 +263,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplSearchScope( String replSearchScope )
     {
-        this.replsearchscope = replSearchScope;
+        this.replSearchScope = replSearchScope;
     }
 
 
@@ -272,16 +272,16 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String getReplSearchFilter()
     {
-        return replsearchfilter;
+        return replSearchFilter;
     }
 
 
     /**
-     * @param replsearchfilter the replSearchFilter to set
+     * @param replSearchFilter the replSearchFilter to set
      */
     public void setReplSearchFilter( String replSearchFilter )
     {
-        this.replsearchfilter = replSearchFilter;
+        this.replSearchFilter = replSearchFilter;
     }
 
 
@@ -290,7 +290,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public int isReplSearchSizeLimit()
     {
-        return replsearchsizelimit;
+        return replSearchSizeLimit;
     }
 
 
@@ -299,7 +299,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplSearchSizeLimit( int replSearchSizeLimit )
     {
-        this.replsearchsizelimit = replSearchSizeLimit;
+        this.replSearchSizeLimit = replSearchSizeLimit;
     }
 
 
@@ -308,7 +308,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public int isReplSearchTimeOut()
     {
-        return replsearchtimeout;
+        return replSearchTimeout;
     }
 
 
@@ -317,7 +317,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplSearchTimeLimit( int replSearchTimeOut )
     {
-        this.replsearchtimeout = replSearchTimeOut;
+        this.replSearchTimeout = replSearchTimeOut;
     }
 
 
@@ -326,7 +326,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String isReplUserDn()
     {
-        return repluserdn;
+        return replUserDN;
     }
 
 
@@ -335,7 +335,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplUserDn( String replUserDn )
     {
-        this.repluserdn = replUserDn;
+        this.replUserDN = replUserDn;
     }
 
 
@@ -344,7 +344,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String isReplUserPassword()
     {
-        return repluserpassword;
+        return replUserPassword;
     }
 
 
@@ -353,7 +353,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplUserPassword( String replUserPassword )
     {
-        this.repluserpassword = replUserPassword;
+        this.replUserPassword = replUserPassword;
     }
 
 
@@ -362,7 +362,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public String isReplCookie()
     {
-        return replcookie;
+        return replCookie;
     }
 
 
@@ -371,7 +371,7 @@ public class ReplProviderBean extends AdsBaseBean
      */
     public void setReplCookie( String replCookie )
     {
-        this.replcookie = replCookie;
+        this.replCookie = replCookie;
     }
 
     
@@ -385,22 +385,22 @@ public class ReplProviderBean extends AdsBaseBean
         sb.append( tabs ).append( "Replication provider :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
-        sb.append( tabs ).append( "  provider ID : " ).append( replproviderid ).append( '\n' );
-        sb.append( tabs ).append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchbasedn ).append( '\n' );
-        sb.append( tabs ).append( "  provider host name : " ).append( replprovhostname ).append( '\n' );
-        sb.append( tabs ).append( "  provider port : " ).append( replprovport ).append( '\n' );
-        sb.append( toString( tabs, "  alias dereferencing mode", replaliasderefmode ) );
-        sb.append( toString( tabs, "  attribute", replattribute ) );
-        sb.append( tabs ).append( "  refresh interval : " ).append( replrefreshinterval ).append( '\n' );
-        sb.append( toString( tabs, "  refresh and persist mode", replrefreshnpersist ) );
-        sb.append( toString( tabs, "  search scope", replsearchscope ) );
-        sb.append( toString( tabs, "  search filter", replsearchfilter ) );
-        sb.append( tabs ).append( "  search size limit : " ).append( replsearchsizelimit ).append( '\n' );
-        sb.append( tabs ).append( "  search time limit : " ).append( replsearchtimeout ).append( '\n' );
-        sb.append( toString( tabs, "  user DN", repluserdn ) );
-        sb.append( toString( tabs, "  user password", repluserpassword ) );
-        sb.append( toString( tabs, "  cookie", replcookie ) );
+        sb.append( tabs ).append( "  provider ID : " ).append( replProviderId ).append( '\n' );
+        sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
+        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN ).append( '\n' );
+        sb.append( tabs ).append( "  provider host name : " ).append( replProvHostName ).append( '\n' );
+        sb.append( tabs ).append( "  provider port : " ).append( replProvPort ).append( '\n' );
+        sb.append( toString( tabs, "  alias dereferencing mode", replAliasDerefMode ) );
+        sb.append( toString( tabs, "  attribute", replAttribute ) );
+        sb.append( tabs ).append( "  refresh interval : " ).append( replRefreshInterval ).append( '\n' );
+        sb.append( toString( tabs, "  refresh and persist mode", replRefreshNPersist ) );
+        sb.append( toString( tabs, "  search scope", replSearchScope ) );
+        sb.append( toString( tabs, "  search filter", replSearchFilter ) );
+        sb.append( tabs ).append( "  search size limit : " ).append( replSearchSizeLimit ).append( '\n' );
+        sb.append( tabs ).append( "  search time limit : " ).append( replSearchTimeout ).append( '\n' );
+        sb.append( toString( tabs, "  user DN", replUserDN ) );
+        sb.append( toString( tabs, "  user password", replUserPassword ) );
+        sb.append( toString( tabs, "  cookie", replCookie ) );
 
         return sb.toString();
     }

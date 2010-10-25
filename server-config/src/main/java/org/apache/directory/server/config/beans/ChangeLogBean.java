@@ -28,10 +28,10 @@ package org.apache.directory.server.config.beans;
 public class ChangeLogBean extends AdsBaseBean
 {
     /** The ChangeLog unique ID */
-    private String changelogid;
+    private String changeLogId;
 
     /** Tells if the ChangeLog is exposed to the users */
-    private boolean changelogexposed;
+    private boolean changeLogExposed;
 
     /**
      * Create a new ChangeLogBean instance
@@ -39,7 +39,7 @@ public class ChangeLogBean extends AdsBaseBean
     public ChangeLogBean()
     {
         // Not exposed by default
-        changelogexposed = false;
+        changeLogExposed = false;
         
         // Not enabled by default
         setEnabled( false );
@@ -51,7 +51,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public String getChangeLogId()
     {
-        return changelogid;
+        return changeLogId;
     }
 
 
@@ -60,7 +60,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public void setChangeLogId( String changeLogId )
     {
-        this.changelogid = changeLogId;
+        this.changeLogId = changeLogId;
     }
     
     
@@ -69,7 +69,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public boolean isChangeLogExposed() 
     {
-        return changelogexposed;
+        return changeLogExposed;
     }
 
     
@@ -78,7 +78,7 @@ public class ChangeLogBean extends AdsBaseBean
      */
     public void setChangeLogExposed( boolean changeLogExposed ) 
     {
-        this.changelogexposed = changeLogExposed;
+        this.changeLogExposed = changeLogExposed;
     }
     
     
@@ -90,8 +90,8 @@ public class ChangeLogBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "ChangeLog :\n" );
-        sb.append( tabs ).append( "  changeLog id : " ).append( changelogid ).append( '\n' );
-        sb.append( toString( tabs, "  changeLog exposed", changelogexposed ) );
+        sb.append( tabs ).append( "  changeLog id : " ).append( changeLogId ).append( '\n' );
+        sb.append( toString( tabs, "  changeLog exposed", changeLogExposed ) );
         
         return sb.toString();
     }

@@ -29,13 +29,13 @@ package org.apache.directory.server.config.beans;
 public class InterceptorBean extends AdsBaseBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
-    private String interceptorid;
+    private String interceptorId;
     
     /** The interceptor FQCN */
-    private String interceptorclassname;
+    private String interceptorClassName;
     
     /** The interceptor position in the chain */
-    private int interceptororder;
+    private int interceptorOrder;
 
 
     /**
@@ -54,11 +54,11 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public int compareTo( InterceptorBean o )
     {
-        if ( interceptororder > o.interceptororder )
+        if ( interceptorOrder > o.interceptorOrder )
         {
             return 1;
         }
-        else if ( interceptororder < o.interceptororder )
+        else if ( interceptorOrder < o.interceptorOrder )
         {
             return -1;
         }
@@ -72,7 +72,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public String getInterceptorId() 
     {
-        return interceptorid;
+        return interceptorId;
     }
 
 
@@ -81,7 +81,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public void setInterceptorId( String id ) 
     {
-        this.interceptorid = id;
+        this.interceptorId = id;
     }
 
 
@@ -90,7 +90,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public int getInterceptorOrder() 
     {
-        return interceptororder;
+        return interceptorOrder;
     }
 
 
@@ -99,7 +99,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public void setInterceptorOrder( int interceptorOrder ) 
     {
-        this.interceptororder = interceptorOrder;
+        this.interceptorOrder = interceptorOrder;
     }
 
 
@@ -108,7 +108,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public String getInterceptorClassName()
     {
-        return interceptorclassname;
+        return interceptorClassName;
     }
 
 
@@ -117,7 +117,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
      */
     public void setFqcn( String interceptorClassName )
     {
-        this.interceptorclassname = interceptorClassName;
+        this.interceptorClassName = interceptorClassName;
     }
     
     
@@ -128,9 +128,9 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( tabs ).append( "interceptor[" ).append( interceptororder ).append( "] : " ).append( '\n' );
-        sb.append( tabs ).append( "  interceptor id : " ).append( interceptorid ).append( '\n' );
-        sb.append( tabs ).append( "  class name : " ).append(  interceptorclassname ).append( '\n' );
+        sb.append( tabs ).append( "interceptor[" ).append( interceptorOrder ).append( "] : " ).append( '\n' );
+        sb.append( tabs ).append( "  interceptor id : " ).append( interceptorId ).append( '\n' );
+        sb.append( tabs ).append( "  class name : " ).append(  interceptorClassName ).append( '\n' );
         
         return sb.toString();
     }

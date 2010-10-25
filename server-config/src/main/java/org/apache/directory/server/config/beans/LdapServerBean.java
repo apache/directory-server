@@ -36,43 +36,43 @@ public class LdapServerBean extends DSBasedServerBean
     private boolean confidentialityrequired;
     
     /** The maximum number of entries returned by the server */
-    private int maxsizelimit;
+    private int maxSizeLimit;
     
     /** The maximum time to execute a request on the server */
-    private int maxtimelimit;
+    private int maxTimeLimit;
     
     /** The SASL host */
-    private String saslhost;
+    private String saslHost;
     
     /** The SASL  principal */
-    private String saslprincipal;
+    private String saslPrincipal;
     
     /** The SASL realms */
-    private Set<String> saslrealms = new HashSet<String>();
+    private Set<String> saslRealms = new HashSet<String>();
     
     /** The keystore file */
-    private String keystorefile;
+    private String keystoreFile;
     
     /** The certificate password */
-    private String certificatepassword;
+    private String certificatePassword;
     
     /** tells if the replication is enabled */
-    private boolean enablereplprovider; 
+    private boolean enableReplProvider; 
     
     /** The PasswordPolicy component */
-    private PasswordPolicyBean passwordpolicy;
+    private PasswordPolicyBean passwordPolicy;
 
     /** The replication consumer Bean */
-    private ReplConsumerBean replconsumer;
+    private ReplConsumerBean replConsumer;
     
     /** The replication producer Bean */
-    private ReplProviderBean replprovider;
+    private ReplProviderBean replProvider;
     
     /** The list of supported mechanisms */
-    private List<SaslMechHandlerBean> saslmechhandlers = new ArrayList<SaslMechHandlerBean>();
+    private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
     
     /** The list of supported extended operation handlers */
-    private List<ExtendedOpHandlerBean> extendedophandlers = new ArrayList<ExtendedOpHandlerBean>();
+    private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
     /**
      * Create a new LdapServerBean instance
@@ -109,7 +109,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public int getLdapServerMaxSizeLimit()
     {
-        return maxsizelimit;
+        return maxSizeLimit;
     }
 
     
@@ -118,7 +118,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerMaxSizeLimit( int ldapServerMaxSizeLimit )
     {
-        this.maxsizelimit = ldapServerMaxSizeLimit;
+        this.maxSizeLimit = ldapServerMaxSizeLimit;
     }
 
     
@@ -127,7 +127,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public int getLdapServerMaxTimeLimit()
     {
-        return maxtimelimit;
+        return maxTimeLimit;
     }
 
     
@@ -136,7 +136,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerMaxTimeLimit( int ldapServerMaxTimeLimit )
     {
-        this.maxtimelimit = ldapServerMaxTimeLimit;
+        this.maxTimeLimit = ldapServerMaxTimeLimit;
     }
 
     
@@ -145,7 +145,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerSaslHost()
     {
-        return saslhost;
+        return saslHost;
     }
 
     
@@ -154,7 +154,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslHost( String ldapServerSaslHost )
     {
-        this.saslhost = ldapServerSaslHost;
+        this.saslHost = ldapServerSaslHost;
     }
 
     
@@ -163,7 +163,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerSaslPrincipal()
     {
-        return saslprincipal;
+        return saslPrincipal;
     }
 
     
@@ -172,7 +172,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslPrincipal( String ldapServerSaslPrincipal )
     {
-        this.saslprincipal = ldapServerSaslPrincipal;
+        this.saslPrincipal = ldapServerSaslPrincipal;
     }
 
     
@@ -181,7 +181,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public Set<String> getLdapServerSaslRealms()
     {
-        return saslrealms;
+        return saslRealms;
     }
 
     
@@ -190,18 +190,18 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerSaslRealms( Set<String> ldapServerSaslRealms )
     {
-        this.saslrealms = ldapServerSaslRealms;
+        this.saslRealms = ldapServerSaslRealms;
     }
 
     
     /**
      * @param ldapServerSaslRealms the ldapServerSaslRealms to add
      */
-    public void addsaslrealms( String... ldapServerSaslRealms )
+    public void addSaslRealms( String... ldapServerSaslRealms )
     {
         for ( String saslRealm : ldapServerSaslRealms )
         {
-            this.saslrealms.add( saslRealm );
+            this.saslRealms.add( saslRealm );
         }
     }
 
@@ -211,7 +211,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerKeystoreFile()
     {
-        return keystorefile;
+        return keystoreFile;
     }
 
     
@@ -220,7 +220,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerKeystoreFile( String ldapServerKeystoreFile )
     {
-        this.keystorefile = ldapServerKeystoreFile;
+        this.keystoreFile = ldapServerKeystoreFile;
     }
 
     
@@ -229,7 +229,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public String getLdapServerCertificatePassword()
     {
-        return certificatepassword;
+        return certificatePassword;
     }
 
     
@@ -238,7 +238,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setLdapServerCertificatePassword( String ldapServerCertificatePassword )
     {
-        this.certificatepassword = ldapServerCertificatePassword;
+        this.certificatePassword = ldapServerCertificatePassword;
     }
 
     
@@ -265,7 +265,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public boolean isEnableReplProvider()
     {
-        return enablereplprovider;
+        return enableReplProvider;
     }
 
     
@@ -274,7 +274,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setEnableReplProvider( boolean enableReplProvider )
     {
-        this.enablereplprovider = enableReplProvider;
+        this.enableReplProvider = enableReplProvider;
     }
 
     
@@ -283,7 +283,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public List<SaslMechHandlerBean> getSaslMechHandlers()
     {
-        return saslmechhandlers;
+        return saslMechHandlers;
     }
 
     
@@ -292,7 +292,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setSaslMechHandlers( List<SaslMechHandlerBean> saslMechHandlers )
     {
-        this.saslmechhandlers = saslMechHandlers;
+        this.saslMechHandlers = saslMechHandlers;
     }
 
     
@@ -303,7 +303,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         for ( SaslMechHandlerBean saslMechHandler : saslMechHandlers )
         {
-            this.saslmechhandlers.add( saslMechHandler );
+            this.saslMechHandlers.add( saslMechHandler );
         }
     }
 
@@ -313,7 +313,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public List<ExtendedOpHandlerBean> getExtendedOps()
     {
-        return extendedophandlers;
+        return extendedOpHandlers;
     }
 
     
@@ -322,7 +322,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setExtendedOps( List<ExtendedOpHandlerBean> extendedOps )
     {
-        this.extendedophandlers = extendedOps;
+        this.extendedOpHandlers = extendedOps;
     }
 
     
@@ -333,7 +333,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         for ( ExtendedOpHandlerBean extendedOp : extendedOps )
         {   
-            this.extendedophandlers.add( extendedOp );
+            this.extendedOpHandlers.add( extendedOp );
         }
     }
 
@@ -343,7 +343,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public PasswordPolicyBean getPwdPolicy()
     {
-        return passwordpolicy;
+        return passwordPolicy;
     }
 
 
@@ -352,7 +352,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setPwdPolicy( PasswordPolicyBean pwdPolicy )
     {
-        this.passwordpolicy = pwdPolicy;
+        this.passwordPolicy = pwdPolicy;
     }
 
 
@@ -361,7 +361,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public ReplConsumerBean getReplConsumer()
     {
-        return replconsumer;
+        return replConsumer;
     }
 
 
@@ -370,7 +370,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setReplConsumer( ReplConsumerBean replConsumer )
     {
-        this.replconsumer = replConsumer;
+        this.replConsumer = replConsumer;
     }
 
 
@@ -379,7 +379,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public ReplProviderBean getReplProvider()
     {
-        return replprovider;
+        return replProvider;
     }
 
 
@@ -388,7 +388,7 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void setReplProvider( ReplProviderBean replProvider )
     {
-        this.replprovider = replProvider;
+        this.replProvider = replProvider;
     }
 
     
@@ -401,58 +401,58 @@ public class LdapServerBean extends DSBasedServerBean
         
         sb.append( tabs ).append( "LdapServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  max size limit : " ).append( maxsizelimit ).append( '\n' );
-        sb.append( tabs ).append( "  max time limit : " ).append( maxtimelimit ).append( '\n' );
-        sb.append( toString( tabs, "  certificate password", certificatepassword ) );
-        sb.append( toString( tabs, "  keystore file", keystorefile ) );
-        sb.append( toString( tabs, "  sasl principal", saslprincipal ) );
-        sb.append( tabs ).append( "  sasl host : " ).append( saslhost ).append( '\n' );
+        sb.append( tabs ).append( "  max size limit : " ).append( maxSizeLimit ).append( '\n' );
+        sb.append( tabs ).append( "  max time limit : " ).append( maxTimeLimit ).append( '\n' );
+        sb.append( toString( tabs, "  certificate password", certificatePassword ) );
+        sb.append( toString( tabs, "  keystore file", keystoreFile ) );
+        sb.append( toString( tabs, "  sasl principal", saslPrincipal ) );
+        sb.append( tabs ).append( "  sasl host : " ).append( saslHost ).append( '\n' );
         sb.append( toString( tabs, "  confidentiality required", confidentialityrequired ) );
-        sb.append( toString( tabs, "  enable replication provider", enablereplprovider ) );
+        sb.append( toString( tabs, "  enable replication provider", enableReplProvider ) );
         
-        if ( ( extendedophandlers != null ) && ( extendedophandlers.size() > 0 ) )
+        if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
         {
             sb.append( tabs ).append( "  extended operation handlers :\n" );
             
-            for ( ExtendedOpHandlerBean extendedOpHandler : extendedophandlers )
+            for ( ExtendedOpHandlerBean extendedOpHandler : extendedOpHandlers )
             {
                 sb.append( extendedOpHandler.toString( tabs + "    " ) );
             }
         }
         
-        if ( saslmechhandlers != null )
+        if ( saslMechHandlers != null )
         {
             sb.append( tabs ).append( "  SASL mechanism handlers :\n" );
             
-            for ( SaslMechHandlerBean saslMechHandler : saslmechhandlers )
+            for ( SaslMechHandlerBean saslMechHandler : saslMechHandlers )
             {
                 sb.append( saslMechHandler.toString( tabs + "    " ) );
             }
         }
         
-        if ( ( saslrealms != null ) && ( saslrealms.size() > 0 ) )
+        if ( ( saslRealms != null ) && ( saslRealms.size() > 0 ) )
         {
             sb.append( tabs ).append( "  SASL realms :\n" );
             
-            for ( String saslRealm : saslrealms )
+            for ( String saslRealm : saslRealms )
             {
                 sb.append( tabs ).append( "    " ).append( saslRealm ).append( "\n" );
             }
         }
         
-        if ( passwordpolicy != null )
+        if ( passwordPolicy != null )
         {
-            sb.append( tabs ).append( passwordpolicy.toString( tabs + "  " ) );
+            sb.append( tabs ).append( passwordPolicy.toString( tabs + "  " ) );
         }
         
-        if ( replconsumer != null )
+        if ( replConsumer != null )
         {
-            sb.append( tabs ).append( replconsumer.toString( tabs + "  " ) );
+            sb.append( tabs ).append( replConsumer.toString( tabs + "  " ) );
         }
         
-        if ( replprovider != null )
+        if ( replProvider != null )
         {
-            sb.append( tabs ).append( replprovider.toString( tabs + "  " ) );
+            sb.append( tabs ).append( replProvider.toString( tabs + "  " ) );
         }
         
         return sb.toString();

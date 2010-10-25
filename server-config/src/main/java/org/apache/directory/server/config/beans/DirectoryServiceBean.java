@@ -32,34 +32,34 @@ import java.util.List;
 public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
-    private String directoryserviceid;
+    private String directoryServiceId;
 
     /** The directory instance replication ID */
-    private int dsreplicaid;
+    private int dsReplicaId;
 
     /** The flag that tells if the AccessControl system is activated */
-    private boolean dsaccesscontrolenabled = true;
+    private boolean dsAccessControlEnabled = true;
 
     /** The flag that tells if Anonymous connections are allowed */
-    private boolean dsallowanonymousaccess = false;
+    private boolean dsAllowAnonymousAccess = false;
 
     /** The flag that tells if DN must be denormalized */
-    private boolean dsdenormalizeopattrsenabled = true;
+    private boolean dsDenormalizeOpAttrsEnabled = true;
 
     /** The maximum size of an incoming PDU */
-    private int dsmaxpdusize = 2048;
+    private int dsMaxPDUSize = 2048;
 
     /** The flag that tells if the password should be returned as a normal attribute or not */
-    private boolean dspasswordhidden = true;
+    private boolean dsPasswordHidden = true;
 
     /** The delay between two flushes on disk */
-    private long dssyncperiodmillis = 15000L;
+    private long dsSyncPeriodMillis = 15000L;
 
     /** The ldif entries to inject into the server at startup */
-    private String dstestentries;
+    private String dsTestEntries;
 
     /** The ChangeLog component */
-    private ChangeLogBean changelog;
+    private ChangeLogBean changeLog;
 
     /** The journal component */
     private JournalBean journal;
@@ -74,10 +74,10 @@ public class DirectoryServiceBean extends AdsBaseBean
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
-    private PasswordPolicyBean passwordpolicy;
+    private PasswordPolicyBean passwordPolicy;
 
     /** The working directory */
-    private String dsworkingdirectory;
+    private String dsWorkingDirectory;
 
 
     /**
@@ -94,7 +94,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDirectoryServiceId( String directoryServiceId )
     {
-        this.directoryserviceid = directoryServiceId;
+        this.directoryServiceId = directoryServiceId;
     }
 
 
@@ -103,7 +103,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public String getDirectoryServiceId()
     {
-        return directoryserviceid;
+        return directoryServiceId;
     }
 
 
@@ -112,7 +112,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public int getDsReplicaId()
     {
-        return dsreplicaid;
+        return dsReplicaId;
     }
 
 
@@ -123,11 +123,11 @@ public class DirectoryServiceBean extends AdsBaseBean
     {
         if ( ( dsReplicaId < 0 ) || ( dsReplicaId > 999 ) )
         {
-            this.dsreplicaid = 0;
+            this.dsReplicaId = 0;
         }
         else
         {
-            this.dsreplicaid = dsReplicaId;
+            this.dsReplicaId = dsReplicaId;
         }
     }
 
@@ -173,7 +173,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public boolean isDsAccessControlEnabled()
     {
-        return dsaccesscontrolenabled;
+        return dsAccessControlEnabled;
     }
 
 
@@ -182,7 +182,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsAccessControlEnabled( boolean dsAccessControlEnabled )
     {
-        this.dsaccesscontrolenabled = dsAccessControlEnabled;
+        this.dsAccessControlEnabled = dsAccessControlEnabled;
     }
 
 
@@ -191,7 +191,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public boolean isDsAllowAnonymousAccess()
     {
-        return dsallowanonymousaccess;
+        return dsAllowAnonymousAccess;
     }
 
 
@@ -200,7 +200,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsAllowAnonymousAccess( boolean dsAllowAnonymousAccess )
     {
-        this.dsallowanonymousaccess = dsAllowAnonymousAccess;
+        this.dsAllowAnonymousAccess = dsAllowAnonymousAccess;
     }
 
 
@@ -209,7 +209,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public boolean isDsDenormalizeOpAttrsEnabled()
     {
-        return dsdenormalizeopattrsenabled;
+        return dsDenormalizeOpAttrsEnabled;
     }
 
 
@@ -218,7 +218,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsDenormalizeOpAttrsEnabled( boolean dsDenormalizeOpAttrsEnabled )
     {
-        this.dsdenormalizeopattrsenabled = dsDenormalizeOpAttrsEnabled;
+        this.dsDenormalizeOpAttrsEnabled = dsDenormalizeOpAttrsEnabled;
     }
 
 
@@ -227,7 +227,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public int getDsMaxPDUSize()
     {
-        return dsmaxpdusize;
+        return dsMaxPDUSize;
     }
 
 
@@ -236,7 +236,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsMaxPDUSize( int dsMaxPDUSize )
     {
-        this.dsmaxpdusize = dsMaxPDUSize;
+        this.dsMaxPDUSize = dsMaxPDUSize;
     }
 
 
@@ -245,7 +245,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public boolean isDsPasswordHidden()
     {
-        return dspasswordhidden;
+        return dsPasswordHidden;
     }
 
 
@@ -254,7 +254,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsPasswordHidden( boolean dsPasswordHidden )
     {
-        this.dspasswordhidden = dsPasswordHidden;
+        this.dsPasswordHidden = dsPasswordHidden;
     }
 
 
@@ -263,7 +263,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public long getDsSyncPeriodMillis()
     {
-        return dssyncperiodmillis;
+        return dsSyncPeriodMillis;
     }
 
 
@@ -272,7 +272,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsSyncPeriodMillis( long dsSyncPeriodMillis )
     {
-        this.dssyncperiodmillis = dsSyncPeriodMillis;
+        this.dsSyncPeriodMillis = dsSyncPeriodMillis;
     }
 
 
@@ -281,7 +281,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public String getDsTestEntries()
     {
-        return dstestentries;
+        return dsTestEntries;
     }
 
 
@@ -290,7 +290,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsTestEntries( String dsTestEntries )
     {
-        this.dstestentries = dsTestEntries;
+        this.dsTestEntries = dsTestEntries;
     }
 
 
@@ -299,7 +299,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public ChangeLogBean getChangeLog()
     {
-        return changelog;
+        return changeLog;
     }
 
 
@@ -308,7 +308,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setChangeLog( ChangeLogBean changeLog )
     {
-        this.changelog = changeLog;
+        this.changeLog = changeLog;
     }
 
 
@@ -395,7 +395,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public PasswordPolicyBean getPasswordPolicy()
     {
-        return passwordpolicy;
+        return passwordPolicy;
     }
 
 
@@ -404,7 +404,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setPasswordPolicy( PasswordPolicyBean passwordPolicy )
     {
-        this.passwordpolicy = passwordPolicy;
+        this.passwordPolicy = passwordPolicy;
     }
 
 
@@ -413,7 +413,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public String getDsWorkingDirectory()
     {
-        return dsworkingdirectory;
+        return dsWorkingDirectory;
     }
 
 
@@ -422,7 +422,7 @@ public class DirectoryServiceBean extends AdsBaseBean
      */
     public void setDsWorkingDirectory( String dsWorkingDirectory )
     {
-        this.dsworkingdirectory = dsWorkingDirectory;
+        this.dsWorkingDirectory = dsWorkingDirectory;
     }
     
 
@@ -437,16 +437,16 @@ public class DirectoryServiceBean extends AdsBaseBean
         sb.append( super.toString( "  " ) );
         
         // Dump the must attributes
-        sb.append( "  directoryService ID : " ).append( directoryserviceid ).append( '\n' );
-        sb.append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
-        sb.append( "  working directory : " ).append( dsworkingdirectory ).append( '\n' );
-        sb.append( toString( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
-        sb.append( toString( "  ", "allow anonymous access", dsallowanonymousaccess ) );
-        sb.append( toString( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
-        sb.append( toString( "  ", "password hidden", dspasswordhidden ) );
-        sb.append( "  max PDU size : " ).append( dsmaxpdusize ).append( '\n' );
-        sb.append( "  sync period millisecond : " ).append( dssyncperiodmillis ).append( '\n' );
-        sb.append( toString( "  ", "test entries", dstestentries ) );
+        sb.append( "  directoryService ID : " ).append( directoryServiceId ).append( '\n' );
+        sb.append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
+        sb.append( "  working directory : " ).append( dsWorkingDirectory ).append( '\n' );
+        sb.append( toString( "  ", "accessControl enabled", dsAccessControlEnabled ) );
+        sb.append( toString( "  ", "allow anonymous access", dsAllowAnonymousAccess ) );
+        sb.append( toString( "  ", "denormalized attributes enabled", dsDenormalizeOpAttrsEnabled ) );
+        sb.append( toString( "  ", "password hidden", dsPasswordHidden ) );
+        sb.append( "  max PDU size : " ).append( dsMaxPDUSize ).append( '\n' );
+        sb.append( "  sync period millisecond : " ).append( dsSyncPeriodMillis ).append( '\n' );
+        sb.append( toString( "  ", "test entries", dsTestEntries ) );
         
         sb.append( "  interceptors : \n" );
         
@@ -473,14 +473,14 @@ public class DirectoryServiceBean extends AdsBaseBean
             sb.append( journal.toString( "  " ) );
         }
         
-        if ( changelog != null )
+        if ( changeLog != null )
         {
-            sb.append( changelog.toString( "  " ) );
+            sb.append( changeLog.toString( "  " ) );
         }
         
-        if ( passwordpolicy != null )
+        if ( passwordPolicy != null )
         {
-            sb.append( passwordpolicy.toString( "  " ) );
+            sb.append( passwordPolicy.toString( "  " ) );
         }
         
         sb.append( "  servers : \n" );

@@ -28,13 +28,13 @@ package org.apache.directory.server.config.beans;
 public class SaslMechHandlerBean extends AdsBaseBean
 {
     /** The SASL mechanism handler */
-    private String saslmechname;
+    private String saslMechName;
     
     /** The SASL mechanism handler FQCN */
-    private String saslmechclassname;
+    private String saslMechClassName;
     
     /** The NTLM provider */
-    private String ntlmmechprovider;
+    private String ntlmMechProvider;
 
     /**
      * Create a new LdapServerSaslMechanisHandlerBean instance
@@ -49,7 +49,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public String getSaslMechName()
     {
-        return saslmechname;
+        return saslMechName;
     }
     
 
@@ -58,7 +58,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public void setSaslMechName( String saslMechName )
     {
-        this.saslmechname = saslMechName;
+        this.saslMechName = saslMechName;
     }
 
     
@@ -67,7 +67,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public String getSaslMechClassName()
     {
-        return saslmechclassname;
+        return saslMechClassName;
     }
 
     
@@ -76,7 +76,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public void setSaslMechClassName( String saslMechClassName )
     {
-        this.saslmechclassname = saslMechClassName;
+        this.saslMechClassName = saslMechClassName;
     }
 
     
@@ -85,7 +85,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public String getNtlmMechProvider()
     {
-        return ntlmmechprovider;
+        return ntlmMechProvider;
     }
 
     
@@ -94,7 +94,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
      */
     public void setNtlmMechProvider( String ntlmMechProvider )
     {
-        this.ntlmmechprovider = ntlmMechProvider;
+        this.ntlmMechProvider = ntlmMechProvider;
     }
     
     
@@ -106,9 +106,9 @@ public class SaslMechHandlerBean extends AdsBaseBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "SASL mechanism handler :\n" );
-        sb.append( tabs ).append( "  SASL mechanism name :" ).append( saslmechname ).append( '\n' );
-        sb.append( tabs ).append( "  SASL mechanism class name :" ).append( saslmechclassname ).append( '\n' );
-        sb.append( toString( tabs, "  NTLM mechanism provider", ntlmmechprovider ) );
+        sb.append( tabs ).append( "  SASL mechanism name :" ).append( saslMechName ).append( '\n' );
+        sb.append( tabs ).append( "  SASL mechanism class name :" ).append( saslMechClassName ).append( '\n' );
+        sb.append( toString( tabs, "  NTLM mechanism provider", ntlmMechProvider ) );
         
         return sb.toString();
     }
