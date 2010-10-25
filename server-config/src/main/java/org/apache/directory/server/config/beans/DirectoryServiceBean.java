@@ -481,7 +481,7 @@ public class DirectoryServiceBean extends AdsBaseBean
         
         if ( passwordpolicy != null )
         {
-            sb.append( passwordpolicy.toString( "    " ) );
+            sb.append( passwordpolicy.toString( "  " ) );
         }
         
         sb.append( "  servers : \n" );

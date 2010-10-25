@@ -143,11 +143,11 @@ public class JdbmIndexBean<K, E> extends IndexBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "JdbmIndexBean :\n" );
-        sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  index file name : " ).append( indexfilename );
-        sb.append( tabs ).append( "  index working directory : " ).append( indexworkingdir );
-        sb.append( tabs ).append( "  index cache size : " ).append( indexcachesize );
-        sb.append( tabs ).append( "  index num dup limit : " ).append( indexnumduplimit );
+        sb.append( super.toString( tabs ) );
+        sb.append( toString( tabs, "  index file name", indexfilename ) );
+        sb.append( toString( tabs, "  index working directory", indexworkingdir ) );
+        sb.append( toString( tabs, "  index cache size", indexcachesize ) );
+        sb.append( toString( tabs, "  index num dup limit", indexnumduplimit ) );
         
         return sb.toString();
     }

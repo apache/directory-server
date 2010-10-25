@@ -899,6 +899,12 @@ public class ConfigPartitionReader
                     // We have to remove the 's' at the end of the field name
                     String attributeName = fieldName.substring( 0, fieldName.length() - 1 );
                     
+                    if ( !schemaManager.getObjectClassRegistry().contains( attributeName ) )
+                    {
+                        // Try by removing 'es'
+                        attributeName = fieldName.substring( 0, fieldName.length() - 2 );
+                    }
+                    
                     Collection<AdsBaseBean> beans = read( newBase, attributeName, SearchScope.ONELEVEL, mandatory );
                     beanField.set( bean, beans );
                 }
