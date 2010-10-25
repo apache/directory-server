@@ -130,7 +130,7 @@ public class ConfigPartitionReaderTest
         
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
-        ConfigBean configBean = cpReader.readConfig( new DN( "ou=config" ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+        ConfigBean configBean = cpReader.readConfig( "ou=config" );
 
         assertNotNull( configBean );
         DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );

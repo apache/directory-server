@@ -89,6 +89,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -592,6 +593,10 @@ public class ConfigPartitionReader
     */
     
     
+    /**
+     * Fnd the upper objectclass in a hierarchy. All the inherited ObjectClasses
+     * will be removed.
+     */
     private ObjectClass findObjectClass( EntryAttribute objectClass ) throws Exception
     {
         Set<ObjectClass> candidates = new HashSet<ObjectClass>();
@@ -639,6 +644,7 @@ public class ConfigPartitionReader
         // The remaining OC in the candidates set is the one we are looking for
         ObjectClass result = candidates.toArray( new ObjectClass[]{} )[0];
         
+        LOG.debug( "The top level object class is {}", result.getName() );
         return result;
     }
     
@@ -969,46 +975,83 @@ public class ConfigPartitionReader
     }
     
     
+    /**
+     * Helper method to print a list of AT's names.
+     */
+    private String dumpATs( Set<AttributeType> attributeTypes )
+    {
+        if ( ( attributeTypes == null ) || ( attributeTypes.size() == 0 ) )
+        {
+            return "";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        sb.append( '{' );
+        
+        for ( AttributeType attributeType : attributeTypes )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ", " );
+            }
+            
+            sb.append( attributeType.getName() );
+        }
+
+        sb.append( '}' );
+
+        
+        return sb.toString();
+    }
 
     /**
      * Read some configuration element from the DIT using its name 
-     *
-     * @throws Exception
      */
-    public List<AdsBaseBean> read( DN base, String name, SearchScope scope, boolean mandatory ) throws Exception
+    private List<AdsBaseBean> read( DN baseDn, String name, SearchScope scope, boolean mandatory ) throws ConfigurationException
     {
-        System.out.println( "Reading from '" + base + "' entry " + name + ", mandatory :  " + mandatory);
+        LOG.debug( "Reading from '{}', entry {}", baseDn, name );
         
         // Search for the element starting at some point in the DIT
+        // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope.ordinal() );
-
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( base,
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-
-        if ( !cursor.next() )
-        {
-            if ( mandatory )
-            {
-                cursor.close();
-                
-                // the DirectoryService is mandatory so throwing exception
-                throw new Exception( "No directoryService instance was configured under the DN "
-                    + configPartition.getSuffix() );
-            }
-            else
-            {
-                return null;
-            }
-        }
+        IndexCursor<Long, Entry, Long> cursor = null;
         
+        // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
 
-        // Loop on all the found elements
         try
         {
+            // Do the search
+            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+    
+            // First, check if we have some entries to process.
+            if ( !cursor.next() )
+            {
+                if ( mandatory )
+                {
+                    cursor.close();
+                    
+                    // the requested element is mandatory so let's throw an exception
+                    String message = "No directoryService instance was configured under the DN "
+                        + configPartition.getSuffix();
+                    LOG.error( message );
+                    throw new ConfigurationException( message );
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            // Loop on all the found elements
             do
             {
                 ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
@@ -1028,23 +1071,40 @@ public class ConfigPartitionReader
                 // Now, read the AttributeTypes and store the values into the bean fields
                 // The MAY
                 Set<AttributeType> mays = getAllMays( objectClass );
+                LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( mays ) );
                 readFields( bean, entry, mays, OPTIONNAL );
                 
                 // The MUST
                 Set<AttributeType> musts = getAllMusts( objectClass );
+                LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( musts ) );
                 readFields( bean, entry, musts, MANDATORY );
                 
+                // Done, we can add the bean into the list
                 beans.add( bean );
             }
             while ( cursor.next() );
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            String message = "Cannot open a cursor to read the configuration on " + baseDn;
+            LOG.error( message );
+            throw new ConfigurationException( message );
         }
         finally
         {
-            cursor.close();
+            if ( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch ( Exception e )
+                {
+                    // So ??? If the cursor can't be close, there is nothing we can do
+                    // but rethrow the exception
+                    throw new ConfigurationException( e.getMessage(), e.getCause() );
+                }
+            }
         }
         
         return beans;
@@ -1164,30 +1224,83 @@ public class ConfigPartitionReader
     }
     
     
-    public ConfigBean readConfig( DN base, String objectClass ) throws Exception
+    /**
+     * Read the configuration from the DIT, returning a bean containing all of it.
+     * 
+     * @param base The base DN in the DIT where the configuration is stored
+     * @return The Config bean, containing the whole configuration
+     * @throws ConfigurationException If we had some issue reading the configuration
+     */
+    public ConfigBean readConfig( String baseDn ) throws LdapException
     {
-        try
+        // The starting point is the DirectoryService element
+        return readConfig( new DN( baseDn ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+    }
+    
+    
+    /**
+     * Read the configuration from the DIT, returning a bean containing all of it.
+     * 
+     * @param base The base DN in the DIT where the configuration is stored
+     * @return The Config bean, containing the whole configuration
+     * @throws ConfigurationException If we had some issue reading the configuration
+     */
+    public ConfigBean readConfig( DN baseDn ) throws ConfigurationException
+    {
+        // The starting point is the DirectoryService element
+        return readConfig( baseDn, ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+    }
+    
+    
+    /**
+     * Read the configuration from the DIT, returning a bean containing all of it.
+     * 
+     * @param baseDn The base DN in the DIT where the configuration is stored
+     * @param objectClass The element to read from the DIT
+     * @return The bean containing the configuration for the required element
+     * @throws ConfigurationException
+     */
+    public ConfigBean readConfig( String baseDn, String objectClass ) throws LdapException
+    {
+        return readConfig( new DN( baseDn ), objectClass );
+    }
+    
+    
+    /**
+     * Read the configuration from the DIT, returning a bean containing all of it.
+     * 
+     * @param baseDn The base DN in the DIT where the configuration is stored
+     * @param objectClass The element to read from the DIT
+     * @return The bean containing the configuration for the required element
+     * @throws ConfigurationException
+     */
+    public ConfigBean readConfig( DN baseDn, String objectClass ) throws ConfigurationException
+    {
+        LOG.debug( "Reading configuration for the {} element, from {} ", objectClass, baseDn );
+        ConfigBean configBean = new ConfigBean();
+        
+        if ( baseDn == null )
         {
-            ConfigBean configBean = new ConfigBean();
-            
-            if ( base == null )
+            baseDn = configPartition.getSuffix();
+        }
+        
+        List<AdsBaseBean> beans = read( baseDn, objectClass, SearchScope.ONELEVEL, MANDATORY );
+        
+        if ( LOG.isDebugEnabled() )
+        {
+            if ( ( beans == null ) || ( beans.size() == 0 ) )
             {
-                base = configPartition.getSuffix();
+                LOG.debug( "No {} element to read", objectClass );
             }
-            
-            List<AdsBaseBean> beans = read( base, objectClass, SearchScope.ONELEVEL, MANDATORY );
-            
-            System.out.println( beans.get( 0 ) );
-            
-            configBean.setDirectoryServiceBeans( beans );
-            
-            return configBean;
+            else
+            {
+                LOG.debug( beans.get( 0 ).toString() );
+            }
         }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-            throw e;
-        }
+        
+        configBean.setDirectoryServiceBeans( beans );
+        
+        return configBean;
     }
     
     
