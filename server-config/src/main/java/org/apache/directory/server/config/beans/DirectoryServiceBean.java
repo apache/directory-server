@@ -23,8 +23,6 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
-
 
 /**
  * A class used to store the DirectoryService configuration.
@@ -76,7 +74,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
-    private PasswordPolicyConfiguration passwordpolicy;
+    private PasswordPolicyBean passwordpolicy;
 
     /** The working directory */
     private String dsworkingdirectory;
@@ -395,7 +393,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @return the passwordPolicy
      */
-    public PasswordPolicyConfiguration getPasswordPolicy()
+    public PasswordPolicyBean getPasswordPolicy()
     {
         return passwordpolicy;
     }
@@ -404,7 +402,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * @param passwordPolicy the passwordPolicy to set
      */
-    public void setPasswordPolicy( PasswordPolicyConfiguration passwordPolicy )
+    public void setPasswordPolicy( PasswordPolicyBean passwordPolicy )
     {
         this.passwordpolicy = passwordPolicy;
     }

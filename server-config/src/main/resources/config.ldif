@@ -11,6 +11,7 @@ objectclass: top
 
 dn: ads-directoryServiceId=default,ou=config
 objectclass: top
+objectclass: ads-base
 objectclass: ads-directoryService
 ads-directoryserviceid: default
 ads-dsreplicaid: 1
@@ -50,137 +51,151 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-interceptorId=aciAuthorizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 4
 ads-interceptorclassname: org.apache.directory.server.core.authz.AciAuthorizationInterceptor
 ads-interceptorid: aciAuthorizationInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 2
 ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationInterceptor
 ads-interceptorid: authenticationInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 12
 ads-interceptorclassname: org.apache.directory.server.core.collective.CollectiveAttributeInterceptor
 ads-interceptorid: collectiveAttributeInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=defaultAuthorizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 5
 ads-interceptorclassname: org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor
 ads-interceptorid: defaultAuthorizationInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=eventInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 13
 ads-interceptorclassname: org.apache.directory.server.core.event.EventInterceptor
 ads-interceptorid: eventInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=exceptionInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 6
 ads-interceptorclassname: org.apache.directory.server.core.exception.ExceptionInterceptor
 ads-interceptorid: exceptionInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=keyderivationinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-enabled: false
 ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
 ads-interceptorid: keyderivationinterceptor
-objectclass: ads-interceptor
-objectclass: top
 
 dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 1
 ads-interceptorclassname: org.apache.directory.server.core.normalization.NormalizationInterceptor
 ads-interceptorid: normalizationInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=operationalAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 7
 ads-interceptorclassname: org.apache.directory.server.core.operational.OperationalAttributeInterceptor
 ads-interceptorid: operationalAttributeInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=passwordpolicyinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-enabled: false
 ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor
 ads-interceptorid: passwordpolicyinterceptor
-objectclass: ads-interceptor
-objectclass: top
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 3
 ads-interceptorclassname: org.apache.directory.server.core.referral.ReferralInterceptor
 ads-interceptorid: referralInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 10
 ads-interceptorclassname: org.apache.directory.server.core.schema.SchemaInterceptor
 ads-interceptorid: schemaInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=subentryInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 11
 ads-interceptorclassname: org.apache.directory.server.core.subtree.SubentryInterceptor
 ads-interceptorid: subentryInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
 dn: ads-interceptorId=triggerInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
 ads-interceptororder: 14
 ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterceptor
 ads-interceptorid: triggerInterceptor
-objectclass: ads-interceptor
-objectclass: top
 ads-enabled: true
 
-dn: ou=pwdpolicy,ads-directoryServiceId=default,ou=config
-objectClass: pwdPolicy
-objectClass: organizationalunit
+dn: ads-pwdId=pwdPolicy,ads-directoryServiceId=default,ou=config
 objectClass: top
-ou: pwdpolicy
-pwdSafeModify: FALSE
-pwdMaxAge: 0
-pwdFailureCountInterval: 30
-pwdAttribute: userPassword
-pwdMaxFailure: 5
-pwdLockout: TRUE
-pwdMustChange: FALSE
-pwdLockoutDuration: 0
-pwdMinLength: 5
-pwdInHistory: 5
-pwdExpireWarning: 600
-pwdMinAge: 0
-pwdAllowUserChange: TRUE
-pwdGraceAuthNLimit: 5
-pwdCheckQuality: 2
+objectClass: ads-base
+objectClass: ads-passwordPolicy
+ads-pwdId: pwdpolicy
+ads-pwdSafeModify: FALSE
+ads-pwdMaxAge: 0
+ads-pwdFailureCountInterval: 30
+ads-pwdAttribute: userPassword
+ads-pwdMaxFailure: 5
+ads-pwdLockout: TRUE
+ads-pwdMustChange: FALSE
+ads-pwdLockoutDuration: 0
+ads-pwdMinLength: 5
+ads-pwdInHistory: 5
+ads-pwdExpireWarning: 600
+ads-pwdMinAge: 0
+ads-pwdAllowUserChange: TRUE
+ads-pwdGraceAuthNLimit: 5
+ads-pwdCheckQuality: 2
 ads-enabled: true
 
 dn: ou=partitions,ads-directoryServiceId=default,ou=config
@@ -189,13 +204,14 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectClass: ads-base
+objectclass: ads-partition
+objectclass: ads-jdbmPartition
 ads-partitionSuffix: ou=system
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: true
-objectclass: ads-jdbmPartition
-objectclass: ads-partition
-objectclass: top
 ads-partitionid: system
 ads-enabled: true
 
@@ -285,13 +301,14 @@ objectclass: top
 ads-enabled: true
 
 dn: ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectClass: ads-base
+objectclass: ads-partition
+objectclass: ads-jdbmPartition
 ads-partitionSuffix: dc=example,dc=com
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: true
-objectclass: ads-jdbmPartition
-objectclass: ads-partition
-objectclass: top
 ads-partitionid: example
 ads-enabled: true
 
@@ -684,3 +701,61 @@ objectclass: ads-udpTransport
 objectclass: top
 ads-enabled: true
 
+dn: ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-server
+objectclass: ads-httpServer
+ads-serverId: httpServer
+description: HTTP server
+ads-httpConfFile: test.conf
+
+dn: ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: httpWebApps
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-id=webApp1,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp1
+ads-httpWarFile: war file 1
+ads-httpAppCtxPath: /home/app1
+
+dn: ads-id=webApp2,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp2
+ads-httpWarFile: war file 2
+ads-httpAppCtxPath: /home/app2
+
+dn: ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: transports
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-transportid=http-tcp,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+ads-transportid: ntp-http
+ads-systemport: 123
+ads-transportenablessl: false
+ads-transportbacklog: 50
+ads-transportnbthreads: 8
+ads-transportaddress: 0.0.0.0
+ads-enabled: true
+
+dn: ads-transportid=http-udp,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-udpTransport
+ads-transportid: ntp-http
+ads-transportaddress: localhost
+ads-systemport: 456
+ads-transportenablessl: true
+ads-enabled: true
