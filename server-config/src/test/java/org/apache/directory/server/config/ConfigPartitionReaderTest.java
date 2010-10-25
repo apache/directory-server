@@ -21,9 +21,7 @@
 package org.apache.directory.server.config;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -44,7 +42,6 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,16 +103,8 @@ public class ConfigPartitionReaderTest
     }
 
 
-    @AfterClass
-    public static void cleanup() throws Exception
-    {
-        server.stop();
-        dirService.shutdown();
-    }
-
-
     @Test
-    public void testDirService() throws Exception
+    public void testReadFullConfig() throws Exception
     {
         File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
         
@@ -135,49 +124,5 @@ public class ConfigPartitionReaderTest
         assertNotNull( configBean );
         DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( directoryServiceBean );
-        /*
-        dirService = createDirectoryService( configBean );
-
-        SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
-
-        // Init the schema partition's wrapped LdifPartition
-        LdifPartition wrappedPartition = new LdifPartition();
-        wrappedPartition.setWorkingDirectory( new File( workDir, schemaPartition.getId() ).getAbsolutePath() );
-        schemaPartition.setWrappedPartition( wrappedPartition );
-        schemaPartition.setSchemaManager( schemaManager );
-
-        dirService.setWorkingDirectory( workDir );
-        dirService.setSchemaManager( schemaManager );
-        dirService.startup();
-
-        server = cpReader.createLdapServer();
-        server.setDirectoryService( dirService );
-
-        // this is a hack to use a different port than the one
-        // configured in the actual configuration data
-        // in case the configured port is already in use during the test run
-        Transport[] transports = server.getTransports();
-        
-        for( Transport t : transports )
-        {
-            int port = t.getPort();
-            port = AvailablePortFinder.getNextAvailable( port );
-            t.setPort( port );
-            t.init();
-        }
-
-        server.start();
-        */
-
-        assertTrue( dirService.isStarted() );
-        assertEquals( "default", dirService.getInstanceId() );
-    }
-    
-    
-    @Test
-    public void testLdapServer()
-    {
-        assertTrue( server.isStarted() );
-        assertEquals( dirService, server.getDirectoryService() );
     }
 }
