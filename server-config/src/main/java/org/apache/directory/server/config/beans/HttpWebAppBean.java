@@ -100,4 +100,30 @@ public class HttpWebAppBean extends AdsBaseBean
     {
         this.httpwarfile = httpWarFile;
     }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "HttpWebApp :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  id : " ).append( id ).append( '\n' );
+        sb.append( tabs ).append( "  war file : " ).append( httpwarfile ).append( '\n' );
+        sb.append(  toString( tabs, "  application context path", httpappctxpath ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

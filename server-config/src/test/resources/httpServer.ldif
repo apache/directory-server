@@ -53,6 +53,27 @@ ads-serverId: httpServer
 description: HTTP server
 ads-httpConfFile: test.conf
 
+dn: ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: httpWebApps
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-id=webApp1,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp1
+ads-httpWarFile: war file 1
+ads-httpAppCtxPath: /home/app1
+
+dn: ads-id=webApp2,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp2
+ads-httpWarFile: war file 2
+ads-httpAppCtxPath: /home/app2
+
 dn: ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
 objectclass: organizationalUnit
