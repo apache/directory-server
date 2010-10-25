@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 
 
 /**
@@ -30,6 +34,9 @@ public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
     private String httpconffile;
+    
+    /** The list of supported web apps */
+    private List<HttpWebAppBean> httpwebapps = new ArrayList<HttpWebAppBean>();
 
     /**
      * Create a new HttpServerBean instance
@@ -59,7 +66,37 @@ public class HttpServerBean extends ServerBean
     {
         this.httpconffile = httpConfFile;
     }
+
     
+    /**
+     * @return the httpWebApps
+     */
+    public List<HttpWebAppBean> getExtendedOps()
+    {
+        return httpwebapps;
+    }
+
+    
+    /**
+     * @param httpWebApps the httpWebApps to set
+     */
+    public void setExtendedOps( List<HttpWebAppBean> httpWebApps )
+    {
+        this.httpwebapps = httpWebApps;
+    }
+
+    
+    /**
+     * @param httpWebApps the httpWebApps to add
+     */
+    public void addExtendedOps( HttpWebAppBean... httpWebApps )
+    {
+        for ( HttpWebAppBean httpWebApp : httpWebApps )
+        {   
+            this.httpwebapps.add( httpWebApp );
+        }
+    }
+
     
     /**
      * {@inheritDoc}
@@ -71,6 +108,16 @@ public class HttpServerBean extends ServerBean
         sb.append( tabs ).append( "HttpServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
         sb.append(  toString( tabs, "  http configuration file", httpconffile ) );
+        
+        if ( ( httpwebapps != null ) && ( httpwebapps.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  web applications :\n" );
+            
+            for ( HttpWebAppBean httpWebApp : httpwebapps )
+            {
+                sb.append( httpWebApp.toString( tabs + "    " ) );
+            }
+        }
 
         return sb.toString();
     }
