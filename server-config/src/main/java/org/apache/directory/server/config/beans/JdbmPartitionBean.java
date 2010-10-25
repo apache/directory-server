@@ -94,8 +94,8 @@ public class JdbmPartitionBean extends PartitionBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "JdbmPartitionBean :\n" );
-        sb.append( super.toString( tabs + "  " ) );
-        sb.append( tabs ).append( "  partition cache size" ).append( partitioncachesize ).append( '\n' );
+        sb.append( super.toString( tabs ) );
+        sb.append( tabs ).append( "  partition cache size : " ).append( partitioncachesize ).append( '\n' );
         sb.append( toString( tabs, "  jdbm partition optimizer enabled", jdbmpartitionoptimizerenabled ) );
         
         return sb.toString();

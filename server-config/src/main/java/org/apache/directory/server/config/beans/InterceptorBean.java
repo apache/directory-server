@@ -26,7 +26,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class InterceptorBean implements Comparable<InterceptorBean>
+public class InterceptorBean extends AdsBaseBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
     private String interceptorid;
@@ -128,9 +128,9 @@ public class InterceptorBean implements Comparable<InterceptorBean>
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( tabs ).append( "interceptor[" );
-        sb.append( interceptorid ).append( "] ID : " ).append(  interceptorid ).append( '\n' );
-        sb.append( tabs ).append( "class name : " ).append(  interceptorclassname ).append( '\n' );
+        sb.append( tabs ).append( "interceptor[" ).append( interceptororder ).append( "] : " ).append( '\n' );
+        sb.append( tabs ).append( "  interceptor id : " ).append( interceptorid ).append( '\n' );
+        sb.append( tabs ).append( "  class name : " ).append(  interceptorclassname ).append( '\n' );
         
         return sb.toString();
     }

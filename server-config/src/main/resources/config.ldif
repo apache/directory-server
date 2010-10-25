@@ -19,6 +19,7 @@ ads-dsmaxpdusize: 2000000
 ads-dsallowanonymousaccess: true
 ads-dsaccesscontrolenabled: false
 ads-dsdenormalizeopattrsenabled: false
+ads-dsWorkingDirectory: /tmp
 ads-servers: changepasswordserver
 ads-servers: dns
 ads-servers: httpserver
@@ -188,7 +189,7 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-partitionsuffix: ou=system
+ads-partitionSuffix: ou=system
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: true
@@ -284,7 +285,7 @@ objectclass: top
 ads-enabled: true
 
 dn: ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-partitionsuffix: dc=example,dc=com
+ads-partitionSuffix: dc=example,dc=com
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: true

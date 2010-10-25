@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -852,6 +853,12 @@ public class ConfigPartitionReader
             // Get the entry attribute for this field
             EntryAttribute fieldAttr = entry.get( fieldName );
             
+            if ( ( fieldAttr == null ) && ( mandatory ) )
+            {
+                System.out.println( "!!! Attribute " + fieldName + " is mandatory and is not present for the Entry " + entry.getDn() );
+                continue;
+            }
+            
             AttributeType beanAT = schemaManager.getAttributeType( fieldName );
             
             // Check if this AT has the ads-compositeElement as a superior
@@ -892,7 +899,7 @@ public class ConfigPartitionReader
                     // We have to remove the 's' at the end of the field name
                     String attributeName = fieldName.substring( 0, fieldName.length() - 1 );
                     
-                    List<AdsBaseBean> beans = read( newBase, attributeName, SearchScope.ONELEVEL, mandatory );
+                    Collection<AdsBaseBean> beans = read( newBase, attributeName, SearchScope.ONELEVEL, mandatory );
                     beanField.set( bean, beans );
                 }
             }

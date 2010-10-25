@@ -228,7 +228,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         StringBuilder sb = new StringBuilder();
         
         sb.append( tabs ).append( "ChangePasswordServer :\n" );
-        sb.append( super.toString( tabs ) );
+        sb.append( super.toString( tabs + "  " ) );
         sb.append( toString( tabs, "  change password service principal", chgpwdserviceprincipal ) );
         sb.append( toString( tabs, "  KRB primary realm", krbprimaryrealm ) );
         

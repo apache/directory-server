@@ -20,8 +20,8 @@
 package org.apache.directory.server.config.beans;
 
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
 
@@ -67,13 +67,13 @@ public class DirectoryServiceBean extends AdsBaseBean
     private JournalBean journal;
 
     /** The servers */
-    private Set<ServerBean> servers;
+    private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
-    private List<InterceptorBean> interceptors;
+    private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
-    private List<PartitionBean> partitions;
+    private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
     private PasswordPolicyConfiguration passwordpolicy;
@@ -153,6 +153,20 @@ public class DirectoryServiceBean extends AdsBaseBean
     public void setInterceptors( List<InterceptorBean> interceptors )
     {
         this.interceptors = interceptors;
+    }
+
+
+    /**
+     * Adds the interceptors in the server.
+     *
+     * @param interceptors the interceptors to be added in the server.
+     */
+    public void addinterceptors( InterceptorBean... interceptors )
+    {
+        for ( InterceptorBean interceptor : interceptors )
+        {
+            this.interceptors.add( interceptor );
+        }
     }
 
 
@@ -337,6 +351,48 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
+     * @param partitions the partitions to add
+     */
+    public void addpartitions( PartitionBean... partitions )
+    {
+        for ( PartitionBean partition : partitions )
+        {
+            this.partitions.add( partition );
+        }
+    }
+
+
+    /**
+     * @return the servers
+     */
+    public List<ServerBean> getServers()
+    {
+        return servers;
+    }
+
+
+    /**
+     * @param servers the servers to set
+     */
+    public void setServers( List<ServerBean> servers )
+    {
+        this.servers = servers;
+    }
+
+
+    /**
+     * @param servers the servers to add
+     */
+    public void addservers( ServerBean... servers )
+    {
+        for ( ServerBean server : servers )
+        {
+            this.servers.add( server );
+        }
+    }
+
+    
+    /**
      * @return the passwordPolicy
      */
     public PasswordPolicyConfiguration getPasswordPolicy()
@@ -386,9 +442,17 @@ public class DirectoryServiceBean extends AdsBaseBean
         sb.append( "  directoryService ID : " ).append( directoryserviceid ).append( '\n' );
         sb.append( "  replica ID : " ).append( dsreplicaid ).append( '\n' );
         sb.append( "  working directory : " ).append( dsworkingdirectory ).append( '\n' );
+        sb.append( toString( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
+        sb.append( toString( "  ", "allow anonymous access", dsallowanonymousaccess ) );
+        sb.append( toString( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
+        sb.append( toString( "  ", "password hidden", dspasswordhidden ) );
+        sb.append( "  max PDU size : " ).append( dsmaxpdusize ).append( '\n' );
+        sb.append( "  sync period millisecond : " ).append( dssyncperiodmillis ).append( '\n' );
+        sb.append( toString( "  ", "test entries", dstestentries ) );
+        
         sb.append( "  interceptors : \n" );
         
-        if ( interceptors != null )
+        if ( ( interceptors != null ) && ( interceptors.size() > 0 ) )
         {
             for ( InterceptorBean interceptor : interceptors )
             {
@@ -398,33 +462,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         
         sb.append( "  partitions : \n" );
         
-        if ( partitions != null )
+        if ( ( partitions != null ) && ( partitions.size() > 0 ) )
         {
             for ( PartitionBean partition : partitions )
             {
                 sb.append( partition.toString( "    " ) );
             }
         }
-        
-        
-        sb.append( "  servers : \n" );
-        
-        if ( servers != null )
-        {
-            for ( ServerBean server : servers )
-            {
-                sb.append( server.toString( "    " ) );
-            }
-        }
 
-        sb.append( toString( "  ", "accessControl enabled", dsaccesscontrolenabled ) );
-        sb.append( toString( "  ", "allow anonymous access", dsallowanonymousaccess ) );
-        sb.append( toString( "  ", "denormalized attributes enabled", dsdenormalizeopattrsenabled ) );
-        sb.append( toString( "  ", "password hidden", dspasswordhidden ) );
-        sb.append( "  max PDU size : " ).append( dsmaxpdusize ).append( '\n' );
-        sb.append( "  sync period millisecond : " ).append( dssyncperiodmillis ).append( '\n' );
-        sb.append( "  test entries : " ).append( dstestentries ).append( '\n' );
-        
         if ( journal != null )
         {
             sb.append( "  journal : \n" );
@@ -441,6 +486,16 @@ public class DirectoryServiceBean extends AdsBaseBean
             sb.append( passwordpolicy.toString( "    " ) );
         }
         
+        sb.append( "  servers : \n" );
+        
+        if ( ( servers != null ) && ( servers.size() > 0 ) )
+        {
+            for ( ServerBean server : servers )
+            {
+                sb.append( server.toString( "    " ) );
+            }
+        }
+
         sb.append( '\n' );
 
         return sb.toString();

@@ -22,6 +22,7 @@ package org.apache.directory.server.config;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -31,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
@@ -63,6 +65,8 @@ public class ConfigPartitionReaderTest
     private static LdapServer server;
 
     private static SchemaManager schemaManager;
+
+    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
 
     @BeforeClass
@@ -99,9 +103,23 @@ public class ConfigPartitionReaderTest
             throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
 
+    }
+
+
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        server.stop();
+        dirService.shutdown();
+    }
+
+
+    @Test
+    public void testDirService() throws Exception
+    {
         File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
         
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, true );
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
@@ -113,6 +131,10 @@ public class ConfigPartitionReaderTest
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=config" ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+
+        assertNotNull( configBean );
+        DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );
+        assertNotNull( directoryServiceBean );
         /*
         dirService = createDirectoryService( configBean );
 
@@ -146,20 +168,7 @@ public class ConfigPartitionReaderTest
 
         server.start();
         */
-    }
 
-
-    @AfterClass
-    public static void cleanup() throws Exception
-    {
-        server.stop();
-        dirService.shutdown();
-    }
-
-
-    @Test
-    public void testDirService()
-    {
         assertTrue( dirService.isStarted() );
         assertEquals( "default", dirService.getInstanceId() );
     }
