@@ -47,7 +47,7 @@ public abstract class AbstractPartition implements Partition
     protected SchemaManager schemaManager;
     
     /** The partition ContextEntry */
-    private Entry contextEntry;
+    protected Entry contextEntry;
 
     protected AbstractPartition()
     {
