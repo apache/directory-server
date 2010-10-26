@@ -165,32 +165,6 @@ objectclass: top
 ads-saslMechName: SIMPLE
 ads-enabled: true
 
-dn: ads-pwdId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-passwordPolicy
-ads-pwdId: test
-ads-pwdAttribute: userPassword
-ads-pwdMinAge: 100
-ads-pwdMaxAge: 200
-ads-pwdInHistory: 5
-ads-pwdCheckQuality: 2
-ads-pwdMinLength: 5
-ads-pwdMaxLength: 32
-ads-pwdExpireWarning: 100
-ads-pwdGraceAuthNLimit: 50
-ads-pwdGraceExpire: 20
-ads-pwdLockout: TRUE
-ads-pwdLockoutDuration: 20
-ads-pwdMaxFailure: 3
-ads-pwdFailureCountInterval: 5
-ads-pwdMustChange: TRUE
-ads-pwdAllowUserChange: TRUE
-ads-pwdSafeModify: FALSE
-ads-pwdMinDelay: 20
-ads-pwdMaxDelay: 200
-ads-pwdMaxIdle: 100
-
 dn: ads-replConsumerId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
@@ -227,4 +201,3 @@ ads-replSearchTimeOut: 100
 ads-replUserDn: ou=config
 ads-replUserPassword: secret
 ads-replCookie: abcdef
-

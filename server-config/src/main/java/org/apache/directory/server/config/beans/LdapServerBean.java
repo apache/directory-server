@@ -20,9 +20,7 @@
 package org.apache.directory.server.config.beans;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -48,7 +46,7 @@ public class LdapServerBean extends DSBasedServerBean
     private String saslPrincipal;
     
     /** The SASL realms */
-    private Set<String> saslRealms = new HashSet<String>();
+    private List<String> saslRealms = new ArrayList<String>();
     
     /** The keystore file */
     private String keystoreFile;
@@ -59,9 +57,6 @@ public class LdapServerBean extends DSBasedServerBean
     /** tells if the replication is enabled */
     private boolean enableReplProvider; 
     
-    /** The PasswordPolicy component */
-    private PasswordPolicyBean passwordPolicy;
-
     /** The replication consumer Bean */
     private ReplConsumerBean replConsumer;
     
@@ -179,7 +174,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return the ldapServerSaslRealms
      */
-    public Set<String> getLdapServerSaslRealms()
+    public List<String> getLdapServerSaslRealms()
     {
         return saslRealms;
     }
@@ -188,7 +183,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @param ldapServerSaslRealms the ldapServerSaslRealms to set
      */
-    public void setLdapServerSaslRealms( Set<String> ldapServerSaslRealms )
+    public void setLdapServerSaslRealms( List<String> ldapServerSaslRealms )
     {
         this.saslRealms = ldapServerSaslRealms;
     }
@@ -339,24 +334,6 @@ public class LdapServerBean extends DSBasedServerBean
 
 
     /**
-     * @return the pwdPolicy
-     */
-    public PasswordPolicyBean getPwdPolicy()
-    {
-        return passwordPolicy;
-    }
-
-
-    /**
-     * @param pwdPolicy the pwdPolicy to set
-     */
-    public void setPwdPolicy( PasswordPolicyBean pwdPolicy )
-    {
-        this.passwordPolicy = pwdPolicy;
-    }
-
-
-    /**
      * @return the Replication Consumer Bean
      */
     public ReplConsumerBean getReplConsumer()
@@ -438,11 +415,6 @@ public class LdapServerBean extends DSBasedServerBean
             {
                 sb.append( tabs ).append( "    " ).append( saslRealm ).append( "\n" );
             }
-        }
-        
-        if ( passwordPolicy != null )
-        {
-            sb.append( tabs ).append( passwordPolicy.toString( tabs + "  " ) );
         }
         
         if ( replConsumer != null )
