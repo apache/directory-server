@@ -119,6 +119,14 @@ public class PasswordUtil
     }
 
 
+    /**
+     * create a hashed password in a format that can be stored in the server.
+     * If the specified algorithm requires a salt then a random salt of 8 byte size is used
+     *  
+     * @param credentials the plain text password
+     * @param algorithm the hashing algorithm to be applied
+     * @return the password after hashing with the given algorithm 
+     */
     public static byte[] createStoragePassword( String credentials, LdapSecurityConstants algorithm )
     {
         byte[] salt;
@@ -171,7 +179,78 @@ public class PasswordUtil
         
         return StringTools.getBytesUtf8( sb.toString() );
     }
+    
 
+    /**
+     * 
+     * Compare the credentials.
+     * We have at least 6 algorithms to encrypt the password :
+     * <ul>
+     * <li>- SHA</li>
+     * <li>- SSHA (salted SHA)</li>
+     * <li>- SHA-2(256, 384 and 512 and their salted versions)</li>
+     * <li>- MD5</li>
+     * <li>- SMD5 (slated MD5)</li>
+     * <li>- crypt (unix crypt)</li>
+     * <li>- plain text, ie no encryption.</li>
+     * </ul>
+     * <p>
+     *  If we get an encrypted password, it is prefixed by the used algorithm, between
+     *  brackets : {SSHA}password ...
+     *  </p>
+     *  If the password is using SSHA, SMD5 or crypt, some 'salt' is added to the password :
+     *  <ul>
+     *  <li>- length(password) - 20, starting at 21th position for SSHA</li>
+     *  <li>- length(password) - 16, starting at 16th position for SMD5</li>
+     *  <li>- length(password) - 2, starting at 3rd position for crypt</li>
+     *  </ul>
+     *  <p>
+     *  For (S)SHA, SHA-256 and (S)MD5, we have to transform the password from Base64 encoded text
+     *  to a byte[] before comparing the password with the stored one.
+     *  </p>
+     *  <p>
+     *  For crypt, we only have to remove the salt.
+     *  </p>
+     *  <p>
+     *  At the end, we use the digest() method for (S)SHA and (S)MD5, the crypt() method for
+     *  the CRYPT algorithm and a straight comparison for PLAIN TEXT passwords.
+     *  </p>
+     *  <p>
+     *  The stored password is always using the unsalted form, and is stored as a bytes array.
+     *  </p>
+     *
+     * @param receivedCredentials the credentials provided by user
+     * @param storedCredentials the credentials stored in the server
+     * @return true if they are equal, false otherwise
+     */
+    public static boolean compareCredentials( byte[] receivedCredentials, byte[] storedCredentials )
+    {
+        LdapSecurityConstants algorithm = findAlgorithm( storedCredentials );
+        
+        if ( algorithm != null )
+        {
+            EncryptionMethod encryptionMethod = new EncryptionMethod( algorithm, null );
+            
+            // Let's get the encrypted part of the stored password
+            // We should just keep the password, excluding the algorithm
+            // and the salt, if any.
+            // But we should also get the algorithm and salt to
+            // be able to encrypt the submitted user password in the next step
+            byte[] encryptedStored = PasswordUtil.splitCredentials( storedCredentials, encryptionMethod );
+            
+            // Reuse the saltedPassword informations to construct the encrypted
+            // password given by the user.
+            byte[] userPassword = PasswordUtil.encryptPassword( receivedCredentials, encryptionMethod.getAlgorithm(), encryptionMethod.getSalt() );
+            
+            // Now, compare the two passwords.
+            return Arrays.equals( userPassword, encryptedStored );
+        }
+        else
+        {
+            return Arrays.equals( storedCredentials, receivedCredentials );
+        }
+    }
+    
 
     /**
      * encrypts the given credentials based on the algorithm name and optional salt

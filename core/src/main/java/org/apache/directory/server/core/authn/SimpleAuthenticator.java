@@ -205,40 +205,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * value of {@link Context#SECURITY_PRINCIPAL} environment variable, and
      * authenticates a user with the plain-text password.
      * </p>
-     * We have at least 6 algorithms to encrypt the password :
-     * <ul>
-     * <li>- SHA</li>
-     * <li>- SHA-256</li>
-     * <li>- SSHA (salted SHA)</li>
-     * <li>- MD5</li>
-     * <li>- SMD5 (slated MD5)</li>
-     * <li>- crypt (unix crypt)</li>
-     * <li>- plain text, ie no encryption.</li>
-     * </ul>
-     * <p>
-     *  If we get an encrypted password, it is prefixed by the used algorithm, between
-     *  brackets : {SSHA}password ...
-     *  </p>
-     *  If the password is using SSHA, SMD5 or crypt, some 'salt' is added to the password :
-     *  <ul>
-     *  <li>- length(password) - 20, starting at 21th position for SSHA</li>
-     *  <li>- length(password) - 16, starting at 16th position for SMD5</li>
-     *  <li>- length(password) - 2, starting at 3rd position for crypt</li>
-     *  </ul>
-     *  <p>
-     *  For (S)SHA, SHA-256 and (S)MD5, we have to transform the password from Base64 encoded text
-     *  to a byte[] before comparing the password with the stored one.
-     *  </p>
-     *  <p>
-     *  For crypt, we only have to remove the salt.
-     *  </p>
-     *  <p>
-     *  At the end, we use the digest() method for (S)SHA and (S)MD5, the crypt() method for
-     *  the CRYPT algorithm and a straight comparison for PLAIN TEXT passwords.
-     *  </p>
-     *  <p>
-     *  The stored password is always using the unsalted form, and is stored as a bytes array.
-     *  </p>
      */
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapException
     {
@@ -255,62 +221,22 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
 
-        // Let's see if the stored password was encrypted
-        LdapSecurityConstants algorithm = PasswordUtil.findAlgorithm( storedPassword );
-
-        if ( algorithm != null )
+        // Now, compare the two passwords.
+        if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
         {
-            EncryptionMethod encryptionMethod = new EncryptionMethod( algorithm, null );
-
-            // Let's get the encrypted part of the stored password
-            // We should just keep the password, excluding the algorithm
-            // and the salt, if any.
-            // But we should also get the algorithm and salt to
-            // be able to encrypt the submitted user password in the next step
-            byte[] encryptedStored = PasswordUtil.splitCredentials( storedPassword, encryptionMethod );
-
-            // Reuse the saltedPassword informations to construct the encrypted
-            // password given by the user.
-            byte[] userPassword = PasswordUtil.encryptPassword( credentials, encryptionMethod.getAlgorithm(), encryptionMethod.getSalt() );
-
-            // Now, compare the two passwords.
-            if ( Arrays.equals( userPassword, encryptedStored ) )
+            if ( IS_DEBUG )
             {
-                if ( IS_DEBUG )
-                {
-                    LOG.debug( "{} Authenticated", bindContext.getDn() );
-                }
+                LOG.debug( "{} Authenticated", bindContext.getDn() );
+            }
 
-                return principal;
-            }
-            else
-            {
-                // Bad password ...
-                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
-                LOG.info( message );
-                throw new LdapAuthenticationException( message );
-            }
+            return principal;
         }
         else
         {
-            // PLAIN TEXT passwords : we compare the byte array directly
-            // Are the passwords equal ?
-            if ( Arrays.equals( credentials, storedPassword ) )
-            {
-                if ( IS_DEBUG )
-                {
-                    LOG.debug( "{} Authenticated", bindContext.getDn() );
-                }
-
-                return principal;
-            }
-            else
-            {
-                // Bad password ...
-                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
-                LOG.info( message );
-                throw new LdapAuthenticationException( message );
-            }
+            // Bad password ...
+            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+            LOG.info( message );
+            throw new LdapAuthenticationException( message );
         }
     }
 
