@@ -41,6 +41,9 @@ public abstract class PartitionBean extends AdsBaseBean
 
     /** The list of declared indexes */
     private List<IndexBean> indexes;
+    
+    /** The partition's ContextEntry */
+    private String contextEntry;
 
     /**
      * Create a new PartitionBean instance
@@ -120,6 +123,24 @@ public abstract class PartitionBean extends AdsBaseBean
     {
         this.indexes = indexes;
     }
+
+
+    /**
+     * @param contextEntry the contextEntry to set
+     */
+    public void setContextEntry( String contextEntry )
+    {
+        this.contextEntry = contextEntry;
+    }
+
+
+    /**
+     * @return the contextEntry
+     */
+    public String getContextEntry()
+    {
+        return contextEntry;
+    }
     
     
     /**
@@ -133,6 +154,7 @@ public abstract class PartitionBean extends AdsBaseBean
         sb.append( tabs ).append( "  partition ID : " ).append( partitionId ).append( '\n' );
         sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix.getName() ).append( '\n' );
         sb.append( toString( tabs, "  sync on write", partitionSyncOnWrite ) );
+        sb.append( toString( tabs, "  contextEntry", contextEntry ) );
         
         sb.append( tabs ).append( "  indexes : \n" );
         
