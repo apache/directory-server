@@ -29,8 +29,16 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.config.ConfigBuilder;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
+import org.apache.directory.server.config.beans.ChangePasswordServerBean;
+import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.config.beans.DirectoryServiceBean;
+import org.apache.directory.server.config.beans.HttpServerBean;
+import org.apache.directory.server.config.beans.KdcServerBean;
+import org.apache.directory.server.config.beans.LdapServerBean;
+import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -107,7 +115,7 @@ public class ApacheDsService
     private SingleFileLdifPartition configPartition;
 
     private ConfigPartitionReader cpReader;
-
+    
     // variables used during the initial startup to update the mandatory operational
     // attributes
     private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
@@ -133,6 +141,7 @@ public class ApacheDsService
     public void start( InstanceLayout instanceLayout ) throws Exception
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
+        
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
@@ -140,31 +149,40 @@ public class ApacheDsService
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
+        
         initSchemaLdifPartition( instanceLayout );
         initConfigPartition( instanceLayout );
 
+        // Read the configuration
         cpReader = new ConfigPartitionReader( configPartition, partitionsDir );
+        
+        ConfigBean configBean = cpReader.readConfig( "ou=config" );
+        
+        DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean( "default" );
+        
+        // Initialize the DirectoryService now
+        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean );
 
         // start the LDAP server
-        startLdap( instanceLayout );
+        startLdap( directoryServiceBean.getLdapServerBean(), directoryService );
 
         // start the NTP server
-        startNtp();
+        startNtp( directoryServiceBean.getNtpServerBean(), directoryService );
 
         // Initialize the DNS server (Not ready yet)
-        // initDns( layout );
+        // initDns( configBean );
 
         // Initialize the DHCP server (Not ready yet)
-        // initDhcp( layout );
+        // initDhcp( configBean );
 
         // start the ChangePwd server (Not ready yet)
-        startChangePwd();
+        startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
 
         // start the Kerberos server
-        startKerberos();
+        startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
 
         // start the jetty http server
-        startHttpServer();
+        startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
     }
 
 
@@ -228,7 +246,7 @@ public class ApacheDsService
         }
         else
         {
-            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(), true );
+            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE, true );
             isConfigPartitionFirstExtraction = true;
         }
 
@@ -240,19 +258,15 @@ public class ApacheDsService
 
         configPartition.initialize();
     }
-
-
-    /**
-     * start the LDAP server
-     */
-    private void startLdap( InstanceLayout instanceLayout ) throws Exception
+    
+    
+    private DirectoryService initDirectoryService( InstanceLayout instanceLayout, DirectoryServiceBean directoryServiceBean ) throws Exception
     {
-        LOG.info( "Starting the LDAP server" );
-
-        printBanner( BANNER_LDAP );
+        LOG.info( "Initializing the DirectoryService..." );
+        
         long startTime = System.currentTimeMillis();
 
-        DirectoryService directoryService = cpReader.createDirectoryService();
+        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, "default" );
         directoryService.setSchemaManager( schemaManager );
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
@@ -262,9 +276,6 @@ public class ApacheDsService
         directoryService.addPartition( configPartition );
 
         directoryService.setWorkingDirectory( instanceLayout.getInstanceDirectory() );
-
-        ldapServer = cpReader.createLdapServer();
-        ldapServer.setDirectoryService( directoryService );
 
         directoryService.startup();
 
@@ -308,6 +319,26 @@ public class ApacheDsService
             LOG.info( "schema partition data was successfully updated" );
         }
 
+        LOG.info( "DirectoryService initialized in {} milliseconds", ( System.currentTimeMillis() - startTime ) );
+        
+        return directoryService;
+    }
+
+
+    /**
+     * start the LDAP server
+     */
+    private void startLdap( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws Exception
+    {
+        LOG.info( "Starting the LDAP server" );
+        long startTime = System.currentTimeMillis();
+
+        printBanner( BANNER_LDAP );
+
+        ldapServer = ConfigBuilder.createLdapServer( ldapServerBean, directoryService );
+        
+        ldapServer.setDirectoryService( directoryService );
+
         // And start the server now
         try
         {
@@ -318,34 +349,29 @@ public class ApacheDsService
             LOG.error( "Cannot start the server : " + e.getMessage() );
         }
 
-        if ( LOG.isInfoEnabled() )
-        {
-            LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
-        }
+        LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
     }
 
 
     /**
      * start the NTP server
      */
-    private void startNtp() throws Exception
+    private void startNtp( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws Exception
     {
-        ntpServer = cpReader.createNtpServer();
+        LOG.info( "Starting the NTP server" );
+        long startTime = System.currentTimeMillis();
+
+        ntpServer = ConfigBuilder.createNtpServer( ntpServerBean, directoryService);
+        
         if ( ntpServer == null )
         {
-            LOG
-                .info( "Cannot find any reference to the NTP Server in the configuration : the server won't be started" );
+            LOG.info( "Cannot find any reference to the NTP Server in the configuration : the server won't be started" );
             return;
         }
 
-        System.out.println( "Starting the NTP server" );
-        LOG.info( "Starting the NTP server" );
-
         printBanner( BANNER_NTP );
-        long startTime = System.currentTimeMillis();
 
         ntpServer.start();
-        System.out.println( "NTP Server started" );
 
         if ( LOG.isInfoEnabled() )
         {
@@ -392,28 +418,25 @@ public class ApacheDsService
     /**
      * start the KERBEROS server
      */
-    private void startKerberos() throws Exception
+    private void startKerberos( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws Exception
     {
-        kdcServer = cpReader.createKdcServer();
+        LOG.info( "Starting the Kerberos server" );
+        long startTime = System.currentTimeMillis();
+
+        kdcServer = ConfigBuilder.createKdcServer( kdcServerBean, directoryService );
+        
         if ( kdcServer == null )
         {
-            LOG
-                .info( "Cannot find any reference to the Kerberos Server in the configuration : the server won't be started" );
+            LOG.info( "Cannot find any reference to the Kerberos Server in the configuration : the server won't be started" );
             return;
         }
 
         getDirectoryService().startup();
         kdcServer.setDirectoryService( getDirectoryService() );
 
-        System.out.println( "Starting the Kerberos server" );
-        LOG.info( "Starting the Kerberos server" );
-
         printBanner( BANNER_KERBEROS );
-        long startTime = System.currentTimeMillis();
 
         kdcServer.start();
-
-        System.out.println( "Kerberos server started" );
 
         if ( LOG.isInfoEnabled() )
         {
@@ -425,29 +448,28 @@ public class ApacheDsService
     /**
      * start the Change Password server
      */
-    private void startChangePwd() throws Exception
+    private void startChangePwd( ChangePasswordServerBean changePwdServerBean, DirectoryService directoryService ) throws Exception
     {
-
-        changePwdServer = cpReader.createChangePwdServer();
+        changePwdServer = ConfigBuilder.createChangePasswordServer( changePwdServerBean, directoryService );
+        
         if ( changePwdServer == null )
         {
-            LOG
-                .info( "Cannot find any reference to the Change Password Server in the configuration : the server won't be started" );
+            LOG.info( "Cannot find any reference to the Change Password Server in the configuration : the server won't be started" );
             return;
         }
+
+        LOG.info( "Starting the Change Password server" );
+        long startTime = System.currentTimeMillis();
 
         getDirectoryService().startup();
         changePwdServer.setDirectoryService( getDirectoryService() );
 
-        System.out.println( "Starting the Change Password server" );
         LOG.info( "Starting the Change Password server" );
 
         printBanner( BANNER_CHANGE_PWD );
-        long startTime = System.currentTimeMillis();
 
         changePwdServer.start();
 
-        System.out.println( "Change Password server started" );
         if ( LOG.isInfoEnabled() )
         {
             LOG.info( "Change Password server: started in {} milliseconds", ( System.currentTimeMillis() - startTime )
@@ -459,19 +481,25 @@ public class ApacheDsService
     /**
      * start the embedded HTTP server
      */
-    private void startHttpServer() throws Exception
+    private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws Exception
     {
-        httpServer = cpReader.createHttpServer();
+        httpServer = ConfigBuilder.createHttpServer( httpServerBean, directoryService);
+        
         if ( httpServer == null )
         {
-            LOG
-                .info( "Cannot find any reference to the HTTP Server in the configuration : the server won't be started" );
+            LOG.info( "Cannot find any reference to the HTTP Server in the configuration : the server won't be started" );
             return;
         }
 
-        if ( httpServer != null )
+        LOG.info( "Starting the Http server" );
+        long startTime = System.currentTimeMillis();
+
+        httpServer.start( getDirectoryService() );
+
+        if ( LOG.isInfoEnabled() )
         {
-            httpServer.start( getDirectoryService() );
+            LOG.info( "Http server: started in {} milliseconds", ( System.currentTimeMillis() - startTime )
+                + "" );
         }
     }
 

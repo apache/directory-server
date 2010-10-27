@@ -32,10 +32,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
+import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
+import org.apache.directory.server.config.beans.HttpWebAppBean;
 import org.apache.directory.server.config.beans.IndexBean;
 import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
@@ -65,6 +68,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integration.http.HttpServer;
+import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
@@ -94,10 +98,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ConfigCreator
+public class ConfigBuilder
 {
     /** The logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ConfigCreator.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ConfigBuilder.class );
 
     /** LDIF file filter */
     private static FilenameFilter ldifFilter = new FilenameFilter()
@@ -121,7 +125,7 @@ public class ConfigCreator
      * @return a list of instantiated Interceptor objects
      * @throws Exception If the instanciation failed
      */
-    private static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
+    public static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
     {
         List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
         
@@ -410,6 +414,27 @@ public class ConfigCreator
         return transports;
     }
 
+    
+    /**
+     * Helper method to create an Array of EncryptionTypes from an array of Strings
+     */
+    private static EncryptionType[] createEncryptionTypes( List<String> encryptionTypes )
+    {
+        if ( ( encryptionTypes == null ) || ( encryptionTypes.size() == 0 ) )
+        {
+            return new EncryptionType[0];
+        }
+        
+        EncryptionType[] types = new EncryptionType[encryptionTypes.size()];
+        int pos = 0;
+        
+        for ( String encryptionType : encryptionTypes )
+        {
+            types[pos++] = EncryptionType.valueOf( encryptionType );
+        }
+        
+        return types;
+    }
 
     /**
      * Instantiates a NtpServer based on the configuration present in the partition 
@@ -505,7 +530,8 @@ public class ConfigCreator
         kdcServer.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
         
         // EncryptionType
-        kdcServer.setEncryptionTypes( kdcServerBean.getKrbEncryptionTypes().toArray( new EncryptionType[]{} ) );
+        EncryptionType[] encryptionTypes = createEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
+        kdcServer.setEncryptionTypes( encryptionTypes );
         
         // ForwardableAllowed
         kdcServer.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
@@ -546,6 +572,39 @@ public class ConfigCreator
     
     
     /**
+     * Instantiates the HttpWebApps based on the configuration present in the partition 
+     *
+     * @param httpWebAppBeans The list of HttpWebAppBeans containing the HttpWebAppBeans configuration
+     * @return Instances of HttpWebAppBean
+     * @throws LdapException
+     */
+    public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService ) throws LdapException
+    {
+        if ( ( httpWebAppBeans == null ) || ( httpWebAppBeans.size() == 0 ) )
+        {
+            return null;
+        }
+        
+        Set<WebApp> webApps = new HashSet<WebApp>();
+
+        for ( HttpWebAppBean httpWebAppBean : httpWebAppBeans )
+        {
+            WebApp webApp = new WebApp();
+            
+            // HttpAppCtxPath
+            webApp.setContextPath( httpWebAppBean.getHttpAppCtxPath() );
+            
+            // HttpWarFile
+            webApp.setWarFile( httpWebAppBean.getHttpWarFile() );
+            
+            webApps.add( webApp );
+        }
+        
+        return webApps;
+    }
+    
+    
+    /**
      * Instantiates a HttpServer based on the configuration present in the partition 
      *
      * @param httpServerBean The HttpServerBean containing the HttpServer configuration
@@ -566,12 +625,83 @@ public class ConfigCreator
         httpServer.setConfFile( httpServerBean.getHttpConfFile() );
         
         // The transports
-        //httpServer.setPort( httpServerBean.get )
+        TransportBean[] transports = httpServerBean.getTransports();
+        
+        for ( TransportBean transportBean : transports )
+        {
+            if ( transportBean instanceof TcpTransportBean )
+            {
+                httpServer.setPort( transportBean.getSystemPort() );
+                break;
+            }
+        }
         
         // The webApps
-        httpServer.setWebApps( createWebApps( httpServerBean.getHttpWebApps()) );
+        httpServer.setWebApps( createHttpWebApps( httpServerBean.getHttpWebApps(), directoryService ) );
         
         return httpServer;
+    }
+    
+    
+    /**
+     * Instantiates a ChangePasswordServer based on the configuration present in the partition 
+     *
+     * @param ldapServerBean The ChangePasswordServerBean containing the ChangePasswordServer configuration
+     * @return Instance of ChangePasswordServer
+     * @throws LdapException
+     */
+    public static ChangePasswordServer createChangePasswordServer( ChangePasswordServerBean changePasswordServerBean, DirectoryService directoryService ) throws LdapException
+    {
+        // Fist, do nothing if the LdapServer is disabled
+        if ( !changePasswordServerBean.isEnabled() )
+        {
+            return null;
+        }
+
+        ChangePasswordServer changePasswordServer = new ChangePasswordServer();
+        changePasswordServer.setEnabled( true );
+        changePasswordServer.setDirectoryService( directoryService );
+
+        // AllowableClockSkew
+        changePasswordServer.setAllowableClockSkew( changePasswordServerBean.getKrbAllowableClockSkew() );
+
+        // TODO CatalogBased
+        //changePasswordServer.setCatalogBased( changePasswordServerBean.isCatalogBase() );
+
+        // EmptyAddressesAllowed
+        changePasswordServer.setEmptyAddressesAllowed( changePasswordServerBean.isKrbEmptyAddressesAllowed() );
+
+        // EncryptionTypes
+        EncryptionType[] encryptionTypes = createEncryptionTypes( changePasswordServerBean.getKrbEncryptionTypes() );
+        changePasswordServer.setEncryptionTypes( encryptionTypes );
+
+        // PolicyCategoryCount
+        changePasswordServer.setPolicyCategoryCount( changePasswordServerBean.getChgPwdPolicyCategoryCount() );
+
+        // PolicyPasswordLength
+        changePasswordServer.setPolicyPasswordLength( changePasswordServerBean.getChgPwdPolicyPasswordLength() );
+
+        // policyTokenSize
+        changePasswordServer.setPolicyTokenSize( changePasswordServerBean.getChgPwdPolicyTokenSize() );
+
+        // PrimaryRealm
+        changePasswordServer.setPrimaryRealm( changePasswordServerBean.getKrbPrimaryRealm() );
+
+        // SearchBaseDn
+        changePasswordServer.setSearchBaseDn( changePasswordServerBean.getSearchBaseDn().getName() );
+
+        // Id/Name
+        changePasswordServer.setServiceName( changePasswordServerBean.getServerId() );
+        changePasswordServer.setServiceId( changePasswordServerBean.getServerId() );
+
+        // ServicePrincipal
+        changePasswordServer.setServicePrincipal( changePasswordServerBean.getChgPwdServicePrincipal() );
+
+        // Transports
+        Transport[] transports = createTransports( changePasswordServerBean.getTransports() );
+        changePasswordServer.setTransports( transports );
+        
+        return changePasswordServer;
     }
     
     
@@ -708,7 +838,7 @@ public class ConfigCreator
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    private static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean )
+    public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean )
     {
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         
