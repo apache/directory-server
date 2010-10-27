@@ -148,7 +148,10 @@ public class ConfigBuilder
             }
             catch ( Exception e )
             {
-                throw new ConfigurationException( e.getMessage() );
+                e.printStackTrace();
+                String message = "Cannot initialize the " + interceptorBean.getInterceptorClassName() + ", error : " + e;
+                LOG.error( message );
+                throw new ConfigurationException( message );
             }
         }
         
@@ -989,10 +992,11 @@ public class ConfigBuilder
      * Instantiates a DirectoryService based on the configuration present in the partition 
      *
      * @param directoryServiceBean The bean containing the configuration
+     * @param baseDirectory The working path for this DirectoryService 
      * @return An instance of DirectoryService
      * @throws Exception 
      */
-    private static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean ) throws Exception
+    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, File baseDirectory ) throws Exception
     {
         DirectoryService directoryService = new DefaultDirectoryService();
 
@@ -1004,7 +1008,7 @@ public class ConfigBuilder
         directoryService.setReplicaId( directoryServiceBean.getDsReplicaId() );
 
         // WorkingDirectory
-        directoryService.setWorkingDirectory( new File( directoryServiceBean.getDsWorkingDirectory() ) );
+        directoryService.setWorkingDirectory( baseDirectory );
 
         // Interceptors
         List<Interceptor> interceptors = createInterceptors( directoryServiceBean.getInterceptors() );
@@ -1071,27 +1075,5 @@ public class ConfigBuilder
         }
 
         return directoryService;
-    }
-
-    
-    /**
-     * Create a new DirectoryService instance using the ConfigBean as a container for 
-     * the configuration
-     * 
-     * @param configBean The Bean containing all the needed configuration to create the DS
-     * @param directoryServiceId The DS id we want to instantiate
-     * @return An instance of DS
-     */
-    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, String directoryServiceId ) throws LdapException, Exception
-    {
-        if ( directoryServiceBean.getDirectoryServiceId().equalsIgnoreCase( directoryServiceId ) )
-        {
-            DirectoryService directoryService = createDirectoryService( directoryServiceBean );
-            
-            return directoryService;
-        }
-        
-        LOG.info( "Cannot instanciate the {} directory service, it was not found in the configuration", directoryServiceId );
-        return null;
     }
 }

@@ -63,7 +63,30 @@ public class ConfigBean
 
 
     /**
-     * @return the directoryServiceBean
+     * @return the first directoryServiceBean found into the configuration
+     */
+    public DirectoryServiceBean getDirectoryServiceBean()
+    {
+        if ( ( directoryServiceBeans == null ) || ( directoryServiceBeans.size() == 0 ) )
+        {
+            return null;
+        }
+        
+        for ( AdsBaseBean bean : directoryServiceBeans )
+        {
+            if ( bean instanceof DirectoryServiceBean )
+            {
+                return (DirectoryServiceBean)bean;
+            }
+        }
+        
+        return null;
+    }
+
+
+    /**
+     * @param The DirectoryService ID we want to get
+     * @return the found directoryServiceBean
      */
     public DirectoryServiceBean getDirectoryServiceBean( String directoryServiceId )
     {

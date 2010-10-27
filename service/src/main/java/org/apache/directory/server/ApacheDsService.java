@@ -158,7 +158,7 @@ public class ApacheDsService
         
         ConfigBean configBean = cpReader.readConfig( "ou=config" );
         
-        DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean( "default" );
+        DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
         
         // Initialize the DirectoryService now
         DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean );
@@ -266,7 +266,7 @@ public class ApacheDsService
         
         long startTime = System.currentTimeMillis();
 
-        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, "default" );
+        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, instanceLayout.getInstanceDirectory() );
         directoryService.setSchemaManager( schemaManager );
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();

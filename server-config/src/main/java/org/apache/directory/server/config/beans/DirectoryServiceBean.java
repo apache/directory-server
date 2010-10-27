@@ -76,9 +76,6 @@ public class DirectoryServiceBean extends AdsBaseBean
     /** The reference to the Password Policy component */
     private PasswordPolicyBean passwordPolicy;
 
-    /** The working directory */
-    private String dsWorkingDirectory;
-
     /**
      * Create a new DnsServerBean instance
      */
@@ -527,24 +524,6 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return the dsWorkingDirectory
-     */
-    public String getDsWorkingDirectory()
-    {
-        return dsWorkingDirectory;
-    }
-
-
-    /**
-     * @param dsWorkingDirectory the dsWorkingDirectory to set
-     */
-    public void setDsWorkingDirectory( String dsWorkingDirectory )
-    {
-        this.dsWorkingDirectory = dsWorkingDirectory;
-    }
-    
-
-    /**
      * {@inheritDoc}
      */
     public String toString()
@@ -557,7 +536,6 @@ public class DirectoryServiceBean extends AdsBaseBean
         // Dump the must attributes
         sb.append( "  directoryService ID : " ).append( directoryServiceId ).append( '\n' );
         sb.append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
-        sb.append( "  working directory : " ).append( dsWorkingDirectory ).append( '\n' );
         sb.append( toString( "  ", "accessControl enabled", dsAccessControlEnabled ) );
         sb.append( toString( "  ", "allow anonymous access", dsAllowAnonymousAccess ) );
         sb.append( toString( "  ", "denormalized attributes enabled", dsDenormalizeOpAttrsEnabled ) );
