@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.authn;
+package org.apache.directory.server.core;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
