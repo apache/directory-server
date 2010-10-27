@@ -32,17 +32,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
-import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
+import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.config.beans.IndexBean;
 import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
 import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
+import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
+import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
@@ -63,12 +64,16 @@ import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.integration.http.HttpServer;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.server.ldap.replication.SyncReplProvider;
+import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
@@ -95,7 +100,7 @@ public class ConfigCreator
     private static final Logger LOG = LoggerFactory.getLogger( ConfigCreator.class );
 
     /** LDIF file filter */
-    private FilenameFilter ldifFilter = new FilenameFilter()
+    private static FilenameFilter ldifFilter = new FilenameFilter()
     {
         public boolean accept( File file, String name )
         {
@@ -116,7 +121,7 @@ public class ConfigCreator
      * @return a list of instantiated Interceptor objects
      * @throws Exception If the instanciation failed
      */
-    private List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
+    private static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
     {
         List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
         
@@ -153,7 +158,7 @@ public class ConfigCreator
      * @param PasswordPolicyBean The Bean containing the PasswordPolicy configuration
      * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
      */
-    public PasswordPolicyConfiguration createPwdPolicyConfig( PasswordPolicyBean passwordPolicyBean )
+    public static PasswordPolicyConfiguration createPwdPolicyConfig( PasswordPolicyBean passwordPolicyBean )
     {
         if ( passwordPolicyBean == null )
         {
@@ -194,7 +199,7 @@ public class ConfigCreator
      * @param changelogBean The Bean containing the ChangeLog configuration
      * @return The instantiated ChangeLog element
      */
-    public ChangeLog createChangeLog( ChangeLogBean changeLogBean )
+    public static ChangeLog createChangeLog( ChangeLogBean changeLogBean )
     {
         ChangeLog changeLog = new DefaultChangeLog();
         
@@ -211,7 +216,7 @@ public class ConfigCreator
      * @param changelogBean The Bean containing the ChangeLog configuration
      * @return An instance of Journal
      */
-    public Journal createJournal( JournalBean journalBean )
+    public static Journal createJournal( JournalBean journalBean )
     {
         Journal journal = new DefaultJournal();
 
@@ -236,7 +241,7 @@ public class ConfigCreator
      * @return A list of LdifEntry elements
      * @throws ConfigurationException If we weren't able to read the entries
      */
-    public List<LdifEntry> readTestEntries( String entryFilePath ) throws ConfigurationException
+    public static List<LdifEntry> readTestEntries( String entryFilePath ) throws ConfigurationException
     {
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
@@ -277,7 +282,7 @@ public class ConfigCreator
      * @throws LdapLdifException 
      * @throws IOException 
      */
-    private void loadEntries( File ldifFile, List<LdifEntry> entries ) throws LdapLdifException, IOException
+    private static void loadEntries( File ldifFile, List<LdifEntry> entries ) throws LdapLdifException, IOException
     {
         if ( ldifFile.isDirectory() )
         {
@@ -311,7 +316,7 @@ public class ConfigCreator
      * @return an instance of the MechanismHandler type
      * @throws ConfigurationException if the SASL mechanism handler cannot be created
      */
-    public MechanismHandler createSaslMechHandler( SaslMechHandlerBean saslMechHandlerBean ) throws ConfigurationException
+    public static MechanismHandler createSaslMechHandler( SaslMechHandlerBean saslMechHandlerBean ) throws ConfigurationException
     {
         String mechClassName = saslMechHandlerBean.getSaslMechClassName();
         
@@ -363,7 +368,7 @@ public class ConfigCreator
      * @param transportBean The created instance of transport
      * @return An instance of transport
      */
-    public Transport createTransport( TransportBean transportBean )
+    public static Transport createTransport( TransportBean transportBean )
     {
         Transport transport = null;
 
@@ -392,7 +397,7 @@ public class ConfigCreator
      * @param transportBeans The array of Transport configuration
      * @return An arry of Transport instance
      */
-    public Transport[] createTransports( TransportBean[] transportBeans )
+    public static Transport[] createTransports( TransportBean[] transportBeans )
     {
         Transport[] transports = new Transport[ transportBeans.length ];
         int i = 0;
@@ -407,13 +412,177 @@ public class ConfigCreator
 
 
     /**
-     * Instantiates a LdapServer based on the configuration present in the partition 
+     * Instantiates a NtpServer based on the configuration present in the partition 
      *
-     * @param ldapServer The LdapServerBean containing the LdapServer configuration
+     * @param ntpServerBean The NtpServerBean containing the NtpServer configuration
+     * @return Instance of NtpServer
+     * @throws LdapException
+     */
+    public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws LdapException
+    {
+        // Fist, do nothing if the NtpServer is disabled
+        if ( !ntpServerBean.isEnabled() )
+        {
+            return null;
+        }
+
+        NtpServer ntpServer = new NtpServer();
+        
+        // The service ID
+        ntpServer.setServiceId( ntpServerBean.getServerId() );
+        
+        // The transports
+        Transport[] transports = createTransports( ntpServerBean.getTransports() );
+        ntpServer.setTransports( transports );
+        
+        return ntpServer;
+    }
+
+
+    /**
+     * Instantiates a DhcpServer based on the configuration present in the partition 
+     *
+     * @param dhcpServerBean The DhcpServerBean containing the DhcpServer configuration
+     * @return Instance of DhcpServer
+     * @throws LdapException
+     *
+    public static DhcpServer createDhcpServer( DhcpServerBean dhcpServerBean, DirectoryService directoryService ) throws LdapException
+    {
+        // Fist, do nothing if the DhcpServer is disabled
+        if ( !dhcpServerBean.isEnabled() )
+        {
+            return null;
+        }
+
+        DhcpServer dhcpServer = new DhcpServer();
+        
+        // The service ID
+        dhcpServer.setServiceId( dhcpServerBean.getServerId() );
+        
+        // The transports
+        Transport[] transports = createTransports( dhcpServerBean.getTransports() );
+        dhcpServer.setTransports( transports );
+        
+        return dhcpServer;
+    }
+
+
+    /**
+     * Instantiates a KdcServer based on the configuration present in the partition 
+     *
+     * @param kdcServerBean The KdcServerBean containing the KdcServer configuration
+     * @return Instance of KdcServer
+     * @throws LdapException
+     */
+    public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws LdapException
+    {
+        // Fist, do nothing if the KdcServer is disabled
+        if ( !kdcServerBean.isEnabled() )
+        {
+            return null;
+        }
+
+        KdcServer kdcServer = new KdcServer();
+        
+        kdcServer.setDirectoryService( directoryService );
+        kdcServer.setEnabled( true );
+        
+        kdcServer.setDirectoryService( directoryService );
+        
+        // The ID
+        kdcServer.setServiceId( kdcServerBean.getServerId() );
+        
+        // AllowableClockSkew
+        kdcServer.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
+        
+        // BodyChecksumVerified
+        kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
+        
+        // CatalogBased 
+        //kdcServer.setCatelogBased( kdcServerBean.is );
+        
+        // EmptyAddressesAllowed
+        kdcServer.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
+        
+        // EncryptionType
+        kdcServer.setEncryptionTypes( kdcServerBean.getKrbEncryptionTypes().toArray( new EncryptionType[]{} ) );
+        
+        // ForwardableAllowed
+        kdcServer.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
+        
+        // KdcPrincipal
+        kdcServer.setKdcPrincipal( kdcServerBean.getKrbKdcPrincipal().toString() );
+        
+        // MaximumRenewableLifetime
+        kdcServer.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
+        
+        // MaximumTicketLifetime
+        kdcServer.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
+        
+        // PaEncTimestampRequired
+        kdcServer.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
+        
+        // PostdatedAllowed
+        kdcServer.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
+        
+        // PrimaryRealm
+        kdcServer.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
+        
+        // ProxiableAllowed
+        kdcServer.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
+
+        // RenewableAllowed
+        kdcServer.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
+        
+        // searchBaseDn
+        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn().getName() );
+        
+        // The transports
+        Transport[] transports = createTransports( kdcServerBean.getTransports() );
+        kdcServer.setTransports( transports );
+        
+        return kdcServer;
+    }
+    
+    
+    /**
+     * Instantiates a HttpServer based on the configuration present in the partition 
+     *
+     * @param httpServerBean The HttpServerBean containing the HttpServer configuration
      * @return Instance of LdapServer
      * @throws LdapException
      */
-    private LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws LdapException
+    public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws LdapException
+    {
+        // Fist, do nothing if the HttpServer is disabled
+        if ( !httpServerBean.isEnabled() )
+        {
+            return null;
+        }
+
+        HttpServer httpServer = new HttpServer();
+        
+        // HttpConfFile
+        httpServer.setConfFile( httpServerBean.getHttpConfFile() );
+        
+        // The transports
+        //httpServer.setPort( httpServerBean.get )
+        
+        // The webApps
+        httpServer.setWebApps( createWebApps( httpServerBean.getHttpWebApps()) );
+        
+        return httpServer;
+    }
+    
+    
+    /**
+     * Instantiates a LdapServer based on the configuration present in the partition 
+     *
+     * @param ldapServerBean The LdapServerBean containing the LdapServer configuration
+     * @return Instance of LdapServer
+     * @throws LdapException
+     */
+    public static LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the LdapServer is disabled
         if ( !ldapServerBean.isEnabled() )
@@ -424,6 +593,7 @@ public class ConfigCreator
         LdapServer ldapServer = new LdapServer();
         
         ldapServer.setDirectoryService( directoryService );
+        ldapServer.setEnabled( true );
         
         // The ID
         ldapServer.setServiceId( ldapServerBean.getServerId() );
@@ -538,7 +708,7 @@ public class ConfigCreator
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    private JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean )
+    private static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean )
     {
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         
@@ -563,7 +733,7 @@ public class ConfigCreator
     /**
      * Create the list of Index from the configuration
      */
-    private Set<Index<?, Entry, Long>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans ) //throws Exception
+    private static Set<Index<?, Entry, Long>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans ) //throws Exception
     {
         Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
 
@@ -587,7 +757,7 @@ public class ConfigCreator
      * @throws LdapInvalidDnException 
      * @throws Exception If the instance cannot be created
      */
-    public JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
+    public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
     {
         JdbmPartition jdbmPartition = new JdbmPartition();
         
@@ -648,7 +818,7 @@ public class ConfigCreator
      * @return The instantiated Partition
      * @throws ConfigurationException If we cannot process the Partition
      */
-    public Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean ) throws ConfigurationException
+    public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean ) throws ConfigurationException
     {
         if ( partitionBean instanceof JdbmPartitionBean )
         {
@@ -667,7 +837,7 @@ public class ConfigCreator
      * @return A Map of all the instantiated partitions
      * @throws ConfigurationException If we cannot process some Partition
      */
-    public Map<String, Partition> createPartitions( DirectoryService directoryService, List<PartitionBean> partitionBeans ) throws ConfigurationException
+    public static Map<String, Partition> createPartitions( DirectoryService directoryService, List<PartitionBean> partitionBeans ) throws ConfigurationException
     {
         Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
         
@@ -692,7 +862,7 @@ public class ConfigCreator
      * @return An instance of DirectoryService
      * @throws Exception 
      */
-    private DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean ) throws Exception
+    private static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean ) throws Exception
     {
         DirectoryService directoryService = new DefaultDirectoryService();
 
@@ -782,27 +952,13 @@ public class ConfigCreator
      * @param directoryServiceId The DS id we want to instantiate
      * @return An instance of DS
      */
-    public DirectoryService createDirectoryService( ConfigBean configBean, String directoryServiceId ) throws LdapException, Exception
+    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, String directoryServiceId ) throws LdapException, Exception
     {
-        List<AdsBaseBean> baseBeans = configBean.getDirectoryServiceBeans();
-        
-        for ( AdsBaseBean baseBean : baseBeans )
+        if ( directoryServiceBean.getDirectoryServiceId().equalsIgnoreCase( directoryServiceId ) )
         {
-            if ( !( baseBean instanceof DirectoryServiceBean ) )
-            {
-                String message = "Cannot instanciate a DS if the bean does not contain DirectoryService beans";
-                LOG.error( message );
-                throw new ConfigurationException( message );
-            }
+            DirectoryService directoryService = createDirectoryService( directoryServiceBean );
             
-            DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)baseBean;
-            
-            if ( directoryServiceBean.getDirectoryServiceId().equalsIgnoreCase( directoryServiceId ) )
-            {
-                DirectoryService directoryService = createDirectoryService( directoryServiceBean );
-                
-                return directoryService;
-            }
+            return directoryService;
         }
         
         LOG.info( "Cannot instanciate the {} directory service, it was not found in the configuration", directoryServiceId );
