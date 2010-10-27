@@ -71,7 +71,7 @@ public class HttpServerBean extends ServerBean
     /**
      * @return the httpWebApps
      */
-    public List<HttpWebAppBean> getExtendedOps()
+    public List<HttpWebAppBean> getHttpWebApps()
     {
         return httpWebApps;
     }
@@ -80,7 +80,7 @@ public class HttpServerBean extends ServerBean
     /**
      * @param httpWebApps the httpWebApps to set
      */
-    public void setExtendedOps( List<HttpWebAppBean> httpWebApps )
+    public void setHttpWebApps( List<HttpWebAppBean> httpWebApps )
     {
         this.httpWebApps = httpWebApps;
     }
@@ -89,7 +89,7 @@ public class HttpServerBean extends ServerBean
     /**
      * @param httpWebApps the httpWebApps to add
      */
-    public void addExtendedOps( HttpWebAppBean... httpWebApps )
+    public void addHttpWebApps( HttpWebAppBean... httpWebApps )
     {
         for ( HttpWebAppBean httpWebApp : httpWebApps )
         {   
