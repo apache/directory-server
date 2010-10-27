@@ -51,6 +51,8 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.PpolicyConfigContainer;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -132,7 +134,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /** A reference to the DirectoryService instance */
     private DirectoryService directoryService;
 
-    private PasswordPolicyConfiguration policyConfig;
+    //private PasswordPolicyConfiguration policyConfig;
 
     /** A reference to the SchemaManager instance */
     private SchemaManager schemaManager;
@@ -156,6 +158,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private AttributeType AT_PWD_GRACE_USE_TIME;
 
+    
+    
     /**
      * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
      */
@@ -309,17 +313,20 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( addContext );
 
-        if ( policyConfig == null )
+        Entry entry = addContext.getEntry();
+        
+        
+        if ( !directoryService.isPwdPolicyEnabled() )
         {
             next.add( addContext );
             return;
         }
+        
+        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( entry );
 
         boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
 
         checkPwdReset( addContext );
-
-        Entry entry = addContext.getEntry();
 
         if ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null )
         {
@@ -335,7 +342,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             try
             {
-                check( username, userPassword.get() );
+                check( username, userPassword.get(), policyConfig );
             }
             catch ( PasswordPolicyException e )
             {
@@ -468,20 +475,24 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( modifyContext );
 
-        if ( policyConfig == null )
+        
+        if ( ! directoryService.isPwdPolicyEnabled() )
         {
             next.modify( modifyContext );
             invalidateAuthenticatorCaches( modifyContext.getDn() );
             return;
         }
 
+        // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
+        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
+        
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
         DN userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
 
         PwdModDetailsHolder pwdModDetails = null;
         if ( policyConfig.isPwdSafeModify() || pwdResetSet.contains( userDn ) || ( policyConfig.getPwdMinAge() > 0 ) )
         {
-            pwdModDetails = getPwdModDetails( modifyContext );
+            pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
         }
 
         if ( ( pwdModDetails != null ) && pwdModDetails.isPwdModPresent() )
@@ -532,7 +543,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             Entry entry = modifyContext.getEntry();
 
-            if ( isPwdTooYoung( entry ) )
+            if ( isPwdTooYoung( entry, policyConfig ) )
             {
                 if ( isPPolicyReqCtrlPresent )
                 {
@@ -558,7 +569,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 newPassword = pwdModDetails.getNewPwd();
                 try
                 {
-                    check( userName, newPassword );
+                    check( userName, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )
                 {
@@ -849,8 +860,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             try
             {
-                authenticator.setPwdPolicyConfig( policyConfig );
-
                 // perform the authentication
                 LdapPrincipal principal = authenticator.authenticate( bindContext );
 
@@ -902,6 +911,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         DN dn = bindContext.getDn();
         Entry userEntry = bindContext.getEntry();
+        
+        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( userEntry );
         
         // check if the user entry is null, it will be null
         // in cases of anonymous bind
@@ -1045,7 +1056,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( isPPolicyReqCtrlPresent )
             {
-                int expiryWarnTime = getPwdTimeBeforeExpiry( userEntry );
+                int expiryWarnTime = getPwdTimeBeforeExpiry( userEntry, policyConfig );
                 if ( expiryWarnTime > 0 )
                 {
                     pwdRespCtrl.setTimeBeforeExpiration( expiryWarnTime );
@@ -1069,22 +1080,30 @@ public class AuthenticationInterceptor extends BaseInterceptor
         super.unbind( next, unbindContext );
 
         // remove the DN from the password reset Set
-        if ( ( policyConfig != null ) && ( policyConfig.isPwdMustChange() ) )
+        // we do not perform a check to see if the reset flag in the associated ppolicy is enabled
+        // cause that requires fetching the ppolicy first, which requires a lookup for user entry
+        if ( !directoryService.isPwdPolicyEnabled() )
         {
             pwdResetSet.remove( unbindContext.getDn() );
         }
     }
 
 
+    /**
+     * a temporary hack to set the ppolicies in the DS
+     * @deprecated this method will be removed after the config branch gets merged in trunk
+     */
     public void setPwdPolicyConfig( PasswordPolicyConfiguration policyConfig )
     {
-        this.policyConfig = policyConfig;
+        PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
+        policyContainer.setDefaultPolicy( policyConfig );
+        directoryService.setPwdPolicies( policyContainer );
     }
 
 
     public void loadPwdPolicyStateAtributeTypes() throws LdapException
     {
-        if ( policyConfig != null )
+        if ( directoryService.isPwdPolicyEnabled() )
         {
             AT_PWD_RESET = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
             PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_RESET );
@@ -1112,7 +1131,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     // ---------- private methods ----------------
 
-    private void check( String username, byte[] password ) throws LdapException
+    private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         final int qualityVal = policyConfig.getPwdCheckQuality();
 
@@ -1139,8 +1158,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         String strPassword = StringTools.utf8ToString( password );
-        validatePasswordLength( strPassword );
-        checkUsernameSubstring( username, strPassword );
+        validatePasswordLength( strPassword, policyConfig );
+        checkUsernameSubstring( username, strPassword, policyConfig );
         //        checkPasswordChars( strPassword );
     }
 
@@ -1148,7 +1167,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * validates the length of the password
      */
-    private void validatePasswordLength( String password ) throws PasswordPolicyException
+    private void validatePasswordLength( String password, PasswordPolicyConfiguration policyConfig ) throws PasswordPolicyException
     {
         int maxLen = policyConfig.getPwdMaxLength();
         int minLen = policyConfig.getPwdMinLength();
@@ -1238,7 +1257,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * "first" or "last" as a substring anywhere in the password. All of these checks are
      * case-insensitive.
      */
-    private void checkUsernameSubstring( String username, String password ) throws PasswordPolicyException
+    private void checkUsernameSubstring( String username, String password, PasswordPolicyConfiguration policyConfig ) throws PasswordPolicyException
     {
         if ( username == null || username.trim().length() == 0 )
         {
@@ -1258,7 +1277,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private int getPwdTimeBeforeExpiry( Entry userEntry ) throws LdapException
+    private int getPwdTimeBeforeExpiry( Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         if ( policyConfig.getPwdMaxAge() == 0 )
         {
@@ -1299,7 +1318,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @return true if the password is young, false otherwise
      * @throws LdapException
      */
-    private boolean isPwdTooYoung( Entry userEntry ) throws LdapException
+    private boolean isPwdTooYoung( Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         if ( policyConfig.getPwdMinAge() == 0 )
         {
@@ -1340,7 +1359,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private PwdModDetailsHolder getPwdModDetails( ModifyOperationContext modifyContext ) throws LdapException
+    private PwdModDetailsHolder getPwdModDetails( ModifyOperationContext modifyContext, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         PwdModDetailsHolder pwdModDetails = new PwdModDetailsHolder();
 
@@ -1383,7 +1402,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void checkPwdReset( OperationContext opContext ) throws LdapException
     {
-        if ( policyConfig != null )
+        if ( ! directoryService.isPwdPolicyEnabled() )
         {
             CoreSession session = opContext.getSession();
 
@@ -1405,6 +1424,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
+    
     private class PwdModDetailsHolder
     {
         private boolean pwdModPresent = false;

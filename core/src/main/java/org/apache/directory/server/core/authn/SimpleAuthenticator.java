@@ -157,7 +157,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         LdapPrincipal principal = null;
 
         // use cache only if pwdpolicy is not enabled
-        if( getPwdPolicyConfig() == null )
+        if( !getDirectoryService().isPwdPolicyEnabled() )
         {
             synchronized ( credentialCache )
             {
@@ -186,7 +186,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
 
             // Now, update the local cache ONLY if pwdpolicy is not enabled.
-            if( getPwdPolicyConfig() == null )
+            if( !getDirectoryService().isPwdPolicyEnabled() )
             {
                 synchronized ( credentialCache )
                 {
