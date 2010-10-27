@@ -27,6 +27,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
 import org.apache.directory.shared.ldap.message.SearchResultDoneImpl;
@@ -40,10 +42,10 @@ import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalResponse>
+public class EntryToResponseCursor implements SearchCursor
 {
     /** the underlying cursor */
-    private Cursor<InternalResponse> wrapped;
+    private Cursor<ClonedServerEntry> wrapped;
 
     /** a reference to hold the SearchResultDone response */
     private SearchResultDone searchDoneResp;
@@ -53,20 +55,20 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
     private int messageId;
 
 
-    public EntryToResponseCursor( int messageId, Cursor<InternalResponse> wrapped )
+    public EntryToResponseCursor( int messageId, Cursor<ClonedServerEntry> wrapped )
     {
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
 
 
-    public Iterator<InternalResponse> iterator()
+    public Iterator<Response> iterator()
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public void after( InternalResponse resp ) throws Exception
+    public void after( Response resp ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -84,7 +86,7 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
     }
 
 
-    public void before( InternalResponse resp ) throws Exception
+    public void before( Response resp ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -114,13 +116,13 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
     }
 
 
-    public InternalResponse get() throws Exception
+    public Response get() throws Exception
     {
         ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
         SearchResultEntry se = new SearchResultEntryImpl( messageId );
         se.setEntry( entry );
 
-        return ( InternalResponse ) se;
+        return se;
     }
 
 
@@ -129,7 +131,7 @@ public class EntryToResponseCursor<InternalResponse> implements Cursor<InternalR
      *
      * @return the SearchResultDone message, null if the search operation fails for any reason
      */
-    public SearchResultDone getSearchDone()
+    public SearchResultDone getSearchResultDone()
     {
         return searchDoneResp;
     }

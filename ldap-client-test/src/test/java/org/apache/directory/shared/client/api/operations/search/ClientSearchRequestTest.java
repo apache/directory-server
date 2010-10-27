@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.SearchCursor;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -37,6 +36,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -67,12 +67,19 @@ import org.junit.runner.RunWith;
         "cn: user1",
 
         // alias to the above entry
-        "dn: cn=user1-alias,ou=users,ou=system", "objectClass: alias", "objectClass: top",
-        "objectClass: extensibleObject", "aliasedObjectName: cn=user1,ou=users,ou=system", "cn: user1-alias",
+        "dn: cn=user1-alias,ou=users,ou=system",
+        "objectClass: alias",
+        "objectClass: top",
+        "objectClass: extensibleObject",
+        "aliasedObjectName: cn=user1,ou=users,ou=system",
+        "cn: user1-alias",
 
         // Another user
-        "dn: cn=elecharny,ou=users,ou=system", "objectClass: person", "objectClass: top",
-        "sn:: RW1tYW51ZWwgTMOpY2hhcm55", "cn: elecharny"
+        "dn: cn=elecharny,ou=users,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "sn:: RW1tYW51ZWwgTMOpY2hhcm55",
+        "cn: elecharny"
 
     })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
@@ -112,7 +119,8 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearch() throws Exception
     {
-        SearchCursor cursor = ( SearchCursor ) connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL,
+        SearchCursor cursor = connection.search( "ou=system", "(objectclass=*)",
+            SearchScope.ONELEVEL,
             "*", "+" );
         int count = 0;
         while ( cursor.next() )
@@ -121,7 +129,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             count++;
         }
 
-        SearchResultDone done = cursor.getSearchDone();
+        SearchResultDone done = cursor.getSearchResultDone();
 
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
@@ -132,7 +140,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEquality() throws Exception
     {
-        Cursor<Response> cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
+        SearchCursor cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
             SearchScope.ONELEVEL, "*", "+" );
         int count = 0;
         while ( cursor.next() )

@@ -28,12 +28,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -74,7 +75,6 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
-import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
@@ -958,7 +958,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Cursor<Response> search( SearchRequest searchRequest ) throws LdapException
+    public SearchCursor search( SearchRequest searchRequest ) throws LdapException
     {
         if ( searchRequest == null )
         {
@@ -984,14 +984,14 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
         }
 
-        return new EntryToResponseCursor<Response>( -1, new EmptyCursor<Response>() );
+        return new EntryToResponseCursor( -1, new EmptyCursor<ClonedServerEntry>() );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public Cursor<Response> search( DN baseDn, String filter, SearchScope scope, String... attributes )
+    public SearchCursor search( DN baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
         if ( baseDn == null )
@@ -1016,7 +1016,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Cursor<Response> search( String baseDn, String filter, SearchScope scope, String... attributes )
+    public SearchCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
         return search( new DN( baseDn ), filter, scope, attributes );
