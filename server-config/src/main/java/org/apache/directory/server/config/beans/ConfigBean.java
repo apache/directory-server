@@ -63,6 +63,31 @@ public class ConfigBean
 
 
     /**
+     * @return the directoryServiceBean
+     */
+    public DirectoryServiceBean getDirectoryServiceBean( String directoryServiceId )
+    {
+        if ( ( directoryServiceBeans == null ) || ( directoryServiceBeans.size() == 0 ) )
+        {
+            return null;
+        }
+        
+        for ( AdsBaseBean bean : directoryServiceBeans )
+        {
+            if ( bean instanceof DirectoryServiceBean )
+            {
+                if ( ((DirectoryServiceBean)bean).getDirectoryServiceId().equals( directoryServiceId ) )
+                {
+                    return (DirectoryServiceBean)bean;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+
+    /**
      * @param directoryServiceBeans the directoryServiceBeans to set
      */
     public void setDirectoryServiceBeans( List<AdsBaseBean> directoryServiceBeans )

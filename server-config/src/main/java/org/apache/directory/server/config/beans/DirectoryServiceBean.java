@@ -79,7 +79,6 @@ public class DirectoryServiceBean extends AdsBaseBean
     /** The working directory */
     private String dsWorkingDirectory;
 
-
     /**
      * Create a new DnsServerBean instance
      */
@@ -368,6 +367,125 @@ public class DirectoryServiceBean extends AdsBaseBean
         return servers;
     }
 
+    
+    /**
+     * @return The LdapServerBean configuration
+     */
+    public LdapServerBean getLdapServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof LdapServerBean )
+            {
+                return (LdapServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The NtpServerBean configuration
+     */
+    public NtpServerBean getNtpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof NtpServerBean )
+            {
+                return (NtpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The DnsServerBean configuration
+     */
+    public DnsServerBean getDnsServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof DnsServerBean )
+            {
+                return (DnsServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The DhcpServerBean configuration
+     */
+    public DhcpServerBean getDhcpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof DhcpServerBean )
+            {
+                return (DhcpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The HttpServerBean configuration
+     */
+    public HttpServerBean getHttpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof HttpServerBean )
+            {
+                return (HttpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The KdcServerBean configuration
+     */
+    public KdcServerBean getKdcServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof KdcServerBean )
+            {
+                return (KdcServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The ChangePasswordServerBean configuration
+     */
+    public ChangePasswordServerBean getChangePasswordServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof ChangePasswordServerBean )
+            {
+                return (ChangePasswordServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
 
     /**
      * @param servers the servers to set
