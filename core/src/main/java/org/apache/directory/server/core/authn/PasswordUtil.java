@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -143,7 +144,14 @@ public class PasswordUtil
                 break;
                 
             case HASH_METHOD_CRYPT:
-                salt = null; // we calculate this salt in encryptPassword() method
+                salt = new byte[2];
+                SecureRandom sr = new SecureRandom();
+                int i1 = sr.nextInt( 64 );
+                int i2 = sr.nextInt( 64 );
+                
+                salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
+                salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
+                break;
                 
             default:
                 salt = null;
@@ -285,17 +293,6 @@ public class PasswordUtil
                 return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
 
             case HASH_METHOD_CRYPT:
-                if ( salt == null )
-                {
-                    salt = new byte[2];
-                    SecureRandom sr = new SecureRandom();
-                    int i1 = sr.nextInt( 64 );
-                    int i2 = sr.nextInt( 64 );
-
-                    salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
-                    salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
-                }
-
                 String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools
                     .utf8ToString( salt ) );
                 String crypted = saltWithCrypted.substring( 2 );
