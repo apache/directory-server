@@ -99,6 +99,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -260,6 +261,12 @@ public class DefaultDirectoryService implements DirectoryService
     /** The TriggerExecution AdministrativePoint cache */
     private DnNode<TriggerExecutionAdministrativePoint> triggerExecutionAPCache;
 
+    /** a container to hold all the ppolicies */
+    private PpolicyConfigContainer pwdPolicyContainer;
+    
+    /** the pwdPolicySubentry AT */
+    private AttributeType pwdPolicySubentryAT;
+    
     /**
      * The synchronizer thread. It flush data on disk periodically.
      */
@@ -1454,6 +1461,8 @@ public class DefaultDirectoryService implements DirectoryService
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffix().normalize( schemaManager );
 
+        pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
+        
         adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
@@ -1841,4 +1850,51 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return triggerExecutionAPCache;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
+    {
+        if ( pwdPolicyContainer == null )
+        {
+            return null;
+        }
+        
+        if ( pwdPolicyContainer.hasCustomConfigs() )
+        {
+            EntryAttribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
+            
+            if ( pwdPolicySubentry != null )
+            {
+                DN configDn = DNFactory.create( pwdPolicySubentry.getString(), schemaManager );
+                
+                return pwdPolicyContainer.getPolicyConfig( configDn );
+            }
+        }
+        
+        return pwdPolicyContainer.getDefaultPolicy();
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdPolicyEnabled()
+    {
+        return ( ( pwdPolicyContainer != null ) 
+                && ( ( pwdPolicyContainer.getDefaultPolicy() != null ) 
+                || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdPolicies( PpolicyConfigContainer policyContainer )
+    {
+        this.pwdPolicyContainer = policyContainer;
+    }
+
 }

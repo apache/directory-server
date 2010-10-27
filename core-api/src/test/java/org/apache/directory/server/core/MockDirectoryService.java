@@ -523,4 +523,32 @@ public class MockDirectoryService implements DirectoryService
     {
         return null;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdPolicyEnabled()
+    {
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdPolicies( PpolicyConfigContainer policyContainer )
+    {
+    }
+    
+    
 }
