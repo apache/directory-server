@@ -920,11 +920,11 @@ public class ConfigBuilder
             try
             {
                 // Replace '\n' to real LF
-                contextEntry.replaceAll( "\\n", "\n" );
+                String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
                 
                 LdifReader ldifReader = new LdifReader();
                 
-                List<LdifEntry> entries = ldifReader.parseLdif( contextEntry );
+                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
                 
                 if ( ( entries != null ) && ( entries.size() > 0 ) )
                 {
@@ -1063,7 +1063,11 @@ public class ConfigBuilder
 
         // testEntries
         String entryFilePath = directoryServiceBean.getDsTestEntries();
-        directoryService.setTestEntries( readTestEntries( entryFilePath ) );
+        
+        if ( entryFilePath != null )
+        {
+            directoryService.setTestEntries( readTestEntries( entryFilePath ) );
+        }
         
         // Enabled
         if ( !directoryServiceBean.isEnabled() )

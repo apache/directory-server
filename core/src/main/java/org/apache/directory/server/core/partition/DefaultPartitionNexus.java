@@ -38,9 +38,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DNFactory;
-import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.CursorList;
@@ -72,7 +70,6 @@ import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryC
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -294,6 +291,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             // TODO : we have to deal with this case !
         }
 
+        system.setSchemaManager( schemaManager );
         system.initialize();
 
         // Add root context entry for system partition
