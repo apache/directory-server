@@ -1,5 +1,5 @@
 version: 1
-dn: ads-Id=launchdiagnosticuihandler,ou=extendedoperatiohandlers,ads-serverId=ld
+dn: ads-Id=launchdiagnosticuihandler,ou=extendedoperationhandlers,ads-serverId=ld
  apServer,ou=servers,ou=config
 ads-id: launchdiagnosticuihandler
 ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.
