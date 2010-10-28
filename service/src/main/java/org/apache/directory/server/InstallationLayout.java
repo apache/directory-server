@@ -23,6 +23,8 @@ package org.apache.directory.server;
 
 import java.io.File;
 
+import org.apache.directory.server.core.AbstractLayout;
+
 
 /**
  * Convenience class to encapsulate paths to various directories and files within

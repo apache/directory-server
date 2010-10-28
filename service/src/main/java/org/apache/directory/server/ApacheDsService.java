@@ -41,6 +41,7 @@ import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -182,7 +183,7 @@ public class ApacheDsService
         startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
 
         // start the jetty http server
-        startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
+        //startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
     }
 
 
@@ -266,8 +267,7 @@ public class ApacheDsService
         
         long startTime = System.currentTimeMillis();
 
-        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, instanceLayout.getInstanceDirectory() );
-        directoryService.setSchemaManager( schemaManager );
+        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, instanceLayout, schemaManager );
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
         schemaPartition.setWrappedPartition( schemaLdifPartition );
@@ -275,7 +275,8 @@ public class ApacheDsService
 
         directoryService.addPartition( configPartition );
 
-        directoryService.setWorkingDirectory( instanceLayout.getInstanceDirectory() );
+        // Store the default directories
+        directoryService.setInstanceLayout( instanceLayout );
 
         directoryService.startup();
 
