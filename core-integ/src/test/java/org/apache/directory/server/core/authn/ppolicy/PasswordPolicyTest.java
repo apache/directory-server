@@ -34,9 +34,9 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -158,10 +158,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
-        byte[] password = PasswordUtil.encryptPassword( "12345".getBytes(), LdapSecurityConstants.HASH_METHOD_CRYPT,
-            null );
-        String strPwd = "{crypt}" + StringTools.utf8ToString( password );
-        password = strPwd.getBytes();
+        byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
         DN userDn = new DN( "cn=hashedpwd,ou=system" );
         Entry userEntry = new DefaultEntry( userDn );
@@ -191,8 +188,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), StringTools
-            .utf8ToString( password ) );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
