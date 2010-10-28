@@ -22,7 +22,7 @@ package org.apache.directory.server.config.beans;
 
 import java.util.Set;
 
-import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
 
 
 /**
