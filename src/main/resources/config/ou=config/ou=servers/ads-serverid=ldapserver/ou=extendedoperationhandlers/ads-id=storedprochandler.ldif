@@ -1,5 +1,5 @@
 version: 1
-dn: ads-extendedOpId=storedprochandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer
+dn: ads-extendedOpId=storedprochandler,ou=extendedoperationhandlers,ads-serverId=ldapServer
  ,ou=servers,ou=config
 ads-enabled: false
 ads-extendedOpId: storedprochandler
