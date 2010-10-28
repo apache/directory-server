@@ -252,11 +252,6 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public void setWorkingDirectory( File workingDirectory )
-    {
-    }
-
-
     public void validate()
     {
     }
@@ -522,5 +517,16 @@ public class MockDirectoryService implements DirectoryService
     public DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache()
     {
         return null;
+    }
+
+
+    public InstanceLayout getInstanceLayout()
+    {
+        return null;
+    }
+
+
+    public void setInstanceLayout( InstanceLayout instanceLayout )
+    {
     }
 }

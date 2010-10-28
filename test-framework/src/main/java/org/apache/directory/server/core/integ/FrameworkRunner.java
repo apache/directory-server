@@ -252,7 +252,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 LOG.debug( "Shuting down DS for {}", classDS.getInstanceId() );
                 classDS.shutdown();
-                FileUtils.deleteDirectory( classDS.getWorkingDirectory() );
+                FileUtils.deleteDirectory( classDS.getInstanceLayout().getInstanceDirectory() );
             }
             else
             {
@@ -407,7 +407,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 LOG.debug( "Shuting down DS for {}", methodDS.getInstanceId() );
                 methodDS.shutdown();
-                FileUtils.deleteDirectory( methodDS.getWorkingDirectory() );
+                FileUtils.deleteDirectory( methodDS.getInstanceLayout().getInstanceDirectory() );
             }
             else
             {

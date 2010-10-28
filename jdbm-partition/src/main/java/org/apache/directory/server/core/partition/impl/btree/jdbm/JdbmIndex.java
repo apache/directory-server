@@ -171,8 +171,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
             this.wkDirPath = wkDirPath;
         }
 
-        File file = new File( this.wkDirPath, attribute.getOid() );
-        String path = file.getAbsolutePath();
+        String path = this.wkDirPath.getAbsolutePath();
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
         this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
@@ -189,7 +188,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath(), attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( this.wkDirPath + "-" + attribute.getName() + ".txt" ) );
         // write the AttributeType description
         fw.write( attribute.toString() );
         fw.close();

@@ -95,7 +95,7 @@ public class DSAnnotationProcessor
                 // We use the partition factory to create partition and index instances.
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
                 partition = partitionFactory.createPartition( createPartition.name(), createPartition.suffix(),
-                    createPartition.cacheSize(), new File( service.getWorkingDirectory(), createPartition.name() ) );
+                    createPartition.cacheSize(), new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
 
                 CreateIndex[] indexes = createPartition.indexes();
                 for ( CreateIndex createIndex : indexes )
@@ -114,7 +114,7 @@ public class DSAnnotationProcessor
                 {
                     BTreePartition<?> btreePartition = ( BTreePartition<?> ) partition;
                     btreePartition.setCacheSize( createPartition.cacheSize() );
-                    btreePartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
+                    btreePartition.setPartitionDir( new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
 
                     // Process the indexes if any
                     CreateIndex[] indexes = createPartition.indexes();

@@ -39,7 +39,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     @Before
     public final void init()
     {
-        workingDir = service.getWorkingDirectory().getAbsolutePath();
+        workingDir = service.getInstanceLayout().getInstanceDirectory().getAbsolutePath();
     }
 
 

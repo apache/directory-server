@@ -55,6 +55,7 @@ import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -88,6 +89,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -841,22 +844,43 @@ public class ConfigBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean )
+    public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
     {
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         
         index.setAttributeId( jdbmIndexBean.getIndexAttributeId() );
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
         index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
-                
+        
+        String indexFileName = jdbmIndexBean.getIndexFileName();
+        
+        if ( indexFileName == null )
+        {
+            indexFileName = jdbmIndexBean.getIndexAttributeId();
+        }
+            
+        // Find the OID for this index
+        SchemaManager schemaManager = directoryService.getSchemaManager();
+        
+        try
+        {
+            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( indexFileName );
+            indexFileName = indexAT.getOid();
+        }
+        catch ( LdapException le )
+        {
+            // Not found ? We will use the index file name
+        }
+        
+        
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
-            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() + File.pathSeparator + jdbmIndexBean.getIndexFileName()) );
+            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() + File.pathSeparator + indexFileName ) );
         }
         else
         {
             // Set the Partition working dir as a default
-            index.setWkDirPath( new File( partition.getPartitionDir().getAbsolutePath() + File.pathSeparator + jdbmIndexBean.getIndexFileName() ) );
+            index.setWkDirPath( new File( partition.getPartitionDir(), indexFileName ) );
         }
                 
         return index;
@@ -866,7 +890,7 @@ public class ConfigBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, Entry, Long>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans ) //throws Exception
+    private static Set<Index<?, Entry, Long>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans, DirectoryService directoryService ) //throws Exception
     {
         Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
 
@@ -874,7 +898,7 @@ public class ConfigBuilder
         {
             if ( indexBean instanceof JdbmIndexBean )
             {
-                indexes.add( createJdbmIndex( partition, (JdbmIndexBean)indexBean ) );
+                indexes.add( createJdbmIndex( partition, (JdbmIndexBean)indexBean, directoryService ) );
             }
         }
 
@@ -897,7 +921,7 @@ public class ConfigBuilder
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
         jdbmPartition.setOptimizerEnabled( jdbmPartitionBean.isJdbmPartitionOptimizerEnabled() );
-        jdbmPartition.setPartitionDir( new File( directoryService.getWorkingDirectory() + File.separator + jdbmPartitionBean.getPartitionId() ) );
+        jdbmPartition.setPartitionDir( new File( directoryService.getInstanceLayout().getPartitionsDirectory(), jdbmPartitionBean.getPartitionId() ) );
         
         try
         {
@@ -911,7 +935,7 @@ public class ConfigBuilder
         }
         
         jdbmPartition.setSyncOnWrite( jdbmPartitionBean.isPartitionSyncOnWrite() );
-        jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes() ) );
+        jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes(), directoryService ) );
         
         String contextEntry = jdbmPartitionBean.getContextEntry();
         
@@ -996,9 +1020,12 @@ public class ConfigBuilder
      * @return An instance of DirectoryService
      * @throws Exception 
      */
-    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, File baseDirectory ) throws Exception
+    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, InstanceLayout instanceLayout, SchemaManager schemaManager ) throws Exception
     {
         DirectoryService directoryService = new DefaultDirectoryService();
+        
+        // The schemaManager
+        directoryService.setSchemaManager( schemaManager );
 
         // MUST attributes
         // DirectoryService ID
@@ -1008,7 +1035,7 @@ public class ConfigBuilder
         directoryService.setReplicaId( directoryServiceBean.getDsReplicaId() );
 
         // WorkingDirectory
-        directoryService.setWorkingDirectory( baseDirectory );
+        directoryService.setInstanceLayout( instanceLayout );
 
         // Interceptors
         List<Interceptor> interceptors = createInterceptors( directoryServiceBean.getInterceptors() );

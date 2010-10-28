@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.CoreSession;
@@ -180,7 +179,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( config.isStoreCookieInFile() )
         {
-            File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
+            File cookieDir = new File( directoryservice.getInstanceLayout().getRunDirectory(), "cookies" );
             cookieDir.mkdir();
 
             cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );

@@ -97,7 +97,7 @@ public class FrameworkSuite extends Suite
             {
                 LOG.debug( "Shuting down DS for {}", directoryService.getInstanceId() );
                 directoryService.shutdown();
-                FileUtils.deleteDirectory( directoryService.getWorkingDirectory() );
+                FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
             }
             catch ( Exception e )
             {

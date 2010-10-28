@@ -232,11 +232,11 @@ ads-partitioncachesize: 100
 ads-partitionsynconwrite: true
 ads-partitionid: system
 ads-enabled: true
-ads-contextEntry: dc=example,dc=com\n
+ads-contextEntry: dn: ou=system\n
  objectClass: top\n
- objectClass: domain\n
- dc: example\n
- description: The example context entry
+ objectClass: organizationalUnit\n
+ ou: system\n
+ description: The System context entry
 
 dn: ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ou: indexes

@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.naming.NamingException;
+
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
@@ -77,12 +79,18 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
             setAttributeId( attribute.getName() );
         }
 
+        File file = null;
+        
         if ( this.wkDirPath == null )
         {
             this.wkDirPath = wkDirPath;
+            file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
         }
-
-        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
+        else
+        {
+            file = this.wkDirPath;
+        }
+        
         String path = file.getAbsolutePath();
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
@@ -100,7 +108,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( path + "-" + attribute.getName() + ".txt" ) );
         // write the AttributeType description
         fw.write( attribute.toString() );
         fw.close();

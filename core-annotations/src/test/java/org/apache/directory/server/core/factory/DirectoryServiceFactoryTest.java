@@ -50,6 +50,6 @@ public class DirectoryServiceFactoryTest
         assertTrue( service.isStarted() );
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 }

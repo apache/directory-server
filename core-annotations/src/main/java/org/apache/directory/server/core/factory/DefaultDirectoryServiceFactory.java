@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
@@ -120,16 +121,17 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     /**
      * Build the working directory
      */
-    private void buildWorkingDirectory( String name )
+    private void buildInstanceDirectory( String name )
     {
-        String workingDirectory = System.getProperty( "workingDirectory" );
+        String instanceDirectory = System.getProperty( "workingDirectory" );
 
-        if ( workingDirectory == null )
+        if ( instanceDirectory == null )
         {
-            workingDirectory = System.getProperty( "java.io.tmpdir" ) + "/server-work-" + name;
+            instanceDirectory = System.getProperty( "java.io.tmpdir" ) + "/server-work-" + name;
         }
 
-        directoryService.setWorkingDirectory( new File( workingDirectory ) );
+        InstanceLayout instanceLayout = new InstanceLayout( instanceDirectory );
+        directoryService.setInstanceLayout( instanceLayout );
     }
 
 
@@ -142,7 +144,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = directoryService.getWorkingDirectory().getPath();
+        String workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory().getPath();
         ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
 
         // Extract the schema on disk (a brand new one) and load the registries
@@ -185,7 +187,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // Inject the System Partition
         Partition systemPartition = partitionFactory.createPartition( "system", ServerDNConstants.SYSTEM_DN, 500,
-            new File( directoryService.getWorkingDirectory(), "system" ) );
+            new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ) );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
 
         partitionFactory.addIndex( systemPartition, SchemaConstants.OBJECT_CLASS_AT, 100 );
@@ -202,11 +204,11 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     private void build( String name ) throws Exception
     {
         directoryService.setInstanceId( name );
-        buildWorkingDirectory( name );
+        buildInstanceDirectory( name );
 
         // Erase the working directory to be sure that we don't have some
         // remaining data from a previous run
-        String workingDirectoryPath = directoryService.getWorkingDirectory().getPath();
+        String workingDirectoryPath = directoryService.getInstanceLayout().getInstanceDirectory().getPath();
         File workingDirectory = new File( workingDirectoryPath );
 
         FileUtils.deleteDirectory( workingDirectory );

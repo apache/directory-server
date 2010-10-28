@@ -65,7 +65,7 @@ public class PartitionSchemaLoaderTest
             workingDirectory.mkdirs();
         }
 
-        directoryService.setWorkingDirectory( workingDirectory );
+        directoryService.getInstanceLayout().setPartitionsDir( workingDirectory );
 
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
