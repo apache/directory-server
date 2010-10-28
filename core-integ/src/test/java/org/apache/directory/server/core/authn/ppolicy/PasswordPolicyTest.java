@@ -32,9 +32,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.PpolicyConfigContainer;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.PasswordUtil;
@@ -61,7 +63,6 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,10 +104,13 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         policyConfig.setPwdGraceAuthNLimit( 5 );
         policyConfig.setPwdCheckQuality( 2 ); // DO NOT allow the password if its quality can't be checked
 
+        PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
+        policyContainer.setDefaultPolicy( policyConfig );
+        service.setPwdPolicies( policyContainer );
+        
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) service
-            .getInterceptor( AuthenticationInterceptor.class.getName() );
-        authInterceptor.setPwdPolicyConfig( policyConfig );
-
+        .getInterceptor( AuthenticationInterceptor.class.getName() );
+        
         authInterceptor.loadPwdPolicyStateAtributeTypes();
     }
 
@@ -122,7 +126,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     public void testAddUserWithClearTextPwd() throws Exception
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
-
+        
         DN userDn = new DN( "cn=user,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
             "sn: user_sn", "userPassword: 1234" );
