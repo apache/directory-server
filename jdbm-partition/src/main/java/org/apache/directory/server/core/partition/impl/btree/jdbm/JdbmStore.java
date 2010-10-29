@@ -302,7 +302,11 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         else if ( index instanceof JdbmIndex<?, ?> )
         {
             jdbmIndex = ( JdbmIndex<?, E> ) index;
-            jdbmIndex.setWkDirPath( partitionDir );
+            
+            if ( jdbmIndex.getWkDirPath() == null )
+            {
+                jdbmIndex.setWkDirPath( partitionDir );
+            }
         }
         else
         {
