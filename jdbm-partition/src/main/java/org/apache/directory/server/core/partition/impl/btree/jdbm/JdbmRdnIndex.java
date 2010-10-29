@@ -68,9 +68,12 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+        
+        //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
+
         keyCache = new SynchronizedLRUMap( cacheSize );
         attribute = attributeType;
 
@@ -78,20 +81,18 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         {
             setAttributeId( attribute.getName() );
         }
-
-        File file = null;
         
         if ( this.wkDirPath == null )
         {
-            this.wkDirPath = wkDirPath;
-            file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
-        }
-        else
-        {
-            file = this.wkDirPath;
+            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
+            
+            e.printStackTrace();
+            throw e;
         }
         
-        String path = file.getAbsolutePath();
+        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
+        
+        //System.out.println( "IDX Created index " + path );
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
         this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );

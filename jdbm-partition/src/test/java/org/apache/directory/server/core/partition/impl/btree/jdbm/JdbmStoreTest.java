@@ -152,8 +152,14 @@ public class JdbmStoreTest
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
         store.setSyncOnWrite( false );
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
+
+        JdbmIndex ouIndex = new JdbmIndex( SchemaConstants.OU_AT_OID );
+        ouIndex.setWkDirPath( wkdir );
+        store.addIndex( ouIndex );
+        
+        JdbmIndex uidIndex = new JdbmIndex( SchemaConstants.UID_AT_OID );
+        uidIndex.setWkDirPath( wkdir );
+        store.addIndex( uidIndex );
 
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
@@ -231,7 +237,8 @@ public class JdbmStoreTest
         store.setSyncOnWrite( true ); // for code coverage
 
         assertNull( store.getAliasIndex() );
-        store.addIndex( new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        Index<String, Attributes, Long> index = new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        store.addIndex( index );
         assertNotNull( store.getAliasIndex() );
 
         assertEquals( JdbmStore.DEFAULT_CACHE_SIZE, store.getCacheSize() );

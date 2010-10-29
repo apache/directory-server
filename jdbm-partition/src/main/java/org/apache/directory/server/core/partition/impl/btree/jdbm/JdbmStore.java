@@ -302,6 +302,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         else if ( index instanceof JdbmIndex<?, ?> )
         {
             jdbmIndex = ( JdbmIndex<?, E> ) index;
+            jdbmIndex.setWkDirPath( partitionDir );
         }
         else
         {
@@ -313,8 +314,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             jdbmIndex.setWkDirPath( index.getWkDirPath() );
         }
 
-        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ),
-            partitionDir );
+        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
         return jdbmIndex;
     }

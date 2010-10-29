@@ -124,6 +124,7 @@ public class JdbmRdnIndexTest
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".lg" );
+            
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -136,7 +137,9 @@ public class JdbmRdnIndexTest
 
     void initIndex() throws Exception
     {
-        initIndex( new JdbmRdnIndex<Long>() );
+        JdbmRdnIndex<Long> index = new JdbmRdnIndex<Long>();
+        index.setWkDirPath( dbFileDir );
+        initIndex( index );
     }
 
 
@@ -147,7 +150,7 @@ public class JdbmRdnIndexTest
             jdbmIdx = new JdbmRdnIndex<Long>();
         }
 
-        jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ), dbFileDir );
+        jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
         this.idx = jdbmIdx;
     }
 
@@ -185,26 +188,30 @@ public class JdbmRdnIndexTest
     @Test
     public void testWkDirPath() throws Exception
     {
+        File wkdir = new File( dbFileDir, "foo" );
+
         // uninitialized index
         JdbmRdnIndex<Long> jdbmRdnIndex = new JdbmRdnIndex<Long>();
-        jdbmRdnIndex.setWkDirPath( new File( dbFileDir, "foo" ) );
+        jdbmRdnIndex.setWkDirPath( wkdir );
         assertEquals( "foo", jdbmRdnIndex.getWkDirPath().getName() );
 
         // initialized index
         initIndex();
+        
         try
         {
-            idx.setWkDirPath( new File( dbFileDir, "foo" ) );
+            idx.setWkDirPath( wkdir );
             fail( "Should not be able to set wkDirPath after initialization." );
         }
         catch ( Exception e )
         {
         }
+        
         assertEquals( dbFileDir, idx.getWkDirPath() );
 
         destroyIndex();
+        
         jdbmRdnIndex = new JdbmRdnIndex<Long>();
-        File wkdir = new File( dbFileDir, "foo" );
         wkdir.mkdirs();
         jdbmRdnIndex.setWkDirPath( wkdir );
         initIndex( jdbmRdnIndex );
