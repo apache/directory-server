@@ -509,6 +509,32 @@ public class DefaultDirectoryService implements DirectoryService
     public void setInstanceLayout( InstanceLayout instanceLayout )
     {
         this.instanceLayout = instanceLayout;
+        
+        // Create the directories if they are missing
+        if ( !instanceLayout.getInstanceDirectory().exists() )
+        {
+            instanceLayout.getInstanceDirectory().mkdirs();
+        }
+
+        if ( !instanceLayout.getLogDirectory().exists() )
+        {
+            instanceLayout.getLogDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getRunDirectory().exists() )
+        {
+            instanceLayout.getRunDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getPartitionsDirectory().exists() )
+        {
+            instanceLayout.getPartitionsDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getConfDirectory().exists() )
+        {
+            instanceLayout.getConfDirectory().mkdirs();
+        }
     }
 
 

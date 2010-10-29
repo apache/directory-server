@@ -22,7 +22,6 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
@@ -209,9 +208,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // Erase the working directory to be sure that we don't have some
         // remaining data from a previous run
         String workingDirectoryPath = directoryService.getInstanceLayout().getInstanceDirectory().getPath();
-        File workingDirectory = new File( workingDirectoryPath );
-
-        FileUtils.deleteDirectory( workingDirectory );
 
         // Init the service now
         initSchema();
