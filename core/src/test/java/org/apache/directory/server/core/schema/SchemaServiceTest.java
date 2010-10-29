@@ -102,7 +102,8 @@ public class SchemaServiceTest
         String[] expectedNames = new String[]
             { "sn", "generationQualifier", "ou", "c", "o", "l", "c-st", "givenName", "title", "cn", "initials",
                 "dmdName", "c-ou", "c-o", "apacheExistence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
-                "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId" };
+                "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId", "ads-pwdId", 
+                "ads-compositeElement", "ads-replConsumerId", "ads-journalId", "ads-changeLogId", "ads-replProviderId" };
 
         for ( String name : expectedNames )
         {
