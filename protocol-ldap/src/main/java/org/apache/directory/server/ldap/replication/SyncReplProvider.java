@@ -145,7 +145,7 @@ public class SyncReplProvider implements ReplicationProvider
             this.ldapServer = server;
             this.dirService = server.getDirectoryService();
 
-            File workDir = dirService.getWorkingDirectory();
+            File workDir = dirService.getInstanceLayout().getLogDirectory();
             syncReplData = new File( workDir, "syncrepl-data" );
             if ( !syncReplData.exists() )
             {
@@ -247,10 +247,6 @@ public class SyncReplProvider implements ReplicationProvider
                     }
                 }
             }
-        }
-        catch( LdapException e )
-        {
-            throw e;
         }
         catch ( Exception e )
         {

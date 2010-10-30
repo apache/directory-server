@@ -82,9 +82,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     protected DN suffix;
     private File partitionDir;
 
-    /** The rootDSE context */
-    protected Entry contextEntry;
-    
     /** The set of indexed attributes */
     private Set<Index<? extends Object, Entry, ID>> indexedAttributes;
 

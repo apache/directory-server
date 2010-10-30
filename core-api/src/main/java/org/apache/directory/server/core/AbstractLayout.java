@@ -1,4 +1,4 @@
-package org.apache.directory.server;
+package org.apache.directory.server.core;
 
 
 /*

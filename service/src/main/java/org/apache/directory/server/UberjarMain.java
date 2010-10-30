@@ -20,6 +20,7 @@
 package org.apache.directory.server;
 
 
+import org.apache.directory.server.core.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +59,14 @@ public class UberjarMain
             }
             catch ( Exception e )
             {
+                e.printStackTrace();
                 LOG.error( "Failed to start the service.", e );
                 System.exit( 1 );
             }
         }
         else
         {
+            // TODO default to the current directory.
             throw new IllegalArgumentException(
                 "Program must be launched with 1 arguement, the path to the instance directory." );
         }

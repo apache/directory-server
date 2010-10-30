@@ -80,10 +80,12 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         for ( Index<?, Entry, Long> index : getIndexedAttributes() )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
+            
             if ( !index.getAttributeId().equals( oid ) )
             {
                 index.setAttributeId( oid );
             }
+            
             store.addIndex( index );
         }
 

@@ -124,6 +124,7 @@ public class JdbmIndexTest
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".lg" );
+            
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -136,7 +137,9 @@ public class JdbmIndexTest
 
     void initIndex() throws Exception
     {
-        initIndex( new JdbmIndex<String, Entry>() );
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        index.setWkDirPath( dbFileDir );
+        initIndex( index );
     }
 
 
@@ -146,8 +149,10 @@ public class JdbmIndexTest
         {
             jdbmIdx = new JdbmIndex<String, Entry>();
         }
+        
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
-        jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT ), dbFileDir );
+        jdbmIdx.init( schemaManager, attributeType );
         this.idx = jdbmIdx;
     }
 
@@ -181,7 +186,9 @@ public class JdbmIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        initIndex( new JdbmIndex<String, Entry>( "foo" ) );
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( "foo" );
+        index.setWkDirPath( dbFileDir );
+        initIndex( index );
         assertEquals( "foo", idx.getAttributeId() );
     }
 
@@ -211,26 +218,29 @@ public class JdbmIndexTest
     @Test
     public void testWkDirPath() throws Exception
     {
+        File wkdir = new File( dbFileDir, "foo" );
+
         // uninitialized index
         JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>();
-        jdbmIndex.setWkDirPath( new File( dbFileDir, "foo" ) );
+        jdbmIndex.setWkDirPath( wkdir );
         assertEquals( "foo", jdbmIndex.getWkDirPath().getName() );
 
         // initialized index
         initIndex();
+        
         try
         {
-            idx.setWkDirPath( new File( dbFileDir, "foo" ) );
+            idx.setWkDirPath( wkdir );
             fail( "Should not be able to set wkDirPath after initialization." );
         }
         catch ( Exception e )
         {
         }
+        
         assertEquals( dbFileDir, idx.getWkDirPath() );
 
         destroyIndex();
         jdbmIndex = new JdbmIndex<String, Entry>();
-        File wkdir = new File( dbFileDir, "foo" );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir );
         initIndex( jdbmIndex );
@@ -565,8 +575,8 @@ public class JdbmIndexTest
         try
         {
             AttributeType noEqMatchAttribute = new AttributeType( "1.1" );
-
-            jdbmIndex.init( schemaManager, noEqMatchAttribute, dbFileDir );
+            jdbmIndex.setWkDirPath( dbFileDir );
+            jdbmIndex.init( schemaManager, noEqMatchAttribute );
             fail( "should not get here" );
         }
         catch ( IOException e )
@@ -583,8 +593,8 @@ public class JdbmIndexTest
     public void testSingleValuedAttribute() throws Exception
     {
         JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
-        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ),
-            dbFileDir );
+        jdbmIndex.setWkDirPath( dbFileDir );
+        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         jdbmIndex.close();
     }
 }

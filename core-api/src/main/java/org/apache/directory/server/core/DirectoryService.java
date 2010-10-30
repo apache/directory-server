@@ -20,7 +20,6 @@
 package org.apache.directory.server.core;
 
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -339,21 +338,18 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Returns working directory (counterpart of <tt>var/lib</tt>) where partitions are
-     * stored by default.
+     * Returns the instance layout which contains the path for various directories
      *
-     * @return the directory where partition's are stored.
+     * @return the InstanceLayout for this directory service.
      */
-    File getWorkingDirectory();
+    InstanceLayout getInstanceLayout();
 
-
+    
     /**
-     * Sets working directory (counterpart of <tt>var/lib</tt>) where partitions are stored
-     * by default.
-     *
-     * @param workingDirectory the directory where the server's partitions are stored by default.
+     * Sets the InstanceLayout used by the DirectoryService to store the files
+     * @param instanceLayout The InstanceLayout to set
      */
-    void setWorkingDirectory( File workingDirectory );
+    void setInstanceLayout( InstanceLayout instanceLayout );
 
 
     /**

@@ -29,6 +29,7 @@ import java.io.File;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -52,6 +53,7 @@ public class PartitionSchemaLoaderTest
 {
     private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
+    private static InstanceLayout instanceLayout;
 
 
     @BeforeClass public static void setUp() throws Exception
@@ -59,13 +61,15 @@ public class PartitionSchemaLoaderTest
         // setup working directory
         directoryService = new DefaultDirectoryService();
         File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
+        instanceLayout = new InstanceLayout( workingDirectory );
+        directoryService.setInstanceLayout( instanceLayout );
 
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
 
-        directoryService.setWorkingDirectory( workingDirectory );
+        directoryService.getInstanceLayout().setPartitionsDir( workingDirectory );
 
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition

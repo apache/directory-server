@@ -696,7 +696,7 @@ public class LdapServer extends DirectoryBackedService
     // ------------------------------------------------------------------------
 
     /**
-     * Registeres the specified {@link ExtendedOperationHandler} to this
+     * Registers the specified {@link ExtendedOperationHandler} to this
      * protocol provider to provide a specific LDAP extended operation.
      *
      * @param eoh an extended operation handler

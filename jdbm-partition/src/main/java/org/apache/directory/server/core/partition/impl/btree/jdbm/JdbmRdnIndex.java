@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.naming.NamingException;
+
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
@@ -66,9 +68,12 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+        
+        //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
+
         keyCache = new SynchronizedLRUMap( cacheSize );
         attribute = attributeType;
 
@@ -76,14 +81,18 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         {
             setAttributeId( attribute.getName() );
         }
-
+        
         if ( this.wkDirPath == null )
         {
-            this.wkDirPath = wkDirPath;
+            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
+            
+            e.printStackTrace();
+            throw e;
         }
-
-        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
-        String path = file.getAbsolutePath();
+        
+        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
+        
+        //System.out.println( "IDX Created index " + path );
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
         this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
@@ -100,7 +109,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( path + "-" + attribute.getName() + ".txt" ) );
         // write the AttributeType description
         fw.write( attribute.toString() );
         fw.close();

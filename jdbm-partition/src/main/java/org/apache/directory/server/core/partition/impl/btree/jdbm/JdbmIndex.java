@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 
 /** 
- * A Jdbm based index implementation.
+ * A Jdbm based index implementation. It creates an Index for a give AttributeType.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -140,13 +140,18 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ----------------------------------------------------------------------
-
+    /**
+     * Creates a JdbmIndex instance.
+     */
     public JdbmIndex()
     {
         initialized = false;
     }
 
 
+    /**
+     * Creates a JdbmIndex instance for a give AttributeId
+     */
     public JdbmIndex( String attributeId )
     {
         initialized = false;
@@ -154,9 +159,19 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
+    /**
+     * Initialize the index for an Attribute, with a specific working directory (may be null).
+     * 
+     * @param schemaManager The schemaManager to use to get back the Attribute
+     * @param attributeType The attributeType this index is created for
+     * @param wkDirPath The bas directory where the index files will be created
+     * @throws IOException If the initialization failed
+     */
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+        
+        //.out.println( "IDX Initializing index for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
 
         keyCache = new SynchronizedLRUMap( cacheSize );
         attribute = attributeType;
@@ -168,11 +183,15 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
         if ( this.wkDirPath == null )
         {
-            this.wkDirPath = wkDirPath;
+            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
+            
+            e.printStackTrace();
+            throw e;
         }
 
-        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
-        String path = file.getAbsolutePath();
+        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
+        //.out.println( "IDX Created index " + path );
+
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
         this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
@@ -189,7 +208,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( path + "-" + attribute.getName() + ".txt" ) );
         // write the AttributeType description
         fw.write( attribute.toString() );
         fw.close();
@@ -363,6 +382,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     public void setWkDirPath( File wkDirPath )
     {
+        //.out.println( "IDX Defining a WorkingDir : " + wkDirPath );
         protect( "wkDirPath" );
         this.wkDirPath = wkDirPath;
     }

@@ -25,6 +25,7 @@ import javax.naming.InvalidNameException;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -44,6 +45,9 @@ public abstract class AbstractPartition implements Partition
 
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
+    
+    /** The partition ContextEntry */
+    protected Entry contextEntry;
 
     protected AbstractPartition()
     {
@@ -177,5 +181,23 @@ public abstract class AbstractPartition implements Partition
     public SchemaManager getSchemaManager()
     {
         return schemaManager;
+    }
+    
+    
+    /**
+     * @return the contextEntry
+     */
+    public Entry getContextEntry()
+    {
+        return contextEntry;
+    }
+
+
+    /**
+     * @param contextEntry the contextEntry to set
+     */
+    public void setContextEntry( Entry contextEntry )
+    {
+        this.contextEntry = contextEntry;
     }
 }

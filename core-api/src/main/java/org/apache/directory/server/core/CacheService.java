@@ -65,7 +65,7 @@ public class CacheService
             return;
         }
 
-        File configFile = new File( dirService.getWorkingDirectory(), DIRECTORY_CACHESERVICE_XML );
+        File configFile = new File( dirService.getInstanceLayout().getConfDirectory(), DIRECTORY_CACHESERVICE_XML );
 
         if ( !configFile.exists() )
         {

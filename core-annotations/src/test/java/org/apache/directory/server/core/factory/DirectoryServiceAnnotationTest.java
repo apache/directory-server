@@ -55,7 +55,7 @@ public class DirectoryServiceAnnotationTest
         assertEquals( "classDS", service.getInstanceId() );
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 
@@ -69,7 +69,7 @@ public class DirectoryServiceAnnotationTest
         assertEquals( "methodDS", service.getInstanceId() );
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
     
     
@@ -126,7 +126,7 @@ public class DirectoryServiceAnnotationTest
         }
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
     
     
@@ -172,7 +172,7 @@ public class DirectoryServiceAnnotationTest
         }
 
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 }

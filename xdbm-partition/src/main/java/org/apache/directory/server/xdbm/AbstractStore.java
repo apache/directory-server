@@ -303,52 +303,72 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) ;
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getOneLevelIndex() == null )
         {
-            addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getSubLevelIndex() == null )
         {
-            addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getRdnIndex() == null )
         {
-            addIndex( new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getAliasIndex() == null )
         {
-            addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getOneAliasIndex() == null )
         {
-            addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
-            addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getObjectClassIndex() == null )
         {
-            addIndex( new GenericIndex<String, E, ID>( SchemaConstants.OBJECT_CLASS_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.OBJECT_CLASS_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getEntryUuidIndex() == null )
         {
-            addIndex( new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_UUID_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_UUID_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
-            addIndex( new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_CSN_AT_OID ) );
+            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_CSN_AT_OID );
+            index.setWkDirPath( partitionDir );
+            addIndex( index );
         }
 
         // convert and initialize system indices
@@ -887,6 +907,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             parentDn = entryDn.getParent();
             parentId = getEntryId( parentDn );
+            
+            if ( parentId == null )
+            {
+                parentId = getEntryId( parentDn );
+            }
+            
             key = new ParentIdAndRdn<ID>( parentId, entryDn.getRdn() );
         }
 

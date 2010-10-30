@@ -70,7 +70,7 @@ public class DefaultJournalStore implements JournalStore
     {
         if ( workingDirectory == null )
         {
-            workingDirectory = service.getWorkingDirectory();
+            workingDirectory = service.getInstanceLayout().getLogDirectory();
         }
 
         /** Load or create the journal file */

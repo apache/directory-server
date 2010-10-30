@@ -159,7 +159,7 @@ public class HttpServer
 
             // add web apps from the webapps directory inside directory service's working directory
             // the exploded or archived wars
-            File webAppDir = new File( dirService.getWorkingDirectory(), "webapps" );
+            File webAppDir = new File( dirService.getInstanceLayout().getInstanceDirectory(), "webapps" );
             
             FilenameFilter webAppFilter = new FilenameFilter()
             {

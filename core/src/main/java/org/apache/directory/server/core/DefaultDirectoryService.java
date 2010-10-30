@@ -198,8 +198,8 @@ public class DefaultDirectoryService implements DirectoryService
     /** The instance Id */
     private String instanceId;
 
-    /** The server working directory */
-    private File workingDirectory = new File( "server-work" );
+    /** The server directory layout*/
+    private InstanceLayout instanceLayout;
 
     /**
      * A flag used to shutdown the VM when stopping the server. Useful
@@ -502,26 +502,46 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Returns working directory (counterpart of <tt>var/lib</tt>) where partitions are
-     * stored by default.
-     *
-     * @return the directory where partition's are stored.
+     * {@inheritDoc}
      */
-    public File getWorkingDirectory()
+    public InstanceLayout getInstanceLayout()
     {
-        return workingDirectory;
+        return instanceLayout;
     }
 
 
     /**
-     * Sets working directory (counterpart of <tt>var/lib</tt>) where partitions are stored
-     * by default.
-     *
-     * @param workingDirectory the directory where the server's partitions are stored by default.
+     * {@inheritDoc}
      */
-    public void setWorkingDirectory( File workingDirectory )
+    public void setInstanceLayout( InstanceLayout instanceLayout )
     {
-        this.workingDirectory = workingDirectory;
+        this.instanceLayout = instanceLayout;
+        
+        // Create the directories if they are missing
+        if ( !instanceLayout.getInstanceDirectory().exists() )
+        {
+            instanceLayout.getInstanceDirectory().mkdirs();
+        }
+
+        if ( !instanceLayout.getLogDirectory().exists() )
+        {
+            instanceLayout.getLogDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getRunDirectory().exists() )
+        {
+            instanceLayout.getRunDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getPartitionsDirectory().exists() )
+        {
+            instanceLayout.getPartitionsDirectory().mkdirs();
+        }
+        
+        if ( !instanceLayout.getConfDirectory().exists() )
+        {
+            instanceLayout.getConfDirectory().mkdirs();
+        }
     }
 
 
@@ -1777,7 +1797,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         try
         {
-            lockFile = new RandomAccessFile( workingDirectory.getAbsolutePath() + File.separator + LOCK_FILE_NAME, "rw" );
+            lockFile = new RandomAccessFile( new File( instanceLayout.getInstanceDirectory(), LOCK_FILE_NAME ), "rw" );
             try
             {
                 fileLock = lockFile.getChannel().tryLock( 0, 1, false );
@@ -1800,7 +1820,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         if ( ( fileLock == null ) || ( !fileLock.isValid() ) )
         {
-            String message = "the working directory " + workingDirectory + " has been locked by another directory service.";
+            String message = "the working directory " + instanceLayout.getRunDirectory() + " has been locked by another directory service.";
             LOG.error( message );
             throw new RuntimeException( message );
         }

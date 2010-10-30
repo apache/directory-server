@@ -91,7 +91,7 @@ public class DirectoryServiceAnnotationTest
         assertEquals( "classDS", service.getInstanceId() );
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 
@@ -105,7 +105,7 @@ public class DirectoryServiceAnnotationTest
         assertEquals( "methodDS", service.getInstanceId() );
         
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
     
     
@@ -163,7 +163,7 @@ public class DirectoryServiceAnnotationTest
         assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
 
         service.shutdown();
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
     
     
@@ -261,7 +261,7 @@ public class DirectoryServiceAnnotationTest
         ldapServer.stop();
         service.shutdown();
         
-        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 }

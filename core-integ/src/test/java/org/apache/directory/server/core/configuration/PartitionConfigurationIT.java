@@ -55,7 +55,7 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
     {
         PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
         Partition partition = partitionFactory.createPartition( "removable", "ou=removable", 100, service
-            .getWorkingDirectory() );
+            .getInstanceLayout().getPartitionsDirectory() );
 
         // Test AddContextPartition
         service.addPartition( partition );
