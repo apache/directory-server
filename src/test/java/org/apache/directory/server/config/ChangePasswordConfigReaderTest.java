@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class ChangePasswordConfigReaderTest
 {
-    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+    private static File workDir;
 
     private static SchemaManager schemaManager;
 
@@ -62,7 +63,7 @@ public class ChangePasswordConfigReaderTest
     @BeforeClass
     public static void readConfig() throws Exception
     {
-        File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+        workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work-" + ChangePasswordConfigReaderTest.class.getSimpleName() );
         FileUtils.deleteDirectory( workDir );
         workDir.mkdir();
 
@@ -94,7 +95,14 @@ public class ChangePasswordConfigReaderTest
         }
     }
 
+    
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        FileUtils.deleteDirectory( workDir );
+    }
 
+    
     @Test
     public void testChangePasswordServer() throws Exception
     {
