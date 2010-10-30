@@ -122,12 +122,6 @@ public class AbstractStoreTest
     {
         destroyStore();
 
-        // setup the working directory for the store
-        wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
-        wkdir.delete();
-        wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        wkdir.mkdirs();
-
         // initialize the store
         store = new AvlStore<Entry>();
         store.setId( "example" );
