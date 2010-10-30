@@ -448,4 +448,26 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertEquals( 2, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
     }
+    
+    
+    /**
+     * DIRSERVER-1548
+     */
+    @Test
+    public void testSimpleBindInvalidFwdByValidOnSameCon() throws Exception
+    {
+        connection.setTimeOut( Integer.MAX_VALUE );
+        BindResponse response = connection.bind( "uid=admin,ou=system", "wrongpwd" );
+        LdapResult ldapResult = response.getLdapResult();
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
+        assertEquals( 1, response.getMessageId() );
+        assertFalse( connection.isAuthenticated() );
+        
+        response = connection.bind( "uid=admin,ou=system", "secret" );
+        ldapResult = response.getLdapResult();
+        assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
+        assertEquals( 2, response.getMessageId() );
+        assertTrue( connection.isAuthenticated() );
+    }
+
 }

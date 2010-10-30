@@ -153,6 +153,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         try
         {
             connection = new LdapNetworkConnection( tlsConfig );
+            connection.connect();
             connection.startTls();
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
 
@@ -171,6 +172,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testGetSupportedControlsWithStartTLS() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
+        connection.connect();
         connection.startTls();
         
         DN dn = new DN( "uid=admin,ou=system" );
