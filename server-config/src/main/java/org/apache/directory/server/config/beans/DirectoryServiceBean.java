@@ -23,7 +23,6 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A class used to store the DirectoryService configuration.
  *

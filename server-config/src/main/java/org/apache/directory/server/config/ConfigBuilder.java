@@ -56,8 +56,7 @@ import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
-import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authn.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -180,7 +179,6 @@ public class ConfigBuilder
         passwordPolicy.setPwdAllowUserChange( passwordPolicyBean.isPwdAllowUserChange() );
         passwordPolicy.setPwdAttribute( passwordPolicyBean.getPwdAttribute() );
         passwordPolicy.setPwdCheckQuality( passwordPolicyBean.getPwdCheckQuality() );
-        passwordPolicy.setPwdEnabled( passwordPolicyBean.isEnabled() );
         passwordPolicy.setPwdExpireWarning( passwordPolicyBean.getPwdExpireWarning() );
         passwordPolicy.setPwdFailureCountInterval( passwordPolicyBean.getPwdFailureCountInterval() );
         passwordPolicy.setPwdGraceAuthNLimit( passwordPolicyBean.getPwdGraceAuthNLimit() );
@@ -1041,15 +1039,6 @@ public class ConfigBuilder
         List<Interceptor> interceptors = createInterceptors( directoryServiceBean.getInterceptors() );
         directoryService.setInterceptors( interceptors );
         
-        // PasswordPolicy
-        PasswordPolicyConfiguration passwordPolicy = createPwdPolicyConfig( directoryServiceBean.getPasswordPolicy() );
-        
-        if ( passwordPolicy != null )
-        {
-            AuthenticationInterceptor authnInterceptor = ( AuthenticationInterceptor ) directoryService.getInterceptor( AuthenticationInterceptor.class.getName() );
-            authnInterceptor.setPwdPolicyConfig( passwordPolicy );
-        }
-
         // Partitions
         Map<String, Partition> partitions = createPartitions( directoryService, directoryServiceBean.getPartitions() );
 
