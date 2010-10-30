@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.List;
+
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -26,7 +28,7 @@ import org.apache.directory.shared.ldap.name.DN;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class PartitionBean extends BaseAdsBean
+public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
     private String partitionId;
@@ -37,6 +39,12 @@ public abstract class PartitionBean extends BaseAdsBean
     /** Tells if the data should be flushed to disk immediately */
     private boolean partitionSyncOnWrite;
 
+    /** The list of declared indexes */
+    private List<IndexBean> indexes;
+    
+    /** The partition's ContextEntry */
+    private String contextEntry;
+
     /**
      * Create a new PartitionBean instance
      */
@@ -44,6 +52,7 @@ public abstract class PartitionBean extends BaseAdsBean
     {
     }
 
+    
     /**
      * @return the partitionId
      */
@@ -52,6 +61,7 @@ public abstract class PartitionBean extends BaseAdsBean
         return partitionId;
     }
 
+    
     /**
      * @param partitionId the partitionId to set
      */
@@ -60,6 +70,7 @@ public abstract class PartitionBean extends BaseAdsBean
         this.partitionId = partitionId;
     }
 
+    
     /**
      * @return the partitionSuffix
      */
@@ -68,6 +79,7 @@ public abstract class PartitionBean extends BaseAdsBean
         return partitionSuffix;
     }
 
+    
     /**
      * @param partitionSuffix the partitionSuffix to set
      */
@@ -76,6 +88,7 @@ public abstract class PartitionBean extends BaseAdsBean
         this.partitionSuffix = partitionSuffix;
     }
 
+    
     /**
      * @return the partitionSyncOnWrite
      */
@@ -84,11 +97,84 @@ public abstract class PartitionBean extends BaseAdsBean
         return partitionSyncOnWrite;
     }
 
+    
     /**
      * @param partitionSyncOnWrite the partitionSyncOnWrite to set
      */
     public void setPartitionSyncOnWrite( boolean partitionSyncOnWrite )
     {
         this.partitionSyncOnWrite = partitionSyncOnWrite;
+    }
+    
+    
+    /**
+     * @return the indexes
+     */
+    public List<IndexBean> getIndexes()
+    {
+        return indexes;
+    }
+
+
+    /**
+     * @param partitions the indexes to set
+     */
+    public void setIndexes( List<IndexBean> indexes )
+    {
+        this.indexes = indexes;
+    }
+
+
+    /**
+     * @param contextEntry the contextEntry to set
+     */
+    public void setContextEntry( String contextEntry )
+    {
+        this.contextEntry = contextEntry;
+    }
+
+
+    /**
+     * @return the contextEntry
+     */
+    public String getContextEntry()
+    {
+        return contextEntry;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  partition ID : " ).append( partitionId ).append( '\n' );
+        sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix.getName() ).append( '\n' );
+        sb.append( toString( tabs, "  sync on write", partitionSyncOnWrite ) );
+        sb.append( toString( tabs, "  contextEntry", contextEntry ) );
+        
+        sb.append( tabs ).append( "  indexes : \n" );
+        
+        if ( indexes != null )
+        {
+            for ( IndexBean index : indexes )
+            {
+                sb.append( index.toString( tabs + "    " ) );
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

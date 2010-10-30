@@ -1,8 +1,8 @@
 version: 1
 dn: ads-serverId=kerberos,ou=servers,ou=config
 objectclass: ads-server
-objectclass: ads-kerberosServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-kdcServer
+objectclass: ads-dsBasedServer
 objectclass: top
 ads-serverid: kerberos
 ads-enabled: false

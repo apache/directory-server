@@ -30,11 +30,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.i18n.I18n;
@@ -264,9 +262,14 @@ public class LdifConfigExtractor
      * @param overwrite flag to indicate to overwrite the config file if already present in the given config directory
      * @return complete path of the config file on disk
      */
-    public static String extractSingleFileConfig( File configDir, boolean overwrite )
+    public static String extractSingleFileConfig( File configDir, String file, boolean overwrite )
     {
-        File configFile = new File( configDir, LDIF_CONFIG_FILE );
+        if ( file == null )
+        {
+            file = LDIF_CONFIG_FILE;
+        }
+        
+        File configFile = new File( configDir, file );
 
         if ( !configDir.exists() )
         {
@@ -285,7 +288,7 @@ public class LdifConfigExtractor
         try
         {
             
-            URL configUrl = LdifConfigExtractor.class.getClassLoader().getResource( LDIF_CONFIG_FILE );
+            URL configUrl = LdifConfigExtractor.class.getClassLoader().getResource( file );
 
             LOG.debug( "URL of the config ldif file {}", configUrl );
 

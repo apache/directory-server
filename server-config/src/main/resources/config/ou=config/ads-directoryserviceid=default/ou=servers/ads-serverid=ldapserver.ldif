@@ -2,7 +2,7 @@ version: 1
 dn: ads-serverId=ldapServer,ou=servers,ou=config
 objectclass: ads-server
 objectclass: ads-ldapServer
-objectclass: ads-catalogBasedServer
+objectclass: ads-dsBasedServer
 objectclass: top
 ads-serverid: ldapServer
 ads-ldapServerConfidentialityRequired: false

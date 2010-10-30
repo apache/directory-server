@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DhcpServerBean extends CatalogBasedServerBean
+public class DhcpServerBean extends DSBasedServerBean
 {
     /**
      * Create a new DhcpServerBean instance
@@ -36,5 +36,28 @@ public class DhcpServerBean extends CatalogBasedServerBean
         
         // Enabled by default
         setEnabled( true );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "DhcpServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

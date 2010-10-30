@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndexBean<K, E> extends AdsIndexBean
+public class JdbmIndexBean<K, E> extends IndexBean
 {
     /** The default cache size */
     private static final int DEFAULT_INDEX_CACHE_SIZE = 100;
@@ -132,5 +132,32 @@ public class JdbmIndexBean<K, E> extends AdsIndexBean
     public void setIndexWorkingDir( String indexWorkingDir )
     {
         this.indexWorkingDir = indexWorkingDir;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "JdbmIndexBean :\n" );
+        sb.append( super.toString( tabs ) );
+        sb.append( toString( tabs, "  index file name", indexFileName ) );
+        sb.append( toString( tabs, "  index working directory", indexWorkingDir ) );
+        sb.append( toString( tabs, "  index cache size", indexCacheSize ) );
+        sb.append( toString( tabs, "  index num dup limit", indexNumDupLimit ) );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

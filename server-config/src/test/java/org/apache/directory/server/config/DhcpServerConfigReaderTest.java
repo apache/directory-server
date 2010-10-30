@@ -30,10 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
-import org.apache.directory.server.config.beans.DirectoryServiceBean;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.config.beans.DhcpServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -54,16 +52,12 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class ConfigPartitionReaderTest
+public class DhcpServerConfigReaderTest
 {
 
-    private static DirectoryService dirService;
-
-    private static LdapServer server;
+    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
     private static SchemaManager schemaManager;
-
-    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
 
     @BeforeClass
@@ -99,16 +93,14 @@ public class ConfigPartitionReaderTest
         {
             throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
-
     }
 
 
     @Test
-    public void testReadFullConfig() throws Exception
+    public void testDhcpServer() throws Exception
     {
-        File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
-        
-        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
+        File configDir = new File( workDir, "dhcpServer" ); // could be any directory, cause the config is now in a single file
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dhcpServer.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
@@ -116,13 +108,12 @@ public class ConfigPartitionReaderTest
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
-        
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
         
-        ConfigBean configBean = cpReader.readConfig( "ou=config" );
-        
+        ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC.getValue() );
+
         assertNotNull( configBean );
-        DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );
-        assertNotNull( directoryServiceBean );
+        DhcpServerBean dhcpServerBean = (DhcpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        assertNotNull( dhcpServerBean );
     }
 }

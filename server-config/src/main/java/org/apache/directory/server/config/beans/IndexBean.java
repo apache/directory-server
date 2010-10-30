@@ -24,7 +24,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AdsIndexBean extends BaseAdsBean
+public abstract class IndexBean extends AdsBaseBean
 {
     /** The index unique identifier */
     private String indexAttributeId;
@@ -32,7 +32,7 @@ public abstract class AdsIndexBean extends BaseAdsBean
     /**
      * Create a new IndexBean instance
      */
-    protected AdsIndexBean()
+    protected IndexBean()
     {
     }
 
@@ -51,5 +51,28 @@ public abstract class AdsIndexBean extends BaseAdsBean
     public void setIndexAttributeId( String indexAttributeId )
     {
         this.indexAttributeId = indexAttributeId;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  indexed attribute ID : " ).append( indexAttributeId ).append( '\n' );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

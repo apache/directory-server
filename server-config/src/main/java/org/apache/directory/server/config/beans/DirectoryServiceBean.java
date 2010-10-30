@@ -20,17 +20,16 @@
 package org.apache.directory.server.config.beans;
 
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
-
-
 /**
  * A class used to store the DirectoryService configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DirectoryServiceBean extends BaseAdsBean
+public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
     private String directoryServiceId;
@@ -60,29 +59,22 @@ public class DirectoryServiceBean extends BaseAdsBean
     private String dsTestEntries;
 
     /** The ChangeLog component */
-    private ChangeLogBean dsChangeLog;
+    private ChangeLogBean changeLog;
 
     /** The journal component */
-    private JournalBean dsJournal;
+    private JournalBean journal;
 
-    /** The replication component */
-    //private ReplicationBean dsReplication;
+    /** The servers */
+    private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
-    private Set<InterceptorBean> interceptors;
+    private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
-    private Set<PartitionBean> partitions;
-
-    /** The reference to the replication provider component */
-    //private ReplicationProviderBean replicationProvider;
-
-    /** The reference to the replication consumer component */
-    //private ReplicationConsumerBean replicationConsumer;
+    private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
-    private PasswordPolicyConfiguration passwordPolicy;
-
+    private PasswordPolicyBean passwordPolicy;
 
     /**
      * Create a new DnsServerBean instance
@@ -141,7 +133,7 @@ public class DirectoryServiceBean extends BaseAdsBean
      *
      * @return the interceptors in the server.
      */
-    public Set<InterceptorBean> getInterceptors()
+    public List<InterceptorBean> getInterceptors()
     {
         return interceptors;
     }
@@ -152,9 +144,23 @@ public class DirectoryServiceBean extends BaseAdsBean
      *
      * @param interceptors the interceptors to be used in the server.
      */
-    public void setInterceptors( Set<InterceptorBean> interceptors )
+    public void setInterceptors( List<InterceptorBean> interceptors )
     {
         this.interceptors = interceptors;
+    }
+
+
+    /**
+     * Adds the interceptors in the server.
+     *
+     * @param interceptors the interceptors to be added in the server.
+     */
+    public void addInterceptors( InterceptorBean... interceptors )
+    {
+        for ( InterceptorBean interceptor : interceptors )
+        {
+            this.interceptors.add( interceptor );
+        }
     }
 
 
@@ -285,63 +291,45 @@ public class DirectoryServiceBean extends BaseAdsBean
 
 
     /**
-     * @return the dsChangeLog
+     * @return the ChangeLog
      */
-    public ChangeLogBean getDsChangeLog()
+    public ChangeLogBean getChangeLog()
     {
-        return dsChangeLog;
+        return changeLog;
     }
 
 
     /**
-     * @param dsChangeLog the dsChangeLog to set
+     * @param cChangeLog the ChangeLog to set
      */
-    public void setDsChangeLog( ChangeLogBean dsChangeLog )
+    public void setChangeLog( ChangeLogBean changeLog )
     {
-        this.dsChangeLog = dsChangeLog;
+        this.changeLog = changeLog;
     }
 
 
     /**
-     * @return the dsJournal
+     * @return the journal
      */
-    public JournalBean getDsJournal()
+    public JournalBean getJournal()
     {
-        return dsJournal;
+        return journal;
     }
 
 
     /**
-     * @param dsJournal the dsJournal to set
+     * @param journal the journal to set
      */
-    public void setDsJournal( JournalBean dsJournal )
+    public void setJournal( JournalBean journal )
     {
-        this.dsJournal = dsJournal;
-    }
-
-
-    /**
-     * @return the dsReplication
-     *
-    public ReplicationBean getDsReplication()
-    {
-        return dsReplication;
-    }
-
-
-    /**
-     * @param dsReplication the dsReplication to set
-     *
-    public void setDsReplication( ReplicationBean dsReplication )
-    {
-        this.dsReplication = dsReplication;
+        this.journal = journal;
     }
 
 
     /**
      * @return the partitions
      */
-    public Set<PartitionBean> getPartitions()
+    public List<PartitionBean> getPartitions()
     {
         return partitions;
     }
@@ -350,52 +338,177 @@ public class DirectoryServiceBean extends BaseAdsBean
     /**
      * @param partitions the partitions to set
      */
-    public void setPartitions( Set<PartitionBean> partitions )
+    public void setPartitions( List<PartitionBean> partitions )
     {
         this.partitions = partitions;
     }
 
 
     /**
-     * @return the replicationProvider
-     *
-    public ReplicationProviderBean getReplicationProvider()
+     * @param partitions the partitions to add
+     */
+    public void addPartitions( PartitionBean... partitions )
     {
-        return replicationProvider;
+        for ( PartitionBean partition : partitions )
+        {
+            this.partitions.add( partition );
+        }
     }
 
 
     /**
-     * @param replicationProvider the replicationProvider to set
-     *
-    public void setReplicationProvider( ReplicationProviderBean replicationProvider )
+     * @return the servers
+     */
+    public List<ServerBean> getServers()
     {
-        this.replicationProvider = replicationProvider;
+        return servers;
+    }
+
+    
+    /**
+     * @return The LdapServerBean configuration
+     */
+    public LdapServerBean getLdapServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof LdapServerBean )
+            {
+                return (LdapServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The NtpServerBean configuration
+     */
+    public NtpServerBean getNtpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof NtpServerBean )
+            {
+                return (NtpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The DnsServerBean configuration
+     */
+    public DnsServerBean getDnsServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof DnsServerBean )
+            {
+                return (DnsServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The DhcpServerBean configuration
+     */
+    public DhcpServerBean getDhcpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof DhcpServerBean )
+            {
+                return (DhcpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The HttpServerBean configuration
+     */
+    public HttpServerBean getHttpServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof HttpServerBean )
+            {
+                return (HttpServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The KdcServerBean configuration
+     */
+    public KdcServerBean getKdcServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof KdcServerBean )
+            {
+                return (KdcServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * @return The ChangePasswordServerBean configuration
+     */
+    public ChangePasswordServerBean getChangePasswordServerBean()
+    {
+        for ( ServerBean server : servers )
+        {
+            if ( server instanceof ChangePasswordServerBean )
+            {
+                return (ChangePasswordServerBean)server;
+            }
+        }
+        
+        return null;
+    }
+    
+
+    /**
+     * @param servers the servers to set
+     */
+    public void setServers( List<ServerBean> servers )
+    {
+        this.servers = servers;
     }
 
 
     /**
-     * @return the replicationConsumer
-     *
-    public ReplicationConsumerBean getReplicationConsumer()
+     * @param servers the servers to add
+     */
+    public void addServers( ServerBean... servers )
     {
-        return replicationConsumer;
+        for ( ServerBean server : servers )
+        {
+            this.servers.add( server );
+        }
     }
 
-
-    /**
-     * @param replicationConsumer the replicationConsumer to set
-     *
-    public void setReplicationConsumer( ReplicationConsumerBean replicationConsumer )
-    {
-        this.replicationConsumer = replicationConsumer;
-    }
-
-
+    
     /**
      * @return the passwordPolicy
      */
-    public PasswordPolicyConfiguration getPasswordPolicy()
+    public PasswordPolicyBean getPasswordPolicy()
     {
         return passwordPolicy;
     }
@@ -404,8 +517,80 @@ public class DirectoryServiceBean extends BaseAdsBean
     /**
      * @param passwordPolicy the passwordPolicy to set
      */
-    public void setPasswordPolicy( PasswordPolicyConfiguration passwordPolicy )
+    public void setPasswordPolicy( PasswordPolicyBean passwordPolicy )
     {
         this.passwordPolicy = passwordPolicy;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "DirectoryServiceBean : \n" );
+        sb.append( super.toString( "  " ) );
+        
+        // Dump the must attributes
+        sb.append( "  directoryService ID : " ).append( directoryServiceId ).append( '\n' );
+        sb.append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
+        sb.append( toString( "  ", "accessControl enabled", dsAccessControlEnabled ) );
+        sb.append( toString( "  ", "allow anonymous access", dsAllowAnonymousAccess ) );
+        sb.append( toString( "  ", "denormalized attributes enabled", dsDenormalizeOpAttrsEnabled ) );
+        sb.append( toString( "  ", "password hidden", dsPasswordHidden ) );
+        sb.append( "  max PDU size : " ).append( dsMaxPDUSize ).append( '\n' );
+        sb.append( "  sync period millisecond : " ).append( dsSyncPeriodMillis ).append( '\n' );
+        sb.append( toString( "  ", "test entries", dsTestEntries ) );
+        
+        sb.append( "  interceptors : \n" );
+        
+        if ( ( interceptors != null ) && ( interceptors.size() > 0 ) )
+        {
+            for ( InterceptorBean interceptor : interceptors )
+            {
+                sb.append( interceptor.toString( "    " ) );
+            }
+        }
+        
+        sb.append( "  partitions : \n" );
+        
+        if ( ( partitions != null ) && ( partitions.size() > 0 ) )
+        {
+            for ( PartitionBean partition : partitions )
+            {
+                sb.append( partition.toString( "    " ) );
+            }
+        }
+
+        if ( journal != null )
+        {
+            sb.append( journal.toString( "  " ) );
+        }
+        
+        if ( changeLog != null )
+        {
+            sb.append( changeLog.toString( "  " ) );
+        }
+        
+        if ( passwordPolicy != null )
+        {
+            sb.append( passwordPolicy.toString( "  " ) );
+        }
+        
+        sb.append( "  servers : \n" );
+        
+        if ( ( servers != null ) && ( servers.size() > 0 ) )
+        {
+            for ( ServerBean server : servers )
+            {
+                sb.append( server.toString( "    " ) );
+            }
+        }
+
+        sb.append( '\n' );
+
+        return sb.toString();
     }
 }

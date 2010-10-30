@@ -20,12 +20,13 @@
 package org.apache.directory.server.config.beans;
 
 
+
 /**
  * A class used to store the Interceptors configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class InterceptorBean implements Comparable<InterceptorBean>
+public class InterceptorBean extends AdsBaseBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
     private String interceptorId;
@@ -117,5 +118,29 @@ public class InterceptorBean implements Comparable<InterceptorBean>
     public void setFqcn( String interceptorClassName )
     {
         this.interceptorClassName = interceptorClassName;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "interceptor[" ).append( interceptorOrder ).append( "] : " ).append( '\n' );
+        sb.append( tabs ).append( "  interceptor id : " ).append( interceptorId ).append( '\n' );
+        sb.append( tabs ).append( "  class name : " ).append(  interceptorClassName ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

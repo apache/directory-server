@@ -24,8 +24,11 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JournalBean extends BaseAdsBean
+public class JournalBean extends AdsBaseBean
 {
+    /** The journal unique Id */
+    private String journalId;
+    
     /** The journal file name */
     private String journalFileName;
     
@@ -45,6 +48,24 @@ public class JournalBean extends BaseAdsBean
         
         // Not enabled by default
         setEnabled( false );
+    }
+
+
+    /**
+     * @return the journalId
+     */
+    public String getJournalId()
+    {
+        return journalId;
+    }
+
+
+    /**
+     * @param journalId the journalId to set
+     */
+    public void setJournalId( String journalId )
+    {
+        this.journalId = journalId;
     }
     
     
@@ -99,5 +120,31 @@ public class JournalBean extends BaseAdsBean
     public void setJournalRotation( int journalRotation ) 
     {
         this.journalRotation = journalRotation;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "Journal :\n" );
+        sb.append( tabs ).append( "  journal id : " ).append( journalId ).append( '\n' );
+        sb.append( tabs ).append( "  journal file name : " ).append( journalFileName ).append( '\n' );
+        sb.append( toString( tabs, "  journal working dir", journalWorkingDir ) );
+        sb.append( toString( tabs, "  journal rotation", journalRotation ) );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

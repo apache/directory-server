@@ -19,22 +19,24 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
+
 
 /**
  * A class used to store the HttpServer configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HttpServerBean extends AdsServerBean
+public class HttpServerBean extends ServerBean
 {
-    /** The server identifier */
-    private String serverId;
-    
-    /** The port */
-    private int systemPort;
-    
     /** The configuration file */
     private String httpConfFile;
+    
+    /** The list of supported web apps */
+    private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
 
     /**
      * Create a new HttpServerBean instance
@@ -45,42 +47,6 @@ public class HttpServerBean extends AdsServerBean
         
         // Enabled by default
         setEnabled( true );
-    }
-
-    
-    /**
-     * @return the serverId
-     */
-    public String getServerId()
-    {
-        return serverId;
-    }
-
-    
-    /**
-     * @param serverId the serverId to set
-     */
-    public void setServerId( String serverId )
-    {
-        this.serverId = serverId;
-    }
-
-    
-    /**
-     * @return the systemPort
-     */
-    public int getSystemPort()
-    {
-        return systemPort;
-    }
-
-    
-    /**
-     * @param systemPort the systemPort to set
-     */
-    public void setSystemPort( int systemPort )
-    {
-        this.systemPort = systemPort;
     }
 
     
@@ -99,5 +65,69 @@ public class HttpServerBean extends AdsServerBean
     public void setHttpConfFile( String httpConfFile )
     {
         this.httpConfFile = httpConfFile;
+    }
+
+    
+    /**
+     * @return the httpWebApps
+     */
+    public List<HttpWebAppBean> getHttpWebApps()
+    {
+        return httpWebApps;
+    }
+
+    
+    /**
+     * @param httpWebApps the httpWebApps to set
+     */
+    public void setHttpWebApps( List<HttpWebAppBean> httpWebApps )
+    {
+        this.httpWebApps = httpWebApps;
+    }
+
+    
+    /**
+     * @param httpWebApps the httpWebApps to add
+     */
+    public void addHttpWebApps( HttpWebAppBean... httpWebApps )
+    {
+        for ( HttpWebAppBean httpWebApp : httpWebApps )
+        {   
+            this.httpWebApps.add( httpWebApp );
+        }
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "HttpServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append(  toString( tabs, "  http configuration file", httpConfFile ) );
+        
+        if ( ( httpWebApps != null ) && ( httpWebApps.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  web applications :\n" );
+            
+            for ( HttpWebAppBean httpWebApp : httpWebApps )
+            {
+                sb.append( httpWebApp.toString( tabs + "    " ) );
+            }
+        }
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
