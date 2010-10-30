@@ -33,6 +33,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * values of the index.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param <K> The Index key type
+ * @param <O> The indexed value type
+ * @param <ID> The unisuqe identifier type
  */
 public interface Index<K, O, ID>
 {

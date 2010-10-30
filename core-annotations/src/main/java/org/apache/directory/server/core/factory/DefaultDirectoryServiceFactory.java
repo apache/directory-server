@@ -20,6 +20,7 @@ package org.apache.directory.server.core.factory;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -149,7 +150,15 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy();
+        
+        try
+        {
+            extractor.extractOrCopy();
+        }
+        catch ( IOException ioe )
+        {
+            // The schema has already been extracted, bypass
+        }
 
         schemaPartition.setWrappedPartition( ldifPartition );
 

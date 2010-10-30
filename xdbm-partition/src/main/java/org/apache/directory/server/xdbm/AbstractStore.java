@@ -303,70 +303,70 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) ;
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) ;
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getOneLevelIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            Index<ID, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getSubLevelIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            Index<ID, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getRdnIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            Index<ParentIdAndRdn<ID>, E, ID> index = new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getAliasIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getOneAliasIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            Index<ID, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            Index<ID, E, ID> index = new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getObjectClassIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.OBJECT_CLASS_AT_OID );
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.OBJECT_CLASS_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getEntryUuidIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_UUID_AT_OID );
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_UUID_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
-            Index<?, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_CSN_AT_OID );
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_CSN_AT_OID );
             index.setWkDirPath( partitionDir );
             addIndex( index );
         }

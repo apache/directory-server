@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -164,15 +162,12 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      * 
      * @param schemaManager The schemaManager to use to get back the Attribute
      * @param attributeType The attributeType this index is created for
-     * @param wkDirPath The bas directory where the index files will be created
      * @throws IOException If the initialization failed
      */
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
         
-        //.out.println( "IDX Initializing index for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
-
         keyCache = new SynchronizedLRUMap( cacheSize );
         attribute = attributeType;
 
@@ -190,7 +185,6 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         }
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-        //.out.println( "IDX Created index " + path );
 
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
@@ -223,7 +217,6 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
-     * @throws NamingException 
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {
