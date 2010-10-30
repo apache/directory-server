@@ -76,7 +76,7 @@
 		name. -->
 		
 	<defaultCache maxElementsInMemory="0" eternal="false"
-		overflowToDisk="true" timeToIdleSeconds="1200" timeToLiveSeconds="1200">
+		overflowToDisk="false" timeToIdleSeconds="1200" timeToLiveSeconds="1200">
 	</defaultCache>
 
 	<!-- Sample cache named sampleCache1 This cache contains a maximum in memory 
@@ -88,8 +88,8 @@
 	<cache name="groupCache" 
 	       maxElementsInMemory="10000"
 		   maxElementsOnDisk="1000"
-		   eternal="true" 
-		   overflowToDisk="true"
+		   eternal="false" 
+		   overflowToDisk="false"
 		   diskSpoolBufferSizeMB="20"
 		   timeToIdleSeconds="300"
 		   timeToLiveSeconds="600"
@@ -100,7 +100,7 @@
 	       maxElementsInMemory="10000"
 		   maxElementsOnDisk="1000"
 		   eternal="false" 
-		   overflowToDisk="true"
+		   overflowToDisk="false"
 		   diskSpoolBufferSizeMB="20"
 		   timeToIdleSeconds="300"
 		   timeToLiveSeconds="600"
