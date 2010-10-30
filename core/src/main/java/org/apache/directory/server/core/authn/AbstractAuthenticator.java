@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -60,8 +61,6 @@ public abstract class AbstractAuthenticator implements Authenticator
     
     /** authenticator type */
     private final AuthenticationLevel authenticatorType;
-
-    private PasswordPolicyConfiguration pPolicyConfig;
     
     /**
      * Creates a new instance.
@@ -153,11 +152,13 @@ public abstract class AbstractAuthenticator implements Authenticator
      */
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
-        if( pPolicyConfig == null )
+        if( !directoryService.isPwdPolicyEnabled() )
         {
             return;
         }
 
+        PasswordPolicyConfiguration pPolicyConfig = directoryService.getPwdPolicy( userEntry );
+        
         // check for locked out account
         if( pPolicyConfig.isPwdLockout() )
         {
@@ -254,23 +255,5 @@ public abstract class AbstractAuthenticator implements Authenticator
                 }
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setPwdPolicyConfig( PasswordPolicyConfiguration pPolicyConfig )
-    {
-        this.pPolicyConfig = pPolicyConfig;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public PasswordPolicyConfiguration getPwdPolicyConfig()
-    {
-        return pPolicyConfig;
     }
 }

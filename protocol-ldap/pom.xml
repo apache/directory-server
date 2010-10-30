@@ -99,6 +99,11 @@
       <artifactId>ldap-client-api</artifactId>
     </dependency>
 
+    <dependency>
+        <groupId>bouncycastle</groupId>
+        <artifactId>bcprov-jdk15</artifactId>
+    </dependency>
+    
     <!-- just have the dependency on activemq core components alone excluding
          the spring and OSGi related jars, cause we use *only* the QueueS nothing else -->
     <dependency>

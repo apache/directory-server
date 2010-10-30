@@ -93,6 +93,7 @@ import org.slf4j.LoggerFactory;
         "objectClass: organizationalUnit",
         "objectClass: top",
         "ou: users\n",
+
         // Entry # 2
         "dn: uid=hnelson,ou=users,dc=example,dc=com",
         "objectClass: inetOrgPerson",
@@ -107,7 +108,7 @@ import org.slf4j.LoggerFactory;
         "krb5KeyVersionNumber: 0",
         "cn: Horatio Nelson",
         "sn: Nelson",
-    
+
         // krbtgt
         "dn: uid=krbtgt,ou=users,dc=example,dc=com",
         "objectClass: inetOrgPerson",
@@ -122,7 +123,7 @@ import org.slf4j.LoggerFactory;
         "krb5KeyVersionNumber: 0",
         "cn: KDC Service",
         "sn: Service",
-        
+
         // ldap per host
         "dn: uid=ldap,ou=users,dc=example,dc=com",
         "objectClass: inetOrgPerson",
@@ -136,16 +137,15 @@ import org.slf4j.LoggerFactory;
         "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
         "krb5KeyVersionNumber: 0",
         "cn: LDAP Service",
-        "sn: Service"
-    })
+        "sn: Service" })
 @CreateDS(allowAnonAccess = false, name = "SaslBindIT-class", partitions =
     { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
         + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
         { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) },
-additionalInterceptors = { KeyDerivationInterceptor.class }
-)
+    additionalInterceptors =
+        { KeyDerivationInterceptor.class })
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslPrincipal="ldap/localhost@EXAMPLE.COM", saslMechanisms =
+    { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslPrincipal = "ldap/localhost@EXAMPLE.COM", saslMechanisms =
     { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
@@ -153,11 +153,11 @@ additionalInterceptors = { KeyDerivationInterceptor.class }
         @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) }, extendedOpHandlers =
     { StoredProcedureExtendedOperationHandler.class }, ntlmProvider = BogusNtlmProvider.class)
-@CreateKdcServer ( 
-    transports = 
+@CreateKdcServer(
+    transports =
     {
-        @CreateTransport( protocol = "UDP", port = 6088 ),
-        @CreateTransport( protocol = "TCP", port = 6088 )
+        @CreateTransport(protocol = "UDP", port = 6088),
+        @CreateTransport(protocol = "TCP", port = 6088)
     })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
@@ -244,6 +244,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Test a SASL bind with an empty mechanism 
      */
     @Test
+    @Ignore("Activate and fix when DIRAPI-36 (Provide a SaslBindRequest extending BindRequest that can be used in LdapConnection.bind(...) method) is solved")
     public void testSaslBindNoMech() throws Exception
     {
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -277,7 +278,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        BindResponse resp = connection.bindCramMd5( userDn.getName(), "secret", null );
+        BindResponse resp = connection.bindCramMd5( userDn.getRdn().getUpValue().getString(), "secret", null );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
         Entry entry = connection.lookup( userDn );
@@ -296,7 +297,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        BindResponse resp = connection.bindCramMd5( userDn.getName(), "badsecret", null );
+        BindResponse resp = connection.bindCramMd5( userDn.getRdn().getUpValue().getString(), "badsecret", null );
         assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
         connection.close();
     }
@@ -311,7 +312,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
+        BindResponse resp = connection.bindDigestMd5( userDn.getRdn().getUpValue().getString(), "secret", null,
+            ldapServer.getSaslRealms()
                 .get( 0 ) );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
@@ -331,7 +333,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        BindResponse resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 )
+        BindResponse resp = connection.bindGssApi( userDn.getRdn().getUpValue().getString(), "secret", ldapServer
+            .getSaslRealms().get( 0 )
             .toUpperCase(), "localhost", 6088 );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
@@ -341,7 +344,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         connection.close();
     }
 
-    
+
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the realm is bad.
      */
@@ -445,7 +448,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Digest-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            resp = connection.bindDigestMd5( userDn.getName(), "secret", null, ldapServer.getSaslRealms()
+            resp = connection.bindDigestMd5( userDn.getRdn().getUpValue().getString(), "secret", null, ldapServer
+                .getSaslRealms()
                 .get( 0 ) );
             assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
             entry = connection.lookup( userDn );
@@ -454,7 +458,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Cram-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            resp = connection.bindCramMd5( userDn.getName(), "secret", null );
+            resp = connection.bindCramMd5( userDn.getRdn().getUpValue().getString(), "secret", null );
             assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
             entry = connection.lookup( userDn );
             assertEquals( "hnelson", entry.get( "uid" ).getString() );
@@ -462,7 +466,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // GSSAPI
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            resp = connection.bindGssApi( userDn.getName(), "secret", ldapServer.getSaslRealms().get( 0 )
+            resp = connection.bindGssApi( userDn.getRdn().getUpValue().getString(), "secret", ldapServer
+                .getSaslRealms().get( 0 )
                 .toUpperCase(), "localhost", 6088 );
             assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
             entry = connection.lookup( userDn );
@@ -595,9 +600,10 @@ public class SaslBindIT extends AbstractLdapTestUnit
         return provider;
     }
 
-    
+
     ////////////////////////
-    protected Entry getPrincipalAttributes( String dn, String sn, String cn, String uid, String userPassword, String principal ) throws LdapException
+    protected Entry getPrincipalAttributes( String dn, String sn, String cn, String uid, String userPassword,
+        String principal ) throws LdapException
     {
         Entry entry = new DefaultEntry( new DN( dn ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "inetOrgPerson", "krb5principal", "krb5kdcentry" );

@@ -1183,6 +1183,14 @@ public class AddIT extends AbstractLdapTestUnit
         catch ( Exception e )
         {
             // We are expecting the session to be close here.
+            if ( connection.isConnected() )
+            {
+                // Race condition:
+                // Upon NoticeOfDisconnection the API sends an abandon request but does not immediately close the connection.
+                // So at this point it is not guaranteed that the connnection is already closed.
+                // TODO: This is just a workaround, better check the connection for any outstanding abandon requests
+                Thread.sleep( 1000 );
+            }
             assertFalse( connection.isConnected() );
         }
     }

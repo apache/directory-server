@@ -332,7 +332,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     {
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
-        control.setChangeTypes( ChangeType.ADD_VALUE );
+        control.setChangeTypes( ChangeType.ADD.getValue() );
         control.enableNotification( ChangeType.MODIFY );
         setUpListener( true, control, false );
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );

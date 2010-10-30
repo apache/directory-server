@@ -168,7 +168,6 @@ public class LdifFileLoader
      */
     public int execute()
     {
-        DN rdn = null;
         InputStream in = null;
 
         try
@@ -192,7 +191,7 @@ public class LdifFileLoader
                     try
                     {
                         coreSession.lookup( dn );
-                        log.info( "Found {}, will not create.", rdn );
+                        log.info( "Found {}, will not create.", dn );
                     }
                     catch ( Exception e )
                     {
@@ -202,7 +201,7 @@ public class LdifFileLoader
                                 new DefaultEntry( 
                                     coreSession.getDirectoryService().getSchemaManager(), entry ) ); 
                            count++;
-                            log.info( "Created {}.", rdn );
+                            log.info( "Created {}.", dn );
                         } 
                         catch ( LdapException e1 )
                         {

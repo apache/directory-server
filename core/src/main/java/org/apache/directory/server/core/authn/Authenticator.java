@@ -88,18 +88,6 @@ public interface Authenticator
     
     
     /**
-     * @param pPolicyConfig the password policy configuration to be used while authenticating
-     */
-    void setPwdPolicyConfig( PasswordPolicyConfiguration pPolicyConfig );
-    
-    
-    /**
-     * @return the pwdpolicy configuration, can be null if pwdpolicy wasn't enabled
-     */
-    PasswordPolicyConfiguration getPwdPolicyConfig();
-    
-    
-    /**
      *  performs checks on the given entry based on the specified password policy configuration
      *
      * @param userEntry the user entry to be checked for authentication

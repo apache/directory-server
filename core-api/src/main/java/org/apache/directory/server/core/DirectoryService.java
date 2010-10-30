@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.util.tree.DnNode;
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param <PasswordPolicyConfiguration>
  */
 public interface DirectoryService extends ServerEntryFactory
 {
@@ -550,4 +551,32 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The TriggerExecution AdministrativePoint cache
      */
     DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache();
+    
+    
+    /**
+     * @return true if the password policy is enabled, false otherwise
+     */
+    boolean isPwdPolicyEnabled();
+    
+
+    /**
+     * Gets the effective password policy of the given entry. 
+     * If the entry has defined a custom password policy by setting "pwdPolicySubentry" attribute
+     * then the password policy associated with the DN specified at the above attribute's value will be returned.
+     * Otherwise the default password policy will be returned (if present)
+     * 
+     * @param userEntry the user's entry
+     * @return the associated password policy
+     * @throws LdapException
+     */
+    PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException;
+    
+    
+    /**
+     * set all the password policies to be used by the server.
+     * This includes a default(i.e applicable to all entries) and custom(a.k.a per user) password policies
+     *  
+     * @param policyContainer the container holding all the password policies
+     */
+    void setPwdPolicies( PpolicyConfigContainer policyContainer );
 }

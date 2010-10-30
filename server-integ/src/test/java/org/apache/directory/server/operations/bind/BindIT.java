@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import javax.naming.AuthenticationException;
+import javax.naming.InvalidNameException;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
@@ -46,41 +47,40 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: person",
-    "objectClass: top",
-    "uid: akarasulu",
-    "cn: Alex Karasulu",
-    "sn: karasulu", 
-    // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: computers",
-    "description: Computers for Alex",
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
-    // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: uidObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "uid: akarasuluref",
-    "userPassword: secret",
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
-    }
-)
-@CreateDS( allowAnonAccess=true, name="BindIT-class")
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
+        // Entry # 1
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
+        "objectClass: top",
+        "uid: akarasulu",
+        "cn: Alex Karasulu",
+        "sn: karasulu",
+        // Entry # 2
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
+        "ou: computers",
+        "description: Computers for Alex",
+        "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
+        // Entry # 3
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "userPassword: secret",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
+@CreateDS(allowAnonAccess = true, name = "BindIT-class")
+@CreateLdapServer(
+    transports =
+    {
+        @CreateTransport(protocol = "LDAP")
     })
 public class BindIT extends AbstractLdapTestUnit
 {
@@ -106,18 +106,18 @@ public class BindIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test with bindDn that is under a naming context but points to non-existant user.
-     * @todo make this pass: see http://issues.apache.org/jira/browse/DIREVE-339
+     * Test bind with malformed bind DN.
      */
-    //    public void testBadBindDnMalformed() throws Exception
-    //    {
-    //        try
-    //        {
-    //            bind( "system", "blah" );
-    //            fail( "should never get here due to a " );
-    //        }
-    //        catch ( InvalidNameException e ){}
-    //    }
+    @Test
+    public void testBadBindDnMalformed() throws Exception
+    {
+        try
+        {
+            getWiredContext( ldapServer, "system", "blah" );
+            fail( "should never get here due to a " );
+        }
+        catch ( InvalidNameException e ){}
+    }
 
     /**
      * Test with bindDn that is under a naming context but points to non-existant user.
@@ -137,12 +137,12 @@ public class BindIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     @Test
     public void testConnectWithIllegalLDAPVersion() throws Exception
     {
         LDAPConnection conn = null;
-        
+
         try
         {
             conn = new LDAPConnection();
@@ -162,7 +162,7 @@ public class BindIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * Tests bind operation on referral entry.
      */
@@ -174,25 +174,25 @@ public class BindIT extends AbstractLdapTestUnit
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         conn.setConstraints( constraints );
-        
+
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getPort(), 
+            conn.connect( 3, "localhost", ldapServer.getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
-        catch( LDAPException e )
+        catch ( LDAPException e )
         {
             assertEquals( "statuscode", LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode() );
         }
-        
+
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getPort(), 
+            conn.connect( 3, "localhost", ldapServer.getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
-        catch( LDAPException e )
+        catch ( LDAPException e )
         {
             assertEquals( "statuscode", LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode() );
         }
