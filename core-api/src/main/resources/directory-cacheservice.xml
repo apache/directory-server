@@ -85,11 +85,17 @@
 		elements it will overflow to the disk cache, which in this configuration 
 		will go to wherever java.io.tmp is defined on your system. On a standard 
 		Linux system this will be /tmp" -->
+		<!-- 
+		Note: set the 'overflowToDisk' flag always to 'true'.
+		The groups information is only read once during startup hence 
+		we need to retain this info forever available in the cache
+		as long as the server is running, so hinting the cache to store
+		on disk is needed to swap the data if it is too much to hold in memory -->
 	<cache name="groupCache" 
 	       maxElementsInMemory="10000"
 		   maxElementsOnDisk="1000"
 		   eternal="false" 
-		   overflowToDisk="false"
+		   overflowToDisk="true"
 		   diskSpoolBufferSizeMB="20"
 		   timeToIdleSeconds="300"
 		   timeToLiveSeconds="600"
