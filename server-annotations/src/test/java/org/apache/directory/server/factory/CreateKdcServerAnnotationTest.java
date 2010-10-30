@@ -22,6 +22,7 @@ package org.apache.directory.server.factory;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
@@ -66,5 +67,7 @@ public class CreateKdcServerAnnotationTest
         assertEquals( 2000, server.getMaximumRenewableLifetime() );
         
         server.stop();
+        
+        FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
     }
 }
