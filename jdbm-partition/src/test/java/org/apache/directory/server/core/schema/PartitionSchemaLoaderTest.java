@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
@@ -38,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,7 +62,8 @@ public class PartitionSchemaLoaderTest
     {
         // setup working directory
         directoryService = new DefaultDirectoryService();
-        File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
+        String tmpDirPath = System.getProperty( "workingDirectory", System.getProperty( "java.io.tmpdir" ) );
+        File workingDirectory = new File( tmpDirPath + "/server-work-" + PartitionSchemaLoaderTest.class.getSimpleName() );
         instanceLayout = new InstanceLayout( workingDirectory );
         directoryService.setInstanceLayout( instanceLayout );
 
@@ -74,13 +77,6 @@ public class PartitionSchemaLoaderTest
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
         // --------------------------------------------------------------------
-
-        if ( workingDirectory == null )
-        {
-            String path = PartitionSchemaLoaderTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = new File( path.substring( 0, targetPos + 6 ) );
-        }
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workingDirectory );
@@ -99,6 +95,13 @@ public class PartitionSchemaLoaderTest
     }
 
 
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        FileUtils.deleteDirectory( instanceLayout.getInstanceDirectory() );
+    }
+    
+    
     @Test
     public void testGetSchemas() throws Exception
     {
