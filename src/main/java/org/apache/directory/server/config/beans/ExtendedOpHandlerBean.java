@@ -25,18 +25,18 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapServerExtendedOpHandlerBean extends AdsServerBean
+public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
     private String extendedOpId;
     
     /** The Extended Operation FQCN */
-    private String ldapServerExtendedOpHandlerClass;
+    private String extendedOpHandlerClass;
 
     /**
      * Create a new LdapServerExtendedOpHandlerBean instance
      */
-    public LdapServerExtendedOpHandlerBean()
+    public ExtendedOpHandlerBean()
     {
         super();
     }
@@ -63,17 +63,41 @@ public class LdapServerExtendedOpHandlerBean extends AdsServerBean
     /**
      * @return the ldapServerExtendedOpHandlerClass
      */
-    public String getLdapServerExtendedOpHandlerClass()
+    public String getExtendedOpHandlerClass()
     {
-        return ldapServerExtendedOpHandlerClass;
+        return extendedOpHandlerClass;
     }
 
     
     /**
-     * @param ldapServerExtendedOpHandlerClass the ldapServerExtendedOpHandlerClass to set
+     * @param extendedOpHandlerClass the ExtendedOpHandlerClass to set
      */
-    public void setLdapServerExtendedOpHandlerClass( String ldapServerExtendedOpHandlerClass )
+    public void setExtendedOpHandlerClass( String extendedOpHandlerClass )
     {
-        this.ldapServerExtendedOpHandlerClass = ldapServerExtendedOpHandlerClass;
+        this.extendedOpHandlerClass = extendedOpHandlerClass;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "Extended operation handler :\n" );
+        sb.append( tabs ).append( "  extended operation ID : " ).append( extendedOpId ).append( '\n' );
+        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedOpHandlerClass ).append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HttpWebAppBean extends BaseAdsBean
+public class HttpWebAppBean extends AdsBaseBean
 {
     /** The server identifier */
     private String id;
@@ -99,5 +99,31 @@ public class HttpWebAppBean extends BaseAdsBean
     public void setHttpWarFile( String httpWarFile )
     {
         this.httpWarFile = httpWarFile;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "HttpWebApp :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  id : " ).append( id ).append( '\n' );
+        sb.append( tabs ).append( "  war file : " ).append( httpWarFile ).append( '\n' );
+        sb.append(  toString( tabs, "  application context path", httpAppCtxPath ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

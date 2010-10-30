@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -28,7 +28,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswordServerBean extends CatalogBasedServerBean
+public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
     private long krbAllowableClockSkew;
@@ -37,7 +37,7 @@ public class ChangePasswordServerBean extends CatalogBasedServerBean
     private boolean krbEmptyAddressesAllowed;
     
     /** The encryption types. */
-    private Set<String> krbEncryptionTypes = new HashSet<String>();
+    private List<String> krbEncryptionTypes = new ArrayList<String>();
     
     /** The primary realm. */
     private String krbPrimaryRealm;
@@ -101,7 +101,7 @@ public class ChangePasswordServerBean extends CatalogBasedServerBean
     /**
      * @return the krbEncryptionTypes
      */
-    public Set<String> getKrbEncryptionTypes()
+    public List<String> getKrbEncryptionTypes()
     {
         return krbEncryptionTypes;
     }
@@ -110,12 +110,26 @@ public class ChangePasswordServerBean extends CatalogBasedServerBean
     /**
      * @param krbEncryptionTypes the krbEncryptionTypes to set
      */
-    public void setKrbEncryptionTypes( Set<String> krbEncryptionTypes )
+    public void setKrbEncryptionTypes( List<String> krbEncryptionTypes )
     {
         this.krbEncryptionTypes = krbEncryptionTypes;
     }
 
     
+    /**
+     * Initialize the encryptionTypes set
+     * 
+     * @param krbEncryptionTypes the encryptionTypes to set
+     */
+    public void addKrbEncryptionTypes( String... krbEncryptionTypes )
+    {
+        for ( String encryptionType:krbEncryptionTypes )
+        {
+            this.krbEncryptionTypes.add( encryptionType );
+        }
+    }
+
+
     /**
      * @return the krbPrimaryRealm
      */
@@ -203,5 +217,46 @@ public class ChangePasswordServerBean extends CatalogBasedServerBean
     public void setChgPwdServicePrincipal( String chgPwdServicePrincipal )
     {
         this.chgPwdServicePrincipal = chgPwdServicePrincipal;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "ChangePasswordServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( toString( tabs, "  change password service principal", chgPwdServicePrincipal ) );
+        sb.append( toString( tabs, "  KRB primary realm", krbPrimaryRealm ) );
+        
+        if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() != 0 ) )
+        {
+            sb.append( tabs ).append( "  encryption types : \n" );
+
+            for ( String encryptionType : krbEncryptionTypes )
+            {
+                sb.append( tabs ).append( "    encryptionType : " ).append( encryptionType ).append( '\n' );
+            }
+        }
+        
+        sb.append( toString( tabs, "  change password policy category count", chgPwdPolicyCategoryCount ) );
+        sb.append( toString( tabs, "  change password policy password length", chgPwdPolicyPasswordLength ) );
+        sb.append( toString( tabs, "  change password policy token size", chgPwdPolicyTokenSize ) );
+        sb.append( toString( tabs, "  KRB allowable clock skew", krbAllowableClockSkew ) );
+        sb.append( toString( tabs, "  KRB empty addresses allowed", krbEmptyAddressesAllowed ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

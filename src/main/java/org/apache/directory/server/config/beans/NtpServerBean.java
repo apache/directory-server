@@ -25,7 +25,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NtpServerBean extends AdsServerBean
+public class NtpServerBean extends ServerBean
 {
     /**
      * Create a new NtpServerBean instance
@@ -36,5 +36,28 @@ public class NtpServerBean extends AdsServerBean
         
         // Enabled by default
         setEnabled( true );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "NtpServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

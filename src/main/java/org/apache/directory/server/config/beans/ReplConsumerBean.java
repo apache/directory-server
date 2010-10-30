@@ -19,28 +19,48 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the Replication Consumer configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReplConsumerBean extends BaseAdsBean
+public class ReplConsumerBean extends AdsBaseBean
 {
-    /** The replicaConsumer unique ID */
+    /** The consumer id */
+    private String replConsumerId;
+    
+    /** The replication unique ID */
     private String dsReplicaId;
     
-    /*
-    m-must: ads-replAliasDerefMode;
-    private String searchBaseDN;
+    /** The Alias Dereferencing mode */
+    private String replAliasDerefMode;
+    
+    /** The Search Base DN */
+    private DN searchBaseDN;
+    
+    /** The last CSN sent */
     private String replLastSentCsn;
-    m-must: ads-replSearchScope;
+    
+    /** The search scope */
+    private String replSearchScope;
+    
+    /** The replication search filter */
     private String replSearchFilter;
-    m-may: ads-replRefreshNPersist;
-    m-may: ads-replUseTls;
-    m-may: ads-replStrictCertValidation;
-    m-may: ads-replPeerCertificate;
-    */
+    
+    /** Tells if we should persist */
+    private boolean replRefreshNPersist;
+    
+    /** Tells if TLS should be used during replication */
+    private boolean replUseTls;
+    
+    /** Tells if the certificate validation should be strict or not */
+    private boolean replStrictCertValidation;
+    
+    /** The peer certificate */
+    private String replPeerCertificate;
 
     /**
      * Create a new Replication Consumer instance
@@ -51,5 +71,239 @@ public class ReplConsumerBean extends BaseAdsBean
         
         // Enabled by default
         setEnabled( true );
+    }
+
+    
+    /**
+     * @return the replConsumerId
+     */
+    public String getReplConsumerId()
+    {
+        return replConsumerId;
+    }
+
+
+    /**
+     * @param replConsumerId the replConsumerId to set
+     */
+    public void setReplConsumerId( String replConsumerId )
+    {
+        this.replConsumerId = replConsumerId;
+    }
+
+    
+    /**
+     * @return the dsreplicaid
+     */
+    public String getDsreplicaid()
+    {
+        return dsReplicaId;
+    }
+
+    
+    /**
+     * @param dsreplicaid the dsreplicaid to set
+     */
+    public void setDsreplicaid( String dsreplicaid )
+    {
+        this.dsReplicaId = dsreplicaid;
+    }
+
+    
+    /**
+     * @return the replAliasDerefMode
+     */
+    public String getReplAliasDerefMode()
+    {
+        return replAliasDerefMode;
+    }
+
+    
+    /**
+     * @param replAliasDerefMode the replAliasDerefMode to set
+     */
+    public void setReplAliasDerefMode( String replAliasDerefMode )
+    {
+        this.replAliasDerefMode = replAliasDerefMode;
+    }
+
+    
+    /**
+     * @return the searchBaseDN
+     */
+    public DN getSearchBaseDN()
+    {
+        return searchBaseDN;
+    }
+
+    
+    /**
+     * @param searchBaseDN the searchBaseDN to set
+     */
+    public void setSearchBaseDN( DN searchBaseDN )
+    {
+        this.searchBaseDN = searchBaseDN;
+    }
+
+    
+    /**
+     * @return the replLastSentCsn
+     */
+    public String getReplLastSentCsn()
+    {
+        return replLastSentCsn;
+    }
+
+    
+    /**
+     * @param replLastSentCsn the replLastSentCsn to set
+     */
+    public void setReplLastSentCsn( String replLastSentCsn )
+    {
+        this.replLastSentCsn = replLastSentCsn;
+    }
+
+    
+    /**
+     * @return the replSearchScope
+     */
+    public String getReplSearchScope()
+    {
+        return replSearchScope;
+    }
+
+    
+    /**
+     * @param replSearchScope the replSearchScope to set
+     */
+    public void setReplSearchScope( String replSearchScope )
+    {
+        this.replSearchScope = replSearchScope;
+    }
+
+    
+    /**
+     * @return the replSearchFilter
+     */
+    public String getReplSearchFilter()
+    {
+        return replSearchFilter;
+    }
+
+    
+    /**
+     * @param replSearchFilter the replSearchFilter to set
+     */
+    public void setReplSearchFilter( String replSearchFilter )
+    {
+        this.replSearchFilter = replSearchFilter;
+    }
+
+    
+    /**
+     * @return the replRefreshNPersist
+     */
+    public boolean isReplRefreshNPersist()
+    {
+        return replRefreshNPersist;
+    }
+
+    
+    /**
+     * @param replRefreshNPersist the replRefreshNPersist to set
+     */
+    public void setReplRefreshNPersist( boolean replRefreshNPersist )
+    {
+        this.replRefreshNPersist = replRefreshNPersist;
+    }
+
+    
+    /**
+     * @return the replUseTls
+     */
+    public boolean isReplUseTls()
+    {
+        return replUseTls;
+    }
+
+    
+    /**
+     * @param replUseTls the replUseTls to set
+     */
+    public void setReplUseTls( boolean replUseTls )
+    {
+        this.replUseTls = replUseTls;
+    }
+
+    
+    /**
+     * @return the replStrictCertValidation
+     */
+    public boolean isReplStrictCertValidation()
+    {
+        return replStrictCertValidation;
+    }
+
+    
+    /**
+     * @param replStrictCertValidation the replStrictCertValidation to set
+     */
+    public void setReplStrictCertValidation( boolean replStrictCertValidation )
+    {
+        this.replStrictCertValidation = replStrictCertValidation;
+    }
+
+    
+    /**
+     * @return the replPeerCertificate
+     */
+    public String getReplPeerCertificate()
+    {
+        return replPeerCertificate;
+    }
+
+    
+    /**
+     * @param replPeerCertificate the replPeerCertificate to set
+     */
+    public void setReplPeerCertificate( String replPeerCertificate )
+    {
+        this.replPeerCertificate = replPeerCertificate;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "Replication consumer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+
+        sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
+        sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
+        sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );
+        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN.getName() ).append( '\n' );
+        sb.append( tabs ).append( "  search filter : " ).append( replSearchFilter ).append( '\n' );
+        sb.append( tabs ).append( "  search scope : " ).append( replSearchScope ).append( '\n' );
+        sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replAliasDerefMode ).append( '\n' );
+
+        sb.append( toString( tabs, "  peer certificate", replPeerCertificate ) );
+        sb.append( toString( tabs, "  refresh and persist mode", replRefreshNPersist ) );
+        sb.append( toString( tabs, "  struct certivicate validation", replStrictCertValidation ) );
+        sb.append( toString( tabs, "  use TLS", replUseTls ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

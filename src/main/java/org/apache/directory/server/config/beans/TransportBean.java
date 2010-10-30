@@ -24,13 +24,13 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TransportBean extends BaseAdsBean
+public class TransportBean extends AdsBaseBean
 {
     /** The default backlog queue size */
-    protected static final int DEFAULT_BACKLOG_NB = 50;
+    private static final int DEFAULT_BACKLOG_NB = 50;
     
     /** The default number of threads */
-    protected static final int DEFAULT_NB_THREADS = 3;
+    private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
     private String transportId;
@@ -41,17 +41,15 @@ public class TransportBean extends BaseAdsBean
     /** The port number */
     private int systemPort = -1;
     
-
     /** A flag set if SSL is enabled */
-    private boolean transportEnableSSL = false;
+    private boolean transportEnableSsl = false;
     
     /** The number of threads to use for the IoAcceptor executor */
     private int transportNbThreads = DEFAULT_NB_THREADS;
     
     /** The backlog for the transport services */
-    private int transportBacklog = DEFAULT_BACKLOG_NB;
+    private int transportBackLog = DEFAULT_BACKLOG_NB;
     
-
     /**
      * Create a new TransportBean instance
      */
@@ -99,7 +97,7 @@ public class TransportBean extends BaseAdsBean
      */
     public boolean isTransportEnableSSL()
     {
-        return transportEnableSSL;
+        return transportEnableSsl;
     }
     
     
@@ -110,7 +108,7 @@ public class TransportBean extends BaseAdsBean
      */
     public void setTransportEnableSSL( boolean transportEnableSSL )
     {
-        this.transportEnableSSL = transportEnableSSL;
+        this.transportEnableSsl = transportEnableSSL;
     }
     
     
@@ -139,7 +137,7 @@ public class TransportBean extends BaseAdsBean
      */
     public int getTransportBackLog()
     {
-        return transportBacklog;
+        return transportBackLog;
     }
     
     
@@ -150,7 +148,7 @@ public class TransportBean extends BaseAdsBean
      */
     public void setTransportBackLog( int transportBacklog )
     {
-        this.transportBacklog = transportBacklog;
+        this.transportBackLog = transportBacklog;
     }
 
 
@@ -169,5 +167,42 @@ public class TransportBean extends BaseAdsBean
     public void setTransportId( String transportId )
     {
         this.transportId = transportId;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( toString( tabs, "transport id", transportId ) );
+        sb.append( tabs ).append( "transport address : " );
+        
+        if ( transportAddress == null )
+        {
+            sb.append( "localhost" ).append( '\n' );
+        }
+        else
+        {
+            sb.append( transportAddress ).append( '\n' );
+        }
+
+        sb.append( tabs ).append( "transport port : " ).append( systemPort ).append( '\n' );
+        sb.append( tabs ).append( "transport backlog : " ).append( transportBackLog ).append( '\n' );
+        sb.append( tabs ).append( "transport nb threads : " ).append( transportNbThreads ).append( '\n' );
+        sb.append( toString( tabs, "SSL enabled", transportEnableSsl ) );
+
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

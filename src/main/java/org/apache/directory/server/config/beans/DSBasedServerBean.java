@@ -19,14 +19,15 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the KdcServer configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DirectoryBackedServiceBean extends ProtocolServiceBean
+public class DSBasedServerBean extends ServerBean
 {
     /**
      * The single location where entries are stored.  If this service
@@ -34,12 +35,12 @@ public class DirectoryBackedServiceBean extends ProtocolServiceBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    private String searchBaseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
+    private DN searchBaseDN;
 
     /**
      * Create a new JournalBean instance
      */
-    public DirectoryBackedServiceBean()
+    public DSBasedServerBean()
     {
     }
     
@@ -50,17 +51,40 @@ public class DirectoryBackedServiceBean extends ProtocolServiceBean
      *
      * @return The search base DN.
      */
-    public String getSearchBaseDn()
+    public DN getSearchBaseDn()
     {
-        return searchBaseDn;
+        return searchBaseDN;
     }
 
 
     /**
      * @param searchBaseDn The searchBaseDn to set.
      */
-    public void setSearchBaseDn( String searchBaseDn )
+    public void setSearchBaseDn( DN searchBaseDn )
     {
-        this.searchBaseDn = searchBaseDn;
+        this.searchBaseDN = searchBaseDn;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( super.toString( tabs ) );
+        sb.append( toString( tabs, "searchBaseDN", searchBaseDN ) );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

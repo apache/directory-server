@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -28,43 +28,46 @@ import java.util.Set;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapServerBean extends CatalogBasedServerBean
+public class LdapServerBean extends DSBasedServerBean
 {
     /** */
-    private boolean ldapServerConfidentialityRequired;
+    private boolean confidentialityRequired;
     
     /** The maximum number of entries returned by the server */
-    private int ldapServerMaxSizeLimit;
+    private int maxSizeLimit;
     
     /** The maximum time to execute a request on the server */
-    private int ldapServerMaxTimeLimit;
+    private int maxTimeLimit;
     
     /** The SASL host */
-    private String ldapServerSaslHost;
+    private String saslHost;
     
     /** The SASL  principal */
-    private String ldapServerSaslPrincipal;
+    private String saslPrincipal;
     
     /** The SASL realms */
-    private Set<String> ldapServerSaslRealms = new HashSet<String>();;
+    private List<String> saslRealms = new ArrayList<String>();
     
     /** The keystore file */
-    private String ldapServerKeystoreFile;
+    private String keystoreFile;
     
     /** The certificate password */
-    private String ldapServerCertificatePassword;
-    
-    /** The ReplicationProvider configuration */
-    //private ReplicationProviderBean replProviderImpl;
+    private String certificatePassword;
     
     /** tells if the replication is enabled */
     private boolean enableReplProvider; 
     
-    /** The list of supported mechanisms */
-    private Set<LdapServerSaslMechanisHandlerBean> saslMechHandlers = new HashSet<LdapServerSaslMechanisHandlerBean>();
+    /** The replication consumer Bean */
+    private ReplConsumerBean replConsumer;
     
-    /** The list of supported extedned operations */
-    private Set<LdapServerExtendedOpHandlerBean> extendedOps = new HashSet<LdapServerExtendedOpHandlerBean>();
+    /** The replication producer Bean */
+    private ReplProviderBean replProvider;
+    
+    /** The list of supported mechanisms */
+    private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
+    
+    /** The list of supported extended operation handlers */
+    private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
     /**
      * Create a new LdapServerBean instance
@@ -83,7 +86,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public boolean isLdapServerConfidentialityRequired()
     {
-        return ldapServerConfidentialityRequired;
+        return confidentialityRequired;
     }
 
     
@@ -92,7 +95,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerConfidentialityRequired( boolean ldapServerConfidentialityRequired )
     {
-        this.ldapServerConfidentialityRequired = ldapServerConfidentialityRequired;
+        this.confidentialityRequired = ldapServerConfidentialityRequired;
     }
 
     
@@ -101,7 +104,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public int getLdapServerMaxSizeLimit()
     {
-        return ldapServerMaxSizeLimit;
+        return maxSizeLimit;
     }
 
     
@@ -110,7 +113,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerMaxSizeLimit( int ldapServerMaxSizeLimit )
     {
-        this.ldapServerMaxSizeLimit = ldapServerMaxSizeLimit;
+        this.maxSizeLimit = ldapServerMaxSizeLimit;
     }
 
     
@@ -119,7 +122,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public int getLdapServerMaxTimeLimit()
     {
-        return ldapServerMaxTimeLimit;
+        return maxTimeLimit;
     }
 
     
@@ -128,7 +131,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerMaxTimeLimit( int ldapServerMaxTimeLimit )
     {
-        this.ldapServerMaxTimeLimit = ldapServerMaxTimeLimit;
+        this.maxTimeLimit = ldapServerMaxTimeLimit;
     }
 
     
@@ -137,7 +140,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public String getLdapServerSaslHost()
     {
-        return ldapServerSaslHost;
+        return saslHost;
     }
 
     
@@ -146,7 +149,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerSaslHost( String ldapServerSaslHost )
     {
-        this.ldapServerSaslHost = ldapServerSaslHost;
+        this.saslHost = ldapServerSaslHost;
     }
 
     
@@ -155,7 +158,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public String getLdapServerSaslPrincipal()
     {
-        return ldapServerSaslPrincipal;
+        return saslPrincipal;
     }
 
     
@@ -164,36 +167,36 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerSaslPrincipal( String ldapServerSaslPrincipal )
     {
-        this.ldapServerSaslPrincipal = ldapServerSaslPrincipal;
+        this.saslPrincipal = ldapServerSaslPrincipal;
     }
 
     
     /**
      * @return the ldapServerSaslRealms
      */
-    public Set<String> getLdapServerSaslRealms()
+    public List<String> getLdapServerSaslRealms()
     {
-        return ldapServerSaslRealms;
+        return saslRealms;
     }
 
     
     /**
      * @param ldapServerSaslRealms the ldapServerSaslRealms to set
      */
-    public void setLdapServerSaslRealms( Set<String> ldapServerSaslRealms )
+    public void setLdapServerSaslRealms( List<String> ldapServerSaslRealms )
     {
-        this.ldapServerSaslRealms = ldapServerSaslRealms;
+        this.saslRealms = ldapServerSaslRealms;
     }
 
     
     /**
      * @param ldapServerSaslRealms the ldapServerSaslRealms to add
      */
-    public void addLdapServerSaslRealms( String... ldapServerSaslRealms )
+    public void addSaslRealms( String... ldapServerSaslRealms )
     {
         for ( String saslRealm : ldapServerSaslRealms )
         {
-            this.ldapServerSaslRealms.add( saslRealm );
+            this.saslRealms.add( saslRealm );
         }
     }
 
@@ -203,7 +206,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public String getLdapServerKeystoreFile()
     {
-        return ldapServerKeystoreFile;
+        return keystoreFile;
     }
 
     
@@ -212,7 +215,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerKeystoreFile( String ldapServerKeystoreFile )
     {
-        this.ldapServerKeystoreFile = ldapServerKeystoreFile;
+        this.keystoreFile = ldapServerKeystoreFile;
     }
 
     
@@ -221,7 +224,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public String getLdapServerCertificatePassword()
     {
-        return ldapServerCertificatePassword;
+        return certificatePassword;
     }
 
     
@@ -230,7 +233,7 @@ public class LdapServerBean extends CatalogBasedServerBean
      */
     public void setLdapServerCertificatePassword( String ldapServerCertificatePassword )
     {
-        this.ldapServerCertificatePassword = ldapServerCertificatePassword;
+        this.certificatePassword = ldapServerCertificatePassword;
     }
 
     
@@ -273,7 +276,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @return the saslMechHandlers
      */
-    public Set<LdapServerSaslMechanisHandlerBean> getSaslMechHandlers()
+    public List<SaslMechHandlerBean> getSaslMechHandlers()
     {
         return saslMechHandlers;
     }
@@ -282,7 +285,7 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to set
      */
-    public void setSaslMechHandlers( Set<LdapServerSaslMechanisHandlerBean> saslMechHandlers )
+    public void setSaslMechHandlers( List<SaslMechHandlerBean> saslMechHandlers )
     {
         this.saslMechHandlers = saslMechHandlers;
     }
@@ -291,9 +294,9 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @param saslMechHandlers the saslMechHandlers to add
      */
-    public void setSaslMechHandlers( LdapServerSaslMechanisHandlerBean... saslMechHandlers )
+    public void setSaslMechHandlers( SaslMechHandlerBean... saslMechHandlers )
     {
-        for ( LdapServerSaslMechanisHandlerBean saslMechHandler : saslMechHandlers )
+        for ( SaslMechHandlerBean saslMechHandler : saslMechHandlers )
         {
             this.saslMechHandlers.add( saslMechHandler );
         }
@@ -303,29 +306,136 @@ public class LdapServerBean extends CatalogBasedServerBean
     /**
      * @return the extendedOps
      */
-    public Set<LdapServerExtendedOpHandlerBean> getExtendedOps()
+    public List<ExtendedOpHandlerBean> getExtendedOps()
     {
-        return extendedOps;
+        return extendedOpHandlers;
     }
 
     
     /**
      * @param extendedOps the extendedOps to set
      */
-    public void setExtendedOps( Set<LdapServerExtendedOpHandlerBean> extendedOps )
+    public void setExtendedOps( List<ExtendedOpHandlerBean> extendedOps )
     {
-        this.extendedOps = extendedOps;
+        this.extendedOpHandlers = extendedOps;
     }
 
     
     /**
      * @param extendedOps the extendedOps to add
      */
-    public void addExtendedOps( LdapServerExtendedOpHandlerBean... extendedOps )
+    public void addExtendedOps( ExtendedOpHandlerBean... extendedOps )
     {
-        for ( LdapServerExtendedOpHandlerBean extendedOp : extendedOps )
+        for ( ExtendedOpHandlerBean extendedOp : extendedOps )
         {   
-            this.extendedOps.add( extendedOp );
+            this.extendedOpHandlers.add( extendedOp );
         }
+    }
+
+
+    /**
+     * @return the Replication Consumer Bean
+     */
+    public ReplConsumerBean getReplConsumer()
+    {
+        return replConsumer;
+    }
+
+
+    /**
+     * @param replConsumer the Replication Consumer Bean to set
+     */
+    public void setReplConsumer( ReplConsumerBean replConsumer )
+    {
+        this.replConsumer = replConsumer;
+    }
+
+
+    /**
+     * @return the replProvider
+     */
+    public ReplProviderBean getReplProvider()
+    {
+        return replProvider;
+    }
+
+
+    /**
+     * @param replProvider the replProvider to set
+     */
+    public void setReplProvider( ReplProviderBean replProvider )
+    {
+        this.replProvider = replProvider;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "LdapServer :\n" );
+        sb.append( super.toString( tabs + "  " ) );
+        sb.append( tabs ).append( "  max size limit : " ).append( maxSizeLimit ).append( '\n' );
+        sb.append( tabs ).append( "  max time limit : " ).append( maxTimeLimit ).append( '\n' );
+        sb.append( toString( tabs, "  certificate password", certificatePassword ) );
+        sb.append( toString( tabs, "  keystore file", keystoreFile ) );
+        sb.append( toString( tabs, "  sasl principal", saslPrincipal ) );
+        sb.append( tabs ).append( "  sasl host : " ).append( saslHost ).append( '\n' );
+        sb.append( toString( tabs, "  confidentiality required", confidentialityRequired ) );
+        sb.append( toString( tabs, "  enable replication provider", enableReplProvider ) );
+        
+        if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  extended operation handlers :\n" );
+            
+            for ( ExtendedOpHandlerBean extendedOpHandler : extendedOpHandlers )
+            {
+                sb.append( extendedOpHandler.toString( tabs + "    " ) );
+            }
+        }
+        
+        if ( saslMechHandlers != null )
+        {
+            sb.append( tabs ).append( "  SASL mechanism handlers :\n" );
+            
+            for ( SaslMechHandlerBean saslMechHandler : saslMechHandlers )
+            {
+                sb.append( saslMechHandler.toString( tabs + "    " ) );
+            }
+        }
+        
+        if ( ( saslRealms != null ) && ( saslRealms.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  SASL realms :\n" );
+            
+            for ( String saslRealm : saslRealms )
+            {
+                sb.append( tabs ).append( "    " ).append( saslRealm ).append( "\n" );
+            }
+        }
+        
+        if ( replConsumer != null )
+        {
+            sb.append( tabs ).append( replConsumer.toString( tabs + "  " ) );
+        }
+        
+        if ( replProvider != null )
+        {
+            sb.append( tabs ).append( replProvider.toString( tabs + "  " ) );
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

@@ -33,4 +33,22 @@ public class UdpTransportBean extends TransportBean
     {
         super();
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        return tabs + "UDP transport : \n" + super.toString( "  " + tabs);
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

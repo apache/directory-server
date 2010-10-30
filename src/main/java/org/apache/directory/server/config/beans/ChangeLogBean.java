@@ -19,13 +19,17 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 /**
  * A class used to store the ChangeLog configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogBean extends BaseAdsBean
+public class ChangeLogBean extends AdsBaseBean
 {
+    /** The ChangeLog unique ID */
+    private String changeLogId;
+
     /** Tells if the ChangeLog is exposed to the users */
     private boolean changeLogExposed;
 
@@ -39,6 +43,24 @@ public class ChangeLogBean extends BaseAdsBean
         
         // Not enabled by default
         setEnabled( false );
+    }
+
+
+    /**
+     * @return the changeLogId
+     */
+    public String getChangeLogId()
+    {
+        return changeLogId;
+    }
+
+
+    /**
+     * @param changeLogId the changeLogId to set
+     */
+    public void setChangeLogId( String changeLogId )
+    {
+        this.changeLogId = changeLogId;
     }
     
     
@@ -57,5 +79,29 @@ public class ChangeLogBean extends BaseAdsBean
     public void setChangeLogExposed( boolean changeLogExposed ) 
     {
         this.changeLogExposed = changeLogExposed;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "ChangeLog :\n" );
+        sb.append( tabs ).append( "  changeLog id : " ).append( changeLogId ).append( '\n' );
+        sb.append( toString( tabs, "  changeLog exposed", changeLogExposed ) );
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
