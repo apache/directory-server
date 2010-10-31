@@ -1,5 +1,0 @@
-version: 1
-dn: ou=replProviders,ou=config
-ou: replProviders
-objectclass: organizationalUnit
-objectclass: top

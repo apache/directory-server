@@ -1,8 +1,0 @@
-version: 1
-dn: ads-serverId=dns,ou=servers,ou=config
-ads-serverid: dns
-ads-enabled: false
-objectclass: ads-server
-objectclass: ads-dnsServer
-objectclass: ads-dsBasedServer
-objectclass: top

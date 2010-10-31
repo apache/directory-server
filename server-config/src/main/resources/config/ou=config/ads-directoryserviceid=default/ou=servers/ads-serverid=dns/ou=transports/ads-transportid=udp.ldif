@@ -1,8 +1,0 @@
-version: 1
-dn: ads-transportId=udp,ou=transports,ads-serverId=dns,ou=servers,ou=config
-ads-systemport: 8053
-ads-transportid: udp
-objectclass: ads-transport
-objectclass: ads-udpTransport
-objectclass: top
-ads-enabled: true

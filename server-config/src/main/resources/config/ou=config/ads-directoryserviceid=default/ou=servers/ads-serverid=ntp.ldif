@@ -1,7 +1,0 @@
-version: 1
-dn: ads-serverId=ntp,ou=servers,ou=config
-ads-serverid: ntp
-ads-enabled: false
-objectclass: ads-server
-objectclass: ads-ntpServer
-objectclass: top

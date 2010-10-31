@@ -1,9 +1,0 @@
-version: 1
-dn: ads-extendedOpId=storedprochandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer
- ,ou=servers,ou=config
-ads-enabled: false
-ads-extendedOpId: storedprochandler
-ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.
- extended.StoredProcedureExtendedOperationHandler
-objectclass: ads-ldapServerExtendedOpHandler
-objectclass: top
