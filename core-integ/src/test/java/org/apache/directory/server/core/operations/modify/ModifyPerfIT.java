@@ -49,11 +49,19 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "ModifyPerfDS", partitions =
-    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
+@CreateDS(
+    name = "ModifyPerfDS", 
+    partitions =
+    { 
+        @CreatePartition(
+            name = "example", 
+            suffix = "dc=example,dc=com", 
+            contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
         + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { @CreateIndex(attribute = "objectClass", cacheSize = 1000), @CreateIndex(attribute = "sn", cacheSize = 1000),
-            @CreateIndex(attribute = "cn", cacheSize = 1000) })
+        { 
+                @CreateIndex(attribute = "objectClass"), 
+                @CreateIndex(attribute = "sn"),
+                @CreateIndex(attribute = "cn") })
 
     }, enableChangeLog = false)
 public class ModifyPerfIT extends AbstractLdapTestUnit

@@ -45,19 +45,30 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "AddPerfDS", partitions =
-    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-        +
+@CreateDS(
+    name = "AddPerfDS", 
+    partitions =
+    { 
+        @CreatePartition(
+            name = "example", 
+            suffix = "dc=example,dc=com", 
+            contextEntry = 
+                @ContextEntry(
+                    entryLdif = 
+                        "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n"), indexes =
-        {
-                    @CreateIndex(attribute = "objectClass", cacheSize = 1000),
-                    @CreateIndex(attribute = "sn", cacheSize = 1000),
-                    @CreateIndex(attribute = "cn", cacheSize = 1000),
-                    @CreateIndex(attribute = "userCertificate", cacheSize = 1000) })
+                        "objectClass: domain\n\n"), 
+            indexes =
+            {
+                @CreateIndex(attribute = "objectClass"),
+                @CreateIndex(attribute = "sn"),
+                @CreateIndex(attribute = "cn"),
+                @CreateIndex(attribute = "userCertificate") 
+            })
 
-    }, enableChangeLog = false)
+    }, 
+    enableChangeLog = false)
 @ApplyLdifs(
     {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",

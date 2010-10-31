@@ -56,9 +56,9 @@ import org.junit.runner.RunWith;
                         "objectClass: domain\n\n" ),
                 indexes = 
                 {
-                    @CreateIndex( attribute = "objectClass", cacheSize = 1000 ),
-                    @CreateIndex( attribute = "sn", cacheSize = 1000 ),
-                    @CreateIndex( attribute = "cn", cacheSize = 1000 )
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "sn" ),
+                    @CreateIndex( attribute = "cn" )
                 } )
                 
         },
