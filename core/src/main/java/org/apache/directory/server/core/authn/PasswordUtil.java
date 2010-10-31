@@ -121,6 +121,15 @@ public class PasswordUtil
 
 
     /**
+     * @see #createStoragePassword(byte[], LdapSecurityConstants)
+     */
+    public static byte[] createStoragePassword( String credentials, LdapSecurityConstants algorithm )
+    {
+        return createStoragePassword( StringTools.getBytesUtf8( credentials ), algorithm );
+    }
+    
+    
+    /**
      * create a hashed password in a format that can be stored in the server.
      * If the specified algorithm requires a salt then a random salt of 8 byte size is used
      *  
@@ -128,7 +137,7 @@ public class PasswordUtil
      * @param algorithm the hashing algorithm to be applied
      * @return the password after hashing with the given algorithm 
      */
-    public static byte[] createStoragePassword( String credentials, LdapSecurityConstants algorithm )
+    public static byte[] createStoragePassword( byte[] credentials, LdapSecurityConstants algorithm )
     {
         byte[] salt;
         
@@ -157,7 +166,7 @@ public class PasswordUtil
                 salt = null;
         }
         
-        byte[] hashedPassword = encryptPassword( StringTools.getBytesUtf8( credentials ), algorithm, salt );
+        byte[] hashedPassword = encryptPassword( credentials, algorithm, salt );
         StringBuffer sb = new StringBuffer();
 
         if ( algorithm != null )
