@@ -593,8 +593,8 @@ ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
 ads-enableReplProvider: false
 
-dn: ou=extendedoperationhandlers,ads-serverId=ldapServer,ou=servers,ou=config
-ou: extendedoperationhandlers
+dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: transports
 objectclass: organizationalUnit
 objectclass: top
 
@@ -632,7 +632,7 @@ objectclass: ads-extendedOpHandler
 objectclass: top
 ads-enabled: true
 
-dn: ads-extendedOpId=starttlshandler,ou=extendedoperationhandlers,ads-serverId=ldapServer,ou=servers,ou=config
+dn: ads-extendedOpId=starttlshandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-enabled: true
 ads-extendedOpId: starttlshandler
 ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTlsHandler
@@ -640,7 +640,7 @@ objectclass: ads-extendedOpHandler
 objectclass: top
 ads-enabled: true
 
-dn: ads-extendedOpId=storedprochandler,ou=extendedoperationhandlers,ads-serverId=ldapServer,ou=servers,ou=config
+dn: ads-extendedOpId=storedprochandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-enabled: false
 ads-extendedOpId: storedprochandler
 ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler
