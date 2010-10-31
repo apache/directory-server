@@ -1,5 +1,0 @@
-version: 1
-dn: ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
-ou: saslmechanisms
-objectclass: organizationalUnit
-objectclass: top

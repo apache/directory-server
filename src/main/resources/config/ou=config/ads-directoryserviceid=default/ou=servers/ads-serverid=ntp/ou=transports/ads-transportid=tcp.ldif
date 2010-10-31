@@ -1,8 +1,0 @@
-version: 1
-dn: ads-transportId=tcp,ou=transports,ads-serverId=ntp,ou=servers,ou=config
-ads-systemport: 60123
-ads-transportid: tcp
-objectclass: ads-transport
-objectclass: ads-tcpTransport
-objectclass: top
-ads-enabled: true

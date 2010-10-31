@@ -1,5 +1,0 @@
-version: 1
-dn: ou=interceptors,ads-directoryServiceId=default,ou=config
-ou: interceptors
-objectclass: organizationalUnit
-objectclass: top

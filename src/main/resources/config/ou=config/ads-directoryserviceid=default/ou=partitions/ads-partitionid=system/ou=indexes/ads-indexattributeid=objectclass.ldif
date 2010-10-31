@@ -1,9 +1,0 @@
-version: 1
-dn: ads-indexAttributeId=objectClass,ou=indexes,ads-partitionId=system,ou=partit
- ions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: objectClass
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: top
-ads-enabled: true

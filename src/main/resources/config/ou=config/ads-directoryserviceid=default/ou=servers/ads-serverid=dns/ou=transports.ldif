@@ -1,5 +1,0 @@
-version: 1
-dn: ou=transports,ads-serverId=dns,ou=servers,ou=config
-ou: transports
-objectclass: organizationalUnit
-objectclass: top

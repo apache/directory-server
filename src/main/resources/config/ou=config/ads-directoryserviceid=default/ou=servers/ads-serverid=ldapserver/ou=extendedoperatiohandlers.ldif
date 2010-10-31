@@ -1,5 +1,0 @@
-version: 1
-dn: ou=extendedoperatiohandlers,ads-serverId=ldapServer,ou=servers,ou=config
-ou: extendedoperatiohandlers
-objectclass: organizationalUnit
-objectclass: top
