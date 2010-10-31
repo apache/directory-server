@@ -27,15 +27,25 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * if one has already been loaded.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <ID> The ID of the object
+ * @param <O> The associated object
  */
-public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
+public class ReverseIndexEntry<V, O, ID> extends AbstractIndexEntry<V, O, ID>
 {
     /** The underlying Tuple */
     private final Tuple<ID, V> tuple = new Tuple<ID, V>();
 
-    /** The indexed object if loaded from the store */
-    private O obj;
 
+    /**
+     * Creates a ForwardIndexEntry instance
+     */
+    public ReverseIndexEntry()
+    {
+        super( null );
+    }
+    
+    
 
     /**
      * Sets the Tuple value represented by this ReverseIndexEntry optionally
@@ -45,72 +55,84 @@ public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
      * @param tuple the tuple for the ReverseIndexEntry
      * @param obj the resusitated object that is indexed if any
      */
-    public void setTuple( Tuple<ID, V> tuple, O obj )
+    public void setTuple( Tuple<ID, V> tuple, O object )
     {
+        setObject( object );
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
-        this.obj = obj;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ID getId()
     {
         return tuple.getKey();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public V getValue()
     {
         return tuple.getValue();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setId( ID id )
     {
         tuple.setKey( id );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setValue( V key )
     {
         tuple.setValue( key );
     }
 
 
-    public O getObject()
-    {
-        return obj;
-    }
-
-
-    public void setObject( O obj )
-    {
-        this.obj = obj;
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public Tuple<ID, V> getTuple()
     {
         return tuple;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void clear()
     {
-        obj = null;
+        super.clear();
         tuple.setKey( null );
         tuple.setValue( null );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void copy( IndexEntry<V, O, ID> entry )
     {
-        this.obj = entry.getObject();
+        setObject( entry.getObject() );
         tuple.setKey( entry.getId() );
         tuple.setValue( entry.getValue() );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         StringBuilder buf = new StringBuilder();
@@ -119,6 +141,7 @@ public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
         buf.append( ", " );
         buf.append( tuple.getKey() );
         buf.append( " ]" );
+
         return buf.toString();
     }
 }

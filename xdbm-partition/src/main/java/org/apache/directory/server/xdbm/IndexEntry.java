@@ -23,9 +23,14 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
 
 
 /**
- * Interface for index entries.
+ * Interface for index entries. An index entry associate an Entry object with 
+ * a value (the key) and the Object ID in the table where it's stored. The Object
+ * may be present in this instance once we read it from the tabe.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <ID> The ID of the object
+ * @param <O> The associated object
  */
 public interface IndexEntry<V, O, ID>
 {
@@ -46,23 +51,23 @@ public interface IndexEntry<V, O, ID>
 
 
     /**
-     * Gets the id of the object indexed.
+     * Gets the id of the indexed object.
      *
-     * @return the id of the object indexed
+     * @return the id of the indexed object
      */
     ID getId();
 
 
     /**
-     * Sets the id of the object indexed.
+     * Sets the id of the indexed.object
      *
-     * @param id the id of the object indexed
+     * @param id the id of the indexed object
      */
     void setId( ID id );
 
 
     /**
-     * Gets the object indexed if resusitated.
+     * Gets the object indexed if resuscitated.
      *
      * @return the object indexed
      */
@@ -78,9 +83,9 @@ public interface IndexEntry<V, O, ID>
 
 
     /**
-     * Sets the object indexed.
+     * Sets the indexed object.
      *
-     * @param obj the object indexed
+     * @param obj the indexed object
      */
     void setObject( O obj );
 

@@ -24,93 +24,114 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
 
 /**
  * An index id value pair based on a Tuple which can optionally reference the
- * indexed obj if one has already been loaded.
+ * indexed object if one has already been loaded.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <ID> The ID of the object
+ * @param <O> The associated object
  */
-public class ForwardIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
+public class ForwardIndexEntry<V, O, ID> extends AbstractIndexEntry<V, O, ID>
 {
     /** The underlying Tuple */
     private final Tuple<V, ID> tuple = new Tuple<V, ID>();
 
-    /** The referenced obj if loaded from the store */
-    private O obj;
-
-
+    
+    /**
+     * Creates a ForwardIndexEntry instance
+     */
+    public ForwardIndexEntry()
+    {
+        super( null );
+    }
+    
+    
     /**
      * Sets the key value tuple represented by this ForwardIndexEntry optionally
      * setting the obj associated with the id if one was loaded from the
      * master table.
      *
      * @param tuple the tuple for the ForwardIndexEntry
-     * @param entry the resusitated obj if any
+     * @param object the resuscitated object if any
      */
-    public void setTuple( Tuple<V, ID> tuple, O entry )
+    public void setTuple( Tuple<V, ID> tuple, O object )
     {
+        setObject( object );
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
-        this.obj = entry;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ID getId()
     {
         return tuple.getValue();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public V getValue()
     {
         return tuple.getKey();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setId( ID id )
     {
         tuple.setValue( id );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setValue( V value )
     {
         tuple.setKey( value );
     }
 
 
-    public O getObject()
-    {
-        return obj;
-    }
-
-
-    public void setObject( O obj )
-    {
-        this.obj = obj;
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public Tuple<V, ID> getTuple()
     {
         return tuple;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void clear()
     {
-        obj = null;
+        super.clear();
         tuple.setKey( null );
         tuple.setValue( null );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void copy( IndexEntry<V, O, ID> entry )
     {
-        this.obj = entry.getObject();
+        super.copy( entry );
         tuple.setKey( entry.getValue() );
         tuple.setValue( entry.getId() );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         StringBuilder buf = new StringBuilder();
@@ -119,6 +140,7 @@ public class ForwardIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
         buf.append( ", " );
         buf.append( tuple.getValue() );
         buf.append( " ]" );
+        
         return buf.toString();
     }
 }

@@ -144,7 +144,7 @@ public interface Index<K, O, ID>
 
 
     /**
-     * Gets the scan count for the occurence of a specific attribute value 
+     * Gets the scan count for the occurrence of a specific attribute value 
      * within the index.
      *
      * @param attrVal the value of the attribute to get a scan count for

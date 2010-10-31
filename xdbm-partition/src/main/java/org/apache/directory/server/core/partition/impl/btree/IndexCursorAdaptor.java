@@ -60,6 +60,7 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
         this.wrappedCursor = wrappedCursor;
+        
         if ( forwardIndex )
         {
             forwardEntry = new ForwardIndexEntry<K, O, ID>();
