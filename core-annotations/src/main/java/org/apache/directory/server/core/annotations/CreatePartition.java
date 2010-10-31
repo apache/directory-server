@@ -41,7 +41,7 @@ import org.apache.directory.server.core.partition.Partition;
  *         }),
  *     @Indexes( {
  *         @CreateIndex( attribute = "cn" ),
- *         @CreateIndex( attribute = "sn', cacheSize = "100" )
+ *         @CreateIndex( attribute = "sn' )
  *     })
  * )
  * </pre>

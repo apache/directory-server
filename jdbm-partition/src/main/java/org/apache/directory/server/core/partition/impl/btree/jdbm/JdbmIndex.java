@@ -396,9 +396,8 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     // ------------------------------------------------------------------------
     // Scan Count Methods
     // ------------------------------------------------------------------------
-
     /**
-     * @see org.apache.directory.server.xdbm.Index#count()
+     * {@inheritDoc}
      */
     public int count() throws IOException
     {
@@ -407,7 +406,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * @see Index#count(java.lang.Object)
+     * {@inheritDoc}
      */
     public int count( K attrVal ) throws Exception
     {
@@ -461,8 +460,11 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     public synchronized void add( K attrVal, Long id ) throws Exception
     {
-        forward.put( getNormalized( attrVal ), id );
-        reverse.put( id, getNormalized( attrVal ) );
+        K normalizedValue = getNormalized( attrVal );
+
+        // The pair to be removed must exists
+        forward.put( normalizedValue, id );
+        reverse.put( id, normalizedValue );
     }
 
 
@@ -471,8 +473,14 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     public synchronized void drop( K attrVal, Long id ) throws Exception
     {
-        forward.remove( getNormalized( attrVal ), id );
-        reverse.remove( id, getNormalized( attrVal ) );
+        K normalizedValue = getNormalized( attrVal );
+        
+        // The pair to be removed must exists
+        if ( forward.has( normalizedValue, id ) )
+        {
+            forward.remove( normalizedValue, id );
+            reverse.remove( id, normalizedValue );
+        }
     }
 
 

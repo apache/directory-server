@@ -35,9 +35,8 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.GenericIndex;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -121,21 +120,10 @@ public class DSAnnotationProcessor
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        Index index;
-                        
-                        if ( createIndex.type() == Index.class )
-                        {
-                            // The annotation does not specify a specific index type.
-                            // We use the generic index implementation.
-                            index = new GenericIndex( createIndex.attribute(), createIndex.cacheSize() );
-                        }
-                        else
-                        {
-                            // The annotation contains a specific index type, we use that type.
-                            index = createIndex.type().newInstance();
-                            index.setAttributeId( createIndex.attribute() );
-                            index.setCacheSize( createIndex.cacheSize() );
-                        }
+                        // The annotation does not specify a specific index type.
+                        // We use the generic index implementation.
+                        JdbmIndex index = new JdbmIndex();
+                        index.setAttributeId( createIndex.attribute() );
                         
                         btreePartition.addIndexedAttributes( index );
                     }

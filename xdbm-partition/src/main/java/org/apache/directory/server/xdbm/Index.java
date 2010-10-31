@@ -27,18 +27,20 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
- * An index into the master table which returns one or more entry's positions
- * in the master table for those entries which posses an attribute with the
- * specified value.  Cursors over indices can also be gotten to traverse the
+ * An index used to retrieve elements into the master table. Each stored element that is
+ * indexed has a unique identifier (ID). We may have more than one element associated with
+ * a value (K). We may cache the retrieved element (O). <br/>
+ * Cursors over indices can also be gotten to traverse the
  * values of the index.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <K> The Index key type
- * @param <O> The indexed value type
- * @param <ID> The unisuqe identifier type
+ * @param <K> The Indexed value type, used to retrieve an element
+ * @param <O> The indexed element type, when retrieved
+ * @param <ID> The unique identifier type in the master table
  */
 public interface Index<K, O, ID>
 {
+    /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;
 
 
@@ -166,32 +168,40 @@ public interface Index<K, O, ID>
     K reverseLookup( ID id ) throws Exception;
 
 
+    /**
+     * Add an entry into the index, associated with the element ID. The added
+     * value is the key to retrieve the element having the given ID.
+     * 
+     * @param attrVal The added value
+     * @param id The element ID pointed by the added value
+     * @throws Exception If the addition can't be done
+     */
     void add( K attrVal, ID id ) throws Exception;
 
 
     /**
      * Remove all the reference to an entry from the index.
-     * 
+     * <br/>
      * As an entry might be referenced more than once in the forward index,
      * depending on which index we are dealing with, we need to iterate 
      * over all the values contained into the reverse index for this entryId.
-     * 
+     * <br/>
      * For instance, considering the ObjectClass index for an entry having
      * three ObjectClasses (top, person, inetOrgPerson), then the reverse
      * index will contain :
-     * 
+     * <pre>
      * [entryId, [top, person, inetOrgPerson]]
-     * 
+     * </pre>
      * and the forward index will contain many entries like :
+     * <pre>
      * [top, [..., entryId, ...]]
      * [person,  [..., entryId, ...]]
      * [inetOrgPerson,  [..., entryId, ...]]
-     * 
+     * </pre>
      * So dropping the entryId means that we must first get all the values from
      * the reverse index (and we will get [top, person, inetOrgPerson]) then to
      * iterate through all those values to remove entryId from the associated 
      * list of entryIds.
-     * 
      * 
      * @param entryId The master table entry ID to remove
      * @throws Exception
@@ -199,6 +209,13 @@ public interface Index<K, O, ID>
     void drop( ID entryId ) throws Exception;
 
 
+    /**
+     * Remove the pair <K,ID> from the index for the given value and id. 
+     * 
+     * @param attrVal The value we want to remove from the index
+     * @param id The associated ID
+     * @throws Exception If the removal can't be done
+     */
     void drop( K attrVal, ID id ) throws Exception;
 
 
