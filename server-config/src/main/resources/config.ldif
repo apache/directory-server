@@ -122,14 +122,14 @@ ads-interceptorclassname: org.apache.directory.server.core.exception.ExceptionIn
 ads-interceptorid: exceptionInterceptor
 ads-enabled: true
 
-dn: ads-interceptorId=keyderivationinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=keyDerivationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: false
 ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
-ads-interceptorid: keyderivationinterceptor
+ads-interceptorid: keyDerivationInterceptor
 
 dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -149,14 +149,14 @@ ads-interceptorclassname: org.apache.directory.server.core.operational.Operation
 ads-interceptorid: operationalAttributeInterceptor
 ads-enabled: true
 
-dn: ads-interceptorId=passwordpolicyinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=passwordPolicyInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: false
 ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor
-ads-interceptorid: passwordpolicyinterceptor
+ads-interceptorid: passwordPolicyInterceptor
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
