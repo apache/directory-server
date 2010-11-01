@@ -570,7 +570,7 @@ dn: ads-transportid=udp,ou=transports,ads-serverId=kerberos,ou=servers,ads-direc
 ads-systemport: 60088
 ads-transportbacklog: 50
 ads-transportnbthreads: 4
-ads-transportaddress: localhost
+ads-transportaddress: 0.0.0.0
 ads-transportid: udp
 objectclass: ads-transport
 objectclass: ads-udpTransport
@@ -614,7 +614,7 @@ ads-enabled: true
 dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 10636
 ads-transportenablessl: true
-ads-transportaddress: localhost
+ads-transportaddress: 0.0.0.0
 ads-transportid: ldaps
 objectclass: ads-transport
 objectclass: ads-tcpTransport
