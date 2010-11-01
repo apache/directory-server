@@ -873,12 +873,12 @@ public class ConfigBuilder
         
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
-            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() + File.pathSeparator + indexFileName ) );
+            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ) );
         }
         else
         {
             // Set the Partition working dir as a default
-            index.setWkDirPath( new File( partition.getPartitionDir(), indexFileName ) );
+            index.setWkDirPath( partition.getPartitionDir() );
         }
                 
         return index;
