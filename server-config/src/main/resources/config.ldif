@@ -38,7 +38,7 @@ ads-interceptors: exceptionInterceptor
 ads-interceptors: keyderivationinterceptor
 ads-interceptors: normalizationInterceptor
 ads-interceptors: operationalAttributeInterceptor
-ads-interceptors: passwordpolicyinterceptor
+ads-interceptors: passwordHashingInterceptor
 ads-interceptors: referralInterceptor
 ads-interceptors: schemaInterceptor
 ads-interceptors: subentryInterceptor
@@ -149,14 +149,14 @@ ads-interceptorclassname: org.apache.directory.server.core.operational.Operation
 ads-interceptorid: operationalAttributeInterceptor
 ads-enabled: true
 
-dn: ads-interceptorId=passwordPolicyInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=passwordHashingInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-enabled: false
+ads-enabled: true
 ads-interceptororder: 8
-ads-interceptorclassname: org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor
-ads-interceptorid: passwordPolicyInterceptor
+ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
+ads-interceptorid: passwordHashingInterceptor
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
