@@ -434,7 +434,7 @@ public class ConfigBuilder
         
         for ( String encryptionType : encryptionTypes )
         {
-            types[pos++] = EncryptionType.valueOf( encryptionType );
+            types[pos++] = EncryptionType.getByName( encryptionType );
         }
         
         return types;

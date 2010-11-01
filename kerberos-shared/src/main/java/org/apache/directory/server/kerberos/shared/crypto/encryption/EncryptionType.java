@@ -34,172 +34,162 @@ public enum EncryptionType
     /**
      * The "unknown" encryption type.
      */
-    UNKNOWN( -1 ),
+    UNKNOWN( -1, "UNKNOWN" ),
 
     /**
      * The "null" encryption type.
      */
-    NULL( 0 ),
+    NULL( 0, "null" ),
 
     /**
      * The des-cbc-crc encryption type.
      */
-    DES_CBC_CRC( 1 ),
+    DES_CBC_CRC( 1, "des-cbc-crc" ),
 
     /**
      * The des-cbc-md4 encryption type.
      */
-    DES_CBC_MD4( 2 ),
+    DES_CBC_MD4( 2, "des-cbc-md4" ),
 
     /**
      * The des-cbc-md5 encryption type.
      */
-    DES_CBC_MD5( 3 ),
+    DES_CBC_MD5( 3, "des-cbc-md5" ),
 
     /**
      * The reserved (4) encryption type.
      */
-    RESERVED4( 4 ),
+    RESERVED4( 4, "[reserved]" ),
 
     /**
      * The des3-cbc-md5 encryption type.
      */
-    DES3_CBC_MD5( 5 ),
+    DES3_CBC_MD5( 5, "des3-cbc-md5" ),
 
     /**
      * The reserved (6) encryption type.
      */
-    RESERVED6( 6 ),
+    RESERVED6( 6, "[reserved]" ),
 
     /**
      * The des3-cbc-sha1 encryption type.
      */
-    DES3_CBC_SHA1( 7 ),
+    DES3_CBC_SHA1( 7, "des3-cbc-sha1" ),
 
     /**
      * The dsaWithSHA1-CmsOID encryption type.
      */
-    DSAWITHSHA1_CMSOID( 9 ),
+    DSAWITHSHA1_CMSOID( 9, "dsaWithSHA1-CmsOID" ),
 
     /**
      * The md5WithRSAEncryption-CmsOID encryption type.
      */
-    MD5WITHRSAENCRYPTION_CMSOID( 10 ),
+    MD5WITHRSAENCRYPTION_CMSOID( 10, "md5WithRSAEncryption-CmsOID" ),
 
     /**
      * The sha1WithRSAEncryption-CmsOID encryption type.
      */
-    SHA1WITHRSAENCRYPTION_CMSOID( 11 ),
+    SHA1WITHRSAENCRYPTION_CMSOID( 11, "sha1WithRSAEncryption-CmsOID" ),
 
     /**
      * The rc2CBC-EnvOID encryption type.
      */
-    RC2CBC_ENVOID( 12 ),
+    RC2CBC_ENVOID( 12, "rc2CBC-EnvOID" ),
 
     /**
      * The rsaEncryption-EnvOID encryption type.
      */
-    RSAENCRYPTION_ENVOID( 13 ),
+    RSAENCRYPTION_ENVOID( 13, "rsaEncryption-EnvOID" ),
 
     /**
      * The rsaES-OAEP-ENV-OID encryption type.
      */
-    RSAES_OAEP_ENV_OID( 14 ),
+    RSAES_OAEP_ENV_OID( 14, "rsaES-OAEP-ENV-OID" ),
 
     /**
      * The des-ede3-cbc-Env-OID encryption type.
      */
-    DES_EDE3_CBC_ENV_OID( 15 ),
+    DES_EDE3_CBC_ENV_OID( 15, "des-ede3-cbc-Env-OID" ),
 
     /**
      * The des3-cbc-sha1-kd encryption type.
      */
-    DES3_CBC_SHA1_KD( 16 ),
+    DES3_CBC_SHA1_KD( 16, "des3-cbc-sha1-kd" ),
 
     /**
      * The aes128-cts-hmac-sha1-96 encryption type.
      */
-    AES128_CTS_HMAC_SHA1_96( 17 ),
+    AES128_CTS_HMAC_SHA1_96( 17, "aes128-cts-hmac-sha1-96" ),
 
     /**
      * The aes256-cts-hmac-sha1-96 encryption type.
      */
-    AES256_CTS_HMAC_SHA1_96( 18 ),
+    AES256_CTS_HMAC_SHA1_96( 18, "aes256-cts-hmac-sha1-96" ),
 
     /**
      * The rc4-hmac encryption type.
      */
-    RC4_HMAC( 23 ),
+    RC4_HMAC( 23, "rc4-hmac" ),
 
     /**
      * The rc4-hmac-exp encryption type.
      */
-    RC4_HMAC_EXP( 24 ),
+    RC4_HMAC_EXP( 24, "rc4-hmac-exp" ),
 
     /**
      * The subkey-keymaterial encryption type.
      */
-    SUBKEY_KEYMATERIAL( 65 ),
+    SUBKEY_KEYMATERIAL( 65, "subkey-keymaterial" ),
 
     /**
      * The rc4-md4 encryption type.
      */
-    RC4_MD4( -128 ),
+    RC4_MD4( -128, "rc4-md4" ),
 
     /**
      * The c4-hmac-old encryption type.
      */
-    RC4_HMAC_OLD( -133 ),
+    RC4_HMAC_OLD( -133, "rc4-hmac-old" ),
 
     /**
      * The rc4-hmac-old-exp encryption type.
      */
-    RC4_HMAC_OLD_EXP( -135 );
+    RC4_HMAC_OLD_EXP( -135, "rc4-hmac-old-exp" );
 
     /**
      * The value/code for the encryption type.
      */
     private final int ordinal;
 
+    /**
+     * The name
+     */
+    private final String name;
+
     /** A map containing all the values */
-    private static Map<String, EncryptionType> encryptionTypes = new HashMap<String, EncryptionType>();
-    
+    private static Map<String, EncryptionType> encryptionTypesByName = new HashMap<String, EncryptionType>();
+
+    /** A map containing all the values */
+    private static Map<Integer, EncryptionType> encryptionTypesByOrdinal = new HashMap<Integer, EncryptionType>();
+
     /** Initialization of the previous map */
     static
     {
-        encryptionTypes.put( "null", NULL );
-        encryptionTypes.put( "des-cbc-crc", DES_CBC_CRC ); 
-        encryptionTypes.put( "des-cbc-md4", DES_CBC_MD4 );          
-        encryptionTypes.put( "des-cbc-md5", DES_CBC_MD5 );          
-        encryptionTypes.put( "[reserved]", RESERVED4 );         
-        encryptionTypes.put( "des3-cbc-md5", DES3_CBC_MD5 );            
-        encryptionTypes.put( "[reserved]", RESERVED6 );         
-        encryptionTypes.put( "des3-cbc-sha1", DES3_CBC_SHA1 );          
-        encryptionTypes.put( "dsaWithSHA1-CmsOID", DSAWITHSHA1_CMSOID );            
-        encryptionTypes.put( "md5WithRSAEncryption-CmsOID", MD5WITHRSAENCRYPTION_CMSOID );          
-        encryptionTypes.put( "sha1WithRSAEncryption-CmsOID", SHA1WITHRSAENCRYPTION_CMSOID );            
-        encryptionTypes.put( "rc2CBC-EnvOID", RC2CBC_ENVOID );          
-        encryptionTypes.put( "rsaEncryption-EnvOID", RSAENCRYPTION_ENVOID );            
-        encryptionTypes.put( "rsaES-OAEP-ENV-OID", RSAES_OAEP_ENV_OID );        
-        encryptionTypes.put( "des-ede3-cbc-Env-OID", DES_EDE3_CBC_ENV_OID );            
-        encryptionTypes.put( "des3-cbc-sha1-kd", DES3_CBC_SHA1_KD );        
-        encryptionTypes.put( "aes128-cts-hmac-sha1-96", AES128_CTS_HMAC_SHA1_96 );          
-        encryptionTypes.put( "aes256-cts-hmac-sha1-96", AES256_CTS_HMAC_SHA1_96 );          
-        encryptionTypes.put( "rc4-hmac", RC4_HMAC );            
-        encryptionTypes.put( "rc4-hmac-exp", RC4_HMAC_EXP );            
-        encryptionTypes.put( "subkey-keymaterial", SUBKEY_KEYMATERIAL );            
-        encryptionTypes.put( "rc4-md4", RC4_MD4 );      
-        encryptionTypes.put( "rc4-hmac-old", RC4_HMAC_OLD );            
-        encryptionTypes.put( "rc4-hmac-old-exp", RC4_HMAC_OLD_EXP );            
-        encryptionTypes.put( "UNKNOWN", UNKNOWN );
+        for ( EncryptionType type : EncryptionType.values() )
+        {
+            encryptionTypesByName.put( type.getName().toLowerCase(), type );
+            encryptionTypesByOrdinal.put( type.getOrdinal(), type );
+        }
     }
+
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private EncryptionType( int ordinal )
+    private EncryptionType( int ordinal, String name )
     {
         this.ordinal = ordinal;
+        this.name = name;
     }
 
     
@@ -210,7 +200,7 @@ public enum EncryptionType
      */
     public static Collection<EncryptionType> getEncryptionTypes()
     {
-        return encryptionTypes.values();
+        return encryptionTypesByName.values();
     }
 
     /**
@@ -221,33 +211,13 @@ public enum EncryptionType
      */
     public static EncryptionType getTypeByOrdinal( int type )
     {
-        switch ( type )
+        if ( encryptionTypesByOrdinal.containsKey( type ) )
         {
-            case 0 : return NULL; 
-            case 1 : return DES_CBC_CRC; 
-            case 2 : return DES_CBC_MD4; 
-            case 3 : return DES_CBC_MD5; 
-            case 4 : return RESERVED4; 
-            case 5 : return DES3_CBC_MD5; 
-            case 6 : return RESERVED6; 
-            case 7 : return DES3_CBC_SHA1; 
-            case 9 : return DSAWITHSHA1_CMSOID; 
-            case 10 : return MD5WITHRSAENCRYPTION_CMSOID; 
-            case 11 : return SHA1WITHRSAENCRYPTION_CMSOID; 
-            case 12 : return RC2CBC_ENVOID; 
-            case 13 : return RSAENCRYPTION_ENVOID; 
-            case 14 : return RSAES_OAEP_ENV_OID; 
-            case 15 : return DES_EDE3_CBC_ENV_OID; 
-            case 16 : return DES3_CBC_SHA1_KD; 
-            case 17 : return AES128_CTS_HMAC_SHA1_96; 
-            case 18 : return AES256_CTS_HMAC_SHA1_96; 
-            case 23 : return RC4_HMAC; 
-            case 24 : return RC4_HMAC_EXP; 
-            case 65 : return SUBKEY_KEYMATERIAL; 
-            case -128 : return RC4_MD4; 
-            case -133 : return RC4_HMAC_OLD; 
-            case -135 : return RC4_HMAC_OLD_EXP; 
-            default : return UNKNOWN; 
+            return encryptionTypesByOrdinal.get( type );
+        }
+        else
+        {
+            return UNKNOWN;
         }
     }
 
@@ -270,35 +240,7 @@ public enum EncryptionType
      */
     public String getName()
     {
-        switch (this )
-        {
-            case NULL                           : return "NULL"; 
-            case DES_CBC_CRC                    : return "des-cbc-crc"; 
-            case DES_CBC_MD4                    : return "des-cbc-md4";          
-            case DES_CBC_MD5                    : return "des-cbc-md5";          
-            case RESERVED4                      : return "[reserved]";           
-            case DES3_CBC_MD5                   : return "des3-cbc-md5";         
-            case RESERVED6                      : return "[reserved]";           
-            case DES3_CBC_SHA1                  : return "des3-cbc-sha1";            
-            case DSAWITHSHA1_CMSOID             : return "dsaWithSHA1-CmsOID";           
-            case MD5WITHRSAENCRYPTION_CMSOID    : return "md5WithRSAEncryption-CmsOID";          
-            case SHA1WITHRSAENCRYPTION_CMSOID   : return "sha1WithRSAEncryption-CmsOID";         
-            case RC2CBC_ENVOID                  : return "rc2CBC-EnvOID";            
-            case RSAENCRYPTION_ENVOID           : return "rsaEncryption-EnvOID";         
-            case RSAES_OAEP_ENV_OID             : return "rsaES-OAEP-ENV-OID";       
-            case DES_EDE3_CBC_ENV_OID           : return "des-ede3-cbc-Env-OID";         
-            case DES3_CBC_SHA1_KD               : return "des3-cbc-sha1-kd";     
-            case AES128_CTS_HMAC_SHA1_96        : return "aes128-cts-hmac-sha1-96";          
-            case AES256_CTS_HMAC_SHA1_96        : return "aes256-cts-hmac-sha1-96";          
-            case RC4_HMAC                       : return "rc4-hmac";         
-            case RC4_HMAC_EXP                   : return "rc4-hmac-exp";         
-            case SUBKEY_KEYMATERIAL             : return "subkey-keymaterial";           
-            case RC4_MD4                        : return "rc4-md4";      
-            case RC4_HMAC_OLD                   : return "rc4-hmac-old";         
-            case RC4_HMAC_OLD_EXP               : return "rc4-hmac-old-exp";         
-            case UNKNOWN                        : return "UNKNOWN";
-            default                             : return "UNKNOWN";
-        }
+        return name;
     }
 
     /**
@@ -315,9 +257,9 @@ public enum EncryptionType
         
         String lcType = type.toLowerCase();
         
-        if ( encryptionTypes.containsKey( lcType ) )
+        if ( encryptionTypesByName.containsKey( lcType ) )
         {
-            return encryptionTypes.get( lcType );
+            return encryptionTypesByName.get( lcType );
         }
         else
         {

@@ -548,6 +548,7 @@ ads-krbPostdatedAllowed: true
 ads-krbPrimaryRealm: EXAMPLE.COM
 ads-krbProxiableAllowed: true
 ads-krbRenewableAllowed: true
+ads-searchBaseDN: ou=users,dc=example,dc=com
 
 dn: ou=transports,ads-serverId=kerberos,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
