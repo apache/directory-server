@@ -33,7 +33,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -147,6 +147,7 @@ public class AvlRdnIndexTest
     // -----------------------------------------------------------------------
 
     @Test(expected = UnsupportedOperationException.class)
+    @Ignore
     public void testCacheSize() throws Exception
     {
         // uninitialized index

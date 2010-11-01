@@ -183,6 +183,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
+        
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();

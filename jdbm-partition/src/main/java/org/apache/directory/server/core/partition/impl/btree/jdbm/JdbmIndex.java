@@ -32,6 +32,7 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K, O> implements Index<K, O, Long>
+public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
@@ -60,15 +61,12 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      * default duplicate limit before duplicate keys switch to using a btree for values
      */
     public static final int DEFAULT_DUPLICATE_LIMIT = 512;
-
+    
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
 
     /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
-
-    /** the attribute type resolved for this JdbmIndex */
-    protected AttributeType attribute;
 
     /**
      * the forward btree where the btree key is the value of the indexed attribute and
@@ -96,22 +94,10 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     protected SynchronizedLRUMap keyCache;
 
-    /** the size (number of index entries) for the cache */
-    protected int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
-
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
      */
     protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
-
-    /**
-     * the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     */
-    protected String attributeId;
-
-    /** whether or not this index has been initialized */
-    protected boolean initialized;
 
     /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
@@ -143,6 +129,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     public JdbmIndex()
     {
+        super();
         initialized = false;
     }
 
@@ -152,8 +139,8 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      */
     public JdbmIndex( String attributeId )
     {
+        super( attributeId );
         initialized = false;
-        setAttributeId( attributeId );
     }
 
 
@@ -169,11 +156,11 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
         
         keyCache = new SynchronizedLRUMap( cacheSize );
-        attribute = attributeType;
+        this.attributeType = attributeType;
 
         if ( attributeId == null )
         {
-            setAttributeId( attribute.getName() );
+            setAttributeId( attributeType.getName() );
         }
 
         if ( this.wkDirPath == null )
@@ -188,7 +175,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
-        this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+        this.recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
 
         try
         {
@@ -202,9 +189,9 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
         // write the AttributeType description
-        fw.write( attribute.toString() );
+        fw.write( attributeType.toString() );
         fw.close();
         
         initialized = true;
@@ -222,11 +209,11 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     {
         SerializableComparator<K> comp;
 
-        MatchingRule mr = attribute.getEquality();
+        MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_574, attribute.getName() ) );
+            throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
         comp = new SerializableComparator<K>( mr.getOid() );
@@ -239,7 +226,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
         comp.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<K, Long>( schemaManager, attribute.getOid() + FORWARD_BTREE, numDupLimit, recMan,
+        forward = new JdbmTable<K, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
             comp, LongComparator.INSTANCE, null, LongSerializer.INSTANCE );
 
         /*
@@ -248,25 +235,16 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        if ( attribute.isSingleValued() )
+        if ( attributeType.isSingleValued() )
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getOid() + REVERSE_BTREE, recMan,
+            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
                 LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
         }
         else
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getOid() + REVERSE_BTREE, numDupLimit, recMan,
+            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit, recMan,
                 LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
         }
-    }
-
-
-    /**
-     * @see org.apache.directory.server.xdbm.Index#getAttribute()
-     */
-    public AttributeType getAttribute()
-    {
-        return attribute;
     }
 
 
@@ -274,48 +252,9 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
 
-    /**
-     * Protects configuration properties from being set after initialization.
-     *
-     * @param property the property to protect
-     */
-    private void protect( String property )
-    {
-        if ( initialized )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_575, property ) );
-        }
-    }
-
-
     public boolean isCountExact()
     {
         return false;
-    }
-
-
-    /**
-     * Gets the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     *
-     * @return configured attribute oid or alias name
-     */
-    public String getAttributeId()
-    {
-        return attributeId;
-    }
-
-
-    /**
-     * Sets the attribute identifier set at configuration time for this index which may not
-     * be the OID but an alias name for the attributeType associated with this Index
-     *
-     * @param attributeId configured attribute oid or alias name
-     */
-    public void setAttributeId( String attributeId )
-    {
-        protect( "attributeId" );
-        this.attributeId = attributeId;
     }
 
 
@@ -341,29 +280,6 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     {
         protect( "numDupLimit" );
         this.numDupLimit = numDupLimit;
-    }
-
-
-    /**
-     * Gets the size of the index cache in terms of the number of index entries to be cached.
-     *
-     * @return the size of the index cache
-     */
-    public int getCacheSize()
-    {
-        return cacheSize;
-    }
-
-
-    /**
-     * Sets the size of the index cache in terms of the number of index entries to be cached.
-     *
-     * @param cacheSize the size of the index cache
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        protect( "cacheSize" );
-        this.cacheSize = cacheSize;
     }
 
 
@@ -708,11 +624,11 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         {
             if ( attrVal instanceof String )
             {
-                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( ( String ) attrVal );
+                normalized = ( K ) attributeType.getEquality().getNormalizer().normalize( ( String ) attrVal );
             }
             else
             {
-                normalized = ( K ) attribute.getEquality().getNormalizer().normalize(
+                normalized = ( K ) attributeType.getEquality().getNormalizer().normalize(
                     new BinaryValue( ( byte[] ) attrVal ) ).get();
             }
 

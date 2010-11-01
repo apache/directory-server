@@ -75,11 +75,11 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
 
         keyCache = new SynchronizedLRUMap( cacheSize );
-        attribute = attributeType;
+        this.attributeType = attributeType;
 
         if ( attributeId == null )
         {
-            setAttributeId( attribute.getName() );
+            setAttributeId( attributeType.getName() );
         }
         
         if ( this.wkDirPath == null )
@@ -109,9 +109,9 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
         }
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attribute.getName() + ".txt" ) );
+        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
         // write the AttributeType description
-        fw.write( attribute.toString() );
+        fw.write( attributeType.toString() );
         fw.close();
         
         initialized = true;
@@ -128,20 +128,20 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {
-        MatchingRule mr = attribute.getEquality();
+        MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_574, attribute.getName() ) );
+            throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
         ParentIdAndRdnComparator<Long> comp = new ParentIdAndRdnComparator<Long>( mr.getOid() );
 
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attribute.getOid() + FORWARD_BTREE,
+        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
             recMan, comp, null, LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attribute.getOid() + REVERSE_BTREE,
+        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
             recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
     }
 

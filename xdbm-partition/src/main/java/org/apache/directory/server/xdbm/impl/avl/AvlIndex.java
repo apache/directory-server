@@ -25,7 +25,7 @@ import java.io.File;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.Tuple;
@@ -42,23 +42,22 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlIndex<K, O> implements Index<K, O, Long>
+public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
 {
     protected Normalizer normalizer;
-    protected AttributeType attributeType;
     protected AvlTable<K, Long> forward;
     protected AvlTable<Long, K> reverse;
-    protected String attributeId;
 
 
     public AvlIndex()
     {
+        super();
     }
 
 
     public AvlIndex( String attributeId )
     {
-        setAttributeId( attributeId );
+        super( attributeId );
     }
 
 
@@ -275,24 +274,6 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public AttributeType getAttribute()
-    {
-        return attributeType;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getAttributeId()
-    {
-        return attributeId;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     @SuppressWarnings("unchecked")
     public K getNormalized( K attrVal ) throws Exception
     {
@@ -432,15 +413,6 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
 
 
     /**
-     * {@inheritDoc}
-     */
-    public void setAttributeId( String attributeId )
-    {
-        this.attributeId = attributeId;
-    }
-
-
-    /**
      * throws UnsupportedOperationException cause it is a in-memory index
      */
     public void setWkDirPath( File wkDirPath )
@@ -455,21 +427,6 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
     public File getWkDirPath()
     {
         return null;
-    }
-
-
-    /**
-     * throws UnsupportedOperationException cause it is a in-memory index
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_214 ) );
-    }
-
-
-    public int getCacheSize()
-    {
-        return 0;
     }
 
 

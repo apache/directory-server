@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GenericIndex<K, O, ID> implements Index<K, O, ID>
+public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
 {
     /** The attribute identifier for this index */ 
     protected String attributeId;
@@ -76,6 +76,7 @@ public class GenericIndex<K, O, ID> implements Index<K, O, ID>
      */
     public GenericIndex( String attributeId, int cacheSize, File wkDirPath )
     {
+        super( attributeId );
         this.attributeId = attributeId;
         this.cacheSize = cacheSize;
         this.wkDirPath = wkDirPath;
