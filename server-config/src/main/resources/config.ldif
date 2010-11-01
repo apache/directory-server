@@ -198,7 +198,7 @@ dn: ads-pwdId=pwdPolicy,ads-directoryServiceId=default,ou=config
 objectClass: top
 objectClass: ads-base
 objectClass: ads-passwordPolicy
-ads-pwdId: pwdpolicy
+ads-pwdId: pwdPolicy
 ads-pwdSafeModify: FALSE
 ads-pwdMaxAge: 0
 ads-pwdFailureCountInterval: 30
