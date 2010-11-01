@@ -34,12 +34,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
 {
-    /** The attribute identifier for this index */ 
-    protected String attributeId;
-    
-    /** Index cache size */
-    protected int cacheSize;
-    
     /** Index working directory */
     protected File wkDirPath;
 
@@ -77,7 +71,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     public GenericIndex( String attributeId, int cacheSize, File wkDirPath )
     {
         super( attributeId );
-        this.attributeId = attributeId;
         this.cacheSize = cacheSize;
         this.wkDirPath = wkDirPath;
     }
@@ -221,18 +214,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public String getAttributeId()
-    {
-        return attributeId;
-    }
-
-
-    public int getCacheSize()
-    {
-        return cacheSize;
-    }
-
-
     public K getNormalized( K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -284,18 +265,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     public Cursor<K> reverseValueCursor( ID id ) throws Exception
     {
         throw new UnsupportedOperationException();
-    }
-
-
-    public void setAttributeId( String attributeId )
-    {
-        this.attributeId = attributeId;
-    }
-
-
-    public void setCacheSize( int cacheSize )
-    {
-        this.cacheSize = cacheSize;
     }
 
 
