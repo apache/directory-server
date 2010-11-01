@@ -35,7 +35,7 @@ ads-interceptors: collectiveAttributeInterceptor
 ads-interceptors: defaultAuthorizationInterceptor
 ads-interceptors: eventInterceptor
 ads-interceptors: exceptionInterceptor
-ads-interceptors: keyderivationinterceptor
+ads-interceptors: keyDerivationInterceptor
 ads-interceptors: normalizationInterceptor
 ads-interceptors: operationalAttributeInterceptor
 ads-interceptors: passwordHashingInterceptor
@@ -127,7 +127,7 @@ objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: false
-ads-interceptororder: 9
+ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
 ads-interceptorid: keyDerivationInterceptor
 
@@ -154,7 +154,7 @@ objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: true
-ads-interceptororder: 8
+ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
 ads-interceptorid: passwordHashingInterceptor
 
