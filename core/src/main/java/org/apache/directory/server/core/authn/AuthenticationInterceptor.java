@@ -158,9 +158,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private AttributeType AT_PWD_GRACE_USE_TIME;
 
-    //FIXME should be removed after the config branch merge
-    private PpolicyConfigContainer policyContainer;
-    
+
     /**
      * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
      */
@@ -201,8 +199,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         this.directoryService = directoryService;
 
-        directoryService.setPwdPolicies( policyContainer );;
-        
         schemaManager = directoryService.getSchemaManager();
 
         adminSession = directoryService.getAdminSession();
@@ -1089,17 +1085,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             pwdResetSet.remove( unbindContext.getDn() );
         }
-    }
-
-
-    /**
-     * a temporary hack to set the ppolicies in the DS
-     * @deprecated this method will be removed after the config branch gets merged in trunk
-     */
-    public void setPwdPolicyConfig( PasswordPolicyConfiguration policyConfig )
-    {
-        policyContainer = new PpolicyConfigContainer();
-        policyContainer.setDefaultPolicy( policyConfig );
     }
 
 
