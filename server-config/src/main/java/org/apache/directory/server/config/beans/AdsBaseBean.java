@@ -137,6 +137,16 @@ public abstract class AdsBaseBean
         }
     }
     
+    /**
+     * a convenient method to finding if this bean was disabled in the config
+     * 
+     * @return true if the bean was disabled, false otherwise
+     */
+    public final boolean isDisabled()
+    {
+        return !enabled;
+    }
+    
     
     /**
      * Formated print of a long
