@@ -43,7 +43,6 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
@@ -53,6 +52,7 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,10 +81,6 @@ import org.junit.runner.RunWith;
                     @CreateIndex( attribute = "dc" ),
                     @CreateIndex( attribute = "ou" )
                 } )
-        },
-        additionalInterceptors = 
-        {
-            PasswordPolicyInterceptor.class
         })
 @CreateLdapServer ( 
     transports = 
@@ -105,6 +101,8 @@ import org.junit.runner.RunWith;
     {
         StoredProcedureExtendedOperationHandler.class
     })
+@Ignore( "This test case is no loger useful cause we removed PasswordPolicyInterceptor, instead look at PasswordPolicyTest" )
+//WARN: this test class will be removed soon
 public class PasswordPolicyServiceIT extends AbstractLdapTestUnit
 {
     private DirContext ctx;
@@ -112,8 +110,7 @@ public class PasswordPolicyServiceIT extends AbstractLdapTestUnit
     
     
     /**
-     * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyInterceptor}
-     * interceptor, and create a users subcontext.
+     * Set up a partition for EXAMPLE.COM
      */
     @Before
     public void setUp() throws Exception
