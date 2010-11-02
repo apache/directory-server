@@ -50,7 +50,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private int dsMaxPDUSize = 2048;
 
     /** The flag that tells if the password should be returned as a normal attribute or not */
-    private boolean dsPasswordHidden = true;
+    private boolean dsPasswordHidden = false;
 
     /** The delay between two flushes on disk */
     private long dsSyncPeriodMillis = 15000L;

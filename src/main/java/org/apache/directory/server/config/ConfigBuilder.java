@@ -57,6 +57,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -136,7 +137,10 @@ public class ConfigBuilder
 
         for ( InterceptorBean interceptorBean : interceptorBeans )
         {
-            orderedInterceptorBeans.add( interceptorBean );
+            if ( interceptorBean.isEnabled() )
+            {
+                orderedInterceptorBeans.add( interceptorBean );
+            }
         }
 
         // Instantiate the interceptors now
@@ -169,7 +173,7 @@ public class ConfigBuilder
      */
     public static PasswordPolicyConfiguration createPwdPolicyConfig( PasswordPolicyBean passwordPolicyBean )
     {
-        if ( passwordPolicyBean == null )
+        if ( ( passwordPolicyBean == null ) || passwordPolicyBean.isDisabled() )
         {
             return null;
         }
@@ -209,6 +213,11 @@ public class ConfigBuilder
      */
     public static ChangeLog createChangeLog( ChangeLogBean changeLogBean )
     {
+        if ( ( changeLogBean == null ) || changeLogBean.isDisabled() )
+        {
+            return null;
+        }
+        
         ChangeLog changeLog = new DefaultChangeLog();
         
         changeLog.setEnabled( changeLogBean.isEnabled() );
@@ -226,6 +235,11 @@ public class ConfigBuilder
      */
     public static Journal createJournal( JournalBean journalBean )
     {
+        if ( ( journalBean == null ) || journalBean.isDisabled() )
+        {
+            return null;
+        }
+        
         Journal journal = new DefaultJournal();
 
         journal.setRotation( journalBean.getJournalRotation() );
@@ -326,6 +340,11 @@ public class ConfigBuilder
      */
     public static MechanismHandler createSaslMechHandler( SaslMechHandlerBean saslMechHandlerBean ) throws ConfigurationException
     {
+        if ( ( saslMechHandlerBean == null ) || saslMechHandlerBean.isDisabled() )
+        {
+            return null;
+        }
+        
         String mechClassName = saslMechHandlerBean.getSaslMechClassName();
         
         Class<?> mechClass = null;
@@ -378,6 +397,11 @@ public class ConfigBuilder
      */
     public static Transport createTransport( TransportBean transportBean )
     {
+        if ( ( transportBean == null ) || transportBean.isDisabled() )
+        {
+            return null;
+        }
+        
         Transport transport = null;
 
         if ( transportBean instanceof TcpTransportBean )
@@ -412,7 +436,10 @@ public class ConfigBuilder
         
         for ( TransportBean transportBean : transportBeans )
         {
-            transports[i++] = createTransport( transportBean );
+            if ( transportBean.isEnabled() )
+            {
+                transports[i++] = createTransport( transportBean );
+            }
         }
         
         return transports;
@@ -434,7 +461,7 @@ public class ConfigBuilder
         
         for ( String encryptionType : encryptionTypes )
         {
-            types[pos++] = EncryptionType.valueOf( encryptionType );
+            types[pos++] = EncryptionType.getByName( encryptionType );
         }
         
         return types;
@@ -450,7 +477,7 @@ public class ConfigBuilder
     public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the NtpServer is disabled
-        if ( !ntpServerBean.isEnabled() )
+        if ( ( ntpServerBean == null ) || ntpServerBean.isDisabled() )
         {
             return null;
         }
@@ -506,7 +533,7 @@ public class ConfigBuilder
     public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the KdcServer is disabled
-        if ( !kdcServerBean.isEnabled() )
+        if ( ( kdcServerBean == null ) || kdcServerBean.isDisabled() )
         {
             return null;
         }
@@ -593,6 +620,11 @@ public class ConfigBuilder
 
         for ( HttpWebAppBean httpWebAppBean : httpWebAppBeans )
         {
+            if ( httpWebAppBean.isDisabled() )
+            {
+                continue;
+            }
+            
             WebApp webApp = new WebApp();
             
             // HttpAppCtxPath
@@ -618,7 +650,7 @@ public class ConfigBuilder
     public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the HttpServer is disabled
-        if ( !httpServerBean.isEnabled() )
+        if ( ( httpServerBean == null ) || httpServerBean.isDisabled() )
         {
             return null;
         }
@@ -657,7 +689,7 @@ public class ConfigBuilder
     public static ChangePasswordServer createChangePasswordServer( ChangePasswordServerBean changePasswordServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the LdapServer is disabled
-        if ( !changePasswordServerBean.isEnabled() )
+        if ( ( changePasswordServerBean == null ) || changePasswordServerBean.isDisabled() )
         {
             return null;
         }
@@ -719,7 +751,7 @@ public class ConfigBuilder
     public static LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the LdapServer is disabled
-        if ( !ldapServerBean.isEnabled() )
+        if ( ( ldapServerBean == null ) || ldapServerBean.isDisabled() )
         {
             return null;
         }
@@ -844,6 +876,11 @@ public class ConfigBuilder
      */
     public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
     {
+        if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
+        {
+            return null;
+        }
+        
         JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         
         index.setAttributeId( jdbmIndexBean.getIndexAttributeId() );
@@ -894,7 +931,7 @@ public class ConfigBuilder
 
         for ( IndexBean indexBean : indexesBeans )
         {
-            if ( indexBean instanceof JdbmIndexBean )
+            if ( indexBean.isEnabled() && ( indexBean instanceof JdbmIndexBean ) )
             {
                 indexes.add( createJdbmIndex( partition, (JdbmIndexBean)indexBean, directoryService ) );
             }
@@ -914,6 +951,11 @@ public class ConfigBuilder
      */
     public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
     {
+        if ( ( jdbmPartitionBean == null ) || jdbmPartitionBean.isDisabled() )
+        {
+            return null;
+        }
+        
         JdbmPartition jdbmPartition = new JdbmPartition();
         
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
@@ -975,6 +1017,11 @@ public class ConfigBuilder
      */
     public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean ) throws ConfigurationException
     {
+        if ( ( partitionBean == null ) || partitionBean.isDisabled() )
+        {
+            return null;
+        }
+        
         if ( partitionBean instanceof JdbmPartitionBean )
         {
             return createJdbmPartition( directoryService, (JdbmPartitionBean)partitionBean );
@@ -998,6 +1045,11 @@ public class ConfigBuilder
         
         for ( PartitionBean partitionBean : partitionBeans )
         {
+            if ( partitionBean.isDisabled() )
+            {
+                continue;
+            }
+            
             Partition partition = createPartition( directoryService, partitionBean );
             
             if ( partition != null )
@@ -1060,13 +1112,31 @@ public class ConfigBuilder
         directoryService.setAllowAnonymousAccess( directoryServiceBean.isDsAllowAnonymousAccess() );
         
         // ChangeLog
-        directoryService.setChangeLog( createChangeLog( directoryServiceBean.getChangeLog() ) );
+        ChangeLog cl = createChangeLog( directoryServiceBean.getChangeLog() );
+        if ( cl != null )
+        {
+            directoryService.setChangeLog( cl );
+        }
         
         // DenormalizedOpAttrsEnabled
         directoryService.setDenormalizeOpAttrsEnabled( directoryServiceBean.isDsDenormalizeOpAttrsEnabled() );
         
         // Journal
-        directoryService.setJournal( createJournal( directoryServiceBean.getJournal() ) );
+        Journal jl = createJournal( directoryServiceBean.getJournal() );
+        if ( jl != null )
+        {
+            directoryService.setJournal( jl );
+        }
+        
+        // password policy
+        // TODO add support for reading multiple policies from the config
+        PasswordPolicyConfiguration pPolicyConfig = createPwdPolicyConfig( directoryServiceBean.getPasswordPolicy() );
+        if ( pPolicyConfig != null )
+        {
+            PpolicyConfigContainer pPolicies = new  PpolicyConfigContainer();
+            pPolicies.setDefaultPolicy( pPolicyConfig );
+            directoryService.setPwdPolicies( pPolicies );
+        }
         
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );

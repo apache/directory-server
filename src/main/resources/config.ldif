@@ -35,10 +35,10 @@ ads-interceptors: collectiveAttributeInterceptor
 ads-interceptors: defaultAuthorizationInterceptor
 ads-interceptors: eventInterceptor
 ads-interceptors: exceptionInterceptor
-ads-interceptors: keyderivationinterceptor
+ads-interceptors: keyDerivationInterceptor
 ads-interceptors: normalizationInterceptor
 ads-interceptors: operationalAttributeInterceptor
-ads-interceptors: passwordpolicyinterceptor
+ads-interceptors: passwordHashingInterceptor
 ads-interceptors: referralInterceptor
 ads-interceptors: schemaInterceptor
 ads-interceptors: subentryInterceptor
@@ -122,14 +122,14 @@ ads-interceptorclassname: org.apache.directory.server.core.exception.ExceptionIn
 ads-interceptorid: exceptionInterceptor
 ads-enabled: true
 
-dn: ads-interceptorId=keyderivationinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=keyDerivationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: false
-ads-interceptororder: 9
+ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
-ads-interceptorid: keyderivationinterceptor
+ads-interceptorid: keyDerivationInterceptor
 
 dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -149,14 +149,14 @@ ads-interceptorclassname: org.apache.directory.server.core.operational.Operation
 ads-interceptorid: operationalAttributeInterceptor
 ads-enabled: true
 
-dn: ads-interceptorId=passwordpolicyinterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=passwordHashingInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-enabled: false
-ads-interceptororder: 8
-ads-interceptorclassname: org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor
-ads-interceptorid: passwordpolicyinterceptor
+ads-enabled: true
+ads-interceptororder: 9
+ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
+ads-interceptorid: passwordHashingInterceptor
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -198,7 +198,7 @@ dn: ads-pwdId=pwdPolicy,ads-directoryServiceId=default,ou=config
 objectClass: top
 objectClass: ads-base
 objectClass: ads-passwordPolicy
-ads-pwdId: pwdpolicy
+ads-pwdId: pwdPolicy
 ads-pwdSafeModify: FALSE
 ads-pwdMaxAge: 0
 ads-pwdFailureCountInterval: 30
@@ -548,6 +548,7 @@ ads-krbPostdatedAllowed: true
 ads-krbPrimaryRealm: EXAMPLE.COM
 ads-krbProxiableAllowed: true
 ads-krbRenewableAllowed: true
+ads-searchBaseDN: ou=users,dc=example,dc=com
 
 dn: ou=transports,ads-serverId=kerberos,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -569,7 +570,7 @@ dn: ads-transportid=udp,ou=transports,ads-serverId=kerberos,ou=servers,ads-direc
 ads-systemport: 60088
 ads-transportbacklog: 50
 ads-transportnbthreads: 4
-ads-transportaddress: localhost
+ads-transportaddress: 0.0.0.0
 ads-transportid: udp
 objectclass: ads-transport
 objectclass: ads-udpTransport
@@ -613,7 +614,7 @@ ads-enabled: true
 dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 10636
 ads-transportenablessl: true
-ads-transportaddress: localhost
+ads-transportaddress: 0.0.0.0
 ads-transportid: ldaps
 objectclass: ads-transport
 objectclass: ads-tcpTransport
