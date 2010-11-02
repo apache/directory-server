@@ -634,7 +634,6 @@ objectclass: top
 ads-enabled: true
 
 dn: ads-extendedOpId=starttlshandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-enabled: true
 ads-extendedOpId: starttlshandler
 ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTlsHandler
 objectclass: ads-extendedOpHandler
