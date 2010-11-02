@@ -334,9 +334,15 @@ public class ApacheDsService
         LOG.info( "Starting the LDAP server" );
         long startTime = System.currentTimeMillis();
 
-        printBanner( BANNER_LDAP );
-
         ldapServer = ConfigBuilder.createLdapServer( ldapServerBean, directoryService );
+        
+        if ( ldapServer == null )
+        {
+            LOG.info( "Cannot find any reference to the LDAP Server in the configuration : the server won't be started" );
+            return;
+        }
+
+        printBanner( BANNER_LDAP );
         
         ldapServer.setDirectoryService( directoryService );
 
