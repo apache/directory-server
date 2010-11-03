@@ -509,18 +509,43 @@ objectclass: top
 ads-enabled: true
 
 dn: ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
-ads-systemport: 7009
 ads-serverid: httpserver
 ads-enabled: false
-objectclass: ads-httpServer
+objectclass: ads-server
+objectclass: ads-httpserver
 objectclass: top
 
-dn: ou=webapps,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
-ou: webapps
+dn: ou=transports,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
+ou: transports
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-Id=testapp,ou=webapps,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ads-transportid=http,ou=transports,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+ads-transportid: http
+ads-systemport: 8080
+ads-transportaddress: 0.0.0.0
+ads-enabled: true
+
+dn: ads-transportid=https,ou=transports,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+ads-transportid: https
+ads-transportaddress: 0.0.0.0
+ads-systemport: 8443
+ads-enabled: true
+
+dn: ou=httpWebapps,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: organizationalUnit
+objectclass: top
+ou: httpWebapps
+
+dn: ads-Id=testapp,ou=httpWebapps,ads-serverId=httpserver,ou=servers,ads-directoryServiceId=default,ou=config
 ads-httpwarfile: /path/to/foo/war
 ads-httpappctxpath: /foo
 ads-id: testapp
@@ -723,63 +748,4 @@ ads-transportid: udp
 objectclass: ads-transport
 objectclass: ads-udpTransport
 objectclass: top
-ads-enabled: true
-
-dn: ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-server
-objectclass: ads-httpServer
-ads-serverId: httpServer
-description: HTTP server
-ads-httpConfFile: test.conf
-
-dn: ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-ou: httpWebApps
-objectclass: organizationalUnit
-objectclass: top
-
-dn: ads-id=webApp1,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-httpWebApp
-ads-Id: webApp1
-ads-httpWarFile: war file 1
-ads-httpAppCtxPath: /home/app1
-
-dn: ads-id=webApp2,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-httpWebApp
-ads-Id: webApp2
-ads-httpWarFile: war file 2
-ads-httpAppCtxPath: /home/app2
-
-dn: ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-ou: transports
-objectclass: organizationalUnit
-objectclass: top
-
-dn: ads-transportid=http-tcp,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-transport
-objectclass: ads-tcpTransport
-ads-transportid: ntp-http
-ads-systemport: 123
-ads-transportenablessl: false
-ads-transportbacklog: 50
-ads-transportnbthreads: 8
-ads-transportaddress: 0.0.0.0
-ads-enabled: true
-
-dn: ads-transportid=http-udp,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-transport
-objectclass: ads-udpTransport
-ads-transportid: ntp-http
-ads-transportaddress: localhost
-ads-systemport: 456
-ads-transportenablessl: true
 ads-enabled: true
