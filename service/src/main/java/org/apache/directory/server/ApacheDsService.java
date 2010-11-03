@@ -183,7 +183,7 @@ public class ApacheDsService
         startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
 
         // start the jetty http server
-        //startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
+        startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
     }
 
 
