@@ -611,12 +611,12 @@ public class ConfigBuilder
      */
     public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService ) throws LdapException
     {
-        if ( ( httpWebAppBeans == null ) || ( httpWebAppBeans.size() == 0 ) )
-        {
-            return null;
-        }
-        
         Set<WebApp> webApps = new HashSet<WebApp>();
+
+        if ( httpWebAppBeans == null )
+        {
+            return webApps;
+        }
 
         for ( HttpWebAppBean httpWebAppBean : httpWebAppBeans )
         {
@@ -665,10 +665,28 @@ public class ConfigBuilder
         
         for ( TransportBean transportBean : transports )
         {
+            if ( transportBean.isDisabled() )
+            {
+                continue;
+            }
+            
             if ( transportBean instanceof TcpTransportBean )
             {
-                httpServer.setPort( transportBean.getSystemPort() );
-                break;
+                TcpTransport transport = new TcpTransport( transportBean.getSystemPort() );
+                transport.setAddress( transportBean.getTransportAddress() );
+                
+                if ( transportBean.getTransportId().equalsIgnoreCase( HttpServer.HTTP_TRANSPORT_ID ) )
+                {
+                    httpServer.setHttpTransport( transport );
+                }
+                else if ( transportBean.getTransportId().equalsIgnoreCase( HttpServer.HTTPS_TRANSPORT_ID ) )
+                {
+                    httpServer.setHttpsTransport( transport );
+                }
+                else
+                {
+                    LOG.warn( "Transport ids of HttpServer should be either 'http' or 'https'" );
+                }
             }
         }
         
