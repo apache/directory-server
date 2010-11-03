@@ -39,7 +39,8 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
-import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -74,7 +75,7 @@ public class ConfigPartitionReader
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
     /** the partition which holds the configuration data */
-    private AbstractLdifPartition configPartition;
+    private BTreePartition configPartition;
 
     /** the search engine of the partition */
     private SearchEngine<Entry, Long> se;
@@ -100,7 +101,7 @@ public class ConfigPartitionReader
      * @param configPartition the non null config partition
      * @param partitionsDir the directory where all the partitions' data is stored
      */
-    public ConfigPartitionReader( AbstractLdifPartition configPartition, File partitionsDir )
+    public ConfigPartitionReader( BTreePartition configPartition, File partitionsDir )
     {
         if ( configPartition == null )
         {
