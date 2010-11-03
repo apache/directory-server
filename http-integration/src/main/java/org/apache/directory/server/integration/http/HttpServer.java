@@ -21,21 +21,37 @@
 package org.apache.directory.server.integration.http;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.OutputStream;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.directory.server.HttpDirectoryService;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.i18n.I18n;
-import org.mortbay.jetty.Connector;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.bouncycastle.asn1.pkcs.EncryptedPrivateKeyInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.jce.provider.X509CertParser;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.mortbay.xml.XmlConfiguration;
 import org.slf4j.Logger;
@@ -59,9 +75,18 @@ public class HttpServer
     /** a collection to hold the configured web applications */
     private Set<WebApp> webApps;
 
-    /** the default port to be used when no configuration file is provided */
-    private int port = 8080;
-
+    /** Transport for http */
+    private TcpTransport httpTransport = null;
+    
+    /** Transport for https */
+    private TcpTransport httpsTransport = null;
+    
+    /** protocol identifier for http */
+    public static final String HTTP_TRANSPORT_ID = "http";
+    
+    /** protocol identifier for https */
+    public static final String HTTPS_TRANSPORT_ID = "https";
+    
     /** an internal flag to check the server configuration */
     private boolean configured = false;
 
@@ -142,10 +167,52 @@ public class HttpServer
         {
             jetty = new Server();
 
-            Connector connector = new SelectChannelConnector();
-            connector.setPort( port );
-            jetty.setConnectors( new Connector[]{ connector } );
+            if ( httpTransport != null )
+            {
+                SelectChannelConnector httpConnector = new SelectChannelConnector();
+                httpConnector.setPort( httpTransport.getPort() );
+                httpConnector.setHost( httpTransport.getAddress() );
+                jetty.addConnector( httpConnector );
+            }
 
+            if ( httpsTransport != null )
+            {
+                // load the admin entry to get the private key and certificate
+                Entry adminEntry = dirService.getAdminSession().lookup( DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN ), new String[]{ "+" } );
+                
+                File confDir = dirService.getInstanceLayout().getConfDirectory();
+                File ksFile = new File( confDir, "httpserver.generated.ks" );
+                
+                String password = UUID.randomUUID().toString();
+                
+                KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+                ks.load( null, null );
+                
+                X509CertParser parser = new X509CertParser();
+                
+                parser.engineInit( new ByteArrayInputStream( adminEntry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
+                
+                X509Certificate cert = ( X509Certificate ) parser.engineRead();
+                
+                ks.setCertificateEntry( "cert", cert );
+                
+                KeyPair keyPair = TlsKeyGenerator.getKeyPair( adminEntry );
+                ks.setKeyEntry( "privatekey", keyPair.getPrivate(), password.toCharArray(), new Certificate[]{ cert } );
+                
+                OutputStream stream = new FileOutputStream( ksFile );
+                ks.store( stream, password.toCharArray() );
+
+                SslSocketConnector httpsConnector = new SslSocketConnector();
+                httpsConnector.setPort( httpsTransport.getPort() );
+                httpsConnector.setHost( httpsTransport.getAddress() );
+                httpsConnector.setKeystoreType( ks.getType() );
+                httpsConnector.setKeystore( ksFile.getAbsolutePath() );
+                httpsConnector.setPassword( password );
+                httpsConnector.setKeyPassword( password );
+                
+                jetty.addConnector( httpsConnector );
+            }
+            
             List<Handler> handlers = new ArrayList<Handler>();
             for ( WebApp w : webApps )
             {
@@ -236,15 +303,27 @@ public class HttpServer
     }
 
 
-    public int getPort()
+    public TcpTransport getHttpTransport()
     {
-        return port;
+        return httpTransport;
     }
 
 
-    public void setPort( int port )
+    public void setHttpTransport( TcpTransport httpTransport )
     {
-        this.port = port;
+        this.httpTransport = httpTransport;
+    }
+
+
+    public TcpTransport getHttpsTransport()
+    {
+        return httpsTransport;
+    }
+
+
+    public void setHttpsTransport( TcpTransport httpsTransport )
+    {
+        this.httpsTransport = httpsTransport;
     }
 
 }
