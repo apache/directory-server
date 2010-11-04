@@ -935,7 +935,8 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
 
         iModDnReq.setName( entryDn );
-        iModDnReq.setNewSuperior( newDn );
+        iModDnReq.setNewRdn( newDn.getRdn() );
+        iModDnReq.setNewSuperior( newDn.getParent() );
         iModDnReq.setDeleteOldRdn( deleteOldRdn );
 
         return modifyDn( iModDnReq );
