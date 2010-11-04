@@ -123,7 +123,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    public void testModifyOperationalOpAttrs() throws Exception
+    public void testAddShouldAddOperationalOpAttrs() throws Exception
     {
         /*
          * create ou=testing00,ou=system
@@ -133,8 +133,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
-        entry = connection.lookup( "ou=testing00,ou=system" );
-        assertNotNull( entry );
+        // search user attributes doesn't include op attrs
+        entry = connection.lookup( "ou=testing00,ou=system", "*" );
 
         assertNotNull( entry );
         assertEquals( "testing00", entry.get( "ou" ).getString() );
@@ -145,14 +145,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "createTimestamp" ) );
         assertNull( entry.get( "creatorsName" ) );
 
-        Cursor<Response> responses = connection.search( "ou=testing00,ou=system", "(ou=testing00)",
-            SearchScope.SUBTREE, "ou", "createTimestamp", "creatorsName" );
-        responses.next();
-        SearchResultEntry result = ( SearchResultEntry ) responses.get();
+        // search with '+' includes op attrs
+        entry = connection.lookup( "ou=testing00,ou=system", "*", "+" );
 
-        assertNotNull( result.getEntry().get( "ou" ) );
-        assertNotNull( result.getEntry().get( "creatorsName" ) );
-        assertNotNull( result.getEntry().get( "createTimestamp" ) );
+        assertNotNull( entry.get( "ou" ) );
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
     }
 
 
@@ -234,18 +232,20 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyShouldLeadToModifiersAttributes() throws Exception
     {
+        Entry entry = connection.lookup( DN_KATE_BUSH, "modifiersName", "modifyTimestamp" );
+
+        assertNull( entry.get( "modifiersName" ) );
+        assertNull( entry.get( "modifyTimestamp" ) );
+        
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "description", "Singer Songwriter" ) );
 
         connection.modify( DN_KATE_BUSH, modifyOp );
 
-        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
-            "modifiersName", "modifyTimestamp" );
-        responses.next();
-        SearchResultEntry result = ( SearchResultEntry ) responses.get();
+        entry = connection.lookup( DN_KATE_BUSH, "modifiersName", "modifyTimestamp" );
 
-        assertNotNull( result.getEntry().get( "modifiersName" ) );
-        assertNotNull( result.getEntry().get( "modifyTimestamp" ) );
+        assertNotNull( entry.get( "modifiersName" ) );
+        assertNotNull( entry.get( "modifyTimestamp" ) );
     }
 
 
@@ -265,12 +265,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( DN_KATE_BUSH, modifyAddOp );
 
         // Determine modifyTimestamp
-        Cursor<Response> responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT,
-            "modifyTimestamp" );
-        responses.next();
-        SearchResultEntry result = ( SearchResultEntry ) responses.get();
+        Entry entry = connection.lookup( DN_KATE_BUSH, "modifyTimestamp" );
 
-        EntryAttribute modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
+        EntryAttribute modifyTimestamp = entry.get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
         String oldTimestamp = modifyTimestamp.getString();
 
@@ -284,11 +281,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         connection.modify( DN_KATE_BUSH, modifyOp );
 
         // Determine modifyTimestamp after modification
-        responses = connection.search( DN_KATE_BUSH, "(objectClass=*)", SearchScope.OBJECT, "modifyTimestamp" );
-        responses.next();
-        result = ( SearchResultEntry ) responses.get();
+        entry = connection.lookup( DN_KATE_BUSH, "modifyTimestamp" );
 
-        modifyTimestamp = result.getEntry().get( "modifyTimestamp" );
+        modifyTimestamp = entry.get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
         String newTimestamp = modifyTimestamp.getString();
 
