@@ -1,0 +1,23 @@
+<projectDescription>
+  <name>apacheds-kerberos-codec</name>
+  <comment>The Kerberos protocol encoder/decoder module. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects>
+    <project>apacheds-core-api</project>
+    <project>apacheds-core-constants</project>
+    <project>apacheds-i18n</project>
+    <project>apacheds-protocol-shared</project>
+    <project>junit-addons</project>
+    <project>ldap-client-api</project>
+    <project>shared-i18n</project>
+    <project>shared-ldap</project>
+    <project>shared-ldap-schema</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
