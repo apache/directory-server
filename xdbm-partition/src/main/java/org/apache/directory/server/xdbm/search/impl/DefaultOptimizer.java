@@ -324,12 +324,11 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      * @return the worst case full scan count
      * @throws Exception if there is an error access database indices
      */
-    @SuppressWarnings("unchecked")
     private long getFullScan( LeafNode node ) throws Exception
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index idx = db.getIndex( node.getAttributeType() );
+            Index<?, ?, ?> idx = db.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -350,7 +349,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
             Index<String, E, ID> idx = db.getPresenceIndex();
-            return idx.count( node.getAttribute() );
+            return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
         {
