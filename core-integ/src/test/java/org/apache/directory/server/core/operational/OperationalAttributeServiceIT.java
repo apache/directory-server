@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import javax.naming.NamingException;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -63,8 +63,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "OperationalDS")
-@ApplyLdifs(
-    { "dn: cn=Kate Bush,ou=system", "objectClass: top", "objectClass: person", "cn: Bush", "sn: Kate Bush" })
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String DN_KATE_BUSH = "cn=Kate Bush,ou=system";
@@ -76,12 +74,22 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( service );
+
+        // add this entry before each test because we want 
+        // to check that operational attributes are added
+        Entry entry = LdifUtils
+            .createEntry( DN_KATE_BUSH, "objectClass: top", "objectClass: person", "cn: Kate Bush", "sn: Bush" );
+        connection.add( entry );
     }
 
 
     @After
     public void shutdown() throws Exception
     {
+        // delete this entry after each test because we want 
+        // to check that operational attributes are added
+        connection.delete( DN_KATE_BUSH );
+
         connection.close();
     }
 
@@ -236,7 +244,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         assertNull( entry.get( "modifiersName" ) );
         assertNull( entry.get( "modifyTimestamp" ) );
-        
+
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultEntryAttribute( "description", "Singer Songwriter" ) );
 
@@ -339,4 +347,78 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
     }
+
+
+    /**
+     * Rename an entry and check whether attribute modifyTimestamp changes.
+     */
+    @Test
+    public void testRenameShouldChangeModifyTimestamp() throws Exception, InterruptedException
+    {
+        Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNull( entry.get( "modifiersName" ) );
+        assertNull( entry.get( "modifyTimestamp" ) );
+
+        ModifyDnResponse rename = connection.rename( DN_KATE_BUSH, "cn=KB" );
+        System.out.println( rename );
+
+        entry = connection.lookup( "cn=KB,ou=system", "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNotNull( entry.get( "modifiersName" ) );
+        assertNotNull( entry.get( "modifyTimestamp" ) );
+    }
+
+
+    /**
+     * Move an entry and check whether attribute modifyTimestamp changes.
+     */
+    @Test
+    public void testMoveShouldChangeModifyTimestamp() throws Exception, InterruptedException
+    {
+        Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNull( entry.get( "modifiersName" ) );
+        assertNull( entry.get( "modifyTimestamp" ) );
+
+        connection.move( DN_KATE_BUSH, "ou=users,ou=system" );
+
+        entry = connection.lookup( "cn=Kate Bush,ou=users,ou=system", "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNotNull( entry.get( "modifiersName" ) );
+        assertNotNull( entry.get( "modifyTimestamp" ) );
+    }
+
+
+    /**
+     * MoveAndRename an entry and check whether attribute modifyTimestamp changes.
+     */
+    @Test
+    public void testMoveAndRenameShouldChangeModifyTimestamp() throws Exception, InterruptedException
+    {
+        Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNull( entry.get( "modifiersName" ) );
+        assertNull( entry.get( "modifyTimestamp" ) );
+
+        connection.moveAndRename( DN_KATE_BUSH, "cn=KB,ou=users,ou=system" );
+
+        entry = connection.lookup( "cn=KB,ou=users,ou=system", "*", "+" );
+
+        assertNotNull( entry.get( "creatorsName" ) );
+        assertNotNull( entry.get( "createTimestamp" ) );
+        assertNotNull( entry.get( "modifiersName" ) );
+        assertNotNull( entry.get( "modifyTimestamp" ) );
+    }
+
 }

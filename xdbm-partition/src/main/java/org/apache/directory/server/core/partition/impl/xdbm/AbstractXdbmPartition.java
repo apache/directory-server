@@ -414,8 +414,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         	DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
         	RDN newRdn = moveAndRenameContext.getNewRdn();
         	boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
+        	Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
         	
-            store.moveAndRename( oldDn, newSuperiorDn, newRdn, null, deleteOldRdn );
+            store.moveAndRename( oldDn, newSuperiorDn, newRdn, modifiedEntry, deleteOldRdn );
         }
         catch ( LdapException le )
         {
