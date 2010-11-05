@@ -327,6 +327,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
+        Entry modifiedEntry = renameContext.getOriginalEntry().clone();
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        //modifiedEntry.setDn( renameContext.getNewDn() );
+        renameContext.setModifiedEntry( modifiedEntry );
+
         nextInterceptor.rename( renameContext );
     }
 

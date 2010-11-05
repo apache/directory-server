@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -362,8 +361,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "modifiersName" ) );
         assertNull( entry.get( "modifyTimestamp" ) );
 
-        ModifyDnResponse rename = connection.rename( DN_KATE_BUSH, "cn=KB" );
-        System.out.println( rename );
+        connection.rename( DN_KATE_BUSH, "cn=KB" );
 
         entry = connection.lookup( "cn=KB,ou=system", "*", "+" );
 

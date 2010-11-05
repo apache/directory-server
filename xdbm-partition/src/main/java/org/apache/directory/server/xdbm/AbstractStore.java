@@ -1171,11 +1171,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
         ID id = getEntryId( dn );
-        boolean hasEntry = true;
 
         if ( entry == null )
         {
-            hasEntry = false;
             entry = lookup( id );
         }
 
@@ -1197,12 +1195,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().get();
 
-            if ( ! hasEntry )
-            {
-                AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
+            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
-                entry.add( newRdnAttrType, newAtav.getUpValue() );
-            }
+            entry.add( newRdnAttrType, newAtav.getUpValue() );
 
             if ( hasUserIndexOn( newNormType ) )
             {

@@ -822,6 +822,9 @@ public class InterceptorChain
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( renameContext );
+        Entry originalEntry = getOriginalEntry( renameContext );
+        renameContext.setOriginalEntry( originalEntry );
+        renameContext.setModifiedEntry( originalEntry.clone() );
 
         try
         {
