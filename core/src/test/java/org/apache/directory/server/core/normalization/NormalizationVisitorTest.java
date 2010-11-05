@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
@@ -56,10 +57,11 @@ public class NormalizationVisitorTest
 {
     /** a filter node value normalizer and undefined node remover */
     private static FilterNormalizingVisitor normVisitor;
-    
+
     /** A reference to the schemaManager */
     private static SchemaManager schemaManager;
-    
+
+
     @BeforeClass
     public static void init() throws Exception
     {
@@ -78,25 +80,41 @@ public class NormalizationVisitorTest
         normVisitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
 
+
     @Test
     public void testSimpleFilter() throws ParseException
     {
         ExprNode filter = FilterParser.parse( schemaManager, "(ou=  test  1 )" );
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
-        
+
         assertNotNull( result );
         assertTrue( result instanceof EqualityNode<?> );
-        EqualityNode<?> equalityNode = (EqualityNode<?>)result;
-        
+        EqualityNode<?> equalityNode = ( EqualityNode<?> ) result;
+
         assertEquals( "test 1", equalityNode.getValue().getNormalizedValue() );
         assertEquals( "2.5.4.11", equalityNode.getAttributeType().getOid() );
     }
-    
-    
+
+
+    @Test
+    public void testPresenceFilter() throws ParseException
+    {
+        ExprNode filter = FilterParser.parse( schemaManager, "(ou=*)" );
+        ExprNode result = ( ExprNode ) filter.accept( normVisitor );
+
+        assertNotNull( result );
+        assertTrue( result instanceof PresenceNode );
+        PresenceNode presenceNode = ( PresenceNode ) result;
+
+        assertEquals( "2.5.4.11", presenceNode.getAttributeType().getOid() );
+    }
+
+
     @Test
     public void testBranchNormalizedVisitor() throws Exception
     {
-        ExprNode filter = FilterParser.parse( schemaManager, "(!(|(uniqueMember=cn=user1,ou=Test,dc=example,dc=com)(member=cn=user2,ou=Test,dc=example,dc=com)))" );
+        ExprNode filter = FilterParser.parse( schemaManager,
+            "(!(|(uniqueMember=cn=user1,ou=Test,dc=example,dc=com)(member=cn=user2,ou=Test,dc=example,dc=com)))" );
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         assertNotNull( result );
