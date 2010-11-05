@@ -134,6 +134,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
         assertEquals( 5, count );
+        cursor.close();
     }
 
 
@@ -151,6 +152,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         }
 
         assertEquals( 4, count );
+        cursor.close();
     }
 
 
@@ -221,6 +223,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         {
             count++;
         }
+        cursor.close();
 
         // due to dereferencing of aliases we get only one entry
         assertEquals( 2, count );
@@ -233,6 +236,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         {
             count++;
         }
+        cursor.close();
 
         assertEquals( 3, count );
     }

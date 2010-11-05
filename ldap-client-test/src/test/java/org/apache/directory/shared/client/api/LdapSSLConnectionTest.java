@@ -105,7 +105,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
      * @throws IOException
      */
     @Test
-    public void testBindRequest()
+    public void testBindRequest() throws Exception
     {
         LdapConnection connection = null;
         try
@@ -114,13 +114,15 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
 
             assertNotNull( bindResponse );
-
-            connection.close();
         }
         catch ( Exception le )
         {
             le.printStackTrace();
             fail();
+        }
+        finally
+        {
+            connection.close();
         }
     }
 
@@ -136,7 +138,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         List<String> controlList = connection.getSupportedControls();
         assertNotNull( controlList );
         assertFalse( controlList.isEmpty() );
-        
+
         connection.close();
     }    
     
@@ -147,7 +149,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
      * @throws IOException
      */
     @Test
-    public void testStartTLSBindRequest()
+    public void testStartTLSBindRequest() throws Exception
     {
         LdapNetworkConnection connection = null;
         try
@@ -165,6 +167,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         {
             fail();
         }
+        finally
+        {
+            connection.close();
+        }
     }
 
 
@@ -174,12 +180,14 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
         connection.connect();
         connection.startTls();
-        
+
         DN dn = new DN( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
 
         List<String> controlList = connection.getSupportedControls();
         assertNotNull( controlList );
         assertFalse( controlList.isEmpty() );
+
+        connection.close();
     }
 }

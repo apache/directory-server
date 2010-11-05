@@ -221,6 +221,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             map.put( result.getDn().getName(), result );
         }
+        cursor.close();
 
         assertEquals( 2, map.size() );
 
@@ -236,5 +237,6 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         
         BindResponse resp = connection.bind();
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+        connection.close();
     }
 }

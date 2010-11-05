@@ -176,6 +176,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
             //System.out.println( "----------------Unbind" + i + "-------------" );
             connection.unBind();
             assertFalse( connection.isConnected() );
+            connection.close();
 
             // Try with empty strings
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
@@ -189,6 +190,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             connection.unBind();
             assertFalse( connection.isConnected() );
+            connection.close();
 
             // Try with null parameters
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
@@ -203,11 +205,13 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             connection.unBind();
             assertFalse( connection.isConnected() );
+            connection.close();
 
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
             //System.out.println( "----------------Unbind done" + i + "-------------" );
             assertFalse( connection.isConnected() );
+            connection.close();
             //System.out.println( "----------------Unconnected" + i + "-------------" );
 
         }

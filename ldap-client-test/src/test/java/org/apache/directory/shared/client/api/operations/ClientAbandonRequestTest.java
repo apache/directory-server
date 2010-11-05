@@ -152,6 +152,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
             results.get();
             n++;
         }
+        results.close();
 
         assertEquals( numEntries, n );
     }

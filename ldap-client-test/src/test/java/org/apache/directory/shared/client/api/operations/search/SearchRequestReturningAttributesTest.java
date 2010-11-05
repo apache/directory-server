@@ -112,6 +112,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -149,6 +150,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -182,6 +184,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -216,6 +219,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -251,6 +255,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -287,6 +292,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -321,6 +327,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -355,6 +362,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -389,6 +397,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -422,6 +431,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -452,6 +462,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );
@@ -483,6 +494,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
+        cursor.close();
 
         assertEquals( 1, count );
         assertNotNull( response );

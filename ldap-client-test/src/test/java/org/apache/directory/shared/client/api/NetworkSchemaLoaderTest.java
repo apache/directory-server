@@ -51,19 +51,21 @@ public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
-        
+
         NetworkSchemaLoader loader = new NetworkSchemaLoader( connection );
-        
+
         SchemaManager sm = new DefaultSchemaManager( loader );
 
         boolean loaded = sm.loadAllEnabled();
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( sm.getErrors() ) );
         }
-        
+
         assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
+
+        connection.close();
     }
 
 }
