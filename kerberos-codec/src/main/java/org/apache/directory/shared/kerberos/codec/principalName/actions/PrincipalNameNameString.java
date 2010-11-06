@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
@@ -79,14 +80,26 @@ public class PrincipalNameNameString extends GrammarAction
         PrincipalName principalName = principalNameContainer.getPrincipalName();
         
         Value value = tlv.getValue();
-        String nameString = StringTools.utf8ToString( value.getData() );
-
-        principalName.addName( nameString );
-        principalNameContainer.setGrammarEndAllowed( true );
         
-        if ( IS_DEBUG )
+        // The PrincipalName must be pure ASCII witout any control character
+        if ( KerberosUtils.isKerberosString( value.getData() ) )
         {
-            LOG.debug( "PrincipalName String : {}", nameString );
+            String nameString = StringTools.utf8ToString( value.getData() );
+    
+            principalName.addName( nameString );
+            principalNameContainer.setGrammarEndAllowed( true );
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "PrincipalName String : {}", nameString );
+            }
+        }
+        else
+        {
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
+    
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
     }
 }

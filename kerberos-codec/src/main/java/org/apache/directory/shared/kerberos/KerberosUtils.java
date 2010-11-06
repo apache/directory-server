@@ -274,6 +274,25 @@ public class KerberosUtils
 
         return sb.toString();
     }
+    
+    
+    public static boolean isKerberosString( byte[] value )
+    {
+        if ( value == null )
+        {
+            return false;
+        }
+        
+        for ( byte b : value )
+        {
+            if ( ( b < 0x20 ) || ( b > 0x7E ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
 
     /**
