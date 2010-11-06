@@ -38,6 +38,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -64,6 +65,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "MetaComparatorHandlerIT")
 public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";

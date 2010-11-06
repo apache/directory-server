@@ -36,6 +36,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
@@ -47,7 +48,8 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
+@RunWith ( FrameworkRunner.class )
+@CreateDS(name = "ModifyMultipleChangesIT")
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=Tori Amos,ou=system",

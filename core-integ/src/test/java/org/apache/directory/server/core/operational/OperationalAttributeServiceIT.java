@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "OperationalDS")
+@CreateDS(name = "OperationalAttributeServiceDS")
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String DN_KATE_BUSH = "cn=Kate Bush,ou=system";

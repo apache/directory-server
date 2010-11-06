@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class )
-@CreateDS( allowAnonAccess=true )
+@CreateDS( allowAnonAccess=true, name = "DIRSERVER783IT" )
 public class DIRSERVER783IT extends AbstractLdapTestUnit
 {
 

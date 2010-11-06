@@ -21,6 +21,7 @@ package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyTest;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
@@ -29,11 +30,13 @@ import org.apache.directory.server.core.authz.AuthzAuthnIT;
 import org.apache.directory.server.core.authz.CompareAuthorizationIT;
 import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
 import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
+import org.apache.directory.server.core.authz.LookupAuthorizationIT;
 import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
 import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
+import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -49,6 +52,8 @@ import org.junit.runners.Suite;
 
         // authn
         SimpleAuthenticationIT.class,
+        PasswordPolicyTest.class,
+        PasswordHashingInterceptorTest.class,
 
         // authz
         AddAuthorizationIT.class,
@@ -59,6 +64,7 @@ import org.junit.runners.Suite;
         CompareAuthorizationIT.class,
         DeleteAuthorizationIT.class,
         GeneralAuthorizationIT.class,
+        LookupAuthorizationIT.class,
         ModifyAuthorizationIT.class,
         MoveRenameAuthorizationIT.class,
         SearchAuthorizationIT.class,

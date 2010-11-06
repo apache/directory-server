@@ -46,6 +46,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "AdministratorsGroupIT")
 public class AdministratorsGroupIT extends AbstractLdapTestUnit
 {
 

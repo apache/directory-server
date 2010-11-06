@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(enableAccessControl = true)
+@CreateDS(enableAccessControl = true, name = "CompareAuthorizationIT")
 public class CompareAuthorizationIT extends AbstractLdapTestUnit
 {
 

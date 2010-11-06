@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "SearchDS")
+@CreateDS(name = "SearchPerfDS")
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
     /**

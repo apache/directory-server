@@ -123,14 +123,8 @@
             <configuration>
               <includes>
                 <include>**/*ISuite.java</include>
-                <include>**/AuthzAuthnIT.java</include>
-                <include>**/RenameReferralIgnoreIT.java</include>
-                <include>**/RenameReferralIT.java</include>
-                <include>**/ReferralIT.java</include>
-                <include>**/SearchReferralIT.java</include>
               </includes>
               <excludes>
-                <!--exclude>**/ReferralIT.java</exclude-->
                 <exclude>**/*PerfIT.java</exclude>
               </excludes>
             </configuration>

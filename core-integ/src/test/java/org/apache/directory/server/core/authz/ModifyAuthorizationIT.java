@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(enableAccessControl = true)
+@CreateDS(enableAccessControl = true, name = "ModifyAuthorizationIT")
 public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 {
 

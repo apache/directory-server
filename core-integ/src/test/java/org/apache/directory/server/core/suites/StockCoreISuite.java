@@ -45,10 +45,14 @@ import org.apache.directory.server.core.jndi.referral.DeleteReferralIT;
 import org.apache.directory.server.core.jndi.referral.ModifyReferralIT;
 import org.apache.directory.server.core.jndi.referral.MoveAndRenameReferralIT;
 import org.apache.directory.server.core.jndi.referral.MoveReferralIT;
+import org.apache.directory.server.core.jndi.referral.RenameReferralIT;
+import org.apache.directory.server.core.jndi.referral.RenameReferralIgnoreIT;
+import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
 import org.apache.directory.server.core.normalization.NormalizationServiceIT;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
 import org.apache.directory.server.core.operations.bind.SimpleBindIT;
 import org.apache.directory.server.core.operations.compare.CompareDirserver1139IT;
+import org.apache.directory.server.core.operations.exists.ExistsIT;
 import org.apache.directory.server.core.operations.lookup.LookupIT;
 import org.apache.directory.server.core.operations.modify.ModifyAddIT;
 import org.apache.directory.server.core.operations.modify.ModifyDelIT;
@@ -56,6 +60,7 @@ import org.apache.directory.server.core.operations.modify.ModifyMVAttributeIT;
 import org.apache.directory.server.core.operations.modify.ModifyMultipleChangesIT;
 import org.apache.directory.server.core.operations.search.AliasSearchIT;
 import org.apache.directory.server.core.operations.search.DIRSERVER759IT;
+import org.apache.directory.server.core.operations.search.SearchBinaryIT;
 import org.apache.directory.server.core.operations.search.SearchIT;
 import org.apache.directory.server.core.operations.search.SearchWithIndicesIT;
 import org.apache.directory.server.core.partition.PartitionIT;
@@ -90,6 +95,9 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
+
+        // ap
+        //AdministrativePointServiceIT.class,
 
         // changelog
         DefaultChangeLogIT.class,        
@@ -127,9 +135,9 @@ import org.junit.runners.Suite;
         ModifyReferralIT.class,
         MoveAndRenameReferralIT.class,
         MoveReferralIT.class,
-        //RenameReferralIgnoreIT.class,
-        //RenameReferralIT.class,
-        //SearchReferralIT.class,
+        RenameReferralIgnoreIT.class,
+        RenameReferralIT.class,
+        SearchReferralIT.class,
 
         // normalization
         NormalizationServiceIT.class,
@@ -148,6 +156,7 @@ import org.junit.runners.Suite;
 
         // operations.lookup
         LookupIT.class,
+        ExistsIT.class,
         // LookupPerfIT.class,
 
         // operations.modify
@@ -162,6 +171,7 @@ import org.junit.runners.Suite;
         SearchIT.class,
         // SearchPerfIT.class,
         SearchWithIndicesIT.class,
+        SearchBinaryIT.class,
 
         // partition
         PartitionIT.class,

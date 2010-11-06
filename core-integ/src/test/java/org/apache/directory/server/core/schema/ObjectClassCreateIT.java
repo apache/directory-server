@@ -37,6 +37,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
@@ -48,6 +49,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "ObjectClassCreateIT")
 public class ObjectClassCreateIT extends AbstractLdapTestUnit
 {
     private String testOID = "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";

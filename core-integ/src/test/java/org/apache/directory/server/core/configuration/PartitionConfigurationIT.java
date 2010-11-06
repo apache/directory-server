@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertNull;
 import java.util.UUID;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -47,6 +48,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "PartitionConfigurationIT")
 public class PartitionConfigurationIT extends AbstractLdapTestUnit
 {
 

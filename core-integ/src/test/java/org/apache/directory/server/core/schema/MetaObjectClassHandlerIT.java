@@ -37,6 +37,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
@@ -56,6 +57,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "MetaObjectClassHandlerIT")
 public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String NAME = "testObjectClass";

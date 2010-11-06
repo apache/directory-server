@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(
-    name = "AddPerfDS", 
+    name = "SearchBinaryIT", 
     partitions =
     { 
         @CreatePartition(

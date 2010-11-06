@@ -45,6 +45,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -81,6 +82,7 @@ import org.junit.runner.RunWith;
     "sn: sn_person2" }
     )
 @RunWith(FrameworkRunner.class)
+@CreateDS(name = "SchemaServiceIT")
 public class SchemaServiceIT extends AbstractLdapTestUnit
 {
 
