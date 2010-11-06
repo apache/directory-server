@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.actions;
+package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;

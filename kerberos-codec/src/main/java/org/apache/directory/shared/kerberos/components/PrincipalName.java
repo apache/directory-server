@@ -443,7 +443,7 @@ public class PrincipalName extends AbstractAsn1Object
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "PincipalName : {\n" );
+        sb.append( "PrincipalName : {\n" );
 
         sb.append( "    name-type: " ).append( nameType.name() ).append( '\n' );
 

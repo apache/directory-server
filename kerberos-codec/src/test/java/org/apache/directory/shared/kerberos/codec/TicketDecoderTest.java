@@ -65,12 +65,12 @@ public class TicketDecoderTest
                     0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
                   (byte)0xA2, 0x14,                     // sname
                     0x30, 0x12,
-                      (byte)0xA1, 0x03,                 // name-type
+                      (byte)0xA0, 0x03,                 // name-type
                         0x02, 0x01, 0x01,               // NT-PRINCIPAL
-                      (byte)0xA2, 0x0B,                 // name-string
+                      (byte)0xA1, 0x0B,                 // name-string
                         0x30, 0x09,
                           0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-                      (byte)0xA3, 0x02, 0x01, 0x02      // enc-part
+                  (byte)0xA3, 0x02, 0x01, 0x02      // enc-part
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -78,6 +78,7 @@ public class TicketDecoderTest
 
         // Allocate a KerberosMessage Container
         Asn1Container kerberosMessageContainer = new KerberosMessageContainer();
+        kerberosMessageContainer.setStream( stream );
 
         // Decode the Ticket PDU
         try

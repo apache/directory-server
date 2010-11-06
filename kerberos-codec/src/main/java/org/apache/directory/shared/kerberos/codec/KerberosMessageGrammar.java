@@ -21,6 +21,7 @@ package org.apache.directory.shared.kerberos.codec;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -33,10 +34,11 @@ import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameInit;
+import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
+import org.apache.directory.shared.kerberos.codec.ticket.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -231,19 +233,101 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         //         sname           [2] 
         super.transitions[KerberosStatesEnum.TICKET_REALM_STATE.ordinal()][KerberosConstants.TICKET_SNAME_TAG] = new GrammarTransition(
             KerberosStatesEnum.TICKET_REALM_STATE, KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosConstants.TICKET_SNAME_TAG,
-            new CheckNotNullLength() );
+            new GrammarAction( "Kerberos Ticket principalName" )
+            {
+                public void action( Asn1Container container ) throws DecoderException
+                {
+                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+
+                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
+
+                    // The Length should not be null
+                    if ( tlv.getLength() == 0 )
+                    {
+                        LOG.error( I18n.err( I18n.ERR_04066 ) );
+
+                        // This will generate a PROTOCOL_ERROR
+                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+                    }
+                    
+                    // Now, let's decode the PrincipalName
+                    Asn1Decoder principalNameDecoder = new Asn1Decoder();
+                    
+                    PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+
+                    // Decode the Ticket PDU
+                    try
+                    {
+                        principalNameDecoder.decode( container.getStream(), principalNameContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+
+                    PrincipalName principalName = principalNameContainer.getPrincipalName();
+                    Ticket ticket = kerberosMessageContainer.getTicket();
+                    ticket.setSName( principalName );
+
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( "PrincipalName : " + kerberosMessageContainer );
+                    }
+                }
+            } );
+
 
         // --------------------------------------------------------------------------------------------
-        // Transition from sname tag to PrincipalName init
+        // Transition from sname tag to enc-part tag
         // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         //         ...
         //         sname           [2] PrincipalName,
-        //
-        // PrincipalName   ::= SEQUENCE {
-        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_STATE, UniversalTag.SEQUENCE.getValue(),
-            new PrincipalNameInit() );
+        //         enc-part        [3]
+        // 
+        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][KerberosConstants.TICKET_ENC_PART_TAG] = new GrammarTransition(
+            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.TICKET_ENC_PART_TAG_STATE, KerberosConstants.TICKET_ENC_PART_TAG,
+            new GrammarAction( "Kerberos Ticket principalName" )
+            {
+                public void action( Asn1Container container ) throws DecoderException
+                {
+                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+
+                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
+
+                    // The Length should not be null
+                    if ( tlv.getLength() == 0 )
+                    {
+                        LOG.error( I18n.err( I18n.ERR_04066 ) );
+
+                        // This will generate a PROTOCOL_ERROR
+                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+                    }
+                    
+                    // Now, let's decode the PrincipalName
+                    Asn1Decoder principalNameDecoder = new Asn1Decoder();
+                    
+                    PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+
+                    // Decode the Ticket PDU
+                    try
+                    {
+                        principalNameDecoder.decode( container.getStream(), principalNameContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+
+                    PrincipalName principalName = principalNameContainer.getPrincipalName();
+                    kerberosMessageContainer.setPrincipalName( principalName );
+
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( "PrincipalName : " + kerberosMessageContainer );
+                    }
+                }
+            } );
         
         // ============================================================================================
         // PrincipalName 
