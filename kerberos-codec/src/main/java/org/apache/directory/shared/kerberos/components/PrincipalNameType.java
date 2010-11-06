@@ -42,49 +42,37 @@ package org.apache.directory.shared.kerberos.components;
  */
 public enum PrincipalNameType
 {
-    /**
-     * Constant for the "Name type not known" principal name type.
-     */
+    /** The first possible ordinal value */
+    FIRST_NAME_TYPE( 0 ),
+    
+    /** The last possible ordinal value */
+    LAST_NAME_TYPE( 10 ),
+    
+    /** Constant for the "Name type not known" principal name type. */
     KRB_NT_UNKNOWN( 0 ),
 
-    /**
-     * Constant for the "Just the name of the principal as in DCE, or for users" principal name type.
-     */
+    /**Constant for the "Just the name of the principal as in DCE, or for users" principal name type. */
     KRB_NT_PRINCIPAL( 1 ),
 
-    /**
-     * Constant for the "Service and other unique instance (krbtgt)" principal name type.
-     */
+    /** Constant for the "Service and other unique instance (krbtgt)" principal name type. */
     KRB_NT_SRV_INST( 2 ),
 
-    /**
-     * Constant for the "Service with host name as instance (telnet, rcommands)" principal name type.
-     */
+    /** Constant for the "Service with host name as instance (telnet, rcommands)" principal name type. */
     KRB_NT_SRV_HST( 3 ),
 
-    /**
-     * Constant for the "Service with host as remaining components" principal name type.
-     */
+    /** Constant for the "Service with host as remaining components" principal name type. */
     KRB_NT_SRV_XHST( 4 ),
 
-    /**
-     * Constant for the "Unique ID" principal name type.
-     */
+    /** Constant for the "Unique ID" principal name type. */
     KRB_NT_UID( 5 ),
 
-    /**
-     * Constant for the "Encoded X.509 Distinguished name [RFC2253]" principal name type.
-     */
+    /** Constant for the "Encoded X.509 Distinguished name [RFC2253]" principal name type. */
     KRB_NT_X500_PRINCIPAL( 6 ),
 
-    /**
-     * Constant for the "Name in form of SMTP email name (e.g., user@example.com)" principal name type.
-     */
+    /** Constant for the "Name in form of SMTP email name (e.g., user@example.com)" principal name type. */
     KRB_NT_SMTP_NAME( 7 ),
 
-    /**
-     * Constant for the "Enterprise name; may be mapped to principal name" principal name type.
-     */
+    /** Constant for the "Enterprise name; may be mapped to principal name" principal name type. */
     KRB_NT_ENTERPRISE( 10 );
 
     /**

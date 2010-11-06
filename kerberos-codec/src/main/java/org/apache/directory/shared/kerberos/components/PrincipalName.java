@@ -445,7 +445,7 @@ public class PrincipalName extends AbstractAsn1Object
 
         sb.append( "PincipalName : {\n" );
 
-        sb.append( "    name-type: " ).append( nameType ).append( '\n' );
+        sb.append( "    name-type: " ).append( nameType.name() ).append( '\n' );
 
         if ( ( nameString != null ) && ( nameString.size() != 0 ) )
         {

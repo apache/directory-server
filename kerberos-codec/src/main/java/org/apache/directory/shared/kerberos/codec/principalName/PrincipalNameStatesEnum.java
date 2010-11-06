@@ -17,57 +17,41 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec;
+package org.apache.directory.shared.kerberos.codec.principalName;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
+import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
- * This class store the Kerberos grammar's constants. It is also used for debugging
+ * This class store the PrincipalName grammar's constants. It is also used for debugging
  * purpose
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum KerberosStatesEnum implements States
+public enum PrincipalNameStatesEnum implements States
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
-    /** The END_STATE */
-    END_STATE,
-
     // Start
-    START_STATE,
-    
-    // ----- Ticket message --------------------------------------------
-    TICKET_STATE,
-    TICKET_SEQ_STATE,
-    
-    TICKET_VNO_TAG_STATE,
-    TICKET_VNO_STATE,
-    
-    TICKET_REALM_TAG_STATE,
-    TICKET_REALM_STATE,
-    
-    TICKET_SNAME_TAG_STATE,
-
-    TICKET_ENC_PART_TAG_STATE,
+    START_STATE,                            // 0
     
     // ----- PrincipalName message --------------------------------------
-    PRINCIPAL_NAME_STATE,
+    PRINCIPAL_NAME_SEQ_STATE,               // 1
     
-    PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,
-    PRINCIPAL_NAME_NAME_TYPE_STATE,
+    PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,     // 2
+    PRINCIPAL_NAME_NAME_TYPE_STATE,         // 3
     
-    PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
+    PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,   // 4
     
-    PRINCIPAL_NAME_NAME_STRING_TAG_STATE,
-    PRINCIPAL_NAME_NAME_STRING_STATE,
+    PRINCIPAL_NAME_NAME_STRING_TAG_STATE,   // 5
+    PRINCIPAL_NAME_NAME_STRING_STATE,       // 6
     
     // End
-    LAST_KERBEROS_STATE;
+    LAST_PRINCIPAL_NAME_STATE;              // 7
 
     
     /**
@@ -78,7 +62,7 @@ public enum KerberosStatesEnum implements States
      */
     public String getGrammarName( int grammar )
     {
-        return "KERBEROS_MESSAGE_GRAMMAR";
+        return "PRINCIPAL_NAME_GRAMMAR";
     }
 
 
@@ -92,7 +76,7 @@ public enum KerberosStatesEnum implements States
     {
         if ( grammar instanceof KerberosMessageGrammar )
         {
-            return "KERBEROS_MESSAGE_GRAMMAR";
+            return "PRINCIPAL_NAME_GRAMMAR";
         }
         else
         {
@@ -109,7 +93,7 @@ public enum KerberosStatesEnum implements States
      */
     public String getState( int state )
     {
-        return ( ( state == END_STATE.ordinal() ) ? "KERBEROS_MESSAGE_END_STATE" : name() );
+        return ( ( state == LAST_PRINCIPAL_NAME_STATE.ordinal() ) ? "PRINCIPAL_NAME_END_STATE" : name() );
     }
 
     
@@ -118,14 +102,14 @@ public enum KerberosStatesEnum implements States
      */
     public boolean isEndState()
     {
-        return this == END_STATE;
+        return this == LAST_PRINCIPAL_NAME_STATE;
     }
     
     
     /**
      * {@inheritDoc}
      */
-    public KerberosStatesEnum getStartState()
+    public PrincipalNameStatesEnum getStartState()
     {
         return START_STATE;
     }

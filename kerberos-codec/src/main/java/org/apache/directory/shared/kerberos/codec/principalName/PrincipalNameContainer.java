@@ -17,70 +17,31 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec;
+package org.apache.directory.shared.kerberos.codec.principalName;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.kerberos.messages.KerberosMessage;
-import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 
 
 /**
- * The KerberosMessage container stores all the messages decoded by the Asn1Decoder.
- * When dealing with an incoding PDU, we will obtain a KerberosMessage in the
- * container.
+ * The PrincipalName container stores the PrincipalName decoded by the Asn1Decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosMessageContainer extends AbstractContainer
+public class PrincipalNameContainer extends AbstractContainer
 {
-    /** The internal kerberos message */
-    private KerberosMessage message;
-    
     /** A PrincipalName container */
     private PrincipalName principalName;
 
     /**
-     * Creates a new KerberosMessageContainer object. We will store ten grammars,
-     * it's enough ...
+     * Creates a new PrincipalNameContainer object.
      */
-    public KerberosMessageContainer()
+    public PrincipalNameContainer()
     {
         super();
-        this.stateStack = new int[10];
-        this.grammar = KerberosMessageGrammar.getInstance();
-        setTransition( LdapStatesEnum.START_STATE );
-    }
-
-
-    /**
-     * @return Returns the KerberosMessage.
-     */
-    public KerberosMessage getMessage()
-    {
-        return message;
-    }
-
-    
-    /**
-     * Set a Message Object into the container. It will be completed by the
-     * KerberosDecoder.
-     * 
-     * @param message The message to set.
-     */
-    public void setMessage( KerberosMessage message )
-    {
-        this.message = message;
-    }
-
-
-    /**
-     * @return Returns the Ticket if the interned message is a Ticket.
-     */
-    public Ticket getTicket()
-    {
-        return (Ticket)message;
+        this.stateStack = new int[1];
+        this.grammar = PrincipalNameGrammar.getInstance();
+        setTransition( PrincipalNameStatesEnum.START_STATE );
     }
 
 

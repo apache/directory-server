@@ -33,6 +33,10 @@ import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameInit;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -69,8 +73,11 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         super.transitions = new GrammarTransition[KerberosStatesEnum.LAST_KERBEROS_STATE.ordinal()][256];
 
         // ============================================================================================
-        // Transition from START to Ticket
+        // Ticket 
         // ============================================================================================
+        // --------------------------------------------------------------------------------------------
+        // Transition from START to Ticket
+        // --------------------------------------------------------------------------------------------
         // This is the starting state :
         // Ticket          ::= [APPLICATION 1] ... 
         super.transitions[KerberosStatesEnum.START_STATE.ordinal()][KerberosConstants.TICKET_TAG] = new GrammarTransition(
@@ -99,60 +106,26 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Ticket to Ticket-SEQ
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         super.transitions[KerberosStatesEnum.TICKET_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             KerberosStatesEnum.TICKET_STATE, KerberosStatesEnum.TICKET_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new GrammarAction( "Kerberos Ticket sequence" )
-            {
-                public void action( Asn1Container container ) throws DecoderException
-                {
-                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+            new CheckNotNullLength() );
 
-                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
-
-                    // The Length should not be null
-                    if ( tlv.getLength() == 0 )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-                        // This will generate a PROTOCOL_ERROR
-                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-                    }
-                }
-            } );
-
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Ticket-SEQ to tkt-vno tag
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         //         tkt-vno         [0] 
         super.transitions[KerberosStatesEnum.TICKET_SEQ_STATE.ordinal()][KerberosConstants.TICKET_TKT_VNO_TAG] = new GrammarTransition(
             KerberosStatesEnum.TICKET_SEQ_STATE, KerberosStatesEnum.TICKET_VNO_TAG_STATE, KerberosConstants.TICKET_TKT_VNO_TAG,
-            new GrammarAction( "Kerberos Ticket tktvno tag" )
-            {
-                public void action( Asn1Container container ) throws DecoderException
-                {
-                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+            new CheckNotNullLength() );
 
-                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
-
-                    // The Length should not be null
-                    if ( tlv.getLength() == 0 )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-                        // This will generate a PROTOCOL_ERROR
-                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-                    }
-                }
-            } );
-
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from tkt-vno tag to tkt-vno 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         //         tkt-vno         [0] INTEGER (5),
         super.transitions[KerberosStatesEnum.TICKET_VNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
@@ -200,36 +173,19 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from tkt-vno to realm tag
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         //         tkt-vno         [0] INTEGER (5), 
         //         realm           [1]
         super.transitions[KerberosStatesEnum.TICKET_VNO_STATE.ordinal()][KerberosConstants.TICKET_REALM_TAG] = new GrammarTransition(
             KerberosStatesEnum.TICKET_VNO_STATE, KerberosStatesEnum.TICKET_REALM_TAG_STATE, KerberosConstants.TICKET_REALM_TAG,
-            new GrammarAction( "Kerberos Ticket realm tag" )
-            {
-                public void action( Asn1Container container ) throws DecoderException
-                {
-                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+            new CheckNotNullLength() );
 
-                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
-
-                    // The Length should not be null
-                    if ( tlv.getLength() == 0 )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-                        // This will generate a PROTOCOL_ERROR
-                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-                    }
-                }
-            } );
-
-        // ============================================================================================
-        // Transition from Ticket-SEQ to tkt-vno 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
+        // Transition from realm tag to realm value
+        // --------------------------------------------------------------------------------------------
         // Ticket          ::= [APPLICATION 1] SEQUENCE { 
         //         tkt-vno         [0] INTEGER (5),
         //         realm           [1] Realm,
@@ -266,6 +222,81 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from realm value to sname tag
+        // --------------------------------------------------------------------------------------------
+        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
+        //         tkt-vno         [0] INTEGER (5),
+        //         realm           [1] Realm,
+        //         sname           [2] 
+        super.transitions[KerberosStatesEnum.TICKET_REALM_STATE.ordinal()][KerberosConstants.TICKET_SNAME_TAG] = new GrammarTransition(
+            KerberosStatesEnum.TICKET_REALM_STATE, KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosConstants.TICKET_SNAME_TAG,
+            new CheckNotNullLength() );
+
+        // --------------------------------------------------------------------------------------------
+        // Transition from sname tag to PrincipalName init
+        // --------------------------------------------------------------------------------------------
+        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
+        //         ...
+        //         sname           [2] PrincipalName,
+        //
+        // PrincipalName   ::= SEQUENCE {
+        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_STATE, UniversalTag.SEQUENCE.getValue(),
+            new PrincipalNameInit() );
+        
+        // ============================================================================================
+        // PrincipalName 
+        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
+        // Transition from PrincipalName init to name-type tag
+        // --------------------------------------------------------------------------------------------
+        // PrincipalName   ::= SEQUENCE {
+        //         name-type       [0]
+        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_STATE.ordinal()][KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG] = new GrammarTransition(
+            KerberosStatesEnum.PRINCIPAL_NAME_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG,
+            new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from name-type tag to name-type value
+        // --------------------------------------------------------------------------------------------
+        // PrincipalName   ::= SEQUENCE {
+        //         name-type       [0] Int32,
+        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
+            KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, UniversalTag.INTEGER.getValue(),
+            new PrincipalNameNameType() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from name-type value to name-string tag
+        // --------------------------------------------------------------------------------------------
+        // PrincipalName   ::= SEQUENCE {
+        //         name-type       [0] Int32,
+        //         name-string     [1]
+        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE.ordinal()][KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG] = new GrammarTransition(
+            KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG,
+            new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from name-string tag to name-string SEQ
+        // --------------------------------------------------------------------------------------------
+        // PrincipalName   ::= SEQUENCE {
+        //         name-type       [0] Int32,
+        //         name-string     [1] SEQUENCE OF
+        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from name-string SEQ to name-string value
+        // --------------------------------------------------------------------------------------------
+        // PrincipalName   ::= SEQUENCE {
+        //         name-type       [0] Int32,
+        //         name-string     [1] SEQUENCE OF KerberosString
+        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
+            KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.GENERAL_STRING.getValue(),
+            new PrincipalNameNameString() );
+        
+        
         /*
         // --------------------------------------------------------------------------------------------
         // Transition from LdapMessage to Message ID
@@ -3461,9 +3492,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             }
         };
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Controls to Control
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // ...
         // Controls ::= SEQUENCE OF Control
         //  ...
@@ -3472,9 +3503,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         super.transitions[LdapStatesEnum.CONTROLS_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             LdapStatesEnum.CONTROLS_STATE, LdapStatesEnum.CONTROL_STATE, UniversalTag.SEQUENCE.getValue(), addControl );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control to ControlType
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //
@@ -3534,9 +3565,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from ControlType to Control Criticality
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     criticality BOOLEAN DEFAULT FALSE,
@@ -3591,9 +3622,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control Criticality to Control Value
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     controlValue OCTET STRING OPTIONAL }
@@ -3603,9 +3634,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             LdapStatesEnum.CRITICALITY_STATE, LdapStatesEnum.CONTROL_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
             new ControlValueAction() );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control Type to Control Value
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     controlValue OCTET STRING OPTIONAL }
@@ -3615,9 +3646,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             LdapStatesEnum.CONTROL_TYPE_STATE, LdapStatesEnum.CONTROL_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
             new ControlValueAction() );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control Type to Control
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     controlValue OCTET STRING OPTIONAL }
@@ -3626,9 +3657,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         super.transitions[LdapStatesEnum.CONTROL_TYPE_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             LdapStatesEnum.CONTROL_TYPE_STATE, LdapStatesEnum.CONTROL_STATE, UniversalTag.SEQUENCE.getValue(), addControl );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control Criticality to Control
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     controlValue OCTET STRING OPTIONAL }
@@ -3637,9 +3668,9 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         super.transitions[LdapStatesEnum.CRITICALITY_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             LdapStatesEnum.CRITICALITY_STATE, LdapStatesEnum.CONTROL_STATE, UniversalTag.SEQUENCE.getValue(), addControl );
 
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Transition from Control Value to Control
-        // ============================================================================================
+        // --------------------------------------------------------------------------------------------
         // Control ::= SEQUENCE {
         //     ...
         //     controlValue OCTET STRING OPTIONAL }
@@ -4002,7 +4033,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
 
-        //============================================================================================
+        //--------------------------------------------------------------------------------------------
         // Search Request And Filter
         // This is quite complicated, because we have a tree structure to build,
         // and we may have many elements on each node. For instance, considering the 
