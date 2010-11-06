@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.principalName.actions;
+package org.apache.directory.shared.kerberos.codec.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,7 +26,6 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +54,7 @@ public class CheckNotNullLength extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
-
-        TLV tlv = principalNameContainer.getCurrentTLV();
+        TLV tlv = container.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )

@@ -85,7 +85,7 @@ public class PrincipalNameDecoderTest
             fail( de.getMessage() );
         }
 
-        // Check the decoded BindRequest
+        // Check the decoded PrincipalName
         PrincipalName principalName = ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
 
         assertEquals( PrincipalNameType.KRB_NT_PRINCIPAL, principalName.getNameType() );

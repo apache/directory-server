@@ -151,6 +151,7 @@ public class EncryptedData extends AbstractAsn1Object
     public void setKvno( int kvno )
     {
         this.kvno = kvno;
+        hasKvno = true;
     }
 
     /**

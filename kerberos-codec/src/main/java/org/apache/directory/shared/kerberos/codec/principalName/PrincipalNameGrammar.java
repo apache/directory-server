@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;

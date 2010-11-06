@@ -36,7 +36,12 @@ public class KerberosConstants
     public static final int TICKET_SNAME_TAG = 0xA2;
     public static final int TICKET_ENC_PART_TAG = 0xA3;
     
-    /** PrincipalName's tag */
+    /** PrincipalName's tags */
     public static final int PRINCIPAL_NAME_NAME_TYPE_TAG = 0xA0;
     public static final int PRINCIPAL_NAME_NAME_STRING_TAG = 0xA1;
+    
+    /** Encrypteddata's tags */
+    public static final int ENCRYPTED_DATA_ETYPE_TAG = 0xA0;
+    public static final int ENCRYPTED_DATA_KVNO_TAG = 0xA1;
+    public static final int ENCRYPTED_DATA_CIPHER_TAG = 0xA2;
 }
