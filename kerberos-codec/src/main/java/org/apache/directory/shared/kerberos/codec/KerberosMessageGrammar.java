@@ -35,9 +35,9 @@ import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -268,6 +268,8 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     PrincipalName principalName = principalNameContainer.getPrincipalName();
                     Ticket ticket = kerberosMessageContainer.getTicket();
                     ticket.setSName( principalName );
+                    
+                    container.setParentTLV( tlv.getParent() );
 
                     if ( IS_DEBUG )
                     {
@@ -321,6 +323,8 @@ public final class KerberosMessageGrammar extends AbstractGrammar
 
                     PrincipalName principalName = principalNameContainer.getPrincipalName();
                     kerberosMessageContainer.setPrincipalName( principalName );
+                    
+                    container.setParentTLV( tlv.getParent() );
 
                     if ( IS_DEBUG )
                     {
@@ -329,58 +333,58 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 }
             } );
         
-        // ============================================================================================
-        // PrincipalName 
-        // ============================================================================================
         // --------------------------------------------------------------------------------------------
-        // Transition from PrincipalName init to name-type tag
+        // Transition from enc-part tag to enc-part value
         // --------------------------------------------------------------------------------------------
-        // PrincipalName   ::= SEQUENCE {
-        //         name-type       [0]
-        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_STATE.ordinal()][KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG] = new GrammarTransition(
-            KerberosStatesEnum.PRINCIPAL_NAME_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG,
-            new CheckNotNullLength() );
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from name-type tag to name-type value
-        // --------------------------------------------------------------------------------------------
-        // PrincipalName   ::= SEQUENCE {
-        //         name-type       [0] Int32,
-        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new PrincipalNameNameType() );
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from name-type value to name-string tag
-        // --------------------------------------------------------------------------------------------
-        // PrincipalName   ::= SEQUENCE {
-        //         name-type       [0] Int32,
-        //         name-string     [1]
-        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE.ordinal()][KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG] = new GrammarTransition(
-            KerberosStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG,
-            new CheckNotNullLength() );
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from name-string tag to name-string SEQ
-        // --------------------------------------------------------------------------------------------
-        // PrincipalName   ::= SEQUENCE {
-        //         name-type       [0] Int32,
-        //         name-string     [1] SEQUENCE OF
-        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new CheckNotNullLength() );
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from name-string SEQ to name-string value
-        // --------------------------------------------------------------------------------------------
-        // PrincipalName   ::= SEQUENCE {
-        //         name-type       [0] Int32,
-        //         name-string     [1] SEQUENCE OF KerberosString
-        super.transitions[KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, KerberosStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.GENERAL_STRING.getValue(),
-            new PrincipalNameNameString() );
-        
-        
+        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
+        //         ...
+        //         enc-part        [3] EncryptedData
+        // 
+        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][KerberosConstants.TICKET_ENC_PART_TAG] = new GrammarTransition(
+            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.TICKET_ENC_PART_TAG_STATE, KerberosConstants.TICKET_ENC_PART_TAG,
+            new GrammarAction( "Kerberos Ticket EncryptedData" )
+            {
+                public void action( Asn1Container container ) throws DecoderException
+                {
+                    KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+
+                    TLV tlv = kerberosMessageContainer.getCurrentTLV();
+
+                    // The Length should not be null
+                    if ( tlv.getLength() == 0 )
+                    {
+                        LOG.error( I18n.err( I18n.ERR_04066 ) );
+
+                        // This will generate a PROTOCOL_ERROR
+                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+                    }
+                    
+                    // Now, let's decode the PrincipalName
+                    Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
+                    
+                    EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
+
+                    // Decode the Ticket PDU
+                    try
+                    {
+                        encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+
+                    EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+                    Ticket ticket = (Ticket)kerberosMessageContainer.getMessage();
+                    ticket.setEncPart( encryptedData );
+
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( "EncryptedData : " + encryptedData );
+                    }
+                }
+            } );
+
         /*
         // --------------------------------------------------------------------------------------------
         // Transition from LdapMessage to Message ID
