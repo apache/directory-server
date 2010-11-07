@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
+package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,18 +26,18 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to initialize the EncryptedData object
+ * The action used to initialize the HostAddress object
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedDataInit extends GrammarAction
+public class HostAddressInit extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -47,11 +47,11 @@ public class EncryptedDataInit extends GrammarAction
 
 
     /**
-     * Instantiates a new EncryptedDataInit action.
+     * Instantiates a new HostAddressInit action.
      */
-    public EncryptedDataInit()
+    public HostAddressInit()
     {
-        super( "Creates a EncryptedData instance" );
+        super( "Creates a HostAddress instance" );
     }
 
 
@@ -60,9 +60,9 @@ public class EncryptedDataInit extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
+        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
 
-        TLV tlv = encryptedDataContainer.getCurrentTLV();
+        TLV tlv = hostAddressContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -73,12 +73,12 @@ public class EncryptedDataInit extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        EncryptedData encryptedData = new EncryptedData();
-        encryptedDataContainer.setEncryptedData( encryptedData );
+        HostAddress hostAddress = new HostAddress();
+        hostAddressContainer.setHostAddress( hostAddress );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncryptedData created" );
+            LOG.debug( "HostAddress created" );
         }
     }
 }

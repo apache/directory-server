@@ -44,4 +44,8 @@ public class KerberosConstants
     public static final int ENCRYPTED_DATA_ETYPE_TAG = 0xA0;
     public static final int ENCRYPTED_DATA_KVNO_TAG = 0xA1;
     public static final int ENCRYPTED_DATA_CIPHER_TAG = 0xA2;
+    
+    /** HostAddress' tags */
+    public static final int HOST_ADDRESS_ADDR_TYPE_TAG = 0xA0;
+    public static final int HOST_ADDRESS_ADDRESS_TAG = 0xA1;
 }

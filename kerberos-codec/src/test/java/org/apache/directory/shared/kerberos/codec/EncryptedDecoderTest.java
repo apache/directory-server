@@ -84,7 +84,6 @@ public class EncryptedDecoderTest
         }
         catch ( DecoderException de )
         {
-            de.printStackTrace();
             fail( de.getMessage() );
         }
 
@@ -147,7 +146,6 @@ public class EncryptedDecoderTest
         }
         catch ( DecoderException de )
         {
-            de.printStackTrace();
             fail( de.getMessage() );
         }
 
