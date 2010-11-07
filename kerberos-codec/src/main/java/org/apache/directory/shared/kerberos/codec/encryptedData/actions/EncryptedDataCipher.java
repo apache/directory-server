@@ -25,24 +25,21 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.kerberos.components.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart EType
+ * The action used to store the EncryptedPart cipher
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedPartEType extends GrammarAction
+public class EncryptedDataCipher extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -52,11 +49,11 @@ public class EncryptedPartEType extends GrammarAction
 
 
     /**
-     * Instantiates a new EncryptedPartEType action.
+     * Instantiates a new EncryptedPartKvno action.
      */
-    public EncryptedPartEType()
+    public EncryptedDataCipher()
     {
-        super( "EncryptedPart Etype" );
+        super( "EncryptedPart cipher" );
     }
 
 
@@ -70,7 +67,7 @@ public class EncryptedPartEType extends GrammarAction
         TLV tlv = encryptedDataContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        if ( tlv.getLength() == 0 ) 
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -78,36 +75,25 @@ public class EncryptedPartEType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // The encyptionType is an integer
         Value value = tlv.getValue();
         
-        EncryptionType encryptionType = null;
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        
-        try
+        // The encrypted data should not be null
+        if ( value.getData() == null ) 
         {
-            int eType = IntegerDecoder.parse( value );
-            encryptionType = EncryptionType.getTypeByOrdinal( eType );
-
-            encryptedData.setEType( encryptionType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "etype : " + encryptionType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
+        
+        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+        encryptedData.setCipher( value.getData() );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncryptionType : {}", encryptionType );
+            LOG.debug( "cipher : {}", StringTools.dumpBytes( value.getData() ) );
         }
+        
+        encryptedDataContainer.setGrammarEndAllowed( true );
     }
 }

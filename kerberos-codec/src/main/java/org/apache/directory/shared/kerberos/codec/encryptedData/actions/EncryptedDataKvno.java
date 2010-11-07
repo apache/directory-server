@@ -25,6 +25,8 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
@@ -35,11 +37,11 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart cipher
+ * The action used to store the EncryptedPart Kvno
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedPartCipher extends GrammarAction
+public class EncryptedDataKvno extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -51,9 +53,9 @@ public class EncryptedPartCipher extends GrammarAction
     /**
      * Instantiates a new EncryptedPartKvno action.
      */
-    public EncryptedPartCipher()
+    public EncryptedDataKvno()
     {
-        super( "EncryptedPart cipher" );
+        super( "EncryptedPart kvno" );
     }
 
 
@@ -67,7 +69,7 @@ public class EncryptedPartCipher extends GrammarAction
         TLV tlv = encryptedDataContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 ) 
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -77,23 +79,25 @@ public class EncryptedPartCipher extends GrammarAction
         
         Value value = tlv.getValue();
         
-        // The encrypted data should not be null
-        if ( value.getData() == null ) 
+        try
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            int kvno = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+
+            EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+            encryptedData.setKvno( kvno );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "kvno : {}", kvno );
+            }
+        }
+        catch ( IntegerDecoderException ide )
+        {
+            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+                .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( ide.getMessage() );
         }
-        
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        encryptedData.setCipher( value.getData() );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "cipher : {}", StringTools.dumpBytes( value.getData() ) );
-        }
-        
-        encryptedDataContainer.setGrammarEndAllowed( true );
     }
 }

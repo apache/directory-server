@@ -31,17 +31,18 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart Kvno
+ * The action used to store the EncryptedPart EType
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedPartKvno extends GrammarAction
+public class EncryptedDataEType extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -51,11 +52,11 @@ public class EncryptedPartKvno extends GrammarAction
 
 
     /**
-     * Instantiates a new EncryptedPartKvno action.
+     * Instantiates a new EncryptedPartEType action.
      */
-    public EncryptedPartKvno()
+    public EncryptedDataEType()
     {
-        super( "EncryptedPart kvno" );
+        super( "EncryptedPart Etype" );
     }
 
 
@@ -77,18 +78,22 @@ public class EncryptedPartKvno extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
+        // The encyptionType is an integer
         Value value = tlv.getValue();
+        
+        EncryptionType encryptionType = null;
+        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
         
         try
         {
-            int kvno = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+            int eType = IntegerDecoder.parse( value );
+            encryptionType = EncryptionType.getTypeByOrdinal( eType );
 
-            EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-            encryptedData.setKvno( kvno );
+            encryptedData.setEType( encryptionType );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "kvno : {}", kvno );
+                LOG.debug( "etype : " + encryptionType );
             }
         }
         catch ( IntegerDecoderException ide )

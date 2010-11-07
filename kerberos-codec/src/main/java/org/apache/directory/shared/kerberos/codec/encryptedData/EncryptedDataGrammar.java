@@ -26,10 +26,10 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedPartCipher;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedPartEType;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedPartInit;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedPartKvno;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataCipher;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataEType;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataInit;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataKvno;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
 
 
     /**
-     * Creates a new PrincipalNameGrammar object.
+     * Creates a new EncryptedDataGrammar object.
      */
     private EncryptedDataGrammar()
     {
@@ -72,7 +72,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         // EncryptedData   ::= SEQUENCE
         super.transitions[EncryptedDataStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.START_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new EncryptedPartInit() );
+            new EncryptedDataInit() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from EncryptedData SEQ to etype tag
@@ -90,7 +90,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         etype       [0] Int32,
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new EncryptedPartEType() );
+            new EncryptedDataEType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from etype value to kvno tag
@@ -120,7 +120,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         kvno     [1] UInt32
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE, UniversalTag.INTEGER.getValue(),
-            new EncryptedPartKvno() );
+            new EncryptedDataKvno() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from kvno value value to cipher tag
@@ -140,7 +140,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         cipher     [2] OCTET STRING
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new EncryptedPartCipher() );
+            new EncryptedDataCipher() );
     }
 
 
@@ -150,7 +150,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
     /**
      * Get the instance of this grammar
      * 
-     * @return An instance on the PrincipalName Grammar
+     * @return An instance on the EncryptedData Grammar
      */
     public static Grammar getInstance()
     {

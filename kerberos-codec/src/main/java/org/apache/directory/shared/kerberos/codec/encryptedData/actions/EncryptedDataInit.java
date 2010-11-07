@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedPartInit extends GrammarAction
+public class EncryptedDataInit extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -49,7 +49,7 @@ public class EncryptedPartInit extends GrammarAction
     /**
      * Instantiates a new EncryptedPartInit action.
      */
-    public EncryptedPartInit()
+    public EncryptedDataInit()
     {
         super( "Creates a EncryptedPart instance" );
     }
