@@ -20,20 +20,15 @@
 package org.apache.directory.shared.kerberos.codec.principalName;
 
 
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameInit;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,32 +71,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar
         // PrincipalName   ::= SEQUENCE
         super.transitions[PrincipalNameStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             PrincipalNameStatesEnum.START_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new GrammarAction( "principalName SEQUENCE" )
-            {
-                public void action( Asn1Container container ) throws DecoderException
-                {
-                    PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
-
-                    TLV tlv = principalNameContainer.getCurrentTLV();
-
-                    // The Length should not be null
-                    if ( tlv.getLength() == 0 )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-                        // This will generate a PROTOCOL_ERROR
-                        throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-                    }
-                    
-                    PrincipalName principalName = new PrincipalName();
-                    principalNameContainer.setPrincipalName( principalName );
-                    
-                    if ( IS_DEBUG )
-                    {
-                        LOG.debug( "PrincipalName created" );
-                    }
-                }
-            } );
+            new PrincipalNameInit() ) ;
+        
         
         // --------------------------------------------------------------------------------------------
         // Transition from PrincipalName SEQ to name-type tag
@@ -112,6 +83,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
             PrincipalNameStatesEnum.PRINCIPAL_NAME_SEQ_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG,
             new CheckNotNullLength() );
         
+        
         // --------------------------------------------------------------------------------------------
         // Transition from name-type tag to name-type value
         // --------------------------------------------------------------------------------------------
@@ -120,6 +92,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
         super.transitions[PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, UniversalTag.INTEGER.getValue(),
             new PrincipalNameNameType() );
+        
         
         // --------------------------------------------------------------------------------------------
         // Transition from name-type value to name-string tag
@@ -131,6 +104,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG,
             new CheckNotNullLength() );
         
+        
         // --------------------------------------------------------------------------------------------
         // Transition from name-string tag to name-string SEQ
         // --------------------------------------------------------------------------------------------
@@ -140,6 +114,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
         super.transitions[PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
             new CheckNotNullLength() );
+        
         
         // --------------------------------------------------------------------------------------------
         // Transition from name-string SEQ to name-string value
@@ -151,10 +126,6 @@ public final class PrincipalNameGrammar extends AbstractGrammar
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.GENERAL_STRING.getValue(),
             new PrincipalNameNameString() );
     }
-
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar
