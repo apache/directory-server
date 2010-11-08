@@ -343,17 +343,13 @@ public class HostAddress extends AbstractAsn1Object
      */
     public String toString()
     {
-        String result = "";
-
         try
         {
-            result = InetAddress.getByAddress( address ).getHostAddress();
+            return InetAddress.getByAddress( address ).getHostAddress();
         }
         catch ( UnknownHostException uhe )
         {
-            result = "Unknow host : " + StringTools.utf8ToString( address );
+            return "Unknow host : " + StringTools.utf8ToString( address );
         }
-
-        return result;
     }
 }

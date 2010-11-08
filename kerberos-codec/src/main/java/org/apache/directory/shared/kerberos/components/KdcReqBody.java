@@ -25,9 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import sun.security.krb5.internal.AuthorizationData;
 import sun.security.krb5.internal.KerberosTime;
@@ -98,6 +101,25 @@ public class KdcReqBody
     /** Additional tickets */
     private List<Ticket> additionalTickets;
 
+    // Storage for computed lengths
+    private transient int kdcOptionsLength;
+    private transient int cNameLength;
+    private transient int realmLength;
+    private transient byte[] realmBytes;
+    private transient int sNameLength;
+    private transient int fromLength;
+    private transient int tillLength;
+    private transient int rtimeLength;
+    private transient int nonceLength;
+    private transient int eTypeLength;
+    private transient int eTypeSeqLength;
+    private transient int[] eTypeLengths;
+    private transient int addressesLength;
+    private transient int encAuthzDataLength;
+    private transient int additionalTicketSeqLength;
+    private transient int[] additionalTicketsLengths;
+    private transient int kdcReqBodySeqLength;
+    private transient int kdcReqBodyLength;
 
     /**
      * Creates a new instance of RequestBody.
@@ -362,5 +384,312 @@ public class KdcReqBody
     public void setTill( KerberosTime till )
     {
         this.till = till;
+    }
+
+    
+    /**
+     * Compute the KdcReqBody length
+     * 
+     * KdcReqBody :
+     * 
+     * 0x30 L1 KdcReqBody sequence
+     *  |
+     *  +--> 0xA0 L2 kdc-options tag
+     *  |     |
+     *  |     +--> 0x05 L2-1 kdc-options (BitString)
+     *  |
+     *  +--> 0xA1 L3 cname tag
+     *  |     |
+     *  |     +--> 0x30 L3-1 cname (PrincipalName)
+     *  |     
+     *  +--> 0xA2 L4 realm tag
+     *  |     |
+     *  |     +--> 0x1B L4-1 realm (Realm, KerberosString)
+     *  |     
+     *  +--> 0xA3 L5 sname tag
+     *  |     |
+     *  |     +--> 0x30 L5-1 sname (PrincipalName)
+     *  |     
+     *  +--> 0xA4 L6 from tag
+     *  |     |
+     *  |     +--> 0x18 L6-1 from (KerberosTime)
+     *  |     
+     *  +--> 0xA5 L7 till tag
+     *  |     |
+     *  |     +--> 0x18 L7-1 till (KerberosTime)
+     *  |     
+     *  +--> 0xA6 L8 rtime tag
+     *  |     |
+     *  |     +--> 0x18 L8-1 rtime (KerberosTime)
+     *  |     
+     *  +--> 0xA7 L9 nonce tag
+     *  |     |
+     *  |     +--> 0x02 L9-1 nonce (Int)
+     *  |     
+     *  +--> 0xA8 L10 etype tag
+     *  |     |
+     *  |     +--> 0x30 L10-1 SEQ
+     *  |           |
+     *  |           +--> 0x02 L10-1-1 etype
+     *  |           |
+     *  |           +--> 0x02 L10-1-2 etype
+     *  |           |
+     *  |           :
+     *  |
+     *  +--> 0xA9 L11 addresses tag
+     *  |     |
+     *  |     +--> 0x30 L11-1 addresses (HostAddresses)
+     *  |     
+     *  +--> 0xA10 L12 enc-authorization-data tag
+     *  |     |
+     *  |     +--> 0x30 L12-1 enc-authorization-data
+     *  |     
+     *  +--> 0xA11 L13 additional-tickets tag
+     *        |
+     *        +--> 0x30 L13-1 additional-tickets
+     *              |
+     *              +--> 0x61 L13-1-1 Ticket
+     *              |
+     *              +--> 0x61 L13-1-2 Ticket
+     *              |
+     *              :
+     *        
+     */
+    public int computeLength()
+    {
+        // The KdcOptions length
+        kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
+        
+        // The cname length
+        if ( cName != null )
+        {
+            cNameLength = cName.computeLength();
+        }
+
+        // Compute the realm length.
+        realmBytes = StringTools.getBytesUtf8( realm );
+        realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
+        
+        // The sname length
+        if ( sName != null )
+        {
+            sNameLength = sName.computeLength();
+        }
+
+        // The from length
+        if ( from != null )
+        {
+            fromLength = 1 + 1 + 0x0F;
+        }
+
+        // The till length
+        tillLength = 1 + 1 + 0x0F;
+
+        // The rtime length
+        if ( rtime != null )
+        {
+            rtimeLength = 1 + 1 + 0x0F;
+        }
+
+        // The nonce length
+        nonceLength = 1 + 1 + Value.getNbBytes( nonce );
+        
+        // The eType length
+        eTypeLengths = new int[eType.size()];
+        int pos = 0;
+        
+        for ( EncryptionType encryptionType : eType )
+        {
+            eTypeLengths[pos] = 1 + 1 + Value.getNbBytes( encryptionType.ordinal() );
+            eTypeSeqLength += eTypeLengths[pos];
+            pos++;
+        }
+        
+        eTypeLength = 1 + TLV.getNbBytes( eTypeSeqLength ) + eTypeSeqLength;
+        
+        // The Addresses length
+        if ( addresses != null )
+        {
+            addressesLength = addresses.computeLength();
+        }
+        
+        // The EncAuthorizationData length
+        if ( encAuthorizationData != null )
+        {
+            encAuthzDataLength = encAuthorizationData.computeLength();
+        }
+        
+        // The additionalTickets length
+        if ( additionalTickets.size() != 0 )
+        {
+            additionalTicketsLengths = new int[additionalTickets.size()];
+            pos = 0;
+            
+            for ( Ticket ticket : additionalTickets )
+            {
+                additionalTicketsLengths[pos] = ticket.computeLength();
+                additionalTicketSeqLength += additionalTicketsLengths[pos];
+                pos++;
+            }
+            
+            additionalTicketSeqLength = 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
+        }
+
+        // Compute the sequence size.
+        // The mandatory fields first
+        kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength; 
+        kdcReqBodySeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
+        kdcReqBodySeqLength += 1 + 1 + tillLength;
+        kdcReqBodySeqLength += 1 + 1 + nonceLength;
+        kdcReqBodySeqLength += 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
+        
+        // The optional fields
+        if ( cName != null )
+        {
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( cNameLength ) + cNameLength;
+        }
+        
+        if ( sName != null )
+        {
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( sNameLength ) + sNameLength;
+        }
+        
+        if ( from != null )
+        {
+            kdcReqBodySeqLength += 1 + 1 + fromLength;
+        }
+        
+        if ( rtime != null )
+        {
+            kdcReqBodySeqLength += 1 + 1 + rtimeLength;
+        }
+
+        if ( addresses != null )
+        {
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( addressesLength ) + addressesLength;
+        }
+        
+        if ( encAuthorizationData != null )
+        {
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( encAuthzDataLength ) + encAuthzDataLength;
+        }
+        
+        if ( additionalTickets.size() != 0 )
+        {
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
+        }
+        
+        // compute the global size
+        kdcReqBodyLength = 1 + TLV.getNbBytes( kdcReqBodySeqLength ) + kdcReqBodySeqLength;
+        
+        return 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength;
+    }
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "KDCOptions : " ).append( kdcOptions ).append( '\n' );
+
+        if ( cName != null )
+        {
+            sb.append( "cname : " ).append( cName ).append( '\n' );
+        }
+        
+        sb.append( "ream : " ).append( realm ).append( '\n' );
+
+        if ( sName != null )
+        {
+            sb.append( "sname : " ).append( sName ).append( '\n' );
+        }
+
+        if ( from != null )
+        {
+            sb.append( "from : " ).append( from ).append( '\n' );
+        }
+        
+        sb.append( "till : " ).append( till ).append( '\n' );
+        
+
+        if ( from != null )
+        {
+            sb.append( "rtime : " ).append( rtime ).append( '\n' );
+        }
+        
+        sb.append( "nonce : " ).append( nonce ).append( '\n' );
+        
+        sb.append( "etype : " );
+        boolean isFirst = true;
+        
+        for ( EncryptionType encryptionType : eType )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( " " );
+            }
+            
+            sb.append( encryptionType );
+        }
+        
+        sb.append( '\n' );
+        
+        if ( addresses != null )
+        {
+            sb.append( "addresses : " );
+            isFirst = true;
+            
+            for ( HostAddress hostAddress : addresses.getAddresses() )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( " " );
+                }
+
+                sb.append( hostAddress );
+            }
+            
+            sb.append( '\n' );
+        }
+        
+
+        if ( encAuthorizationData != null )
+        {
+            sb.append( "enc-authorization-data" ).append( encAuthorizationData ).append( '\n' );
+        }
+        
+        if ( additionalTickets.size() != 0 )
+        {
+            sb.append( "Tickets : " );
+            isFirst = true;
+
+            for ( Ticket ticket : additionalTickets )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( " " );
+                }
+
+                sb.append( ticket );
+            }
+            
+            sb.append( '\n' );
+        }
+        
+        return sb.toString();
     }
 }

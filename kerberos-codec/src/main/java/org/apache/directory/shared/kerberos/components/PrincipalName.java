@@ -129,7 +129,7 @@ public class PrincipalName extends AbstractAsn1Object
     private PrincipalNameType nameType;
 
     /** The principal name - we may have more than one - */
-    private List<String> nameString;
+    private List<String> nameString = new ArrayList<String>();
     
     /** The principal name as a byte[], for encoding purpose */
     private transient List<byte[]> nameBytes;
@@ -179,8 +179,7 @@ public class PrincipalName extends AbstractAsn1Object
      */
     public PrincipalName( String nameString, PrincipalNameType nameType )  throws ParseException
     {
-        this.nameString = KerberosUtils.getNames( nameString );
-        
+        this.nameString.add( nameString );
         this.nameType = nameType;
     }
 
@@ -313,7 +312,7 @@ public class PrincipalName extends AbstractAsn1Object
     {
         // The principalName can't be empty.
         principalTypeLength = Value.getNbBytes( nameType.getOrdinal() );
-        principalTypeTagLength = 1 + TLV.getNbBytes( principalTypeLength ) + principalTypeLength;
+        principalTypeTagLength = 1 + 1 + principalTypeLength;
         
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
 

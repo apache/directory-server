@@ -441,7 +441,7 @@ public class Ticket extends KerberosMessage
     public int computeLength()
     {
         // Compute the Ticket version length.
-        tktvnoLength = 1 + TLV.getNbBytes( tktvno ) + Value.getNbBytes( tktvno );
+        tktvnoLength = 1 + 1 + Value.getNbBytes( tktvno );
 
         // Compute the Ticket realm length.
         realmBytes = StringTools.getBytesUtf8( realm );
