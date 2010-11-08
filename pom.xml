@@ -30,8 +30,14 @@
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
   <version>1.5.8-SNAPSHOT</version>
-  <name>ApacheDS</name>
   <packaging>pom</packaging>
+
+  <name>ApacheDS</name>
+
+  <description>ApacheDS is an embbedable directory server entirely written in Java, which has been certified LDAPv3 compatible
+    by the Open Group. Besides LDAP it supports Kerberos 5 and the Change Password Protocol. It has been designed to introduce
+    triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.
+  </description>
 
   <properties>
     <projectName>Apache Directory Server</projectName>
