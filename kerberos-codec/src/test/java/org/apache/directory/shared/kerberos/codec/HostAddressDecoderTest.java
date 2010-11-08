@@ -34,7 +34,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.kerberos.components.HostAddrType;
+import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;

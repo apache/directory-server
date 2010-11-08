@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.components;
+package org.apache.directory.shared.kerberos.codec.types;
 
 import java.util.Collection;
 import java.util.HashMap;

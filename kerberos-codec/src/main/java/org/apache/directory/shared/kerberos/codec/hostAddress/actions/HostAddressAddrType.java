@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.kerberos.components.HostAddrType;
+import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
