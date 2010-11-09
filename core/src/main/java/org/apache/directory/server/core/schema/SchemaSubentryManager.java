@@ -22,6 +22,8 @@ package org.apache.directory.server.core.schema;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,6 +96,8 @@ public class SchemaSubentryManager
     private static final String CASCADING_ERROR =
             "Cascading has not yet been implemented: standard operation is in effect.";
 
+    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
+    
     static 
     {
         VALID_OU_VALUES.add( SchemaConstants.NORMALIZERS_AT.toLowerCase() );
@@ -149,6 +153,8 @@ public class SchemaSubentryManager
 
         String nameFormsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, NAME_FORM_INDEX );
+        
+        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
     }
 
     
@@ -174,6 +180,12 @@ public class SchemaSubentryManager
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
+                    // a hack to allow entryCSN modification
+                    if ( ENTRY_CSN_ATTRIBUTE_TYPE.equals( serverAttribute.getAttributeType() ) )
+                    {
+                        break;
+                    }
+
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
                         I18n.err( I18n.ERR_283 ) );
                 

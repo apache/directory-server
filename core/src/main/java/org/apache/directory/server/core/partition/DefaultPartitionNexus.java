@@ -650,13 +650,14 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Partition backend = getPartition( modifyContext.getDn() );
 
-        String csn = directoryService.getCSN().toString();
-        EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_AT, csn );
-        Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        modifyContext.getModItems().add( updatedCsn );
-
         backend.modify( modifyContext );
-        directoryService.setContextCsn( csn );
+        
+        Entry alteredEntry = modifyContext.getAlteredEntry();
+        
+        if ( alteredEntry != null )
+        {
+            directoryService.setContextCsn( alteredEntry.get( ENTRY_CSN_AT ).getString() );
+        }
     }
 
 

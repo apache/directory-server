@@ -120,7 +120,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-
+    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -145,6 +145,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
     }
 
 
@@ -253,7 +254,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         boolean modifierAtPresent = false;
         boolean modifiedTimeAtPresent = false;
-
+        boolean entryCsnAtPresent = false;
+        
         for ( Modification modification : mods )
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
@@ -283,6 +285,20 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 else
                 {
                     modifiedTimeAtPresent = true;
+                }
+            }
+
+            if ( attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
+            {
+                if ( !isAdmin )
+                {
+                    String message = I18n.err( I18n.ERR_32 );
+                    LOG.error( message );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                }
+                else
+                {
+                    entryCsnAtPresent = true;
                 }
             }
 
@@ -316,6 +332,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             mods.add( timestamp );
         }
 
+        if ( !entryCsnAtPresent )
+        {
+            String csn = service.getCSN().toString();
+            EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
+            Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+            mods.add( updatedCsn );
+        }
+        
         // Go down in the chain
         nextInterceptor.modify( modifyContext );
     }

@@ -36,6 +36,7 @@ import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
@@ -65,6 +65,16 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
+@ApplyLdifs({
+    "dn: uid=billyd,ou=users,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "uid: billyd",
+    "userPassword: secret",
+    "sn: billyd",
+    "cn: billyd"
+})
 public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
@@ -233,6 +243,18 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
 
+        // admin can modify the entryCsn
+        modResp = connection.modify( modifyRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+
+        connection.close();
+        
+        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        DN bindDn = new DN( "uid=billyd,ou=users,ou=system" );
+        connection.bind( bindDn.getName(), "secret" );
+        
+        // non-admin user cannot modify entryCSN
         modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
     }

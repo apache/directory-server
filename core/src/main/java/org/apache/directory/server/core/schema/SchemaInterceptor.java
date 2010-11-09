@@ -169,6 +169,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
+    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
 
 
     /**
@@ -212,7 +213,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-
+        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        
         if ( IS_DEBUG )
         {
             LOG.debug( "SchemaInterceptor Initialized !" );
@@ -1046,6 +1048,7 @@ public class SchemaInterceptor extends BaseInterceptor
             if ( !attributeType.isUserModifiable()
                 && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE )
                 && ( !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+                && ( !attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
                 && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
