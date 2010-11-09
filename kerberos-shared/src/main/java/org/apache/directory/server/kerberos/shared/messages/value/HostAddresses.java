@@ -138,11 +138,14 @@ public class HostAddresses extends AbstractAsn1Object
      * @param that
      * @return true if two {@link HostAddresses} are equal.
      */
-    public boolean equals( HostAddresses that )
+    @Override
+    public boolean equals( Object obj )
     {
-        if( that == null ) {
+        if( obj == null || !( obj instanceof HostAddresses ) ) {
             return false;
         }
+        
+        HostAddresses that = ( HostAddresses )obj;
         
         if ( ( addresses == null && that.addresses != null )
             || ( addresses != null && that.addresses == null ) )
