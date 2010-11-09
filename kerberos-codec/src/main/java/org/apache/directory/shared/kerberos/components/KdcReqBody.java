@@ -463,8 +463,8 @@ public class KdcReqBody
      */
     public int computeLength()
     {
-        // The KdcOptions length
-        kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
+        // The KdcOptions length (we have to add the unusedBits byte
+        kdcOptionsLength = 1 + 1 + 1 + kdcOptions.getBytes().length;
         
         // The cname length
         if ( cName != null )
@@ -609,7 +609,7 @@ public class KdcReqBody
         buffer.put( TLV.getBytes( kdcOptionsLength ) );
         
         // The value
-        //aaa
+        Value.encode( buffer, kdcOptions );
         
         // The cname if any ---------------------------------------------------
         if ( cName != null )

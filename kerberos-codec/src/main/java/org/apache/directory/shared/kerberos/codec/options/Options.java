@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.options;
 
 
-import java.util.BitSet;
+import org.apache.directory.shared.asn1.primitives.BitString;
 
 
 /**
@@ -28,23 +28,15 @@ import java.util.BitSet;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class Options
+public abstract class Options extends BitString
 {
-    /** The Bits storage */
-    private BitSet options;
-    
-    /** The size for the BitSet */
-    private int maxSize;
-
-
     /**
      * Creates a new BitSet with a specific number of bits.
      * @param maxSize The number of bits to allocate
      */
     protected Options( int maxSize )
     {
-        this.maxSize = maxSize;
-        options = new BitSet( maxSize );
+        super( maxSize );
     }
 
 
@@ -69,12 +61,12 @@ public abstract class Options
      */
     public boolean get( int index )
     {
-        if ( index >= maxSize )
+        if ( index >= size() )
         {
             throw new ArrayIndexOutOfBoundsException();
         }
         
-        return options.get( index );
+        return super.getBit( index );
     }
 
 
@@ -85,12 +77,12 @@ public abstract class Options
      */
     public void set( int index )
     {
-        if ( ( index < 0 ) || ( index > options.size() ) )
+        if ( ( index < 0 ) || ( index > size() ) )
         {
             return;
         }
         
-        options.set( index );
+        setBit( index );
     }
 
 
@@ -101,12 +93,12 @@ public abstract class Options
      */
     public void clear( int index )
     {
-        if ( ( index < 0 ) || ( index > options.size() ) )
+        if ( ( index < 0 ) || ( index > size() ) )
         {
             return;
         }
         
-        options.clear( index );
+        clearBit( index );
     }
 
 
@@ -119,28 +111,17 @@ public abstract class Options
      */
     public byte[] getBytes()
     {
-        byte[] bytes = new byte[maxSize / 8];
-
-        for ( int i = 0; i < maxSize; i++ )
-        {
-            if ( options.get( i ) )
-            {
-                bytes[bytes.length - i / 8 - 1] |= 1 << ( i % 8 );
-            }
-        }
-        return bytes;
+        return super.getData();
     }
 
 
+    /**
+     * Set the array of bytes representing the bits
+     * @param bytes The bytes to store
+     */
     protected void setBytes( byte[] bytes )
     {
-        for ( int i = 0; i < bytes.length * 8; i++ )
-        {
-            if ( ( bytes[bytes.length - i / 8 - 1] & ( 1 << ( i % 8 ) ) ) > 0 )
-            {
-                options.set( i);
-            }
-        }
+        super.setData( bytes );
     }
     
     
@@ -149,13 +130,6 @@ public abstract class Options
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        
-        for ( int i = maxSize - 1; i >= 0; i-- )
-        {
-            sb.append( options.get( i ) ? "1" : "0" );
-        }
-        
-        return sb.toString();
+        return super.toString();
     }
 }
