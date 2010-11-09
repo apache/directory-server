@@ -214,10 +214,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setInstanceId( name );
         buildInstanceDirectory( name );
 
-        // Erase the working directory to be sure that we don't have some
-        // remaining data from a previous run
-        String workingDirectoryPath = directoryService.getInstanceLayout().getInstanceDirectory().getPath();
-
         // Init the service now
         initSchema();
         initSystemPartition();
