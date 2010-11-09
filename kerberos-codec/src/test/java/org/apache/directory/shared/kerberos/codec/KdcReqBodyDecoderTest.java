@@ -21,9 +21,13 @@ package org.apache.directory.shared.kerberos.codec;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.nio.ByteBuffer;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
@@ -34,6 +38,7 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -98,5 +103,24 @@ public class KdcReqBodyDecoderTest
 
         // Check the length
         assertEquals( 0x15E, length );
+        
+        // Check the encoding
+        ByteBuffer bb = ByteBuffer.allocate( length );
+        
+        try
+        {
+            bb = body.encode( bb );
+    
+            // Check the length
+            assertEquals( 0x15E, bb.limit() );
+    
+            System.out.println( StringTools.dumpBytes( bb.array() ) );
+    
+            //assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 }

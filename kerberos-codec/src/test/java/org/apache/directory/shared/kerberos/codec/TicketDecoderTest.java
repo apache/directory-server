@@ -127,7 +127,7 @@ public class TicketDecoderTest
         // Check the encoding
         try
         {
-            ByteBuffer bb = ticket.encode();
+            ByteBuffer bb = ticket.encode( null );
 
             // Check the length
             assertEquals( 0x46, bb.limit() );
