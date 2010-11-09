@@ -196,44 +196,6 @@ public class SchemaSubentryManager
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
-     */
-    public void modifySchemaSubentry( ModifyOperationContext modifyContext, DN name, int modOp, Entry mods, 
-        Entry subentry, Entry targetSubentry, boolean doCascadeModify ) throws Exception
-    {
-        Set<AttributeType> attributeTypes = mods.getAttributeTypes();
-        
-        switch ( modOp )
-        {
-            case( DirContext.ADD_ATTRIBUTE ):
-                for ( AttributeType attributeType:attributeTypes )
-                {
-                    modifyAddOperation( modifyContext, attributeType.getOid(), 
-                        mods.get( attributeType ), doCascadeModify );
-                }
-            
-                break;
-                
-            case( DirContext.REMOVE_ATTRIBUTE ):
-                for ( AttributeType attributeType:attributeTypes )
-                {
-                    modifyRemoveOperation( modifyContext, attributeType.getOid(), 
-                        mods.get( attributeType ) );
-                }
-            
-                break;
-                
-            case( DirContext.REPLACE_ATTRIBUTE ):
-                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
-                    I18n.err( I18n.ERR_283 ) );
-            
-            default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_284, modOp ) );
-        }
-    }
-    
-
     /**
      * Handles the modify remove operation on the subschemaSubentry for schema entities. 
      * 
