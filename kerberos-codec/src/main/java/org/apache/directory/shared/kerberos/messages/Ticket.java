@@ -482,9 +482,12 @@ public class Ticket extends KerberosMessage
      * 
      * @return The constructed PDU.
      */
-    public ByteBuffer encode() throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        ByteBuffer buffer = ByteBuffer.allocate( computeLength() );
+        if ( buffer == null )
+        {
+            buffer = ByteBuffer.allocate( computeLength() );
+        }
 
         try
         {

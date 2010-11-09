@@ -48,4 +48,18 @@ public class KerberosConstants
     /** HostAddress' tags */
     public static final int HOST_ADDRESS_ADDR_TYPE_TAG = 0xA0;
     public static final int HOST_ADDRESS_ADDRESS_TAG = 0xA1;
+    
+    /** KRB-REQ-BODY's tags */
+    public static final int KDC_REQ_BODY_KDC_OPTIONS_TAG = 0xA0;
+    public static final int KDC_REQ_BODY_CNAME_TAG = 0xA1;
+    public static final int KDC_REQ_BODY_REALM_TAG = 0xA2;
+    public static final int KDC_REQ_BODY_SNAME_TAG = 0xA3;
+    public static final int KDC_REQ_BODY_FROM_TAG = 0xA4;
+    public static final int KDC_REQ_BODY_TILL_TAG = 0xA5;
+    public static final int KDC_REQ_BODY_RTIME_TAG = 0xA6;
+    public static final int KDC_REQ_BODY_NONCE_TAG = 0xA7;
+    public static final int KDC_REQ_BODY_ETYPE_TAG = 0xA8;
+    public static final int KDC_REQ_BODY_ADDRESSES_TAG = 0xA9;
+    public static final int KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG = 0xAA;
+    public static final int KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG = 0xAB;
 }

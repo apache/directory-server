@@ -20,13 +20,18 @@
 package org.apache.directory.shared.kerberos.components;
 
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -116,6 +121,7 @@ public class KdcReqBody
     private transient int[] eTypeLengths;
     private transient int addressesLength;
     private transient int encAuthzDataLength;
+    private transient int additionalTicketLength;
     private transient int additionalTicketSeqLength;
     private transient int[] additionalTicketsLengths;
     private transient int kdcReqBodySeqLength;
@@ -532,7 +538,7 @@ public class KdcReqBody
                 pos++;
             }
             
-            additionalTicketSeqLength = 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
+            additionalTicketLength = 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
         }
 
         // Compute the sequence size.
@@ -576,13 +582,161 @@ public class KdcReqBody
         
         if ( additionalTickets.size() != 0 )
         {
-            kdcReqBodySeqLength += 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( additionalTicketLength ) + additionalTicketLength;
         }
         
         // compute the global size
         kdcReqBodyLength = 1 + TLV.getNbBytes( kdcReqBodySeqLength ) + kdcReqBodySeqLength;
         
         return 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength;
+    }
+    
+    
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
+    {
+        if ( buffer == null )
+        {
+            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
+        }
+        
+        // The KDC-REQ-BODY SEQ Tag
+        buffer.put( UniversalTag.SEQUENCE.getValue() );
+        buffer.put( TLV.getBytes( kdcReqBodySeqLength ) );
+        
+        // The KdcOptions -----------------------------------------------------
+        // The tag
+        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG );
+        buffer.put( TLV.getBytes( kdcOptionsLength ) );
+        
+        // The value
+        //aaa
+        
+        // The cname if any ---------------------------------------------------
+        if ( cName != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_CNAME_TAG );
+            buffer.put( TLV.getBytes( cNameLength ) );
+            
+            // The value
+            cName.encode( buffer );
+        }
+        
+        // The realm ----------------------------------------------------------
+        // The tag
+        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_REALM_TAG );
+        buffer.put( TLV.getBytes( realmLength ) );
+        
+        // The value
+        buffer.put( UniversalTag.GENERAL_STRING.getValue() );
+        buffer.put( TLV.getBytes( realmBytes.length ) );
+        buffer.put( realmBytes );
+        
+        // The sname, if any --------------------------------------------------
+        if ( sName != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_SNAME_TAG );
+            buffer.put( TLV.getBytes( sNameLength ) );
+            
+            // The value
+            sName.encode( buffer );
+        }
+        
+        // The from, if any ---------------------------------------------------
+        if ( from != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_FROM_TAG );
+            buffer.put( TLV.getBytes( fromLength ) );
+            
+            // The value
+            //Value.encode( buffer, from );
+        }
+        
+        // The till -----------------------------------------------------------
+        // The tag
+        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_TILL_TAG );
+        buffer.put( TLV.getBytes( tillLength ) );
+        
+        // The value
+        //aaa
+        
+        // The rtime if any ---------------------------------------------------
+        if ( rtime != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_RTIME_TAG );
+            buffer.put( TLV.getBytes( rtimeLength ) );
+            
+            // The value
+            //aaa
+        }
+        
+        // The nonce ----------------------------------------------------------
+        // The tag
+        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_NONCE_TAG );
+        buffer.put( TLV.getBytes( nonceLength ) );
+        
+        // The value
+        Value.encode( buffer, nonce );
+        
+        // The etype ----------------------------------------------------------
+        // The tag
+        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ETYPE_TAG );
+        buffer.put( TLV.getBytes( eTypeLength ) );
+        
+        // The sequence
+        buffer.put( UniversalTag.SEQUENCE.getValue() );
+        buffer.put( TLV.getBytes( eTypeSeqLength ) );
+        
+        // The values
+        for ( EncryptionType encryptionType : eType )
+        {
+            Value.encode( buffer, encryptionType.ordinal() );
+        }
+        
+        // The addresses if any -----------------------------------------------
+        if ( addresses != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG );
+            buffer.put( TLV.getBytes( addressesLength ) );
+            
+            // The value
+            addresses.encode( buffer );
+        }
+        
+        // The enc-authorization-data, if any ---------------------------------
+        if ( encAuthorizationData != null )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG );
+            buffer.put( TLV.getBytes( encAuthzDataLength ) );
+            
+            // The value
+            encAuthorizationData.encode( buffer );
+        }
+        
+        // The additional-tickets, if any -------------------------------------
+        if ( additionalTickets.size() != 0 )
+        {
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
+            buffer.put( TLV.getBytes( additionalTicketLength ) );
+            
+            // The sequence
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( additionalTicketSeqLength ) );
+            
+            // The values
+            for ( Ticket ticket : additionalTickets )
+            {
+                ticket.encode( buffer );
+            }
+        }
+        
+        return buffer;
     }
 
     /**
