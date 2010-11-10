@@ -181,4 +181,54 @@ public class AuthorizationDataDecoderTest
         fail();
     }
 
+    
+    @Test( expected = DecoderException.class)
+    public void testAuthorizationDataWithEmptyData() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0xB );
+        
+        stream.put( new byte[]
+            { 
+                0x30, 0x09,
+                  (byte)0xA0, 0x03,                 // ad-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA1, 0x02,                 // ad-data
+                    0x04, 0x00
+            } );
+
+        stream.flip();
+
+        AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
+        
+        kerberosDecoder.decode( stream, authDataContainer );
+        fail();
+    }
+
+    
+    @Test( expected = DecoderException.class)
+    public void testAuthorizationDataWithEmptyType() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0xB );
+        
+        stream.put( new byte[]
+            { 
+                0x30, 0x09,
+                  (byte)0xA0, 0x02,                 // ad-type
+                    0x02, 0x00,
+                  (byte)0xA1, 0x03,                 // ad-data
+                    0x04, 0x01, 0x02
+            } );
+
+        stream.flip();
+
+        AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
+        
+        kerberosDecoder.decode( stream, authDataContainer );
+        fail();
+    }
+
 }
