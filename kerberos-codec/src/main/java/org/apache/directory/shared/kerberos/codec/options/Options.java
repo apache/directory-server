@@ -61,7 +61,7 @@ public abstract class Options extends BitString
      */
     public boolean get( int index )
     {
-        if ( index >= size() )
+        if ( ( index < 0 ) || ( index >= size() ) )
         {
             throw new ArrayIndexOutOfBoundsException();
         }
@@ -77,7 +77,7 @@ public abstract class Options extends BitString
      */
     public void set( int index )
     {
-        if ( ( index < 0 ) || ( index > size() ) )
+        if ( ( index < 0 ) || ( index >= size() ) )
         {
             return;
         }
@@ -93,7 +93,7 @@ public abstract class Options extends BitString
      */
     public void clear( int index )
     {
-        if ( ( index < 0 ) || ( index > size() ) )
+        if ( ( index < 0 ) || ( index >= size() ) )
         {
             return;
         }

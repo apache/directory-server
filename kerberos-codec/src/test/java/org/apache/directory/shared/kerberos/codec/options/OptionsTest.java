@@ -47,11 +47,11 @@ public class OptionsTest
         MyOptions myOptions = new MyOptions(); 
         
         // Set the bits 10-0100 1010-1100 0000-0110
-        myOptions.setBytes( new byte[]{ (byte)0x24, (byte)0xAC, 0x06} );
+        myOptions.setBytes( new byte[]{ 0x02, (byte)0x92, (byte)0xB0, 0x18} );
 
         assertEquals( "1001001010110000000110", myOptions.toString() );
-        assertTrue( myOptions.get( 21 ) );
-        assertFalse( myOptions.get( 20 ) );
+        assertFalse( myOptions.get( 21 ) );
+        assertTrue( myOptions.get( 20 ) );
         
         try
         {
