@@ -76,16 +76,19 @@ public class AuthorizationDataAdType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // The encyptionType is an integer
-        Value value = tlv.getValue();
-        
         AuthorizationData authData = authDataContainer.getAuthorizationData();
+
+        // Creates a new AD
+        authData.createNewAD();
+        
+        // The AuthorizationData data is an integer
+        Value value = tlv.getValue();
         
         try
         {
             int adType = IntegerDecoder.parse( value );
 
-            authData.setAdType( adType );
+            authData.setCurrentAdType( adType );
 
             if ( IS_DEBUG )
             {

@@ -86,7 +86,7 @@ public class AuthorizationDataAdData extends GrammarAction
         }
         
         AuthorizationData authData = authDataContainer.getAuthorizationData();
-        authData.setAdData( value.getData() );
+        authData.setCurrentAdData( value.getData() );
         
         if ( IS_DEBUG )
         {

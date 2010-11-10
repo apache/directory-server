@@ -33,22 +33,21 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
  */
 public enum AuthorizationDataStatesEnum implements States
 {
-    // ~ Static fields/initializers
-    // -----------------------------------------------------------------
-
     // Start
-    START_STATE,                            // 0
+    START_STATE,                                // 0
     
     AUTHORIZATION_DATA_SEQ_STATE,               // 1
     
-    AUTHORIZATION_DATA_ADTYPE_TAG_STATE,         // 2
-    AUTHORIZATION_DATA_ADTYPE_STATE,             // 3
+    AUTHORIZATION_DATA_SEQ_SEQ_STATE,           // 2
     
-    AUTHORIZATION_DATA_ADDATA_TAG_STATE,          // 4
-    AUTHORIZATION_DATA_ADDATA_STATE,              // 5
+    AUTHORIZATION_DATA_ADTYPE_TAG_STATE,        // 3
+    AUTHORIZATION_DATA_ADTYPE_STATE,            // 4
+    
+    AUTHORIZATION_DATA_ADDATA_TAG_STATE,        // 5
+    AUTHORIZATION_DATA_ADDATA_STATE,            // 6
     
     // End
-    LAST_AUTHORIZATION_DATA_STATE;              // 6
+    LAST_AUTHORIZATION_DATA_STATE;              // 7
 
     
     /**

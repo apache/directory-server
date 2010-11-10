@@ -46,7 +46,7 @@ public class AuthorizationDataInit extends GrammarAction
 
 
     /**
-     * Instantiates a new EncryptedDataInit action.
+     * Instantiates a new AuthorizationDataInit action.
      */
     public AuthorizationDataInit()
     {

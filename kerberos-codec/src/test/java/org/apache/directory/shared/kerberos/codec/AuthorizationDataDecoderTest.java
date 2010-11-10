@@ -21,6 +21,7 @@
 package org.apache.directory.shared.kerberos.codec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -48,14 +49,21 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x24 );
         
         stream.put( new byte[]
-            { 0x30, 0xF,
-                (byte)0xA0, 0x03,                 // ad-type
-                  0x02, 0x01, 0x02,
-                (byte)0xA1, 0x08,                 // ad-data
-                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
+            { 
+              0x30, 0x22,
+                0x30, 0x0F,
+                  (byte)0xA0, 0x03,                 // ad-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA1, 0x08,                 // ad-data
+                    0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f',
+                0x30, 0x0F,
+                  (byte)0xA0, 0x03,                 // ad-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA1, 0x08,                 // ad-data
+                    0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -74,9 +82,20 @@ public class AuthorizationDataDecoderTest
         }
 
         AuthorizationData authData = authDataContainer.getAuthorizationData();
-        assertEquals( 2, authData.getAdType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "abcdef" ), authData.getAdData() ) );
         
+        assertNotNull( authData.getAuthorizationData().size() );
+        assertEquals( 2, authData.getAuthorizationData().size() );
+        
+        String[] expected = new String[]{ "abcdef", "ghijkl" };
+        int i = 0;
+        
+        for ( AuthorizationData.AD ad : authData.getAuthorizationData() )
+        {
+            assertEquals( 2, ad.getAdType() );
+            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+            
+        }
+
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( authData.computeLength() );
         
@@ -85,7 +104,7 @@ public class AuthorizationDataDecoderTest
             bb = authData.encode( bb );
     
             // Check the length
-            assertEquals( 0x11, bb.limit() );
+            assertEquals( 0x24, bb.limit() );
     
             String encodedPdu = StringTools.dumpBytes( bb.array() );
     

@@ -66,17 +66,25 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         // AuthorizationData 
         // ============================================================================================
         // --------------------------------------------------------------------------------------------
-        // Transition from AuthorizationData init to AuthorizationData SEQ
+        // Transition from AuthorizationData init to AuthorizationData SEQ OF
         // --------------------------------------------------------------------------------------------
-        // AuthorizationData   ::= SEQUENCE
+        // AuthorizationData   ::= SEQUENCE OF
         super.transitions[AuthorizationDataStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            AuthorizationDataStatesEnum.START_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            AuthorizationDataStatesEnum.START_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
             new AuthorizationDataInit() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from AuthorizationData SEQ to adType tag
+        // Transition from AuthorizationData SEQ OF to SEQ
         // --------------------------------------------------------------------------------------------
-        // AuthorizationData  ::= SEQUENCE {
+        // AuthorizationData  ::= SEQUENCE OF SEQUENCE {
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from AuthorizationData SEQ OF to adType tag
+        // --------------------------------------------------------------------------------------------
+        // AuthorizationData  ::= SEQUENCE OF SEQUENCE {
         //         ad-type     [0]
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE.ordinal()][KerberosConstants.AUTHORIZATION_DATA_ADTYPE_TAG] = new GrammarTransition(
             AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE, KerberosConstants.AUTHORIZATION_DATA_ADTYPE_TAG,
@@ -85,7 +93,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // Transition from adtype tag to adtype value
         // --------------------------------------------------------------------------------------------
-        // AuthorizationData  ::= SEQUENCE {
+        // AuthorizationData  ::= SEQUENCE OF SEQUENCE {
         //         ad-type     [0] Int32,
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_STATE, UniversalTag.INTEGER.getValue(),
@@ -94,7 +102,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // Transition from ad-type value to ad-data tag
         // --------------------------------------------------------------------------------------------
-        // AuthorizationData   ::= SEQUENCE {
+        // AuthorizationData   ::= SEQUENCE OF SEQUENCE {
         //         ...
         //         ad-data     [1]
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_STATE.ordinal()][KerberosConstants.AUTHORIZATION_DATA_ADDATA_TAG] = new GrammarTransition(
@@ -104,12 +112,22 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // Transition from ad-data tag to ad-data value
         // --------------------------------------------------------------------------------------------
-        // AuthorizationData   ::= SEQUENCE {
+        // AuthorizationData   ::= SEQUENCE OF SEQUENCE {
         //         ...
         //         ad-data     [1] (OCTET STRING)
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE, UniversalTag.OCTET_STRING.getValue(),
             new AuthorizationDataAdData() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from ad-data value to SEQUENCE
+        // --------------------------------------------------------------------------------------------
+        // AuthorizationData   ::= SEQUENCE {
+        //         ...
+        //         ad-data     [1] (OCTET STRING)
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new CheckNotNullLength() );
     }
 
 
