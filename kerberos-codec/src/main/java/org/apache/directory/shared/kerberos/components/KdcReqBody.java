@@ -32,13 +32,13 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import sun.security.krb5.internal.AuthorizationData;
-import sun.security.krb5.internal.KerberosTime;
 
 
 
@@ -588,7 +588,7 @@ public class KdcReqBody
         // compute the global size
         kdcReqBodyLength = 1 + TLV.getNbBytes( kdcReqBodySeqLength ) + kdcReqBodySeqLength;
         
-        return 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength;
+        return kdcReqBodyLength;
     }
     
     
@@ -651,7 +651,9 @@ public class KdcReqBody
             buffer.put( TLV.getBytes( fromLength ) );
             
             // The value
-            //Value.encode( buffer, from );
+            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( (byte)0x0F );
+            buffer.put( from.getBytes() );
         }
         
         // The till -----------------------------------------------------------
@@ -660,7 +662,9 @@ public class KdcReqBody
         buffer.put( TLV.getBytes( tillLength ) );
         
         // The value
-        //aaa
+        buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+        buffer.put( (byte)0x0F );
+        buffer.put( till.getBytes() );
         
         // The rtime if any ---------------------------------------------------
         if ( rtime != null )
@@ -670,7 +674,9 @@ public class KdcReqBody
             buffer.put( TLV.getBytes( rtimeLength ) );
             
             // The value
-            //aaa
+            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( (byte)0x0F );
+            buffer.put( rtime.getBytes() );
         }
         
         // The nonce ----------------------------------------------------------
@@ -739,6 +745,7 @@ public class KdcReqBody
         return buffer;
     }
 
+    
     /**
      * @see Object#toString()
      */
