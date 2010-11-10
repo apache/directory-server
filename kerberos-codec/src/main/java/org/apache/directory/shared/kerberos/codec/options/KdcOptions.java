@@ -155,66 +155,115 @@ public class KdcOptions extends Options
     {
         StringBuilder result = new StringBuilder();
 
-        if ( get( ALLOW_POSTDATE ) )
+        // 0
+        if ( get( RESERVED ) )
         {
-            result.append( "ALLOW_POSTDATE " );
+            result.append( "RESERVED " );
         }
-
-        if ( get( DISABLE_TRANSISTED_CHECKED ) )
-        {
-            result.append( "DISABLE_TRANSISTED_CHECKED " );
-        }
-
-        if ( get( ENC_TKT_IN_SKEY ) )
-        {
-            result.append( "ENC_TKT_IN_SKEY " );
-        }
-
+        
+        // 1
         if ( get( FORWARDABLE ) )
         {
             result.append( "FORWARDABLE " );
         }
-
+        
+        // 2
         if ( get( FORWARDED ) )
         {
             result.append( "FORWARDED " );
         }
 
-        if ( get( POSTDATED ) )
-        {
-            result.append( "POSTDATED " );
-        }
-
+        // 3
         if ( get( PROXIABLE ) )
         {
             result.append( "PROXIABLE " );
         }
 
+        // 4
         if ( get( PROXY ) )
         {
             result.append( "PROXY " );
         }
 
-        if ( get( RENEW ) )
+        // 5
+        if ( get( ALLOW_POSTDATE ) )
         {
-            result.append( "RENEW " );
+            result.append( "ALLOW_POSTDATE " );
         }
 
+        // 6
+        if ( get( POSTDATED ) )
+        {
+            result.append( "POSTDATED " );
+        }
+
+        // 7
+        if ( get( UNUSED7 ) )
+        {
+            result.append( "UNUSED7 " );
+        }
+
+        // 8
         if ( get( RENEWABLE ) )
         {
             result.append( "RENEWABLE " );
         }
 
+        // 9
+        if ( get( UNUSED9 ) )
+        {
+            result.append( "UNUSED9 " );
+        }
+
+        // 10
+        if ( get( UNUSED10 ) )
+        {
+            result.append( "UNUSED10 " );
+        }
+
+        // 11
+        if ( get( UNUSED11 ) )
+        {
+            result.append( "UNUSED11 " );
+        }
+
+        // 12
+        if ( get( UNUSED12 ) )
+        {
+            result.append( "UNUSED12 " );
+        }
+
+        // 13
+        if ( get( UNUSED13 ) )
+        {
+            result.append( "UNUSED13 " );
+        }
+
+        // 26
+        if ( get( DISABLE_TRANSISTED_CHECKED ) )
+        {
+            result.append( "DISABLE_TRANSISTED_CHECKED " );
+        }
+
+        // 27
         if ( get( RENEWABLE_OK ) )
         {
             result.append( "RENEWABLE_OK " );
         }
 
-        if ( get( RESERVED ) )
+        // 28
+        if ( get( ENC_TKT_IN_SKEY ) )
         {
-            result.append( "RESERVED " );
+            result.append( "ENC_TKT_IN_SKEY " );
         }
 
+        // 30
+        if ( get( RENEW ) )
+        {
+            result.append( "RENEW " );
+        }
+
+        // 31
         if ( get( VALIDATE ) )
         {
             result.append( "VALIDATE " );
