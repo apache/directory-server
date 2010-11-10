@@ -438,6 +438,12 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>server-config</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
       <!-- Shared dependencies -->
     
       <dependency>

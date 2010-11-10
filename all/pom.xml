@@ -155,6 +155,11 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-xdbm-tools</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>server-config</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
