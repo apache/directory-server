@@ -17,46 +17,43 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.principalName.actions;
+package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the PrincipalName type
+ * The action used to store the KDCOptions
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PrincipalNameNameType extends GrammarAction
+public class StoreCName extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreCName.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new PrincipalNameInit action.
+     * Instantiates a new StoreKdcOptions action.
      */
-    public PrincipalNameNameType()
+    public StoreCName()
     {
-        super( "Store the PrincipalName type" );
+        super( "Stores the KDCOptions" );
     }
 
 
@@ -65,9 +62,9 @@ public class PrincipalNameNameType extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
+        KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
 
-        TLV tlv = principalNameContainer.getCurrentTLV();
+        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -78,36 +75,32 @@ public class PrincipalNameNameType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Get the principalName
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
+        // Now, let's decode the PrincipalName
+        Asn1Decoder principalNameDecoder = new Asn1Decoder();
         
-        Value value = tlv.getValue();
-        PrincipalNameType principalNameType = null;
-        
+        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+
+        // Decode the Ticket PDU
         try
         {
-            int nameType = IntegerDecoder.parse( value, PrincipalNameType.FIRST_NAME_TYPE.getValue(), PrincipalNameType.LAST_NAME_TYPE.getValue() );
-            principalNameType = PrincipalNameType.getTypeByOrdinal( nameType );
-
-            principalName.setNameType( principalNameType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "name-type : " + nameType );
-            }
+            principalNameDecoder.decode( container.getStream(), principalNameContainer );
         }
-        catch ( IntegerDecoderException ide )
+        catch ( DecoderException de )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            throw de;
         }
+
+        // Store the Principal name in the container
+        PrincipalName principalName = principalNameContainer.getPrincipalName();
+        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
+        kdcReqBody.setCName( principalName );
         
+        // Update the parent
+        container.setParentTLV( tlv.getParent() );
+
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName type : {}", principalNameType );
+            LOG.debug( "CName : {}", principalName );
         }
     }
 }

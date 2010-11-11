@@ -201,15 +201,15 @@ public enum HostAddrType
     /**
      * The value/code for the host address type.
      */
-    private final int ordinal;
+    private final int value;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private HostAddrType( int ordinal )
+    private HostAddrType( int value )
     {
-        this.ordinal = ordinal;
+        this.value = value;
     }
 
 
@@ -256,9 +256,9 @@ public enum HostAddrType
      *
      * @return The host address type ordinal.
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
 
     /**
@@ -266,31 +266,31 @@ public enum HostAddrType
      */
     public String toString()
     {
-        switch ( ordinal )
+        switch ( value )
         {
-            //case 1 : return "Unix" + "(" + ordinal + ")"  ;
-            case 2 : return "Internet" + "(" + ordinal + ")"  ;
-            case 3 : return "Arpanet" + "(" + ordinal + ")"  ;
-            //case 4 : return "PUP" + "(" + ordinal + ")"  ;
-            case 5 : return "CHAOS" + "(" + ordinal + ")"  ;
-            case 6 : return "XEROX Network Services" + "(" + ordinal + ")"  ;
-            case 7 : return "OSI" + "(" + ordinal + ")"  ;
-            //case 8 : return "European Computer Manufacturers" + "(" + ordinal + ")"  ;
-            //case 9 : return "Datakit" + "(" + ordinal + ")"  ;
-            //case 10 : return "CCITT" + "(" + ordinal + ")"  ;
-            //case 11 : return "SNA" + "(" + ordinal + ")"  ;
-            case 12 : return "DECnet" + "(" + ordinal + ")"  ;
-            //case 13 : return "Direct Data Link Interface" + "(" + ordinal + ")"  ;
-            //case 14 : return "LAT" + "(" + ordinal + ")"  ;
-            //case 15 : return "NSC Hyperchannel" + "(" + ordinal + ")"  ;
-            //case 16 : return "AppleTalk" + "(" + ordinal + ")"  ;
-            //case 18 : return "VoiceView" + "(" + ordinal + ")"  ;
-            //case 19 : return "Firefox" + "(" + ordinal + ")"  ;
-            case 20 : return "NetBios" + "(" + ordinal + ")"  ;
-            //case 21 : return "Banyan" + "(" + ordinal + ")"  ;
-            //case 22 : return "ATM" + "(" + ordinal + ")"  ;
-            case 24 : return "Internet Protocol V6" + "(" + ordinal + ")" ;             
-            default : return "null" + "(" + ordinal + ")" ;
+            //case 1 : return "Unix" + "(" + value + ")"  ;
+            case 2 : return "Internet" + "(" + value + ")"  ;
+            case 3 : return "Arpanet" + "(" + value + ")"  ;
+            //case 4 : return "PUP" + "(" + value + ")"  ;
+            case 5 : return "CHAOS" + "(" + value + ")"  ;
+            case 6 : return "XEROX Network Services" + "(" + value + ")"  ;
+            case 7 : return "OSI" + "(" + value + ")"  ;
+            //case 8 : return "European Computer Manufacturers" + "(" + value + ")"  ;
+            //case 9 : return "Datakit" + "(" + value + ")"  ;
+            //case 10 : return "CCITT" + "(" + value + ")"  ;
+            //case 11 : return "SNA" + "(" + value + ")"  ;
+            case 12 : return "DECnet" + "(" + value + ")"  ;
+            //case 13 : return "Direct Data Link Interface" + "(" + value + ")"  ;
+            //case 14 : return "LAT" + "(" + value + ")"  ;
+            //case 15 : return "NSC Hyperchannel" + "(" + value + ")"  ;
+            //case 16 : return "AppleTalk" + "(" + value + ")"  ;
+            //case 18 : return "VoiceView" + "(" + value + ")"  ;
+            //case 19 : return "Firefox" + "(" + value + ")"  ;
+            case 20 : return "NetBios" + "(" + value + ")"  ;
+            //case 21 : return "Banyan" + "(" + value + ")"  ;
+            //case 22 : return "ATM" + "(" + value + ")"  ;
+            case 24 : return "Internet Protocol V6" + "(" + value + ")" ;             
+            default : return "null" + "(" + value + ")" ;
         }
     }
 }

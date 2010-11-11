@@ -210,7 +210,7 @@ public class EncryptedData extends AbstractAsn1Object
         encryptedDataSeqLength = 0;
 
         // Compute the encryption Type length
-        int eTypeLength = Value.getNbBytes( eType.getOrdinal() );
+        int eTypeLength = Value.getNbBytes( eType.getValue() );
         eTypeTagLength = 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
         encryptedDataSeqLength = 1 + TLV.getNbBytes( eTypeTagLength ) + eTypeTagLength; 
 
@@ -278,7 +278,7 @@ public class EncryptedData extends AbstractAsn1Object
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( eTypeTagLength ) );
 
-            Value.encode( buffer, eType.getOrdinal() );
+            Value.encode( buffer, eType.getValue() );
 
             // The kvno, if any, first the tag, then the value
             if ( hasKvno )

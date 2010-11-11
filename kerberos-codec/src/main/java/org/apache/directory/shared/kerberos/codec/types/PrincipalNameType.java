@@ -78,15 +78,15 @@ public enum PrincipalNameType
     /**
      * The value/code for the principal name type.
      */
-    private final int ordinal;
+    private final int value;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private PrincipalNameType( int ordinal )
+    private PrincipalNameType( int value )
     {
-        this.ordinal = ordinal;
+        this.value = value;
     }
 
 
@@ -119,9 +119,9 @@ public enum PrincipalNameType
      *
      * @return The principal name type ordinal.
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
 
     /**
@@ -132,34 +132,34 @@ public enum PrincipalNameType
         switch ( this )
         {
             case KRB_NT_UNKNOWN         : 
-                return "Name type not known" + "(" + ordinal + ")";
+                return "Name type not known" + "(" + value + ")";
                 
             case KRB_NT_PRINCIPAL       : 
-                return "Just the name of the principal as in DCE, or for users" + "(" + ordinal + ")";
+                return "Just the name of the principal as in DCE, or for users" + "(" + value + ")";
                 
             case KRB_NT_SRV_INST        : 
-                return "Service and other unique instance (krbtgt)" + "(" + ordinal + ")";
+                return "Service and other unique instance (krbtgt)" + "(" + value + ")";
             
             case KRB_NT_SRV_HST         : 
-                return "Service with host name as instance (telnet, rcommands)" + "(" + ordinal + ")";
+                return "Service with host name as instance (telnet, rcommands)" + "(" + value + ")";
             
             case KRB_NT_SRV_XHST        : 
-                return "Service with host as remaining components" + "(" + ordinal + ")";
+                return "Service with host as remaining components" + "(" + value + ")";
             
             case KRB_NT_UID             : 
-                return "Unique ID" + "(" + ordinal + ")";
+                return "Unique ID" + "(" + value + ")";
             
             case KRB_NT_X500_PRINCIPAL  : 
-                return "Encoded X.509 Distinguished name [RFC2253]" + "(" + ordinal + ")";
+                return "Encoded X.509 Distinguished name [RFC2253]" + "(" + value + ")";
             
             case KRB_NT_SMTP_NAME       : 
-                return "Name in form of SMTP email name (e.g., user@example.com)" + "(" + ordinal + ")";
+                return "Name in form of SMTP email name (e.g., user@example.com)" + "(" + value + ")";
             
             case KRB_NT_ENTERPRISE      : 
-                return "Enterprise name; may be mapped to principal name" + "(" + ordinal + ")";
+                return "Enterprise name; may be mapped to principal name" + "(" + value + ")";
             
             default                     : 
-                return "unknown name type" + "(" + ordinal + ")";
+                return "unknown name type" + "(" + value + ")";
         }
     }
 }

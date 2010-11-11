@@ -159,7 +159,7 @@ public enum EncryptionType
     /**
      * The value/code for the encryption type.
      */
-    private final int ordinal;
+    private final int value;
 
     /**
      * The name
@@ -178,7 +178,7 @@ public enum EncryptionType
         for ( EncryptionType type : EncryptionType.values() )
         {
             encryptionTypesByName.put( type.getName().toLowerCase(), type );
-            encryptionTypesByOrdinal.put( type.getOrdinal(), type );
+            encryptionTypesByOrdinal.put( type.getValue(), type );
         }
     }
 
@@ -186,9 +186,9 @@ public enum EncryptionType
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private EncryptionType( int ordinal, String name )
+    private EncryptionType( int value, String name )
     {
-        this.ordinal = ordinal;
+        this.value = value;
         this.name = name;
     }
 
@@ -204,7 +204,7 @@ public enum EncryptionType
     }
 
     /**
-     * Returns the encryption type when specified by its ordinal.
+     * Returns the encryption type when specified by its value.
      *
      * @param type
      * @return The encryption type.
@@ -227,9 +227,9 @@ public enum EncryptionType
      *
      * @return The encryption type number.
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
 
 
@@ -273,6 +273,6 @@ public enum EncryptionType
      */
     public String toString()
     {
-        return getName() + " (" + ordinal + ")";
+        return getName() + " (" + value + ")";
     }
 }

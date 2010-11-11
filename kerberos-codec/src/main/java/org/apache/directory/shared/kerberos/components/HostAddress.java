@@ -228,7 +228,7 @@ public class HostAddress extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the keyType. The Length will always be contained in 1 byte
-        addrTypeLength = 1 + 1 + Value.getNbBytes( addrType.getOrdinal() );
+        addrTypeLength = 1 + 1 + Value.getNbBytes( addrType.getValue() );
         hostAddressLength = 1 + TLV.getNbBytes( addrTypeLength ) + addrTypeLength;
 
         // Compute the keyValue
@@ -281,7 +281,7 @@ public class HostAddress extends AbstractAsn1Object
             // The addr-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( addrTypeLength ) );
-            Value.encode( buffer, addrType.getOrdinal() );
+            Value.encode( buffer, addrType.getValue() );
 
             // The address, first the tag, then the value
             buffer.put( ( byte ) 0xA1 );

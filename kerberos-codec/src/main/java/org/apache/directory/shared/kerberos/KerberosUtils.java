@@ -221,7 +221,7 @@ public class KerberosUtils
             name += '@' + realm;
         }
         
-        return new KerberosPrincipal( name, principal.getNameType().getOrdinal() );
+        return new KerberosPrincipal( name, principal.getNameType().getValue() );
     }
 
 
