@@ -35,25 +35,25 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the CName
+ * The action used to store the SName
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreCName extends GrammarAction
+public class StoreSName extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreCName.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreSName.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new StoreCName action.
+     * Instantiates a new StoreSName action.
      */
-    public StoreCName()
+    public StoreSName()
     {
-        super( "Stores the CName" );
+        super( "Stores the SName" );
     }
 
 
@@ -93,14 +93,14 @@ public class StoreCName extends GrammarAction
         // Store the Principal name in the container
         PrincipalName principalName = principalNameContainer.getPrincipalName();
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.setCName( principalName );
+        kdcReqBody.setSName( principalName );
         
         // Update the parent
         container.setParentTLV( tlv.getParent() );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "CName : {}", principalName );
+            LOG.debug( "SName : {}", principalName );
         }
     }
 }

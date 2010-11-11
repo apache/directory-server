@@ -77,7 +77,6 @@ public class StoreKdcOptions extends GrammarAction
         KdcOptions kdcOptions = new KdcOptions( tlv.getValue().getData() );
         
         kdcReqBody.setKdcOptions( kdcOptions );
-        System.out.println( kdcOptions );
         
         if ( IS_DEBUG )
         {

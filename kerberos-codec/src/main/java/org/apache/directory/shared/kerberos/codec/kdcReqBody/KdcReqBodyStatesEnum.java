@@ -37,47 +37,47 @@ public enum KdcReqBodyStatesEnum implements States
     START_STATE,                            // 0
     
     // ----- KDC-REQ-BODY message --------------------------------------
-    KRB_REQ_BODY_SEQ_STATE,                     // 1
+    KDC_REQ_BODY_SEQ_STATE,                     // 1
     
-    KRB_REQ_BODY_KDC_OPTIONS_TAG_STATE,         // 2
-    KRB_REQ_BODY_KDC_OPTIONS_STATE,             // 3
+    KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE,         // 2
+    KDC_REQ_BODY_KDC_OPTIONS_STATE,             // 3
     
-    KRB_REQ_BODY_CNAME_TAG_STATE,               // 4
-    KRB_REQ_BODY_CNAME_STATE,                   // 5
+    KDC_REQ_BODY_CNAME_TAG_STATE,               // 4
+    KDC_REQ_BODY_CNAME_STATE,                   // 5
 
-    KRB_REQ_BODY_REALM_TAG_STATE,               // 6
-    KRB_REQ_BODY_REALM_STATE,                   // 7
+    KDC_REQ_BODY_REALM_TAG_STATE,               // 6
+    KDC_REQ_BODY_REALM_STATE,                   // 7
 
-    KRB_REQ_BODY_SNAME_TAG_STATE,               // 8
-    KRB_REQ_BODY_SNAME_STATE,                   // 9
+    KDC_REQ_BODY_SNAME_TAG_STATE,               // 8
+    KDC_REQ_BODY_SNAME_STATE,                   // 9
 
-    KRB_REQ_BODY_FROM_TAG_STATE,                // 10
-    KRB_REQ_BODY_FROM_STATE,                    // 11
+    KDC_REQ_BODY_FROM_TAG_STATE,                // 10
+    KDC_REQ_BODY_FROM_STATE,                    // 11
 
-    KRB_REQ_BODY_TILL_TAG_STATE,                // 12
-    KRB_REQ_BODY_TILL_STATE,                    // 13
+    KDC_REQ_BODY_TILL_TAG_STATE,                // 12
+    KDC_REQ_BODY_TILL_STATE,                    // 13
     
-    KRB_REQ_BODY_RTIME_TAG_STATE,               // 14
-    KRB_REQ_BODY_RTIME_STATE,                   // 15
+    KDC_REQ_BODY_RTIME_TAG_STATE,               // 14
+    KDC_REQ_BODY_RTIME_STATE,                   // 15
 
-    KRB_REQ_BODY_NONCE_TAG_STATE,               // 16
-    KRB_REQ_BODY_NONCE_STATE,                   // 17
+    KDC_REQ_BODY_NONCE_TAG_STATE,               // 16
+    KDC_REQ_BODY_NONCE_STATE,                   // 17
 
-    KRB_REQ_BODY_ETYPE_TAG_STATE,               // 18
-    KRB_REQ_BODY_ETYPE_SEQ_STATE,               // 19
-    KRB_REQ_BODY_ETYPE_STATE,                   // 20
+    KDC_REQ_BODY_ETYPE_TAG_STATE,               // 18
+    KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 19
+    KDC_REQ_BODY_ETYPE_STATE,                   // 20
 
-    KRB_REQ_BODY_ADDRESSES_TAG_STATE,           // 21
-    KRB_REQ_BODY_ADDRESSES_STATE,               // 22
+    KDC_REQ_BODY_ADDRESSES_TAG_STATE,           // 21
+    KDC_REQ_BODY_ADDRESSES_STATE,               // 22
 
-    KRB_REQ_BODY_ENC_AUTH_DATA_TAG_STATE,       // 2
-    KRB_REQ_BODY_ENC_AUTH_DATA_STATE,           // 2
+    KDC_REQ_BODY_ENC_AUTH_DATA_TAG_STATE,       // 2
+    KDC_REQ_BODY_ENC_AUTH_DATA_STATE,           // 2
 
-    KRB_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,  // 2
-    KRB_REQ_BODY_ADDITIONAL_TICKETS_STATE,      // 2
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,  // 2
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,      // 2
 
     // End
-    LAST_KRB_REQ_BODY_STATE;              // 8
+    LAST_KDC_REQ_BODY_STATE;              // 8
 
     
     /**
@@ -88,7 +88,7 @@ public enum KdcReqBodyStatesEnum implements States
      */
     public String getGrammarName( int grammar )
     {
-        return "KRB_REQ_BODY_GRAMMAR";
+        return "KDC_REQ_BODY_GRAMMAR";
     }
 
 
@@ -102,7 +102,7 @@ public enum KdcReqBodyStatesEnum implements States
     {
         if ( grammar instanceof KerberosMessageGrammar )
         {
-            return "KRB_REQ_BODY_GRAMMAR";
+            return "KDC_REQ_BODY_GRAMMAR";
         }
         else
         {
@@ -119,7 +119,7 @@ public enum KdcReqBodyStatesEnum implements States
      */
     public String getState( int state )
     {
-        return ( ( state == LAST_KRB_REQ_BODY_STATE.ordinal() ) ? "KRB_REQ_BODY_END_STATE" : name() );
+        return ( ( state == LAST_KDC_REQ_BODY_STATE.ordinal() ) ? "KDC_REQ_BODY_END_STATE" : name() );
     }
 
     
@@ -128,7 +128,7 @@ public enum KdcReqBodyStatesEnum implements States
      */
     public boolean isEndState()
     {
-        return this == LAST_KRB_REQ_BODY_STATE;
+        return this == LAST_KDC_REQ_BODY_STATE;
     }
     
     

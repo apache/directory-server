@@ -21,39 +21,39 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the CName
+ * The action used to store the till KerberosTime
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreCName extends GrammarAction
+public class StoreTill extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreCName.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreTill.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new StoreCName action.
+     * Instantiates a new StoreTill action.
      */
-    public StoreCName()
+    public StoreTill()
     {
-        super( "Stores the CName" );
+        super( "Stores the Till" );
     }
 
 
@@ -66,8 +66,8 @@ public class StoreCName extends GrammarAction
 
         TLV tlv = kdcReqBodyContainer.getCurrentTLV();
 
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        // The Length should not be null and should be 15
+        if ( tlv.getLength() != 15 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -75,32 +75,28 @@ public class StoreCName extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
+        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
         
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
-
-        // Decode the PrincipalName PDU
+        // The value is the KerberosTime
+        Value value = tlv.getValue();
+        String date = StringTools.utf8ToString( value.getData() );
+        
         try
         {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
+            KerberosTime till = new KerberosTime( date );
+            kdcReqBody.setTill( till );
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Till : {}", till );
+            }
         }
-        catch ( DecoderException de )
+        catch ( IllegalArgumentException iae )
         {
-            throw de;
-        }
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
 
-        // Store the Principal name in the container
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.setCName( principalName );
-        
-        // Update the parent
-        container.setParentTLV( tlv.getParent() );
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "CName : {}", principalName );
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
     }
 }

@@ -67,11 +67,23 @@ public class KerberosTime
         sdf.setTimeZone( UTC );
     }
 
+    
     /**
      * Creates a new instance of a KerberosTime object
      */
     public KerberosTime()
     {
+    }
+
+    
+    /**
+     * Creates a new instance of a KerberosTime object
+     * 
+     * @param date the KerberosTime to store
+     */
+    public KerberosTime( String date )
+    {
+        setDate( date );
     }
     
     

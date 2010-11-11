@@ -760,7 +760,7 @@ public class KdcReqBody
             sb.append( "cname : " ).append( cName ).append( '\n' );
         }
         
-        sb.append( "ream : " ).append( realm ).append( '\n' );
+        sb.append( "realm : " ).append( realm ).append( '\n' );
 
         if ( sName != null )
         {
@@ -775,7 +775,7 @@ public class KdcReqBody
         sb.append( "till : " ).append( till ).append( '\n' );
         
 
-        if ( from != null )
+        if ( rtime != null )
         {
             sb.append( "rtime : " ).append( rtime ).append( '\n' );
         }
