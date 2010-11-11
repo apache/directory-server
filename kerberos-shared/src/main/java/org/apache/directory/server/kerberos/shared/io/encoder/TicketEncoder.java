@@ -63,6 +63,24 @@ public class TicketEncoder
      *     sname[2]                     PrincipalName,
      *     enc-part[3]                  EncryptedData
      * }
+     * Ticket :
+     *
+     * 0x61 L1 Ticket [APPLICATION 1]
+     * |
+     * +--> 0x30 L2 Ticket SEQUENCE
+     * |
+     * +--> 0xA0 L3 tkt-vno tag
+     * | |
+     * | +--> 0x02 L3-1 tkt-vno (int, 5)
+     * |
+     * +--> 0xA1 L4 realm tag
+     * | |
+     * | +--> 0x1B L4-1 realm (KerberosString)
+     * |
+     * +--> 0xA2 L5 sname (PrincipalName)
+     * |
+     * +--> 0xA3 L6 enc-part (EncryptedData)
+     *
      */
     protected static DERApplicationSpecific encode( Ticket ticket )
     {

@@ -39,6 +39,22 @@ public class PrivateMessageEncoder
     /**
      * Encodes a {@link PrivateMessage} into a byte array.
      *
+     * 0x75 L1
+     * |
+     * +--> 0x30 L2
+     *       |
+     *       +--> 0xA0 0x03
+     *       |     |
+     *       |     +--> 0x02 0x01 pvno (integer)
+     *       |
+     *       +--> 0xA1 0x03
+     *       |     |
+     *       |     +--> 0x02 0x01 msg-type (integer)
+     *       |
+     *       +--> 0xA3 L3
+     *       |
+     *       +--> 0x02 L3-1 enc-part (EncryptedData)
+     *       
      * @param message
      * @return The byte array.
      * @throws IOException

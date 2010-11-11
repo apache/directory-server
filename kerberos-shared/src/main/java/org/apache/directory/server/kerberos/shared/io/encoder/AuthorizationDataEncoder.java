@@ -38,6 +38,26 @@ public class AuthorizationDataEncoder
      *     ad-type[0]               INTEGER,
      *     ad-data[1]               OCTET STRING
      * }
+     * 
+     * 0x30 L1 AuthorizationData
+     *  |
+     *  +--> 0x30 L2 AuthorizationDataEntry
+     *  |
+     *  +--> 0x30 L2 AuthorizationDataEntry
+     *  |
+     *  ...
+     *  |
+     *  +--> 0x30 L2 AuthorizationDataEntry
+     *  
+     * 0x30 L1 AuthorizationDataEntry
+     *  |
+     *  +--> 0xA0 L2 adType tag
+     *  |     |
+     *  |     +--> 0x02 L2-1 adType (int)
+     *  |
+     *  +--> 0xA1 L3 adData tag
+     *        |
+     *        +--> 0x04 L3-1 adData (OCTET STRING)
      */
     protected static DERSequence encode( AuthorizationData data )
     {

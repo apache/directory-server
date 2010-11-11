@@ -87,6 +87,47 @@ public class AuthenticatorEncoder implements Encoder, EncoderFactory
      *  
      *                authorization-data[8]         AuthorizationData OPTIONAL
      * }
+     * Authenticator :
+     *
+     * 0x62 L1 Authenticator Tag (Application 2)
+     * |
+     * +--> 0x30 L2 Authenticator sequence
+     * |
+     * +--> 0xA0 L2 authenticator-vno tag
+     * |     |
+     * |     +--> 0x02 L2-1 authenticator-vno (int)
+     * | 
+     * +--> 0xA1 L3 crealm tag
+     * |     |
+     * |     +--> 0x1B L3-1 crealm (crealm)
+     * | 
+     * +--> 0xA2 L4 cname tag
+     * |     |
+     * |     +--> 0x30 L4-1 cname (PrincipalName)
+     * | 
+     * +--> [0xA3 L5 cksum tag
+     * |     |
+     * |     +--> 0x30 L5-1 cksum (Checksum)] (optional)
+     * | 
+     * +--> 0xA4 L6 cusec tag 
+     * |     |
+     * |     +--> 0x02 L6-1 cusec (int)
+     * | 
+     * +--> 0xA5 0x11 ctime tag
+     * |     |
+     * |     +--> 0x18 0x0F ctime (KerberosTime)
+     * | 
+     * +--> [0xA6 L7 subkey tag
+     * |      |
+     * |      +--> 0x30 L7-1 subkey (EncryptionKey)] (optional)
+     * | 
+     * +--> [0xA7 L8 seqNumber tag
+     * |      |
+     * |      +--> 0x02 L8-1 seqNulber (int > 0)] (optional)
+     * | 
+     * +--> [0xA8 L9 authorization-data tag
+     * |
+     * +--> 0x30 L9-1 authorization-data (AuthorizationData)] (optional)
      * 
      * @param authenticator 
      * @return The {@link DERSequence}.

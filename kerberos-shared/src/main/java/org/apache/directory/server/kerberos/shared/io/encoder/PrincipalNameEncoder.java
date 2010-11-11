@@ -67,6 +67,25 @@ public class PrincipalNameEncoder
     /**
      * Encodes a {@link PrincipalName} into a {@link DERSequence}.
      *
+     * PrincipalName :
+     *  
+     * 0x30 L1 PrincipalName sequence
+     *  |
+     *  +--> 0xA1 L2 name-type tag
+     *  |     |
+     *  |     +--> 0x02 L2-1 addressType (int)
+     *  |
+     *  +--> 0xA2 L3 name-string tag
+     *        |
+     *        +--> 0x30 L3-1 name-string (SEQUENCE OF KerberosString)
+     *              |
+     *              +--> 0x1B L4[1] value (KerberosString)
+     *              |
+     *              +--> 0x1B L4[2] value (KerberosString)
+     *              |
+     *              ...
+     *              |
+     *              +--> 0x1B L4[n] value (KerberosString)
      * @param name
      * @return The {@link DERSequence}.
      */

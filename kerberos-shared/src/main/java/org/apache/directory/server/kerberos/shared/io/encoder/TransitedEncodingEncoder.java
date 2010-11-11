@@ -37,6 +37,16 @@ public class TransitedEncodingEncoder
      *     tr-type[0]  INTEGER, -- must be registered
      *     contents[1]          OCTET STRING
      * }
+     * 
+     * 0x30 L1 TransitedEncoding
+     *  |
+     *  +--> 0xA0 L2 trType tag
+     *  |     |
+     *  |     +--> 0x02 L2-1 trType (int)
+     *  |
+     *  +--> 0xA1 L3 contents tag
+     *        |
+     *        +--> 0x04 L3-1 contents (OCTET STRING)
      */
     protected static DERSequence encode( TransitedEncoding te )
     {

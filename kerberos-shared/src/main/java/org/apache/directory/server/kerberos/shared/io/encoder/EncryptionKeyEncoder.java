@@ -39,6 +39,16 @@ public class EncryptionKeyEncoder
     /**
      * Encodes an {@link EncryptionKey} into a byte array.
      *
+     * 0x30 L1 EncryptionKey
+     *  |
+     *  +--> 0xA0 L2 keyType tag
+     *  |     |
+     *  |     +--> 0x02 L2-1 keyType (int)
+     *  |
+     *  +--> 0xA1 L3 keyValue tag
+     *        |
+     *        +--> 0x04 L3-1 keyValue (OCTET STRING)
+     *        
      * @param key
      * @return The byte array.
      * @throws IOException

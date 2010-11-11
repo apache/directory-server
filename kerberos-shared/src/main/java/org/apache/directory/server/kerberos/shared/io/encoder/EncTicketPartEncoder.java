@@ -81,6 +81,45 @@ public class EncTicketPartEncoder implements Encoder, EncoderFactory
      *                       authorization-data[10]   AuthorizationData OPTIONAL
      * }
      * 
+     * EncTicketPart :
+     *
+     * 0x63 L1 EncTicketPart
+     * |
+     * +--> 0x30 L2 EncTicketPart SEQUENCE
+     * |
+     * +--> 0xA0 L3 flags tag
+     * |     |
+     * |     +--> 0x05 L3-1 flags (bitstring)
+     * |
+     * +--> 0xA1 L4 key (EncryptionKey)
+     * |
+     * +--> 0xA2 L5 crealm tag
+     * |     |
+     * |     +--> 0x1B L5-1 crealm (generalizedString)
+     * |
+     * +--> 0xA3 L6 cname (PrincipalName)
+     * |
+     * +--> 0xA4 L7 transited (TransitedEncoding)
+     * |
+     * +--> 0xA5 L8 authtime tag
+     * |     |
+     * |     +--> 0x18 L8-1 authtime (generalizedTime)
+     * |
+     * +--> [0xA6 L9 starttime tag
+     * |      |
+     * |      +--> 0x18 L9-1 starttime (generalizedTime)]
+     * |
+     * +--> 0xA7 L10 endtime tag
+     * |     |
+     * |     +--> 0x18 L10-1 endtime (generalizedTime)
+     * |
+     * +--> [0xA8 L11 renew-till tag
+     * |     |
+     * |     +--> 0x18 L11-1 renew-till (generalizedTime)]
+     * |
+     * +--> [0xA9 L12 caddr:HostAddresses]
+     * |
+     * +--> [0xAA L13 authorization-data:AuthorizationData]
      * @param ticketPart 
      * @return The {@link DERSequence}.
      */

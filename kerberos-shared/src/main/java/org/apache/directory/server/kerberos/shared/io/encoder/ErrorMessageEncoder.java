@@ -60,6 +60,62 @@ public class ErrorMessageEncoder
     /**
      * Encodes an {@link ErrorMessage} into a byte array.
      *
+     * 0x7E L1
+     *  |
+     *  +--> 0x30 L2
+     *        |
+     *        +--> 0xA0 0x03
+     *        |       |
+     *        |       +--> 0x02 0x01 pvno (integer)
+     *        |
+     *        +--> 0xA1 0x03
+     *        |       |
+     *        |       +--> 0x02 0x01 messageType (integer)
+     *        |
+     *       [+--> 0xA2 0x11
+     *        |       |
+     *        |       +--> 0x18 0x0F ctime (KerberosTime, optionnal)]
+     *        |
+     *       [+--> 0xA3 L3
+     *        |       |
+     *        |       +--> 0x02 L3-1 cusec (integer, optionnal)]
+     *        |
+     *        +--> 0xA4 L4
+     *        |       |
+     *        |       +--> 0x18 L4-1 stime (KerberosTime)
+     *        |
+     *        +--> 0xA5 L5
+     *        |       |
+     *        |       +--> 0x02 L5-1 susec (integer)
+     *        |
+     *        +--> 0xA6 L6
+     *        |       |
+     *        |       +--> 0x02 L6-1 error-code (integer) 
+     *        |
+     *       [+--> 0xA7 L7
+     *        |       | 
+     *        |       +--> 0x1B L7-1 crealm (String, optionnal)]
+     *        | 
+     *       [+--> 0xA8 L8
+     *        |       | 
+     *        |       +--> 0x1B L8-1 cname (String, optionnal)]
+     *        |
+     *        +--> 0xA9 L9
+     *        |       |
+     *        |       +--> 0x1B L9-1 realm (String)
+     *        |
+     *        +--> 0xAA L10
+     *        |       |
+     *        |       +--> 0x1B L10-1 sname (String)
+     *        |
+     *       [+--> 0xAB L11
+     *        |       |
+     *        |       +--> 0x1B L11-1 e-text (String, optionnal)]
+     *        |
+     *       [+--> 0xAC L12
+     *        |
+     *        +--> 0x04 L12-1 e-data (OCTET-STRING, optionnal)]
+     *        
      * @param message
      * @return The byte array.
      * @throws IOException

@@ -38,6 +38,16 @@ public class HostAddressesEncoder
      *                     addr-type[0]             INTEGER,
      *                     address[1]               OCTET STRING
      * }
+     * 
+     * 0x30 L1 hostAddresses sequence of HostAddresses
+     *  |
+     *  +--> 0x30 L2[1] Hostaddress[1]
+     *  |
+     *  +--> 0x30 L2[2] Hostaddress[2]
+     *  |
+     *  ...
+     *  |
+     *  +--> 0x30 L2[n] Hostaddress[n]
      */
     protected static DERSequence encodeSequence( HostAddresses hosts )
     {
@@ -58,6 +68,17 @@ public class HostAddressesEncoder
      *                     addr-type[0]             INTEGER,
      *                     address[1]               OCTET STRING
      * }
+     * 
+     * 0x30 L1 hostAddress sequence
+     *  |
+     *  +--> 0xA0 L2 addressType tag
+     *  |     |
+     *  |     +--> 0x02 L2-1 addressType (int)
+     *  |
+     *  +--> 0xA1 L3 address tag
+     *        |
+     *        +--> 0x04 L3-1 address (OCTET STRING)
+     * 
      */
     protected static DERSequence encode( HostAddress host )
     {
