@@ -29,6 +29,7 @@ import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.KdcReqBodyInit;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreKdcOptions;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +111,26 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         super.transitions[KdcReqBodyStatesEnum.KRB_REQ_BODY_CNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
             KdcReqBodyStatesEnum.KRB_REQ_BODY_CNAME_TAG_STATE, KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
             new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from cname tag to realm tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         realm                   [2]
+        super.transitions[KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_TAG_STATE, KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
+            new CheckNotNullLength() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from realm tag to realm value
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         realm                   [2] Realm
+        super.transitions[KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KRB_REQ_BODY_REALM_STATE, KdcReqBodyStatesEnum.KRB_REQ_BODY_SNAME_TAG_STATE, UniversalTag.GENERAL_STRING.getValue(),
+            new StoreRealm() );
     }
 
 

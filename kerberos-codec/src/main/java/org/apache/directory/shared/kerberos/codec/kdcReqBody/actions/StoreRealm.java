@@ -21,39 +21,38 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the KDCOptions
+ * The action used to store the Realm
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreCName extends GrammarAction
+public class StoreRealm extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreCName.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreRealm.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new StoreKdcOptions action.
+     * Instantiates a new StoreRealm action.
      */
-    public StoreCName()
+    public StoreRealm()
     {
-        super( "Stores the CName" );
+        super( "Stores the Realm" );
     }
 
 
@@ -75,32 +74,16 @@ public class StoreCName extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
-        
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
-
-        // Decode the Ticket PDU
-        try
-        {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
-
-        // Store the Principal name in the container
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.setCName( principalName );
         
-        // Update the parent
-        container.setParentTLV( tlv.getParent() );
-
+        // The value is the realm
+        Value value = tlv.getValue();
+        String realm = StringTools.utf8ToString( value.getData() );
+        kdcReqBody.setRealm( realm );
+        
         if ( IS_DEBUG )
         {
-            LOG.debug( "CName : {}", principalName );
+            LOG.debug( "Realm : {}", realm );
         }
     }
 }
