@@ -67,6 +67,7 @@ public class CreateKdcServerAnnotationTest
         assertEquals( 2000, server.getMaximumRenewableLifetime() );
         
         server.stop();
+        directoryService.shutdown();
         
         FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
     }
