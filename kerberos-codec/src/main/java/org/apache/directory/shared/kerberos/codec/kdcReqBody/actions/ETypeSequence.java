@@ -25,8 +25,6 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,9 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ETypeSequence extends GrammarAction
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ETypeSequence.class );
-
     /**
      * Instantiates a new ETypeSequence action.
      */
