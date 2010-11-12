@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class ChecksumCksumType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ChecksumInit.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ChecksumCksumType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
