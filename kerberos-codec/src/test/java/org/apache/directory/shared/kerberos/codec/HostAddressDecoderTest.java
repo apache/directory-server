@@ -71,7 +71,7 @@ public class HostAddressDecoderTest
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
-        // Allocate a EncryptedHostAddressData Container
+        // Allocate a HostAddress Container
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
