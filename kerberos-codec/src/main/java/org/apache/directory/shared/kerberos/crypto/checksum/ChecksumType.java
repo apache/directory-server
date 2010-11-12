@@ -121,7 +121,7 @@ public enum ChecksumType implements Comparable<ChecksumType>
     /**
      * The value/code for the checksum type.
      */
-    private final int ordinal;
+    private final int value;
 
 
     /**
@@ -129,17 +129,17 @@ public enum ChecksumType implements Comparable<ChecksumType>
      */
     private ChecksumType( int ordinal )
     {
-        this.ordinal = ordinal;
+        this.value = ordinal;
     }
 
 
     /**
-     * Returns the checksum type when specified by its ordinal.
+     * Returns the checksum type when specified by its value.
      *
      * @param type
      * @return The checksum type.
      */
-    public static ChecksumType getTypeByOrdinal( int type )
+    public static ChecksumType getTypeByValue( int type )
     {
         switch ( type )
         {
@@ -169,10 +169,10 @@ public enum ChecksumType implements Comparable<ChecksumType>
     /**
      * Returns the number associated with this checksum type.
      *
-     * @return The checksum type ordinal.
+     * @return The checksum type value.
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
 }
