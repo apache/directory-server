@@ -117,7 +117,7 @@ public final class ChecksumGrammar extends AbstractGrammar
     /**
      * Get the instance of this grammar
      * 
-     * @return An instance on the AuthorizationData Grammar
+     * @return An instance on the Checksum Grammar
      */
     public static Grammar getInstance()
     {
