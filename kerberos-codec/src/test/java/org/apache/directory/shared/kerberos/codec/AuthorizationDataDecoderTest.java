@@ -112,8 +112,6 @@ public class AuthorizationDataDecoderTest
         }
         catch ( EncoderException ee )
         {
-            ee.printStackTrace();
-            
             fail();
         }
     }
