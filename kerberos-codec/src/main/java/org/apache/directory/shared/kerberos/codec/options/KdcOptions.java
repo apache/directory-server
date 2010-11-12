@@ -27,9 +27,9 @@ package org.apache.directory.shared.kerberos.codec.options;
 public class KdcOptions extends Options
 {
     /**
-     * KDC option - reserved.
+     * KDC option - reserved for future use.
      */
-    public static final int RESERVED = 0;
+    public static final int RESERVED_0 = 0;
 
     /**
      * KDC option - forwardable.
@@ -62,9 +62,9 @@ public class KdcOptions extends Options
     public static final int POSTDATED = 6;
 
     /**
-     * KDC option - unused7.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED7 = 7;
+    public static final int RESERVED_7 = 7;
 
     /**
      * KDC option - renewable.
@@ -72,29 +72,89 @@ public class KdcOptions extends Options
     public static final int RENEWABLE = 8;
 
     /**
-     * KDC option - unused9.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED9 = 9;
+    public static final int RESERVED_9 = 9;
 
     /**
-     * KDC option - unused10.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED10 = 10;
+    public static final int RESERVED_10 = 10;
 
     /**
-     * KDC option - unused11.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED11 = 11;
+    public static final int RESERVED_11 = 11;
 
     /**
-     * KDC option - unused12.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED12 = 12;
+    public static final int RESERVED_12 = 12;
 
     /**
-     * KDC option - unused13.
+     * KDC option - reserved for future use.
      */
-    public static final int UNUSED13 = 13;
+    public static final int RESERVED_13 = 13;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_14 = 14;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_15 = 15;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_16 = 16;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_17 = 17;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_18 = 18;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_19 = 19;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_20 = 20;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_21 = 21;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_22 = 22;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_23 = 23;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_24 = 24;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_25 = 25;
 
     /**
      * KDC option - disable transisted checked.
@@ -110,6 +170,11 @@ public class KdcOptions extends Options
      * KDC option - encrypted key in skey.
      */
     public static final int ENC_TKT_IN_SKEY = 28;
+
+    /**
+     * KDC option - reserved for future use.
+     */
+    public static final int RESERVED_29 = 29;
 
     /**
      * KDC option - renew.
@@ -156,9 +221,9 @@ public class KdcOptions extends Options
         StringBuilder result = new StringBuilder();
 
         // 0
-        if ( get( RESERVED ) )
+        if ( get( RESERVED_0 ) )
         {
-            result.append( "RESERVED " );
+            result.append( "RESERVED_0 " );
         }
         
         // 1
@@ -198,9 +263,9 @@ public class KdcOptions extends Options
         }
 
         // 7
-        if ( get( UNUSED7 ) )
+        if ( get( RESERVED_7 ) )
         {
-            result.append( "UNUSED7 " );
+            result.append( "RESERVED_7 " );
         }
 
         // 8
@@ -210,33 +275,105 @@ public class KdcOptions extends Options
         }
 
         // 9
-        if ( get( UNUSED9 ) )
+        if ( get( RESERVED_9 ) )
         {
-            result.append( "UNUSED9 " );
+            result.append( "RESERVED_9 " );
         }
 
         // 10
-        if ( get( UNUSED10 ) )
+        if ( get( RESERVED_10 ) )
         {
-            result.append( "UNUSED10 " );
+            result.append( "RESERVED_10 " );
         }
 
         // 11
-        if ( get( UNUSED11 ) )
+        if ( get( RESERVED_11 ) )
         {
-            result.append( "UNUSED11 " );
+            result.append( "RESERVED_11 " );
         }
 
         // 12
-        if ( get( UNUSED12 ) )
+        if ( get( RESERVED_12 ) )
         {
-            result.append( "UNUSED12 " );
+            result.append( "RESERVED_12 " );
         }
 
         // 13
-        if ( get( UNUSED13 ) )
+        if ( get( RESERVED_13 ) )
         {
-            result.append( "UNUSED13 " );
+            result.append( "RESERVED_13 " );
+        }
+
+        // 14
+        if ( get( RESERVED_14 ) )
+        {
+            result.append( "RESERVED_14 " );
+        }
+
+        // 15
+        if ( get( RESERVED_15 ) )
+        {
+            result.append( "RESERVED_15 " );
+        }
+
+        // 16
+        if ( get( RESERVED_16 ) )
+        {
+            result.append( "RESERVED_16 " );
+        }
+
+        // 17
+        if ( get( RESERVED_17 ) )
+        {
+            result.append( "RESERVED_17 " );
+        }
+
+        // 18
+        if ( get( RESERVED_18 ) )
+        {
+            result.append( "RESERVED_18 " );
+        }
+
+        // 19
+        if ( get( RESERVED_19 ) )
+        {
+            result.append( "RESERVED_19 " );
+        }
+
+        // 20
+        if ( get( RESERVED_20 ) )
+        {
+            result.append( "RESERVED_20 " );
+        }
+
+        // 21
+        if ( get( RESERVED_21 ) )
+        {
+            result.append( "RESERVED_21 " );
+        }
+
+        // 22
+        if ( get( RESERVED_22 ) )
+        {
+            result.append( "RESERVED_22 " );
+        }
+
+        // 23
+        if ( get( RESERVED_23 ) )
+        {
+            result.append( "RESERVED_23 " );
+        }
+
+        // Ž'
+        if ( get( RESERVED_24 ) )
+        {
+            result.append( "RESERVED_24 " );
+        }
+
+        // 25
+        if ( get( RESERVED_25 ) )
+        {
+            result.append( "RESERVED_25 " );
         }
 
         // 26
@@ -255,6 +392,12 @@ public class KdcOptions extends Options
         if ( get( ENC_TKT_IN_SKEY ) )
         {
             result.append( "ENC_TKT_IN_SKEY " );
+        }
+
+        // 29
+        if ( get( RESERVED_29 ) )
+        {
+            result.append( "RESERVED_29 " );
         }
 
         // 30
