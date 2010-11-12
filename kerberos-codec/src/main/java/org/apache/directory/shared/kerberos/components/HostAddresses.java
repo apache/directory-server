@@ -40,13 +40,13 @@ import org.slf4j.LoggerFactory;
  * Store a list of addresses.
  * 
  * The ASN.1 grammar is :
- * 
+ * <pre>
  * -- NOTE: HostAddresses is always used as an OPTIONAL field and
  * -- should not be empty.
  * HostAddresses   -- NOTE: subtly different from rfc1510,
  *                 -- but has a value mapping and encodes the same
  *         ::= SEQUENCE OF HostAddress
- *
+ *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class HostAddresses extends AbstractAsn1Object
