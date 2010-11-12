@@ -56,10 +56,10 @@ public enum KdcReqBodyStatesEnum implements States
     KDC_REQ_BODY_TILL_STATE,                    // 11
     
     KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,      // 12
-    KDC_REQ_BODY_RTIME_STATE,                   // 15
+    KDC_REQ_BODY_RTIME_STATE,                   // 13
 
-    KDC_REQ_BODY_NONCE_TAG_STATE,               // 16
-    KDC_REQ_BODY_NONCE_STATE,                   // 17
+    KDC_REQ_BODY_NONCE_TAG_STATE,               // 14
+    KDC_REQ_BODY_NONCE_STATE,                   // 15
 
     KDC_REQ_BODY_ETYPE_TAG_STATE,               // 18
     KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 19
