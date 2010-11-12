@@ -119,35 +119,35 @@ public enum PaDataType
     /**
      * The value/code for the pre-authentication type.
      */
-    private final int ordinal;
+    private final int value;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private PaDataType( int ordinal )
+    private PaDataType( int value )
     {
-        this.ordinal = ordinal;
+        this.value = value;
     }
 
 
     /**
      * Returns the number associated with this pre-authentication type.
      *
-     * @return The pre-authentication type ordinal.
+     * @return The pre-authentication type value.
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
     
     /**
      * Returns the pre authentication data type when specified by its ordinal.
      *
-     * @param type The ordinal
+     * @param type The value
      * @return The pre authentication type.
      */
-    public static PaDataType getTypeByOrdinal( int type )
+    public static PaDataType getTypeByValue( int type )
     {
         switch ( type )
         {
@@ -180,58 +180,58 @@ public enum PaDataType
         switch ( this )
         {
             case PA_TGS_REQ                     : 
-                return "TGS request." + "(" + ordinal + ")";
+                return "TGS request." + "(" + value + ")";
             
             case PA_ENC_TIMESTAMP : 
-                return "Encrypted timestamp." + "(" + ordinal + ")";
+                return "Encrypted timestamp." + "(" + value + ")";
             
             case PA_PW_SALT : 
-                return "password salt" + "(" + ordinal + ")";
+                return "password salt" + "(" + value + ")";
             
             case PA_ENC_UNIX_TIME : 
-                return "enc unix time" + "(" + ordinal + ")";
+                return "enc unix time" + "(" + value + ")";
             
             case PA_SANDIA_SECUREID : 
-                return "sandia secureid" + "(" + ordinal + ")";
+                return "sandia secureid" + "(" + value + ")";
             
             case PA_SESAME : 
-                return "sesame" + "(" + ordinal + ")";
+                return "sesame" + "(" + value + ")";
             
             case PA_OSF_DCE : 
-                return "OSF DCE" + "(" + ordinal + ")";
+                return "OSF DCE" + "(" + value + ")";
             
             case PA_CYBERSAFE_SECUREID : 
-                return "cybersafe secureid" + "(" + ordinal + ")";
+                return "cybersafe secureid" + "(" + value + ")";
             
             case PA_ASF3_SALT : 
-                return "ASF3 salt" + "(" + ordinal + ")";
+                return "ASF3 salt" + "(" + value + ")";
             
             case PA_ENCTYPE_INFO : 
-                return "Encryption info." + "(" + ordinal + ")";
+                return "Encryption info." + "(" + value + ")";
             
             case SAM_CHALLENGE : 
-                return "SAM challenge." + "(" + ordinal + ")";
+                return "SAM challenge." + "(" + value + ")";
             
             case SAM_RESPONSE : 
-                return "SAM response." + "(" + ordinal + ")";
+                return "SAM response." + "(" + value + ")";
             
             case PA_PK_AS_REQ : 
-                return "PK as request" + "(" + ordinal + ")";
+                return "PK as request" + "(" + value + ")";
             
             case PA_PK_AS_REP : 
-                return "PK as response" + "(" + ordinal + ")";
+                return "PK as response" + "(" + value + ")";
                 
             case PA_USE_SPECIFIED_KVNO :
-                return "use specified key version" + "(" + ordinal + ")";
+                return "use specified key version" + "(" + value + ")";
             
             case SAM_REDIRECT :
-                return "SAM redirect." + "(" + ordinal + ")";
+                return "SAM redirect." + "(" + value + ")";
             
             case PA_GET_FROM_TYPED_DATA :
-                return "Get from typed data" + "(" + ordinal + ")";
+                return "Get from typed data" + "(" + value + ")";
             
             default : 
-                return "null" + "(" + ordinal + ")";
+                return "null" + "(" + value + ")";
         }
     }
 }

@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -105,7 +106,7 @@ public class PaData extends AbstractAsn1Object
      */
     public void setPaDataType( int paDataType )
     {
-        this.paDataType = PaDataType.getTypeByOrdinal( paDataType );
+        this.paDataType = PaDataType.getTypeByValue( paDataType );
     }
 
     
@@ -166,7 +167,7 @@ public class PaData extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the paDataType. The Length will always be contained in 1 byte
-        int paDataTypeLength = Value.getNbBytes( paDataType.getOrdinal() );
+        int paDataTypeLength = Value.getNbBytes( paDataType.getValue() );
         paDataTypeTagLength = 1 + TLV.getNbBytes( paDataTypeLength ) + paDataTypeLength;
         preAuthenticationDataSeqLength = 1 + TLV.getNbBytes( paDataTypeTagLength ) + paDataTypeTagLength;
 
@@ -194,9 +195,9 @@ public class PaData extends AbstractAsn1Object
      * PreAuthenticationData :
      * 
      * 0x30 LL
-     *   0xA0 LL 
-     *     0x02 0x01 padata-type
      *   0xA1 LL 
+     *     0x02 0x01 padata-type
+     *   0xA2 LL 
      *     0x04 LL padata-value
      * 
      * @param buffer The buffer where to put the PDU. It should have been allocated
@@ -217,12 +218,12 @@ public class PaData extends AbstractAsn1Object
             buffer.put( TLV.getBytes( preAuthenticationDataSeqLength ) );
 
             // The cksumtype, first the tag, then the value
-            buffer.put( ( byte ) 0xA1 );
+            buffer.put( ( byte ) KerberosConstants.PADATA_TYPE_TAG );
             buffer.put( TLV.getBytes( paDataTypeTagLength ) );
-            Value.encode( buffer, paDataType.getOrdinal() );
+            Value.encode( buffer, paDataType.getValue() );
 
             // The checksum, first the tag, then the value
-            buffer.put( ( byte ) 0xA2 );
+            buffer.put( ( byte ) KerberosConstants.PADATA_VALUE_TAG );
             buffer.put( TLV.getBytes( paDataValueTagLength ) );
             Value.encode( buffer, paDataValue );
         }
