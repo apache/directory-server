@@ -42,22 +42,20 @@ public enum KdcReqBodyStatesEnum implements States
     KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE,         // 2
     KDC_REQ_BODY_KDC_OPTIONS_STATE,             // 3
     
-    KDC_REQ_BODY_CNAME_TAG_STATE,               // 4
+    KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE,      // 4
     KDC_REQ_BODY_CNAME_STATE,                   // 5
 
     KDC_REQ_BODY_REALM_TAG_STATE,               // 6
-    KDC_REQ_BODY_REALM_STATE,                   // 7
 
-    KDC_REQ_BODY_SNAME_TAG_STATE,               // 8
-    KDC_REQ_BODY_SNAME_STATE,                   // 9
+    KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,// 7
+    KDC_REQ_BODY_SNAME_STATE,                   // 8
 
-    KDC_REQ_BODY_FROM_TAG_STATE,                // 10
-    KDC_REQ_BODY_FROM_STATE,                    // 11
+    KDC_REQ_BODY_FROM_STATE,                    // 9
 
-    KDC_REQ_BODY_TILL_TAG_STATE,                // 12
-    KDC_REQ_BODY_TILL_STATE,                    // 13
+    KDC_REQ_BODY_TILL_TAG_STATE,                // 10
+    KDC_REQ_BODY_TILL_STATE,                    // 11
     
-    KDC_REQ_BODY_RTIME_TAG_STATE,               // 14
+    KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,      // 12
     KDC_REQ_BODY_RTIME_STATE,                   // 15
 
     KDC_REQ_BODY_NONCE_TAG_STATE,               // 16

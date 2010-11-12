@@ -92,7 +92,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         kdc-options             [0] KDCOptions
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE.ordinal()][UniversalTag.BIT_STRING.getValue()] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_TAG_STATE, UniversalTag.BIT_STRING.getValue(),
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE, UniversalTag.BIT_STRING.getValue(),
             new StoreKdcOptions() );
         
         // --------------------------------------------------------------------------------------------
@@ -101,8 +101,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         cname                   [1]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_CNAME_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_CNAME_TAG,
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_CNAME_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_STATE, KerberosConstants.KDC_REQ_BODY_CNAME_TAG,
             new StoreCName() );
         
         // --------------------------------------------------------------------------------------------
@@ -111,8 +111,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         realm                   [2]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
@@ -121,8 +121,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         realm                   [2]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
@@ -131,8 +131,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         realm                   [2] Realm
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE, UniversalTag.GENERAL_STRING.getValue(),
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE, UniversalTag.GENERAL_STRING.getValue(),
             new StoreRealm() );
         
         // --------------------------------------------------------------------------------------------
@@ -141,9 +141,29 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         sname                   [3]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_SNAME_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_SNAME_TAG,
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_SNAME_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE, KerberosConstants.KDC_REQ_BODY_SNAME_TAG,
             new StoreSName() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from realm value to from tag (sname is empty)
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         from                    [4]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_FROM_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KerberosConstants.KDC_REQ_BODY_FROM_TAG,
+            new CheckNotNullLength() );
+
+        // --------------------------------------------------------------------------------------------
+        // Transition from realm value to till tag (sname and from are empty)
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         till                    [5]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
+            new CheckNotNullLength() );
 
         // --------------------------------------------------------------------------------------------
         // Transition from sname tag to from tag
@@ -151,8 +171,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         from                    [4]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_FROM_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KerberosConstants.KDC_REQ_BODY_FROM_TAG,
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_FROM_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KerberosConstants.KDC_REQ_BODY_FROM_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
@@ -161,39 +181,19 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         till                    [5]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
             new CheckNotNullLength() );
         
-        // --------------------------------------------------------------------------------------------
-        // Transition from realm value to from tag (sname is empty)
-        // --------------------------------------------------------------------------------------------
-        // KDC-REQ-BODY    ::= SEQUENCE {
-        //         ...
-        //         from                    [4]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_FROM_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KerberosConstants.KDC_REQ_BODY_FROM_TAG,
-            new CheckNotNullLength() );
-
         // --------------------------------------------------------------------------------------------
         // Transition from from tag to from value
         // --------------------------------------------------------------------------------------------
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         from                    [4] KerberosTime
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
             KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
             new StoreFrom() );
-
-        // --------------------------------------------------------------------------------------------
-        // Transition from realm value to till tag (sname and from are empty)
-        // --------------------------------------------------------------------------------------------
-        // KDC-REQ-BODY    ::= SEQUENCE {
-        //         ...
-        //         till                    [4]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
-            new CheckNotNullLength() );
 
         // --------------------------------------------------------------------------------------------
         // Transition from till tag to till value
@@ -201,7 +201,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         till                    [5]
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] = new GrammarTransition(
             KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
             new CheckNotNullLength() );
 
@@ -211,18 +211,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         till                    [5] KerberosTime
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
-            new StoreTill() );
-
-        // --------------------------------------------------------------------------------------------
-        // Transition from till tag to till value
-        // --------------------------------------------------------------------------------------------
-        // KDC-REQ-BODY    ::= SEQUENCE {
-        //         ...
-        //         till                    [5] KerberosTime
-        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
-            KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
             new StoreTill() );
 }
 
