@@ -61,9 +61,9 @@ public enum KdcReqBodyStatesEnum implements States
     KDC_REQ_BODY_NONCE_TAG_STATE,               // 14
     KDC_REQ_BODY_NONCE_STATE,                   // 15
 
-    KDC_REQ_BODY_ETYPE_TAG_STATE,               // 18
-    KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 19
-    KDC_REQ_BODY_ETYPE_STATE,                   // 20
+    KDC_REQ_BODY_ETYPE_TAG_STATE,               // 16
+    KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 17
+    KDC_REQ_BODY_ETYPE_STATE,                   // 18
 
     KDC_REQ_BODY_ADDRESSES_TAG_STATE,           // 21
     KDC_REQ_BODY_ADDRESSES_STATE,               // 22
