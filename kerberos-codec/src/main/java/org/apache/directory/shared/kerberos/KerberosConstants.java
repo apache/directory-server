@@ -53,6 +53,10 @@ public class KerberosConstants
     public static final int AUTHORIZATION_DATA_ADTYPE_TAG = 0xA0;
     public static final int AUTHORIZATION_DATA_ADDATA_TAG = 0xA1;
 
+    /** Checksum tags */
+    public static final int CHECKSUM_TYPE_TAG = 0xA0;
+    public static final int CHECKSUM_CHECKSUM_TAG = 0xA1;
+
     /** KRB-REQ-BODY's tags */
     public static final int KDC_REQ_BODY_KDC_OPTIONS_TAG = 0xA0;
     public static final int KDC_REQ_BODY_CNAME_TAG = 0xA1;

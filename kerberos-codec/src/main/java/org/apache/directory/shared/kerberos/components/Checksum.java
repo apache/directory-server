@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -192,7 +193,7 @@ public class Checksum extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the checksulType. The Length will always be contained in 1 byte
-        checksumTypeLength = 1 + 1 + Value.getNbBytes( cksumtype.getOrdinal() );
+        checksumTypeLength = 1 + 1 + Value.getNbBytes( cksumtype.getValue() );
         checksumLength = 1 + TLV.getNbBytes( checksumTypeLength ) + checksumTypeLength;
 
         // Compute the checksum Value
@@ -244,12 +245,12 @@ public class Checksum extends AbstractAsn1Object
             buffer.put( TLV.getBytes( checksumLength ) );
 
             // The cksumtype, first the tag, then the value
-            buffer.put( ( byte ) 0xA0 );
+            buffer.put( ( byte ) KerberosConstants.CHECKSUM_TYPE_TAG );
             buffer.put( TLV.getBytes( checksumTypeLength ) );
-            Value.encode( buffer, cksumtype.getOrdinal() );
+            Value.encode( buffer, cksumtype.getValue() );
 
             // The checksum, first the tag, then the value
-            buffer.put( ( byte ) 0xA1 );
+            buffer.put( ( byte ) KerberosConstants.CHECKSUM_CHECKSUM_TAG );
             buffer.put( TLV.getBytes( checksumBytesLength ) );
             Value.encode( buffer, checksum );
         }
