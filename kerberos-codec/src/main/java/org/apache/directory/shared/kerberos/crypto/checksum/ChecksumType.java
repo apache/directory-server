@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.crypto.checksum;
+package org.apache.directory.shared.kerberos.crypto.checksum;
 
 
 /**
