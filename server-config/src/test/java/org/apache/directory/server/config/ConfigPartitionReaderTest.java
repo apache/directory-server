@@ -124,5 +124,7 @@ public class ConfigPartitionReaderTest
         assertNotNull( configBean );
         DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( directoryServiceBean );
+
+        configPartition.destroy();
     }
 }

@@ -122,5 +122,7 @@ public class ChangePasswordConfigReaderTest
         assertNotNull( configBean );
         ChangePasswordServerBean changePasswordServerBean = (ChangePasswordServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( changePasswordServerBean );
+
+        configPartition.destroy();
     }
 }

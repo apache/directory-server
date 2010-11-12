@@ -114,5 +114,7 @@ public class KerberosServerConfigReaderTest
         assertNotNull( configBean );
         KdcServerBean kdcServerBean = (KdcServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( kdcServerBean );
+
+        configPartition.destroy();
     }
 }

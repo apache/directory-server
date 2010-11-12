@@ -114,5 +114,7 @@ public class LdapServerConfigReaderTest
         assertNotNull( configBean );
         LdapServerBean ldapServerBean = (LdapServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( ldapServerBean );
+
+        configPartition.destroy();
     }
 }

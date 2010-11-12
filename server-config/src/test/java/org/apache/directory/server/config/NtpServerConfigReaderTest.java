@@ -113,5 +113,7 @@ public class NtpServerConfigReaderTest
         assertNotNull( configBean );
         NtpServerBean ntpServerBean = (NtpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( ntpServerBean );
+
+        configPartition.destroy();
     }
 }

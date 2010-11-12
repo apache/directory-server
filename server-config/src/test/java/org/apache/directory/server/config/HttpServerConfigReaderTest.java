@@ -113,5 +113,7 @@ public class HttpServerConfigReaderTest
         assertNotNull( configBean );
         HttpServerBean httpServerBean = (HttpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( httpServerBean );
+
+        configPartition.destroy();
     }
 }

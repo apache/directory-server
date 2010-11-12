@@ -115,5 +115,7 @@ public class DhcpServerConfigReaderTest
         assertNotNull( configBean );
         DhcpServerBean dhcpServerBean = (DhcpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( dhcpServerBean );
+
+        configPartition.destroy();
     }
 }

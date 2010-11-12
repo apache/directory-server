@@ -113,5 +113,7 @@ public class DnsServerConfigReaderTest
         assertNotNull( configBean );
         DnsServerBean dnsServerBean = (DnsServerBean)configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( dnsServerBean );
+
+        configPartition.destroy();
     }
 }
