@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -294,12 +295,12 @@ public class EncryptionKey extends AbstractAsn1Object
             buffer.put( TLV.getBytes( encryptionKeyLength ) );
 
             // The keyType, first the tag, then the value
-            buffer.put( ( byte ) 0xA0 );
+            buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_TYPE_TAG );
             buffer.put( TLV.getBytes( keyTypeLength ) );
             Value.encode( buffer, keyType.getValue() );
 
             // The keyValue, first the tag, then the value
-            buffer.put( ( byte ) 0xA1 );
+            buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_VALUE_TAG );
             buffer.put( TLV.getBytes( keyValueLength ) );
             Value.encode( buffer, keyValue );
         }

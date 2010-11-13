@@ -61,6 +61,10 @@ public class KerberosConstants
     public static final int PADATA_TYPE_TAG = 0xA1;
     public static final int PADATA_VALUE_TAG = 0xA2;
 
+    /** EncryptionKey tags */
+    public static final int ENCRYPTION_KEY_TYPE_TAG = 0xA0;
+    public static final int ENCRYPTION_KEY_VALUE_TAG = 0xA1;
+
     /** KRB-REQ-BODY's tags */
     public static final int KDC_REQ_BODY_KDC_OPTIONS_TAG = 0xA0;
     public static final int KDC_REQ_BODY_CNAME_TAG = 0xA1;
