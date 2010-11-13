@@ -83,7 +83,7 @@ public class AddEType extends GrammarAction
         try
         {
             int etype = IntegerDecoder.parse( value );
-            EncryptionType encryptionType = EncryptionType.getTypeByOrdinal( etype );
+            EncryptionType encryptionType = EncryptionType.getTypeByValue( etype );
 
             kdcReqBody.addEType( encryptionType );
 

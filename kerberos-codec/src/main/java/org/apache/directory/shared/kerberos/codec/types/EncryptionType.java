@@ -209,7 +209,7 @@ public enum EncryptionType
      * @param type
      * @return The encryption type.
      */
-    public static EncryptionType getTypeByOrdinal( int type )
+    public static EncryptionType getTypeByValue( int type )
     {
         if ( encryptionTypesByOrdinal.containsKey( type ) )
         {

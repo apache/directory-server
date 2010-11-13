@@ -86,7 +86,7 @@ public class EncryptedDataEType extends GrammarAction
         try
         {
             int eType = IntegerDecoder.parse( value );
-            encryptionType = EncryptionType.getTypeByOrdinal( eType );
+            encryptionType = EncryptionType.getTypeByValue( eType );
 
             encryptedData.setEType( encryptionType );
 
