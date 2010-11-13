@@ -63,7 +63,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         super.transitions = new GrammarTransition[EncryptionKeyStatesEnum.LAST_ENCKEY_STATE.ordinal()][256];
 
         // ============================================================================================
-        // PaData 
+        // EncryptionKey 
         // ============================================================================================
         // --------------------------------------------------------------------------------------------
         // Transition from EncryptionKey init to EncryptionKey SEQ OF
@@ -74,7 +74,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
             new EncryptionKeyInit() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from EncryptionKey SEQ to padata-type tag
+        // Transition from EncryptionKey SEQ to key-type tag
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         //       keytype     [0]
@@ -83,25 +83,26 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from EncryptionKey type tag to padata-type
+        // Transition from EncryptionKey type tag to key-type value
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
-        //       keytype     [1] Int32
+        //       keytype     [0] Int32
         super.transitions[EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE, EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE, UniversalTag.INTEGER.getValue(),
             new EncryptionKeyKeyType() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from padata-type to padata-value tag
+        // Transition from key-type to key-value tag
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
+        //          ...
         //          keyvalue    [2]
         super.transitions[EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE.ordinal()][KerberosConstants.ENCRYPTION_KEY_VALUE_TAG] = new GrammarTransition(
             EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE, EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE, KerberosConstants.ENCRYPTION_KEY_VALUE_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from padata-value tag to padata-value
+        // Transition from key-value tag to key-value value
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         //          keyvalue    [2] OCTET STRING
@@ -110,9 +111,6 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
             new EncryptionKeyKeyValue() );
     }
 
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar

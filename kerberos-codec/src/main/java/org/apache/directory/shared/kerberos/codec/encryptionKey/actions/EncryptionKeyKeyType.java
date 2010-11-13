@@ -79,7 +79,8 @@ public class EncryptionKeyKeyType extends GrammarAction
         }
 
         EncryptionKey encKey = encKeyContainer.getEncryptionKey();
-        // The PaData's type is an integer
+        
+        // The Key type is an integer
         Value value = tlv.getValue();
 
         try

@@ -34,20 +34,20 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum EncryptionKeyStatesEnum implements States
 {
     // Start
-    START_STATE,                  // 0
+    START_STATE,             // 0
     
-    ENCKEY_SEQ_STATE,           // 1
+    ENCKEY_SEQ_STATE,        // 1
     
-    ENCKEY_TYPE_TAG_STATE,      // 2
+    ENCKEY_TYPE_TAG_STATE,   // 2
     
-    ENCKEY_TYPE_STATE,          // 3
+    ENCKEY_TYPE_STATE,       // 3
     
     ENCKEY_VALUE_TAG_STATE,  // 4
     
     ENCKEY_VALUE_STATE,      // 5
     
     // End
-    LAST_ENCKEY_STATE; // 6
+    LAST_ENCKEY_STATE;       // 6
 
     
     /**
