@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.hostAddresses.actions;
+package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,34 +26,34 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesContainer;
-import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to add an HostAddresses object
+ * The action used to store the Addresses
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddHostAddress extends GrammarAction
+public class StoreAddresses extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreAddresses.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new AddHostAddress action.
+     * Instantiates a new StoreAddresses action.
      */
-    public AddHostAddress()
+    public StoreAddresses()
     {
-        super( "Add an HostAddress instance" );
+        super( "KDC-REQ-BODY addresses" );
     }
 
 
@@ -62,9 +62,9 @@ public class AddHostAddress extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        HostAddressesContainer hostAddressesContainer = ( HostAddressesContainer ) container;
+        KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
 
-        TLV tlv = hostAddressesContainer.getCurrentTLV();
+        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -75,43 +75,32 @@ public class AddHostAddress extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Now, let's decode the HostAddress
-        Asn1Decoder hostAddressDecoder = new Asn1Decoder();
+        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
         
-        HostAddressContainer hostAddressContainer = new HostAddressContainer();
-        hostAddressContainer.setStream( container.getStream() );
+        // Now, let's decode the HostAddresses
+        Asn1Decoder hostAddressesDecoder = new Asn1Decoder();
         
-        // Compute the start position in the stream for the HostAdress to decode : 
-        // We have to move back to the HostAddress tag
-        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
-        container.getStream().position( start );
+        HostAddressesContainer hostAddressesContainer = new HostAddressesContainer();
+        
+        // Passes the Stream to the decoder
+        hostAddressesContainer.setStream( container.getStream() );
 
-        // Decode the HostAddress PDU
+        // Decode the HostAddresses PDU
         try
         {
-            hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
+            hostAddressesDecoder.decode( container.getStream(), hostAddressesContainer );
         }
         catch ( DecoderException de )
         {
+            de.printStackTrace();
             throw de;
         }
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
+        // Store the HostAddresses in the container
+        HostAddresses hostAddresses = hostAddressesContainer.getHostAddresses();
+        kdcReqBody.setAddresses( hostAddresses );
+        
         // Update the parent
         container.setParentTLV( tlv.getParent() );
-
-        // Store the hostAddress in the container
-        HostAddress hostAddress = hostAddressContainer.getHostAddress();
-        hostAddressesContainer.addHostAddress( hostAddress );
-        
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "HostAddress added : {}", hostAddress );
-        }
-        
-        container.setGrammarEndAllowed( true );
     }
 }

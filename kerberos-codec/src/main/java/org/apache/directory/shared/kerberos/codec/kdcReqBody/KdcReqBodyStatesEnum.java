@@ -65,17 +65,16 @@ public enum KdcReqBodyStatesEnum implements States
     KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 17
     KDC_REQ_BODY_ETYPE_STATE,                   // 18
 
-    KDC_REQ_BODY_ADDRESSES_TAG_STATE,           // 21
-    KDC_REQ_BODY_ADDRESSES_STATE,               // 22
+    KDC_REQ_BODY_ADDRESSES_STATE,               // 19
 
-    KDC_REQ_BODY_ENC_AUTH_DATA_TAG_STATE,       // 2
-    KDC_REQ_BODY_ENC_AUTH_DATA_STATE,           // 2
+    KDC_REQ_BODY_ENC_AUTH_DATA_STATE,           // 20
 
-    KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,  // 2
-    KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,      // 2
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,  // 21
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE,  // 22
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,      // 23
 
     // End
-    LAST_KDC_REQ_BODY_STATE;              // 8
+    LAST_KDC_REQ_BODY_STATE;                    // 24
 
     
     /**

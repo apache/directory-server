@@ -29,6 +29,7 @@ import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.AddEType;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.ETypeSequence;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.KdcReqBodyInit;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreAddresses;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreFrom;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreKdcOptions;
@@ -215,92 +216,101 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         // KDC-REQ-BODY    ::= SEQUENCE {
         //         ...
         //         till                    [5] KerberosTime
-       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
             KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
             new StoreTill() );
 
-       // --------------------------------------------------------------------------------------------
-       // Transition from till value to rtime 
-       // --------------------------------------------------------------------------------------------
-       // KDC-REQ-BODY    ::= SEQUENCE {
-       //         ...
-       //         rtime                    [6] 
-      super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_RTIME_TAG] = new GrammarTransition(
-           KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, KerberosConstants.KDC_REQ_BODY_RTIME_TAG,
+        // --------------------------------------------------------------------------------------------
+        // Transition from till value to rtime 
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         rtime                    [6] 
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_RTIME_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, KerberosConstants.KDC_REQ_BODY_RTIME_TAG,
            new CheckNotNullLength() );
 
-      // --------------------------------------------------------------------------------------------
-      // Transition from till value to nonce 
-      // --------------------------------------------------------------------------------------------
-      // KDC-REQ-BODY    ::= SEQUENCE {
-      //         ...
-      //         nonce                    [7]
-     super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_NONCE_TAG] = new GrammarTransition(
-          KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE, KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
-          new CheckNotNullLength() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from till value to nonce 
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         nonce                    [7]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_NONCE_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE, KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
+            new CheckNotNullLength() );
 
-     // --------------------------------------------------------------------------------------------
-     // Transition from rtime to nonce tag
-     // --------------------------------------------------------------------------------------------
-     // KDC-REQ-BODY    ::= SEQUENCE {
-     //         ...
-     //         rtime                    [6] KerberosTime
-    super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
-         KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
-         new StoreRTime() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from rtime to nonce tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         rtime                    [6] KerberosTime
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
+            new StoreRTime() );
 
-    // --------------------------------------------------------------------------------------------
-    // Transition from nonce tag to nonce value
-    // --------------------------------------------------------------------------------------------
-    // KDC-REQ-BODY    ::= SEQUENCE {
-    //         ...
-    //         nonce                    [7] UInt32
-   super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_NONCE_TAG] = new GrammarTransition(
-        KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE, KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
-        new CheckNotNullLength() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from nonce tag to nonce value
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         nonce                    [7] UInt32
+       super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_NONCE_TAG] = new GrammarTransition(
+           KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE, KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
+           new CheckNotNullLength() );
 
-    // --------------------------------------------------------------------------------------------
-    // Transition from nonce value to etype Tag
-    // --------------------------------------------------------------------------------------------
-    // KDC-REQ-BODY    ::= SEQUENCE {
-    //         ...
-    //         etype                    [8]
-   super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-        KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE, UniversalTag.INTEGER.getValue(),
-        new StoreNonce() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from nonce value to etype Tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         etype                    [8]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE, UniversalTag.INTEGER.getValue(),
+            new StoreNonce() );
 
-   // --------------------------------------------------------------------------------------------
-   // Transition from etype Tag to etype Tag
-   // --------------------------------------------------------------------------------------------
-   // KDC-REQ-BODY    ::= SEQUENCE {
-   //         ...
-   //         etype                    [8] 
-  super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ETYPE_TAG] = new GrammarTransition(
-       KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE, KerberosConstants.KDC_REQ_BODY_ETYPE_TAG,
-       new CheckNotNullLength() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype Tag to etype Tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         etype                    [8] 
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ETYPE_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE, KerberosConstants.KDC_REQ_BODY_ETYPE_TAG,
+            new CheckNotNullLength() );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype Tag to etype SEQ
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         etype                    [8] SEQUENCE OF 
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, UniversalTag.SEQUENCE.getValue(),
+            new ETypeSequence() );
 
-   // --------------------------------------------------------------------------------------------
-   // Transition from etype Tag to etype SEQ
-   // --------------------------------------------------------------------------------------------
-   // KDC-REQ-BODY    ::= SEQUENCE {
-   //         ...
-   //         etype                    [8] SEQUENCE OF 
-  super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-       KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, UniversalTag.SEQUENCE.getValue(),
-       new ETypeSequence() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype SEQ to EType values
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         etype                    [8] SEQUENCE OF Int32
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
+            new AddEType() );
 
-  // --------------------------------------------------------------------------------------------
-  // Transition from etype SEQ to EType values
-  // --------------------------------------------------------------------------------------------
-  // KDC-REQ-BODY    ::= SEQUENCE {
-  //         ...
-  //         etype                    [8] SEQUENCE OF Int32
- super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-      KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
-      new AddEType() );
+        // --------------------------------------------------------------------------------------------
+        // Transition from EType values to addresses
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         addresses               [9]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE, KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG,
+            new StoreAddresses() );
 
-}
+    }
 
 
     // ~ Methods
