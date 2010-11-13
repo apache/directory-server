@@ -34,6 +34,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
@@ -60,7 +61,6 @@ public class TicketDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x46 );
-        byte LL = 0;
         
         stream.put( new byte[]
             { 0x61, 0x44,                               // Ticket
@@ -90,23 +90,22 @@ public class TicketDecoderTest
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
-        // Allocate a KerberosMessage Container
-        Asn1Container kerberosMessageContainer = new KerberosMessageContainer();
-        kerberosMessageContainer.setStream( stream );
+        // Allocate a Ticket Container
+        Asn1Container ticketContainer = new TicketContainer();
+        ticketContainer.setStream( stream );
 
         // Decode the Ticket PDU
         try
         {
-            kerberosDecoder.decode( stream, kerberosMessageContainer );
+            kerberosDecoder.decode( stream, ticketContainer );
         }
         catch ( DecoderException de )
         {
-            de.printStackTrace();
             fail( de.getMessage() );
         }
 
         // Check the decoded BindRequest
-        Ticket ticket = ( ( KerberosMessageContainer ) kerberosMessageContainer ).getTicket();
+        Ticket ticket = ( ( TicketContainer ) ticketContainer).getTicket();
 
         assertEquals( 5, ticket.getTktVno() );
         assertEquals( "EXAMPLE.COM", ticket.getRealm() );
