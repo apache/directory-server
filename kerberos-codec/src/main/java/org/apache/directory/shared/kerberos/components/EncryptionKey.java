@@ -56,13 +56,13 @@ public class EncryptionKey extends AbstractAsn1Object
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
-    // The encryption type
+    /** The encryption type */
     private EncryptionType keyType;
 
-    // The encrypted value
+    /** The encrypted value */
     private byte[] keyValue;
     
-    // The key version
+    /** The key version */
     private int keyVersion;
 
     // Storage for computed lengths
@@ -219,7 +219,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
     /**
      * Compute the EncryptionKey length
-     * 
+     * <pre>
      * EncryptionKey :
      * 
      * 0x30 L1 EncryptionKey
@@ -236,7 +236,8 @@ public class EncryptionKey extends AbstractAsn1Object
      *             L3 + lenght(0xA1) + length(L3) 
      *  and
      *  L2 = L2-1 + length(0x02) + length( L2-1) 
-     *  L3 = L3-1 + length(0x04) + length( L3-1) 
+     *  L3 = L3-1 + length(0x04) + length( L3-1)
+     *  </pre> 
      */
     public int computeLength()
     {
@@ -266,7 +267,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
     /**
      * Encode the EncryptionKey message to a PDU. 
-     * 
+     * <pre>
      * EncryptionKey :
      * 
      * 0x30 LL
@@ -274,7 +275,7 @@ public class EncryptionKey extends AbstractAsn1Object
      *     0x02 0x01 keyType
      *   0xA1 LL 
      *     0x04 LL keyValue
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.
