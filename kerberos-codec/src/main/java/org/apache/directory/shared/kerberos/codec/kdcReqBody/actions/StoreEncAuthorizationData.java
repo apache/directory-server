@@ -26,34 +26,34 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesContainer;
+import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the Addresses
+ * The action used to store the EncAuthorizationData
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAddresses extends GrammarAction
+public class StoreEncAuthorizationData extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreAddresses.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreEncAuthorizationData.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new StoreAddresses action.
+     * Instantiates a new StoreEncAuthorizationData action.
      */
-    public StoreAddresses()
+    public StoreEncAuthorizationData()
     {
-        super( "KDC-REQ-BODY addresses" );
+        super( "KDC-REQ-BODY enc-authorization-data" );
     }
 
 
@@ -77,27 +77,27 @@ public class StoreAddresses extends GrammarAction
         
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
         
-        // Now, let's decode the HostAddresses
-        Asn1Decoder hostAddressesDecoder = new Asn1Decoder();
+        // Now, let's decode the EncAuthorizationData
+        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
         
-        HostAddressesContainer hostAddressesContainer = new HostAddressesContainer();
+        EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
         
         // Passes the Stream to the decoder
-        hostAddressesContainer.setStream( container.getStream() );
+        encryptedDataContainer.setStream( container.getStream() );
 
         // Decode the HostAddresses PDU
         try
         {
-            hostAddressesDecoder.decode( container.getStream(), hostAddressesContainer );
+            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
 
-        // Store the HostAddresses in the container
-        HostAddresses hostAddresses = hostAddressesContainer.getHostAddresses();
-        kdcReqBody.setAddresses( hostAddresses );
+        // Store the encryptedData in the container
+        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+        kdcReqBody.setEncAuthorizationData( encryptedData );
         
         // Update the parent
         container.setParentTLV( tlv.getParent() );
@@ -106,7 +106,7 @@ public class StoreAddresses extends GrammarAction
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "Addresses : {}", hostAddresses );
+            LOG.debug( "enc-authorization-data : {}", encryptedData );
         }
     }
 }

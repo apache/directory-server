@@ -31,6 +31,7 @@ import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.ETypeSequen
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.KdcReqBodyInit;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreAddresses;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreCName;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreEncAuthorizationData;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreFrom;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreKdcOptions;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreNonce;
@@ -310,6 +311,28 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
             KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE, KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG,
             new StoreAddresses() );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from EType values to encAuthorizationData (addresses is empty)
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         enc-authorization-data  [10]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE, KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG,
+            new StoreEncAuthorizationData() );
+
+    
+    
+
+        // --------------------------------------------------------------------------------------------
+        // Transition from addresses values to encAuthorizationData
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         enc-authorization-data  [10]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE, KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG,
+            new StoreEncAuthorizationData() );
     }
 
 
