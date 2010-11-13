@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.value;
+package org.apache.directory.shared.kerberos.components;
 
 
 import java.nio.BufferOverflowException;
@@ -25,12 +25,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +241,7 @@ public class EncryptionKey extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the keyType. The Length will always be cobntained in 1 byte
-        keyTypeLength = 1 + 1 + Value.getNbBytes( keyType.getOrdinal() );
+        keyTypeLength = 1 + 1 + Value.getNbBytes( keyType.getValue() );
         encryptionKeyLength = 1 + TLV.getNbBytes( keyTypeLength ) + keyTypeLength;
 
         // Compute the keyValue
@@ -295,7 +295,7 @@ public class EncryptionKey extends AbstractAsn1Object
             // The keyType, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( keyTypeLength ) );
-            Value.encode( buffer, keyType.getOrdinal() );
+            Value.encode( buffer, keyType.getValue() );
 
             // The keyValue, first the tag, then the value
             buffer.put( ( byte ) 0xA1 );
@@ -324,6 +324,6 @@ public class EncryptionKey extends AbstractAsn1Object
      */
     public String toString()
     {
-        return keyType.toString() + " (" + keyType.getOrdinal() + ")";
+        return keyType.toString() + " (" + keyType.getValue() + ")";
     }
 }
