@@ -26,9 +26,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
@@ -63,9 +63,9 @@ public class TicketSName extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+        TicketContainer ticketContainer = ( TicketContainer ) container;
 
-        TLV tlv = kerberosMessageContainer.getCurrentTLV();
+        TLV tlv = ticketContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -93,7 +93,7 @@ public class TicketSName extends GrammarAction
 
         // Store the Principal name in the Ticket
         PrincipalName principalName = principalNameContainer.getPrincipalName();
-        Ticket ticket = kerberosMessageContainer.getTicket();
+        Ticket ticket = ticketContainer.getTicket();
         ticket.setSName( principalName );
         
         // Update the parent
@@ -101,7 +101,7 @@ public class TicketSName extends GrammarAction
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName : " + kerberosMessageContainer );
+            LOG.debug( "PrincipalName : " + principalName );
         }
     }
 }

@@ -26,8 +26,8 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -62,9 +62,9 @@ public class TicketRealm extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+        TicketContainer ticketContainer = ( TicketContainer ) container;
 
-        TLV tlv = kerberosMessageContainer.getCurrentTLV();
+        TLV tlv = ticketContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -78,7 +78,7 @@ public class TicketRealm extends GrammarAction
         // The value is the realm
         Value value = tlv.getValue();
         String realm = StringTools.utf8ToString( value.getData() );
-        Ticket ticket = kerberosMessageContainer.getTicket();
+        Ticket ticket = ticketContainer.getTicket();
 
         ticket.setRealm( realm );
         

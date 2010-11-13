@@ -26,9 +26,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
@@ -63,9 +63,9 @@ public class TicketEncPart extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+        TicketContainer ticketContainer = ( TicketContainer ) container;
 
-        TLV tlv = kerberosMessageContainer.getCurrentTLV();
+        TLV tlv = ticketContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -92,7 +92,7 @@ public class TicketEncPart extends GrammarAction
         }
 
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        Ticket ticket = (Ticket)kerberosMessageContainer.getMessage();
+        Ticket ticket = ticketContainer.getTicket();
         ticket.setEncPart( encryptedData );
 
         if ( IS_DEBUG )

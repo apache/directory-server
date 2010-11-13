@@ -28,8 +28,8 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -64,9 +64,9 @@ public class TicketTktVno extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+        TicketContainer ticketContainer = ( TicketContainer ) container;
 
-        TLV tlv = kerberosMessageContainer.getCurrentTLV();
+        TLV tlv = ticketContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -79,7 +79,7 @@ public class TicketTktVno extends GrammarAction
         
         // The value should be an integer an equal to 5
         Value value = tlv.getValue();
-        Ticket ticket = kerberosMessageContainer.getTicket();
+        Ticket ticket = ticketContainer.getTicket();
 
         try
         {
