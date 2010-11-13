@@ -133,7 +133,7 @@ public class PaDataDecoderTest
         stream.put( new byte[]
             { 
                 0x30, 0x05,
-                  (byte)0xA0, 0x03,                 // padata-type
+                  (byte)0xA1, 0x03,                 // padata-type
                     0x02, 0x01, 0x02
             } );
         
