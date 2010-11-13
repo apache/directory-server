@@ -22,6 +22,7 @@ package org.apache.directory.shared.kerberos.codec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -32,6 +33,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
@@ -504,7 +506,7 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with no enc-part
      */
-    @Test( expected=DecoderException.class)
+    @Test
     public void testDecodeTicketNoEncPart() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
@@ -526,6 +528,128 @@ public class TicketDecoderTest
                       (byte)0xA1, 0x0B,                 // name-string
                         0x30, 0x09,
                           0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
+            });
+
+        stream.flip();
+
+        // Allocate a Ticket Container
+        Asn1Container ticketContainer = new TicketContainer();
+        ticketContainer.setStream( stream );
+
+        // Decode the Ticket PDU
+        kerberosDecoder.decode( stream, ticketContainer );
+
+        assertNotSame( TLVStateEnum.PDU_DECODED, ticketContainer.getState() );
+    }
+
+
+    /**
+     * Test the decoding of a ticket with an empty enc-part tag
+     */
+    @Test(expected=DecoderException.class)
+    public void testDecodeTicketEmptyEncPartTag() throws Exception
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x30 );
+        
+        stream.put( new byte[]
+            { 
+              0x61, 0x2E,                               // Ticket
+                0x30, 0x2C,
+                  (byte)0xA0, 0x03,                     // tkt-vno
+                    0x02, 0x01, 0x05,
+                  (byte)0xA1, 0x0D,                     // realm
+                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                  (byte)0xA2, 0x14,                     // sname
+                    0x30, 0x12,
+                      (byte)0xA0, 0x03,                 // name-type
+                        0x02, 0x01, 0x01,
+                      (byte)0xA1, 0x0B,                 // name-string
+                        0x30, 0x09,
+                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
+                  (byte)0xA3, 0x00
+            });
+
+        stream.flip();
+
+        // Allocate a Ticket Container
+        Asn1Container ticketContainer = new TicketContainer();
+        ticketContainer.setStream( stream );
+
+        // Decode the Ticket PDU
+        kerberosDecoder.decode( stream, ticketContainer );
+    }
+
+
+    /**
+     * Test the decoding of a ticket with an empty enc-part
+     */
+    @Test(expected=DecoderException.class)
+    public void testDecodeTicketEmptyEncPart() throws Exception
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x32 );
+        
+        stream.put( new byte[]
+            { 
+              0x61, 0x30,                               // Ticket
+                0x30, 0x2E,
+                  (byte)0xA0, 0x03,                     // tkt-vno
+                    0x02, 0x01, 0x05,
+                  (byte)0xA1, 0x0D,                     // realm
+                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                  (byte)0xA2, 0x14,                     // sname
+                    0x30, 0x12,
+                      (byte)0xA0, 0x03,                 // name-type
+                        0x02, 0x01, 0x01,
+                      (byte)0xA1, 0x0B,                 // name-string
+                        0x30, 0x09,
+                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
+                  (byte)0xA3, 0x02,
+                    0x30, 0x00
+            });
+
+        stream.flip();
+
+        // Allocate a Ticket Container
+        Asn1Container ticketContainer = new TicketContainer();
+        ticketContainer.setStream( stream );
+
+        // Decode the Ticket PDU
+        kerberosDecoder.decode( stream, ticketContainer );
+    }
+
+
+    /**
+     * Test the decoding of a ticket with a bad enc-part
+     */
+    @Test(expected=DecoderException.class)
+    public void testDecodeTicketBadEncPart() throws Exception
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x34 );
+        
+        stream.put( new byte[]
+            { 
+              0x61, 0x32,                               // Ticket
+                0x30, 0x30,
+                  (byte)0xA0, 0x03,                     // tkt-vno
+                    0x02, 0x01, 0x05,
+                  (byte)0xA1, 0x0D,                     // realm
+                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                  (byte)0xA2, 0x14,                     // sname
+                    0x30, 0x12,
+                      (byte)0xA0, 0x03,                 // name-type
+                        0x02, 0x01, 0x01,
+                      (byte)0xA1, 0x0B,                 // name-string
+                        0x30, 0x09,
+                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
+                  (byte)0xA3, 0x04,
+                    0x30, 0x02,
+                      0x01, 0x02
             });
 
         stream.flip();
