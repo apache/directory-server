@@ -111,9 +111,6 @@ public final class PaDataGrammar extends AbstractGrammar
     }
 
 
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
-
     /**
      * Get the instance of this grammar
      * 

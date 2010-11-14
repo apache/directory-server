@@ -90,7 +90,7 @@ public class PaDataDataType extends GrammarAction
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "padata-type : " + paDataType );
+                LOG.debug( "padata-type : {}", paDataType );
             }
         }
         catch ( IntegerDecoderException ide )
