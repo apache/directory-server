@@ -104,5 +104,10 @@ public class AddTicket extends GrammarAction
         kdcReqBody.addAdditionalTicket( ticket );
 
         container.setGrammarEndAllowed( true );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Added ticket:  {}", ticket );
+        }
     }
 }

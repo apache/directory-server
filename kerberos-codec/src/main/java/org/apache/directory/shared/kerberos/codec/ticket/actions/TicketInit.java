@@ -42,10 +42,6 @@ public class TicketInit extends GrammarAction
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new TicketInit action.
      */
