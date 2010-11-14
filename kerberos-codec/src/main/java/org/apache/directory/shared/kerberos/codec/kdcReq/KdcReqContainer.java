@@ -17,51 +17,51 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcReqBody;
+package org.apache.directory.shared.kerberos.codec.kdcReq;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 
 
 /**
- * The KdcReqBody container stores the KDC-REQ-BODY decoded by the Asn1Decoder.
+ * The KdcReq container stores the KDC-REQ decoded by the Asn1Decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcReqBodyContainer extends AbstractContainer
+public class KdcReqContainer extends AbstractContainer
 {
-    /** An KDC-REQ-BODY container */
-    private KdcReqBody kdcReqBody;
+    /** An KDC-REQ container */
+    private KdcReq kdcReq;
     
     /**
-     * Creates a new KdcReqBodyContainer object.
+     * Creates a new KdcReqContainer object.
      */
-    public KdcReqBodyContainer()
+    public KdcReqContainer()
     {
         super();
         this.stateStack = new int[1];
-        this.grammar = KdcReqBodyGrammar.getInstance();
-        setTransition( KdcReqBodyStatesEnum.START_STATE );
+        this.grammar = KdcReqGrammar.getInstance();
+        setTransition( KdcReqStatesEnum.START_STATE );
     }
 
 
     /**
-     * @return Returns the KdcReqBody.
+     * @return Returns the KdcReq.
      */
-    public KdcReqBody getKdcReqBody()
+    public KdcReq getKdcReq()
     {
-        return kdcReqBody;
+        return kdcReq;
     }
 
     
     /**
-     * Set a KdcReqBody Object into the container. It will be completed by the
+     * Set a KdcReq Object into the container. It will be completed by the
      * KerberosDecoder.
      * 
-     * @param kdcReqBody The KdcReqBody to set.
+     * @param kdcReq The KdcReq to set.
      */
-    public void setKdcReqBody( KdcReqBody kdcReqBody )
+    public void setKdcReq( KdcReq kdcReq )
     {
-        this.kdcReqBody = kdcReqBody;
+        this.kdcReq = kdcReq;
     }
 }
