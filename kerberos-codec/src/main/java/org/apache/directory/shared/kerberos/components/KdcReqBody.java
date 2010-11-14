@@ -444,11 +444,11 @@ public class KdcReqBody
      *  |     |
      *  |     +--> 0x30 L11-1 addresses (HostAddresses)
      *  |     
-     *  +--> 0xA10 L12 enc-authorization-data tag
+     *  +--> 0xAA L12 enc-authorization-data tag
      *  |     |
      *  |     +--> 0x30 L12-1 enc-authorization-data
      *  |     
-     *  +--> 0xA11 L13 additional-tickets tag
+     *  +--> 0xAB L13 additional-tickets tag
      *        |
      *        +--> 0x30 L13-1 additional-tickets
      *              |
@@ -504,7 +504,7 @@ public class KdcReqBody
         
         for ( EncryptionType encryptionType : eType )
         {
-            eTypeLengths[pos] = 1 + 1 + Value.getNbBytes( encryptionType.ordinal() );
+            eTypeLengths[pos] = 1 + 1 + Value.getNbBytes( encryptionType.getValue() );
             eTypeSeqLength += eTypeLengths[pos];
             pos++;
         }
@@ -590,6 +590,13 @@ public class KdcReqBody
     }
     
     
+    /**
+     * Encode the KDC-REQ-BODY component
+     * 
+     * @param buffer The buffer containing the encoded result
+     * @return The encoded component
+     * @throws EncoderException If the encoding failed
+     */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )
