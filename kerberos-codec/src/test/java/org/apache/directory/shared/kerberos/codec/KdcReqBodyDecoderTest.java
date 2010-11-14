@@ -532,8 +532,6 @@ public class KdcReqBodyDecoderTest
 
             String encodedPdu = StringTools.dumpBytes( bb.array() );
             
-            System.out.println( decodedPdu );
-            System.out.println( encodedPdu );
             assertEquals( decodedPdu, encodedPdu );
         }
         catch ( EncoderException ee )
