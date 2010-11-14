@@ -27,9 +27,12 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
@@ -57,7 +60,7 @@ public class KdcReqBodyDecoderTest
      * Test the decoding of a KdcReqBody message
      */
     @Test
-    public void testEncodeTicket() throws Exception
+    public void testDecodeFullKdcReqBody() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -67,8 +70,8 @@ public class KdcReqBodyDecoderTest
         {
             0x30, (byte)0x82, 0x01, 0x57, 
               (byte)0xA0, 0x07,
-                0x03, 0x04, 
-                  0x01, 0x02, 0x03, 0x04, 
+                0x03, 0x05, 
+                  0x00, 0x01, 0x04, 0x00, 0x32, 
               (byte)0xA1, 0x13, 
                 0x30, 0x11, 
                   (byte)0xA0, 0x03, 
@@ -178,9 +181,23 @@ public class KdcReqBodyDecoderTest
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
+        // Allocate a KdcReqBody Container
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
+        kdcReqBodyContainer.setStream( stream );
+        
+        // Decode the KdcReqBody PDU
+        try
+        {
+            kerberosDecoder.decode( stream, kdcReqBodyContainer );
+        }
+        catch ( DecoderException de )
+        {
+            fail( de.getMessage() );
+        }
+
         KdcReqBody body = new KdcReqBody();
         
-        body.setKdcOptions( new KdcOptions( new byte[]{0x01, 0x02, 0x03, 0x04} ) );
+        body.setKdcOptions( new KdcOptions( new byte[]{0x00, 0x01, 0x04, 0x00, 0x32} ) );
         body.setCName( new PrincipalName( "client", PrincipalNameType.KRB_NT_ENTERPRISE ) );
         body.setRealm( "EXAMPLE.COM" );
         body.setSName( new PrincipalName( "server", PrincipalNameType.KRB_NT_ENTERPRISE ) );
@@ -233,8 +250,6 @@ public class KdcReqBodyDecoderTest
     
             // Check the length
             assertEquals( 0x15B, encodedPdu.limit() );
-    
-            //assertEquals( StringTools.dumpBytes( encodedPdu.array() ), decodedPdu );
         }
         catch ( EncoderException ee )
         {

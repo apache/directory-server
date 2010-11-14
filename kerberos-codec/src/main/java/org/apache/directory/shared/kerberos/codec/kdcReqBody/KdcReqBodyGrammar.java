@@ -27,6 +27,7 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.AddEType;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.AddTicket;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.ETypeSequence;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.KdcReqBodyInit;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.actions.StoreAddresses;
@@ -321,6 +322,16 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
             KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE, KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG,
             new StoreEncAuthorizationData() );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from EType values to additionalTickets tag (addresses and enc-authorization data
+        // are empty)
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE, KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG,
+            new CheckNotNullLength() );
     
     
 
@@ -333,11 +344,61 @@ public final class KdcReqBodyGrammar extends AbstractGrammar
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG] = new GrammarTransition(
             KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE, KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG,
             new StoreEncAuthorizationData() );
+
+        // --------------------------------------------------------------------------------------------
+        // Transition from addresses values to additional-tickets tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDRESSES_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE, KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG,
+            new CheckNotNullLength() );
+
+
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from encAuthorizationData to additional-tickets tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11]
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ENC_AUTH_DATA_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE, KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG,
+            new CheckNotNullLength() );
+
+    
+    
+        // --------------------------------------------------------------------------------------------
+        // Transition from additional-tickets tag to Ticket SEQUENCE
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11] SEQUENCE OF
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new CheckNotNullLength() );
+
+        // --------------------------------------------------------------------------------------------
+        // Transition from Ticket SEQUENCE to Ticket
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11] SEQUENCE OF Ticket
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE.ordinal()][KerberosConstants.TICKET_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, KerberosConstants.TICKET_TAG,
+            new AddTicket() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from Ticket to Ticket
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ-BODY    ::= SEQUENCE {
+        //         ...
+        //         additional-tickets      [11] SEQUENCE OF Ticket
+        super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE.ordinal()][KerberosConstants.TICKET_TAG] = new GrammarTransition(
+            KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, KerberosConstants.TICKET_TAG,
+            new AddTicket() );
     }
-
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar

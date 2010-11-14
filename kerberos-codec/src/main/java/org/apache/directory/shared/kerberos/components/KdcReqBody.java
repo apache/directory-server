@@ -463,8 +463,8 @@ public class KdcReqBody
      */
     public int computeLength()
     {
-        // The KdcOptions length (we have to add the unusedBits byte
-        kdcOptionsLength = 1 + 1 + 1 + kdcOptions.getBytes().length;
+        // The KdcOptions length
+        kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
         
         // The cname length
         if ( cName != null )

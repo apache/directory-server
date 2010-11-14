@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.ticket.actions;
+package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,35 +26,33 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket EncodedPart
+ * The action used to add a Ticket
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketEncPart extends GrammarAction
+public class AddTicket extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AddTicket.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-
     /**
-     * Instantiates a new TicketEncPart action.
+     * Instantiates a new AddTicket action.
      */
-    public TicketEncPart()
+    public AddTicket()
     {
-        super( "Kerberos Ticket EncodedPart" );
+        super( "KDC-REQ-BODY Add Ticket" );
     }
 
 
@@ -63,47 +61,47 @@ public class TicketEncPart extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        TicketContainer ticketContainer = ( TicketContainer ) container;
+        KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
 
-        TLV tlv = ticketContainer.getCurrentTLV();
+        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
 
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        // The Length can't be null
+        if ( tlv.getLength() == 0 ) 
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
+
+        // Now, let's decode the Ticket
+        Asn1Decoder ticketDecoder = new Asn1Decoder();
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
-        
-        EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
-        encryptedDataContainer.setStream( container.getStream() );
+        TicketContainer ticketContainer = new TicketContainer();
+        ticketContainer.setStream( container.getStream() );
+
+        // Compute the start position in the stream for the HostAdress to decode : 
+        // We have to move back to the HostAddress tag
+        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
+        container.getStream().position( start );
 
         // Decode the Ticket PDU
         try
         {
-            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
+            ticketDecoder.decode( container.getStream(), ticketContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
+        
+        // Update the parent
+        container.setParentTLV( tlv.getParent() );
 
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+        // Store the Ticket in the container
         Ticket ticket = ticketContainer.getTicket();
-        ticket.setEncPart( encryptedData );
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "EncryptedData : " + encryptedData );
-        }
-
-        // Update the TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-        //container.setParentTLV( tlv.getParent() );
+        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
+        kdcReqBody.addAdditionalTicket( ticket );
 
         container.setGrammarEndAllowed( true );
     }
