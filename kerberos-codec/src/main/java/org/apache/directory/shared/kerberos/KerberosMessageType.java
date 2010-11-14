@@ -74,7 +74,7 @@ public enum KerberosMessageType
      *
      * @return The int value of this element
      */
-    public int getOrdinal()
+    public int getValue()
     {
         return value;
     }

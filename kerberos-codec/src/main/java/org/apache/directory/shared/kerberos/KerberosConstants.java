@@ -78,4 +78,10 @@ public class KerberosConstants
     public static final int KDC_REQ_BODY_ADDRESSES_TAG = 0xA9;
     public static final int KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG = 0xAA;
     public static final int KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG = 0xAB;
+
+    /** KRB-REQ's tags */
+    public static final int KDC_REQ_PVNO_TAG = 0xA1;
+    public static final int KDC_REQ_MSG_TYPE_TAG = 0xA2;
+    public static final int KDC_REQ_PA_DATA_TAG = 0xA3;
+    public static final int KDC_REQ_KDC_REQ_BODY_TAG = 0xA4;
 }
