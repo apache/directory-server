@@ -96,6 +96,9 @@ public class TicketSName extends GrammarAction
         Ticket ticket = ticketContainer.getTicket();
         ticket.setSName( principalName );
         
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
         // Update the parent
         container.setParentTLV( tlv.getParent() );
 

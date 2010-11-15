@@ -95,6 +95,9 @@ public class StoreSName extends GrammarAction
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
         kdcReqBody.setSName( principalName );
         
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
         // Update the parent
         container.setParentTLV( tlv.getParent() );
 

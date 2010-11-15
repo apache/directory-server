@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -33,7 +32,6 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
@@ -506,7 +504,7 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with no enc-part
      */
-    @Test
+    @Test( expected=DecoderException.class)
     public void testDecodeTicketNoEncPart() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
@@ -538,8 +536,6 @@ public class TicketDecoderTest
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
-
-        assertNotSame( TLVStateEnum.PDU_DECODED, ticketContainer.getState() );
     }
 
 

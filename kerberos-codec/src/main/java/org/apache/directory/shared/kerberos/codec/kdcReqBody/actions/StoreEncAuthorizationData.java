@@ -99,6 +99,9 @@ public class StoreEncAuthorizationData extends GrammarAction
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
         kdcReqBody.setEncAuthorizationData( encryptedData );
         
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
         // Update the parent
         container.setParentTLV( tlv.getParent() );
         

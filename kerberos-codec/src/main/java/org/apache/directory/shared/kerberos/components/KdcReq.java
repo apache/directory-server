@@ -203,9 +203,9 @@ public class KdcReq
 
         // Compute the sequence size.
         kdcReqSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
-        kdcReqSeqLength = 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
-        kdcReqSeqLength = 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
-        kdcReqSeqLength = 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength; 
+        kdcReqSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
+        kdcReqSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
+        kdcReqSeqLength += 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength; 
         
         // compute the global size
         kdcReqLength = 1 + TLV.getNbBytes( kdcReqSeqLength ) + kdcReqSeqLength;
@@ -290,9 +290,13 @@ public class KdcReq
         {
             sb.append( "AS-REQ" ).append( '\n' );
         }
-        else
+        else if ( msgType == KerberosMessageType.TGS_REQ )
         {
             sb.append( "TGS-REQ" ).append( '\n' );
+        }
+        else
+        {
+            sb.append( "Unknown" ).append( '\n' );
         }
 
         for ( PaData paDataElem : paData )
@@ -300,7 +304,7 @@ public class KdcReq
             sb.append( "padata : " ).append( paDataElem ).append( '\n' );
         }
         
-        sb.append( "kdc-req-body" ).append( kdcReqBody ).append( '\n' );
+        sb.append( "kdc-req-body : " ).append( kdcReqBody ).append( '\n' );
         
         return sb.toString();
     }

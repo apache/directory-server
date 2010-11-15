@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
+package org.apache.directory.shared.kerberos.codec.kdcReq.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,33 +26,34 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to add a Ticket
+ * The action used to store the KDC_REQ-BODY
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddTicket extends GrammarAction
+public class StoreKdcReqBody extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AddTicket.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreKdcReqBody.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
-     * Instantiates a new AddTicket action.
+     * Instantiates a new StoreKdcReqBody action.
      */
-    public AddTicket()
+    public StoreKdcReqBody()
     {
-        super( "KDC-REQ-BODY Add Ticket" );
+        super( "Stores the KDC-REQ-BODY" );
     }
 
 
@@ -61,56 +62,48 @@ public class AddTicket extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
+        KdcReqContainer kdcReqContainer = ( KdcReqContainer ) container;
 
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
+        TLV tlv = kdcReqContainer.getCurrentTLV();
 
-        // The Length can't be null
-        if ( tlv.getLength() == 0 ) 
+        // The Length should not be null
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-
-        // Now, let's decode the Ticket
-        Asn1Decoder ticketDecoder = new Asn1Decoder();
         
-        TicketContainer ticketContainer = new TicketContainer();
-        ticketContainer.setStream( container.getStream() );
+        // Now, let's decode the KDC-REQ-BODY
+        Asn1Decoder kdcReqBodyDecoder = new Asn1Decoder();
+        
+        KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer();
+        kdcReqBodyContainer.setStream( container.getStream() );
 
-        // Compute the start position in the stream for the Ticket to decode : 
-        // We have to move back to the Ticket tag
-        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
-        container.getStream().position( start );
-
-        // Decode the Ticket PDU
+        // Decode the KDC-REQ-BODY PDU
         try
         {
-            ticketDecoder.decode( container.getStream(), ticketContainer );
+            kdcReqBodyDecoder.decode( container.getStream(), kdcReqBodyContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
+        // Store the KDC-REQ-BODY in the container
+        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
+        KdcReq kdcReq = kdcReqContainer.getKdcReq();
+        kdcReq.setKdcReqBody( kdcReqBody );
+        
         // Update the parent
         container.setParentTLV( tlv.getParent() );
-
-        // Store the Ticket in the container
-        Ticket ticket = ticketContainer.getTicket();
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.addAdditionalTicket( ticket );
-
-        container.setGrammarEndAllowed( true );
         
+        container.setGrammarEndAllowed( true );
+
         if ( IS_DEBUG )
         {
-            LOG.debug( "Added ticket:  {}", ticket );
+            LOG.debug( "KDC-REQ-BODY : {}", kdcReqBody );
         }
     }
 }

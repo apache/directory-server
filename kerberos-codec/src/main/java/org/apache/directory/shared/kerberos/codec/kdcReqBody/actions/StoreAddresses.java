@@ -99,6 +99,9 @@ public class StoreAddresses extends GrammarAction
         HostAddresses hostAddresses = hostAddressesContainer.getHostAddresses();
         kdcReqBody.setAddresses( hostAddresses );
         
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
         // Update the parent
         container.setParentTLV( tlv.getParent() );
         

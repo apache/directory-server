@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
+package org.apache.directory.shared.kerberos.codec.kdcReq.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,33 +26,33 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to add a Ticket
+ * The action used to add a PaData
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddTicket extends GrammarAction
+public class AddPaData extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AddTicket.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AddPaData.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /**
-     * Instantiates a new AddTicket action.
+     * Instantiates a new AddPaData action.
      */
-    public AddTicket()
+    public AddPaData()
     {
-        super( "KDC-REQ-BODY Add Ticket" );
+        super( "KDC-REQ Add PA-DATA" );
     }
 
 
@@ -61,9 +61,9 @@ public class AddTicket extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
+        KdcReqContainer kdcReqContainer = ( KdcReqContainer ) container;
 
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
+        TLV tlv = kdcReqContainer.getCurrentTLV();
 
         // The Length can't be null
         if ( tlv.getLength() == 0 ) 
@@ -74,43 +74,48 @@ public class AddTicket extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
 
-        // Now, let's decode the Ticket
-        Asn1Decoder ticketDecoder = new Asn1Decoder();
+        // Now, let's decode the PA-DATA
+        Asn1Decoder paDataDecoder = new Asn1Decoder();
         
-        TicketContainer ticketContainer = new TicketContainer();
-        ticketContainer.setStream( container.getStream() );
+        PaDataContainer paDataContainer = new PaDataContainer();
+        paDataContainer.setStream( container.getStream() );
 
-        // Compute the start position in the stream for the Ticket to decode : 
-        // We have to move back to the Ticket tag
+        // Compute the start position in the stream for the PA-DATA to decode : 
+        // We have to move back to the PA-DATA tag
         int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
         container.getStream().position( start );
 
-        // Decode the Ticket PDU
+        // Decode the PA-DATA PDU
         try
         {
-            ticketDecoder.decode( container.getStream(), ticketContainer );
+            paDataDecoder.decode( container.getStream(), paDataContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
         
+        // Update the parent
+        TLV parentTlv = tlv.getParent();
+        
+        while ( ( parentTlv != null ) && ( parentTlv.getExpectedLength() == 0 ) )
+        {
+            parentTlv = parentTlv.getParent();
+        }
+        
+        container.setParentTLV( parentTlv );
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
-        // Update the parent
-        container.setParentTLV( tlv.getParent() );
+        // Store the PData in the container
+        PaData paData = paDataContainer.getPaData();
+        KdcReq kdcReq = kdcReqContainer.getKdcReq();
+        kdcReq.addPaData( paData );
 
-        // Store the Ticket in the container
-        Ticket ticket = ticketContainer.getTicket();
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.addAdditionalTicket( ticket );
-
-        container.setGrammarEndAllowed( true );
-        
         if ( IS_DEBUG )
         {
-            LOG.debug( "Added ticket:  {}", ticket );
+            LOG.debug( "Added PA-DATA:  {}", paData );
         }
     }
 }

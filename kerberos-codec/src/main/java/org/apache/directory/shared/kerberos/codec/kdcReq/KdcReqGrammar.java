@@ -26,7 +26,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.kdcReq.actions.AddPaData;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.KdcReqInit;
+import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StoreKdcReqBody;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StoreMsgType;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StorePvno;
 import org.slf4j.Logger;
@@ -112,7 +114,7 @@ public final class KdcReqGrammar extends AbstractGrammar
             new StoreMsgType() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from msg-type value tp padata tag
+        // Transition from msg-type value to padata tag
         // --------------------------------------------------------------------------------------------
         // KDC-REQ         ::= SEQUENCE {
         //         ...
@@ -121,9 +123,55 @@ public final class KdcReqGrammar extends AbstractGrammar
             KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE, KdcReqStatesEnum.KDC_REQ_PA_DATA_TAG_STATE, KerberosConstants.KDC_REQ_PA_DATA_TAG,
             new CheckNotNullLength() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from msg-type value to KDC-REQ-BODY tag (pa-data is missing)
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ         ::= SEQUENCE {
+        //         ...
+        //         req-body        [4]
+        super.transitions[KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE.ordinal()][KerberosConstants.KDC_REQ_KDC_REQ_BODY_TAG] = new GrammarTransition(
+            KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE, KdcReqStatesEnum.KDC_REQ_KDC_REQ_BODY_STATE, KerberosConstants.KDC_REQ_KDC_REQ_BODY_TAG,
+            new CheckNotNullLength() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from padata tag to pa-data SEQ
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ         ::= SEQUENCE {
+        //         ...
+        //         padata          [3] SEQUENCE OF
+        super.transitions[KdcReqStatesEnum.KDC_REQ_PA_DATA_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KdcReqStatesEnum.KDC_REQ_PA_DATA_TAG_STATE, KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new CheckNotNullLength() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from pa-data SEQ to pa-data
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ         ::= SEQUENCE {
+        //         ...
+        //         padata          [3] SEQUENCE OF <PA-DATA>
+        super.transitions[KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE, KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new AddPaData() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from pa-data to KDC-REQ-BODY tag
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ         ::= SEQUENCE {
+        //         ...
+        //         req-body        [4]
+        super.transitions[KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE.ordinal()][KerberosConstants.KDC_REQ_KDC_REQ_BODY_TAG] = new GrammarTransition(
+            KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE, KdcReqStatesEnum.KDC_REQ_KDC_REQ_BODY_STATE, KerberosConstants.KDC_REQ_KDC_REQ_BODY_TAG,
+            new StoreKdcReqBody() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from KDC-REQ-BODY tag to KDC-REQ-BODY value
+        // --------------------------------------------------------------------------------------------
+        // KDC-REQ         ::= SEQUENCE {
+        //         ...
+        //         req-body        [4] KDC-REQ-BODY
+        super.transitions[KdcReqStatesEnum.KDC_REQ_KDC_REQ_BODY_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
+            KdcReqStatesEnum.KDC_REQ_KDC_REQ_BODY_STATE, KdcReqStatesEnum.LAST_KDC_REQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            new StoreKdcReqBody() );
     }
 
     /**
