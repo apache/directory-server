@@ -204,6 +204,44 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
 
+    /**
+     * Test for DIRSERVER-1581.
+     * Add an AT with DESC containing an ending space
+     */
+    @Test
+    public void testAddAttributeTypeDescWithEndingSpace() throws Exception
+    {
+        Attributes attrs = LdifUtils.createAttributes(
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid: 1.3.6.1.4.1.8104.1.1.37",
+            "m-name: versionNumber",
+            "m-description:: dmVyc2lvbk51bWJlciA=",
+            "m-equality: caseIgnoreMatch",
+            "m-substr: caseIgnoreSubstringsMatch",
+            "m-syntax: 1.3.6.1.4.1.1466.115.121.1.8",
+            "m-length: 0",
+            "m-singleValue: TRUE"
+         );
+
+        DN dn = getAttributeTypeContainer( "apachemeta" );
+        dn = dn.add( "m-oid=1.3.6.1.4.1.8104.1.1.37" );
+
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
+
+        // Addition
+        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+
+        // Post-checks
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
+        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "1.3.6.1.4.1.8104.1.1.37" ), "apachemeta" );
+        assertTrue( isOnDisk( dn ) );
+    }
+
+
     // ----------------------------------------------------------------------
     // Test Delete operation
     // ----------------------------------------------------------------------
