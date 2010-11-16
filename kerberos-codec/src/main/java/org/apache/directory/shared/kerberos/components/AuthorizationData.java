@@ -41,11 +41,12 @@ import org.slf4j.LoggerFactory;
 /**
  * A structure to hold the authorization data.
  * 
+ * <pre>
  * AuthorizationData      ::= SEQUENCE OF SEQUENCE {
  *               ad-type  [0] Int32,
  *               ad-data  [1] OCTET STRING
  * }
- *
+ *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AuthorizationData extends AbstractAsn1Object
@@ -105,7 +106,7 @@ public class AuthorizationData extends AbstractAsn1Object
 
     /**
      * Compute the AuthorizationData length
-     * 
+     * <pre>
      * 0x30 L1 AuthorizationData sequence
      *  |
      *  +-- 0x30 L2 The AD sequence
@@ -117,7 +118,7 @@ public class AuthorizationData extends AbstractAsn1Object
      *       +--> 0xA2 L4 adData tag
      *             |
      *             +--> 0x04 L<4-1 adData (OCTET STRING)
-     * 
+     * </pre>
      */
     @Override
     public int computeLength()

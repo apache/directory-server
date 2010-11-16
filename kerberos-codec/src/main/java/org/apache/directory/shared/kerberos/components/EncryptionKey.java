@@ -42,11 +42,12 @@ import org.slf4j.LoggerFactory;
  * the associated key type and key version number.
  * 
  * The ASN.1 description for this structure is :
+ * <pre>
  * EncryptionKey   ::= SEQUENCE {
  *       keytype         [0] Int32 -- actually encryption type --,
  *       keyvalue        [1] OCTET STRING
  * }
- * 
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class EncryptionKey extends AbstractAsn1Object

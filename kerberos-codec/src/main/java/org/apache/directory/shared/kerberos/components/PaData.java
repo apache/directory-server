@@ -38,13 +38,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Pre-Authentication data. Tha ASN.1 GRAMMAR IS :
- * 
+ * <pre>
  * PA-DATA         ::= SEQUENCE {
  *         -- NOTE: first tag is [1], not [0]
  *         padata-type     [1] Int32,
  *         padata-value    [2] OCTET STRING -- might be encoded AP-REQ
  * }
- * 
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class PaData extends AbstractAsn1Object
@@ -145,7 +145,7 @@ public class PaData extends AbstractAsn1Object
     
     /**
      * Compute the PreAuthenticationData length
-     * 
+     * <pre>
      * PreAuthenticationData :
      * 
      * 0x30 L1 PreAuthenticationData sequence
@@ -163,6 +163,7 @@ public class PaData extends AbstractAsn1Object
      *  and
      *  L2 = L2-1 + length(0x02) + length( L2-1) 
      *  L3 = L3-1 + length(0x04) + length( L3-1) 
+     *  </pre>
      */
     public int computeLength()
     {
@@ -191,7 +192,7 @@ public class PaData extends AbstractAsn1Object
 
     /**
      * Encode the PreAuthenticationData message to a PDU. 
-     * 
+     * <pre>
      * PreAuthenticationData :
      * 
      * 0x30 LL
@@ -199,7 +200,7 @@ public class PaData extends AbstractAsn1Object
      *     0x02 0x01 padata-type
      *   0xA2 LL 
      *     0x04 LL padata-value
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.

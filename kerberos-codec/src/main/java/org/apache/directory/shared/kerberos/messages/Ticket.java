@@ -46,7 +46,16 @@ import sun.security.krb5.internal.EncTicketPart;
 
 
 /**
- * Ticket message component as handed out by the ticket granting service.
+ * Ticket message component as handed out by the ticket granting service. It will store
+ * the object described by the ASN.1 grammar :
+ * <pre>
+ * Ticket          ::= [APPLICATION 1] SEQUENCE {
+ *         tkt-vno         [0] INTEGER (5),
+ *         realm           [1] Realm,
+ *         sname           [2] <PrincipalName>,
+ *         enc-part        [3] <EncryptedData> -- EncTicketPart
+ * }
+ * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -419,7 +428,7 @@ public class Ticket extends KerberosMessage
     
     /**
      * Compute the Ticket length
-     * 
+     * <pre>
      * Ticket :
      * 
      * 0x61 L1 Ticket [APPLICATION 1]
@@ -437,6 +446,7 @@ public class Ticket extends KerberosMessage
      *        +--> 0xA2 L5 sname (PrincipalName)
      *        |
      *        +--> 0xA3 L6 enc-part (EncryptedData)
+     * </pre>
      */
     public int computeLength()
     {
@@ -468,7 +478,7 @@ public class Ticket extends KerberosMessage
     
     /**
      * Encode the Ticket message to a PDU. 
-     * 
+     * <pre>
      * Ticket :
      * 
      * 0x61 LL
@@ -479,7 +489,7 @@ public class Ticket extends KerberosMessage
      *       sname (PrincipalName)
      *     0xA3 LL
      *       enc-part (EncryptedData)
-     * 
+     * </pre>
      * @return The constructed PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

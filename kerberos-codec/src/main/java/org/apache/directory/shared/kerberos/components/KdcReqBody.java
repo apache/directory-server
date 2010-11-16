@@ -393,7 +393,7 @@ public class KdcReqBody
     
     /**
      * Compute the KdcReqBody length
-     * 
+     * <pre>
      * KdcReqBody :
      * 
      * 0x30 L1 KdcReqBody sequence
@@ -457,7 +457,7 @@ public class KdcReqBody
      *              +--> 0x61 L13-1-2 Ticket
      *              |
      *              :
-     *        
+     * </pre>       
      */
     public int computeLength()
     {

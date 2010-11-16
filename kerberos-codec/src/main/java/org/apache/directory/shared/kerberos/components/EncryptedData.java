@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A structure storing an encrypted data element. The ASN.1 grammar is :
- * 
+ * <pre>
  * EncryptedData   ::= SEQUENCE {
  *        etype   [0] Int32 -- EncryptionType --,
  *        kvno    [1] UInt32 OPTIONAL,
  *        cipher  [2] OCTET STRING -- ciphertext
  * }
- *
+ *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class EncryptedData extends AbstractAsn1Object
@@ -188,7 +188,7 @@ public class EncryptedData extends AbstractAsn1Object
 
     /**
      * Compute the EncryptedData length
-     * 
+     * <pre>
      * EncryptedData :
      * 
      * 0x30 L1 EncryptedData sequence
@@ -204,6 +204,7 @@ public class EncryptedData extends AbstractAsn1Object
      *  +--> 0xA2 L4 cipher tag
      *        |
      *        +--> 0x04 L4-1 cipher (OCTET STRING)
+     * </pre>
      */
     public int computeLength()
     {
@@ -246,7 +247,7 @@ public class EncryptedData extends AbstractAsn1Object
 
     /**
      * Encode the EncryptedData message to a PDU. 
-     * 
+     * <pre>
      * EncryptedData :
      * 
      * 0x30 LL
@@ -256,7 +257,7 @@ public class EncryptedData extends AbstractAsn1Object
      *     0x02 0x01 kvno (integer)] (optional)
      *   0xA2 LL 
      *     0x04 LL cipher (OCTET STRING)
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.

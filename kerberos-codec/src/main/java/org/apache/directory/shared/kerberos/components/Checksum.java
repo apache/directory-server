@@ -41,11 +41,12 @@ import org.slf4j.LoggerFactory;
  * The Checksum structure is used to store a checksum associated to a type.
  * 
  * The ASN.1 grammar is :
+ * <pre>
  * Checksum        ::= SEQUENCE {
  *       cksumtype       [0] Int32,
  *       checksum        [1] OCTET STRING
  * }
- * 
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Checksum extends AbstractAsn1Object
@@ -171,7 +172,7 @@ public class Checksum extends AbstractAsn1Object
 
     /**
      * Compute the checksum length
-     * 
+     * <pre>
      * Checksum :
      * 
      * 0x30 L1 checksum sequence
@@ -189,6 +190,7 @@ public class Checksum extends AbstractAsn1Object
      *  and
      *  L2 = L2-1 + length(0x02) + length( L2-1) 
      *  L3 = L3-1 + length(0x04) + length( L3-1) 
+     *  </pre>
      */
     public int computeLength()
     {
@@ -219,6 +221,7 @@ public class Checksum extends AbstractAsn1Object
     /**
      * Encode the Checksum message to a PDU. 
      * 
+     * <pre>
      * Checksum :
      * 
      * 0x30 LL
@@ -226,7 +229,7 @@ public class Checksum extends AbstractAsn1Object
      *     0x02 0x01 cksumtype
      *   0xA1 LL 
      *     0x04 LL Checksum
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.

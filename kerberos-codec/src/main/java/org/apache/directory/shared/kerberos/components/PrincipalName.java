@@ -109,12 +109,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A principal Name, composed of a type and N names.
- * 
+ * <pre>
  * PrincipalName   ::= SEQUENCE {
  *        name-type       [0] Int32,
  *        name-string     [1] SEQUENCE OF KerberosString
  * }
- *
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class PrincipalName extends AbstractAsn1Object
@@ -287,7 +287,7 @@ public class PrincipalName extends AbstractAsn1Object
 
     /**
      * Compute the PrincipalName length
-     * 
+     * <pre>
      * PrincipalName :
      * 
      * 0x30 L1 PrincipalName sequence
@@ -307,6 +307,7 @@ public class PrincipalName extends AbstractAsn1Object
      *              ...
      *              |
      *              +--> 0x1B L4[n] value (KerberosString)
+     * </pre>
      */
     public int computeLength()
     {
@@ -352,7 +353,7 @@ public class PrincipalName extends AbstractAsn1Object
 
     /**
      * Encode the PrincipalName message to a PDU. 
-     * 
+     * <pre>
      * PrincipalName :
      * 
      * 0x30 LL
@@ -364,7 +365,7 @@ public class PrincipalName extends AbstractAsn1Object
      *       0x1B LL name-string[2]
      *       ...
      *       0x1B LL name-string[n]
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.

@@ -147,7 +147,7 @@ public abstract class KdcReq
     
     /**
      * Compute the KDC-REQ length
-     * 
+     * <pre>
      * KDC-REQ :
      * 
      * 0x30 L1 KDC-REQ sequence
@@ -167,7 +167,7 @@ public abstract class KdcReq
      *  +--> 0xA4 L3 req-body tag
      *  |     |
      *  |     +--> 0x30 L3-1 req-body (KDC-REQ-BODY)
-     *        
+     * </pre>       
      */
     public int computeLength()
     {

@@ -180,7 +180,7 @@ public class HostAddresses extends AbstractAsn1Object
 
     /**
      * Compute the hostAddresses length
-     * 
+     * <pre>
      * HostAddresses :
      * 
      * 0x30 L1 hostAddresses sequence of HostAddresses
@@ -194,6 +194,7 @@ public class HostAddresses extends AbstractAsn1Object
      *  +--> 0x30 L2[n] Hostaddress[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
+     * </pre>
      */
     public int computeLength()
     {
@@ -215,7 +216,7 @@ public class HostAddresses extends AbstractAsn1Object
 
     /**
      * Encode the HostAddress message to a PDU. 
-     * 
+     * <pre>
      * HostAddress :
      * 
      * 0x30 LL
@@ -223,7 +224,7 @@ public class HostAddresses extends AbstractAsn1Object
      *   0x30 LL hostaddress[1]
      *   ... 
      *   0x30 LL hostaddress[1] 
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.

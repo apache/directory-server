@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
  * Provides host address information.
  * 
  * The ASN.1 grammaor for this structure is :
- * 
+ * <pre>
  * HostAddress     ::= SEQUENCE  {
  *        addr-type       [0] Int32,
  *        address         [1] OCTET STRING
  * }
- * 
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class HostAddress extends AbstractAsn1Object
@@ -206,7 +206,7 @@ public class HostAddress extends AbstractAsn1Object
 
     /**
      * Compute the host address length
-     * 
+     * <pre>
      * HostAddress :
      * 
      * 0x30 L1 hostAddress sequence
@@ -224,6 +224,7 @@ public class HostAddress extends AbstractAsn1Object
      *  and
      *  L2 = L2-1 + length(0x02) + length( L2-1) 
      *  L3 = L3-1 + length(0x04) + length( L3-1) 
+     *  </pre>
      */
     public int computeLength()
     {
@@ -252,7 +253,7 @@ public class HostAddress extends AbstractAsn1Object
 
     /**
      * Encode the HostAddress message to a PDU. 
-     * 
+     * <pre>
      * HostAddress :
      * 
      * 0x30 LL
@@ -260,7 +261,7 @@ public class HostAddress extends AbstractAsn1Object
      *     0x02 0x01 addr-type
      *   0xA1 LL 
      *     0x04 LL address
-     * 
+     * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
      * @return The constructed PDU.
