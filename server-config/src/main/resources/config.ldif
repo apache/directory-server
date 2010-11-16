@@ -20,7 +20,6 @@ ads-dsmaxpdusize: 2000000
 ads-dsallowanonymousaccess: true
 ads-dsaccesscontrolenabled: false
 ads-dsdenormalizeopattrsenabled: false
-ads-dsWorkingDirectory: /tmp
 ads-servers: changepasswordserver
 ads-servers: dns
 ads-servers: httpserver
