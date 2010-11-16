@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.shared.ldap.name.DN;
@@ -40,7 +41,7 @@ public abstract class PartitionBean extends AdsBaseBean
     private boolean partitionSyncOnWrite;
 
     /** The list of declared indexes */
-    private List<IndexBean> indexes;
+    private List<IndexBean> indexes = new ArrayList<IndexBean>();
     
     /** The partition's ContextEntry */
     private String contextEntry;
