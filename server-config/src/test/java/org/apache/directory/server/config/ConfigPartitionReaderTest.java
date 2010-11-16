@@ -31,9 +31,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -56,11 +54,6 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class ConfigPartitionReaderTest
 {
-
-    private static DirectoryService dirService;
-
-    private static LdapServer server;
-
     private static SchemaManager schemaManager;
 
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
@@ -76,7 +69,7 @@ public class ConfigPartitionReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
@@ -107,22 +100,23 @@ public class ConfigPartitionReaderTest
     public void testReadFullConfig() throws Exception
     {
         File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
-        
+
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
         configPartition.setId( "config" );
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
-        
+
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
-        
+
         ConfigBean configBean = cpReader.readConfig( "ou=config" );
-        
+
         assertNotNull( configBean );
-        DirectoryServiceBean directoryServiceBean = (DirectoryServiceBean)configBean.getDirectoryServiceBeans().get( 0 );
+        DirectoryServiceBean directoryServiceBean = ( DirectoryServiceBean ) configBean.getDirectoryServiceBeans().get(
+            0 );
         assertNotNull( directoryServiceBean );
 
         configPartition.destroy();

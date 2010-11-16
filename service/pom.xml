@@ -35,20 +35,20 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-annotations</artifactId>
-      <groupId>org.apache.directory.server</groupId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-api</artifactId>
-      <groupId>org.apache.directory.server</groupId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <artifactId>server-config</artifactId>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-config-builder</artifactId>
       <version>${project.version}</version>
     </dependency>
 

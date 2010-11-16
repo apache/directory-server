@@ -128,6 +128,7 @@
     <!-- Tools are broken and need to be fixed -->
     <!--<module>server-tools</module>-->
     <module>server-config</module>
+    <module>server-config-builder</module>
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
     <module>server-jndi</module>
@@ -440,7 +441,13 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>server-config</artifactId>
+        <artifactId>apacheds-server-config</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-config-builder</artifactId>
         <version>${project.version}</version>
       </dependency>
       

@@ -77,7 +77,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>${project.groupId}</groupId>
-                  <artifactId>server-config</artifactId>
+                  <artifactId>apacheds-server-config</artifactId>
                   <version>${project.version}</version>
                 </artifactItem>
               </artifactItems>
