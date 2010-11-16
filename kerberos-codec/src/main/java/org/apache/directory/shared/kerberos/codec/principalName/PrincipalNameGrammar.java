@@ -27,8 +27,8 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameInit;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameString;
-import org.apache.directory.shared.kerberos.codec.principalName.actions.PrincipalNameNameType;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.StoreNameString;
+import org.apache.directory.shared.kerberos.codec.principalName.actions.StoreNameType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
         //         name-type       [0] Int32,
         super.transitions[PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new PrincipalNameNameType() );
+            new StoreNameType() );
         
         
         // --------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar
         //         name-string     [1] SEQUENCE OF KerberosString
         super.transitions[PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
             PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, UniversalTag.GENERAL_STRING.getValue(),
-            new PrincipalNameNameString() );
+            new StoreNameString() );
     }
 
     /**

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
+package org.apache.directory.shared.kerberos.codec.checksum.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,33 +26,33 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
-import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
+import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the AuthorizationData's ad-data
+ * The action used to store the Checksum's 'checksum' value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AuthorizationDataAdData extends GrammarAction
+public class StoreChecksum extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AuthorizationDataAdData.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreChecksum.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new AuthorizationDataAdData action.
+     * Instantiates a new ChecksumData action.
      */
-    public AuthorizationDataAdData()
+    public StoreChecksum()
     {
-        super( "AuthorizationData ad-data" );
+        super( "Checksum's 'checksum' value" );
     }
 
 
@@ -61,9 +61,9 @@ public class AuthorizationDataAdData extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        AuthorizationDataContainer authDataContainer = ( AuthorizationDataContainer ) container;
+        ChecksumContainer checksumContainer = ( ChecksumContainer ) container;
 
-        TLV tlv = authDataContainer.getCurrentTLV();
+        TLV tlv = checksumContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 ) 
@@ -85,14 +85,14 @@ public class AuthorizationDataAdData extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        AuthorizationData authData = authDataContainer.getAuthorizationData();
-        authData.setCurrentAdData( value.getData() );
+        Checksum checksum = checksumContainer.getChecksum();
+        checksum.setChecksumValue( value.getData() );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "ad-data : {}", StringTools.dumpBytes( value.getData() ) );
+            LOG.debug( "checksum value : {}", StringTools.dumpBytes( value.getData() ) );
         }
         
-        authDataContainer.setGrammarEndAllowed( true );
+        checksumContainer.setGrammarEndAllowed( true );
     }
 }

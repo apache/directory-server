@@ -80,10 +80,8 @@ public class AddPaData extends GrammarAction
         PaDataContainer paDataContainer = new PaDataContainer();
         paDataContainer.setStream( container.getStream() );
 
-        // Compute the start position in the stream for the PA-DATA to decode : 
         // We have to move back to the PA-DATA tag
-        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
-        container.getStream().position( start );
+        container.rewind( tlv );
 
         // Decode the PA-DATA PDU
         try

@@ -26,11 +26,11 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketEncPart;
+import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreEncPart;
 import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketInit;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketRealm;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketSName;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketTktVno;
+import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreRealm;
+import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreSName;
+import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreTktVno;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +103,7 @@ public final class TicketGrammar extends AbstractGrammar
         //         tkt-vno         [0] INTEGER (5),
         super.transitions[TicketStatesEnum.TICKET_VNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             TicketStatesEnum.TICKET_VNO_TAG_STATE, TicketStatesEnum.TICKET_VNO_STATE, UniversalTag.INTEGER.getValue(),
-            new TicketTktVno() );
+            new StoreTktVno() );
 
         
         // --------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public final class TicketGrammar extends AbstractGrammar
         //         realm           [1] Realm,
         super.transitions[TicketStatesEnum.TICKET_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
             TicketStatesEnum.TICKET_REALM_TAG_STATE, TicketStatesEnum.TICKET_REALM_STATE, UniversalTag.GENERAL_STRING.getValue(),
-            new TicketRealm() );
+            new StoreRealm() );
 
         
         // --------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ public final class TicketGrammar extends AbstractGrammar
         //         sname           [2] 
         super.transitions[TicketStatesEnum.TICKET_REALM_STATE.ordinal()][KerberosConstants.TICKET_SNAME_TAG] = new GrammarTransition(
             TicketStatesEnum.TICKET_REALM_STATE, TicketStatesEnum.TICKET_SNAME_TAG_STATE, KerberosConstants.TICKET_SNAME_TAG,
-            new TicketSName() );
+            new StoreSName() );
 
 
         // --------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ public final class TicketGrammar extends AbstractGrammar
         // 
         super.transitions[TicketStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][KerberosConstants.TICKET_ENC_PART_TAG] = new GrammarTransition(
             TicketStatesEnum.TICKET_SNAME_TAG_STATE, TicketStatesEnum.TICKET_ENC_PART_TAG_STATE, KerberosConstants.TICKET_ENC_PART_TAG,
-            new TicketEncPart() );
+            new StoreEncPart() );
     }
 
 

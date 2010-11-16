@@ -21,26 +21,27 @@ package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket EncodedPart
+ * The action used to set the ticket VNO
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketEncPart extends GrammarAction
+public class StoreTktVno extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -50,11 +51,11 @@ public class TicketEncPart extends GrammarAction
 
 
     /**
-     * Instantiates a new TicketEncPart action.
+     * Instantiates a new TicketTktVno action.
      */
-    public TicketEncPart()
+    public StoreTktVno()
     {
-        super( "Kerberos Ticket EncodedPart" );
+        super( "Kerberos Ticket tktvno value" );
     }
 
 
@@ -76,35 +77,28 @@ public class TicketEncPart extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
-        
-        EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
-        encryptedDataContainer.setStream( container.getStream() );
+        // The value should be an integer an equal to 5
+        Value value = tlv.getValue();
+        Ticket ticket = ticketContainer.getTicket();
 
-        // Decode the Ticket PDU
         try
         {
-            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
+            int tktvno = IntegerDecoder.parse( value, 5, 5 );
+
+            ticket.setTktVno( tktvno );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "TktVno : " + tktvno );
+            }
         }
-        catch ( DecoderException de )
+        catch ( IntegerDecoderException ide )
         {
-            throw de;
+            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+                .getLocalizedMessage() ) );
+
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( ide.getMessage() );
         }
-
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        Ticket ticket = ticketContainer.getTicket();
-        ticket.setEncPart( encryptedData );
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "EncryptedData : " + encryptedData );
-        }
-
-        // Update the TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-        //container.setParentTLV( tlv.getParent() );
-
-        container.setGrammarEndAllowed( true );
     }
 }

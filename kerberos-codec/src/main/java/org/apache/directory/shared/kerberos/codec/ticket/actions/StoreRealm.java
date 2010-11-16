@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
+package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,36 +25,35 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart Kvno
+ * The action used to set the ticket Realm
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedDataKvno extends GrammarAction
+public class StoreRealm extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( EncryptedDataKvno.class );
+    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new EncryptedPartKvno action.
+     * Instantiates a new TicketRealm action.
      */
-    public EncryptedDataKvno()
+    public StoreRealm()
     {
-        super( "EncryptedPart kvno" );
+        super( "Kerberos Ticket realm value" );
     }
 
 
@@ -63,9 +62,9 @@ public class EncryptedDataKvno extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
+        TicketContainer ticketContainer = ( TicketContainer ) container;
 
-        TLV tlv = encryptedDataContainer.getCurrentTLV();
+        TLV tlv = ticketContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -76,27 +75,16 @@ public class EncryptedDataKvno extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
+        // The value is the realm
         Value value = tlv.getValue();
+        String realm = StringTools.utf8ToString( value.getData() );
+        Ticket ticket = ticketContainer.getTicket();
+
+        ticket.setRealm( realm );
         
-        try
+        if ( IS_DEBUG )
         {
-            int kvno = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
-
-            EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-            encryptedData.setKvno( kvno );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "kvno : {}", kvno );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            LOG.debug( "Realm : " + realm );
         }
     }
 }

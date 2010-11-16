@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.ticket.actions;
+package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,23 +25,21 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket VNO
+ * The action used to add the HostAddress address value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketTktVno extends GrammarAction
+public class StoreAddress extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -51,11 +49,11 @@ public class TicketTktVno extends GrammarAction
 
 
     /**
-     * Instantiates a new TicketTktVno action.
+     * Instantiates a new HostAddressAddress action.
      */
-    public TicketTktVno()
+    public StoreAddress()
     {
-        super( "Kerberos Ticket tktvno value" );
+        super( "Store the HostAddress' address" );
     }
 
 
@@ -64,9 +62,9 @@ public class TicketTktVno extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        TicketContainer ticketContainer = ( TicketContainer ) container;
+        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
 
-        TLV tlv = ticketContainer.getCurrentTLV();
+        TLV tlv = hostAddressContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -77,28 +75,17 @@ public class TicketTktVno extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // The value should be an integer an equal to 5
+        // Get the address value now
         Value value = tlv.getValue();
-        Ticket ticket = ticketContainer.getTicket();
+        
+        HostAddress hostAddressData = hostAddressContainer.getHostAddress();
+        
+        hostAddressData.setAddress( value.getData() );
+        hostAddressContainer.setGrammarEndAllowed( true );
 
-        try
+        if ( IS_DEBUG )
         {
-            int tktvno = IntegerDecoder.parse( value, 5, 5 );
-
-            ticket.setTktVno( tktvno );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "TktVno : " + tktvno );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            LOG.debug( "address : {}" + StringTools.dumpBytes( value.getData() ) );
         }
     }
 }

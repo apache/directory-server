@@ -25,8 +25,6 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
@@ -36,25 +34,25 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the AuthorizationData adType
+ * The action used to store the AuthorizationData's ad-data
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AuthorizationDataAdType extends GrammarAction
+public class StoreAdData extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AuthorizationDataAdType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreAdData.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new AuthorizationDataAdType action.
+     * Instantiates a new AuthorizationDataAdData action.
      */
-    public AuthorizationDataAdType()
+    public StoreAdData()
     {
-        super( "AuthorizationData adType" );
+        super( "AuthorizationData ad-data" );
     }
 
 
@@ -68,7 +66,18 @@ public class AuthorizationDataAdType extends GrammarAction
         TLV tlv = authDataContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        if ( tlv.getLength() == 0 ) 
+        {
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
+
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+        }
+        
+        Value value = tlv.getValue();
+        
+        // The encrypted data should not be null
+        if ( value.getData() == null ) 
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -77,31 +86,13 @@ public class AuthorizationDataAdType extends GrammarAction
         }
         
         AuthorizationData authData = authDataContainer.getAuthorizationData();
-
-        // Creates a new AD
-        authData.createNewAD();
+        authData.setCurrentAdData( value.getData() );
         
-        // The AuthorizationData data is an integer
-        Value value = tlv.getValue();
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "ad-data : {}", StringTools.dumpBytes( value.getData() ) );
+        }
         
-        try
-        {
-            int adType = IntegerDecoder.parse( value );
-
-            authData.setCurrentAdType( adType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "adType : " + adType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        authDataContainer.setGrammarEndAllowed( true );
     }
 }

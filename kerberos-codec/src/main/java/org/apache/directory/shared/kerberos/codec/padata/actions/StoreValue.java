@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.checksum.actions;
+package org.apache.directory.shared.kerberos.codec.padata.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,33 +26,33 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
-import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the Checksum's 'checksum' value
+ * The action used to store the PaData's padata-value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChecksumValue extends GrammarAction
+public class StoreValue extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ChecksumValue.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreValue.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new ChecksumData action.
+     * Instantiates a new PaDataValue action.
      */
-    public ChecksumValue()
+    public StoreValue()
     {
-        super( "Checksum's 'checksum' value" );
+        super( "PaData's padata-value" );
     }
 
 
@@ -61,9 +61,9 @@ public class ChecksumValue extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        ChecksumContainer checksumContainer = ( ChecksumContainer ) container;
+        PaDataContainer paDataContainer = ( PaDataContainer ) container;
 
-        TLV tlv = checksumContainer.getCurrentTLV();
+        TLV tlv = paDataContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 ) 
@@ -85,14 +85,14 @@ public class ChecksumValue extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        Checksum checksum = checksumContainer.getChecksum();
-        checksum.setChecksumValue( value.getData() );
+        PaData paData = paDataContainer.getPaData();
+        paData.setPaDataValue( value.getData() );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "checksum value : {}", StringTools.dumpBytes( value.getData() ) );
+            LOG.debug( "padata value : {}", StringTools.dumpBytes( value.getData() ) );
         }
         
-        checksumContainer.setGrammarEndAllowed( true );
+        paDataContainer.setGrammarEndAllowed( true );
     }
 }

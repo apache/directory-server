@@ -26,8 +26,8 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.authorizationData.actions.AuthorizationDataAdData;
-import org.apache.directory.shared.kerberos.codec.authorizationData.actions.AuthorizationDataAdType;
+import org.apache.directory.shared.kerberos.codec.authorizationData.actions.StoreAdData;
+import org.apache.directory.shared.kerberos.codec.authorizationData.actions.StoreAdType;
 import org.apache.directory.shared.kerberos.codec.authorizationData.actions.AuthorizationDataInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         //         ad-type     [0] Int32,
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new AuthorizationDataAdType() );
+            new StoreAdType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from ad-type value to ad-data tag
@@ -117,7 +117,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
         //         ad-data     [1] (OCTET STRING)
         super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE, AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new AuthorizationDataAdData() );
+            new StoreAdData() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from ad-data value to SEQUENCE

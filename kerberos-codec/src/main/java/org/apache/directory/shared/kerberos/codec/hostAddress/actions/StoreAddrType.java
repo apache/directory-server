@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.principalName.actions;
+package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -29,20 +29,20 @@ import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
+import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the PrincipalName type
+ * The action used to initialize the HostAddress object
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PrincipalNameNameType extends GrammarAction
+public class StoreAddrType extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -52,11 +52,11 @@ public class PrincipalNameNameType extends GrammarAction
 
 
     /**
-     * Instantiates a new PrincipalNameInit action.
+     * Instantiates a new HostAddressInit action.
      */
-    public PrincipalNameNameType()
+    public StoreAddrType()
     {
-        super( "Store the PrincipalName type" );
+        super( "Creates a HostAddress instance" );
     }
 
 
@@ -65,9 +65,9 @@ public class PrincipalNameNameType extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
+        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
 
-        TLV tlv = principalNameContainer.getCurrentTLV();
+        TLV tlv = hostAddressContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -78,22 +78,21 @@ public class PrincipalNameNameType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Get the principalName
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
-        
+        // Get the address type now
         Value value = tlv.getValue();
-        PrincipalNameType principalNameType = null;
         
         try
         {
-            int nameType = IntegerDecoder.parse( value, PrincipalNameType.FIRST_NAME_TYPE.getValue(), PrincipalNameType.LAST_NAME_TYPE.getValue() );
-            principalNameType = PrincipalNameType.getTypeByOrdinal( nameType );
+            int addrType = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+            HostAddrType hostAddrType = HostAddrType.getTypeByOrdinal( addrType );
 
-            principalName.setNameType( principalNameType );
+            HostAddress hostAddressData = hostAddressContainer.getHostAddress();
+            
+            hostAddressData.setAddrType( hostAddrType );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "name-type : " + nameType );
+                LOG.debug( "addr-type : {}", hostAddrType );
             }
         }
         catch ( IntegerDecoderException ide )
@@ -103,11 +102,6 @@ public class PrincipalNameNameType extends GrammarAction
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( ide.getMessage() );
-        }
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "PrincipalName type : {}", principalNameType );
         }
     }
 }

@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.shared.kerberos.codec.padata.actions;
+package org.apache.directory.shared.kerberos.codec.checksum.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -29,45 +29,44 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
-import org.apache.directory.shared.kerberos.codec.types.PaDataType;
-import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
+import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Sets the PaData's data type.
+ * Sets the Checksum's type.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PaDataDataType extends GrammarAction
+public class StoreCksumType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( PaDataDataType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreCksumType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-
     /**
-     * Creates a new instance of PaDataDataType.
+     * Creates a new instance of ChecksumReadType.
      */
-    public PaDataDataType()
+    public StoreCksumType()
     {
-        super( "PaDataData's padata-type" );
+        super( "Checksum cksumtype" );
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        PaDataContainer paDataContainer = ( PaDataContainer ) container;
+        ChecksumContainer checksumContainer = ( ChecksumContainer ) container;
 
-        TLV tlv = paDataContainer.getCurrentTLV();
+        TLV tlv = checksumContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -77,20 +76,20 @@ public class PaDataDataType extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-
-        PaData paData = paDataContainer.getPaData();
-        // The PaData's type is an integer
+        
+        Checksum checksum = checksumContainer.getChecksum();
+        // The Checksum's type is an integer
         Value value = tlv.getValue();
-
+        
         try
         {
-            int paDataType = IntegerDecoder.parse( value );
+            int cksumType = IntegerDecoder.parse( value );
 
-            paData.setPaDataType( PaDataType.getTypeByValue( paDataType ) );
+            checksum.setChecksumType( ChecksumType.getTypeByValue( cksumType ) );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "padata-type : {}", paDataType );
+                LOG.debug( "cksumType : " + cksumType );
             }
         }
         catch ( IntegerDecoderException ide )
@@ -101,5 +100,7 @@ public class PaDataDataType extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( ide.getMessage() );
         }
+
     }
+
 }

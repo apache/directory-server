@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
+package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,33 +26,35 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.KerberosUtils;
+import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart cipher
+ * The action used to store the PrincipalName string
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedDataCipher extends GrammarAction
+public class StoreNameString extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( EncryptedDataCipher.class );
+    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new EncryptedPartKvno action.
+     * Instantiates a new PrincipalNameInit action.
      */
-    public EncryptedDataCipher()
+    public StoreNameString()
     {
-        super( "EncryptedPart cipher" );
+        super( "Store the PrincipalName string" );
     }
 
 
@@ -61,38 +63,43 @@ public class EncryptedDataCipher extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
+        PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
 
-        TLV tlv = encryptedDataContainer.getCurrentTLV();
+        TLV tlv = principalNameContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 ) 
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
+        
+        // Get the principalName
+        PrincipalName principalName = principalNameContainer.getPrincipalName();
         
         Value value = tlv.getValue();
         
-        // The encrypted data should not be null
-        if ( value.getData() == null ) 
+        // The PrincipalName must be pure ASCII witout any control character
+        if ( KerberosUtils.isKerberosString( value.getData() ) )
+        {
+            String nameString = StringTools.utf8ToString( value.getData() );
+    
+            principalName.addName( nameString );
+            principalNameContainer.setGrammarEndAllowed( true );
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "PrincipalName String : {}", nameString );
+            }
+        }
+        else
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
-
+    
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        encryptedData.setCipher( value.getData() );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "cipher : {}", StringTools.dumpBytes( value.getData() ) );
-        }
-        
-        encryptedDataContainer.setGrammarEndAllowed( true );
     }
 }

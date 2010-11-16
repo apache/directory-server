@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
+package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -28,34 +28,33 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the EncryptedPart EType
+ * The action used to store the AuthorizationData adType
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptedDataEType extends GrammarAction
+public class StoreAdType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( EncryptedDataEType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreAdType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new EncryptedPartEType action.
+     * Instantiates a new AuthorizationDataAdType action.
      */
-    public EncryptedDataEType()
+    public StoreAdType()
     {
-        super( "EncryptedPart Etype" );
+        super( "AuthorizationData adType" );
     }
 
 
@@ -64,9 +63,9 @@ public class EncryptedDataEType extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
+        AuthorizationDataContainer authDataContainer = ( AuthorizationDataContainer ) container;
 
-        TLV tlv = encryptedDataContainer.getCurrentTLV();
+        TLV tlv = authDataContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -77,22 +76,23 @@ public class EncryptedDataEType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // The encyptionType is an integer
-        Value value = tlv.getValue();
+        AuthorizationData authData = authDataContainer.getAuthorizationData();
+
+        // Creates a new AD
+        authData.createNewAD();
         
-        EncryptionType encryptionType = null;
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+        // The AuthorizationData data is an integer
+        Value value = tlv.getValue();
         
         try
         {
-            int eType = IntegerDecoder.parse( value );
-            encryptionType = EncryptionType.getTypeByValue( eType );
+            int adType = IntegerDecoder.parse( value );
 
-            encryptedData.setEType( encryptionType );
+            authData.setCurrentAdType( adType );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "etype : " + encryptionType );
+                LOG.debug( "adType : " + adType );
             }
         }
         catch ( IntegerDecoderException ide )

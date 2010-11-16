@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.padata.actions;
+package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,34 +25,38 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
-import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the PaData's padata-value
+ * The action used to store the PrincipalName type
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PaDataValue extends GrammarAction
+public class StoreNameType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( PaDataValue.class );
+    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new PaDataValue action.
+     * Instantiates a new PrincipalNameInit action.
      */
-    public PaDataValue()
+    public StoreNameType()
     {
-        super( "PaData's padata-value" );
+        super( "Store the PrincipalName type" );
     }
 
 
@@ -61,38 +65,49 @@ public class PaDataValue extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        PaDataContainer paDataContainer = ( PaDataContainer ) container;
+        PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
 
-        TLV tlv = paDataContainer.getCurrentTLV();
+        TLV tlv = principalNameContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 ) 
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
+        
+        // Get the principalName
+        PrincipalName principalName = principalNameContainer.getPrincipalName();
         
         Value value = tlv.getValue();
+        PrincipalNameType principalNameType = null;
         
-        // The encrypted data should not be null
-        if ( value.getData() == null ) 
+        try
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            int nameType = IntegerDecoder.parse( value, PrincipalNameType.FIRST_NAME_TYPE.getValue(), PrincipalNameType.LAST_NAME_TYPE.getValue() );
+            principalNameType = PrincipalNameType.getTypeByOrdinal( nameType );
+
+            principalName.setNameType( principalNameType );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "name-type : " + nameType );
+            }
+        }
+        catch ( IntegerDecoderException ide )
+        {
+            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+                .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( ide.getMessage() );
         }
-        
-        PaData paData = paDataContainer.getPaData();
-        paData.setPaDataValue( value.getData() );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "padata value : {}", StringTools.dumpBytes( value.getData() ) );
+            LOG.debug( "PrincipalName type : {}", principalNameType );
         }
-        
-        paDataContainer.setGrammarEndAllowed( true );
     }
 }

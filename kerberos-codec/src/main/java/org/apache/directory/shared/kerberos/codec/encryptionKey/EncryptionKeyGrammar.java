@@ -27,8 +27,8 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.actions.EncryptionKeyInit;
-import org.apache.directory.shared.kerberos.codec.encryptionKey.actions.EncryptionKeyKeyType;
-import org.apache.directory.shared.kerberos.codec.encryptionKey.actions.EncryptionKeyKeyValue;
+import org.apache.directory.shared.kerberos.codec.encryptionKey.actions.StoreKeyType;
+import org.apache.directory.shared.kerberos.codec.encryptionKey.actions.StoreKeyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         //       keytype     [0] Int32
         super.transitions[EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE, EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new EncryptionKeyKeyType() );
+            new StoreKeyType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from key-type to key-value tag
@@ -108,7 +108,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         //          keyvalue    [2] OCTET STRING
         super.transitions[EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE, EncryptionKeyStatesEnum.ENCKEY_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new EncryptionKeyKeyValue() );
+            new StoreKeyValue() );
     }
 
 

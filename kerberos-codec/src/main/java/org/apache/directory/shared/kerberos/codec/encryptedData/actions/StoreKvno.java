@@ -17,44 +17,44 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.ticket.actions;
+package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket SName
+ * The action used to store the EncryptedPart Kvno
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketSName extends GrammarAction
+public class StoreKvno extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreKvno.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new TicketSName action.
+     * Instantiates a new EncryptedPartKvno action.
      */
-    public TicketSName()
+    public StoreKvno()
     {
-        super( "Kerberos Ticket principalName" );
+        super( "EncryptedPart kvno" );
     }
 
 
@@ -63,9 +63,9 @@ public class TicketSName extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        TicketContainer ticketContainer = ( TicketContainer ) container;
+        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
 
-        TLV tlv = ticketContainer.getCurrentTLV();
+        TLV tlv = encryptedDataContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -76,35 +76,27 @@ public class TicketSName extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
+        Value value = tlv.getValue();
         
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
-
-        // Decode the Ticket PDU
         try
         {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
+            int kvno = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+
+            EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+            encryptedData.setKvno( kvno );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "kvno : {}", kvno );
+            }
         }
-        catch ( DecoderException de )
+        catch ( IntegerDecoderException ide )
         {
-            throw de;
-        }
+            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+                .getLocalizedMessage() ) );
 
-        // Store the Principal name in the Ticket
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
-        Ticket ticket = ticketContainer.getTicket();
-        ticket.setSName( principalName );
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-
-        // Update the parent
-        container.setParentTLV( tlv.getParent() );
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "PrincipalName : " + principalName );
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( ide.getMessage() );
         }
     }
 }

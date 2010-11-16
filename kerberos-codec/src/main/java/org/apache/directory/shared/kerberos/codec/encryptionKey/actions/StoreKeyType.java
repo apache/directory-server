@@ -42,10 +42,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncryptionKeyKeyType extends GrammarAction
+public class StoreKeyType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( EncryptionKeyKeyType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreKeyType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -54,7 +54,7 @@ public class EncryptionKeyKeyType extends GrammarAction
     /**
      * Creates a new instance of EncryptionKeyKeyType.
      */
-    public EncryptionKeyKeyType()
+    public StoreKeyType()
     {
         super( "EncryptionKey's keytype" );
     }

@@ -80,10 +80,8 @@ public class AddTicket extends GrammarAction
         TicketContainer ticketContainer = new TicketContainer();
         ticketContainer.setStream( container.getStream() );
 
-        // Compute the start position in the stream for the Ticket to decode : 
         // We have to move back to the Ticket tag
-        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
-        container.getStream().position( start );
+        container.rewind( tlv );
 
         // Decode the Ticket PDU
         try

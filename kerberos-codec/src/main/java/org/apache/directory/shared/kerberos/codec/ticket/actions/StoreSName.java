@@ -21,25 +21,26 @@ package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket Realm
+ * The action used to set the ticket SName
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketRealm extends GrammarAction
+public class StoreSName extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -49,11 +50,11 @@ public class TicketRealm extends GrammarAction
 
 
     /**
-     * Instantiates a new TicketRealm action.
+     * Instantiates a new TicketSName action.
      */
-    public TicketRealm()
+    public StoreSName()
     {
-        super( "Kerberos Ticket realm value" );
+        super( "Kerberos Ticket principalName" );
     }
 
 
@@ -75,16 +76,35 @@ public class TicketRealm extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // The value is the realm
-        Value value = tlv.getValue();
-        String realm = StringTools.utf8ToString( value.getData() );
-        Ticket ticket = ticketContainer.getTicket();
-
-        ticket.setRealm( realm );
+        // Now, let's decode the PrincipalName
+        Asn1Decoder principalNameDecoder = new Asn1Decoder();
         
+        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+
+        // Decode the Ticket PDU
+        try
+        {
+            principalNameDecoder.decode( container.getStream(), principalNameContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw de;
+        }
+
+        // Store the Principal name in the Ticket
+        PrincipalName principalName = principalNameContainer.getPrincipalName();
+        Ticket ticket = ticketContainer.getTicket();
+        ticket.setSName( principalName );
+        
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
+        // Update the parent
+        container.setParentTLV( tlv.getParent() );
+
         if ( IS_DEBUG )
         {
-            LOG.debug( "Realm : " + realm );
+            LOG.debug( "PrincipalName : " + principalName );
         }
     }
 }

@@ -83,8 +83,7 @@ public class AddHostAddress extends GrammarAction
         
         // Compute the start position in the stream for the HostAdress to decode : 
         // We have to move back to the HostAddress tag
-        int start = container.getStream().position() - 1 - tlv.getLengthNbBytes();
-        container.getStream().position( start );
+        container.rewind( tlv );
 
         // Decode the HostAddress PDU
         try

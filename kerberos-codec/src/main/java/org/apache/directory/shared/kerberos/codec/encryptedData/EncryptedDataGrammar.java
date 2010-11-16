@@ -26,10 +26,10 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataCipher;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataEType;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.StoreCipher;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.StoreEType;
 import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataInit;
-import org.apache.directory.shared.kerberos.codec.encryptedData.actions.EncryptedDataKvno;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.StoreKvno;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         etype       [0] Int32,
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new EncryptedDataEType() );
+            new StoreEType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from etype value to kvno tag
@@ -120,7 +120,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         kvno     [1] UInt32
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE, UniversalTag.INTEGER.getValue(),
-            new EncryptedDataKvno() );
+            new StoreKvno() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from kvno value value to cipher tag
@@ -140,7 +140,7 @@ public final class EncryptedDataGrammar extends AbstractGrammar
         //         cipher     [2] OCTET STRING
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new EncryptedDataCipher() );
+            new StoreCipher() );
     }
 
 

@@ -26,9 +26,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.checksum.actions.ChecksumCksumType;
+import org.apache.directory.shared.kerberos.codec.checksum.actions.StoreCksumType;
 import org.apache.directory.shared.kerberos.codec.checksum.actions.ChecksumInit;
-import org.apache.directory.shared.kerberos.codec.checksum.actions.ChecksumValue;
+import org.apache.directory.shared.kerberos.codec.checksum.actions.StoreChecksum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ public final class ChecksumGrammar extends AbstractGrammar
         //          cksumtype       [0] Int32
         super.transitions[ChecksumStatesEnum.CHECKSUM_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             ChecksumStatesEnum.CHECKSUM_TYPE_TAG_STATE, ChecksumStatesEnum.CHECKSUM_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new ChecksumCksumType() );
+            new StoreCksumType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from checksumtype to checksum tag
@@ -107,7 +107,7 @@ public final class ChecksumGrammar extends AbstractGrammar
         //          checksum        [1] OCTET STRING
         super.transitions[ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE, ChecksumStatesEnum.CHECKSUM_CHECKSUM_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new ChecksumValue() );
+            new StoreChecksum() );
     }
 
 

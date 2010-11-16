@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
+package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,38 +25,34 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
-import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to initialize the HostAddress object
+ * The action used to store the EncryptedPart cipher
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HostAddressAddrType extends GrammarAction
+public class StoreCipher extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreCipher.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new HostAddressInit action.
+     * Instantiates a new EncryptedPartKvno action.
      */
-    public HostAddressAddrType()
+    public StoreCipher()
     {
-        super( "Creates a HostAddress instance" );
+        super( "EncryptedPart cipher" );
     }
 
 
@@ -65,12 +61,12 @@ public class HostAddressAddrType extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
+        EncryptedDataContainer encryptedDataContainer = ( EncryptedDataContainer ) container;
 
-        TLV tlv = hostAddressContainer.getCurrentTLV();
+        TLV tlv = encryptedDataContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        if ( tlv.getLength() == 0 ) 
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -78,30 +74,25 @@ public class HostAddressAddrType extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Get the address type now
         Value value = tlv.getValue();
         
-        try
+        // The encrypted data should not be null
+        if ( value.getData() == null ) 
         {
-            int addrType = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
-            HostAddrType hostAddrType = HostAddrType.getTypeByOrdinal( addrType );
-
-            HostAddress hostAddressData = hostAddressContainer.getHostAddress();
-            
-            hostAddressData.setAddrType( hostAddrType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "addr-type : {}", hostAddrType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
+        
+        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
+        encryptedData.setCipher( value.getData() );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "cipher : {}", StringTools.dumpBytes( value.getData() ) );
+        }
+        
+        encryptedDataContainer.setGrammarEndAllowed( true );
     }
 }

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
+package org.apache.directory.shared.kerberos.codec.encryptionKey.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -26,34 +26,33 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to add the HostAddress address value
+ * The action used to store the EncryptionKey's keyvalue
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HostAddressAddress extends GrammarAction
+public class StoreKeyValue extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreKeyValue.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new HostAddressAddress action.
+     * Instantiates a new EncryptionKeyKeyValue action.
      */
-    public HostAddressAddress()
+    public StoreKeyValue()
     {
-        super( "Store the HostAddress' address" );
+        super( "EncryptionKey's keyvalue" );
     }
 
 
@@ -62,12 +61,12 @@ public class HostAddressAddress extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
+        EncryptionKeyContainer encKeyContainer = ( EncryptionKeyContainer ) container;
 
-        TLV tlv = hostAddressContainer.getCurrentTLV();
+        TLV tlv = encKeyContainer.getCurrentTLV();
 
         // The Length should not be null
-        if ( tlv.getLength() == 0 )
+        if ( tlv.getLength() == 0 ) 
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -75,17 +74,25 @@ public class HostAddressAddress extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        // Get the address value now
         Value value = tlv.getValue();
         
-        HostAddress hostAddressData = hostAddressContainer.getHostAddress();
-        
-        hostAddressData.setAddress( value.getData() );
-        hostAddressContainer.setGrammarEndAllowed( true );
+        // The encrypted data should not be null
+        if ( value.getData() == null ) 
+        {
+            LOG.error( I18n.err( I18n.ERR_04066 ) );
 
+            // This will generate a PROTOCOL_ERROR
+            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+        }
+        
+        EncryptionKey encKey = encKeyContainer.getEncryptionKey();
+        encKey.setKeyValue( value.getData() );
+        
         if ( IS_DEBUG )
         {
-            LOG.debug( "address : {}" + StringTools.dumpBytes( value.getData() ) );
+            LOG.debug( "keyvalue : {}", StringTools.dumpBytes( value.getData() ) );
         }
+        
+        encKeyContainer.setGrammarEndAllowed( true );
     }
 }

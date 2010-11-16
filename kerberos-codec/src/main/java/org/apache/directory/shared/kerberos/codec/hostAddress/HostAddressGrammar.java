@@ -26,8 +26,8 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
-import org.apache.directory.shared.kerberos.codec.hostAddress.actions.HostAddressAddrType;
-import org.apache.directory.shared.kerberos.codec.hostAddress.actions.HostAddressAddress;
+import org.apache.directory.shared.kerberos.codec.hostAddress.actions.StoreAddrType;
+import org.apache.directory.shared.kerberos.codec.hostAddress.actions.StoreAddress;
 import org.apache.directory.shared.kerberos.codec.hostAddress.actions.HostAddressInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,7 @@ public final class HostAddressGrammar extends AbstractGrammar
         //         addr-type       [0] Int32,
         super.transitions[HostAddressStatesEnum.HOST_ADDRESS_ADDR_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             HostAddressStatesEnum.HOST_ADDRESS_ADDR_TYPE_TAG_STATE, HostAddressStatesEnum.HOST_ADDRESS_ADDR_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new HostAddressAddrType() );
+            new StoreAddrType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from addr-type value to address tag
@@ -109,7 +109,7 @@ public final class HostAddressGrammar extends AbstractGrammar
         //         address         [1] OCTET STRING
         super.transitions[HostAddressStatesEnum.HOST_ADDRESS_ADDRESS_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.ordinal()] = new GrammarTransition(
             HostAddressStatesEnum.HOST_ADDRESS_ADDRESS_TAG_STATE, HostAddressStatesEnum.HOST_ADDRESS_ADDRESS_STATE, UniversalTag.OCTET_STRING.ordinal(),
-            new HostAddressAddress() );
+            new StoreAddress() );
     }
 
 
