@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreMsgType extends GrammarAction
+public class CheckMsgType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreMsgType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( CheckMsgType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -53,7 +53,7 @@ public class StoreMsgType extends GrammarAction
     /**
      * Instantiates a new StoreMsgType action.
      */
-    public StoreMsgType()
+    public CheckMsgType()
     {
         super( "KDC-REQ msg-type" );
     }
@@ -86,15 +86,14 @@ public class StoreMsgType extends GrammarAction
             int msgType = IntegerDecoder.parse( value );
             KerberosMessageType krbMsgType = KerberosMessageType.getTypeByOrdinal( msgType );
             
-            if ( ( krbMsgType != KerberosMessageType.AS_REQ ) && ( krbMsgType != KerberosMessageType.TGS_REQ ) )
+            // The message type must be the expected one
+            if ( krbMsgType != kdcReq.getMsgType() )
             {
                 LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), "The msg-type should be AS-REQ or TGS-REQ" ) );
 
                 // This will generate a PROTOCOL_ERROR
                 throw new DecoderException( "The msg-type should be AS-REQ or TGS-REQ" );
             }
-
-            kdcReq.setMsgType( krbMsgType );
 
             if ( IS_DEBUG )
             {

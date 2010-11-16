@@ -36,6 +36,7 @@ import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -194,6 +195,7 @@ public class KdcReqDecoderTest
         // Allocate a KdcReq Container
         KdcReqContainer kdcReqContainer = new KdcReqContainer();
         kdcReqContainer.setStream( stream );
+        kdcReqContainer.setKdcReq( new AsReq() );
         
         // Decode the KdcReq PDU
         try
@@ -211,7 +213,7 @@ public class KdcReqDecoderTest
         int length = kdcReq.computeLength();
 
         // Check the length
-        assertEquals( 0x18F, length );
+        assertEquals( 0x193, length );
         
         // Check the encoding
         ByteBuffer encodedPdu = ByteBuffer.allocate( length );
@@ -221,7 +223,7 @@ public class KdcReqDecoderTest
             encodedPdu = kdcReq.encode( encodedPdu );
     
             // Check the length
-            assertEquals( 0x18F, encodedPdu.limit() );
+            assertEquals( 0x193, encodedPdu.limit() );
         }
         catch ( EncoderException ee )
         {

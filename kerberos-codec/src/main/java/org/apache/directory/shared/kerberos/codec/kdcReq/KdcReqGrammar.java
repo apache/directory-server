@@ -27,9 +27,8 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.AddPaData;
-import org.apache.directory.shared.kerberos.codec.kdcReq.actions.KdcReqInit;
+import org.apache.directory.shared.kerberos.codec.kdcReq.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StoreKdcReqBody;
-import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StoreMsgType;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StorePvno;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,7 @@ public final class KdcReqGrammar extends AbstractGrammar
         // KDC-REQ         ::= SEQUENCE {
         super.transitions[KdcReqStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             KdcReqStatesEnum.START_STATE, KdcReqStatesEnum.KDC_REQ_PVNO_TAG_STATE, UniversalTag.SEQUENCE.getValue(),
-            new KdcReqInit() );
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from KdcReq SEQ to pvno tag
@@ -111,7 +110,7 @@ public final class KdcReqGrammar extends AbstractGrammar
         //         msg-type        [2] INTEGER (10 -- AS -- | 12 -- TGS --),
         super.transitions[KdcReqStatesEnum.KDC_REQ_MSG_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             KdcReqStatesEnum.KDC_REQ_MSG_TYPE_TAG_STATE, KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new StoreMsgType() );
+            new CheckMsgType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from msg-type value to padata tag

@@ -48,7 +48,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcReq
+public abstract class KdcReq
 {
     /** The PVNO field */
     private int pvno;
@@ -75,8 +75,9 @@ public class KdcReq
     /**
      * Creates a new instance of KDC-REQ.
      */
-    public KdcReq()
+    public KdcReq( KerberosMessageType msgType )
     {
+        this.msgType = msgType;
         paData = new ArrayList<PaData>();
     }
 
@@ -105,15 +106,6 @@ public class KdcReq
     public KerberosMessageType getMsgType()
     {
         return msgType;
-    }
-
-
-    /**
-     * @param msgType the msgType to set
-     */
-    public void setMsgType( KerberosMessageType msgType )
-    {
-        this.msgType = msgType;
     }
 
 
@@ -227,7 +219,7 @@ public class KdcReq
         {
             throw new EncoderException( I18n.err( I18n.ERR_148 ) );
         }
-        
+
         // The KDC-REQ SEQ Tag
         buffer.put( UniversalTag.SEQUENCE.getValue() );
         buffer.put( TLV.getBytes( kdcReqSeqLength ) );
@@ -282,10 +274,6 @@ public class KdcReq
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "pvno : " ).append( pvno ).append( '\n' );
-
-        sb.append( "msg-type : " );
-
         if ( msgType == KerberosMessageType.AS_REQ )
         {
             sb.append( "AS-REQ" ).append( '\n' );
@@ -298,6 +286,10 @@ public class KdcReq
         {
             sb.append( "Unknown" ).append( '\n' );
         }
+
+        sb.append( "pvno : " ).append( pvno ).append( '\n' );
+
+        sb.append( "msg-type : " );
 
         for ( PaData paDataElem : paData )
         {
