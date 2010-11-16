@@ -97,7 +97,7 @@ public class StoreKdcReqBody extends GrammarAction
         kdcReq.setKdcReqBody( kdcReqBody );
         
         // Update the parent
-        container.setParentTLV( tlv.getParent() );
+        container.updateParent();
         
         container.setGrammarEndAllowed( true );
 

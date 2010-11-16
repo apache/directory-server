@@ -103,7 +103,7 @@ public class StoreAddresses extends GrammarAction
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.setParentTLV( tlv.getParent() );
+        container.updateParent();
         
         container.setGrammarEndAllowed( true );
         

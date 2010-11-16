@@ -81,7 +81,7 @@ public class AddPaData extends GrammarAction
         paDataContainer.setStream( container.getStream() );
 
         // We have to move back to the PA-DATA tag
-        container.rewind( tlv );
+        container.rewind();
 
         // Decode the PA-DATA PDU
         try
@@ -94,14 +94,7 @@ public class AddPaData extends GrammarAction
         }
         
         // Update the parent
-        TLV parentTlv = tlv.getParent();
-        
-        while ( ( parentTlv != null ) && ( parentTlv.getExpectedLength() == 0 ) )
-        {
-            parentTlv = parentTlv.getParent();
-        }
-        
-        container.setParentTLV( parentTlv );
+        container.updateParent();
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

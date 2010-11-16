@@ -81,7 +81,7 @@ public class AddTicket extends GrammarAction
         ticketContainer.setStream( container.getStream() );
 
         // We have to move back to the Ticket tag
-        container.rewind( tlv );
+        container.rewind();
 
         // Decode the Ticket PDU
         try
@@ -97,7 +97,7 @@ public class AddTicket extends GrammarAction
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.setParentTLV( tlv.getParent() );
+        container.updateParent();
 
         // Store the Ticket in the container
         Ticket ticket = ticketContainer.getTicket();

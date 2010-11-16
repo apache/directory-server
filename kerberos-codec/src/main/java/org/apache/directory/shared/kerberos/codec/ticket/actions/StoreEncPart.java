@@ -103,7 +103,9 @@ public class StoreEncPart extends GrammarAction
 
         // Update the TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-        //container.setParentTLV( tlv.getParent() );
+
+        // Update the parent
+        container.updateParent();
 
         container.setGrammarEndAllowed( true );
     }

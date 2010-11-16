@@ -99,7 +99,7 @@ public class StoreSName extends GrammarAction
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.setParentTLV( tlv.getParent() );
+        container.updateParent();
 
         if ( IS_DEBUG )
         {
