@@ -84,6 +84,15 @@ public class KerberosConstants
     public static final int KDC_REQ_MSG_TYPE_TAG = 0xA2;
     public static final int KDC_REQ_PA_DATA_TAG = 0xA3;
     public static final int KDC_REQ_KDC_REQ_BODY_TAG = 0xA4;
+
+    /** KRB-REP's tags */
+    public static final int KDC_REP_PVNO_TAG = 0xA0;
+    public static final int KDC_REP_MSG_TYPE_TAG = 0xA1;
+    public static final int KDC_REP_PA_DATA_TAG = 0xA2;
+    public static final int KDC_REP_CREALM_TAG = 0xA3;
+    public static final int KDC_REP_CNAME_TAG = 0xA4;
+    public static final int KDC_REP_TICKET_TAG = 0xA5;
+    public static final int KDC_REP_ENC_PART_TAG = 0xA6;
     
     /** AS-REQ's tags */
     public static final int AS_REQ_TAG = 0x6A;

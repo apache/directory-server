@@ -59,7 +59,7 @@ public abstract class KdcReq
     /** The PA-DATAs */
     private List<PaData> paData;
     
-    /** The KDC-REQ-BODYl */
+    /** The KDC-REQ-BODY */
     private KdcReqBody kdcReqBody;
 
     // Storage for computed lengths
@@ -162,7 +162,12 @@ public abstract class KdcReq
      *  |     
      *  +--> 0xA3 L2 pa-data tag
      *  |     |
-     *  |     +--> 0x30 L2-1 pa-data
+     *  |     +--> 0x30 L2-1 pa-data SEQ
+     *  |           |
+     *  |           +--> 0x30 L2-1-1 pa-data
+     *  |           |
+     *  |           +--> 0x30 L2-1-2 pa-data
+     *  |           :
      *  |     
      *  +--> 0xA4 L3 req-body tag
      *  |     |
