@@ -25,8 +25,8 @@
     <version>1.5.8-SNAPSHOT</version>
   </parent>
 
-  <artifactId>apacheds-server-config-builder</artifactId>
-  <name>ApacheDS Server Config Builder</name>
+  <artifactId>apacheds-service-builder</artifactId>
+  <name>ApacheDS Service Builder</name>
 
   <dependencies>
     <dependency>

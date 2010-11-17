@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
-import org.apache.directory.server.config.ConfigBuilder;
+import org.apache.directory.server.config.ServiceBuilder;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ChangePasswordServerBean;
@@ -267,7 +267,7 @@ public class ApacheDsService
         
         long startTime = System.currentTimeMillis();
 
-        DirectoryService directoryService = ConfigBuilder.createDirectoryService( directoryServiceBean, instanceLayout, schemaManager );
+        DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean, instanceLayout, schemaManager );
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
         schemaPartition.setWrappedPartition( schemaLdifPartition );
@@ -334,7 +334,7 @@ public class ApacheDsService
         LOG.info( "Starting the LDAP server" );
         long startTime = System.currentTimeMillis();
 
-        ldapServer = ConfigBuilder.createLdapServer( ldapServerBean, directoryService );
+        ldapServer = ServiceBuilder.createLdapServer( ldapServerBean, directoryService );
         
         if ( ldapServer == null )
         {
@@ -368,7 +368,7 @@ public class ApacheDsService
         LOG.info( "Starting the NTP server" );
         long startTime = System.currentTimeMillis();
 
-        ntpServer = ConfigBuilder.createNtpServer( ntpServerBean, directoryService);
+        ntpServer = ServiceBuilder.createNtpServer( ntpServerBean, directoryService);
         
         if ( ntpServer == null )
         {
@@ -430,7 +430,7 @@ public class ApacheDsService
         LOG.info( "Starting the Kerberos server" );
         long startTime = System.currentTimeMillis();
 
-        kdcServer = ConfigBuilder.createKdcServer( kdcServerBean, directoryService );
+        kdcServer = ServiceBuilder.createKdcServer( kdcServerBean, directoryService );
         
         if ( kdcServer == null )
         {
@@ -457,7 +457,7 @@ public class ApacheDsService
      */
     private void startChangePwd( ChangePasswordServerBean changePwdServerBean, DirectoryService directoryService ) throws Exception
     {
-        changePwdServer = ConfigBuilder.createChangePasswordServer( changePwdServerBean, directoryService );
+        changePwdServer = ServiceBuilder.createChangePasswordServer( changePwdServerBean, directoryService );
         
         if ( changePwdServer == null )
         {
@@ -490,7 +490,7 @@ public class ApacheDsService
      */
     private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws Exception
     {
-        httpServer = ConfigBuilder.createHttpServer( httpServerBean, directoryService);
+        httpServer = ServiceBuilder.createHttpServer( httpServerBean, directoryService);
         
         if ( httpServer == null )
         {

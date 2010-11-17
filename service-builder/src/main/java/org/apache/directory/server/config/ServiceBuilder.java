@@ -101,10 +101,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ConfigBuilder
+public class ServiceBuilder
 {
     /** The logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ConfigBuilder.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ServiceBuilder.class );
 
     /** LDIF file filter */
     private static FilenameFilter ldifFilter = new FilenameFilter()

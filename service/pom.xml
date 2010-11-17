@@ -48,7 +48,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-config-builder</artifactId>
+      <artifactId>apacheds-service-builder</artifactId>
       <version>${project.version}</version>
     </dependency>
 
