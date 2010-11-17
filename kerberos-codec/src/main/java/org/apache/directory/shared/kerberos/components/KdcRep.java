@@ -181,7 +181,7 @@ public class KdcRep
      * Set the client principalName
      * @param cname the client principalName
      */
-    public void setSName( PrincipalName cname )
+    public void setCName( PrincipalName cname )
     {
         this.cname = cname;
     }
@@ -340,7 +340,7 @@ public class KdcRep
         
         // The PVNO -----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_PVNO_TAG );
+        buffer.put( (byte)KerberosConstants.KDC_REP_PVNO_TAG );
         buffer.put( TLV.getBytes( pvnoLength ) );
         
         // The value

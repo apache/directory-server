@@ -97,6 +97,12 @@ public class KerberosConstants
     /** AS-REQ's tags */
     public static final int AS_REQ_TAG = 0x6A;
     
+    /** AS-REP's tags */
+    public static final int AS_REP_TAG = 0x6B;
+    
     /** TGS-REQ's tags */
     public static final int TGS_REQ_TAG = 0x6C;
+    
+    /** TGS-REP's tags */
+    public static final int TGS_REP_TAG = 0x6D;
 }
