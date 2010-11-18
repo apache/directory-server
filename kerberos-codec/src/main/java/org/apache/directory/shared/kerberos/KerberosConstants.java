@@ -120,4 +120,13 @@ public class KerberosConstants
     public static final int KRB_ERR_SNAME_TAG = 0xAA;
     public static final int KRB_ERR_ETEXT_TAG = 0xAB;
     public static final int KRB_ERR_EDATA_TAG = 0xAC;
+    
+    /** AP-REQ tags */
+    public static final int AP_REQ_TAG = 0x6E;
+    public static final int AP_REQ_PVNO_TAG = 0xA0;
+    public static final int AP_REQ_MSG_TYPE_TAG = 0xA1;
+    public static final int AP_REQ_AP_OPTIONS_TAG = 0xA2;
+    public static final int AP_REQ_TICKET_TAG = 0xA3;
+    public static final int AP_REQ_AUTHENTICATOR_TAG = 0xA4;
+    
 }
