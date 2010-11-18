@@ -17,8 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
+package org.apache.directory.shared.kerberos.codec.actions;
 
+
+import java.util.Arrays;
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -29,15 +31,13 @@ import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
-import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
-import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the msg-type
+ * The action used to read and validate the msg-type
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -49,24 +49,26 @@ public class CheckMsgType extends GrammarAction
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+    /** an array of allowed message types */
+    private KerberosMessageType[] validMsgTypes;
+
 
     /**
      * Instantiates a new StoreMsgType action.
      */
-    public CheckMsgType()
+    public CheckMsgType( String name, KerberosMessageType... validMsgTypes )
     {
-        super( "KDC-REP msg-type" );
+        super( name );
+        this.validMsgTypes = validMsgTypes;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public final void action( Asn1Container container ) throws DecoderException
     {
-        KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-
-        TLV tlv = kdcRepContainer.getCurrentTLV();
+        TLV tlv = container.getCurrentTLV();
 
         // The Length should not be null and should be 1
         if ( tlv.getLength() != 1 )
@@ -76,23 +78,33 @@ public class CheckMsgType extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
-        KdcRep kdcRep = kdcRepContainer.getKdcRep();
-        
+
         Value value = tlv.getValue();
-        
+
         try
         {
             int msgType = IntegerDecoder.parse( value );
             KerberosMessageType krbMsgType = KerberosMessageType.getTypeByOrdinal( msgType );
-            
-            // The message type must be the expected one
-            if ( krbMsgType != kdcRep.getMsgType() )
+
+            boolean found = false;
+
+            for ( KerberosMessageType kbt : validMsgTypes )
             {
-                LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), "The msg-type should be AS-REQ or TGS-REQ" ) );
+                if ( krbMsgType == kbt )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            // The message type must be the expected one
+            if ( !found )
+            {
+                String msg = "The acceptable msg-types for the grammar action '" + name + "' are " + Arrays.asList( validMsgTypes );
+                LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), msg ) );
 
                 // This will generate a PROTOCOL_ERROR
-                throw new DecoderException( "The msg-type should be AS-REQ or TGS-REQ" );
+                throw new DecoderException( msg );
             }
 
             if ( IS_DEBUG )
