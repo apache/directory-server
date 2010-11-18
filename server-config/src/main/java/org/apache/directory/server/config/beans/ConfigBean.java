@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.List;
+
 
 /**
  * The base class containing all the configuration hierarchy. This hierarchy
@@ -27,10 +29,11 @@ import java.util.List;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ConfigBean 
+public class ConfigBean
 {
     /** The DirectoryService beans */
     private List<AdsBaseBean> directoryServiceBeans;
+
 
     /**
      * Create a new ConfigBean instance
@@ -38,8 +41,8 @@ public class ConfigBean
     public ConfigBean()
     {
     }
-    
-    
+
+
     /**
      * Add underlying DirectoryServiceBean
      * @param directoryServiceBeans The DirectoryServiceBeans
@@ -71,15 +74,15 @@ public class ConfigBean
         {
             return null;
         }
-        
+
         for ( AdsBaseBean bean : directoryServiceBeans )
         {
             if ( bean instanceof DirectoryServiceBean )
             {
-                return (DirectoryServiceBean)bean;
+                return ( DirectoryServiceBean ) bean;
             }
         }
-        
+
         return null;
     }
 
@@ -94,18 +97,18 @@ public class ConfigBean
         {
             return null;
         }
-        
+
         for ( AdsBaseBean bean : directoryServiceBeans )
         {
             if ( bean instanceof DirectoryServiceBean )
             {
-                if ( ((DirectoryServiceBean)bean).getDirectoryServiceId().equals( directoryServiceId ) )
+                if ( ( ( DirectoryServiceBean ) bean ).getDirectoryServiceId().equals( directoryServiceId ) )
                 {
-                    return (DirectoryServiceBean)bean;
+                    return ( DirectoryServiceBean ) bean;
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -117,20 +120,23 @@ public class ConfigBean
     {
         this.directoryServiceBeans = directoryServiceBeans;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-     
-        for ( AdsBaseBean directoryService : directoryServiceBeans )
+
+        if ( directoryServiceBeans != null )
         {
-            sb.append( directoryService ).append( "\n\n" );
+            for ( AdsBaseBean directoryService : directoryServiceBeans )
+            {
+                sb.append( directoryService ).append( "\n\n" );
+            }
         }
-        
+
         return sb.toString();
     }
 }
