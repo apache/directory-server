@@ -400,7 +400,7 @@ public class KdcReqBody
      *  |
      *  +--> 0xA0 L2 kdc-options tag
      *  |     |
-     *  |     +--> 0x05 L2-1 kdc-options (BitString)
+     *  |     +--> 0x03 L2-1 kdc-options (BitString)
      *  |
      *  +--> 0xA1 L3 cname tag
      *  |     |
