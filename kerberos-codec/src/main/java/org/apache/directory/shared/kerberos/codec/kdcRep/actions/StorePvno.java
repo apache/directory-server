@@ -21,16 +21,8 @@ package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadPvno;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
-import org.apache.directory.shared.kerberos.components.KdcRep;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +32,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StorePvno extends GrammarAction
+public class StorePvno extends AbstractReadPvno
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StorePvno.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StorePvno action.
      */
@@ -61,51 +46,10 @@ public class StorePvno extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setPvno( int pvno, Asn1Container container )
     {
         KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-
-        TLV tlv = kdcRepContainer.getCurrentTLV();
-
-        // The Length should not be null and should be 1
-        if ( tlv.getLength() != 1 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        KdcRep kdcRep = kdcRepContainer.getKdcRep();
-        
-        Value value = tlv.getValue();
-        
-        try
-        {
-            int pvno = IntegerDecoder.parse( value );
-            
-            if ( pvno != 5 )
-            {
-                LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), "The PVNO should be 5" ) );
-
-                // This will generate a PROTOCOL_ERROR
-                throw new DecoderException( "The PVNO should be 5" );
-            }
-
-            kdcRep.setPvno( pvno );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "pvno : {}", pvno );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        kdcRepContainer.getKdcRep().setPvno( pvno );
     }
 }
