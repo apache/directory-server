@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.apReq.actions.ApReqInit;
 import org.apache.directory.shared.kerberos.codec.apReq.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.apReq.actions.StoreApOptions;
 import org.apache.directory.shared.kerberos.codec.apReq.actions.StoreAuthenticator;
@@ -73,7 +74,7 @@ public final class ApReqGrammar extends AbstractGrammar
         // AP-REQ          ::= [APPLICATION 14]
         super.transitions[ApReqStatesEnum.START_STATE.ordinal()][KerberosConstants.AP_REQ_TAG] = new GrammarTransition(
             ApReqStatesEnum.START_STATE, ApReqStatesEnum.AP_REQ_STATE, KerberosConstants.AP_REQ_TAG,
-            new CheckNotNullLength() );
+            new ApReqInit() );
 
         // --------------------------------------------------------------------------------------------
         // Transition from AP-REQ tag to AP-REQ SEQ {

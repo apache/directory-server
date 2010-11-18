@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
@@ -72,6 +73,7 @@ public class ApReq extends KerberosMessage
     private transient int ticketLength;
     private transient int authenticatorLength;
     private transient int apReqLength;
+    private transient int apReqSeqLength;
 
     /**
      * Creates a new instance of ApplicationRequest.
@@ -189,25 +191,27 @@ public class ApReq extends KerberosMessage
      * 
      * 0x6E L1 AP-REQ [APPLICATION 14]
      *  |
-     *  +--> 0xA0 0x03 pvno tag
-     *  |     |
-     *  |     +--> 0x02 0x01 0x05 pvno (5)
-     *  |
-     *  +--> 0xA1 0x03 msg-type tag
-     *  |     |
-     *  |     +--> 0x02 0x01 0x0E msg-type (14)
-     *  |     
-     *  +--> 0xA2 0x03 APOptions tag
-     *  |     |
-     *  |     +--> 0x03 0x05 0x00 b1 b2 b3 b4 APOtions
-     *  |     
-     *  +--> 0xA3 L3 ticket tag
-     *  |     |
-     *  |     +--> 0x61 L3-1 ticket
-     *  |
-     *  +--> 0xA4 L4 authenticator tag
+     *  +--> 0x30 L2
      *        |
-     *        +--> 0x30 L4-1 authenticator (encrypted)
+     *        +--> 0xA0 0x03 pvno tag
+     *        |     |
+     *        |     +--> 0x02 0x01 0x05 pvno (5)
+     *        |
+     *        +--> 0xA1 0x03 msg-type tag
+     *        |     |
+     *        |     +--> 0x02 0x01 0x0E msg-type (14)
+     *        |     
+     *        +--> 0xA2 0x03 APOptions tag
+     *        |     |
+     *        |     +--> 0x03 0x05 0x00 b1 b2 b3 b4 APOtions
+     *        |     
+     *        +--> 0xA3 L3 ticket tag
+     *        |     |
+     *        |     +--> 0x61 L3-1 ticket
+     *        |
+     *        +--> 0xA4 L4 authenticator tag
+     *              |
+     *              +--> 0x30 L4-1 authenticator (encrypted)
      * </pre>
      */
     public int computeLength()
@@ -235,7 +239,9 @@ public class ApReq extends KerberosMessage
             1 + TLV.getNbBytes( ticketLength ) + ticketLength +
             1 + TLV.getNbBytes( authenticatorLength ) + authenticatorLength;
         
-        return 1 + TLV.getNbBytes( apReqLength ) + apReqLength;
+        apReqSeqLength = 1 + TLV.getNbBytes( apReqLength ) + apReqLength;
+        
+        return 1 + TLV.getNbBytes( apReqSeqLength ) + apReqSeqLength;
     }
 
     
@@ -257,6 +263,10 @@ public class ApReq extends KerberosMessage
         {
             // The AP-REP Tag
             buffer.put( (byte)KerberosConstants.AP_REQ_TAG );
+            buffer.put( TLV.getBytes( apReqSeqLength ) );
+            
+            // The AP-REP SEQ Tag
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( apReqLength ) );
             
             // The PVNO -------------------------------------------------------
