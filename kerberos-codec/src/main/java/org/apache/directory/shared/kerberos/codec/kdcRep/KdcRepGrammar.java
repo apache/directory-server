@@ -25,9 +25,10 @@ import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.codec.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcRep.actions.AddPaData;
-import org.apache.directory.shared.kerberos.codec.kdcRep.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.kdcRep.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.kdcRep.actions.StoreCRealm;
 import org.apache.directory.shared.kerberos.codec.kdcRep.actions.StoreEncPart;
@@ -113,7 +114,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         msg-type        [1] INTEGER (11 -- AS -- | 13 -- TGS --),
         super.transitions[KdcRepStatesEnum.KDC_REP_MSG_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_MSG_TYPE_TAG_STATE, KdcRepStatesEnum.KDC_REP_MSG_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new CheckMsgType());
+            new CheckMsgType( "KDC-REP msg-type", KerberosMessageType.AS_REP, KerberosMessageType.TGS_REP ) );
         
         // --------------------------------------------------------------------------------------------
         // Transition from msg-type value pa-data tag
