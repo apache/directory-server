@@ -48,7 +48,7 @@ public class StoreTicket extends GrammarAction
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /**
-     * Instantiates a new Storeicket action.
+     * Instantiates a new StoreTicket action.
      */
     public StoreTicket()
     {

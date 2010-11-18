@@ -75,7 +75,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         // KDC-REP         ::= SEQUENCE {
         super.transitions[KdcRepStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             KdcRepStatesEnum.START_STATE, KdcRepStatesEnum.KDC_REP_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new CheckNotNullLength());
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from KdcRep SEQ to pvno tag
@@ -84,7 +84,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         pvno            [0]
         super.transitions[KdcRepStatesEnum.KDC_REP_SEQ_STATE.ordinal()][KerberosConstants.KDC_REP_PVNO_TAG] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_SEQ_STATE, KdcRepStatesEnum.KDC_REP_PVNO_TAG_STATE, KerberosConstants.KDC_REP_PVNO_TAG,
-            new CheckNotNullLength());
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from pvno tag to pvno value
@@ -93,7 +93,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         pvno            [0] INTEGER (5)
         super.transitions[KdcRepStatesEnum.KDC_REP_PVNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_PVNO_TAG_STATE, KdcRepStatesEnum.KDC_REP_PVNO_STATE, UniversalTag.INTEGER.getValue(),
-            new StorePvno());
+            new StorePvno() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from pvno value to msg-type tag
@@ -103,7 +103,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         msg-type        [1]
         super.transitions[KdcRepStatesEnum.KDC_REP_PVNO_STATE.ordinal()][KerberosConstants.KDC_REP_MSG_TYPE_TAG] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_PVNO_STATE, KdcRepStatesEnum.KDC_REP_MSG_TYPE_TAG_STATE, KerberosConstants.KDC_REP_MSG_TYPE_TAG,
-            new CheckNotNullLength());
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from msg-type tag to msg-type value
@@ -123,7 +123,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         padata          [2]
         super.transitions[KdcRepStatesEnum.KDC_REP_MSG_TYPE_STATE.ordinal()][KerberosConstants.KDC_REP_PA_DATA_TAG] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_MSG_TYPE_STATE, KdcRepStatesEnum.KDC_REP_PA_DATA_TAG_STATE, KerberosConstants.KDC_REP_PA_DATA_TAG,
-            new CheckNotNullLength());
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from pa-data tag to pa-data sequence
@@ -133,7 +133,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         padata          [2] SEQUENCE OF 
         super.transitions[KdcRepStatesEnum.KDC_REP_PA_DATA_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_PA_DATA_TAG_STATE, KdcRepStatesEnum.KDC_REP_PA_DATA_STATE, UniversalTag.SEQUENCE.getValue(),
-            new CheckNotNullLength());
+            new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from pa-data sequence to PA-DATA 
@@ -143,7 +143,7 @@ public final class KdcRepGrammar extends AbstractGrammar
         //         padata          [2] SEQUENCE OF PA-DATA
         super.transitions[KdcRepStatesEnum.KDC_REP_PA_DATA_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
             KdcRepStatesEnum.KDC_REP_PA_DATA_STATE, KdcRepStatesEnum.KDC_REP_PA_DATA_STATE, UniversalTag.SEQUENCE.getValue(),
-            new AddPaData());
+            new AddPaData() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from PA-DATA to crealm tag 
