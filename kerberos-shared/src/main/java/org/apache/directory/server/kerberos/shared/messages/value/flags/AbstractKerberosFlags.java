@@ -61,17 +61,17 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     
     
     /**
-     * A static method to get the bayte array representation of an int
+     * A static method to get the byte array representation of an int
      * @return The byte array for a list of flags.
      */
     public static byte[] getBytes( int flags )
     {
         return new byte[]{
-                (byte)( flags >>> 24), 
-                (byte)( ( flags >> 16 ) & 0x00ff ), 
-                (byte)( ( flags >> 8 ) & 0x00ff ), 
-                (byte)( flags & 0x00ff ) };
-    }
+            (byte)( flags >>> 24), 
+            (byte)( ( flags >> 16 ) & 0x00ff ), 
+            (byte)( ( flags >> 8 ) & 0x00ff ), 
+            (byte)( flags & 0x00ff ) };
+}
     
     
     /**
@@ -123,7 +123,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public boolean isFlagSet( int flag )
     {
-        return ( flag & ( 1 << value ) ) != 0;
+        return ( value & ( 1 << flag ) ) != 0;
     }
     
     
