@@ -21,17 +21,9 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadKerberosTime;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,15 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreRTime extends GrammarAction
+public class StoreRTime extends AbstractReadKerberosTime
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreRTime.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StoreRTime action.
      */
@@ -60,43 +45,10 @@ public class StoreRTime extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setKerberosTime( KerberosTime krbtime, Asn1Container container )
     {
         KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
-
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
-
-        // The Length should not be null and should be 15
-        if ( tlv.getLength() != 15 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        
-        // The value is the KerberosTime
-        Value value = tlv.getValue();
-        String date = StringTools.utf8ToString( value.getData() );
-        
-        try
-        {
-            KerberosTime rtime = new KerberosTime( date );
-            kdcReqBody.setRtime( rtime );
-            
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "RTime : {}", rtime );
-            }
-        }
-        catch ( IllegalArgumentException iae )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
+        kdcReqBodyContainer.getKdcReqBody().setRtime( krbtime );
     }
 }
