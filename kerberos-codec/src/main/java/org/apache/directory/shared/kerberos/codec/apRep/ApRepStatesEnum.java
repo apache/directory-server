@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.apReq;
+package org.apache.directory.shared.kerberos.codec.apRep;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
@@ -26,35 +26,30 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
- * This class store the AP-REQ grammar's constants. It is also used for debugging
+ * This class store the AP-REP grammar's constants. It is also used for debugging
  * purpose
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum ApReqStatesEnum implements States
+public enum ApRepStatesEnum implements States
 {
     // Start
     START_STATE,                            // 0
     
-    // ----- AP-REQ message --------------------------------------
-    AP_REQ_STATE,                           // 1
-    AP_REQ_SEQ_STATE,                       // 2
+    // ----- AP-REP message --------------------------------------
+    AP_REP_STATE,                           // 1
+    AP_REP_SEQ_STATE,                       // 2
     
-    AP_REQ_PVNO_TAG_STATE,                  // 3
-    AP_REQ_PVNO_STATE,                      // 4
+    AP_REP_PVNO_TAG_STATE,                  // 3
+    AP_REP_PVNO_STATE,                      // 4
     
-    AP_REQ_MSG_TYPE_TAG_STATE,              // 5
-    AP_REQ_MSG_TYPE_STATE,                  // 6
+    AP_REP_MSG_TYPE_TAG_STATE,              // 5
+    AP_REP_MSG_TYPE_STATE,                  // 6
     
-    AP_REQ_AP_OPTIONS_TAG_STATE,            // 7
-    AP_REQ_AP_OPTIONS_STATE,                // 8
-
-    AP_REQ_TICKET_STATE,                    // 9
-
-    AP_REQ_AUTHENTICATOR_STATE,             // 10
+    AP_REP_ENC_PART_STATE,                  // 7
     
     // End
-    LAST_AP_REQ_STATE;                      // 11
+    LAST_AP_REP_STATE;                      // 8
 
     
     /**
@@ -65,7 +60,7 @@ public enum ApReqStatesEnum implements States
      */
     public String getGrammarName( int grammar )
     {
-        return "AP_REQ_GRAMMAR";
+        return "AP_REP_GRAMMAR";
     }
 
 
@@ -79,7 +74,7 @@ public enum ApReqStatesEnum implements States
     {
         if ( grammar instanceof KerberosMessageGrammar )
         {
-            return "AP_REQ_GRAMMAR";
+            return "AP_REP_GRAMMAR";
         }
         else
         {
@@ -96,7 +91,7 @@ public enum ApReqStatesEnum implements States
      */
     public String getState( int state )
     {
-        return ( ( state == LAST_AP_REQ_STATE.ordinal() ) ? "AP_REQ_END_STATE" : name() );
+        return ( ( state == LAST_AP_REP_STATE.ordinal() ) ? "AP_REP_END_STATE" : name() );
     }
 
     
@@ -105,14 +100,14 @@ public enum ApReqStatesEnum implements States
      */
     public boolean isEndState()
     {
-        return this == LAST_AP_REQ_STATE;
+        return this == LAST_AP_REP_STATE;
     }
     
     
     /**
      * {@inheritDoc}
      */
-    public ApReqStatesEnum getStartState()
+    public ApRepStatesEnum getStartState()
     {
         return START_STATE;
     }
