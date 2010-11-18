@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.shared.kerberos.components;
+package org.apache.directory.shared.kerberos.messages;
 
 
 import java.nio.BufferOverflowException;
@@ -31,8 +31,10 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.messages.KerberosMessage;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,7 @@ public class KrbError extends AbstractAsn1Object
     private int pvno = KerberosMessage.PVNO;
 
     /** the kerberos message type */
-    private int msgType = 30; // default value
+    private KerberosMessageType msgType = KerberosMessageType.KRB_ERROR; // default value
 
     /** the current time of client */
     private KerberosTime cTime;
@@ -87,7 +89,7 @@ public class KrbError extends AbstractAsn1Object
     private int susec;
 
     /** the error code */
-    private int errorCode;
+    private ErrorType errorCode;
 
     /** the name of the realm to which the requesting client belongs */
     private String cRealm;
@@ -130,7 +132,7 @@ public class KrbError extends AbstractAsn1Object
         pvnoLen = 1 + TLV.getNbBytes( pvnoLen ) + pvnoLen;
         krbErrorSeqLen = pvnoLen;
 
-        msgTypeLen = Value.getNbBytes( msgType );
+        msgTypeLen = Value.getNbBytes( msgType.getValue() );
         msgTypeLen = 1 + TLV.getNbBytes( msgTypeLen ) + msgTypeLen;
         krbErrorSeqLen += msgTypeLen;
 
@@ -156,7 +158,7 @@ public class KrbError extends AbstractAsn1Object
         susecLen = 1 + TLV.getNbBytes( susecLen ) + susecLen;
         krbErrorSeqLen += susecLen;
 
-        errorCodeLen = Value.getNbBytes( errorCode );
+        errorCodeLen = Value.getNbBytes( errorCode.getOrdinal() );
         errorCodeLen = 1 + TLV.getNbBytes( errorCodeLen ) + errorCodeLen;
         krbErrorSeqLen += errorCodeLen;
 
@@ -218,14 +220,14 @@ public class KrbError extends AbstractAsn1Object
             //msg-type
             buffer.put( ( byte ) KerberosConstants.KRB_ERR_MSGTYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLen ) );
-            Value.encode( buffer, msgType );
+            Value.encode( buffer, msgType.getValue() );
 
             //ctime
             if ( cTimeLen > 0 )
             {
                 buffer.put( ( byte ) KerberosConstants.KRB_ERR_CTIME_TAG );
                 buffer.put( TLV.getBytes( cTimeLen ) );
-                buffer.put( cTime.getBytes() );
+                Value.encode( buffer, cTime.getBytes() );
             }
 
             //cusec
@@ -239,7 +241,7 @@ public class KrbError extends AbstractAsn1Object
             //stime
             buffer.put( ( byte ) KerberosConstants.KRB_ERR_STIME_TAG );
             buffer.put( TLV.getBytes( sTimeLen ) );
-            buffer.put( sTime.getBytes() );
+            Value.encode( buffer, sTime.getBytes() );
 
             //susec
             buffer.put( ( byte ) KerberosConstants.KRB_ERR_SUSEC_TAG );
@@ -249,7 +251,7 @@ public class KrbError extends AbstractAsn1Object
             //error-code
             buffer.put( ( byte ) KerberosConstants.KRB_ERR_ERROR_CODE_TAG );
             buffer.put( TLV.getBytes( errorCodeLen ) );
-            Value.encode( buffer, errorCode );
+            Value.encode( buffer, errorCode.getOrdinal() );
 
             //crealm
             if ( cRealmLen > 0 )
@@ -290,7 +292,7 @@ public class KrbError extends AbstractAsn1Object
             {
                 buffer.put( ( byte ) KerberosConstants.KRB_ERR_EDATA_TAG );
                 buffer.put( TLV.getBytes( eDataLen ) );
-                buffer.put( eData );
+                Value.encode( buffer, eData );
             }
         }
         catch ( BufferOverflowException boe )
@@ -386,7 +388,7 @@ public class KrbError extends AbstractAsn1Object
     /**
      * @return the msgType
      */
-    public int getMsgType()
+    public KerberosMessageType getMsgType()
     {
         return msgType;
     }
@@ -395,7 +397,7 @@ public class KrbError extends AbstractAsn1Object
     /**
      * @param msgType the msgType to set
      */
-    public void setMsgType( int msgType )
+    public void setMsgType( KerberosMessageType msgType )
     {
         this.msgType = msgType;
     }
@@ -476,7 +478,7 @@ public class KrbError extends AbstractAsn1Object
     /**
      * @return the errorCode
      */
-    public int getErrorCode()
+    public ErrorType getErrorCode()
     {
         return errorCode;
     }
@@ -485,7 +487,7 @@ public class KrbError extends AbstractAsn1Object
     /**
      * @param errorCode the errorCode to set
      */
-    public void setErrorCode( int errorCode )
+    public void setErrorCode( ErrorType errorCode )
     {
         this.errorCode = errorCode;
     }
