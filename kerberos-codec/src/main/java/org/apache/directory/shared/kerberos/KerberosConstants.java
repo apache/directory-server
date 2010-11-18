@@ -129,4 +129,9 @@ public class KerberosConstants
     public static final int AP_REQ_TICKET_TAG = 0xA3;
     public static final int AP_REQ_AUTHENTICATOR_TAG = 0xA4;
     
+    /** AP-REP tags */
+    public static final int AP_REP_TAG = 0x6F;
+    public static final int AP_REP_PVNO_TAG = 0xA0;
+    public static final int AP_REP_MSG_TYPE_TAG = 0xA1;
+    public static final int AP_REP_ENC_PART_TAG = 0xA2;
 }
