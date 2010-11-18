@@ -56,7 +56,8 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     public AbstractKerberosFlags( byte[] flags )
     {
         super( flags );
-        value = ( ( getBytes()[0] & 0x00F ) << 24 ) | ( ( getBytes()[1] & 0x00FF ) << 16 ) | ( ( getBytes()[2] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[3] ); 
+        // Remember getBytes() "A first byte containing the number of unused bits is added"
+        value = ( ( getBytes()[1] & 0x00F ) << 24 ) | ( ( getBytes()[2] & 0x00FF ) << 16 ) | ( ( getBytes()[3] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[4] ); 
     }
     
     
@@ -162,7 +163,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
             value = -1;
         }
         
-        value = ( ( getBytes()[0] & 0x00F ) << 24 ) | ( ( getBytes()[1] & 0x00FF ) << 16 ) | ( ( getBytes()[2] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[3] ); 
+        value = ( ( bytes[0] & 0x00F ) << 24 ) | ( ( bytes[1] & 0x00FF ) << 16 ) | ( ( bytes[2] & 0x00FF ) << 8 ) | ( 0x00FF & bytes[3] ); 
         setData( bytes );
     }
     
