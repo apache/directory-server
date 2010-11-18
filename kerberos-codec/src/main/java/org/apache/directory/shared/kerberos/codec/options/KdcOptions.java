@@ -364,7 +364,7 @@ public class KdcOptions extends Options
             result.append( "RESERVED_23 " );
         }
 
-        // Ž'
+        // 24
         if ( get( RESERVED_24 ) )
         {
             result.append( "RESERVED_24 " );
