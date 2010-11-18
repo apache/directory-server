@@ -476,6 +476,7 @@ public class Ticket extends KerberosMessage
         return 1 + TLV.getNbBytes( ticketLength ) + ticketLength;
     }
     
+    
     /**
      * Encode the Ticket message to a PDU. 
      * <pre>
@@ -547,7 +548,10 @@ public class Ticket extends KerberosMessage
         return buffer;
     }
     
-    
+
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
