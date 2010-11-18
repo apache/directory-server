@@ -21,17 +21,8 @@ package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadRealm;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
-import org.apache.directory.shared.kerberos.components.KdcRep;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,14 +30,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreCRealm extends GrammarAction
+public class StoreCRealm extends AbstractReadRealm
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
 
     /**
      * Instantiates a new TicketRealm action.
@@ -60,31 +45,10 @@ public class StoreCRealm extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setRealm( String realm, Asn1Container container )
     {
         KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-
-        TLV tlv = kdcRepContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // The value is the realm
-        Value value = tlv.getValue();
-        String crealm = StringTools.utf8ToString( value.getData() );
-        KdcRep kdcRep = kdcRepContainer.getKdcRep();
-
-        kdcRep.setCRealm( crealm );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "cRealm : " + crealm );
-        }
+        kdcRepContainer.getKdcRep().setCRealm( realm );
     }
 }
