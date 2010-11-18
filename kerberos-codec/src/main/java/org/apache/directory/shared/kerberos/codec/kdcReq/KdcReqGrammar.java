@@ -25,10 +25,9 @@ import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
-import org.apache.directory.shared.kerberos.codec.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.AddPaData;
+import org.apache.directory.shared.kerberos.codec.kdcReq.actions.CheckMsgType;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StoreKdcReqBody;
 import org.apache.directory.shared.kerberos.codec.kdcReq.actions.StorePvno;
 import org.slf4j.Logger;
@@ -111,7 +110,7 @@ public final class KdcReqGrammar extends AbstractGrammar
         //         msg-type        [2] INTEGER (10 -- AS -- | 12 -- TGS --),
         super.transitions[KdcReqStatesEnum.KDC_REQ_MSG_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             KdcReqStatesEnum.KDC_REQ_MSG_TYPE_TAG_STATE, KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE, UniversalTag.INTEGER.getValue(),
-            new CheckMsgType( "KDC-REQ msg-type", KerberosMessageType.AS_REQ, KerberosMessageType.TGS_REQ ) );
+            new CheckMsgType() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from msg-type value to padata tag

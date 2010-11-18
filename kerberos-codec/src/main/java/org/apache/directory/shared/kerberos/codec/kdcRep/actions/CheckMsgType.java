@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcReq.actions;
+package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,8 +25,8 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.actions.AbstractReadMsgType;
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
-import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
+import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +41,12 @@ public class CheckMsgType extends AbstractReadMsgType
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( CheckMsgType.class );
 
-
     /**
      * Instantiates a new StoreMsgType action.
      */
     public CheckMsgType()
     {
-        super( "KDC-REQ msg-type" );
+        super( "KDC-REP msg-type" );
     }
 
 
@@ -57,12 +56,11 @@ public class CheckMsgType extends AbstractReadMsgType
     @Override
     protected void verifyMsgType( KerberosMessageType krbMsgType, Asn1Container container ) throws DecoderException
     {
-        KdcReqContainer kdcReqContainer = ( KdcReqContainer ) container;
-
-        KdcReq kdcReq = kdcReqContainer.getKdcReq();
+        KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
+        KdcRep kdcRep = kdcRepContainer.getKdcRep();
 
         // The message type must be the expected one
-        if ( krbMsgType != kdcReq.getMsgType() )
+        if ( krbMsgType != kdcRep.getMsgType() )
         {
             LOG.error( I18n.err( I18n.ERR_04070, krbMsgType, "The msg-type should be AS-REQ or TGS-REQ" ) );
 

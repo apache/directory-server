@@ -20,8 +20,6 @@
 package org.apache.directory.shared.kerberos.codec.actions;
 
 
-import java.util.Arrays;
-
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -41,28 +39,33 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CheckMsgType extends GrammarAction
+public abstract class AbstractReadMsgType extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( CheckMsgType.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadMsgType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** an array of allowed message types */
-    private KerberosMessageType[] validMsgTypes;
-
-
     /**
      * Instantiates a new StoreMsgType action.
      */
-    public CheckMsgType( String name, KerberosMessageType... validMsgTypes )
+    public AbstractReadMsgType( String name )
     {
         super( name );
-        this.validMsgTypes = validMsgTypes;
     }
 
+    
+    /**
+     * verifies whether the given message type is acceptable for the ASN.1 object type
+     * present in the container
+     * 
+     * @param krbMsgType the message type
+     * @throws DecoderException if the message type is not acceptable for the ASN.1 object present in the container
+     */
+    protected abstract void verifyMsgType( KerberosMessageType krbMsgType, Asn1Container container ) throws DecoderException;
 
+    
     /**
      * {@inheritDoc}
      */
@@ -86,31 +89,12 @@ public class CheckMsgType extends GrammarAction
             int msgType = IntegerDecoder.parse( value );
             KerberosMessageType krbMsgType = KerberosMessageType.getTypeByOrdinal( msgType );
 
-            boolean found = false;
-
-            for ( KerberosMessageType kbt : validMsgTypes )
-            {
-                if ( krbMsgType == kbt )
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            // The message type must be the expected one
-            if ( !found )
-            {
-                String msg = "The acceptable msg-types for the grammar action '" + name + "' are " + Arrays.asList( validMsgTypes );
-                LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), msg ) );
-
-                // This will generate a PROTOCOL_ERROR
-                throw new DecoderException( msg );
-            }
-
             if ( IS_DEBUG )
             {
                 LOG.debug( "msg-type : {}", krbMsgType );
             }
+            
+            verifyMsgType( krbMsgType, container );
         }
         catch ( IntegerDecoderException ide )
         {
