@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
+package org.apache.directory.shared.kerberos.codec.apReq.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -25,8 +25,8 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.actions.AbstractReadMsgType;
-import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
-import org.apache.directory.shared.kerberos.components.KdcRep;
+import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class CheckMsgType extends AbstractReadMsgType
      */
     public CheckMsgType()
     {
-        super( "KDC-REP msg-type" );
+        super( "AP-REQ msg-type" );
     }
 
 
@@ -56,16 +56,16 @@ public class CheckMsgType extends AbstractReadMsgType
     @Override
     protected void verifyMsgType( KerberosMessageType krbMsgType, Asn1Container container ) throws DecoderException
     {
-        KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-        KdcRep kdcRep = kdcRepContainer.getKdcRep();
+        ApReqContainer apReqContainer = ( ApReqContainer ) container;
+        ApReq apReq = apReqContainer.getApReq();
 
         // The message type must be the expected one
-        if ( krbMsgType != kdcRep.getMsgType() )
+        if ( krbMsgType != apReq.getMessageType() )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, krbMsgType, "The msg-type should be AS-REQ or TGS-REQ" ) );
+            LOG.error( I18n.err( I18n.ERR_04070, krbMsgType, "The msg-type should be AP-REQ" ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( "The msg-type should be AS-REQ or TGS-REQ" );
+            throw new DecoderException( "The msg-type should be AP-REQ" );
         }
     }
 }
