@@ -30,7 +30,7 @@ import org.apache.directory.shared.kerberos.messages.KrbError;
  */
 public class KrbErrorContainer extends AbstractContainer
 {
-    /** An KDC-REQ container */
+    /** An KDC-ERROR container */
     private KrbError krbError;
     
     /**

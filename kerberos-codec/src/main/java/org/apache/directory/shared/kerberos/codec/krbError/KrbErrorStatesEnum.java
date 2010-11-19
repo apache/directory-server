@@ -65,23 +65,21 @@ public enum KrbErrorStatesEnum implements States
     KRB_ERR_CREALM_TAG_STATE,           // 17
     KRB_ERR_CREALM_STATE,               // 18
 
-    KRB_ERR_CNAME_TAG_STATE,            // 19
-    KRB_ERR_CNAME_STATE,                // 20
+    KRB_ERR_CNAME_STATE,                // 19
 
-    KRB_ERR_REALM_TAG_STATE,            // 21
-    KRB_ERR_REALM_STATE,                // 22
+    KRB_ERR_REALM_TAG_STATE,            // 20
+    KRB_ERR_REALM_STATE,                // 21
 
-    KRB_ERR_SNAME_TAG_STATE,            // 23
-    KRB_ERR_SNAME_STATE,                // 24
+    KRB_ERR_SNAME_STATE,                // 22
 
-    KRB_ERR_ETEXT_TAG_STATE,            // 25
-    KRB_ERR_ETEXT_STATE,                // 26
+    KRB_ERR_ETEXT_TAG_STATE,            // 23
+    KRB_ERR_ETEXT_STATE,                // 24
 
-    KRB_ERR_EDATA_TAG_STATE,            // 27
-    KRB_ERR_EDATA_STATE,                // 28
+    KRB_ERR_EDATA_TAG_STATE,            // 25
+    KRB_ERR_EDATA_STATE,                // 26
 
     // End
-    LAST_KRB_ERR_STATE;                 // 29
+    LAST_KRB_ERR_STATE;                 // 27
 
     
     /**
