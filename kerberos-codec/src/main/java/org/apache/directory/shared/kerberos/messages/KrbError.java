@@ -535,7 +535,7 @@ public class KrbError extends KerberosMessage
         try
         {
             // The KRB-ERROR APPLICATION tag
-            buffer.put( (byte)0x7E );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERR_TAG );
             buffer.put( TLV.getBytes( krbErrorLength ) );
 
             // The KRB_ERROR sequence

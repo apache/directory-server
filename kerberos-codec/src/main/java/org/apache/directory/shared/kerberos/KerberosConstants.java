@@ -106,7 +106,8 @@ public class KerberosConstants
     /** TGS-REP's tags */
     public static final int TGS_REP_TAG = 0x6D;
     
-    /** KRB_ERROR's tags */
+    /** KRB-ERROR tags */
+    public static final int KRB_ERR_TAG = 0x7E;
     public static final int KRB_ERR_PVNO_TAG = 0xA0;
     public static final int KRB_ERR_MSGTYPE_TAG = 0xA1;
     public static final int KRB_ERR_CTIME_TAG = 0xA2;
