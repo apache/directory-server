@@ -21,25 +21,25 @@ package org.apache.directory.shared.kerberos.codec.authenticator.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.kerberos.codec.actions.AbstractReadAuthorizationData;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadKerberosTime;
 import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
-import org.apache.directory.shared.kerberos.components.AuthorizationData;
 
 
 /**
- * The action used to set the Authenticator authorization-data
+ * The action used to store the ctime KerberosTime
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAuthorizationData extends AbstractReadAuthorizationData
+public class StoreCTime extends AbstractReadKerberosTime
 {
 
     /**
-     * Instantiates a new StoreAuthorizationData action.
+     * Instantiates a new StoreCTime action.
      */
-    public StoreAuthorizationData()
+    public StoreCTime()
     {
-        super( "Authenticator authorization-data" );
+        super( "Stores the CTime" );
     }
 
 
@@ -47,10 +47,10 @@ public class StoreAuthorizationData extends AbstractReadAuthorizationData
      * {@inheritDoc}
      */
     @Override
-    protected void setAuthorizationData( AuthorizationData authorizationData, Asn1Container container )
+    protected void setKerberosTime( KerberosTime krbtime, Asn1Container container )
     {
         AuthenticatorContainer authenticatorContainer = ( AuthenticatorContainer ) container;
-        authenticatorContainer.getAuthenticator().setAuthorizationData( authorizationData );
+        authenticatorContainer.getAuthenticator().setCTime( krbtime );
         authenticatorContainer.setGrammarEndAllowed( true );
     }
 }

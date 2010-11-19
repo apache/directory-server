@@ -51,5 +51,6 @@ public class StoreSubKey extends AbstractReadEncryptionKey
     {
         AuthenticatorContainer authenticatorContainer = ( AuthenticatorContainer ) container;
         authenticatorContainer.getAuthenticator().setSubKey( encryptionKey );
+        authenticatorContainer.setGrammarEndAllowed( true );
     }
 }

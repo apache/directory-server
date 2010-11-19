@@ -205,7 +205,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @param ctime the ctime to set
      */
-    public void setCtime( KerberosTime ctime )
+    public void setCTime( KerberosTime ctime )
     {
         this.ctime = ctime;
     }
@@ -343,7 +343,7 @@ public class Authenticator extends KerberosMessage
         }
 
         // Compute the cusec length
-        cusecLength = 1 + TLV.getNbBytes( cusec ) + cusec;
+        cusecLength = 1 + 1 + Value.getNbBytes( cusec );
 
         // Compute the ctime length
         ctimeLength = 1 + 1 + 0x0F;
@@ -357,7 +357,7 @@ public class Authenticator extends KerberosMessage
         // Compute the seq-number  length if any
         if ( seqNumber != null )
         {
-            seqNumberLength = 1 + TLV.getNbBytes( seqNumber ) + seqNumber;
+            seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
         }
         
         // Compute the authorization-data length if any

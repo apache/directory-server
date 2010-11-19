@@ -31,11 +31,11 @@ import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreAut
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreAuthorizationData;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreCRealm;
+import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreCTime;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreChecksum;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreCusec;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreSeqNumber;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreSubKey;
-import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreCTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

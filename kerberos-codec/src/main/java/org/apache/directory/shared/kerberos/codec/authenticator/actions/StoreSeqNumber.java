@@ -50,5 +50,6 @@ public class StoreSeqNumber extends AbstractReadInteger
     {
         AuthenticatorContainer authenticatorContainer = ( AuthenticatorContainer ) container;
         authenticatorContainer.getAuthenticator().setSeqNumber( value );
+        authenticatorContainer.setGrammarEndAllowed( true );
     }
 }
