@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -51,14 +52,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcRep
+public class KdcRep extends KerberosMessage
 {
-    /** The PVNO field */
-    private int pvno;
-    
-    /** The message type, either it's a AS-REP or a TGS-REP */
-    private KerberosMessageType msgType;
-    
     /** The PA-DATAs */
     private List<PaData> paData;
     
@@ -95,7 +90,7 @@ public class KdcRep
      */
     public KdcRep( KerberosMessageType msgType )
     {
-        this.msgType = msgType;
+        super( msgType );
         paData = new ArrayList<PaData>();
     }
 
@@ -105,7 +100,7 @@ public class KdcRep
      */
     public int getPvno()
     {
-        return pvno;
+        return getProtocolVersionNumber();
     }
 
 
@@ -114,16 +109,7 @@ public class KdcRep
      */
     public void setPvno( int pvno )
     {
-        this.pvno = pvno;
-    }
-
-
-    /**
-     * @return the msgType
-     */
-    public KerberosMessageType getMsgType()
-    {
-        return msgType;
+        setProtocolVersionNumber( pvno );
     }
 
 
@@ -344,7 +330,7 @@ public class KdcRep
         buffer.put( TLV.getBytes( pvnoLength ) );
         
         // The value
-        Value.encode( buffer, pvno );
+        Value.encode( buffer, getProtocolVersionNumber() );
         
         // The MSG-TYPE if any ------------------------------------------------
         // The tag
@@ -352,7 +338,7 @@ public class KdcRep
         buffer.put( TLV.getBytes( msgTypeLength ) );
         
         // The value
-        Value.encode( buffer, msgType.getValue() );
+        Value.encode( buffer, getMessageType().getValue() );
         
         // The PD-DATA --------------------------------------------------------
         // The tag
@@ -415,11 +401,11 @@ public class KdcRep
     {
         StringBuilder sb = new StringBuilder();
 
-        if ( msgType == KerberosMessageType.AS_REP )
+        if ( getMessageType() == KerberosMessageType.AS_REP )
         {
             sb.append( "AS-REP" ).append( '\n' );
         }
-        else if ( msgType == KerberosMessageType.TGS_REP )
+        else if ( getMessageType() == KerberosMessageType.TGS_REP )
         {
             sb.append( "TGS-REP" ).append( '\n' );
         }
@@ -428,7 +414,7 @@ public class KdcRep
             sb.append( "Unknown" ).append( '\n' );
         }
 
-        sb.append( "pvno : " ).append( pvno ).append( '\n' );
+        sb.append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
 
         sb.append( "msg-type : " );
 

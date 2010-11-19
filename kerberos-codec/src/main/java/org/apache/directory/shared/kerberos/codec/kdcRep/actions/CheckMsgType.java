@@ -60,7 +60,7 @@ public class CheckMsgType extends AbstractReadMsgType
         KdcRep kdcRep = kdcRepContainer.getKdcRep();
 
         // The message type must be the expected one
-        if ( krbMsgType != kdcRep.getMsgType() )
+        if ( krbMsgType != kdcRep.getMessageType() )
         {
             LOG.error( I18n.err( I18n.ERR_04070, krbMsgType, "The msg-type should be AS-REQ or TGS-REQ" ) );
 

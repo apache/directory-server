@@ -31,6 +31,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 
@@ -48,14 +49,8 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class KdcReq
+public abstract class KdcReq extends KerberosMessage
 {
-    /** The PVNO field */
-    private int pvno;
-    
-    /** The message type, either it's a AS-REQ or a TGS-REQ */
-    private KerberosMessageType msgType;
-    
     /** The PA-DATAs */
     private List<PaData> paData;
     
@@ -77,7 +72,7 @@ public abstract class KdcReq
      */
     public KdcReq( KerberosMessageType msgType )
     {
-        this.msgType = msgType;
+        super( msgType );
         paData = new ArrayList<PaData>();
     }
 
@@ -87,7 +82,7 @@ public abstract class KdcReq
      */
     public int getPvno()
     {
-        return pvno;
+        return getProtocolVersionNumber();
     }
 
 
@@ -96,16 +91,7 @@ public abstract class KdcReq
      */
     public void setPvno( int pvno )
     {
-        this.pvno = pvno;
-    }
-
-
-    /**
-     * @return the msgType
-     */
-    public KerberosMessageType getMsgType()
-    {
-        return msgType;
+        setProtocolVersionNumber( pvno );
     }
 
 
@@ -235,7 +221,7 @@ public abstract class KdcReq
         buffer.put( TLV.getBytes( pvnoLength ) );
         
         // The value
-        Value.encode( buffer, pvno );
+        Value.encode( buffer, getProtocolVersionNumber() );
         
         // The msg-type if any ------------------------------------------------
         // The tag
@@ -243,7 +229,7 @@ public abstract class KdcReq
         buffer.put( TLV.getBytes( msgTypeLength ) );
         
         // The value
-        Value.encode( buffer, msgType.getValue() );
+        Value.encode( buffer, getMessageType().getValue() );
         
         // The PD-DATA --------------------------------------------------------
         // The tag
@@ -279,11 +265,11 @@ public abstract class KdcReq
     {
         StringBuilder sb = new StringBuilder();
 
-        if ( msgType == KerberosMessageType.AS_REQ )
+        if ( getMessageType() == KerberosMessageType.AS_REQ )
         {
             sb.append( "AS-REQ" ).append( '\n' );
         }
-        else if ( msgType == KerberosMessageType.TGS_REQ )
+        else if ( getMessageType() == KerberosMessageType.TGS_REQ )
         {
             sb.append( "TGS-REQ" ).append( '\n' );
         }
@@ -292,7 +278,7 @@ public abstract class KdcReq
             sb.append( "Unknown" ).append( '\n' );
         }
 
-        sb.append( "pvno : " ).append( pvno ).append( '\n' );
+        sb.append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
 
         sb.append( "msg-type : " );
 

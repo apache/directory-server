@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
@@ -66,7 +67,7 @@ import sun.security.krb5.internal.AuthorizationData;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcReqBody
+public class KdcReqBody extends AbstractAsn1Object
 {
     /** The KDC options */
     private KdcOptions kdcOptions;
