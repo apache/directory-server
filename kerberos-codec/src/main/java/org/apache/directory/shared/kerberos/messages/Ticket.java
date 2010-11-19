@@ -22,9 +22,6 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.text.ParseException;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -33,10 +30,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
-import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -70,9 +65,6 @@ public class Ticket extends KerberosMessage
     /** Constant for the {@link Ticket} version number (5) */
     public static final int TICKET_VNO = KerberosConstants.KERBEROS_V5;
 
-    /** The Kerberos version number. Should be 5 */
-    private int tktvno;
-    
     /** A storage for a byte array representation of the realm */
     private byte[] realmBytes;
     
@@ -102,11 +94,11 @@ public class Ticket extends KerberosMessage
      * @param serverPrincipal The server principal
      * @param encPart The encoded part
      */
-    public Ticket( KerberosPrincipal serverPrincipal, EncryptedData encPart ) throws InvalidTicketException
+    public Ticket( PrincipalName sName, EncryptedData encPart ) throws InvalidTicketException
     {
-        this( TICKET_VNO, serverPrincipal, encPart );
+        this( TICKET_VNO, sName, encPart );
 
-        setServerPrincipal( serverPrincipal );
+        setSName( sName );
     }
 
 
@@ -126,95 +118,32 @@ public class Ticket extends KerberosMessage
      * @param serverPrincipal The server principal
      * @param encPart The encoded part
      */
-    public Ticket( int tktvno, KerberosPrincipal serverPrincipal, EncryptedData encPart ) throws InvalidTicketException
+    public Ticket( int tktvno, PrincipalName sName, EncryptedData encPart ) throws InvalidTicketException
     {
-        super( KerberosMessageType.TICKET );
-        this.tktvno = tktvno;
+        super( tktvno, KerberosMessageType.TICKET );
         this.encPart = encPart;
-        setServerPrincipal( serverPrincipal );
+        setSName( sName );
     }
 
 
     /**
-     * Sets the {@link EncTicketPart}.
+     * Returns the {@link EncryptedData}.
      *
-     * @param decryptedPart
+     * @return The {@link EncryptedData}.
      */
-    public void setEncTicketPart( EncTicketPart decryptedPart )
+    public EncryptedData getEncPart()
     {
-        encTicketPart = decryptedPart;
-    }
-
-
-    /**
-     * Returns the version number.
-     *
-     * @return The version number.
-     */
-    public int getTktVno()
-    {
-        return tktvno;
-    }
-    
-    
-    /**
-     * Set the ticket version number
-     * @param tktvno the ticket version number
-     */
-    public void setTktVno( int tktvno )
-    {
-        this.tktvno = tktvno;
-    }
-
-
-    /**
-     * Returns the server {@link PrincipalName}.
-     *
-     * @return The server {@link PrincipalName}.
-     */
-    public PrincipalName getSName()
-    {
-        return sName;
+        return encPart;
     }
 
     
     /**
-     * Returns the server {@link KerberosPrincipal}.
-     *
-     * @return The server {@link KerberosPrincipal}.
+     * Set the encrypted ticket part
+     * @param encPart the encrypted ticket part
      */
-    public KerberosPrincipal getServerPrincipal()
+    public void setEncPart( EncryptedData encPart )
     {
-        return KerberosUtils.getKerberosPrincipal( sName, realm );
-    }
-
-    
-    /**
-     * Set the server principalName
-     * @param sName the server principalName
-     */
-    public void setSName( PrincipalName sName )
-    {
-        this.sName = sName;
-    }
-    
-
-    /**
-     * Set the server KerberosPrincipal
-     * @param serverPrincipal the server KerberosPrincipal
-     */
-    public void setServerPrincipal( KerberosPrincipal serverPrincipal ) throws InvalidTicketException
-    {
-        try
-        {
-            sName = new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() );
-            realm = serverPrincipal.getRealm();
-        }
-        catch ( ParseException pe )
-        {
-            LOG.error( I18n.err( I18n.ERR_135, serverPrincipal, pe.getLocalizedMessage() ) );
-            throw new InvalidTicketException( ErrorType.KRB_ERR_GENERIC, I18n.err( I18n.ERR_136, pe.getLocalizedMessage() ) );
-        }
+        this.encPart = encPart; 
     }
     
 
@@ -238,194 +167,48 @@ public class Ticket extends KerberosMessage
         this.realm = realm;
     }
     
-   
+    
     /**
-     * Returns the {@link EncryptedData}.
+     * Returns the server {@link PrincipalName}.
      *
-     * @return The {@link EncryptedData}.
+     * @return The server {@link PrincipalName}.
      */
-    public EncryptedData getEncPart()
+    public PrincipalName getSName()
     {
-        return encPart;
+        return sName;
     }
 
     
     /**
-     * Set the encrypted ticket part
-     * @param encPart the encrypted ticket part
+     * Set the server principalName
+     * @param sName the server principalName
      */
-    public void setEncPart( EncryptedData encPart )
+    public void setSName( PrincipalName sName )
     {
-        this.encPart = encPart; 
+        this.sName = sName;
     }
     
-
+    
     /**
-     * Returns the {@link EncTicketPart}.
-     *
-     * @return The {@link EncTicketPart}.
+     * Gets the Ticket Version number
+     * @return The ticket version number
      */
-    public EncTicketPart getEncTicketPart()
+    public int getTktVno()
     {
-        return encTicketPart;
+        return getProtocolVersionNumber();
     }
-
-
-    /**
-     * Returns the {@link AuthorizationData}.
-     *
-     * @return The {@link AuthorizationData}.
-     *
-    public AuthorizationData getAuthorizationData()
-    {
-        return encTicketPart.getAuthorizationData();
-    }
-    */
-
-    /**
-     * Returns the auth {@link KerberosTime}.
-     *
-     * @return The auth {@link KerberosTime}.
-     *
-    public KerberosTime getAuthTime()
-    {
-        return encTicketPart.getAuthTime();
-    }
-    */
-
-    /**
-     * Returns the client {@link HostAddresses}.
-     *
-     * @return The client {@link HostAddresses}.
-     *
-    public HostAddresses getClientAddresses()
-    {
-        return encTicketPart.getClientAddresses();
-    }
-    */
-
-    /**
-     * Returns the client {@link KerberosPrincipal}.
-     *
-     * @return The client {@link KerberosPrincipal}.
-     *
-    public KerberosPrincipal getClientPrincipal()
-    {
-        return encTicketPart.getClientPrincipal();
-    }
-    */
+    
     
     /**
-     * Returns the client {@link PrincipalName}.
-     *
-     * @return The client {@link PrincipalName}.
-     *
-    public PrincipalName getClientPrincipalName()
+     * Sets the Ticket Version number
+     * @param tktVno The new version number
+     */
+    public void setTktVno( int tktVno )
     {
-        return encTicketPart.getClientPrincipalName();
+        setProtocolVersionNumber( tktVno );
     }
-    */
-
-    /**
-     * Returns the client realm.
-     *
-     * @return The client realm.
-     *
-    public String getClientRealm()
-    {
-        return encTicketPart.getClientRealm();
-    }
-    */
-
-    /**
-     * Returns the end {@link KerberosTime}.
-     *
-     * @return The end {@link KerberosTime}.
-     *
-    public KerberosTime getEndTime()
-    {
-        return encTicketPart.getEndTime();
-    }
-    */
-
-    /**
-     * Returns the {@link TicketFlags}.
-     *
-     * @return The {@link TicketFlags}.
-     *
-    public TicketFlags getFlags()
-    {
-        return encTicketPart.getFlags();
-    }
-    */
     
-    /**
-     * Returns the integer value for the {@link TicketFlags}.
-     *
-     * @return The {@link TicketFlags}.
-     *
-    public int getFlagsIntValue()
-    {
-        return encTicketPart.getFlags().getIntValue();
-    }
-    */
 
-    /**
-     * Returns the renew till {@link KerberosTime}.
-     *
-     * @return The renew till {@link KerberosTime}.
-     *
-    public KerberosTime getRenewTill()
-    {
-        return encTicketPart.getRenewTill();
-    }
-    */
-
-    /**
-     * Returns the session {@link EncryptionKey}.
-     *
-     * @return The session {@link EncryptionKey}.
-     *
-    public EncryptionKey getSessionKey()
-    {
-        return encTicketPart.getSessionKey();
-    }
-    */
-
-    /**
-     * Returns the start {@link KerberosTime}.
-     *
-     * @return The start {@link KerberosTime}.
-     *
-    public KerberosTime getStartTime()
-    {
-        return encTicketPart.getStartTime();
-    }
-    */
-
-    /**
-     * Returns the {@link TransitedEncoding}.
-     *
-     * @return The {@link TransitedEncoding}.
-     *
-    public TransitedEncoding getTransitedEncoding()
-    {
-        return encTicketPart.getTransitedEncoding();
-    }
-    */
-
-    /**
-     * Returns the flag at the given index.
-     *
-     * @param flag
-     * @return true if the flag at the given index is set.
-     *
-    public boolean getFlag( int flag )
-    {
-        return encTicketPart.getFlags().isFlagSet( flag );
-    }
-    */
-    
     /**
      * Compute the Ticket length
      * <pre>
@@ -451,7 +234,7 @@ public class Ticket extends KerberosMessage
     public int computeLength()
     {
         // Compute the Ticket version length.
-        tktvnoLength = 1 + 1 + Value.getNbBytes( tktvno );
+        tktvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the Ticket realm length.
         realmBytes = StringTools.getBytesUtf8( realm );
@@ -513,7 +296,7 @@ public class Ticket extends KerberosMessage
             // The tkt-vno Tag and value
             buffer.put( ( byte )KerberosConstants.TICKET_TKT_VNO_TAG );
             buffer.put( TLV.getBytes( tktvnoLength ) );
-            Value.encode( buffer, tktvno );
+            Value.encode( buffer, getProtocolVersionNumber() );
 
             // The realm Tag and value
             buffer.put( ( byte )KerberosConstants.TICKET_REALM_TAG );
@@ -557,7 +340,7 @@ public class Ticket extends KerberosMessage
         StringBuilder sb = new StringBuilder();
         
         sb.append( "Ticket :\n" );
-        sb.append( "  tkt-vno : " ).append( tktvno ).append( "\n" );
+        sb.append( "  tkt-vno : " ).append( getProtocolVersionNumber() ).append( "\n" );
         sb.append( "  realm : " ).append( realm ).append( "\n" );
         sb.append( "  sname : " ).append( sName ).append( "\n" );
         sb.append( "  enc-part : " ).append( encPart ).append( "\n" );
