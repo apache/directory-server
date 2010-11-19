@@ -503,7 +503,7 @@ public class Ticket extends KerberosMessage
         try
         {
             // The Ticket APPLICATION Tag
-            buffer.put( (byte)0x61 );
+            buffer.put( (byte)KerberosConstants.TICKET_TAG );
             buffer.put( TLV.getBytes( ticketLength ) );
 
             // The Ticket SEQUENCE Tag
@@ -511,24 +511,24 @@ public class Ticket extends KerberosMessage
             buffer.put( TLV.getBytes( ticketSeqLength ) );
 
             // The tkt-vno Tag and value
-            buffer.put( ( byte ) 0xA0 );
+            buffer.put( ( byte )KerberosConstants.TICKET_TKT_VNO_TAG );
             buffer.put( TLV.getBytes( tktvnoLength ) );
             Value.encode( buffer, tktvno );
 
             // The realm Tag and value
-            buffer.put( ( byte ) 0xA1 );
+            buffer.put( ( byte )KerberosConstants.TICKET_REALM_TAG );
             buffer.put( TLV.getBytes( realmLength ) );
             buffer.put( UniversalTag.GENERAL_STRING.getValue() );
             buffer.put( TLV.getBytes( realmBytes.length ) );
             buffer.put( realmBytes );
 
             // The sname Tag and value
-            buffer.put( ( byte ) 0xA2 );
+            buffer.put( ( byte )KerberosConstants.TICKET_SNAME_TAG );
             buffer.put( TLV.getBytes( sNameLength ) );
             sName.encode( buffer );
             
             // The encPartLength Tag and value
-            buffer.put( ( byte ) 0xA3 );
+            buffer.put( ( byte )KerberosConstants.TICKET_ENC_PART_TAG );
             buffer.put( TLV.getBytes( encPartLength ) );
             encPart.encode( buffer );
         }
