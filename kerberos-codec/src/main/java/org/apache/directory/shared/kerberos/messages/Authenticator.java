@@ -160,7 +160,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @return the cname
      */
-    public PrincipalName getCname()
+    public PrincipalName getCName()
     {
         return cname;
     }
@@ -169,7 +169,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @param cname the cname to set
      */
-    public void setCname( PrincipalName cname )
+    public void setCName( PrincipalName cname )
     {
         this.cname = cname;
     }
@@ -178,7 +178,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @return the crealm
      */
-    public String getCrealm()
+    public String getCRealm()
     {
         return crealm;
     }
@@ -187,7 +187,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @param crealm the crealm to set
      */
-    public void setCrealm( String crealm )
+    public void setCRealm( String crealm )
     {
         this.crealm = crealm;
     }
