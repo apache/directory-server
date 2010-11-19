@@ -34,7 +34,7 @@ public class StoreCusec extends AbstractReadInteger
 {
 
     /**
-     * Instantiates a new StorePvno action.
+     * Instantiates a new StoreCusec action.
      */
     public StoreCusec()
     {
