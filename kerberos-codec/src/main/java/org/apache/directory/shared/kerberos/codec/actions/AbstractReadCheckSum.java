@@ -26,42 +26,42 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
+import org.apache.directory.shared.kerberos.components.Checksum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket SName
+ * The action used to set the Checksum
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractReadPrincipalName extends GrammarAction
+public abstract class AbstractReadCheckSum extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadPrincipalName.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadCheckSum.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new AbstractReadPrincipalName action.
+     * Instantiates a new AbstractReadChecksum action.
      */
-    public AbstractReadPrincipalName( String name )
+    public AbstractReadCheckSum( String name )
     {
         super( name );
     }
 
 
     /**
-     * set the PrincipalName on the ASN.1 object of the container
+     * set the Checksum on the ASN.1 object of the container
      *   
-     * @param principalName the principal
+     * @param checksum the Checksum object
      * @param container container holding the ASN.1 object
      */
-    protected abstract void setPrincipalName( PrincipalName principalName, Asn1Container container );
+    protected abstract void setChecksum( Checksum checksum, Asn1Container container );
 
 
     /**
@@ -80,29 +80,29 @@ public abstract class AbstractReadPrincipalName extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
 
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
+        // Now, let's decode the Checksum
+        Asn1Decoder checksumDecoder = new Asn1Decoder();
 
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+        ChecksumContainer checksumContainer = new ChecksumContainer();
 
-        // Decode the PrincipalName PDU
+        // Decode the Checksum PDU
         try
         {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
+            checksumDecoder.decode( container.getStream(), checksumContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
 
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
+        Checksum checksum = checksumContainer.getChecksum();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName : " + principalName );
+            LOG.debug( "Checksum : " + checksum );
         }
 
-        setPrincipalName( principalName, container );
+        setChecksum( checksum, container );
         
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

@@ -26,42 +26,42 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the ticket SName
+ * The action used to set the EncryptionKey
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractReadPrincipalName extends GrammarAction
+public abstract class AbstractReadEncryptionKey extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadPrincipalName.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadEncryptionKey.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new AbstractReadPrincipalName action.
+     * Instantiates a new AbstractReadEncryptionKey action.
      */
-    public AbstractReadPrincipalName( String name )
+    public AbstractReadEncryptionKey( String name )
     {
         super( name );
     }
 
 
     /**
-     * set the PrincipalName on the ASN.1 object of the container
+     * set the EncryptionKey on the ASN.1 object of the container
      *   
-     * @param principalName the principal
+     * @param encryptionKey the EncryptionKey object
      * @param container container holding the ASN.1 object
      */
-    protected abstract void setPrincipalName( PrincipalName principalName, Asn1Container container );
+    protected abstract void setEncryptionKey( EncryptionKey encryptionKey, Asn1Container container );
 
 
     /**
@@ -80,29 +80,29 @@ public abstract class AbstractReadPrincipalName extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
 
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
+        // Now, let's decode the EncryptionKey
+        Asn1Decoder encryptionKeyDecoder = new Asn1Decoder();
 
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
+        EncryptionKeyContainer encryptionKeyContainer = new EncryptionKeyContainer();
 
-        // Decode the PrincipalName PDU
+        // Decode the EncryptionKey PDU
         try
         {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
+            encryptionKeyDecoder.decode( container.getStream(), encryptionKeyContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
 
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
+        EncryptionKey encryptionKey = encryptionKeyContainer.getEncryptionKey();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName : " + principalName );
+            LOG.debug( "EncryptionKey : " + encryptionKey );
         }
 
-        setPrincipalName( principalName, container );
+        setEncryptionKey( encryptionKey, container );
         
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
