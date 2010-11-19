@@ -222,19 +222,11 @@ public final class KrbErrorGrammar extends AbstractGrammar
             new StoreCRealm() );
         
         // --------------------------------------------------------------------------------------------
-        // Transition from crealm value to cname tag
+        // Transition from crealm value to cname
         // --------------------------------------------------------------------------------------------
         // cname           [8]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CREALM_STATE.ordinal()][KerberosConstants.KRB_ERR_CNAME_TAG] = new GrammarTransition(
-            KrbErrorStatesEnum.KRB_ERR_CREALM_STATE, KrbErrorStatesEnum.KRB_ERR_CNAME_TAG_STATE, KerberosConstants.KRB_ERR_CNAME_TAG, 
-            new CheckNotNullLength() );
-
-        // --------------------------------------------------------------------------------------------
-        // Transition from cname tag to cname value
-        // --------------------------------------------------------------------------------------------
-        // cname           [8] PrincipalName OPTIONAL
-        super.transitions[KrbErrorStatesEnum.KRB_ERR_CNAME_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            KrbErrorStatesEnum.KRB_ERR_CNAME_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_CNAME_STATE, UniversalTag.SEQUENCE.getValue(), 
+            KrbErrorStatesEnum.KRB_ERR_CREALM_STATE, KrbErrorStatesEnum.KRB_ERR_CNAME_STATE, KerberosConstants.KRB_ERR_CNAME_TAG, 
             new StoreCName() );
         
         // --------------------------------------------------------------------------------------------
@@ -254,19 +246,11 @@ public final class KrbErrorGrammar extends AbstractGrammar
             new StoreRealm() );
 
         // --------------------------------------------------------------------------------------------
-        // Transition from realm value sname tag
+        // Transition from realm value sname 
         // --------------------------------------------------------------------------------------------
         // sname           [10]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_REALM_STATE.ordinal()][KerberosConstants.KRB_ERR_SNAME_TAG] = new GrammarTransition(
-            KrbErrorStatesEnum.KRB_ERR_REALM_STATE, KrbErrorStatesEnum.KRB_ERR_SNAME_TAG_STATE, KerberosConstants.KRB_ERR_SNAME_TAG, 
-            new CheckNotNullLength() );
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from sname tag to sname value 
-        // --------------------------------------------------------------------------------------------
-        // sname           [10] PrincipalName
-        super.transitions[KrbErrorStatesEnum.KRB_ERR_SNAME_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            KrbErrorStatesEnum.KRB_ERR_SNAME_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_SNAME_STATE, UniversalTag.SEQUENCE.getValue(), 
+            KrbErrorStatesEnum.KRB_ERR_REALM_STATE, KrbErrorStatesEnum.KRB_ERR_SNAME_STATE, KerberosConstants.KRB_ERR_SNAME_TAG, 
             new StoreSName() );
         
         // --------------------------------------------------------------------------------------------
