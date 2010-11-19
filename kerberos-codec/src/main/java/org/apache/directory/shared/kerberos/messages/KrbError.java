@@ -72,7 +72,7 @@ public class KrbError extends KerberosMessage
     private KerberosTime cTime;
 
     /** microseconds of the client's current time */
-    private int cusec;
+    private Integer cusec;
 
     /** current time on the server */
     private KerberosTime sTime;
@@ -402,7 +402,7 @@ public class KrbError extends KerberosMessage
             cTimeLength = 1 + 1 + 0x0F;
         }
 
-        if ( cusec >= 0 )
+        if ( cusec != null )
         {
             int cusecLen = Value.getNbBytes( cusec );
             cusecLength = 1 + TLV.getNbBytes( cusecLen ) + cusecLen;
@@ -458,7 +458,7 @@ public class KrbError extends KerberosMessage
             krbErrorSeqLength += 1 + TLV.getNbBytes( cTimeLength ) + cTimeLength;
         }
 
-        if ( cusec >= 0 )
+        if ( cusec != null )
         {
             krbErrorSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
         }
@@ -566,7 +566,7 @@ public class KrbError extends KerberosMessage
             }
 
             // cusec tag and value if any
-            if ( cusec > 0 )
+            if ( cusec != null )
             {
                 buffer.put( ( byte ) KerberosConstants.KRB_ERR_CUSEC_TAG );
                 buffer.put( TLV.getBytes( cusecLength ) );

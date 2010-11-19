@@ -45,52 +45,52 @@ public class KrbErrorDecoderTest
     {
         Asn1Decoder decoder = new Asn1Decoder();
         
-        int streamLen = 0xCE;
+        int streamLen = 0x8F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
         stream.put( new byte[]
         {
-                0x7E, (byte)0x81, (byte)0xCB,
-                  0x30, (byte)0x81, (byte)0xC8,
+                0x7E, (byte)0x81, (byte)0x8C,
+                  0x30, (byte)0x81, (byte)0x89,
                     (byte)0xA0, 0x03,           // pvno
-                           0x02, 0x01, 0x05,    
+                      0x02, 0x01, 0x05,    
                     (byte)0xA1, 0x03,           // msg-type
-                           0x02, 0x01, 0x1E,   
+                      0x02, 0x01, 0x1E,   
                     (byte)0xA2, 0x11,           // ctime
-                           0x18, 0xF, '2', '0', '1', '0', '1', '1', '1', '9', '0', '8', '0', '0', '4', '3', 'Z',
+                      0x18, 0xF, '2', '0', '1', '0', '1', '1', '1', '9', '0', '8', '0', '0', '4', '3', 'Z',
                     (byte)0xA3, 0x03,           // cusec
-                           0x02, 0x01, 0x01,
+                      0x02, 0x01, 0x01,
                     (byte)0xA4, 0x11,           // stime
-                           0x18, 0xF, '2', '0', '1', '0', '1', '1', '1', '9', '0', '8', '0', '0', '4', '3', 'Z',
+                      0x18, 0xF, '2', '0', '1', '0', '1', '1', '1', '9', '0', '8', '0', '0', '4', '3', 'Z',
                     (byte)0xA5, 0x03,           // susec
-                           0x02, 0x01, 0x02,
+                      0x02, 0x01, 0x02,
                     (byte)0xA6, 0x03,           // error-code
-                           0x02, 0x01, 0x00,
-                    (byte)0xA7, 0x8,            // crealm
-                           0x1B, 0x06, 'c', 'r', 'e', 'a', 'l', 'm',
+                      0x02, 0x01, 0x00,
+                    (byte)0xA7, 0x08,            // crealm
+                      0x1B, 0x06, 'c', 'r', 'e', 'a', 'l', 'm',
                     (byte)0xA8, 0x12,           // cname
-                           0x30, 0x10, 
-                           // FIXME here it fails with ERR_00001_BAD_TRANSITION_FROM_STATE Bad transition from state START_STATE, tag 0xA0
-                           (byte)0xA0, 0x03,
-                             0x02, 0x01, 0x00, 
-                             (byte)0xA1, 0x09, 
-                             0x30, 0x07, 
-                              0x1B, 0x05, 'c', 'n', 'a', 'm', 'e',
+                      0x30, 0x10, 
+                        (byte)0xA0, 0x03,
+                          0x02, 0x01, 0x00, 
+                        (byte)0xA1, 0x09, 
+                          0x30, 0x07, 
+                            0x1B, 0x05, 'c', 'n', 'a', 'm', 'e',
                     (byte)0xA9, 0x07,           // realm
-                           0x1B, 0x05, 'r', 'e', 'a', 'l', 'm',
+                      0x1B, 0x05, 'r', 'e', 'a', 'l', 'm',
                     (byte)0xAA, 0x12,           // sname
-                           0x30, 0x10, 
-                           (byte)0xA0, 0x03,
-                             0x02, 0x01, 0x00, 
-                             (byte)0xA1, 0x09, 
-                             0x30, 0x07, 
-                              0x1B, 0x05, 's', 'n', 'a', 'm', 'e',
+                      0x30, 0x10, 
+                        (byte)0xA0, 0x03,
+                          0x02, 0x01, 0x00, 
+                        (byte)0xA1, 0x09, 
+                          0x30, 0x07, 
+                            0x1B, 0x05, 's', 'n', 'a', 'm', 'e',
                     (byte)0xAB, 0x07,           // e-text
-                           0x1B, 0x5, 'e', 't', 'e', 'x', 't',
+                      0x1B, 0x5, 'e', 't', 'e', 'x', 't',
                     (byte)0xAC, 0x04,           // e-data
-                           0x04, 0x02, 0x00, 0x01
+                      0x04, 0x02, 
+                        0x00, 0x01
         } );
         
-        String decoded = StringTools.utf8ToString( stream.array() );
+        String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer();
@@ -116,7 +116,8 @@ public class KrbErrorDecoderTest
         try
         {
             buffer = krbError.encode( buffer );
-            assertEquals( decoded, StringTools.utf8ToString( buffer.array() ) );
+            
+            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
         }
         catch( EncoderException e )
         {

@@ -31,6 +31,7 @@ import org.apache.directory.shared.kerberos.codec.krbError.actions.KrbErrorInit;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreCRealm;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreCTime;
+import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreCusec;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreEData;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreEText;
 import org.apache.directory.shared.kerberos.codec.krbError.actions.StoreErrorCode;
@@ -155,7 +156,7 @@ public final class KrbErrorGrammar extends AbstractGrammar
         // cusec           [3] Microseconds OPTIONAL
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_CUSEC_STATE, UniversalTag.INTEGER.getValue(), 
-            new StoreSusec() );
+            new StoreCusec() );
     
         // --------------------------------------------------------------------------------------------
         // Transition from cusec value to stime tag
