@@ -154,6 +154,11 @@ public class KrbError extends KerberosMessage
      */
     public int getCusec()
     {
+        if ( cusec == null )
+        {
+            return 0;
+        }
+        
         return cusec;
     }
 
