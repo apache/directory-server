@@ -188,10 +188,13 @@ public class ETypeInfoEntry extends AbstractAsn1Object
             buffer.put( TLV.getBytes( etypeTagLength ) );
             Value.encode( buffer, etype.getValue() );
 
-            // The salt, first the tag, then the value
-            buffer.put( ( byte ) KerberosConstants.ETYPE_INFO_ENTRY_SALT_TAG );
-            buffer.put( TLV.getBytes( saltTagLength ) );
-            Value.encode( buffer, salt );
+            // The salt, first the tag, then the value, if salt is not null
+            if ( salt != null )
+            {
+                buffer.put( ( byte ) KerberosConstants.ETYPE_INFO_ENTRY_SALT_TAG );
+                buffer.put( TLV.getBytes( saltTagLength ) );
+                Value.encode( buffer, salt );
+            }
         }
         catch ( BufferOverflowException boe )
         {
@@ -213,19 +216,19 @@ public class ETypeInfoEntry extends AbstractAsn1Object
     /**
      * @see Object#toString()
      */
-    public String toString( String tabs )
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "ETYPE-INFO-ENTRY : {\n" );
-        sb.append( tabs ).append( "    etype: " ).append( etype ).append( '\n' );
+        sb.append( "ETYPE-INFO-ENTRY : {\n" );
+        sb.append( "    etype: " ).append( etype ).append( '\n' );
 
         if ( salt != null )
         {
-            sb.append( tabs + "    salt:" ).append( StringTools.dumpBytes( salt ) ).append( '\n' );
+            sb.append( "    salt: " ).append( StringTools.dumpBytes( salt ) ).append( '\n' );
         }
 
-        sb.append( tabs + "}\n" );
+        sb.append( "}\n" );
 
         return sb.toString();
     }

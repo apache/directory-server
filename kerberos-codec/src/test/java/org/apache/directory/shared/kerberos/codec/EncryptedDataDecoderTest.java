@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class EncryptedDecoderTest
+public class EncryptedDataDecoderTest
 {
     /**
      * Test the decoding of a EncryptedData

@@ -71,7 +71,7 @@ public class StoreSalt extends GrammarAction
             Value value = tlv.getValue();
             
             // The encrypted data may be null
-            if ( value.getData() == null ) 
+            if ( value.getData() != null ) 
             {
                 etypeInfoEntry.setSalt( value.getData() );
             }
