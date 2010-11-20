@@ -127,7 +127,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Requested protocol version number not supported", 3, error.getErrorCode() );
     }
 
@@ -143,14 +145,18 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Incorrect message direction", 47, error.getErrorCode() );
 
         message = new KdcRequest( 5, KerberosMessageType.TGS_REP, null, null );
 
         handler.messageReceived( session, message );
 
-        error = ( ErrorMessage ) session.getMessage();
+        msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        error = ( ErrorMessage ) msg;
         assertEquals( "Incorrect message direction", 47, error.getErrorCode() );
     }
 
@@ -175,7 +181,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Client not found in Kerberos database", 6, error.getErrorCode() );
     }
 
@@ -218,7 +226,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC has no support for encryption type", 14, error.getErrorCode() );
     }
 
@@ -246,7 +256,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Server not found in Kerberos database", 7, error.getErrorCode() );
     }
 
@@ -268,7 +280,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
     }
 
@@ -297,7 +311,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
     }
 
@@ -339,7 +355,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -388,7 +406,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -437,7 +457,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -485,7 +507,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
     }
 
@@ -528,7 +552,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
     }
 
@@ -570,7 +596,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Ticket not eligible for postdating", 10, error.getErrorCode() );
     }
 
@@ -624,7 +652,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
@@ -675,7 +705,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
 
@@ -719,7 +751,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -758,7 +792,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         long now = System.currentTimeMillis();
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
@@ -798,7 +834,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "INITIAL flag", reply.getFlags().isInitial() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -851,7 +889,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -901,7 +941,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "FORWARDABLE flag", reply.getFlags().isForwardable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -946,7 +988,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "MAY_POSTDATE flag", reply.getFlags().isMayPosdate() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -991,7 +1035,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "PROXIABLE flag", reply.getFlags().isProxiable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1042,7 +1088,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1096,7 +1144,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1142,7 +1192,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 
@@ -1179,7 +1231,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 
@@ -1216,7 +1270,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 
@@ -1253,7 +1309,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 
@@ -1290,7 +1348,9 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 }

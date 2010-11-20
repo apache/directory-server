@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import static org.junit.Assert.assertEquals;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -38,7 +40,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -143,7 +144,9 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 }

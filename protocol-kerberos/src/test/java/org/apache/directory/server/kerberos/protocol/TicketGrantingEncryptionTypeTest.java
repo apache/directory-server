@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +47,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -133,7 +134,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
@@ -185,7 +188,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -250,7 +255,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -315,7 +322,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -381,7 +390,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -448,7 +459,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         handler.messageReceived( session, message );
 
-        TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
+        TicketGrantReply reply = ( TicketGrantReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()

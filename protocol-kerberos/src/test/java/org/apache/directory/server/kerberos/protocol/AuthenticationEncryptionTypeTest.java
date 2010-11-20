@@ -123,7 +123,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
@@ -173,7 +175,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
@@ -226,7 +230,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         handler.messageReceived( session, message );
 
-        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
+        AuthenticationReply reply = ( AuthenticationReply ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
@@ -269,7 +275,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC has no support for encryption type", 14, error.getErrorCode() );
     }
 

@@ -136,7 +136,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -186,7 +188,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -241,7 +245,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -291,7 +297,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -346,7 +354,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -401,7 +411,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -451,7 +463,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -501,7 +515,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -552,7 +568,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -596,7 +614,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -646,7 +666,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 
@@ -699,7 +721,9 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
     }
 }

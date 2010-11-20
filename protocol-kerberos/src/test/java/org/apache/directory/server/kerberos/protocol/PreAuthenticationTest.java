@@ -105,7 +105,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Additional pre-authentication required", 25, error.getErrorCode() );
     }
 
@@ -146,7 +148,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
         assertEquals( "Integrity check on decrypted field failed", 31, error.getErrorCode() );
     }
 
@@ -184,7 +188,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
 
         assertEquals( "Pre-authentication information was invalid", 24, error.getErrorCode() );
     }
@@ -220,7 +226,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         handler.messageReceived( session, message );
 
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        Object msg = session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
+        ErrorMessage error = ( ErrorMessage ) msg;
 
         assertEquals( "KDC has no support for padata type", 16, error.getErrorCode() );
     }
