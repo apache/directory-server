@@ -768,8 +768,9 @@ public enum I18n
     ERR_732("ERR_732"),
     ERR_733("ERR_733"),
     ERR_734_CANNOT_ENCODE_KRBERROR("ERR_734_CANNOT_ENCODE_KRBERROR"),
-    ERR_735_CANNOT_ENCODE_KRBSAFEBODY("ERR_735_CANNOT_ENCODE_KRBSAFEBODY");
-
+    ERR_735_CANNOT_ENCODE_KRBSAFEBODY("ERR_735_CANNOT_ENCODE_KRBSAFEBODY"),
+    ERR_736_CANNOT_ENCODE_KRBSAFE("ERR_736_CANNOT_ENCODE_KRBSAFE");
+    
     private static ResourceBundle errBundle = ResourceBundle
                 .getBundle( "org.apache.directory.server.i18n.errors" );
 
