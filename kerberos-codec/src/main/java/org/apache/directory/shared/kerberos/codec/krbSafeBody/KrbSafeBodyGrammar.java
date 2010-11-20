@@ -194,7 +194,7 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar
         // s-address       [4]
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_SENDER_ADDRESS_TAG] = new GrammarTransition(
             KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE, KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SENDER_ADDRESS_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_SENDER_ADDRESS_TAG,
-            new CheckNotNullLength() );
+            new StoreSenderAddress() );
 
         // --------------------------------------------------------------------------------------------
         // Transition from usec value to s-address tag
@@ -203,7 +203,7 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar
         // s-address       [4]
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_SENDER_ADDRESS_TAG] = new GrammarTransition(
             KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_STATE, KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SENDER_ADDRESS_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_SENDER_ADDRESS_TAG,
-            new CheckNotNullLength() );
+            new StoreSenderAddress() );
     }
 
 
