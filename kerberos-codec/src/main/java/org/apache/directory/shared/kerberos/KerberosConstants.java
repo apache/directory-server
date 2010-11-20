@@ -153,4 +153,8 @@ public class KerberosConstants
     /** PrincipalName's tags */
     public static final int PRINCIPAL_NAME_NAME_TYPE_TAG = 0xA0;
     public static final int PRINCIPAL_NAME_NAME_STRING_TAG = 0xA1;
+
+    /** TransitedEncoding tags */
+    public static final int TRANSITED_ENCODING_TR_TYPE_TAG = 0xA0;
+    public static final int TRANSITED_ENCODING_CONTENTS_TAG = 0xA1;
 }
