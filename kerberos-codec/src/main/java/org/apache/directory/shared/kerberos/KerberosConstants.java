@@ -162,4 +162,12 @@ public class KerberosConstants
     /** TransitedEncoding tags */
     public static final int TRANSITED_ENCODING_TR_TYPE_TAG = 0xA0;
     public static final int TRANSITED_ENCODING_CONTENTS_TAG = 0xA1;
+    
+    /** KrbSafeBody tags */
+    public static final int KRB_SAFE_BODY_USER_DATA_TAG = 0xA0;
+    public static final int KRB_SAFE_BODY_TIMESTAMP_TAG = 0xA1;
+    public static final int KRB_SAFE_BODY_USEC_TAG = 0xA2;
+    public static final int KRB_SAFE_BODY_SEQ_NUMBER_TAG = 0xA3;
+    public static final int KRB_SAFE_BODY_SENDER_ADDRESS_TAG = 0xA4;
+    public static final int KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG = 0xA5;
 }
