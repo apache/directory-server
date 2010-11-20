@@ -97,7 +97,7 @@ public enum KerberosMessageType
      * @param value The int value 
      * @return A KerberosMessageType associated with this value
      */
-    public static KerberosMessageType getTypeByOrdinal( int value )
+    public static KerberosMessageType getTypeByValue( int value )
     {
         switch ( value )
         {

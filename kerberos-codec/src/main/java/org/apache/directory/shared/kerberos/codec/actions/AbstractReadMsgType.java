@@ -87,7 +87,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
         try
         {
             int msgType = IntegerDecoder.parse( value );
-            KerberosMessageType krbMsgType = KerberosMessageType.getTypeByOrdinal( msgType );
+            KerberosMessageType krbMsgType = KerberosMessageType.getTypeByValue( msgType );
 
             if ( IS_DEBUG )
             {
