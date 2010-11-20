@@ -34,15 +34,18 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
 {
     /**
      * The maximum size of the BitString as specified for Kerberos flags.
+     * 1 byte contains the number of unused bits
+     * 4 bytes containing the data
+     * => 5 x 8 bits = 40 
      */
-    public static final int MAX_SIZE = 32;
+    public static final int MAX_SIZE = 40;
 
     /** The associated value */
     protected int value;
     
     
     /**
-     * Standard constructor, which create a BitString containing 32 bits
+     * Standard constructor, which create a BitString containing 8 + 32 bits
      */
     public AbstractKerberosFlags()
     {
@@ -51,7 +54,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
 
     
     /**
-     * Standard constructor, taking a byte array
+     * Standard constructor, taking a byte array, 8 + x (x <= 32) bits
      */
     public AbstractKerberosFlags( byte[] flags )
     {
@@ -73,7 +76,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
             (byte)( ( flags >> 16 ) & 0x00ff ), 
             (byte)( ( flags >> 8 ) & 0x00ff ), 
             (byte)( flags & 0x00ff ) };
-}
+    }
     
     
     /**
