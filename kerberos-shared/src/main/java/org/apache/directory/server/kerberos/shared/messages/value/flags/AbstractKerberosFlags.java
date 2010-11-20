@@ -68,6 +68,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     public static byte[] getBytes( int flags )
     {
         return new byte[]{
+            (byte)( 0 ), // unused bits
             (byte)( flags >>> 24), 
             (byte)( ( flags >> 16 ) & 0x00ff ), 
             (byte)( ( flags >> 8 ) & 0x00ff ), 
