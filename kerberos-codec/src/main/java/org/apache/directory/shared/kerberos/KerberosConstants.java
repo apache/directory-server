@@ -112,6 +112,11 @@ public class KerberosConstants
     /** EncryptionKey tags */
     public static final int ENCRYPTION_KEY_TYPE_TAG = 0xA0;
     public static final int ENCRYPTION_KEY_VALUE_TAG = 0xA1;
+    
+    /** ETYPE-INFO-ENTRY tags */
+    public static final int ETYPE_INFO_ENTRY_ETYPE_TAG = 0xA0;
+    public static final int ETYPE_INFO_ENTRY_SALT_TAG = 0xA1;
+    
 
     /** HostAddress' tags */
     public static final int HOST_ADDRESS_ADDR_TYPE_TAG = 0xA0;

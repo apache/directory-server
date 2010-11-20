@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides host address information.
  * 
- * The ASN.1 grammaor for this structure is :
+ * The ASN.1 grammar for this structure is :
  * <pre>
  * HostAddress     ::= SEQUENCE  {
  *        addr-type       [0] Int32,

@@ -214,16 +214,16 @@ public class PaData extends AbstractAsn1Object
 
         try
         {
-            // The Checksum SEQ Tag
+            // The PreAuthenticationData SEQ Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( preAuthenticationDataSeqLength ) );
 
-            // The cksumtype, first the tag, then the value
+            // The PaDataType, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PADATA_TYPE_TAG );
             buffer.put( TLV.getBytes( paDataTypeTagLength ) );
             Value.encode( buffer, paDataType.getValue() );
 
-            // The checksum, first the tag, then the value
+            // The PaDataValue, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PADATA_VALUE_TAG );
             buffer.put( TLV.getBytes( paDataValueTagLength ) );
             Value.encode( buffer, paDataValue );
@@ -243,6 +243,7 @@ public class PaData extends AbstractAsn1Object
 
         return buffer;
     }
+    
 
     /**
      * @see Object#toString()
