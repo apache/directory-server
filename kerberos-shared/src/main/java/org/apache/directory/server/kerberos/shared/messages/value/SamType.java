@@ -20,9 +20,6 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -30,7 +27,7 @@ import java.util.List;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class SamType implements Comparable<SamType>
+public enum SamType
 {
     /*
      * Enumeration elements are constructed once upon class loading.
@@ -38,39 +35,31 @@ public final class SamType implements Comparable<SamType>
      */
 
     /** safe SAM type enum for Enigma Logic */
-    public static final SamType PA_SAM_TYPE_ENIGMA = new SamType( 1, "Enigma Logic" );
+    PA_SAM_TYPE_ENIGMA ( 1, "Enigma Logic" ),
 
     /** safe SAM type enum for Digital Pathways */
-    public static final SamType PA_SAM_TYPE_DIGI_PATH = new SamType( 2, "Digital Pathways" );
+    PA_SAM_TYPE_DIGI_PATH ( 2, "Digital Pathways" ),
 
     /** safe SAM type enum for S/key where KDC has key 0 */
-    public static final SamType PA_SAM_TYPE_SKEY_K0 = new SamType( 3, "S/key where KDC has key 0" );
+    PA_SAM_TYPE_SKEY_K0 ( 3, "S/key where KDC has key 0" ),
 
     /** safe SAM type enum for Traditional S/Key */
-    public static final SamType PA_SAM_TYPE_SKEY = new SamType( 4, "Traditional S/Key" );
+    PA_SAM_TYPE_SKEY ( 4, "Traditional S/Key" ),
 
     /** safe SAM type enum for Security Dynamics */
-    public static final SamType PA_SAM_TYPE_SECURID = new SamType( 5, "Security Dynamics" );
+    PA_SAM_TYPE_SECURID ( 5, "Security Dynamics" ),
 
     /** safe SAM type enum for CRYPTOCard */
-    public static final SamType PA_SAM_TYPE_CRYPTOCARD = new SamType( 6, "CRYPTOCard" );
+    PA_SAM_TYPE_CRYPTOCARD ( 6, "CRYPTOCard" ),
 
     /** safe SAM type enum for Apache Software Foundation */
-    public static final SamType PA_SAM_TYPE_APACHE = new SamType( 7, "Apache Software Foundation" );
-
-    /** Array for building a List of VALUES. */
-    private static final SamType[] values =
-        { PA_SAM_TYPE_ENIGMA, PA_SAM_TYPE_DIGI_PATH, PA_SAM_TYPE_SKEY_K0, PA_SAM_TYPE_SKEY, PA_SAM_TYPE_SECURID,
-            PA_SAM_TYPE_CRYPTOCARD, PA_SAM_TYPE_APACHE };
-
-    /** a list of all the sam type constants */
-    public static final List<SamType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    PA_SAM_TYPE_APACHE ( 7, "Apache Software Foundation" );
 
     /** the name of the sam type */
-    private final String name;
+    private String name;
 
     /** the value/code for the sam type */
-    private final int ordinal;
+    private int ordinal;
 
 
     /**
@@ -95,19 +84,6 @@ public final class SamType implements Comparable<SamType>
 
 
     /**
-     * Compares this type to another object hopefully one that is of the same
-     * type.
-     *
-     * @param that the object to compare this SamType to
-     * @return ordinal - ( ( SamType ) that ).ordinal;
-     */
-    public int compareTo( SamType that )
-    {
-        return ordinal - that.ordinal;
-    }
-
-
-    /**
      * Gets the ordinal by its ordinal value.
      *
      * @param ordinal the ordinal value of the ordinal
@@ -115,11 +91,11 @@ public final class SamType implements Comparable<SamType>
      */
     public static SamType getTypeByOrdinal( int ordinal )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( SamType st : SamType.values())
         {
-            if ( values[ii].ordinal == ordinal )
+            if ( ordinal == st.getOrdinal() )
             {
-                return values[ii];
+                return st;
             }
         }
 

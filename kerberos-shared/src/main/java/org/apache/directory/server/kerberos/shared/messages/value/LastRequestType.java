@@ -20,74 +20,58 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class LastRequestType implements Comparable<LastRequestType>
+public enum LastRequestType
 {
     /**
      * Constant for the "none" last request type.
      */
-    public static final LastRequestType NONE = new LastRequestType( 0, AuthenticationLevel.NONE.toString() );
+    NONE ( 0, AuthenticationLevel.NONE.toString() ),
 
     /**
      * Constant for the "time of initial ticket" last request type.
      */
-    public static final LastRequestType TIME_OF_INITIAL_TGT = new LastRequestType( 1, "time of initial ticket" );
+    TIME_OF_INITIAL_TGT ( 1, "time of initial ticket" ),
 
     /**
      * Constant for the "time of initial request" last request type.
      */
-    public static final LastRequestType TIME_OF_INITIAL_REQ = new LastRequestType( 2, "time of initial request" );
+    TIME_OF_INITIAL_REQ ( 2, "time of initial request" ),
 
     /**
      * Constant for the "time of newest ticket" last request type.
      */
-    public static final LastRequestType TIME_OF_NEWEST_TGT = new LastRequestType( 3, "time of newest ticket" );
+    TIME_OF_NEWEST_TGT ( 3, "time of newest ticket" ),
 
     /**
      * Constant for the "time of last renewal" last request type.
      */
-    public static final LastRequestType TIME_OF_LAST_RENEWAL = new LastRequestType( 4, "time of last renewal" );
+    TIME_OF_LAST_RENEWAL ( 4, "time of last renewal" ),
 
     /**
      * Constant for the "time of last request" last request type.
      */
-    public static final LastRequestType TIME_OF_LAST_REQ = new LastRequestType( 5, "time of last request" );
+    TIME_OF_LAST_REQ ( 5, "time of last request" ),
 
     /**
      * Constant for the "time of password expiration" last request type.
      */
-    public static final LastRequestType TIME_OF_PASSWORD_EXP = new LastRequestType( 6, "time of password expiration" );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final LastRequestType[] values =
-        { NONE, TIME_OF_INITIAL_TGT, TIME_OF_INITIAL_REQ, TIME_OF_NEWEST_TGT, TIME_OF_LAST_RENEWAL, TIME_OF_LAST_REQ,
-            TIME_OF_PASSWORD_EXP };
-
-    /**
-     * A List of all the last request type constants.
-     */
-    public static final List<LastRequestType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    TIME_OF_PASSWORD_EXP ( 6, "time of password expiration" );
 
     /**
      * The name of the checksum type.
      */
-    private final String name;
+    private String name;
 
     /**
      * The value/code for the checksum type.
      */
-    private final int ordinal;
+    private int ordinal;
 
 
     /**
@@ -108,11 +92,11 @@ public final class LastRequestType implements Comparable<LastRequestType>
      */
     public static LastRequestType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( LastRequestType lrt : LastRequestType.values() )
         {
-            if ( values[ii].ordinal == type )
+            if ( type == lrt.getOrdinal() )
             {
-                return values[ii];
+                return lrt;
             }
         }
 
@@ -128,12 +112,6 @@ public final class LastRequestType implements Comparable<LastRequestType>
     public int getOrdinal()
     {
         return ordinal;
-    }
-
-
-    public int compareTo( LastRequestType that )
-    {
-        return ordinal - that.ordinal;
     }
 
 
