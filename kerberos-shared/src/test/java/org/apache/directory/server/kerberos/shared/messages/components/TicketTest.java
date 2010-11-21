@@ -64,8 +64,8 @@ public class TicketTest
         
         byte[] expectedResult = new byte[]
             {
-              0x61, (byte)0x81, (byte)0xEF,
-                0x30,  (byte)0x81, (byte)0xEC, 
+              0x61, (byte)0x81, (byte)0xF7,
+                0x30,  (byte)0x81, (byte)0xF4, 
                   (byte)0xA0, 0x03,
                     0x02, 0x01, 0x05,
                   (byte)0xA1, 0x0D,
@@ -81,15 +81,15 @@ public class TicketTest
                             'k', 'a', 'd', 'm', 'i', 'n',
                           0x1B, 0x08,
                             'c', 'h', 'a', 'n', 'g', 'e', 'p', 'w',
-                  (byte)0xA3, (byte)0x81, (byte)0xB6, 
-                    0x30, (byte)0x81, (byte)0xB3,
+                  (byte)0xA3, (byte)0x81, (byte)0xBE, 
+                    0x30, (byte)0x81, (byte)0xBB,
                       (byte)0xA0, 0x03,
                         0x02, 0x01, 0x03,
-                      (byte)0xA2, (byte)0x81, (byte)0xAB,
-                        0x04, (byte)0x81, (byte)0xA8
+                      (byte)0xA2, (byte)0x81, (byte)0xB3,
+                        0x04, (byte)0x81, (byte)0xB0
             };
 
-        // We will just compared the first bytes (everyting before the encrypted data)
+        // We will just compared the first bytes (everything before the encrypted data)
         String expectedResultString = StringTools.dumpBytes( expectedResult );
         String resultString = StringTools.dumpBytes( encoded.array() ).substring( 0,  expectedResultString.length() );
         
