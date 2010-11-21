@@ -29,7 +29,7 @@ import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.messages.value.SamType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
 
