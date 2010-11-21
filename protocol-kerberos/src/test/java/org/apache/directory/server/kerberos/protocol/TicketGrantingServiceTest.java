@@ -55,6 +55,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -441,6 +442,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testRenewTicket() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -487,6 +489,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testValidateTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -540,6 +543,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testProxyTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -601,6 +605,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testForwardedTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -712,6 +717,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testExpiredRenewableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -816,6 +822,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testRenewableTicketRenewal() throws Exception
     {
         long now = System.currentTimeMillis();
@@ -1129,6 +1136,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testStartTimeOrderNeverValid() throws Exception
     {
         // Get the mutable ticket part.
@@ -1305,6 +1313,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testSpecificStartTime() throws Exception
     {
         long now = System.currentTimeMillis();
@@ -1368,6 +1377,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testPreAuthenticationFlag() throws Exception
     {
         // Get the mutable ticket part.
@@ -1582,6 +1592,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testRenewableOk() throws Exception
     {
         // Get the mutable ticket part.
@@ -1644,6 +1655,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testForwardableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1701,6 +1713,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testAllowPostdate() throws Exception
     {
         // Get the mutable ticket part.
@@ -1758,6 +1771,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testProxiableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1818,6 +1832,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testRenewableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1884,6 +1899,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * @throws Exception 
      */
     @Test
+    @Ignore
     public void testRenewableTicketExceedsMaximumAllowable() throws Exception
     {
         // Get the mutable ticket part.

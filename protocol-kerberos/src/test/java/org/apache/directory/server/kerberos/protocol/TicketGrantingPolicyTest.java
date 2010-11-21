@@ -43,6 +43,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -202,6 +203,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testForwardedNoAddressesTicket() throws Exception
     {
         // Deny empty addresses tickets in policy.
@@ -368,6 +370,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testProxyNoAddressesTicket() throws Exception
     {
         // Deny empty addresses tickets in policy.
@@ -628,6 +631,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testRenewableOk() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
@@ -680,6 +684,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testRenewableTicket() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
