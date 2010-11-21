@@ -86,21 +86,12 @@ public class AbstractKerberosFlagsTest
             private static final long serialVersionUID = 1L;
         };
 
-        // intValue
         assertEquals( "intValue", 0, akfEmptyConstructor.getIntValue() );
         assertEquals(
             "intValue",
             ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() )
                 + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() ) + Math.pow( 2, TicketFlag.PROXY.getOrdinal() ) + Math
                 .pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ), akfIntConstructor.getIntValue() );
-
-        // hexValue
-        // TODO The method getHexValue() is a bit confusing WRT its comment and naming and what the method really
-        // does. Ever seen a 'toHex' method returning an 'int'?
-        //        assertEquals( "hexValue", Integer.toHexString( 0 ), Integer.toHexString( akfEmptyConstructor.getHexValue() ) );
-        //        assertEquals( "hexValue", Integer.toHexString( ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() )
-        //            + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() ) + Math.pow( 2, TicketFlag.PROXY.getOrdinal() ) + Math
-        //            .pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ) ), Integer.toHexString( akfIntConstructor.getHexValue() ) );
     }
 
 

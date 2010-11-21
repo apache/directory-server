@@ -155,22 +155,6 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         setBit( flag );
     }
     
-    
-    /**
-     * Modify a byte array to an integer value
-     * @param bytes The 1 + 4 bytes byte array to transform.
-     */
-    public void setFlags( byte[] bytes )
-    {
-        if ( (bytes== null ) || ( bytes.length != 5 ) )
-        {
-            value = -1;
-        }
-        
-        value = ( ( bytes[1] & 0x00F ) << 24 ) | ( ( bytes[2] & 0x00FF ) << 16 ) | ( ( bytes[3] & 0x00FF ) << 8 ) | ( 0x00FF & bytes[4] ); 
-        setData( bytes );
-    }
-    
 
     /**
      * clear a flag in a list of flags
@@ -193,15 +177,5 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     {
         value &= ~( 1 << flag );
         clearBit( flag );
-    }
-    
-    
-    /**
-     * @return The hex value for this flag, in its position.
-     * For instance, getting the flag 5 will return 0x0000 0010 
-     */
-    public int getHexValue()
-    {
-        return 1 << value;
     }
 }
