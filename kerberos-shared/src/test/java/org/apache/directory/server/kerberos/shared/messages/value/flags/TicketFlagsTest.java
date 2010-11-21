@@ -144,17 +144,15 @@ public class TicketFlagsTest
     }
 
 
+    /**
+     * Tests converting the ticket flags to a descriptive String.
+     */
     @Test
-    public void testNoFlagsToString() throws Exception
+    public void testToString() throws Exception
     {
         TicketFlags tf = new TicketFlags();
         assertEquals( "toString()", "", tf.toString() );
-    }
 
-
-    @Test
-    public void testAllFlagsToString() throws Exception
-    {
         int i = 0;
         for ( TicketFlag t : TicketFlag.values() )
         {
@@ -164,10 +162,26 @@ public class TicketFlagsTest
             }
         }
 
-        TicketFlags tf = new TicketFlags( i );
+        tf = new TicketFlags( i );
         assertEquals( "toString()", "RESERVED(0) FORWARDABLE(1) FORWARDED(2) PROXIABLE(3) PROXY(4) "
             + "MAY_POSTDATE(5) POSTDATED(6) INVALID(7) RENEWABLE(8) INITIAL(9) PRE_AUTHENT(10) "
             + "HW_AUTHENT(11) TRANSITED_POLICY_CHECKED(12) OK_AS_DELEGATE(13)", tf.toString() );
+    }
+
+
+    /**
+     * Tests that setting flags is idempotent.
+     */
+    @Test
+    public void testDuplicateSetting()
+    {
+        TicketFlags flags = new TicketFlags();
+        flags.setFlag( TicketFlag.MAY_POSTDATE );
+        flags.setFlag( TicketFlag.FORWARDABLE );
+        flags.setFlag( TicketFlag.PROXIABLE );
+        flags.setFlag( TicketFlag.MAY_POSTDATE );
+        flags.setFlag( TicketFlag.RENEWABLE );
+        assertEquals( flags.toString(), "FORWARDABLE(1) PROXIABLE(3) MAY_POSTDATE(5) RENEWABLE(8)" );
     }
 
 

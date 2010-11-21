@@ -17,62 +17,27 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.messages.value;
+package org.apache.directory.server.kerberos.shared.messages.value;
 
+
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class OptionsTest
+public class KdcOptionsTest
 {
     private static final byte[] fpriOptions =
         { ( byte ) 0x50, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x10 };
-
-
-    /**
-     * Tests converting the ticket flags to a descriptive String.
-     */
-    @Test
-    public void testToString()
-    {
-        TicketFlags flags = new TicketFlags();
-        flags.setFlag( TicketFlag.FORWARDABLE );
-        flags.setFlag( TicketFlag.PROXIABLE );
-        flags.setFlag( TicketFlag.RENEWABLE );
-        flags.setFlag( TicketFlag.INITIAL );
-        assertEquals( flags.toString(), "FORWARDABLE(1) PROXIABLE(3) RENEWABLE(8) INITIAL(9)" );
-    }
-
-
-    /**
-     * Tests that setting flags is idempotent.
-     */
-    @Test
-    public void testDuplicateSetting()
-    {
-        TicketFlags flags = new TicketFlags();
-        flags.setFlag( TicketFlag.MAY_POSTDATE );
-        flags.setFlag( TicketFlag.FORWARDABLE );
-        flags.setFlag( TicketFlag.PROXIABLE );
-        flags.setFlag( TicketFlag.MAY_POSTDATE );
-        flags.setFlag( TicketFlag.RENEWABLE );
-        assertEquals( flags.toString(), "FORWARDABLE(1) PROXIABLE(3) MAY_POSTDATE(5) RENEWABLE(8)" );
-    }
 
 
     /**
