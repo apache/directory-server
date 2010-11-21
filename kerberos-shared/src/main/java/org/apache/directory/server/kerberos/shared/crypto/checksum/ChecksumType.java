@@ -25,7 +25,7 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum ChecksumType implements Comparable<ChecksumType>
+public enum ChecksumType
 {
     /**
      * The "unknown" checksum type.
