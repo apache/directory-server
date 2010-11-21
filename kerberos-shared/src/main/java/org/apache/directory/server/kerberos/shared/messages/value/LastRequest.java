@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.messages.value;
 
+import org.apache.directory.server.kerberos.shared.messages.value.types.LastRequestType;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

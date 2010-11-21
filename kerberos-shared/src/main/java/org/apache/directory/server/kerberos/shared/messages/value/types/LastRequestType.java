@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.value;
+package org.apache.directory.server.kerberos.shared.messages.value.types;
 
 
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
