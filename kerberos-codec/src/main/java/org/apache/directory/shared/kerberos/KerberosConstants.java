@@ -172,7 +172,7 @@ public class KerberosConstants
     public static final int KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG = 0xA5;
     
     /** KrbSafe tags */
-    public static final int KRB_SAFE_TAG = 0x64;
+    public static final int KRB_SAFE_TAG = 0x74;
     public static final int KRB_SAFE_PVNO_TAG = 0xA0;
     public static final int KRB_SAFE_MSGTYPE_TAG = 0xA1;
     public static final int KRB_SAFE_SAFE_BODY_TAG = 0xA2;

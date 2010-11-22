@@ -48,7 +48,7 @@ public class KrbSafeDecoderTest
     public void testDecodeKrbSafe()
     {
         byte[] data = new byte[]{
-            0x64, 0x36,
+            0x74, 0x36,
               0x30, 0x34,
                (byte)0xA0, 0x03,        // pvno
                  0x02, 0x01, 0x05,
