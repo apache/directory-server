@@ -99,7 +99,7 @@ public class KrbSafeDecoderTest
         assertNotNull( krbSafe.getSafeBody() );
         
         int encodedLen = krbSafe.computeLength();
-        assertEquals( streamLen + 2, encodedLen );
+        assertEquals( streamLen, encodedLen );
         
         try
         {
@@ -114,4 +114,28 @@ public class KrbSafeDecoderTest
             fail();
         }
     }
+    
+    
+    @Test( expected = DecoderException.class)
+    public void testDecodeKrbSafeWithIncorrectPdu() throws DecoderException
+    {
+        byte[] data = new byte[]{
+            0x74, 0xC,
+              0x30, 0xA,
+               (byte)0xA0, 0x03,        // pvno
+                 0x02, 0x01, 0x05,
+               (byte)0xA1, 0x03,        // msg-type
+                 0x02, 0x01, 0x14,
+        };
+        
+        ByteBuffer stream = ByteBuffer.wrap( data );
+        
+        Asn1Decoder decoder = new Asn1Decoder();
+        
+        KrbSafeContainer container = new  KrbSafeContainer();
+        container.setStream( stream );
+        
+        decoder.decode( stream, container );
+    }
+    
 }
