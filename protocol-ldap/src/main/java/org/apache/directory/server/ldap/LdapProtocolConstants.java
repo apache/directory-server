@@ -25,12 +25,22 @@ import org.apache.directory.shared.ldap.message.control.Control;
 
 /**
  * Constants for LDAP protocol service.
+ * Final reference -> class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface LdapProtocolConstants
+public final class LdapProtocolConstants
 {
-    Control[] EMPTY_CONTROLS = new Control[0];
-    String OUTSTANDING_KEY = "outstandingRequestsKey";
-    String CORE_SESSION_KEY = "coreSessionKey";
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private LdapProtocolConstants()
+    {
+    }
+
+    public final static Control[] EMPTY_CONTROLS = new Control[0];
+    public final static String OUTSTANDING_KEY = "outstandingRequestsKey";
+    public final static String CORE_SESSION_KEY = "coreSessionKey";
 }

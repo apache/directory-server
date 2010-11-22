@@ -49,40 +49,51 @@ package jdbm.recman;
 
 /**
  * This interface contains magic cookies.
+ * Final reference -> class shouldn't be extended
  */
-public interface Magic 
+public final class Magic 
 {
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private Magic()
+    {
+    }
+
+    
     /** Magic cookie at start of file */
-    short FILE_HEADER = 0x1350;
+    public final static short FILE_HEADER = 0x1350;
 
     /** Magic for blocks. They're offset by the block type magic codes. */
-    short BLOCK = 0x1351;
+    public final static short BLOCK = 0x1351;
 
     /** Magics for block types in certain lists. Offset by baseBlockMagic */
-    short FREE_PAGE = 0;
-    short USED_PAGE = 1;
-    short TRANSLATION_PAGE = 2;
-    short FREELOGIDS_PAGE = 3;
-    short FREEPHYSIDS_PAGE = 4;
+    public final static short FREE_PAGE = 0;
+    public final static short USED_PAGE = 1;
+    public final static short TRANSLATION_PAGE = 2;
+    public final static short FREELOGIDS_PAGE = 3;
+    public final static short FREEPHYSIDS_PAGE = 4;
 
     /** Number of lists in a file */
-    public short NLISTS = 5;
+    public final static short NLISTS = 5;
 
     /**
      *  Maximum number of blocks in a file, leaving room for a 16 bit
      *  offset encoded within a long.
      */
-    long MAX_BLOCKS = 0x7FFFFFFFFFFFL;
+    public final static long MAX_BLOCKS = 0x7FFFFFFFFFFFL;
 
     /** Magic for transaction file */
-    short LOGFILE_HEADER = 0x1360;
+    public final static short LOGFILE_HEADER = 0x1360;
 
     /** Size of an externalized byte */
-    short SZ_BYTE = 1;
+    public final static short SZ_BYTE = 1;
     /** Size of an externalized short */
-    short SZ_SHORT = 2;
+    public final static short SZ_SHORT = 2;
     /** Size of an externalized int */
-    short SZ_INT = 4;
+    public final static short SZ_INT = 4;
     /** Size of an externalized long */
-    short SZ_LONG = 8;
+    public final static short SZ_LONG = 8;
 }

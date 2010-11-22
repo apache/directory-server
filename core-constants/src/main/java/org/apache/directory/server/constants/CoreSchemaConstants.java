@@ -20,12 +20,23 @@
 
 package org.apache.directory.server.constants;
 
+
 /**
  * Core schema constants used throughout the server.
+ * Final reference -> class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface CoreSchemaConstants
+public final class CoreSchemaConstants
 {
-    String SCHEMA_NAME = "core";
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private CoreSchemaConstants()
+    {
+    }
+
+    public final static String SCHEMA_NAME = "core";
 }

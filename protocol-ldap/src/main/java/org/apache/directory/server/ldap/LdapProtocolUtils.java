@@ -24,13 +24,12 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.Response;
 
-
 /**
  * Utility methods used by the LDAP protocol service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapProtocolUtils implements LdapProtocolConstants
+public class LdapProtocolUtils
 {
     /**
      * Extracts request controls from a request to populate into an
@@ -43,7 +42,7 @@ public class LdapProtocolUtils implements LdapProtocolConstants
     {
         if ( request.getControls() != null )
         {
-            request.addAllControls( request.getControls().values().toArray( EMPTY_CONTROLS ) );
+            request.addAllControls( request.getControls().values().toArray( LdapProtocolConstants.EMPTY_CONTROLS ) );
         }
     }
 

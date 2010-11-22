@@ -22,22 +22,32 @@ package org.apache.directory.server;
 
 /**
  * Exit codes for the bootstrappers.
+ * Final reference -> class shouldn't be extended
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface ExitCodes
+public final class ExitCodes
 {
-    int CLASS_LOOKUP = 1;
-    int INSTANTIATION = 2;
-    int METHOD_LOOKUP = 3;
-    int INITIALIZATION = 4;
-    int START = 5;
-    int STOP = 6;
-    int PROPLOAD = 7;
-    int VERIFICATION = 8;
-    int DESTROY = 9;
-    int BAD_ARGUMENTS = 10;
-    int BAD_COMMAND = 11;
-    int UNKNOWN = 12;
-    int INVOCATION = 13;
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private ExitCodes()
+    {
+    }
+
+    public final static int CLASS_LOOKUP = 1;
+    public final static int INSTANTIATION = 2;
+    public final static int METHOD_LOOKUP = 3;
+    public final static int INITIALIZATION = 4;
+    public final static int START = 5;
+    public final static int STOP = 6;
+    public final static int PROPLOAD = 7;
+    public final static int VERIFICATION = 8;
+    public final static int DESTROY = 9;
+    public final static int BAD_ARGUMENTS = 10;
+    public final static int BAD_COMMAND = 11;
+    public final static int UNKNOWN = 12;
+    public final static int INVOCATION = 13;
 }

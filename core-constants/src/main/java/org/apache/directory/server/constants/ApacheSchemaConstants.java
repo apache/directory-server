@@ -22,135 +22,146 @@ package org.apache.directory.server.constants;
 
 /**
  * Constants from the Apache schema.
+ * Final reference -> class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface ApacheSchemaConstants
+public final class ApacheSchemaConstants
 {
-    String SCHEMA_NAME = "apache";
+
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private ApacheSchemaConstants()
+    {
+    }
+
+    public final static String SCHEMA_NAME = "apache";
 
     // ---- ObjectClasses -----------------------------------------------------
     // ApacheCatalogEntry
-    String APACHE_CATALOG_ENTRY_OC                  = "apacheCatalogEntry";
-    String APACHE_CATALOG_ENTRY_OC_OID              = "1.3.6.1.4.1.18060.0.4.1.3.5";
+    public final static String APACHE_CATALOG_ENTRY_OC = "apacheCatalogEntry";
+    public final static String APACHE_CATALOG_ENTRY_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.5";
 
     // apacheFactoryConfiguration
-    String APACHE_FACTORY_CONFIGURATION_OC          = "apacheFactoryConfiguration";
-    String APACHE_FACTORY_CONFIGURATION_OC_OID      = "1.3.6.1.4.1.18060.0.4.1.3.4";
+    public final static String APACHE_FACTORY_CONFIGURATION_OC = "apacheFactoryConfiguration";
+    public final static String APACHE_FACTORY_CONFIGURATION_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.4";
 
     // ApacheServiceConfiguration
-    String APACHE_SERVICE_CONFIGURATION_OC          = "apacheServiceConfiguration";
-    String APACHE_SERVICE_CONFIGURATION_OC_OID      = "1.3.6.1.4.1.18060.0.4.1.3.3";
+    public final static String APACHE_SERVICE_CONFIGURATION_OC = "apacheServiceConfiguration";
+    public final static String APACHE_SERVICE_CONFIGURATION_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.3";
 
     // ApacheSubschema
-    String APACHE_SUBSCHEMA_OC                      = "apacheSubschema";
-    String APACHE_SUBSCHEMA_OC_OID                  = "1.3.6.1.4.1.18060.0.4.1.3.9";
+    public final static String APACHE_SUBSCHEMA_OC = "apacheSubschema";
+    public final static String APACHE_SUBSCHEMA_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.9";
 
     // JavaClass
-    String JAVA_CLASS_OC                            = "javaClass";
-    String JAVA_CLASS_OC_OID                        = "1.3.6.1.4.1.18060.0.4.1.3.8";
+    public final static String JAVA_CLASS_OC = "javaClass";
+    public final static String JAVA_CLASS_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.8";
 
     // JavaStoredProcUnit
-    String JAVA_STORED_PROC_UNIT_OC                 = "javaStoredProcUnit";
-    String JAVA_STORED_PROC_UNIT_OC_OID             = "1.3.6.1.4.1.18060.0.4.1.5.5";
+    public final static String JAVA_STORED_PROC_UNIT_OC = "javaStoredProcUnit";
+    public final static String JAVA_STORED_PROC_UNIT_OC_OID = "1.3.6.1.4.1.18060.0.4.1.5.5";
 
     // JavaxScriptStoredProcUnit
-    String JAVAX_SCRIPT_STORED_PROC_UNIT_OC         = "javaxScriptStoredProcUnit";
-    String JAVAX_SCRIPT_STORED_PROC_UNIT_OC_OID     = "1.3.6.1.4.1.18060.0.4.1.5.8";
+    public final static String JAVAX_SCRIPT_STORED_PROC_UNIT_OC = "javaxScriptStoredProcUnit";
+    public final static String JAVAX_SCRIPT_STORED_PROC_UNIT_OC_OID = "1.3.6.1.4.1.18060.0.4.1.5.8";
 
     // PrefNode
-    String PREF_NODE_OC                             = "prefNode";
-    String PREF_NODE_OC_OID                         = "1.3.6.1.4.1.18060.0.4.1.3.1";
+    public final static String PREF_NODE_OC = "prefNode";
+    public final static String PREF_NODE_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.1";
 
     // SchemaModificationAttributes
-    String SCHEMA_MODIFICATION_ATTRIBUTES_OC        = "schemaModificationAttributes";
-    String SCHEMA_MODIFICATION_ATTRIBUTES_OC_OID    = "1.3.6.1.4.1.18060.0.4.1.3.10";
+    public final static String SCHEMA_MODIFICATION_ATTRIBUTES_OC = "schemaModificationAttributes";
+    public final static String SCHEMA_MODIFICATION_ATTRIBUTES_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.10";
 
     // StoredProcUnit
-    String STORED_PROC_UNIT_OC                      = "storedProcUnit";
-    String STORED_PROC_UNIT_OC_OID                  = "1.3.6.1.4.1.18060.0.4.1.5.3";
+    public final static String STORED_PROC_UNIT_OC = "storedProcUnit";
+    public final static String STORED_PROC_UNIT_OC_OID = "1.3.6.1.4.1.18060.0.4.1.5.3";
 
     // TriggerExecutionSubentry
-    String TRIGGER_EXECUTION_SUBENTRY_OC            = "triggerExecutionSubentry";
-    String TRIGGER_EXECUTION_SUBENTRY_OC_OID        = "1.3.6.1.4.1.18060.0.4.1.2.28";
+    public final static String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
+    public final static String TRIGGER_EXECUTION_SUBENTRY_OC_OID = "1.3.6.1.4.1.18060.0.4.1.2.28";
 
     // UnixFile
-    String UNIX_FILE_OC                             = "unixFile";
-    String UNIX_FILE_OC_OID                         = "1.3.6.1.4.1.18060.0.4.1.3.7";
+    public final static String UNIX_FILE_OC = "unixFile";
+    public final static String UNIX_FILE_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.7";
 
     // WindowsFile
-    String WINDOWS_FILE_OC                          = "windowsFile";
-    String WINDOWS_FILE_OC_OID                      = "1.3.6.1.4.1.18060.0.4.1.3.6";
+    public final static String WINDOWS_FILE_OC = "windowsFile";
+    public final static String WINDOWS_FILE_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.6";
 
     // ---- AttributeType ----------------------------------------------------------
     // ApacheNdn
-    String APACHE_N_DN_AT                           = "apacheNdn";
-    String APACHE_N_DN_AT_OID                       = "1.3.6.1.4.1.18060.0.4.1.2.1";
-    
+    public final static String APACHE_N_DN_AT = "apacheNdn";
+    public final static String APACHE_N_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.1";
+
     // ApacheUpdn
-    String APACHE_UP_DN_AT                          = "apacheUpdn";
-    String APACHE_UP_DN_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.2";
-    
+    public final static String APACHE_UP_DN_AT = "apacheUpdn";
+    public final static String APACHE_UP_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.2";
+
     // ApacheExistence
-    String APACHE_EXISTENCE_AT                      = "apacheExistence";
-    String APACHE_EXISTENCE_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.3";
-    
+    public final static String APACHE_EXISTENCE_AT = "apacheExistence";
+    public final static String APACHE_EXISTENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
+
     // ApacheOneLevel
-    String APACHE_ONE_LEVEL_AT                      = "apacheOneLevel";
-    String APACHE_ONE_LEVEL_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.4";
-    
+    public final static String APACHE_ONE_LEVEL_AT = "apacheOneLevel";
+    public final static String APACHE_ONE_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.4";
+
     // ApacheOneAlias
-    String APACHE_ONE_ALIAS_AT                      = "apacheOneAlias";
-    String APACHE_ONE_ALIAS_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.5";
-    
+    public final static String APACHE_ONE_ALIAS_AT = "apacheOneAlias";
+    public final static String APACHE_ONE_ALIAS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.5";
+
     // ApacheSubAlias
-    String APACHE_SUB_ALIAS_AT                      = "apacheSubAlias";
-    String APACHE_SUB_ALIAS_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.6";
+    public final static String APACHE_SUB_ALIAS_AT = "apacheSubAlias";
+    public final static String APACHE_SUB_ALIAS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.6";
 
     // ApacheAlias
-    String APACHE_ALIAS_AT                          = "apacheAlias";
-    String APACHE_ALIAS_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.7";
+    public final static String APACHE_ALIAS_AT = "apacheAlias";
+    public final static String APACHE_ALIAS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.7";
 
     // PrefNodeName
-    String PREF_NODE_NAME_AT                        = "prefNodeName";
-    String PREF_NODE_NAME_AT_OID                    = "1.3.6.1.4.1.18060.0.4.1.2.8";
-    
+    public final static String PREF_NODE_NAME_AT = "prefNodeName";
+    public final static String PREF_NODE_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.8";
+
     // CatalogEntryName
-    String APACHE_CATALOGUE_ENTRY_NAME_AT           = "apacheCatalogEntryName";
-    String APACHE_CATALOGUE_ENTRY_NAME_AT_OID       = "1.3.6.1.4.1.18060.0.4.1.2.17";
-    
-    String APACHE_CATALOGUE_ENTRY_BASE_DN_AT        = "apacheCatalogEntryBaseDn";
-    String APACHE_CATALOGUE_ENTRY_BASE_DN_AT_OID    = "1.3.6.1.4.1.18060.0.4.1.2.18";
+    public final static String APACHE_CATALOGUE_ENTRY_NAME_AT = "apacheCatalogEntryName";
+    public final static String APACHE_CATALOGUE_ENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.17";
+
+    public final static String APACHE_CATALOGUE_ENTRY_BASE_DN_AT = "apacheCatalogEntryBaseDn";
+    public final static String APACHE_CATALOGUE_ENTRY_BASE_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.18";
 
     // WindowsFilePath
-    String WINDOWS_FILE_AT                          = "windowsFilePath";
-    String WINDOWS_FILE_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.19";
+    public final static String WINDOWS_FILE_AT = "windowsFilePath";
+    public final static String WINDOWS_FILE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.19";
 
     // WindowsFilePath
-    String UNIX_FILE_AT                             = "unixFilePath";
-    String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
+    public final static String UNIX_FILE_AT = "unixFilePath";
+    public final static String UNIX_FILE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.20";
 
     // entryDeleted
-    String ENTRY_DELETED_AT                         = "entryDeleted";
-    String ENTRY_DELETED_AT_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.31";
-    
+    public final static String ENTRY_DELETED_AT = "entryDeleted";
+    public final static String ENTRY_DELETED_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";
+
     // SchemaModifyTimestamp
-    String SCHEMA_MODIFY_TIMESTAMP_AT               = "schemaModifyTimestamp";
-    String SCHEMA_MODIFY_TIMESTAMP_AT_OID           = "1.3.6.1.4.1.18060.0.4.1.2.35";
+    public final static String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
+    public final static String SCHEMA_MODIFY_TIMESTAMP_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.35";
 
     // SchemaModifiersName
-    String SCHEMA_MODIFIERS_NAME_AT                 = "schemaModifiersName";
-    String SCHEMA_MODIFIERS_NAME_AT_OID             = "1.3.6.1.4.1.18060.0.4.1.2.36";
-    
+    public final static String SCHEMA_MODIFIERS_NAME_AT = "schemaModifiersName";
+    public final static String SCHEMA_MODIFIERS_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.36";
+
     // SubschemaSubentryName
-    String SUBSCHEMA_SUBENTRY_NAME_AT               = "subschemaSubentryName";
-    String SUBSCHEMA_SUBENTRY_NAME_AT_OID           = "1.3.6.1.4.1.18060.0.4.1.2.37";
-    
+    public final static String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
+    public final static String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.37";
+
     // apacheSubLevel
-    String APACHE_SUB_LEVEL_AT                      = "apacheSubLevel";
-    String APACHE_SUB_LEVEL_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.43";
+    public final static String APACHE_SUB_LEVEL_AT = "apacheSubLevel";
+    public final static String APACHE_SUB_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.43";
 
     // apacheRdn
-    String APACHE_RDN_AT                      = "apacheRdn";
-    String APACHE_RDN_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.50";
+    public final static String APACHE_RDN_AT = "apacheRdn";
+    public final static String APACHE_RDN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.50";
 }

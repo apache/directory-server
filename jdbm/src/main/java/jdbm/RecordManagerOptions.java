@@ -50,41 +50,51 @@ package jdbm;
 
 /**
  * Standard options for RecordManager.
+ * Final reference -> class shouldn't be extended
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
  */
-public interface RecordManagerOptions
+public final class RecordManagerOptions
 {
+    /**
+     *  Ensures no construction of this class, also ensures there is no need for final keyword above
+     *  (Implicit super constructor is not visible for default constructor),
+     *  but is still self documenting.
+     */
+    private RecordManagerOptions()
+    {
+    }
+
     /** Option to create a thread-safe record manager. */
-    String PROVIDER_FACTORY = "jdbm.provider";
+    public final static String PROVIDER_FACTORY = "jdbm.provider";
 
 
     /** Option to create a thread-safe record manager. */
-    String THREAD_SAFE = "jdbm.threadSafe";
+    public final static String THREAD_SAFE = "jdbm.threadSafe";
 
 
     /** Option to automatically commit data after each operation. */
-    String AUTO_COMMIT = "jdbm.autoCommit";
+    public final static String AUTO_COMMIT = "jdbm.autoCommit";
 
 
     /**
      * Option to disable transaction (to increase performance at the cost of
      * potential data loss).
      */
-    String DISABLE_TRANSACTIONS = "jdbm.disableTransactions";
+    public final static String DISABLE_TRANSACTIONS = "jdbm.disableTransactions";
 
 
     /** Cache type. */
-    String CACHE_TYPE = "jdbm.cache.type";
+    public final static String CACHE_TYPE = "jdbm.cache.type";
 
 
     /** Cache size (when applicable) */
-    String CACHE_SIZE = "jdbm.cache.size";
+    public final static String CACHE_SIZE = "jdbm.cache.size";
 
 
     /** Use normal (strong) object references for the record cache. */
-    String NORMAL_CACHE = "normal";
+    public final static String NORMAL_CACHE = "normal";
 
 
     /**
@@ -94,7 +104,7 @@ public interface RecordManagerOptions
      * Soft references are cleared at the discretion of the garbage collector
      * in response to memory demand.
      */
-    String SOFT_REF_CACHE = "soft";
+    public final static String SOFT_REF_CACHE = "soft";
 
 
     /**
@@ -104,5 +114,5 @@ public interface RecordManagerOptions
      * Weak references do not prevent their referents from being made
      * finalizable, finalized, and then reclaimed.
      */
-    String WEAK_REF_CACHE = "weak";
+    public final static String WEAK_REF_CACHE = "weak";
 }
