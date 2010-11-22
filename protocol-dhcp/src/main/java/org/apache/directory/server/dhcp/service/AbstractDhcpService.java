@@ -24,7 +24,6 @@ import java.util.Iterator;
 
 import org.apache.directory.server.dhcp.DhcpException;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
-import org.apache.directory.server.dhcp.messages.MessageType;
 import org.apache.directory.server.dhcp.options.DhcpOption;
 import org.apache.directory.server.dhcp.options.OptionsField;
 import org.apache.directory.server.dhcp.options.dhcp.ParameterRequestList;
@@ -64,24 +63,24 @@ public abstract class AbstractDhcpService implements DhcpService {
         }
 
         // dispatch based on the message type
-        switch (request.getMessageType().getCode()){
+        switch (request.getMessageType()){
             // client-to-server messages
-            case MessageType.CODE_DHCPDISCOVER :
+            case DHCPDISCOVER :
                 return handleDISCOVER(localAddress, clientAddress, request);
-            case MessageType.CODE_DHCPREQUEST :
+            case DHCPREQUEST :
                 return handleREQUEST(localAddress, clientAddress, request);
-            case MessageType.CODE_DHCPRELEASE :
+            case DHCPRELEASE :
                 return handleRELEASE(localAddress, clientAddress, request);
-            case MessageType.CODE_DHCPINFORM :
+            case DHCPINFORM :
                 return handleINFORM(localAddress, clientAddress, request);
 
-            case MessageType.CODE_DHCPOFFER :
+            case DHCPOFFER :
                 return handleOFFER(localAddress, clientAddress, request);
 
                 // server-to-client messages
-            case MessageType.CODE_DHCPDECLINE :
-            case MessageType.CODE_DHCPACK :
-            case MessageType.CODE_DHCPNAK :
+            case DHCPDECLINE :
+            case DHCPACK :
+            case DHCPNAK :
                 return null; // just ignore them
 
             default :
