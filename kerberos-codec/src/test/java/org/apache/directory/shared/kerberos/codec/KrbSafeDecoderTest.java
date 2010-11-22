@@ -50,11 +50,11 @@ public class KrbSafeDecoderTest
         byte[] data = new byte[]{
             0x14, 0x36,
               0x30, 0x34,
-               (byte)0xA0, 0x03,
+               (byte)0xA0, 0x03,        // pvno
                       0x02, 0x01, 0x05,
-               (byte)0xA1, 0x03,
+               (byte)0xA1, 0x03,        // msg-type
                       0x02, 0x01, 0x14,
-               (byte)0xA2, 0x19,
+               (byte)0xA2, 0x19,        // safe-body
                       0x30, 0x17,
                        (byte)0xA0, 0x04,
                               0x04, 0x02, 0x00, 0x01,
@@ -64,7 +64,7 @@ public class KrbSafeDecoderTest
                                        0x02, 0x01, 0x02,
                                        (byte)0xA1, 0x06,
                                               0x04, 0x04, 127, 0, 0, 1, 
-               (byte)0xA3, 0x0D,
+               (byte)0xA3, 0x0D,        // cksum
                       0x30, 0x0B,
                        (byte)0xA0, 0x03,
                               0x02, 0x01, 0x01,
