@@ -21,11 +21,6 @@
 package org.apache.directory.server.ntp.messages;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-
 /**
  * Stratum: This is a eight-bit unsigned integer indicating the stratum
  * level of the local clock, with values defined as follows:
@@ -39,43 +34,32 @@ import java.util.List;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class StratumType implements Comparable<StratumType>
+public enum StratumType
 {
     /**
      * Constant for the "Unspecified or unavailable" stratum type.
      */
-    public static final StratumType UNSPECIFIED = new StratumType( 0, "Unspecified or unavailable." );
+    UNSPECIFIED(0, "Unspecified or unavailable."),
 
     /**
      * Constant for the "Primary reference" stratum type.
      */
-    public static final StratumType PRIMARY_REFERENCE = new StratumType( 1, "Primary reference." );
+    PRIMARY_REFERENCE(1, "Primary reference."),
 
     /**
      * Constant for the "Secondary reference" stratum type.
      */
-    public static final StratumType SECONDARY_REFERENCE = new StratumType( 2, "Secondary reference." );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final StratumType[] values =
-        { UNSPECIFIED, PRIMARY_REFERENCE, SECONDARY_REFERENCE };
-
-    /**
-     * A list of all the stratum type constants.
-     */
-    public static final List<StratumType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    SECONDARY_REFERENCE(2, "Secondary reference.");
 
     /**
      * The name of the stratum type.
      */
-    private final String name;
+    private String name;
 
     /**
      * The value/code for the stratum type.
      */
-    private final int ordinal;
+    private int ordinal;
 
 
     /**
@@ -96,11 +80,11 @@ public final class StratumType implements Comparable<StratumType>
      */
     public static StratumType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( StratumType st : StratumType.values() )
         {
-            if ( values[ii].ordinal == type )
+            if ( type == st.getOrdinal() )
             {
-                return values[ii];
+                return st;
             }
         }
 
@@ -116,12 +100,6 @@ public final class StratumType implements Comparable<StratumType>
     public int getOrdinal()
     {
         return ordinal;
-    }
-
-
-    public int compareTo( StratumType that )
-    {
-        return ordinal - that.ordinal;
     }
 
 

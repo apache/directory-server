@@ -21,11 +21,6 @@
 package org.apache.directory.server.ntp.messages;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-
 /**
  * Leap Indicator (LI): This is a two-bit code warning of an impending
  * leap second to be inserted/deleted in the last minute of the current
@@ -40,51 +35,37 @@ import java.util.List;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class LeapIndicatorType implements Comparable<LeapIndicatorType>
+public enum LeapIndicatorType
 {
     /**
      * Constant for the "No leap second warning" leap indicator type.
      */
-    public static final LeapIndicatorType NO_WARNING = new LeapIndicatorType( 0, "No leap second warning." );
+    NO_WARNING(0, "No leap second warning."),
 
     /**
      * Constant for the "Last minute has 61 seconds" leap indicator type.
      */
-    public static final LeapIndicatorType POSITIVE_LEAP_SECOND = new LeapIndicatorType( 1,
-        "Last minute has 61 seconds." );
+    POSITIVE_LEAP_SECOND(1, "Last minute has 61 seconds."),
 
     /**
      * Constant for the "Last minute has 59 seconds" leap indicator type.
      */
-    public static final LeapIndicatorType NEGATIVE_LEAP_SECOND = new LeapIndicatorType( 2,
-        "Last minute has 59 seconds." );
+    NEGATIVE_LEAP_SECOND(2, "Last minute has 59 seconds."),
 
     /**
      * Constant for the "Alarm condition (clock not synchronized)" leap indicator type.
      */
-    public static final LeapIndicatorType ALARM_CONDITION = new LeapIndicatorType( 3,
-        "Alarm condition (clock not synchronized)." );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final LeapIndicatorType[] values =
-        { NO_WARNING, POSITIVE_LEAP_SECOND, NEGATIVE_LEAP_SECOND, ALARM_CONDITION };
-
-    /**
-     * A list of all the leap indicator type constants.
-     */
-    public static final List<LeapIndicatorType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    ALARM_CONDITION(3, "Alarm condition (clock not synchronized).");
 
     /**
      * The name of the leap indicator type.
      */
-    private final String name;
+    private String name;
 
     /**
      * The value/code for the leap indicator type.
      */
-    private final int ordinal;
+    private int ordinal;
 
 
     /**
@@ -105,11 +86,11 @@ public final class LeapIndicatorType implements Comparable<LeapIndicatorType>
      */
     public static LeapIndicatorType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( LeapIndicatorType lit : LeapIndicatorType.values() )
         {
-            if ( values[ii].ordinal == type )
+            if ( type == lit.getOrdinal() )
             {
-                return values[ii];
+                return lit;
             }
         }
 
@@ -125,12 +106,6 @@ public final class LeapIndicatorType implements Comparable<LeapIndicatorType>
     public int getOrdinal()
     {
         return ordinal;
-    }
-
-
-    public int compareTo( LeapIndicatorType that )
-    {
-        return ordinal - that.ordinal;
     }
 
 

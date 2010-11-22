@@ -21,11 +21,6 @@
 package org.apache.directory.server.ntp.messages;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-
 /**
  * Mode: This is a three-bit integer indicating the mode, with values
  * defined as follows:
@@ -43,69 +38,57 @@ import java.util.List;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class ModeType implements Comparable<ModeType>
+public enum ModeType
 {
     /**
      * Constant for the "Reserved mode" mode type.
      */
-    public static final ModeType RESERVED = new ModeType( 0, "Reserved mode." );
+    RESERVED(0, "Reserved mode."),
 
     /**
      * Constant for the "Symmetric active mode" mode type.
      */
-    public static final ModeType SYMMETRIC_ACTIVE = new ModeType( 1, "Symmetric active mode." );
+    SYMMETRIC_ACTIVE(1, "Symmetric active mode."),
 
     /**
      * Constant for the "Symmetric passive mode" mode type.
      */
-    public static final ModeType RESERVED_PASSIVE = new ModeType( 2, "Symmetric passive mode." );
+    RESERVED_PASSIVE(2, "Symmetric passive mode."),
 
     /**
      * Constant for the "Client mode" mode type.
      */
-    public static final ModeType CLIENT = new ModeType( 3, "Client mode." );
+    CLIENT(3, "Client mode."),
 
     /**
      * Constant for the "Server mode" mode type.
      */
-    public static final ModeType SERVER = new ModeType( 4, "Server mode." );
+    SERVER(4, "Server mode."),
 
     /**
      * Constant for the "Broadcast mode" mode type.
      */
-    public static final ModeType BROADCAST = new ModeType( 5, "Broadcast mode." );
+    BROADCAST(5, "Broadcast mode."),
 
     /**
      * Constant for the "Reserved for NTP control message" mode type.
      */
-    public static final ModeType RESERVED_FOR_NTP_CONTROL = new ModeType( 6, "Reserved for NTP control message." );
+    RESERVED_FOR_NTP_CONTROL(6, "Reserved for NTP control message."),
 
     /**
      * Constant for the "Reserved for private use" mode type.
      */
-    public static final ModeType RESERVED_FOR_PRIVATE_USE = new ModeType( 7, "Reserved for private use." );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final ModeType[] values =
-        { RESERVED, SYMMETRIC_ACTIVE, RESERVED_PASSIVE, CLIENT, SERVER, BROADCAST, RESERVED_FOR_NTP_CONTROL,
-            RESERVED_FOR_PRIVATE_USE };
-
-    /**
-     * A list of all the mode type constants.
-     */
-    public static final List<ModeType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    RESERVED_FOR_PRIVATE_USE(7, "Reserved for private use.");
 
     /**
      * The name of the mode type.
      */
-    private final String name;
+    private String name;
 
     /**
      * The value/code for the mode type.
      */
-    private final int ordinal;
+    private int ordinal;
 
 
     /**
@@ -126,13 +109,14 @@ public final class ModeType implements Comparable<ModeType>
      */
     public static ModeType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( ModeType mt : ModeType.values() )
         {
-            if ( values[ii].ordinal == type )
+            if ( type == mt.getOrdinal() )
             {
-                return values[ii];
+                return mt;
             }
         }
+
         return SERVER;
     }
 
@@ -145,12 +129,6 @@ public final class ModeType implements Comparable<ModeType>
     public int getOrdinal()
     {
         return ordinal;
-    }
-
-
-    public int compareTo( ModeType that )
-    {
-        return ordinal - that.ordinal;
     }
 
 
