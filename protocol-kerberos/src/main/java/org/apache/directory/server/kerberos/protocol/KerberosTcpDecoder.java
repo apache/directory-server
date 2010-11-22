@@ -20,12 +20,23 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,8 +45,20 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosTcpDecoder extends CumulativeProtocolDecoder
+public class KerberosTcpDecoder extends ProtocolDecoderAdapter
 {
+    /** The logger */
+    private static Logger log = LoggerFactory.getLogger( LdapDecoder.class );
+
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
+    /** The message container for this instance */
+    private LdapMessageContainer ldapMessageContainer;
+
+    /** The ASN 1 deocder instance */
+    private Asn1Decoder asn1Decoder;
+
     private KdcRequestDecoder decoder = new KdcRequestDecoder();
 
     private int maxObjectSize = 16384; // 16KB
@@ -74,18 +97,68 @@ public class KerberosTcpDecoder extends CumulativeProtocolDecoder
     /**
      * {@inheritDoc}
      */
-    @Override
-    protected boolean doDecode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws Exception
+    public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws Exception
     {
-        if ( !in.prefixedDataAvailable( 4, maxObjectSize ) )
+        ByteBuffer buf = in.buf();
+        int position = 0;
+        
+        LdapMessageContainer messageContainer = ( LdapMessageContainer ) session
+            .getAttribute( "messageContainer" );
+        
+        
+        
+        while ( buf.hasRemaining() )
         {
-            return false;
+            try
+            {
+                asn1Decoder.decode( buf, messageContainer );
+
+                if ( IS_DEBUG )
+                {
+                    log.debug( "Decoding the PDU : " );
+
+                    int size = buf.position();
+                    buf.flip();
+
+                    byte[] array = new byte[size - position];
+
+                    for ( int i = position; i < size; i++ )
+                    {
+                        array[i] = buf.get();
+                    }
+
+                    position = size;
+
+                    if ( array.length == 0 )
+                    {
+                        log.debug( "NULL buffer, what the HELL ???" );
+                    }
+                    else
+                    {
+                        log.debug( StringTools.dumpBytes( array ) );
+                    }
+                }
+
+                if ( messageContainer.getState() == TLVStateEnum.PDU_DECODED )
+                {
+                    if ( IS_DEBUG )
+                    {
+                        log.debug( "Decoded LdapMessage : " + messageContainer.getMessage() );
+                        buf.mark();
+                    }
+
+                    out.write( messageContainer.getMessage() );
+
+                    messageContainer.clean();
+                }
+            }
+            catch ( DecoderException de )
+            {
+                buf.clear();
+                messageContainer.clean();
+
+                throw de;
+            }
         }
-
-        in.getInt();
-
-        out.write( decoder.decode( in.buf() ) );
-
-        return true;
     }
 }

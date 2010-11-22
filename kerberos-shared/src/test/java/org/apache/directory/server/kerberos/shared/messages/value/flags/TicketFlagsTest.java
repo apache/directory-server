@@ -72,8 +72,8 @@ public class TicketFlagsTest
     public void testGivenIntConstructor() throws Exception
     {
         // Flags 1, 2, 4, 8 set
-        TicketFlags tf = new TicketFlags( ( int ) ( Math.pow( 2, 1 ) + Math.pow( 2, 2 ) + Math.pow( 2, 4 ) + Math.pow(
-            2, 8 ) ) );
+        TicketFlags tf = new TicketFlags( ( int ) ( Math.pow( 2, 31 - 1 ) + Math.pow( 2, 31 - 2 ) + Math.pow( 2, 31 - 4 ) + Math.pow(
+            2, 31 - 8 ) ) );
         assertFalse( tf.isReserved() ); // 0
         assertTrue( tf.isForwardable() ); // 1
         assertTrue( tf.isForwarded() ); // 2
@@ -96,7 +96,7 @@ public class TicketFlagsTest
     {
         // Flags 1, 2, 4, 8 set
         TicketFlags tf = new TicketFlags(
-            getBytes( ( int ) ( Math.pow( 2, 1 ) + Math.pow( 2, 2 ) + Math.pow( 2, 4 ) + Math.pow( 2, 8 ) ) ) );
+            getBytes( ( int ) ( Math.pow( 2, 31 - 1 ) + Math.pow( 2, 31 - 2 ) + Math.pow( 2, 31 - 4 ) + Math.pow( 2, 31 - 8 ) ) ) );
         assertFalse( tf.isReserved() ); // 0
         assertTrue( tf.isForwardable() ); // 1
         assertTrue( tf.isForwarded() ); // 2
@@ -156,9 +156,9 @@ public class TicketFlagsTest
         int i = 0;
         for ( TicketFlag t : TicketFlag.values() )
         {
-            if ( !t.equals( TicketFlags.MAX_SIZE ) )
+            if ( t != TicketFlag.MAX_VALUE )
             {
-                i += Math.pow( 2, t.getOrdinal() );
+                i |= 1 << ( 31 - t.getOrdinal() );
             }
         }
 
@@ -196,7 +196,6 @@ public class TicketFlagsTest
     {
         return new byte[]
             {
-                ( byte ) ( 0 ), // unused bits
                 ( byte ) ( flags >>> 24 ), ( byte ) ( ( flags >> 16 ) & 0x00ff ), ( byte ) ( ( flags >> 8 ) & 0x00ff ),
                 ( byte ) ( flags & 0x00ff ) };
     }

@@ -97,24 +97,43 @@ public abstract class Options
     {
         byte[] bytes = new byte[maxSize / 8];
 
-        for ( int ii = 0; ii < maxSize; ii++ )
+        for ( int i = 0; i < maxSize; i++ )
         {
-            if ( options.get( reversePosition( ii ) ) )
+            if ( options.get( i ) )
             {
-                bytes[bytes.length - ii / 8 - 1] |= 1 << ( ii % 8 );
+                bytes[bytes.length - i / 8 - 1] |= 1 << ( i % 8 );
             }
         }
         return bytes;
     }
 
 
+    /**
+     * Store the bits into the BitSet, reading them from a byte array. Bits
+     * are stored in the BitSet from right to left. 
+     * @param bytes The bytes containing the options.
+     */
     protected void setBytes( byte[] bytes )
     {
-        for ( int ii = 0; ii < bytes.length * 8; ii++ )
+        if ( bytes == null )
         {
-            if ( ( bytes[bytes.length - ii / 8 - 1] & ( 1 << ( ii % 8 ) ) ) > 0 )
+            return;
+        }
+        
+        int nbBytes = bytes.length;
+        
+        for ( int i = 0; i < bytes.length * 8; i++ )
+        {
+            // Stop before we go further than the number of bits, which might
+            // not be a multiple of 8
+            if ( i == maxSize )
             {
-                options.set( reversePosition( ii ) );
+                break;
+            }
+            
+            if ( ( bytes[nbBytes - i / 8 - 1] & ( 1 << ( i % 8 ) ) ) > 0 )
+            {
+                options.set( i );
             }
         }
     }

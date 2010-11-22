@@ -29,7 +29,7 @@ public interface KerberosFlags
     /**
      * @return The byte array for a KerberosFlags
      */
-    byte[] getBytes();
+    //byte[] getBytes();
     
     
     /**

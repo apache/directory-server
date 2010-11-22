@@ -45,7 +45,7 @@ public class TicketFlags extends AbstractKerberosFlags
      */
     public TicketFlags( int flags )
     {
-        super( getBytes( flags ) );
+        super( flags );
     }
     
     
@@ -183,87 +183,6 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.OK_AS_DELEGATE );
     }
     
-    
-    /**
-     * Converts the object to a printable string.
-     */
-    /*public static String toString( int flags )
-    {
-        StringBuilder result = new StringBuilder();
-
-        if ( ( flags & ( 1 << TicketFlag.RESERVED.getOrdinal() ) ) != 0 )
-        {
-            result.append( "RESERVED " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.FORWARDABLE.getOrdinal() ) ) != 0 )
-        {
-            result.append( "FORWARDABLE " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.FORWARDED.getOrdinal() ) ) != 0 )
-        {
-            result.append( "FORWARDED " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.PROXIABLE.getOrdinal() ) ) != 0 )
-        {
-            result.append( "PROXIABLE " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.PROXY.getOrdinal() ) ) != 0 )
-        {
-            result.append( "PROXY " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.MAY_POSTDATE.getOrdinal() ) ) != 0 )
-        {
-            result.append( "MAY_POSTDATE " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.POSTDATED.getOrdinal() ) ) != 0 )
-        {
-            result.append( "POSTDATED " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.INVALID.getOrdinal() ) ) != 0 )
-        {
-            result.append( "INVALID " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.RENEWABLE.getOrdinal() ) ) != 0 )
-        {
-            result.append( "RENEWABLE " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.INITIAL.getOrdinal() ) ) != 0 )
-        {
-            result.append( "INITIAL " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.PRE_AUTHENT.getOrdinal() ) ) != 0 )
-        {
-            result.append( "PRE_AUTHENT " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.HW_AUTHENT.getOrdinal() ) ) != 0 )
-        {
-            result.append( "HW_AUTHENT " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.TRANSITED_POLICY_CHECKED.getOrdinal() ) ) != 0 )
-        {
-            result.append( "TRANSITED_POLICY_CHECKED " );
-        }
-
-        if ( ( flags & ( 1 << TicketFlag.OK_AS_DELEGATE.getOrdinal() ) ) != 0 )
-        {
-            result.append( "OPTS_OK_AS_DELEGATE " );
-        }
-
-        return result.toString().trim();
-    }*/
-
     
     /**
      * Converts the object to a printable string.

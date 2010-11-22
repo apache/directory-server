@@ -44,9 +44,10 @@ public class AbstractKerberosFlagsTest
     {
         // Flags 1, 2, 4, 8 set
         AbstractKerberosFlags akf = new AbstractKerberosFlags(
-            getBytes( ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() )
-                + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() ) + Math.pow( 2, TicketFlag.PROXY.getOrdinal() ) + Math
-                .pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ) ) )
+            ( int ) ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
+                  + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) ) 
+                  + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) )
+                  + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -55,16 +56,18 @@ public class AbstractKerberosFlagsTest
         akf.clearFlag( TicketFlag.PROXY );
         assertEquals(
             "clear(KerberosFlag)",
-            ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() )
-                + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() ) + Math.pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ),
+            ( int ) ( 
+                  ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ),
             akf.getIntValue() );
 
         // unset flag 2
         akf.clearFlag( TicketFlag.FORWARDED.getOrdinal() );
         assertEquals(
             "clear(int)",
-            ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() ) + Math.pow( 2,
-                TicketFlag.RENEWABLE.getOrdinal() ) ), akf.getIntValue() );
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ), akf.getIntValue() );
     }
 
 
@@ -72,10 +75,11 @@ public class AbstractKerberosFlagsTest
     public void testValue() throws Exception
     {
         // Flags 1, 2, 4, 8 set
-        AbstractKerberosFlags akfIntConstructor = new AbstractKerberosFlags( getBytes( ( int ) ( Math.pow( 2,
-            TicketFlag.FORWARDABLE.getOrdinal() )
-            + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() )
-            + Math.pow( 2, TicketFlag.PROXY.getOrdinal() ) + Math.pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ) ) )
+        AbstractKerberosFlags akfIntConstructor = new AbstractKerberosFlags( 
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
+            + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
+            + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) ) 
+            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ) )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -89,9 +93,10 @@ public class AbstractKerberosFlagsTest
         assertEquals( "intValue", 0, akfEmptyConstructor.getIntValue() );
         assertEquals(
             "intValue",
-            ( int ) ( Math.pow( 2, TicketFlag.FORWARDABLE.getOrdinal() )
-                + Math.pow( 2, TicketFlag.FORWARDED.getOrdinal() ) + Math.pow( 2, TicketFlag.PROXY.getOrdinal() ) + Math
-                .pow( 2, TicketFlag.RENEWABLE.getOrdinal() ) ), akfIntConstructor.getIntValue() );
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
+                + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ), akfIntConstructor.getIntValue() );
     }
 
 
@@ -108,28 +113,33 @@ public class AbstractKerberosFlagsTest
         TicketFlag[] ticketFlags = new TicketFlag[TicketFlag.values().length - 1];
         int i = 0;
         int flagsValue = 0;
+        
         for ( TicketFlag tf : TicketFlag.values() )
         {
-            if ( !tf.equals( TicketFlag.MAX_VALUE ) )
+            if ( tf != TicketFlag.MAX_VALUE )
             {
                 ticketFlags[i] = tf;
             }
+            
             i++;
         }
 
         boolean setFlag = true;
+        
         for ( TicketFlag ticketFlag : ticketFlags )
         {
             // Only set every 2nd ticket flag
             if ( setFlag )
             {
                 akf.setFlag( ticketFlag.getOrdinal() );
-                flagsValue += Math.pow( 2, ticketFlag.getOrdinal() );
+                flagsValue += ( 1 << ( 31 - ticketFlag.getOrdinal() ) );
             }
+            
             setFlag = !setFlag;
         }
 
         setFlag = true;
+        
         for ( TicketFlag ticketFlag : ticketFlags )
         {
             // Only every 2nd ticket flag is set
@@ -147,9 +157,9 @@ public class AbstractKerberosFlagsTest
                 assertFalse( "isFlagSet(int,int): " + ticketFlag.toString(),
                     AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getOrdinal() ) );
             }
+            
             setFlag = !setFlag;
         }
-
     }
 
 

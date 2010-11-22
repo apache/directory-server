@@ -91,7 +91,7 @@ public abstract class EncKdcRepPartEncoder implements Encoder
             sequence.add( new DERTaggedObject( 3, KerberosTimeEncoder.encode( reply.getKeyExpiration() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 4, new DERBitString( reply.getFlags().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 4, new DERBitString( 32, reply.getFlags().getIntValue() ) ) );
         sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( reply.getAuthTime() ) ) );
 
         // OPTIONAL

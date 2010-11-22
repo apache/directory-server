@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.kerberos.shared.messages.value.flags;
 
-import org.apache.directory.shared.asn1.primitives.BitString;
 
 /**
  * An implementation of a BitString for any KerberosFlags. The different values
@@ -30,63 +29,51 @@ import org.apache.directory.shared.asn1.primitives.BitString;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractKerberosFlags extends BitString implements KerberosFlags
+public abstract class AbstractKerberosFlags implements KerberosFlags
 {
     /**
      * The maximum size of the BitString as specified for Kerberos flags.
-     * 1 byte contains the number of unused bits
-     * 4 bytes containing the data
-     * => 5 x 8 bits = 40 
      */
-    public static final int MAX_SIZE = 40;
+    public static final int MAX_SIZE = 32;
 
     /** The associated value */
     protected int value;
     
     
     /**
-     * Standard constructor, which create a BitString containing 8 + 32 bits
+     * Standard constructor, which create a BitString containing 32 bits
      */
     public AbstractKerberosFlags()
     {
-        super( MAX_SIZE );
+        value = 0;
     }
 
     
     /**
-     * Standard constructor, taking a byte array, 8 + x (x <= 32) bits
+     * Standard constructor, which create a BitString containing 32 bits
+     * 
+     * 
+     * @param value The flags to store
+     */
+    public AbstractKerberosFlags( int value )
+    {
+        this.value = value;
+    }
+
+    
+    /**
+     * Standard constructor, taking a byte array, 32 bits
      */
     public AbstractKerberosFlags( byte[] flags )
     {
-        super( flags );
-        // Remember getBytes() "A first byte containing the number of unused bits is added"
-        value = ( ( getBytes()[1] & 0x00F ) << 24 ) | ( ( getBytes()[2] & 0x00FF ) << 16 ) | ( ( getBytes()[3] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[4] ); 
+        if ( ( flags == null ) || ( flags.length != 4 ) )
+        {
+            throw new IllegalArgumentException( "The given flags is not correct" );
+        }
+        
+        value = ( ( flags[0] & 0x00FF ) << 24 ) | ( ( flags[1] & 0x00FF ) << 16 ) | ( ( flags[2] & 0x00FF ) << 8 ) | ( 0x00FF & flags[3] ); 
     }
     
-    
-    /**
-     * A static method to get the byte array representation of an int
-     * @return The byte array for a list of flags.
-     */
-    public static byte[] getBytes( int flags )
-    {
-        return new byte[]{
-            (byte)( 0 ), // unused bits
-            (byte)( flags >>> 24), 
-            (byte)( ( flags >> 16 ) & 0x00ff ), 
-            (byte)( ( flags >> 8 ) & 0x00ff ), 
-            (byte)( flags & 0x00ff ) };
-    }
-    
-    
-    /**
-     * @return The byte array for a KerberosFlags
-     */
-    public byte[] getBytes()
-    {
-        return getData();
-    }
-
     
     /**
      * Returns the int value associated with the flags
@@ -105,7 +92,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public static boolean isFlagSet( int flags, int flag )
     {
-        return ( flags & ( 1 << flag) ) != 0;
+        return ( flags & ( 1 << ( MAX_SIZE - 1 - flag ) ) ) != 0;
     }
     
 
@@ -117,7 +104,10 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public boolean isFlagSet( KerberosFlag flag )
     {
-        return ( value & ( 1 << flag.getOrdinal() ) ) != 0;
+        int ordinal = flag.getOrdinal();
+        int mask = 1 << ( MAX_SIZE - 1 - ordinal );
+        
+        return ( value & mask ) != 0;
     }
     
     
@@ -128,7 +118,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public boolean isFlagSet( int flag )
     {
-        return ( value & ( 1 << flag ) ) != 0;
+        return ( value & ( 1 << ( MAX_SIZE - 1 - flag ) ) ) != 0;
     }
     
     
@@ -139,8 +129,8 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public void setFlag( KerberosFlag flag )
     {
-        value |= 1 << flag.getOrdinal();
-        setBit( flag.getOrdinal() );
+        int pos = MAX_SIZE - 1 - flag.getOrdinal();
+        value |= 1 << pos;
     }
     
     
@@ -151,8 +141,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public void setFlag( int flag )
     {
-        value |= 1 << flag;
-        setBit( flag );
+        value |= 1 << ( MAX_SIZE - 1 - flag );
     }
     
 
@@ -163,8 +152,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public void clearFlag( KerberosFlag flag )
     {
-        value &= ~( 1 << flag.getOrdinal() );
-        clearBit( flag.getOrdinal() );
+        value &= ~( 1 << ( MAX_SIZE - 1 - flag.getOrdinal() ) );
     }
     
     
@@ -175,7 +163,6 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public void clearFlag( int flag )
     {
-        value &= ~( 1 << flag );
-        clearBit( flag );
+        value &= ~( 1 << ( MAX_SIZE - 1 - flag ) );
     }
 }

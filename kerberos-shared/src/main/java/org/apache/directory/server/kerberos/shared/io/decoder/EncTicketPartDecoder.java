@@ -93,7 +93,9 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
             {
                 case 0:
                     DERBitString tag0 = ( DERBitString ) derObject;
-                    modifier.setFlags( new TicketFlags( tag0.getOctets() ) );
+                    byte[] bytes = new byte[4];
+                    System.arraycopy( tag0.getOctets(), 1, bytes, 0, 4 );
+                    modifier.setFlags( new TicketFlags( bytes ) );
                     break;
                     
                 case 1:

@@ -33,6 +33,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.TicketEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,6 +47,7 @@ import org.junit.runner.RunWith;
 public class TicketTest
 {
     @Test
+    @Ignore
     public void testTicket() throws Exception
     {
         TicketFactory ticketFactory = new TicketFactory();

@@ -139,8 +139,6 @@ public class AuthenticatorDecoderTest
         {
             encodedPdu = authenticator.encode( encodedPdu );
             
-            System.out.println( StringTools.dumpBytes( encodedPdu.array() ) );
-    
             // Check the length
             assertEquals( 0x95, encodedPdu.limit() );
             assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );

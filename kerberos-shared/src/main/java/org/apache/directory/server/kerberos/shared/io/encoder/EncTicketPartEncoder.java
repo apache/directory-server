@@ -127,7 +127,7 @@ public class EncTicketPartEncoder implements Encoder, EncoderFactory
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, new DERBitString( ticketPart.getFlags().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 0, new DERBitString( 32, ticketPart.getFlags().getIntValue() ) ) );
         sequence.add( new DERTaggedObject( 1, EncryptionKeyEncoder.encodeSequence( ticketPart.getSessionKey() ) ) );
         sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( ticketPart.getClientRealm().toString() ) ) );
         sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( ticketPart.getClientPrincipal() ) ) );
