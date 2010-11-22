@@ -39,13 +39,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * Class representing KRB-SAFE message
+ * 
+ * <pre>
  * KRB-SAFE        ::= [APPLICATION 20] SEQUENCE {
  *      pvno            [0] INTEGER (5),
  *      msg-type        [1] INTEGER (20),
  *      safe-body       [2] KRB-SAFE-BODY,
  *      cksum           [3] Checksum
  * }
- *
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KrbSafe extends KerberosMessage
@@ -76,12 +79,52 @@ public class KrbSafe extends KerberosMessage
      */
     public KrbSafe()
     {
-        super( 5, KerberosMessageType.KRB_SAFE );
+        super( KerberosMessageType.KRB_SAFE );
     }
 
 
     /**
-     * 0x14 L1 KRB-SAFE APPLICATION[20]
+     * @return the krbSafeBody
+     */
+    public KrbSafeBody getSafeBody()
+    {
+        return krbSafeBody;
+    }
+
+
+    /**
+     * @param safeBody the KrbSafeBody to set
+     */
+    public void setSafeBody( KrbSafeBody safeBody )
+    {
+        this.krbSafeBody = safeBody;
+    }
+
+
+    /**
+     * @return the checksum
+     */
+    public Checksum getChecksum()
+    {
+        return checksum;
+    }
+
+
+    /**
+     * @param checksum the checksum to set
+     */
+    public void setChecksum( Checksum checksum )
+    {
+        this.checksum = checksum;
+    }
+
+    
+    /**
+     * Compute the KRB-SAFE length
+     * <pre>
+     * KRB-SAFE :
+     * 
+     * 0x74 L1 KRB-SAFE APPLICATION[20]
      *  |
      *  +--> 0x30 L2 KRB-ERROR sequence
      *        |
@@ -95,11 +138,12 @@ public class KrbSafe extends KerberosMessage
      *        |     
      *        +--> 0xA2 L3 safe-body tag
      *        |     |
-     *        |     +--> 0x30 L3-1 safe-body (krb-safe-body)
+     *        |     +--> 0x30 L3-1 safe-body (KRB-SAFE-BODY)
      *        |
      *        +--> 0xA3 L4 cksum tag
      *              |
-     *              +--> 0x30 L4-1 cksum (checksum)
+     *              +--> 0x30 L4-1 cksum (CHECKSUM)
+     * </pre>
      */
     @Override
     public int computeLength()
@@ -178,41 +222,33 @@ public class KrbSafe extends KerberosMessage
 
         return buffer;
     }
+    
+    
 
 
     /**
-     * @return the krbSafeBody
+     * @see Object#toString()
      */
-    public KrbSafeBody getSafeBody()
+    public String toString()
     {
-        return krbSafeBody;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "KRB-SAFE : {\n" );
+        sb.append( "    pvno: " ).append( getProtocolVersionNumber() ).append( '\n' );
+        sb.append( "    msgType: " ).append( getMessageType() ).append( '\n' );
+
+        if ( krbSafeBody != null )
+        {
+            sb.append( "    safe-body: " ).append( krbSafeBody ).append( '\n' );
+        }
+
+        if ( checksum != null )
+        {
+            sb.append( "    cusec: " ).append( checksum ).append( '\n' );
+        }
+
+        sb.append( "}\n" );
+
+        return sb.toString();
     }
-
-
-    /**
-     * @param safeBody the KrbSafeBody to set
-     */
-    public void setSafeBody( KrbSafeBody safeBody )
-    {
-        this.krbSafeBody = safeBody;
-    }
-
-
-    /**
-     * @return the checksum
-     */
-    public Checksum getChecksum()
-    {
-        return checksum;
-    }
-
-
-    /**
-     * @param checksum the checksum to set
-     */
-    public void setChecksum( Checksum checksum )
-    {
-        this.checksum = checksum;
-    }
-
 }

@@ -38,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * Class representing KRB-SAFE-BODY message
+ * 
+ * <pre>
  * KRB-SAFE-BODY   ::= SEQUENCE {
  *         user-data       [0] OCTET STRING,
  *         timestamp       [1] KerberosTime OPTIONAL,
@@ -46,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *         s-address       [4] HostAddress,
  *         r-address       [5] HostAddress OPTIONAL
  * }
- *
+ *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KrbSafeBody extends AbstractAsn1Object
@@ -75,6 +78,7 @@ public class KrbSafeBody extends AbstractAsn1Object
     /** the recipient's address */
     private HostAddress recipientAddress;
 
+    // Storage for computed lengths
     private transient int userDataLen;
     private transient int timestampLen;
     private transient int usecLen;
@@ -82,6 +86,132 @@ public class KrbSafeBody extends AbstractAsn1Object
     private transient int senderAddressLen;
     private transient int recipientAddressLen;
     private transient int krbSafeBodySeqLen;
+
+
+    /**
+     * Creates a new instance of KrbSafeBody.
+     */
+    public KrbSafeBody()
+    {
+    }
+
+
+    /**
+     * @return the userData
+     */
+    public byte[] getUserData()
+    {
+        return userData;
+    }
+
+
+    /**
+     * @param userData the userData to set
+     */
+    public void setUserData( byte[] userData )
+    {
+        this.userData = userData;
+    }
+
+
+    /**
+     * @return the timestamp
+     */
+    public KerberosTime getTimestamp()
+    {
+        return timestamp;
+    }
+
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp( KerberosTime timestamp )
+    {
+        this.timestamp = timestamp;
+    }
+
+
+    /**
+     * @return the usec
+     */
+    public int getUsec()
+    {
+        if ( usec == null )
+        {
+            return 0;
+        }
+
+        return usec;
+    }
+
+
+    /**
+     * @param usec the usec to set
+     */
+    public void setUsec( int usec )
+    {
+        this.usec = usec;
+    }
+
+
+    /**
+     * @return the seqNumber
+     */
+    public int getSeqNumber()
+    {
+        if ( seqNumber == null )
+        {
+            return 0;
+        }
+
+        return seqNumber;
+    }
+
+
+    /**
+     * @param seqNumber the seqNumber to set
+     */
+    public void setSeqNumber( int seqNumber )
+    {
+        this.seqNumber = seqNumber;
+    }
+
+
+    /**
+     * @return the senderAddress
+     */
+    public HostAddress getSenderAddress()
+    {
+        return senderAddress;
+    }
+
+
+    /**
+     * @param senderAddress the senderAddress to set
+     */
+    public void setSenderAddress( HostAddress senderAddress )
+    {
+        this.senderAddress = senderAddress;
+    }
+
+
+    /**
+     * @return the recipientAddress
+     */
+    public HostAddress getRecipientAddress()
+    {
+        return recipientAddress;
+    }
+
+
+    /**
+     * @param recipientAddress the recipientAddress to set
+     */
+    public void setRecipientAddress( HostAddress recipientAddress )
+    {
+        this.recipientAddress = recipientAddress;
+    }
 
 
     /**
@@ -232,126 +362,6 @@ public class KrbSafeBody extends AbstractAsn1Object
 
         return buffer;
     }
-
-
-    /**
-     * @return the userData
-     */
-    public byte[] getUserData()
-    {
-        return userData;
-    }
-
-
-    /**
-     * @param userData the userData to set
-     */
-    public void setUserData( byte[] userData )
-    {
-        this.userData = userData;
-    }
-
-
-    /**
-     * @return the timestamp
-     */
-    public KerberosTime getTimestamp()
-    {
-        return timestamp;
-    }
-
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp( KerberosTime timestamp )
-    {
-        this.timestamp = timestamp;
-    }
-
-
-    /**
-     * @return the usec
-     */
-    public int getUsec()
-    {
-        if ( usec == null )
-        {
-            return 0;
-        }
-
-        return usec;
-    }
-
-
-    /**
-     * @param usec the usec to set
-     */
-    public void setUsec( int usec )
-    {
-        this.usec = usec;
-    }
-
-
-    /**
-     * @return the seqNumber
-     */
-    public int getSeqNumber()
-    {
-        if ( seqNumber == null )
-        {
-            return 0;
-        }
-
-        return seqNumber;
-    }
-
-
-    /**
-     * @param seqNumber the seqNumber to set
-     */
-    public void setSeqNumber( int seqNumber )
-    {
-        this.seqNumber = seqNumber;
-    }
-
-
-    /**
-     * @return the senderAddress
-     */
-    public HostAddress getSenderAddress()
-    {
-        return senderAddress;
-    }
-
-
-    /**
-     * @param senderAddress the senderAddress to set
-     */
-    public void setSenderAddress( HostAddress senderAddress )
-    {
-        this.senderAddress = senderAddress;
-    }
-
-
-    /**
-     * @return the recipientAddress
-     */
-    public HostAddress getRecipientAddress()
-    {
-        return recipientAddress;
-    }
-
-
-    /**
-     * @param recipientAddress the recipientAddress to set
-     */
-    public void setRecipientAddress( HostAddress recipientAddress )
-    {
-        this.recipientAddress = recipientAddress;
-    }
-
-
     /**
      * @see Object#toString()
      */
@@ -359,7 +369,7 @@ public class KrbSafeBody extends AbstractAsn1Object
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "KrbSafeBody : {\n" );
+        sb.append( "KRB-SAFE-BODY : {\n" );
         sb.append( "    user-data: " ).append( StringTools.dumpBytes( userData ) ).append( '\n' );
 
         if ( timestamp != null )

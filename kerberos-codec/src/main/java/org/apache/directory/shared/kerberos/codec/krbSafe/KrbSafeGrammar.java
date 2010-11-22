@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the KrbSafe structure. All the actions are declared
+ * This class implements the KRB-SAFE structure. All the actions are declared
  * in this class. As it is a singleton, these declaration are only done once. If
  * an action is to be added or modified, this is where the work is to be done !
  * 
@@ -65,7 +65,7 @@ public final class KrbSafeGrammar extends AbstractGrammar
         super.transitions = new GrammarTransition[KrbSafeStatesEnum.LAST_KRB_SAFE_STATE.ordinal()][256];
 
         // ============================================================================================
-        // KrbSafe 
+        // KRB-SAFE 
         // ============================================================================================
         // --------------------------------------------------------------------------------------------
         // Transition from KrbSafe init to KrbSafe tag

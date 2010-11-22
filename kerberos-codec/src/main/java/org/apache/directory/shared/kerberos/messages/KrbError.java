@@ -39,8 +39,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class representing KrbError message
+ * Class representing KRB-ERROR message
  * 
+ * <pre>
  * KRB-ERROR       ::= [APPLICATION 30] SEQUENCE {
  *      pvno            [0] INTEGER (5),
  *      msg-type        [1] INTEGER (30),
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  *      e-text          [11] KerberosString OPTIONAL,
  *      e-data          [12] OCTET STRING OPTIONAL
  * }
- *
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KrbError extends KerberosMessage
@@ -675,7 +676,7 @@ public class KrbError extends KerberosMessage
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "KrbError : {\n" );
+        sb.append( "KRB-ERROR : {\n" );
         sb.append( "    pvno: " ).append( getProtocolVersionNumber() ).append( '\n' );
         sb.append( "    msgType: " ).append( getMessageType() ).append( '\n' );
 

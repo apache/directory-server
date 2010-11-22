@@ -39,7 +39,7 @@ public enum KrbSafeStatesEnum implements States
     // ----- KRB-SAFE component --------------------------------------
     KRB_SAFE_TAG_STATE,               // 1
     
-    KRB_SAFE_SEQ_STATE,           // 2
+    KRB_SAFE_SEQ_STATE,               // 2
     
     KRB_SAFE_PVNO_TAG_STATE,          // 3
     KRB_SAFE_PVNO_STATE,              // 4
@@ -48,6 +48,7 @@ public enum KrbSafeStatesEnum implements States
     KRB_SAFE_MSGTYPE_STATE,           // 6
     
     KRB_SAFE_SAFE_BODY_TAG_STATE,     // 7
+    
     KRB_SAFE_CKSUM_TAG_STATE,         // 8
     
     // End

@@ -30,11 +30,8 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
  */
 public abstract class KerberosMessage extends AbstractAsn1Object
 {
-    /** The Kerberos protocol version number (5). */
-    public static final int PVNO = KerberosConstants.KERBEROS_V5;
-
     /** The protocol version (should be 5) */
-    private int protocolVersionNumber = PVNO;
+    private int protocolVersionNumber = KerberosConstants.KERBEROS_V5;
     
     /** The message type */
     private KerberosMessageType messageType;
@@ -47,7 +44,7 @@ public abstract class KerberosMessage extends AbstractAsn1Object
      */
     public KerberosMessage( KerberosMessageType type )
     {
-        this( PVNO, type );
+        this( KerberosConstants.KERBEROS_V5, type );
     }
 
 

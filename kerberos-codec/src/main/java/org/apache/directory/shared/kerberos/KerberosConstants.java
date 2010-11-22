@@ -150,6 +150,21 @@ public class KerberosConstants
     public static final int KDC_REQ_BODY_ADDRESSES_TAG = 0xA9;
     public static final int KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG = 0xAA;
     public static final int KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG = 0xAB;
+    
+    /** KrbSafe tags */
+    public static final int KRB_SAFE_TAG = 0x74;
+    public static final int KRB_SAFE_PVNO_TAG = 0xA0;
+    public static final int KRB_SAFE_MSGTYPE_TAG = 0xA1;
+    public static final int KRB_SAFE_SAFE_BODY_TAG = 0xA2;
+    public static final int KRB_SAFE_CKSUM_TAG = 0xA3;
+
+    /** KrbSafeBody tags */
+    public static final int KRB_SAFE_BODY_USER_DATA_TAG = 0xA0;
+    public static final int KRB_SAFE_BODY_TIMESTAMP_TAG = 0xA1;
+    public static final int KRB_SAFE_BODY_USEC_TAG = 0xA2;
+    public static final int KRB_SAFE_BODY_SEQ_NUMBER_TAG = 0xA3;
+    public static final int KRB_SAFE_BODY_SENDER_ADDRESS_TAG = 0xA4;
+    public static final int KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG = 0xA5;
 
     /** PaData tags */
     public static final int PADATA_TYPE_TAG = 0xA1;
@@ -162,21 +177,6 @@ public class KerberosConstants
     /** TransitedEncoding tags */
     public static final int TRANSITED_ENCODING_TR_TYPE_TAG = 0xA0;
     public static final int TRANSITED_ENCODING_CONTENTS_TAG = 0xA1;
-    
-    /** KrbSafeBody tags */
-    public static final int KRB_SAFE_BODY_USER_DATA_TAG = 0xA0;
-    public static final int KRB_SAFE_BODY_TIMESTAMP_TAG = 0xA1;
-    public static final int KRB_SAFE_BODY_USEC_TAG = 0xA2;
-    public static final int KRB_SAFE_BODY_SEQ_NUMBER_TAG = 0xA3;
-    public static final int KRB_SAFE_BODY_SENDER_ADDRESS_TAG = 0xA4;
-    public static final int KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG = 0xA5;
-    
-    /** KrbSafe tags */
-    public static final int KRB_SAFE_TAG = 0x74;
-    public static final int KRB_SAFE_PVNO_TAG = 0xA0;
-    public static final int KRB_SAFE_MSGTYPE_TAG = 0xA1;
-    public static final int KRB_SAFE_SAFE_BODY_TAG = 0xA2;
-    public static final int KRB_SAFE_CKSUM_TAG = 0xA3;
     
     /** EncKrbPrivPart */
     public static final int ENC_KRB_PRIV_PART_TAG = 0x7C;
