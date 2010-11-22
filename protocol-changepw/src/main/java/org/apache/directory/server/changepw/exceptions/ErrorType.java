@@ -21,17 +21,12 @@
 package org.apache.directory.server.changepw.exceptions;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-
 /**
  * Type safe enumeration of Change Password error types
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class ErrorType implements Comparable<ErrorType>
+public enum ErrorType
 {
     // TODO Add i18n. Don't no if these error messages are also a response to the client.
     // If so shall they really be i18n?
@@ -39,59 +34,42 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Constant for the "Request failed due to being malformed" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_MALFORMED = new ErrorType( 1, "Request failed due to being malformed." );
+    KRB5_KPASSWD_MALFORMED(1, "Request failed due to being malformed."),
 
     /**
      * Constant for the "Request failed due to a hard error in processing the request" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_HARDERROR = new ErrorType( 2,
-        "Request failed due to a hard error in processing the request." );
+    KRB5_KPASSWD_HARDERROR(2, "Request failed due to a hard error in processing the request."),
 
     /**
      * Constant for the "Request failed due to an error in authentication processing" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_AUTHERROR = new ErrorType( 3,
-        "Request failed due to an error in authentication processing." );
+    KRB5_KPASSWD_AUTHERROR(3, "Request failed due to an error in authentication processing."),
 
     /**
      * Constant for the "Request failed due to a soft error in processing the request" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_SOFTERROR = new ErrorType( 4,
-        "Request failed due to a soft error in processing the request." );
+    KRB5_KPASSWD_SOFTERROR(4, "Request failed due to a soft error in processing the request."),
 
     /**
      * Constant for the "Requestor not authorized" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_ACCESSDENIED = new ErrorType( 5, "Requestor not authorized." );
+    KRB5_KPASSWD_ACCESSDENIED(5, "Requestor not authorized."),
 
     /**
      * Constant for the "Protocol version unsupported" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_BAD_VERSION = new ErrorType( 6, "Protocol version unsupported." );
+    KRB5_KPASSWD_BAD_VERSION(6, "Protocol version unsupported."),
 
     /**
      * Constant for the "Initial flag required" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_INITIAL_FLAG_NEEDED = new ErrorType( 7, "Initial flag required." );
+    KRB5_KPASSWD_INITIAL_FLAG_NEEDED(7, "Initial flag required."),
 
     /**
      * Constant for the "Request failed for an unknown reason" error type.
      */
-    public static final ErrorType KRB5_KPASSWD_UNKNOWN_ERROR = new ErrorType( 8,
-        "Request failed for an unknown reason." );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final ErrorType[] values =
-        { KRB5_KPASSWD_MALFORMED, KRB5_KPASSWD_HARDERROR, KRB5_KPASSWD_AUTHERROR, KRB5_KPASSWD_SOFTERROR,
-            KRB5_KPASSWD_ACCESSDENIED, KRB5_KPASSWD_BAD_VERSION, KRB5_KPASSWD_INITIAL_FLAG_NEEDED,
-            KRB5_KPASSWD_UNKNOWN_ERROR };
-
-    /**
-     * A list of all the error type constants.
-     */
-    public static final List<ErrorType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    KRB5_KPASSWD_UNKNOWN_ERROR(8, "Request failed for an unknown reason.");
 
     /**
      * The name of the error type.
@@ -137,19 +115,6 @@ public final class ErrorType implements Comparable<ErrorType>
 
 
     /**
-     * Compares this type to another object hopefully one that is of the same
-     * type.
-     *
-     * @param that the object to compare this ErrorType to
-     * @return ordinal - that.ordinal;
-     */
-    public int compareTo( ErrorType that )
-    {
-        return this.ordinal - that.ordinal;
-    }
-
-
-    /**
      * Gets the ordinal by its ordinal value.
      *
      * @param ordinal the ordinal value of the ordinal
@@ -157,11 +122,11 @@ public final class ErrorType implements Comparable<ErrorType>
      */
     public static ErrorType getTypeByOrdinal( int ordinal )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( ErrorType et : ErrorType.values() )
         {
-            if ( values[ii].ordinal == ordinal )
+            if ( ordinal == et.getOrdinal() )
             {
-                return values[ii];
+                return et;
             }
         }
 
