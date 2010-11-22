@@ -21,18 +21,9 @@ package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadEncryptedPart;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.kerberos.components.KdcRep;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,14 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreEncPart extends GrammarAction
+public class StoreEncPart extends AbstractReadEncryptedPart
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
 
     /**
      * Instantiates a new TicketEncPart action.
@@ -61,52 +46,12 @@ public class StoreEncPart extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setEncryptedData( EncryptedData encryptedData, Asn1Container container )
     {
         KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-
-        TLV tlv = kdcRepContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
+        kdcRepContainer.getKdcRep().setEncPart( encryptedData );
         
-        // Now, let's decode the PrincipalName
-        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
-        
-        EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
-        encryptedDataContainer.setStream( container.getStream() );
-
-        // Decode the Ticket PDU
-        try
-        {
-            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
-
-        EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
-        KdcRep kdcRep = kdcRepContainer.getKdcRep();
-        kdcRep.setEncPart( encryptedData );
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "EncryptedData : " + encryptedData );
-        }
-
-        // Update the TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-
-        // Update the parent
-        container.updateParent();
-
         container.setGrammarEndAllowed( true );
     }
 }
