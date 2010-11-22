@@ -209,8 +209,8 @@ public class KrbSafe extends KerberosMessage
         }
         catch ( BufferOverflowException boe )
         {
-            log.error( I18n.err( I18n.ERR_736_CANNOT_ENCODE_KRBSAFE, 1 + TLV.getNbBytes( krbSafeSeqLen )
-                + krbSafeSeqLen, buffer.capacity() ) );
+            log.error( I18n.err( I18n.ERR_736_CANNOT_ENCODE_KRBSAFE, 1 + TLV.getNbBytes( krbSafeLen )
+                + krbSafeLen, buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
