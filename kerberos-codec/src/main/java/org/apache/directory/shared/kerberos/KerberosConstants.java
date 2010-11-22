@@ -187,4 +187,10 @@ public class KerberosConstants
     public static final int ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG = 0xA4;
     public static final int ENC_KRB_PRIV_PART_RECIPIENT_ADDRESS_TAG = 0xA5;
 
+    /** KrbPriv */
+    public static final int KRB_PRIV_TAG = 0x75;
+    public static final int KRB_PRIV_PVNO_TAG = 0xA0;
+    public static final int KRB_PRIV_MSGTYPE_TAG = 0xA1;
+    public static final int KRB_PRIV_ENC_PART_TAG = 0xA3;
+
 }
