@@ -17,63 +17,63 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.etypeInfo;
+package org.apache.directory.shared.kerberos.codec.etypeInfo2;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
-import org.apache.directory.shared.kerberos.components.ETypeInfo;
-import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
+import org.apache.directory.shared.kerberos.components.ETypeInfo2;
+import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
 
 
 /**
- * The ETypeInfo container stores the ETYPE-INFO decoded by the Asn1Decoder.
+ * The ETypeInfo container stores the ETYPE-INFO2 decoded by the Asn1Decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ETypeInfoContainer extends AbstractContainer
+public class ETypeInfo2Container extends AbstractContainer
 {
-    /** holds ETypeInfo */
-    private ETypeInfo etypeInfo = new ETypeInfo();
+    /** holds ETypeInfo2 */
+    private ETypeInfo2 etypeInfo2 = new ETypeInfo2();
 
     /**
-     * Creates a new ETypeInfoContainer object.
+     * Creates a new ETypeInfo2Container object.
      */
-    public ETypeInfoContainer()
+    public ETypeInfo2Container()
     {
         super();
         this.stateStack = new int[1];
-        this.grammar = ETypeInfoGrammar.getInstance();
-        setTransition( ETypeInfoStatesEnum.START_STATE );
+        this.grammar = ETypeInfo2Grammar.getInstance();
+        setTransition( ETypeInfo2StatesEnum.START_STATE );
     }
 
 
     /**
-     * @return Returns the ETypeInfo.
+     * @return Returns the ETypeInfo2.
      */
-    public ETypeInfo getETypeInfo()
+    public ETypeInfo2 getETypeInfo2()
     {
-        return etypeInfo;
+        return etypeInfo2;
     }
 
     
     /**
-     * Set a ETypeInfo Object into the container
+     * Set a ETypeInfo2 Object into the container
      * 
-     * @param etypeInfo The ETypeInfo to set.
+     * @param etypeInfo2 The ETypeInfo2 to set.
      */
-    public void setETypeInfo( ETypeInfo etypeInfo )
+    public void setETypeInfo2( ETypeInfo2 etypeInfo2 )
     {
-        this.etypeInfo = etypeInfo;
+        this.etypeInfo2 = etypeInfo2;
     }
 
     
     /**
-     * Add a EtypeInfoEntry Object into the list. It will be completed by the
+     * Add a EtypeInfo2Entry Object into the list. It will be completed by the
      * KerberosDecoder.
      * 
-     * @param etypeInfoEntry The ETypeInfoEntry to add.
+     * @param etypeInfo2Entry The EtypeInfo2Entry to add.
      */
-    public void addEtypeInfoEntry( ETypeInfoEntry etypeInfoEntry )
+    public void addEtypeInfo2Entry( ETypeInfo2Entry etypeInfo2Entry )
     {
-        etypeInfo.addETypeInfoEntry( etypeInfoEntry );
+        etypeInfo2.addETypeInfo2Entry( etypeInfo2Entry );
     }
 }

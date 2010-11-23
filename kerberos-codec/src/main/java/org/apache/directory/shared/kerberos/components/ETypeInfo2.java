@@ -37,77 +37,77 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Store a list of ETYPE-INFO
+ * Store a list of ETYPE-INFO2.
  * 
  * The ASN.1 grammar is :
  * <pre>
- * ETYPE-INFO              ::= SEQUENCE OF <ETYPE-INFO-ENTRY>
+ * ETYPE-INFO2              ::= SEQUENCE SIZE (1..MAX) OF ETYPE-INFO2-ENTRY
  *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ETypeInfo extends AbstractAsn1Object
+public class ETypeInfo2 extends AbstractAsn1Object
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ETypeInfo.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ETypeInfo2.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** List of all ETYPE-INFO-ENTRY stored */
-    private List<ETypeInfoEntry> etypeInfoEntries;
+    /** List of all ETYPE-INFO2-ENTRY stored */
+    private List<ETypeInfo2Entry> etypeInfo2Entries;
 
     // Storage for computed lengths
-    private transient int etypeInfoLength;
+    private transient int etypeInfo2Length;
 
 
     /**
-     * Creates a new instance of ETypeInfo.
+     * Creates a new instance of ETypeInfo2.
      */
-    public ETypeInfo()
+    public ETypeInfo2()
     {
-        this.etypeInfoEntries = new ArrayList<ETypeInfoEntry>();
+        this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
     }
     
 
     /**
-     * Creates a new instance of ETypeInfo.
+     * Creates a new instance of ETypeInfo2.
      *
-     * @param etypeInfoEntries The associated etypeInfoEntries
+     * @param etypeInfo2Entries The associated etypeInfo2Entries
      */
-    public ETypeInfo( ETypeInfoEntry[] etypeInfoEntries )
+    public ETypeInfo2( ETypeInfo2Entry[] etypeInfo2Entries )
     {
-        if ( etypeInfoEntries == null )
+        if ( etypeInfo2Entries == null )
         {
-            this.etypeInfoEntries = new ArrayList<ETypeInfoEntry>();
+            this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
         }
         else
         {
-            this.etypeInfoEntries = Arrays.asList( etypeInfoEntries );
+            this.etypeInfo2Entries = Arrays.asList( etypeInfo2Entries );
         }
     }
 
 
     /**
-     * Adds an {@link ETypeInfoEntry} to the list
-     * @param etypeInfoEntry The ETypeInfoEntry to add
+     * Adds an {@link ETypeInfo2Entry} to the list
+     * @param etypeInfo2Entry The ETypeInfo2Entry to add
      */
-    public void addETypeInfoEntry( ETypeInfoEntry etypeInfoEntry )
+    public void addETypeInfo2Entry( ETypeInfo2Entry etypeInfo2Entry )
     {
-        etypeInfoEntries.add( etypeInfoEntry );
+        etypeInfo2Entries.add( etypeInfo2Entry );
     }
 
 
     /**
-     * Returns true if this {@link ETypeInfoEntry} contains a specified {@link ETypeInfoEntry}.
+     * Returns true if this {@link ETypeInfo2Entry} contains a specified {@link ETypeInfo2Entry}.
      *
-     * @param address The etypeInfoEntry we are looking for in the existing list
-     * @return true if this {@link ETypeInfoEntry} contains a specified {@link ETypeInfoEntry}.
+     * @param address The etypeInfo2Entry we are looking for in the existing list
+     * @return true if this {@link ETypeInfo2Entry} contains a specified {@link ETypeInfo2Entry}.
      */
-    public boolean contains( ETypeInfoEntry etypeInfoEntry )
+    public boolean contains( ETypeInfo2Entry etypeInfo2Entry )
     {
-        if ( etypeInfoEntries != null )
+        if ( etypeInfo2Entries != null )
         {
-            return etypeInfoEntries.contains( etypeInfoEntry );
+            return etypeInfo2Entries.contains( etypeInfo2Entry );
         }
 
         return false;
@@ -122,13 +122,13 @@ public class ETypeInfo extends AbstractAsn1Object
     {
         int hash = 37;
         
-        if ( etypeInfoEntries != null )
+        if ( etypeInfo2Entries != null )
         {
-            hash = hash * 17 + etypeInfoEntries.size();
+            hash = hash * 17 + etypeInfo2Entries.size();
             
-            for ( ETypeInfoEntry etypeInfoEntry : etypeInfoEntries )
+            for ( ETypeInfo2Entry etypeInfo2Entry : etypeInfo2Entries )
             {
-                hash = hash * 17 + etypeInfoEntry.hashCode();
+                hash = hash * 17 + etypeInfo2Entry.hashCode();
             }
         }
         
@@ -137,12 +137,12 @@ public class ETypeInfo extends AbstractAsn1Object
 
 
     /**
-     * Returns true if two {@link ETypeInfo} are equal.
+     * Returns true if two {@link ETypeInfo2} are equal.
      *
-     * @param that The {@link ETypeInfo} we want to compare with the current one
-     * @return true if two {@link ETypeInfo} are equal.
+     * @param that The {@link ETypeInfo2} we want to compare with the current one
+     * @return true if two {@link ETypeInfo2} are equal.
      */
-    public boolean equals( ETypeInfo that )
+    public boolean equals( ETypeInfo2 that )
     {
         if ( that == null ) 
         {
@@ -150,14 +150,14 @@ public class ETypeInfo extends AbstractAsn1Object
         }
         
         // infoEntries can't be null after creation
-        if ( etypeInfoEntries.size() != that.etypeInfoEntries.size() )
+        if ( etypeInfo2Entries.size() != that.etypeInfo2Entries.size() )
         {
             return false;
         }
 
-        for ( int i = 0; i < etypeInfoEntries.size(); i++ )
+        for ( int i = 0; i < etypeInfo2Entries.size(); i++ )
         {
-            if ( !etypeInfoEntries.get( i ).equals( that.etypeInfoEntries.get( i ) ) )
+            if ( !etypeInfo2Entries.get( i ).equals( that.etypeInfo2Entries.get( i ) ) )
             {
                 return false;
             }
@@ -168,30 +168,30 @@ public class ETypeInfo extends AbstractAsn1Object
 
 
     /**
-     * Returns the contained {@link ETypeInfoEntry}s as an array.
+     * Returns the contained {@link ETypeInfo2Entry}s as an array.
      *
-     * @return An array of {@link ETypeInfoEntry}s.
+     * @return An array of {@link ETypeInfo2Entry}s.
      */
-    public ETypeInfoEntry[] getETypeInfoEntries()
+    public ETypeInfo2Entry[] getETypeInfo2Entries()
     {
-        return etypeInfoEntries.toArray( new ETypeInfoEntry[0] );
+        return etypeInfo2Entries.toArray( new ETypeInfo2Entry[0] );
     }
 
 
     /**
-     * Compute the ETypeInfo length
+     * Compute the ETypeInfo2 length
      * <pre>
-     * ETypeInfo :
+     * ETypeInfo2 :
      * 
-     * 0x30 L1 ETypeInfo sequence of ETypeInfoEntry
+     * 0x30 L1 ETypeInfo2 sequence of ETypeInfo2Entry
      *  |
-     *  +--> 0x30 L2[1] ETypeInfoEntry[1]
+     *  +--> 0x30 L2[1] ETypeInfo2Entry[1]
      *  |
-     *  +--> 0x30 L2[2] ETypeInfoEntry[2]
+     *  +--> 0x30 L2[2] ETypeInfo2Entry[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] ETypeInfoEntry[n]
+     *  +--> 0x30 L2[n] ETypeInfo2Entry[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>
@@ -199,31 +199,31 @@ public class ETypeInfo extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the addresses length.
-        etypeInfoLength = 0;
+        etypeInfo2Length = 0;
 
-        if ( ( etypeInfoEntries != null ) && ( etypeInfoEntries.size() != 0 ) )
+        if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
         {
-            for ( ETypeInfoEntry infoEntry : etypeInfoEntries )
+            for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
             {
-                int length = infoEntry.computeLength();
-                etypeInfoLength += length;
+                int length = info2Entry.computeLength();
+                etypeInfo2Length += length;
             }
         }
 
-        return 1 + TLV.getNbBytes( etypeInfoLength ) + etypeInfoLength;
+        return 1 + TLV.getNbBytes( etypeInfo2Length ) + etypeInfo2Length;
     }
 
 
     /**
-     * Encode the ETypeInfo message to a PDU. 
+     * Encode the ETypeInfo2 message to a PDU. 
      * <pre>
-     * ETypeInfo :
+     * ETypeInfo2 :
      * 
      * 0x30 LL
-     *   0x30 LL ETypeInfoEntry[1] 
-     *   0x30 LL ETypeInfoEntry[1]
+     *   0x30 LL ETypeInfo2Entry[1] 
+     *   0x30 LL ETypeInfo2Entry[1]
      *   ... 
-     *   0x30 LL ETypeInfoEntry[1] 
+     *   0x30 LL ETypeInfo2Entry[1] 
      * </pre>
      * @param buffer The buffer where to put the PDU. It should have been allocated
      * before, with the right size.
@@ -238,23 +238,23 @@ public class ETypeInfo extends AbstractAsn1Object
 
         try
         {
-            // The ETypeInfoEntry SEQ Tag
+            // The ETypeInfo2Entry SEQ Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
-            buffer.put( TLV.getBytes( etypeInfoLength ) );
+            buffer.put( TLV.getBytes( etypeInfo2Length ) );
 
             // The hostAddress list, if it's not empty
-            if ( ( etypeInfoEntries != null ) && ( etypeInfoEntries.size() != 0 ) )
+            if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
             {
-                for ( ETypeInfoEntry infoEntry : etypeInfoEntries )
+                for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
                 {
-                    infoEntry.encode( buffer );
+                    info2Entry.encode( buffer );
                 }
             }
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( I18n.err( I18n.ERR_144, 1 + TLV.getNbBytes( etypeInfoLength )
-                + etypeInfoLength, buffer.capacity() ) );
+            LOG.error( I18n.err( I18n.ERR_144, 1 + TLV.getNbBytes( etypeInfo2Length )
+                + etypeInfo2Length, buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
@@ -276,7 +276,7 @@ public class ETypeInfo extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
 
-        for ( ETypeInfoEntry infoEntry : etypeInfoEntries )
+        for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
         {
             if ( isFirst )
             {
@@ -287,7 +287,7 @@ public class ETypeInfo extends AbstractAsn1Object
                 sb.append( ", " );
             }
 
-            sb.append( infoEntry.toString() );
+            sb.append( info2Entry.toString() );
         }
 
         return sb.toString();
