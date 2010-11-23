@@ -64,7 +64,6 @@ import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -123,7 +122,6 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
     public void testAddUserWithClearTextPwd() throws Exception
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
@@ -159,7 +157,6 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
     public void testAddUserWithHashedPwd() throws Exception
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
@@ -201,7 +198,6 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
     public void testPwdMinAge() throws Exception
     {
         policyConfig.setPwdMinAge( 5 );
