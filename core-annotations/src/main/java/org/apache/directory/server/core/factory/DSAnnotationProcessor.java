@@ -253,13 +253,13 @@ public class DSAnnotationProcessor
      * @param ldifFiles the array of LDIF file names (only )
      * @throws Exception
      */
-    public static void injectLdifFiles( Class<?> clazz, DirectoryService service, String[] ldifFiles ) throws Exception
+    public static void injectLdifFiles( DirectoryService service, String[] ldifFiles ) throws Exception
     {
         if ( ( ldifFiles != null ) && ( ldifFiles.length > 0 ) )
         {
             for ( String ldifFile : ldifFiles )
             {
-                InputStream is = clazz.getClassLoader().getResourceAsStream( ldifFile );
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream( ldifFile );
                 if ( is == null )
                 {
                     throw new FileNotFoundException( "LDIF file '" + ldifFile + "' not found." );
@@ -318,7 +318,7 @@ public class DSAnnotationProcessor
         if ( applyLdifFiles != null )
         {
             LOG.debug( "Applying {} to {}", applyLdifFiles.value(), desc.getDisplayName() );
-            injectLdifFiles( desc.getClass(), service, applyLdifFiles.value() );
+            injectLdifFiles( service, applyLdifFiles.value() );
         }
 
         ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class );
