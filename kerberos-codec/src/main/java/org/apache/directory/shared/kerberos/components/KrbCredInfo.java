@@ -262,14 +262,14 @@ public class KrbCredInfo extends AbstractAsn1Object
             buffer.put( TLV.getBytes( krbKredInfoSeqLen ) );
 
             //key tag and value
-            buffer.put( KerberosConstants.KRB_CRED_INFO_KEY_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_KEY_TAG );
             buffer.put( TLV.getBytes( keyLen ) );
             key.encode( buffer );
 
             if ( pRealm != null )
             {
                 // prealm tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_PREALM_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_PREALM_TAG );
                 buffer.put( TLV.getBytes( pRealmLen ) );
 
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
@@ -280,7 +280,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( pName != null )
             {
                 // pname tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_PNAME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_PNAME_TAG );
                 buffer.put( TLV.getBytes( pNameLen ) );
                 pName.encode( buffer );
             }
@@ -288,7 +288,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( ticketFlags != null )
             {
                 // flags tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_FLAGS_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_FLAGS_TAG );
                 buffer.put( TLV.getBytes( ticketFlagsLen ) );
                 Value.encode( buffer, ticketFlags.getIntValue() );
             }
@@ -296,7 +296,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( authTime != null )
             {
                 // authtime tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_AUTHTIME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_AUTHTIME_TAG );
                 buffer.put( TLV.getBytes( authTimeLen ) );
 
                 buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
@@ -307,10 +307,10 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( startTime != null )
             {
                 // starttime tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_STARTTIME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_STARTTIME_TAG );
                 buffer.put( TLV.getBytes( startTimeLen ) );
 
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( startTimeBytes );
             }
@@ -318,10 +318,10 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( endTime != null )
             {
                 // endtime tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_ENDTIME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_ENDTIME_TAG );
                 buffer.put( TLV.getBytes( endTimeLen ) );
 
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( endTimeBytes );
             }
@@ -329,10 +329,10 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( renewtill != null )
             {
                 // renewtill tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_RENEWTILL_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_RENEWTILL_TAG );
                 buffer.put( TLV.getBytes( renewtillLen ) );
 
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( renewtillBytes );
             }
@@ -340,7 +340,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( sRealm != null )
             {
                 // srealm tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_SREALM_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_SREALM_TAG );
                 buffer.put( TLV.getBytes( sRealmLen ) );
 
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
@@ -351,7 +351,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( sName != null )
             {
                 // sname tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_SNAME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_SNAME_TAG );
                 buffer.put( TLV.getBytes( sNameLen ) );
                 sName.encode( buffer );
             }
@@ -359,7 +359,7 @@ public class KrbCredInfo extends AbstractAsn1Object
             if ( clientAddresses != null )
             {
                 // caddr tag and value
-                buffer.put( KerberosConstants.KRB_CRED_INFO_CADDR_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_CADDR_TAG );
                 buffer.put( TLV.getBytes( clientAddressesLen ) );
                 clientAddresses.encode( buffer );
             }
