@@ -246,7 +246,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
             // The s2kparams, first the tag, then the value, if s2kparams is not null
             if ( s2kparams != null )
             {
-                buffer.put( ( byte ) KerberosConstants.ETYPE_INFO2_ENTRY_SALT_TAG );
+                buffer.put( ( byte ) KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG );
                 buffer.put( TLV.getBytes( saltTagLength ) );
                 Value.encode( buffer, s2kparams );
             }

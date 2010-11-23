@@ -118,8 +118,8 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar
         // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
         //        ...
         //         salt            [1] KerberosString OPTIONAL,
-        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
-            ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE, UniversalTag.OCTET_STRING.getValue(),
+        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
+            ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE, UniversalTag.GENERAL_STRING.getValue(),
             new StoreSalt() );
         
         // --------------------------------------------------------------------------------------------
