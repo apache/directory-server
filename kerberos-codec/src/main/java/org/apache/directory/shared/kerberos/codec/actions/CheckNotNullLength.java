@@ -45,7 +45,7 @@ public class CheckNotNullLength extends GrammarAction
      */
     public CheckNotNullLength()
     {
-        super( "Check that the lebgth is not null" );
+        super( "Check that the length is not null" );
     }
 
 
