@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.value.flags;
+package org.apache.directory.shared.kerberos.flags;
 
 /**
  * An enum to describe all the TicketFlag possible values.

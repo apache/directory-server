@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.value.flags;
+package org.apache.directory.shared.kerberos.flags;
 
 /**
  * This interface must be implemented by all the inherited Flag classes :
