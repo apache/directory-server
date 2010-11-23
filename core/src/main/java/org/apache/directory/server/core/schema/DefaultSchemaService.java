@@ -79,18 +79,11 @@ public class DefaultSchemaService implements SchemaService
     
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#isSchemaSubentry(java.lang.String)
+    /** 
+     * {@inheritDoc}
      */
-    public boolean isSchemaSubentry( String dnString ) throws LdapException
+    public boolean isSchemaSubentry( DN dn ) throws LdapException
     {
-        if ( ServerDNConstants.CN_SCHEMA_DN.equalsIgnoreCase( dnString ) ||
-            ServerDNConstants.CN_SCHEMA_DN_NORMALIZED.equalsIgnoreCase( dnString ) )
-        {
-            return true;
-        }
-
-        DN dn = DNFactory.create( dnString, schemaPartition.getSchemaManager() );
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 

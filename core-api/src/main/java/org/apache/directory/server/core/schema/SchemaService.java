@@ -3,6 +3,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -12,11 +13,11 @@ public interface SchemaService
     /**
      * Tells if the given DN is the schemaSubentry DN
      * 
-     * @param dnString The DN we want to check
+     * @param dn The DN we want to check
      * @return <code>true</code> if the given DN is the Schema subentry DN
      * @throws LdapException If the given DN is not valid
      */
-    boolean isSchemaSubentry( String dnString ) throws LdapException;
+    boolean isSchemaSubentry( DN dn ) throws LdapException;
 
 
     /**

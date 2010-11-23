@@ -198,7 +198,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
-        if ( schemaService.isSchemaSubentry( dn.getNormName() ) )
+        if ( schemaService.isSchemaSubentry( dn ) )
         {
             return schemaService.getSubschemaEntryCloned();
         }
