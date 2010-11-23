@@ -193,4 +193,16 @@ public class KerberosConstants
     public static final int KRB_PRIV_MSGTYPE_TAG = 0xA1;
     public static final int KRB_PRIV_ENC_PART_TAG = 0xA3;
 
+    /** KrbCredInfo tags */
+    public static final byte KRB_CRED_INFO_KEY_TAG = (byte)0xA0;
+    public static final byte KRB_CRED_INFO_PREALM_TAG = (byte)0xA1;
+    public static final byte KRB_CRED_INFO_PNAME_TAG = (byte)0xA2;
+    public static final byte KRB_CRED_INFO_FLAGS_TAG = (byte)0xA3;
+    public static final byte KRB_CRED_INFO_AUTHTIME_TAG = (byte)0xA4;
+    public static final byte KRB_CRED_INFO_STARTTIME_TAG = (byte)0xA5;
+    public static final byte KRB_CRED_INFO_ENDTIME_TAG = (byte)0xA6;
+    public static final byte KRB_CRED_INFO_RENEWTILL_TAG = (byte)0xA7;
+    public static final byte KRB_CRED_INFO_SREALM_TAG = (byte)0xA8;
+    public static final byte KRB_CRED_INFO_SNAME_TAG = (byte)0xA9;
+    public static final byte KRB_CRED_INFO_CADDR_TAG = (byte)0xAA;
 }
