@@ -38,13 +38,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * Class representing KRB-PRIV message
+ * 
+ * <pre>
  * KRB-PRIV        ::= [APPLICATION 21] SEQUENCE {
  *      pvno            [0] INTEGER (5),
  *      msg-type        [1] INTEGER (21),
  *                      -- NOTE: there is no [2] tag
  *      enc-part        [3] EncryptedData -- EncKrbPrivPart
  * }
- *
+ * </pre
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KrbPriv extends KerberosMessage
@@ -66,9 +69,29 @@ public class KrbPriv extends KerberosMessage
     private transient int krbPrivLen;
 
 
+    /**
+     * Creates a new instance of KrbPriv.
+     */
     public KrbPriv()
     {
         super( 5, KerberosMessageType.KRB_PRIV );
+    }
+
+    /**
+     * @return the encPart
+     */
+    public EncryptedData getEncPart()
+    {
+        return encPart;
+    }
+
+
+    /**
+     * @param encPart the encPart to set
+     */
+    public void setEncPart( EncryptedData encPart )
+    {
+        this.encPart = encPart;
     }
 
 
@@ -159,24 +182,6 @@ public class KrbPriv extends KerberosMessage
         }
 
         return buffer;
-    }
-
-
-    /**
-     * @return the encPart
-     */
-    public EncryptedData getEncPart()
-    {
-        return encPart;
-    }
-
-
-    /**
-     * @param encPart the encPart to set
-     */
-    public void setEncPart( EncryptedData encPart )
-    {
-        this.encPart = encPart;
     }
 
 

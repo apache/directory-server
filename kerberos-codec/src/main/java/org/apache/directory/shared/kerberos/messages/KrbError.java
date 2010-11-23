@@ -124,7 +124,7 @@ public class KrbError extends KerberosMessage
 
 
     /**
-     * Creates a new instance of Ticket.
+     * Creates a new instance of KrbError.
      */
     public KrbError()
     {

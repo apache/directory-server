@@ -36,7 +36,7 @@ public class KrbPrivContainer extends AbstractContainer
 
 
     /**
-     * Creates a new KrbSafeContainer object.
+     * Creates a new KrbPrivContainer object.
      */
     public KrbPrivContainer()
     {
