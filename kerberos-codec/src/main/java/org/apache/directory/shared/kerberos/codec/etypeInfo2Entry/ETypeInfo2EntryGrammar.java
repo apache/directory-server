@@ -74,30 +74,70 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar
             ETypeInfo2EntryStatesEnum.START_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
             new ETypeInfo2EntryInit() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from ETYPE-INFO2-ENTRY SEQ to etype tag
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //         etype           [0]
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SEQ_STATE.ordinal()][KerberosConstants.ETYPE_INFO2_ENTRY_ETYPE_TAG] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SEQ_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE, KerberosConstants.ETYPE_INFO2_ENTRY_ETYPE_TAG,
             new CheckNotNullLength()) ;
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype tag to etype value
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //         etype           [0] Int32,
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
             new StoreEType() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype value to salt tag
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //        ...
+        //         salt            [1]
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE.ordinal()][KerberosConstants.ETYPE_INFO2_ENTRY_SALT_TAG] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE, KerberosConstants.ETYPE_INFO2_ENTRY_SALT_TAG,
             new CheckNotNullLength() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from etype value to s2kparams tag
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //        ...
+        //         s2kparams       [2]
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE.ordinal()][KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE, KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG,
             new CheckNotNullLength() );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from salt tag to salt value
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //        ...
+        //         salt            [1] KerberosString OPTIONAL,
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE, UniversalTag.OCTET_STRING.getValue(),
             new StoreSalt() );
         
+        // --------------------------------------------------------------------------------------------
+        // Transition from salt value to s2kparams tag 
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //        ...
+        //         s2kparams       [2]
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE.ordinal()][KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE, KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG,
             new CheckNotNullLength() );
 
+        // --------------------------------------------------------------------------------------------
+        // Transition from s2kparams tag to s2kparams value
+        // --------------------------------------------------------------------------------------------
+        // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
+        //        ...
+        //         s2kparams       [2] OCTET STRING OPTIONAL
         super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE, ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_STATE, UniversalTag.OCTET_STRING.getValue(),
             new StoreS2KParams() );
