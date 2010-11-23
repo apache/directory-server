@@ -36,6 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The EncKrbPrivPart structure is used to store a EncKrbPrivPart associated to a type.
+ * 
+ * The ASN.1 grammar is :
+ * <pre>
  * EncKrbPrivPart  ::= [APPLICATION 28] SEQUENCE {
  *      user-data       [0] OCTET STRING,
  *      timestamp       [1] KerberosTime OPTIONAL,
@@ -44,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *      s-address       [4] HostAddress -- sender's addr --,
  *      r-address       [5] HostAddress OPTIONAL -- recip's addr
  * }
- *
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 //NOTE: this ASN.1 structure is quite identical to KrbSafeBody
@@ -74,6 +78,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
     /** the recipient's address */
     private HostAddress recipientAddress;
 
+    // Storage for computed lengths
     private transient int userDataLen;
     private transient int timestampLen;
     private transient int usecLen;
@@ -82,6 +87,126 @@ public class EncKrbPrivPart extends AbstractAsn1Object
     private transient int recipientAddressLen;
     private transient int encKrbPrivPartSeqLen;
     private transient int encKrbPrivPartLen;
+
+
+
+    /**
+     * @return the userData
+     */
+    public byte[] getUserData()
+    {
+        return userData;
+    }
+
+
+    /**
+     * @param userData the userData to set
+     */
+    public void setUserData( byte[] userData )
+    {
+        this.userData = userData;
+    }
+
+
+    /**
+     * @return the timestamp
+     */
+    public KerberosTime getTimestamp()
+    {
+        return timestamp;
+    }
+
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp( KerberosTime timestamp )
+    {
+        this.timestamp = timestamp;
+    }
+
+
+    /**
+     * @return the usec
+     */
+    public int getUsec()
+    {
+        if ( usec == null )
+        {
+            return 0;
+        }
+
+        return usec;
+    }
+
+
+    /**
+     * @param usec the usec to set
+     */
+    public void setUsec( int usec )
+    {
+        this.usec = usec;
+    }
+
+
+    /**
+     * @return the seqNumber
+     */
+    public int getSeqNumber()
+    {
+        if ( seqNumber == null )
+        {
+            return 0;
+        }
+
+        return seqNumber;
+    }
+
+
+    /**
+     * @param seqNumber the seqNumber to set
+     */
+    public void setSeqNumber( int seqNumber )
+    {
+        this.seqNumber = seqNumber;
+    }
+
+
+    /**
+     * @return the senderAddress
+     */
+    public HostAddress getSenderAddress()
+    {
+        return senderAddress;
+    }
+
+
+    /**
+     * @param senderAddress the senderAddress to set
+     */
+    public void setSenderAddress( HostAddress senderAddress )
+    {
+        this.senderAddress = senderAddress;
+    }
+
+
+    /**
+     * @return the recipientAddress
+     */
+    public HostAddress getRecipientAddress()
+    {
+        return recipientAddress;
+    }
+
+
+    /**
+     * @param recipientAddress the recipientAddress to set
+     */
+    public void setRecipientAddress( HostAddress recipientAddress )
+    {
+        this.recipientAddress = recipientAddress;
+    }
+
 
     /**
      * Compute the EncKrbPrivPart length:
@@ -240,125 +365,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         return buffer;
     }
 
-
-    /**
-     * @return the userData
-     */
-    public byte[] getUserData()
-    {
-        return userData;
-    }
-
-
-    /**
-     * @param userData the userData to set
-     */
-    public void setUserData( byte[] userData )
-    {
-        this.userData = userData;
-    }
-
-
-    /**
-     * @return the timestamp
-     */
-    public KerberosTime getTimestamp()
-    {
-        return timestamp;
-    }
-
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp( KerberosTime timestamp )
-    {
-        this.timestamp = timestamp;
-    }
-
-
-    /**
-     * @return the usec
-     */
-    public int getUsec()
-    {
-        if ( usec == null )
-        {
-            return 0;
-        }
-
-        return usec;
-    }
-
-
-    /**
-     * @param usec the usec to set
-     */
-    public void setUsec( int usec )
-    {
-        this.usec = usec;
-    }
-
-
-    /**
-     * @return the seqNumber
-     */
-    public int getSeqNumber()
-    {
-        if ( seqNumber == null )
-        {
-            return 0;
-        }
-
-        return seqNumber;
-    }
-
-
-    /**
-     * @param seqNumber the seqNumber to set
-     */
-    public void setSeqNumber( int seqNumber )
-    {
-        this.seqNumber = seqNumber;
-    }
-
-
-    /**
-     * @return the senderAddress
-     */
-    public HostAddress getSenderAddress()
-    {
-        return senderAddress;
-    }
-
-
-    /**
-     * @param senderAddress the senderAddress to set
-     */
-    public void setSenderAddress( HostAddress senderAddress )
-    {
-        this.senderAddress = senderAddress;
-    }
-
-
-    /**
-     * @return the recipientAddress
-     */
-    public HostAddress getRecipientAddress()
-    {
-        return recipientAddress;
-    }
-
-
-    /**
-     * @param recipientAddress the recipientAddress to set
-     */
-    public void setRecipientAddress( HostAddress recipientAddress )
-    {
-        this.recipientAddress = recipientAddress;
-    }
-
-
+    
     /**
      * @see Object#toString()
      */

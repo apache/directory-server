@@ -34,11 +34,11 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum EncKrbPrivPartStatesEnum implements States
 {
     // Start
-    START_STATE,                                // 0
+    START_STATE,                                    // 0
     
-    // ----- KRB-ERROR component --------------------------------------
+    // ----- EncKrbPrivPart component --------------------------------------
     
-    ENC_KRB_PRIV_PART_TAG_STATE,                // 2
+    ENC_KRB_PRIV_PART_TAG_STATE,                    // 2
     
     ENC_KRB_PRIV_PART_SEQ_TAG_STATE,                // 3
     
