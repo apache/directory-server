@@ -81,7 +81,7 @@ public abstract class AbstractReadHostAddress extends GrammarAction
         // Passes the Stream to the decoder
         hostAddressContainer.setStream( container.getStream() );
 
-        // Decode the HostAddresses PDU
+        // Decode the HostAddress PDU
         try
         {
             hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
@@ -91,7 +91,7 @@ public abstract class AbstractReadHostAddress extends GrammarAction
             throw de;
         }
 
-        // Store the HostAddresses in the container
+        // Store the HostAddress in the container
         HostAddress hostAddress = hostAddressContainer.getHostAddress();
         
         // Update the expected length for the current TLV
