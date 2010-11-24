@@ -104,8 +104,8 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public boolean isFlagSet( KerberosFlag flag )
     {
-        int ordinal = flag.getOrdinal();
-        int mask = 1 << ( MAX_SIZE - 1 - ordinal );
+        int value = flag.getValue();
+        int mask = 1 << ( MAX_SIZE - 1 - value );
         
         return ( value & mask ) != 0;
     }
@@ -129,7 +129,7 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public void setFlag( KerberosFlag flag )
     {
-        int pos = MAX_SIZE - 1 - flag.getOrdinal();
+        int pos = MAX_SIZE - 1 - flag.getValue();
         value |= 1 << pos;
     }
     
@@ -152,7 +152,7 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public void clearFlag( KerberosFlag flag )
     {
-        value &= ~( 1 << ( MAX_SIZE - 1 - flag.getOrdinal() ) );
+        value &= ~( 1 << ( MAX_SIZE - 1 - flag.getValue() ) );
     }
     
     

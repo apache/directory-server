@@ -33,5 +33,5 @@ public interface KerberosFlag
     /**
      * @return The ordinal value associated with this flag
      */
-    int getOrdinal();
+    int getValue();
 }

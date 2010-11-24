@@ -132,9 +132,9 @@ public enum TicketFlag implements KerberosFlag
     
     
     /**
-     * @return The ordinal value associated with this flag
+     * @return The value associated with this flag
      */
-    public int getOrdinal()
+    public int getValue()
     {
         return value;
     }
