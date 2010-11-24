@@ -21,17 +21,9 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesContainer;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadHostAddresses;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,14 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAddresses extends GrammarAction
+public class StoreAddresses extends AbstractReadHostAddresses
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreAddresses.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
 
     /**
      * Instantiates a new StoreAddresses action.
@@ -60,56 +46,11 @@ public class StoreAddresses extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setHostAddresses( HostAddresses hostAddresses, Asn1Container container )
     {
         KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
-
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        
-        // Now, let's decode the HostAddresses
-        Asn1Decoder hostAddressesDecoder = new Asn1Decoder();
-        
-        HostAddressesContainer hostAddressesContainer = new HostAddressesContainer();
-        
-        // Passes the Stream to the decoder
-        hostAddressesContainer.setStream( container.getStream() );
-
-        // Decode the HostAddresses PDU
-        try
-        {
-            hostAddressesDecoder.decode( container.getStream(), hostAddressesContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
-
-        // Store the HostAddresses in the container
-        HostAddresses hostAddresses = hostAddressesContainer.getHostAddresses();
-        kdcReqBody.setAddresses( hostAddresses );
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-
-        // Update the parent
-        container.updateParent();
-        
+        kdcReqBodyContainer.getKdcReqBody().setAddresses( hostAddresses );
         container.setGrammarEndAllowed( true );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Addresses : {}", hostAddresses );
-        }
     }
 }
