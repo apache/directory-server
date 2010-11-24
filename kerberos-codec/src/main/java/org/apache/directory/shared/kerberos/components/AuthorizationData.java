@@ -33,6 +33,7 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class AuthorizationData extends AbstractAsn1Object
     public class AD
     {
         /** the type of authorization data */
-        private int adType;
+        private AuthorizationType adType;
 
         /** the authorization data */
         private byte[] adData;
@@ -63,7 +64,7 @@ public class AuthorizationData extends AbstractAsn1Object
         /**
          * @return the adType
          */
-        public int getAdType()
+        public AuthorizationType getAdType()
         {
             return adType;
         }
@@ -131,7 +132,7 @@ public class AuthorizationData extends AbstractAsn1Object
         
         for ( AD ad : authorizationData )
         {
-            int adTypeLen = Value.getNbBytes( ad.adType );
+            int adTypeLen = Value.getNbBytes( ad.adType.getValue() );
             adTypeTagLen[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
             adDataTagLen[i] = 1 + TLV.getNbBytes( ad.adData.length ) + ad.adData.length;
             
@@ -176,7 +177,7 @@ public class AuthorizationData extends AbstractAsn1Object
                 // the adType
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADTYPE_TAG );
                 buffer.put( TLV.getBytes( adTypeTagLen[i] ) );
-                Value.encode( buffer, ad.adType );
+                Value.encode( buffer, ad.adType.getValue() );
     
                 // the adData
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADDATA_TAG );
@@ -204,7 +205,7 @@ public class AuthorizationData extends AbstractAsn1Object
     /**
      * @return the currentAD type
      */
-    public int getCurrentAdType()
+    public AuthorizationType getCurrentAdType()
     {
         return currentAD.adType;
     }
@@ -213,7 +214,7 @@ public class AuthorizationData extends AbstractAsn1Object
     /**
      * Set the current AD type
      */
-    public void setCurrentAdType( int adType )
+    public void setCurrentAdType( AuthorizationType adType )
     {
         currentAD.adType = adType;
     }

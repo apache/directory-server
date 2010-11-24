@@ -21,18 +21,10 @@ package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
+import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,15 +32,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAdType extends GrammarAction
+public class StoreAdType extends AbstractReadInteger
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreAdType.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new AuthorizationDataAdType action.
      */
@@ -61,47 +46,15 @@ public class StoreAdType extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setIntegerValue( int value, Asn1Container container )
     {
         AuthorizationDataContainer authDataContainer = ( AuthorizationDataContainer ) container;
-
-        TLV tlv = authDataContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
         
-        AuthorizationData authData = authDataContainer.getAuthorizationData();
-
-        // Creates a new AD
-        authData.createNewAD();
+        AuthorizationType authType = AuthorizationType.getTypeByValue( value );
         
-        // The AuthorizationData data is an integer
-        Value value = tlv.getValue();
-        
-        try
-        {
-            int adType = IntegerDecoder.parse( value );
-
-            authData.setCurrentAdType( adType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "adType : " + adType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        AuthorizationData authorizationData = authDataContainer.getAuthorizationData();
+        authorizationData.createNewAD();
+        authorizationData.setCurrentAdType( authType );
     }
 }
