@@ -34,7 +34,6 @@ import java.util.Map;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -108,7 +107,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd( DNFactory.create( forward.getDn() ) );
+        LdifEntry reverse = LdifRevertor.reverseAdd( new DN( forward.getDn() ) );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
@@ -117,10 +116,10 @@ public class MemoryChangeLogStoreTest
     @Test
     public void testChangeLogSerialization() throws LdapException, IOException, ClassNotFoundException
     {
-        DN systemDn = DNFactory.create( "ou=system" );
+        DN systemDn = new DN( "ou=system" );
         systemDn.normalize( oidsMap );
         
-        DN adminDn = DNFactory.create( "uid=admin, ou=system" );
+        DN adminDn = new DN( "uid=admin, ou=system" );
         adminDn.normalize( oidsMap );
 
         LdifEntry forward = new LdifEntry();
@@ -129,7 +128,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
         
-        DN reverseDn = DNFactory.create( forward.getDn() );
+        DN reverseDn = new DN( forward.getDn() );
         reverseDn.normalize( oidsMap );
 
         LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );

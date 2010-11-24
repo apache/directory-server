@@ -29,18 +29,17 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -86,7 +85,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         
         try
         {
-            dn = DNFactory.create( "prefNodeName=sysPrefRoot,ou=system" );
+            dn = directoryService.getDNFactory().create( "prefNodeName=sysPrefRoot,ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -116,7 +115,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         DN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = DNFactory.create( "prefNodeName=" + name + "," + parentDn.getName(), directoryService.getSchemaManager() );
+            dn = directoryService.getDNFactory().create( "prefNodeName=" + name + "," + parentDn.getName() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {

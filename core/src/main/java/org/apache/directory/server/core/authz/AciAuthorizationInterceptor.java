@@ -32,7 +32,6 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -191,7 +190,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
+        DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         schemaManager = directoryService.getSchemaManager();
@@ -214,7 +213,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        DN subschemaSubentryDnName = DNFactory.create( subschemaSubentry.getString(), schemaManager );
+        DN subschemaSubentryDnName = directoryService.getDNFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
     }
 

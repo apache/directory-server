@@ -22,7 +22,6 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -53,7 +52,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( deletedEntryName.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( deletedEntryName.getName() );
         }
     };
     

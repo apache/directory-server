@@ -76,6 +76,9 @@ public class TupleCache
     /** a map of strings to ACITuple collections */
     private final Map<String, List<ACITuple>> tuples = new HashMap<String, List<ACITuple>>();
 
+    /** the DN factory */
+    private final DNFactory dnFactory;
+
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
 
@@ -98,6 +101,7 @@ public class TupleCache
     public TupleCache( CoreSession session ) throws LdapException
     {
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
+        this.dnFactory = session.getDirectoryService().getDNFactory();
         this.nexus = session.getDirectoryService().getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         aciParser = new ACIItemParser( ncn, schemaManager );
@@ -107,9 +111,9 @@ public class TupleCache
     }
 
 
-    private DN parseNormalized( SchemaManager schemaManager, String name ) throws LdapException
+    private DN parseNormalized( String name ) throws LdapException
     {
-        DN dn = DNFactory.create( name, schemaManager );
+        DN dn = dnFactory.create( name );
         return dn;
     }
 
@@ -123,7 +127,7 @@ public class TupleCache
 
         for ( String suffix:suffixes )
         {
-            DN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
+            DN baseDn = parseNormalized( suffix );
             ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();

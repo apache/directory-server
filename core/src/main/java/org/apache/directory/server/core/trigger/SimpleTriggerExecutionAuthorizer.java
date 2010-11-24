@@ -21,7 +21,6 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -36,7 +35,7 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     {
         try
         {
-            adminName = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminName = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         }
         catch ( LdapInvalidDnException e )
         {

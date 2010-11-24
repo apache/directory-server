@@ -579,4 +579,12 @@ public interface DirectoryService extends ServerEntryFactory
      * @param policyContainer the container holding all the password policies
      */
     void setPwdPolicies( PpolicyConfigContainer policyContainer );
+
+
+    /**
+     * Gets the DN factory.
+     *
+     * @return the DN factory
+     */
+    DNFactory getDNFactory();
 }

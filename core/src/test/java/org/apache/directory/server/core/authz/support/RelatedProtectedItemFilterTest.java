@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -112,8 +111,8 @@ public class RelatedProtectedItemFilterTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        GROUP_NAME = DNFactory.create( "ou=test,ou=groups,ou=system" );
-        USER_NAME = DNFactory.create( "ou=test, ou=users, ou=system" );
+        GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
+        USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );

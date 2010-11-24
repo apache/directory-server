@@ -22,7 +22,6 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -71,7 +70,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( oldDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( oldDN.getName() );
         }
     };
 
@@ -83,7 +82,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( newRDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( newRDN.getName() );
         }
     };
 
@@ -107,7 +106,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( newSuperiorDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( newSuperiorDN.getName() );
         }
     };
     
@@ -119,7 +118,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( oldRDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( oldRDN.getName() );
         }
     };
     
@@ -131,7 +130,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( oldSuperiorDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( oldSuperiorDN.getName() );
         }
     };
     
@@ -143,7 +142,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( newDN.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( newDN.getName() );
         }
     };
     

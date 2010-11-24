@@ -263,10 +263,13 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
-    
+
     /** the pwdPolicySubentry AT */
     private AttributeType pwdPolicySubentryAT;
-    
+
+    /** The DN factory */
+    private DNFactory dnFactory;
+
     /**
      * The synchronizer thread. It flush data on disk periodically.
      */
@@ -1207,7 +1210,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        DN userDn = DNFactory.create( ServerDNConstants.USERS_SYSTEM_DN, schemaManager );
+        DN userDn = getDNFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
         {
@@ -1232,7 +1235,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system groups area
         // -------------------------------------------------------------------
 
-        DN groupDn = DNFactory.create( ServerDNConstants.GROUPS_SYSTEM_DN, schemaManager );
+        DN groupDn = getDNFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
         {
@@ -1257,7 +1260,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create administrator group
         // -------------------------------------------------------------------
 
-        DN name = DNFactory.create( ServerDNConstants.ADMINISTRATORS_GROUP_DN, schemaManager );
+        DN name = getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
         {
@@ -1283,7 +1286,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area
         // -------------------------------------------------------------------
 
-        DN configurationDn = DNFactory.create( "ou=configuration,ou=system", schemaManager );
+        DN configurationDn = getDNFactory().create( "ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
         {
@@ -1305,7 +1308,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for partition information
         // -------------------------------------------------------------------
 
-        DN partitionsDn = DNFactory.create( "ou=partitions,ou=configuration,ou=system", schemaManager );
+        DN partitionsDn = getDNFactory().create( "ou=partitions,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
         {
@@ -1326,7 +1329,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for services
         // -------------------------------------------------------------------
 
-        DN servicesDn = DNFactory.create( "ou=services,ou=configuration,ou=system", schemaManager );
+        DN servicesDn = getDNFactory().create( "ou=services,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
         {
@@ -1348,7 +1351,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for interceptors
         // -------------------------------------------------------------------
 
-        DN interceptorsDn = DNFactory.create( "ou=interceptors,ou=configuration,ou=system", schemaManager );
+        DN interceptorsDn = getDNFactory().create( "ou=interceptors,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
         {
@@ -1370,7 +1373,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system preferences area
         // -------------------------------------------------------------------
 
-        DN sysPrefRootDn = DNFactory.create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, schemaManager );
+        DN sysPrefRootDn = getDNFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
@@ -1404,7 +1407,7 @@ public class DefaultDirectoryService implements DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        DN adminDn = getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
@@ -1473,7 +1476,7 @@ public class DefaultDirectoryService implements DirectoryService
         subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
-        DNFactory.initialize( this );
+        dnFactory = new DefaultDNFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
@@ -1483,7 +1486,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
         
-        adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        adminDn = getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
@@ -1610,7 +1613,7 @@ public class DefaultDirectoryService implements DirectoryService
         try
         {
             Entry entry = readEntry( ldif );
-            DN newDn = DNFactory.create( dn );
+            DN newDn = getDNFactory().create( dn );
 
             entry.setDn( newDn );
 
@@ -1888,7 +1891,7 @@ public class DefaultDirectoryService implements DirectoryService
             
             if ( pwdPolicySubentry != null )
             {
-                DN configDn = DNFactory.create( pwdPolicySubentry.getString(), schemaManager );
+                DN configDn = getDNFactory().create( pwdPolicySubentry.getString() );
                 
                 return pwdPolicyContainer.getPolicyConfig( configDn );
             }
@@ -1915,6 +1918,15 @@ public class DefaultDirectoryService implements DirectoryService
     public void setPwdPolicies( PpolicyConfigContainer policyContainer )
     {
         this.pwdPolicyContainer = policyContainer;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DNFactory getDNFactory()
+    {
+        return dnFactory;
     }
 
 }

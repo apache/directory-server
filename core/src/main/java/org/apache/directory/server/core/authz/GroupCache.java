@@ -86,6 +86,9 @@ public class GroupCache
      * the schema manager
      */
     private SchemaManager schemaManager;
+    
+    /** the DN factory */
+    private DNFactory dnFactory;
 
     /** the normalized dn of the administrators group */
     private DN administratorsGroupDn;
@@ -104,6 +107,7 @@ public class GroupCache
     public GroupCache( DirectoryService dirService ) throws LdapException
     {
         schemaManager = dirService.getSchemaManager();
+        dnFactory = dirService.getDNFactory();
         nexus = dirService.getPartitionNexus();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
@@ -120,7 +124,7 @@ public class GroupCache
 
     private DN parseNormalized( String name ) throws LdapException
     {
-        DN dn = DNFactory.create( name, schemaManager );
+        DN dn = dnFactory.create( name );
         return dn;
     }
 
@@ -143,7 +147,7 @@ public class GroupCache
             filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-            DN baseDn = DNFactory.create( suffix, schemaManager );
+            DN baseDn = dnFactory.create( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             

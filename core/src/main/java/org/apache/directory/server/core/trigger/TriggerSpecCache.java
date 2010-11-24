@@ -33,7 +33,6 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -124,13 +123,13 @@ public class TriggerSpecCache
 
         for ( String suffix:suffixes )
         {
-            DN baseDn = DNFactory.create( suffix );
+            DN baseDn = directoryService.getDNFactory().create( suffix );
             ExprNode filter = new EqualityNode<String>( objectClassAt,
                     new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, directoryService.getSchemaManager() );
+            DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 

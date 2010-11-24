@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -79,7 +78,7 @@ public class DefaultSchemaService implements SchemaService
     
     
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public boolean isSchemaSubentry( DN dn ) throws LdapException
@@ -369,7 +368,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDN = DNFactory.create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
+            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
         }
         catch ( LdapException e )
         {

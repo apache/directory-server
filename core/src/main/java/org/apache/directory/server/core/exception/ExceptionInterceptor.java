@@ -21,7 +21,6 @@ package org.apache.directory.server.core.exception;
 
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -115,7 +114,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         nexus = directoryService.getPartitionNexus();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = DNFactory.create( attr.getString(), directoryService.getSchemaManager() );
+        subschemSubentryDn = directoryService.getDNFactory().create( attr.getString() );
         schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information

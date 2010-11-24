@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -193,23 +192,23 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = DNFactory.create( SchemaConstants.OU_SCHEMA, schemaManager );
+        schemaBaseDN = directoryService.getDNFactory().create( SchemaConstants.OU_SCHEMA );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = DNFactory.create( subschemaSubentry.getString() );
+        subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = DNFactory.create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDN = directoryService.getDNFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDN.normalize( schemaManager );
 
         computeSuperiors();
 
         // Initialize the schema manager
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDNFactory() );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );

@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -95,7 +94,7 @@ public class RestrictedByFilterTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        DN entryName = DNFactory.create( "ou=test, ou=system" );
+        DN entryName = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, entryName );
 

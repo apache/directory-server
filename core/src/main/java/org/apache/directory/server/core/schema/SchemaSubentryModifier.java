@@ -77,20 +77,25 @@ public class SchemaSubentryModifier
     }
     
     private AttributesFactory factory = new AttributesFactory();
-    
-    /** The server schemaManager */
-    private SchemaManager schemaManager; 
 
-    
+    /** The server schemaManager */
+    private SchemaManager schemaManager;
+
+    /** The DN factory */
+    private DNFactory dnFactory;
+
+
     /**
      * 
      * Creates a new instance of SchemaSubentryModifier.
      *
      * @param schemaManager The server schemaManager
+     * @param dnFactory The DN factory
      */
-    public SchemaSubentryModifier( SchemaManager schemaManager )
+    public SchemaSubentryModifier( SchemaManager schemaManager, DNFactory dnFactory )
     {
         this.schemaManager = schemaManager;
+        this.dnFactory = dnFactory;
     }
     
     
@@ -133,14 +138,14 @@ public class SchemaSubentryModifier
         }
 
         buf.append( ",cn=" ).append( obj.getSchemaName() ).append( ",ou=schema" );
-        return DNFactory.create( buf.toString() );
+        return dnFactory.create( buf.toString() );
     }
     
 
     public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );   
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
@@ -155,7 +160,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH , 
             "cn=" + schemaName,
@@ -170,7 +175,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + syntaxCheckerDescription.getOid(),
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName, 
@@ -202,7 +207,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH,
             "cn=" + schemaName, 
@@ -215,7 +220,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + syntaxCheckerDescription.getOid(), 
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
@@ -227,7 +232,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
-        DN dn = DNFactory.create( 
+        DN dn = dnFactory.create( 
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,

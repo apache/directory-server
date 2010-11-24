@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -76,8 +75,8 @@ public class RelatedUserClassFilterTest
         
         try
         {
-            GROUP_NAME = DNFactory.create( "ou=test,ou=groups,ou=system" );
-            USER_NAME = DNFactory.create( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
+            USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -128,7 +127,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( DNFactory.create( "ou=unrelated" ) );
+        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -143,7 +142,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( DNFactory.create( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
+        aciContext.setEntryDn( new DN( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
@@ -151,7 +150,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( DNFactory.create( "ou=unrelated" ) );
+        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -171,7 +170,7 @@ public class RelatedUserClassFilterTest
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
-        aciContext.setUserDn( DNFactory.create( "ou=unrelateduser, ou=users" ) );
+        aciContext.setUserDn( new DN( "ou=unrelateduser, ou=users" ) );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
         aciContext.setEntryDn( USER_NAME );
 
@@ -193,7 +192,7 @@ public class RelatedUserClassFilterTest
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         Set<DN> wrongGroupNames = new HashSet<DN>();
-        wrongGroupNames.add( DNFactory.create( "ou=unrelatedgroup" ) );
+        wrongGroupNames.add( new DN( "ou=unrelatedgroup" ) );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -287,7 +286,7 @@ public class RelatedUserClassFilterTest
             
             try
             {
-                names.add( DNFactory.create( "dummy=dummy" ) );
+                names.add( new DN( "dummy=dummy" ) );
             }
             catch ( LdapInvalidDnException e )
             {

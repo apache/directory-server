@@ -21,7 +21,6 @@ package org.apache.directory.server.core.prefs;
 
  
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -43,7 +42,7 @@ class PreferencesUtils
      */
     public static DN toSysDn( String absPrefPath ) throws LdapInvalidDnException
     {
-        DN dn = DNFactory.create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        DN dn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         String[] comps = absPrefPath.split( "/" );
 

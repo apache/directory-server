@@ -27,7 +27,6 @@ import javax.naming.NoPermissionException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -108,11 +107,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        ADMIN_SYSTEM_DN = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        ADMIN_SYSTEM_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
-        GROUP_BASE_DN = DNFactory.create( ServerDNConstants.GROUPS_SYSTEM_DN, schemaManager );
+        GROUP_BASE_DN = directoryService.getDNFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
-        ADMIN_GROUP_DN = DNFactory.create( ServerDNConstants.ADMINISTRATORS_GROUP_DN, schemaManager );
+        ADMIN_GROUP_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         uniqueMemberAT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
 
@@ -124,7 +123,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED, directoryService.getSchemaManager() );
+        DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
@@ -139,7 +138,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value : uniqueMember )
         {
-            DN memberDn = DNFactory.create( value.getString(), directoryService.getSchemaManager() );
+            DN memberDn = directoryService.getDNFactory().create( value.getString() );
             newAdministrators.add( memberDn.getNormName() );
         }
 

@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
@@ -90,7 +89,7 @@ public class StoredProcExecutionManager
         AttributeType storeProcUnitNamAT = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT, new StringValue( storeProcUnitNamAT, spUnitName ) );
-        DN dn = DNFactory.create( storedProcContainer );
+        DN dn = session.getDirectoryService().getDNFactory().create( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter, 
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
         if ( results.first() )

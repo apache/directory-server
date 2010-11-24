@@ -22,23 +22,18 @@ package org.apache.directory.server.core.schema;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -114,11 +109,11 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader )
+    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, DNFactory dnFactory )
         throws LdapException
     {
         this.schemaManager = schemaManager;
-        this.subentryModifier = new SchemaSubentryModifier( schemaManager );
+        this.subentryModifier = new SchemaSubentryModifier( schemaManager, dnFactory );
         this.parsers = new DescriptionParsers( schemaManager );
         
         String comparatorsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.COMPARATORS_AT );

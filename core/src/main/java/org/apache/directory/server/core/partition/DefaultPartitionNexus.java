@@ -37,7 +37,6 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -219,7 +218,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         // Initialize and normalize the localy used DNs
-        DN adminDn = DNFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager );
 
         initializeSystemPartition( directoryService );
@@ -295,7 +294,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         system.initialize();
 
         // Add root context entry for system partition
-        DN systemSuffixDn = DNFactory.create( ServerDNConstants.SYSTEM_DN, schemaManager );
+        DN systemSuffixDn = directoryService.getDNFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = directoryService.getAdminSession();
 
         if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
@@ -363,7 +362,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                removeContextPartition(  DNFactory.create( suffix ) );
+                removeContextPartition(  directoryService.getDNFactory().create( suffix ) );
             }
             catch ( Exception e )
             {

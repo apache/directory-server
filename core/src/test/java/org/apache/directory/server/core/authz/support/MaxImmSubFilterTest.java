@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.MockOperation;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -93,7 +92,7 @@ public class MaxImmSubFilterTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        ENTRY_NAME = DNFactory.create( "ou=test, ou=system" );
+        ENTRY_NAME = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, ENTRY_NAME );
     }

@@ -555,4 +555,13 @@ public class MockDirectoryService implements DirectoryService
     public void setPwdPolicies( PpolicyConfigContainer policyContainer )
     {
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public DNFactory getDNFactory()
+    {
+        return null;
+    }
 }

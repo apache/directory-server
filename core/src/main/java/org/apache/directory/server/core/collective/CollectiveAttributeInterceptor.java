@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -417,7 +416,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            DN subentryDn = DNFactory.create( subentryDnStr );
+            DN subentryDn = opContext.getSession().getDirectoryService().getDNFactory().create( subentryDnStr );
 
             /*
              * TODO - Instead of hitting disk here can't we leverage the 

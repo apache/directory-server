@@ -85,7 +85,9 @@ public class CacheService
     public void destroy()
     {
         LOG.info( "clearing all the caches" );
+
         cacheManager.clearAll();
+        cacheManager.shutdown();
     }
 
 

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.server.core.DNFactory;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
@@ -62,7 +61,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return DNFactory.create( modifiedEntryName.getName() );
+            return opContext.getSession().getDirectoryService().getDNFactory().create( modifiedEntryName.getName() );
         }
     };
     
