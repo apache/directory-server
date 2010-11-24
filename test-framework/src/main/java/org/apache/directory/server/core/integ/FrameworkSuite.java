@@ -167,6 +167,13 @@ public class FrameworkSuite extends Suite
         {
             notifier.fireTestFailure(new Failure(getDescription(), e));
         }
+        finally
+        {
+            // help GC to get rid of the directory service with all its references
+            directoryService = null;
+            ldapServerBuilder = null;
+            ldapServer = null;
+        }
     }
 
     /**

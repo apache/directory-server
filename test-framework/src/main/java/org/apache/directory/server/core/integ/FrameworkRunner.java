@@ -267,6 +267,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             LOG.error( e.getLocalizedMessage() );
             notifier.fireTestFailure( new Failure( getDescription(), e ) );
         }
+        finally
+        {
+            // help GC to get rid of the directory service with all its references
+            suite = null;
+            classDS = null;
+            classLdapServer = null;
+            classKdcServer = null;
+        }
     }
 
 
