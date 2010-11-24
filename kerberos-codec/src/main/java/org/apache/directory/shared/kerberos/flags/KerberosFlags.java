@@ -27,12 +27,6 @@ package org.apache.directory.shared.kerberos.flags;
 public interface KerberosFlags
 {
     /**
-     * @return The byte array for a KerberosFlags
-     */
-    //byte[] getBytes();
-    
-    
-    /**
      * Returns the int value associated with the flags
      */
     int getIntValue();
