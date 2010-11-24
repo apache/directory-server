@@ -88,10 +88,10 @@ public enum LastReqType
     /**
      * Returns the last request type when specified by its ordinal.
      *
-     * @param type
+     * @param type The numeric type
      * @return The last request type.
      */
-    public static LastReqType getTypeByOrdinal( int type )
+    public static LastReqType getTypeByValue( int type )
     {
         for ( LastReqType lrt : LastReqType.values() )
         {

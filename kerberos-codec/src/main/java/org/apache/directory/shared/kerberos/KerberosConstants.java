@@ -199,6 +199,10 @@ public class KerberosConstants
     public static final int KRB_SAFE_BODY_SENDER_ADDRESS_TAG = 0xA4;
     public static final int KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG = 0xA5;
 
+    /** LastRequest tags */
+    public static final int LAST_REQ_LR_TYPE_TAG = 0xA0;
+    public static final int LAST_REQ_LR_VALUE_TAG = 0xA1;
+
     /** PaData tags */
     public static final int PADATA_TYPE_TAG = 0xA1;
     public static final int PADATA_VALUE_TAG = 0xA2;
