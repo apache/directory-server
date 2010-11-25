@@ -28,14 +28,17 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache.ReplayCacheEntry;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the InMemory replay cache
@@ -46,6 +49,9 @@ import static org.junit.Assert.assertNotNull;
 @Concurrent()
 public class InMemoryReplayCacheTest
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
+
     /**
      * Test that the cache is working well. We will create a new entry
      * every 20 ms, with 10 different serverPrincipals.
@@ -107,9 +113,12 @@ public class InMemoryReplayCacheTest
 
         // We should have some
         assertNotNull( nbEntries );
+        assertTrue(nbEntries > 0);
         
         // Wait another delay, so that the cleaning thread will be kicked off
         Thread.sleep( delay + 50 );
+        // It's not guaranteed that the thread run, so invoke the method manually
+        cache.cleanCache();
         
         nbEntries = 0;
         
@@ -131,5 +140,8 @@ public class InMemoryReplayCacheTest
 
         // We should not have anymore entry in the cache
         assertEquals( 0, nbEntries );
+
+        // Stop background thread
+        cache.interrupt();
     }
 }

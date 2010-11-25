@@ -41,7 +41,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * principal, and we will store a list of entries for each client principal.
  * 
  * A thread will run every N seconds to clean the cache from entries out of the 
- * clockSkew
+ * clockSkew.
+ * 
+ * TODO: check if we really want an active thread for each cache instance (DIRKRB-80).
  *    
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -52,13 +54,13 @@ public class InMemoryReplayCache extends Thread implements ReplayCache
 
     /** default clock skew */
     private static final long DEFAULT_CLOCK_SKEW = 5 * KerberosTime.MINUTE;
-    
+
     /** The clock skew */
     private long clockSkew = DEFAULT_CLOCK_SKEW;
 
     /** The default delay between each run of the cleaning process : 5 s */
     private static long DEFAULT_DELAY = 5 * 1000;  
-    
+
     /** The delay to wait between each cache cleaning */
     private long delay;
 
@@ -257,7 +259,7 @@ public class InMemoryReplayCache extends Thread implements ReplayCache
     /**
      * A method to remove all the expired entries from the cache.
      */
-    private synchronized void cleanCache()
+    synchronized void cleanCache()
     {
         Collection<List<ReplayCacheEntry>> entryList = cache.values();
         
@@ -307,6 +309,7 @@ public class InMemoryReplayCache extends Thread implements ReplayCache
             }
             catch ( InterruptedException ie )
             {
+                cache.clear();
                 return;
             }
         }
