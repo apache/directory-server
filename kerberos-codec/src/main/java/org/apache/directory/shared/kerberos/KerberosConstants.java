@@ -125,6 +125,21 @@ public class KerberosConstants
     /** Checksum tags */
     public static final int CHECKSUM_TYPE_TAG = 0xA0;
     public static final int CHECKSUM_CHECKSUM_TAG = 0xA1;
+    
+    /** EncKdcRepPart tags */
+    public static final int ENC_KDC_REP_PART_KEY_TAG = 0xA0;
+    public static final int ENC_KDC_REP_PART_LAST_REQ_TAG = 0xA1;
+    public static final int ENC_KDC_REP_PART_NONCE_TAG = 0xA2;
+    public static final int ENC_KDC_REP_PART_KEY_EXPIRATION_TAG = 0xA3;
+    public static final int ENC_KDC_REP_PART_FLAGS_TAG = 0xA4;
+    public static final int ENC_KDC_REP_PART_AUTH_TIME_TAG = 0xA5;
+    public static final int ENC_KDC_REP_PART_START_TIME_TAG = 0xA6;
+    public static final int ENC_KDC_REP_PART_END_TIME_TAG = 0xA7;
+    public static final int ENC_KDC_REP_PART_RENEW_TILL_TAG = 0xA8;
+    public static final int ENC_KDC_REP_PART_SREALM_TAG = 0xA9;
+    public static final int ENC_KDC_REP_PART_SNAME_TAG = 0xAA;
+    public static final int ENC_KDC_REP_PART_CADDR_TAG = 0xAB;
+    
 
     /** Encrypteddata's tags */
     public static final int ENCRYPTED_DATA_ETYPE_TAG = 0xA0;
