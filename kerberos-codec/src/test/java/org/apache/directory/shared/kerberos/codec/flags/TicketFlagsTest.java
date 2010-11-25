@@ -19,7 +19,11 @@
  */
 package org.apache.directory.shared.kerberos.codec.flags;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -38,8 +42,25 @@ public class TicketFlagsTest
     {
         TicketFlags flags = new TicketFlags();
         
+        assertFalse( flags.isForwardable() );
         flags.setFlag( TicketFlag.FORWARDABLE );
         
+        assertTrue( flags.isForwardable() );
         assertTrue( flags.toString().startsWith( TicketFlag.FORWARDABLE.toString() ) );
+        
+        assertFalse( flags.isRenewable() );
+        flags.setFlag( TicketFlag.RENEWABLE );
+        assertTrue( flags.isRenewable() );
+        assertTrue( flags.isForwardable() );
+
+        int flagValue = flags.getIntValue();
+        assertEquals( 0x40800000, flagValue );
+
+        flags.clearFlag( TicketFlag.FORWARDABLE );
+        assertTrue( flags.isRenewable() );
+        assertFalse( flags.isForwardable() );
+        
+        byte[] bytes = flags.getData();
+        assertTrue( Arrays.equals( new byte[]{ 0x00, 0x00, (byte)0x80, 0x00, 0x00}, bytes ) );
     }
 }
