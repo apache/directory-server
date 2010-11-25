@@ -119,7 +119,7 @@ public class EncKrbCredPartDecoderTest
     public void testEncKrbCredPart() throws Exception
     {
         int size = optionalFieldValueList.size();
-        for ( int i = 0; i < 1; i++ ) // FIXME i < 1 should be changed to i < size after adding optional transitions
+        for ( int i = 0; i < size; i++ )
         {
             EncKrbCredPart expected = new EncKrbCredPart();
             expected.setTicketInfo( ticketInfo );
@@ -166,6 +166,52 @@ public class EncKrbCredPartDecoderTest
         }
     }
     
+    
+    @Test
+    public void testKrbCredInfoWithEachOptElement() throws Exception
+    {
+        // algorithm:
+        // start from the first mandatory element and add ONLY one OPTIONAL element and then test decoding
+
+        int size = optionalFieldValueList.size();
+        for ( int i = size - 1; i >= 0; i-- )
+        {
+            EncKrbCredPart expected = new EncKrbCredPart();
+            expected.setTicketInfo( ticketInfo );
+            Map<String, Field> encKrbCredPartFieldNameMap = getFieldMap( expected );
+
+            List<FieldValueHolder> presentFieldList = new ArrayList<FieldValueHolder>();
+
+            FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
+            presentFieldList.add( fieldValHolder );
+
+            Field f = encKrbCredPartFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+            f.set( expected, fieldValHolder.value );
+
+            ByteBuffer stream = ByteBuffer.allocate( expected.computeLength() );
+            expected.encode( stream );
+            stream.flip();
+
+            Asn1Decoder decoder = new Asn1Decoder();
+            EncKrbCredPartContainer container = new EncKrbCredPartContainer();
+            container.setStream( stream );
+
+            try
+            {
+                decoder.decode( stream, container );
+            }
+            catch ( DecoderException e )
+            {
+                // NOTE: keep this sysout for easy debugging (no need to setup a logger)
+                System.out.println( "failed sequence:\n" + expected );
+                throw e;
+            }
+
+            EncKrbCredPart actual = container.getEncKrbCredPart();
+            assertValues( presentFieldList, actual );
+        }
+    }
+
     /**
      * compare the values that are inserted into the EncKrbCredPart objects before encoding to
      * those that are obtained from decoded EncKrbCredPart

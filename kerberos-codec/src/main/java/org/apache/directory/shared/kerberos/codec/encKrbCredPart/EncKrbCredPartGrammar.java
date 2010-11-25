@@ -120,6 +120,47 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG] = new GrammarTransition(
             EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG,
             new StoreRecipientAddress());
+        
+        // ---------------------------------- OPTIONAL transitions -----------------------------------------------
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG,
+            new CheckNotNullLength());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG,
+            new CheckNotNullLength());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG,
+            new StoreSenderAddress());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG,
+            new StoreRecipientAddress());
+
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG,
+            new CheckNotNullLength());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG,
+            new StoreSenderAddress());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG,
+            new StoreRecipientAddress());
+
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG,
+            new StoreSenderAddress());
+        
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG,
+            new StoreRecipientAddress());
+
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG] = new GrammarTransition(
+            EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_STATE, EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, KerberosConstants.ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG,
+            new StoreRecipientAddress());
     }
 
 
