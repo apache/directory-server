@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -44,6 +45,7 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,6 +82,9 @@ import org.junit.runner.RunWith;
     )
 public class LdapsIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final String RDN = "cn=The Person";
     
     
@@ -118,5 +123,8 @@ public class LdapsIT extends AbstractLdapTestUnit
         DirContext person = ctx.createSubcontext( RDN, attributes );
 
         assertNotNull( person );
+
+        person.close();
+        ctx.destroySubcontext( RDN );
     }
 }

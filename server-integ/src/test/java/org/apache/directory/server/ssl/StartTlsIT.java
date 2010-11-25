@@ -45,6 +45,7 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -56,6 +57,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -84,6 +86,9 @@ import org.slf4j.LoggerFactory;
     )
 public class StartTlsIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
     private static final String[] CERT_IDS = new String[] { "userCertificate" };
     private static final int CONNECT_ITERATIONS = 10;
@@ -237,8 +242,21 @@ public class StartTlsIT extends AbstractLdapTestUnit
             tls.negotiate( ReloadableSSLSocketFactory.getDefault() );
 
             search( ii, ctx );
-            
-            tls.close();
+
+            // Don't call tls.close(), sometimes it hangs in socket.read() operation:
+            // Stack trace:
+            //     java.net.SocketInputStream.socketRead0(Native Method)
+            //     java.net.SocketInputStream.read(SocketInputStream.java:129)
+            //     com.sun.net.ssl.internal.ssl.InputRecord.readFully(InputRecord.java:293)
+            //     com.sun.net.ssl.internal.ssl.InputRecord.readV3Record(InputRecord.java:405)
+            //     com.sun.net.ssl.internal.ssl.InputRecord.read(InputRecord.java:360)
+            //     com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:789)
+            //        - locked java.lang.obj...@3dec90c3
+            //     com.sun.net.ssl.internal.ssl.SSLSocketImpl.waitForClose(SSLSocketImpl.java:1467)
+            //     com.sun.net.ssl.internal.ssl.SSLSocketImpl.closeInternal(SSLSocketImpl.java:1419)
+            //     com.sun.net.ssl.internal.ssl.SSLSocketImpl.close(SSLSocketImpl.java:1313)
+            //     com.sun.jndi.ldap.ext.StartTlsResponseImpl.close(StartTlsResponseImpl.java:267)
+            // tls.close();
             ctx.close();
         }
     }

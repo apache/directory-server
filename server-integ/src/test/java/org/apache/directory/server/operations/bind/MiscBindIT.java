@@ -48,6 +48,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPUrl;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -70,6 +71,7 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -106,6 +108,9 @@ import org.junit.runner.RunWith;
     })
 public class MiscBindIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private boolean oldAnnonymousAccess;
 
     @Before
@@ -298,6 +303,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         list.close();
         Attribute creatorsName = result.getAttributes().get( "creatorsName" );
         assertEquals( "", creatorsName.get() );
+        ctx.destroySubcontext( "ou=blah,ou=system" );
     }
 
 
@@ -340,6 +346,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         InitialDirContext userCtx = new InitialDirContext( env );
         assertNotNull( userCtx );
+
+        ctx.destroySubcontext( "cn=Kate Bush" );
     }
 
 
@@ -428,5 +436,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         assertNotNull( kate );
         assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(
                 "userPassword" ).get() ) );
+
+        ctx.destroySubcontext( "cn=Kate Bush" );
     }
 }
