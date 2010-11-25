@@ -180,7 +180,7 @@ public abstract class AbstractKerberosFlags extends BitString
      */
     public void clearFlag( KerberosFlag flag )
     {
-        int pos = MAX_SIZE - 1 - flag.getOrdinal();
+        int pos = MAX_SIZE - 1 - flag.getValue();
         clearBit( pos );
         value &= ~( 1 << pos );
     }
