@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encAsRepPart.actions;
+package org.apache.directory.shared.kerberos.codec.encTgsRepPart.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
@@ -28,18 +28,18 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
-import org.apache.directory.shared.kerberos.codec.encAsRepPart.EncAsRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.encTgsRepPart.EncTgsRepPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to add a EncAsRepPart object
+ * The action used to add a EncTgsRepPart object
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreEncAsRepPart extends GrammarAction
+public class StoreEncTgsRepPart extends GrammarAction
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
@@ -49,11 +49,11 @@ public class StoreEncAsRepPart extends GrammarAction
 
 
     /**
-     * Instantiates a new EncAsRepPart action.
+     * Instantiates a new EncTgsRepPart action.
      */
-    public StoreEncAsRepPart()
+    public StoreEncTgsRepPart()
     {
-        super( "Add an EncAsRepPart instance" );
+        super( "Add an EncTgsRepPart instance" );
     }
 
 
@@ -62,9 +62,9 @@ public class StoreEncAsRepPart extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncAsRepPartContainer encAsRepPartContainer = ( EncAsRepPartContainer ) container;
+        EncTgsRepPartContainer encTgsRepPartContainer = ( EncTgsRepPartContainer ) container;
 
-        TLV tlv = encAsRepPartContainer.getCurrentTLV();
+        TLV tlv = encTgsRepPartContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -99,11 +99,11 @@ public class StoreEncAsRepPart extends GrammarAction
         
         EncKdcRepPart encKdcRepPart = encKdcRepPartContainer.getEncKdcRepPart();
 
-        encAsRepPartContainer.getEncAsRepPart().setEncKdcRepPart( encKdcRepPart );
+        encTgsRepPartContainer.getEncTgsRepPart().setEncKdcRepPart( encKdcRepPart );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncAsRepPart : {}", encKdcRepPart );
+            LOG.debug( "EncKdcRepPart : {}", encKdcRepPart );
         }
         
         container.setGrammarEndAllowed( true );

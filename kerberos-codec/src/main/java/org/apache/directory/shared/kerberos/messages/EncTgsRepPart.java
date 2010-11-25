@@ -30,14 +30,14 @@ import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 
 
 /**
- * EncASRepPart message. 
+ * EncTGSRepPart message. 
  *  It will store the object described by the ASN.1 grammar :
  * <pre>
- * EncASRepPart    ::= [APPLICATION 25] EncKDCRepPart
+ * EncTGSRepPart   ::= [APPLICATION 26] EncKDCRepPart
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncAsRepPart extends KerberosMessage
+public class EncTgsRepPart extends KerberosMessage
 {
     /** The EncKdcRepPart */
     private EncKdcRepPart encKdcRepPart;
@@ -46,11 +46,11 @@ public class EncAsRepPart extends KerberosMessage
     private transient int encKdcRepPartLength;
 
     /**
-     * Creates a new instance of EncAsRepPart.
+     * Creates a new instance of EncTgsRepPart.
      */
-    public EncAsRepPart() 
+    public EncTgsRepPart() 
     {
-        super( KerberosMessageType.ENC_AS_REP_PART );
+        super( KerberosMessageType.ENC_TGS_REP_PART );
     }
 
 
@@ -73,11 +73,11 @@ public class EncAsRepPart extends KerberosMessage
 
     
     /**
-     * Compute the EncAsRepPart length
+     * Compute the EncTgsRepPart length
      * <pre>
-     * EncAsRepPart :
+     * EncTgsRepPart :
      * 
-     * 0x79 L1 EncAsRepPart message
+     * 0x7A L1 EncTgsRepPart message
      *  |
      *  +-->  0x30 L2 EncKdcRepPart sequence
      * </pre>
@@ -90,7 +90,7 @@ public class EncAsRepPart extends KerberosMessage
     
     
     /**
-     * Encode the EncAsRepPart component
+     * Encode the EncTgsRepPart component
      * 
      * @param buffer The buffer containing the encoded result
      * @return The encoded component
@@ -104,7 +104,7 @@ public class EncAsRepPart extends KerberosMessage
         }
         
         // The EncAsRepPart Tag
-        buffer.put( (byte)KerberosConstants.ENC_AS_REP_PART_TAG );
+        buffer.put( (byte)KerberosConstants.ENC_TGS_REP_PART_TAG );
         buffer.put( TLV.getBytes( encKdcRepPartLength ) );
         
         // The EncKdcRepPart --------------------------------------------------------

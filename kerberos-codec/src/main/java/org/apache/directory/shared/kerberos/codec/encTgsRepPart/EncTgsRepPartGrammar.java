@@ -17,57 +17,57 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.encAsRepPart;
+package org.apache.directory.shared.kerberos.codec.encTgsRepPart;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.encAsRepPart.actions.StoreEncAsRepPart;
+import org.apache.directory.shared.kerberos.codec.encTgsRepPart.actions.StoreEncTgsRepPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the EncAsRepPart structure. All the actions are declared
+ * This class implements the EncTgsRepPart structure. All the actions are declared
  * in this class. As it is a singleton, these declaration are only done once. If
  * an action is to be added or modified, this is where the work is to be done !
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class EncAsRepPartGrammar extends AbstractGrammar
+public final class EncTgsRepPartGrammar extends AbstractGrammar
 {
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger( EncAsRepPartGrammar.class );
+    static final Logger LOG = LoggerFactory.getLogger( EncTgsRepPartGrammar.class );
 
     /** A speedup for logger */
     static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** The instance of grammar. EncAsRepPartGrammar is a singleton */
-    private static Grammar instance = new EncAsRepPartGrammar();
+    /** The instance of grammar. EncTgsRepPartGrammar is a singleton */
+    private static Grammar instance = new EncTgsRepPartGrammar();
 
 
     /**
-     * Creates a new EncAsRepPartGrammar object.
+     * Creates a new EncTgsRepPartGrammar object.
      */
-    private EncAsRepPartGrammar()
+    private EncTgsRepPartGrammar()
     {
-        setName( EncAsRepPartGrammar.class.getName() );
+        setName( EncTgsRepPartGrammar.class.getName() );
 
         // Create the transitions table
-        super.transitions = new GrammarTransition[EncAsRepPartStatesEnum.LAST_ENC_AS_REP_PART_STATE.ordinal()][256];
+        super.transitions = new GrammarTransition[EncTgsRepPartStatesEnum.LAST_ENC_TGS_REP_PART_STATE.ordinal()][256];
 
         // ============================================================================================
-        // EncAsRepPart 
+        // EncTgsRepPart 
         // ============================================================================================
         // --------------------------------------------------------------------------------------------
-        // Transition from EncAsRepPart init to EncKDCRepPart
+        // Transition from EncTgsRepPart init to EncKDCRepPart
         // --------------------------------------------------------------------------------------------
         // EncASRepPart    ::= [APPLICATION 25] EncKDCRepPart
-        super.transitions[EncAsRepPartStatesEnum.START_STATE.ordinal()][KerberosConstants.ENC_AS_REP_PART_TAG] = new GrammarTransition(
-            EncAsRepPartStatesEnum.START_STATE, EncAsRepPartStatesEnum.ENC_AS_REP_PART_STATE, KerberosConstants.ENC_AS_REP_PART_TAG,
-            new StoreEncAsRepPart() );
+        super.transitions[EncTgsRepPartStatesEnum.START_STATE.ordinal()][KerberosConstants.ENC_TGS_REP_PART_TAG] = new GrammarTransition(
+            EncTgsRepPartStatesEnum.START_STATE, EncTgsRepPartStatesEnum.ENC_TGS_REP_PART_STATE, KerberosConstants.ENC_TGS_REP_PART_TAG,
+            new StoreEncTgsRepPart() );
     }
 
 
