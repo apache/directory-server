@@ -21,18 +21,8 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,15 +30,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreNonce extends GrammarAction
+public class StoreNonce extends AbstractReadInteger
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreNonce.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StoreNonce action.
      */
@@ -61,43 +44,10 @@ public class StoreNonce extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void setIntegerValue( int value, Asn1Container container )
     {
         KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
 
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        
-        Value value = tlv.getValue();
-        
-        try
-        {
-            int nonce = IntegerDecoder.parse( value );
-
-            kdcReqBody.setNonce( nonce );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "nonce : {}", nonce );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        kdcReqBodyContainer.getKdcReqBody().setNonce( value );
     }
 }
