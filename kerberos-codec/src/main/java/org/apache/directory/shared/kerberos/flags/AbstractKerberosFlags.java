@@ -129,8 +129,7 @@ public abstract class AbstractKerberosFlags extends BitString
      */
     public boolean isFlagSet( KerberosFlag flag )
     {
-        int value = flag.getValue();
-        int mask = 1 << ( MAX_SIZE - 1 - value );
+        int mask = 1 << ( MAX_SIZE - 1 - flag.getValue() );
         
         return ( value & mask ) != 0;
     }
@@ -155,7 +154,7 @@ public abstract class AbstractKerberosFlags extends BitString
     public void setFlag( KerberosFlag flag )
     {
         int pos = MAX_SIZE - 1 - flag.getValue();
-        setBit( pos );
+        setBit( flag.getValue() );
         value |= 1 << pos;
     }
     
@@ -168,7 +167,7 @@ public abstract class AbstractKerberosFlags extends BitString
     public void setFlag( int flag )
     {
         int pos = MAX_SIZE - 1 - flag;
-        setBit( pos );
+        setBit( flag );
         value |= 1 << pos;
     }
     
@@ -181,7 +180,7 @@ public abstract class AbstractKerberosFlags extends BitString
     public void clearFlag( KerberosFlag flag )
     {
         int pos = MAX_SIZE - 1 - flag.getValue();
-        clearBit( pos );
+        clearBit( flag.getValue() );
         value &= ~( 1 << pos );
     }
     
@@ -194,7 +193,7 @@ public abstract class AbstractKerberosFlags extends BitString
     public void clearFlag( int flag )
     {
         int pos = MAX_SIZE - 1 - flag;
-        clearBit( pos );
+        clearBit( flag );
         value &= ~( 1 << pos );
     }
 }
