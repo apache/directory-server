@@ -123,9 +123,9 @@ public class ApReq extends KerberosMessage
      *
      * @param option
      */
-    public void setOption( int option )
+    public void setOption( ApOptions apOptions )
     {
-        apOptions.set( option );
+        this.apOptions = apOptions;
     }
 
 

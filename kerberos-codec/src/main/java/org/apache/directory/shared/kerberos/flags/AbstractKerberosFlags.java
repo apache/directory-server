@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.flags;
 
+import org.apache.directory.shared.asn1.primitives.BitString;
+
 
 /**
  * An implementation of a BitString for any KerberosFlags. The different values
@@ -29,7 +31,7 @@ package org.apache.directory.shared.kerberos.flags;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractKerberosFlags implements KerberosFlags
+public abstract class AbstractKerberosFlags extends BitString
 {
     /**
      * The maximum size of the BitString as specified for Kerberos flags.
@@ -45,6 +47,7 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public AbstractKerberosFlags()
     {
+        super( MAX_SIZE );
         value = 0;
     }
 
@@ -57,7 +60,27 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public AbstractKerberosFlags( int value )
     {
+        super( MAX_SIZE );
+
         this.value = value;
+    }
+    
+    
+    /**
+     * Store the flags contained in the given integer value
+     * @param value The list of flags to set, as a int
+     */
+    public void setData( int value )
+    {
+        byte[] bytes = new byte[5];
+        
+        // The first byte contains the number of unused bytes, 0 here as we store 32 bits
+        bytes[0] = 0;
+        
+        bytes[1] = (byte)(value >> 24);
+        bytes[3] = (byte)( (value >> 16) & 0x00FF );
+        bytes[3] = (byte)( (value >> 8) & 0x00FF );
+        bytes[4] = (byte)(value & 0x00FF);
     }
 
     
@@ -66,12 +89,14 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public AbstractKerberosFlags( byte[] flags )
     {
+        super( MAX_SIZE );
+        
         if ( ( flags == null ) || ( flags.length != 4 ) )
         {
             throw new IllegalArgumentException( "The given flags is not correct" );
         }
         
-        value = ( ( flags[0] & 0x00FF ) << 24 ) | ( ( flags[1] & 0x00FF ) << 16 ) | ( ( flags[2] & 0x00FF ) << 8 ) | ( 0x00FF & flags[3] ); 
+        value = ( ( flags[0] & 0x00FF ) << 24 ) | ( ( flags[1] & 0x00FF ) << 16 ) | ( ( flags[2] & 0x00FF ) << 8 ) | ( 0x00FF & flags[3] );
     }
     
     
@@ -130,6 +155,7 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
     public void setFlag( KerberosFlag flag )
     {
         int pos = MAX_SIZE - 1 - flag.getValue();
+        setBit( pos );
         value |= 1 << pos;
     }
     
@@ -141,7 +167,9 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public void setFlag( int flag )
     {
-        value |= 1 << ( MAX_SIZE - 1 - flag );
+        int pos = MAX_SIZE - 1 - flag;
+        setBit( pos );
+        value |= 1 << pos;
     }
     
 
@@ -152,7 +180,9 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public void clearFlag( KerberosFlag flag )
     {
-        value &= ~( 1 << ( MAX_SIZE - 1 - flag.getValue() ) );
+        int pos = MAX_SIZE - 1 - flag.getOrdinal();
+        clearBit( pos );
+        value &= ~( 1 << pos );
     }
     
     
@@ -163,6 +193,8 @@ public abstract class AbstractKerberosFlags implements KerberosFlags
      */
     public void clearFlag( int flag )
     {
-        value &= ~( 1 << ( MAX_SIZE - 1 - flag ) );
+        int pos = MAX_SIZE - 1 - flag;
+        clearBit( pos );
+        value &= ~( 1 << pos );
     }
 }

@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.options;
 
 
-import org.apache.directory.shared.asn1.primitives.BitString;
+import org.apache.directory.shared.kerberos.flags.AbstractKerberosFlags;
 
 
 /**
@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.primitives.BitString;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class Options extends BitString
+public abstract class Options extends AbstractKerberosFlags
 {
     /**
      * Creates a new BitSet with a specific number of bits.
