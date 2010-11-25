@@ -142,12 +142,15 @@ public class HostAddresses extends AbstractAsn1Object
      * @param that Th {@link HostAddresses} we want to compare with the current one
      * @return true if two {@link HostAddresses} are equal.
      */
-    public boolean equals( HostAddresses that )
+    @Override
+    public boolean equals( Object obj )
     {
-        if ( that == null ) 
+        if ( obj == null ) 
         {
             return false;
         }
+        
+        HostAddresses that = ( HostAddresses ) obj;
         
         // Addresses can't be null after creation
         if ( addresses.size() != that.addresses.size() )
