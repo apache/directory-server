@@ -42,12 +42,6 @@ package org.apache.directory.shared.kerberos.codec.types;
  */
 public enum PrincipalNameType
 {
-    /** The first possible ordinal value */
-    FIRST_NAME_TYPE( 0 ),
-    
-    /** The last possible ordinal value */
-    LAST_NAME_TYPE( 10 ),
-    
     /** Constant for the "Name type not known" principal name type. */
     KRB_NT_UNKNOWN( 0 ),
 
@@ -96,7 +90,7 @@ public enum PrincipalNameType
      * @param type
      * @return The principal name type.
      */
-    public static PrincipalNameType getTypeByOrdinal( int type )
+    public static PrincipalNameType getTypeByValue( int type )
     {
         switch ( type )
         {

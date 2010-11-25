@@ -86,8 +86,8 @@ public class StoreNameType extends GrammarAction
         
         try
         {
-            int nameType = IntegerDecoder.parse( value, PrincipalNameType.FIRST_NAME_TYPE.getValue(), PrincipalNameType.LAST_NAME_TYPE.getValue() );
-            principalNameType = PrincipalNameType.getTypeByOrdinal( nameType );
+            int nameType = IntegerDecoder.parse( value, PrincipalNameType.KRB_NT_UNKNOWN.getValue(), PrincipalNameType.KRB_NT_ENTERPRISE.getValue() );
+            principalNameType = PrincipalNameType.getTypeByValue( nameType );
 
             principalName.setNameType( principalNameType );
 

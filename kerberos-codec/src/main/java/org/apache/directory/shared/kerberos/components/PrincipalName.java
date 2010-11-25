@@ -167,7 +167,7 @@ public class PrincipalName extends AbstractAsn1Object
             nameString = KerberosUtils.EMPTY_PRINCIPAL_NAME;
         }
 
-        this.nameType = PrincipalNameType.getTypeByOrdinal( principal.getNameType() );
+        this.nameType = PrincipalNameType.getTypeByValue( principal.getNameType() );
     }
     
     /**
@@ -194,7 +194,7 @@ public class PrincipalName extends AbstractAsn1Object
     {
         this.nameString = KerberosUtils.getNames( nameString );
         
-        this.nameType = PrincipalNameType.getTypeByOrdinal( nameType );
+        this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
 
@@ -223,7 +223,7 @@ public class PrincipalName extends AbstractAsn1Object
      */
     public void setNameType( int nameType )
     {
-        this.nameType = PrincipalNameType.getTypeByOrdinal( nameType );
+        this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
     /**
