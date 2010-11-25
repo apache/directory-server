@@ -111,7 +111,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
      *         |
      *         +--> 0xA2 11 timestamp tag
      *         |     |
-     *         |     +--> 0x18 0x1F timestamp (KerberosTime)
+     *         |     +--> 0x18 0x0F timestamp (KerberosTime)
      *         |
      *         +--> 0xA3 L4 usec tag
      *         |     |
@@ -134,8 +134,6 @@ public class EncKrbCredPart extends AbstractAsn1Object
         {
             ticketInfoSeqLen += kci.computeLength();
         }
-
-        ticketInfoSeqLen = 1 + TLV.getNbBytes( ticketInfoSeqLen ) + ticketInfoSeqLen;
 
         ticketInfoLen = 1 + TLV.getNbBytes( ticketInfoSeqLen ) + ticketInfoSeqLen;
 
@@ -227,7 +225,9 @@ public class EncKrbCredPart extends AbstractAsn1Object
                 // timestamp tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG );
                 buffer.put( TLV.getBytes( timestampLen ) );
-                buffer.put( ( byte ) 0x1F );
+                
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( ( byte ) 0x0F );
                 buffer.put( timestampBytes );
             }
 
