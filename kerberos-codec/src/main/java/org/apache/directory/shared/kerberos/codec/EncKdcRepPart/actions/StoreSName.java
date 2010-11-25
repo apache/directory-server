@@ -105,5 +105,7 @@ public class StoreSName extends GrammarAction
         {
             LOG.debug( "SName : {}", principalName );
         }
+        
+        encKdcRepPartContainer.setGrammarEndAllowed( true );
     }
 }

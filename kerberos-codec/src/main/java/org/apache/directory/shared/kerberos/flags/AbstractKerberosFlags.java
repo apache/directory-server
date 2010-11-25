@@ -89,14 +89,14 @@ public abstract class AbstractKerberosFlags extends BitString
      */
     public AbstractKerberosFlags( byte[] flags )
     {
-        super( MAX_SIZE );
+        super( flags );
         
-        if ( ( flags == null ) || ( flags.length != 4 ) )
+        if ( ( flags == null ) || ( flags.length != 5 ) )
         {
             throw new IllegalArgumentException( "The given flags is not correct" );
         }
         
-        value = ( ( flags[0] & 0x00FF ) << 24 ) | ( ( flags[1] & 0x00FF ) << 16 ) | ( ( flags[2] & 0x00FF ) << 8 ) | ( 0x00FF & flags[3] );
+        value = ( ( flags[1] & 0x00FF ) << 24 ) | ( ( flags[2] & 0x00FF ) << 16 ) | ( ( flags[3] & 0x00FF ) << 8 ) | ( 0x00FF & flags[4] );
     }
     
     

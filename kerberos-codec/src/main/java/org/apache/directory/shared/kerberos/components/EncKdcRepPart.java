@@ -495,9 +495,12 @@ public class EncKdcRepPart extends AbstractAsn1Object
         snameLength = sname.computeLength();
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( snameLength ) + snameLength;
 
-        // The caddr
-        caddrLength = caddr.computeLength();
-        encKdcRepPartSeqLength += 1 + TLV.getNbBytes( caddrLength ) + caddrLength;
+        // The caddr if any
+        if ( caddr != null )
+        {
+            caddrLength = caddr.computeLength();
+            encKdcRepPartSeqLength += 1 + TLV.getNbBytes( caddrLength ) + caddrLength;
+        }
 
         return 1 + TLV.getNbBytes( encKdcRepPartSeqLength ) + encKdcRepPartSeqLength;
     }
