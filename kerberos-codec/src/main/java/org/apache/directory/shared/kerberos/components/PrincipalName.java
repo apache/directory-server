@@ -476,4 +476,52 @@ public class PrincipalName extends AbstractAsn1Object
 
         return sb.toString();
     }
+
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( nameString == null ) ? 0 : nameString.hashCode() );
+        result = prime * result + ( ( nameType == null ) ? 0 : nameType.hashCode() );
+        return result;
+    }
+
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        if ( obj == null )
+        {
+            return false;
+        }
+        
+        PrincipalName other = ( PrincipalName ) obj;
+
+        if ( nameString == null )
+        {
+            if ( other.nameString != null )
+            {
+                return false;
+            }
+        }
+        else if ( !nameString.equals( other.nameString ) )
+        {
+            return false;
+        }
+
+        if ( nameType != other.nameType )
+        {
+            return false;
+        }
+        
+        return true;
+    }
+    
 }
