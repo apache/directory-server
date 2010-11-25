@@ -25,6 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class EncKdcRepPartInit extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
+        EncKdcRepPart encKdcRepPart = new EncKdcRepPart( KerberosMessageType.ENC_AS_REP_PART );
         encKdcRepPartContainer.setEncKdcRepPart( encKdcRepPart );
         
         if ( IS_DEBUG )
