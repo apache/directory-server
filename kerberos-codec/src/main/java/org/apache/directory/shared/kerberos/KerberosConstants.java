@@ -90,6 +90,12 @@ public class KerberosConstants
     public static final int KRB_PRIV_MSGTYPE_TAG = 0xA1;
     public static final int KRB_PRIV_ENC_PART_TAG = 0xA3;
 
+    /** EncAsRepPart's tags */
+    public static final int ENC_AS_REP_PART_TAG = 0x79;
+    
+    /** EncTgsRepPart's tags */
+    public static final int ENC_TGS_REP_PART_TAG = 0x7A;
+    
     /** EncKrbPrivPart */
     public static final int ENC_KRB_PRIV_PART_TAG = 0x7C;
     public static final int ENC_KRB_PRIV_PART_USER_DATA_TAG = 0xA0;
@@ -140,7 +146,15 @@ public class KerberosConstants
     public static final int ENC_KDC_REP_PART_SNAME_TAG = 0xAA;
     public static final int ENC_KDC_REP_PART_CADDR_TAG = 0xAB;
     
-
+    /** EncKrbCredPart tags */
+    public static final int ENC_KRB_CRED_PART_TAG = 0x7D;
+    public static final int ENC_KRB_CRED_TICKET_INFO_TAG = 0xA0;
+    public static final int ENC_KRB_CRED_PART_NONCE_TAG = 0xA1;
+    public static final int ENC_KRB_CRED_PART_TIMESTAMP_TAG = 0xA2;
+    public static final int ENC_KRB_CRED_PART_USEC_TAG = 0xA3;
+    public static final int ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG = 0xA4;
+    public static final int ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG = 0xA5;
+    
     /** Encrypteddata's tags */
     public static final int ENCRYPTED_DATA_ETYPE_TAG = 0xA0;
     public static final int ENCRYPTED_DATA_KVNO_TAG = 0xA1;
@@ -162,15 +176,6 @@ public class KerberosConstants
     /** HostAddress' tags */
     public static final int HOST_ADDRESS_ADDR_TYPE_TAG = 0xA0;
     public static final int HOST_ADDRESS_ADDRESS_TAG = 0xA1;
-    
-    /** EncKrbCredPart tags */
-    public static final int ENC_KRB_CRED_PART_TAG = 0x7D;
-    public static final int ENC_KRB_CRED_TICKET_INFO_TAG = 0xA0;
-    public static final int ENC_KRB_CRED_PART_NONCE_TAG = 0xA1;
-    public static final int ENC_KRB_CRED_PART_TIMESTAMP_TAG = 0xA2;
-    public static final int ENC_KRB_CRED_PART_USEC_TAG = 0xA3;
-    public static final int ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG = 0xA4;
-    public static final int ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG = 0xA5;
     
     /** KrbCredInfo tags */
     public static final int KRB_CRED_INFO_KEY_TAG = 0xA0;

@@ -52,6 +52,8 @@ public enum KerberosMessageType
     KRB_SAFE( 20, "safe (checksummed) application message" ), 
     KRB_PRIV( 21,  "private (encrypted) application message" ), 
     KRB_CRED( 22, "private (encrypted) message to forward credentials" ),
+    ENC_AS_REP_PART( 25, "encrypted authentication reply part" ),
+    ENC_TGS_REP_PART( 26, "encrypted TGT reply part" ),
     ENC_AP_REP_PART( 27, "encrypted application reply part" ),
     ENC_PRIV_PART( 28, "encrypted private message part" ),
     KRB_ERROR( 30, "error response" );
