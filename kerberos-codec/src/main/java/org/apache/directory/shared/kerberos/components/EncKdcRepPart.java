@@ -24,15 +24,14 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncKdcRepPart extends KerberosMessage
+public class EncKdcRepPart extends AbstractAsn1Object
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( EncKdcRepPart.class );
@@ -119,9 +118,8 @@ public class EncKdcRepPart extends KerberosMessage
     /**
      * Creates a new instance of EncKdcRepPart.
      */
-    public EncKdcRepPart( KerberosMessageType msgType )
+    public EncKdcRepPart()
     {
-        super( msgType );
     }
 
 

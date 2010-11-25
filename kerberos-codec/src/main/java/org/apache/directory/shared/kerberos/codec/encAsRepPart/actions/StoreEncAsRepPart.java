@@ -17,40 +17,43 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.EncKdcRepPart.actions;
+package org.apache.directory.shared.kerberos.codec.encAsRepPart.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.encAsRepPart.EncAsRepPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to initialize the EncKdcRepPart object
+ * The action used to add a EncAsRepPart object
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncKdcRepPartInit extends GrammarAction
+public class StoreEncAsRepPart extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( EncKdcRepPart.class );
+    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
     /**
-     * Instantiates a new EncKdcRepPartInit action.
+     * Instantiates a new EncAsRepPart action.
      */
-    public EncKdcRepPartInit()
+    public StoreEncAsRepPart()
     {
-        super( "Creates a EncKdcRepPart instance" );
+        super( "Add an EncAsRepPart instance" );
     }
 
 
@@ -59,9 +62,9 @@ public class EncKdcRepPartInit extends GrammarAction
      */
     public void action( Asn1Container container ) throws DecoderException
     {
-        EncKdcRepPartContainer encKdcRepPartContainer = ( EncKdcRepPartContainer ) container;
+        EncAsRepPartContainer encAsRepPartContainer = ( EncAsRepPartContainer ) container;
 
-        TLV tlv = encKdcRepPartContainer.getCurrentTLV();
+        TLV tlv = encAsRepPartContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -72,12 +75,37 @@ public class EncKdcRepPartInit extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
-        encKdcRepPartContainer.setEncKdcRepPart( encKdcRepPart );
+        // Now, let's decode the EncKdcRepPart
+        Asn1Decoder encKdcRepPartDecoder = new Asn1Decoder();
         
+        EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer();
+        encKdcRepPartContainer.setStream( container.getStream() );
+        
+        // Decode the EncKdcRepPart PDU
+        try
+        {
+            encKdcRepPartDecoder.decode( container.getStream(), encKdcRepPartContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw de;
+        }
+        
+        // Update the expected length for the current TLV
+        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
+
+        // Update the parent
+        container.updateParent();
+        
+        EncKdcRepPart encKdcRepPart = encKdcRepPartContainer.getEncKdcRepPart();
+
+        encAsRepPartContainer.getEncAsRepPart().setEncKdcRepPart( encKdcRepPart );
+
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncKdcRepPart created" );
+            LOG.debug( "AS-REP : {}", encKdcRepPart );
         }
+        
+        container.setGrammarEndAllowed( true );
     }
 }

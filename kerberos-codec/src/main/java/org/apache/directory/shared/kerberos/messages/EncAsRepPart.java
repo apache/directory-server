@@ -37,8 +37,11 @@ import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncAsRepPart extends EncKdcRepPart
+public class EncAsRepPart extends KerberosMessage
 {
+    /** The EncKdcRepPart */
+    private EncKdcRepPart encKdcRepPart;
+    
     // Storage for computed lengths
     private transient int encKdcRepPartLength;
 
@@ -48,6 +51,24 @@ public class EncAsRepPart extends EncKdcRepPart
     public EncAsRepPart() 
     {
         super( KerberosMessageType.ENC_AS_REP_PART );
+    }
+
+
+    /**
+     * @return the encKdcRepPart
+     */
+    public EncKdcRepPart getEncKdcRepPart()
+    {
+        return encKdcRepPart;
+    }
+
+
+    /**
+     * @param encKdcRepPart the encKdcRepPart to set
+     */
+    public void setEncKdcRepPart( EncKdcRepPart encKdcRepPart )
+    {
+        this.encKdcRepPart = encKdcRepPart;
     }
 
     
@@ -63,7 +84,7 @@ public class EncAsRepPart extends EncKdcRepPart
      */
     public int computeLength()
     {
-        encKdcRepPartLength = super.computeLength();
+        encKdcRepPartLength = encKdcRepPart.computeLength();
         return 1 + TLV.getNbBytes( encKdcRepPartLength ) + encKdcRepPartLength;
     }
     
@@ -87,7 +108,7 @@ public class EncAsRepPart extends EncKdcRepPart
         buffer.put( TLV.getBytes( encKdcRepPartLength ) );
         
         // The EncKdcRepPart --------------------------------------------------------
-        super.encode( buffer );
+        encKdcRepPart.encode( buffer );
         
         return buffer;
     }
