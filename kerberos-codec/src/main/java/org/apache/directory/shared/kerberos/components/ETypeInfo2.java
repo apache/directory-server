@@ -198,7 +198,7 @@ public class ETypeInfo2 extends AbstractAsn1Object
      */
     public int computeLength()
     {
-        // Compute the addresses length.
+        // Compute the ETypeInfo2 length.
         etypeInfo2Length = 0;
 
         if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
@@ -242,7 +242,7 @@ public class ETypeInfo2 extends AbstractAsn1Object
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( etypeInfo2Length ) );
 
-            // The hostAddress list, if it's not empty
+            // The ETypeInfo2Entry list, if it's not empty
             if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
             {
                 for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
