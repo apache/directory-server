@@ -244,6 +244,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     /**
+     * @param authenticators authenticators to be used by this AuthenticationInterceptor
+     */
+    public void setAuthenticators( Authenticator[] authenticators )
+    {
+        this.authenticators.clear();
+        for (Authenticator authenticator : authenticators) {
+            this.authenticators.add( authenticator );
+        }
+    }
+    /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
     public void destroy()
@@ -1484,4 +1494,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
             this.newPwd = newPwd;
         }
     }
+
+
 }

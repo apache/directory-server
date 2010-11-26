@@ -33,8 +33,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.config.beans.AnonymousAuthenticatorBean;
+import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
+import org.apache.directory.server.config.beans.AuthenticatorBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.ChangePasswordServerBean;
+import org.apache.directory.server.config.beans.DelegatingAuthenticatorBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
@@ -50,6 +54,8 @@ import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
+import org.apache.directory.server.config.beans.SimpleAuthenticatorBean;
+import org.apache.directory.server.config.beans.StrongAuthenticatorBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
@@ -58,6 +64,12 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.PpolicyConfigContainer;
+import org.apache.directory.server.core.authn.AnonymousAuthenticator;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.authn.DelegatingAuthenticator;
+import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -150,6 +162,12 @@ public class ServiceBuilder
             {
                 LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getInterceptorClassName() );
                 Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() ).newInstance();
+                if (interceptorBean instanceof AuthenticationInterceptorBean) {
+                    // Transports
+                    Authenticator[] authenticators = createAuthenticators( ((AuthenticationInterceptorBean)interceptorBean).getAuthenticators() );
+                    ((AuthenticationInterceptor) interceptor).setAuthenticators( authenticators );
+                    
+                }
                 interceptors.add( interceptor );
             }
             catch ( Exception e )
@@ -388,7 +406,37 @@ public class ServiceBuilder
         return handler;
     }
     
-    
+    /**
+     * Creates a Authenticator from the configuration
+     * 
+     * @param authenticatorBean The created instance of authenticator
+     * @return An instance of authenticator
+     */
+    public static Authenticator createAuthenticator(
+            AuthenticatorBean authenticatorBean )
+    {
+        Authenticator authenticator = null;
+        if (authenticatorBean instanceof SimpleAuthenticatorBean)
+        {
+            authenticator = new SimpleAuthenticator();
+        }
+        else if (authenticatorBean instanceof AnonymousAuthenticatorBean)
+        {
+            authenticator = new AnonymousAuthenticator();
+        }
+        else if (authenticatorBean instanceof StrongAuthenticatorBean)
+        {
+            authenticator = new StrongAuthenticator();
+        }
+        else if (authenticatorBean instanceof DelegatingAuthenticatorBean)
+        {
+            authenticator = new DelegatingAuthenticator();
+            ((DelegatingAuthenticator)authenticator).setDelegateHost( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegateHost() );
+            ((DelegatingAuthenticator)authenticator).setDelegatePort( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegatePort() );
+        }
+        return authenticator;
+    }
+
     /**
      * Creates a Transport from the configuration
      * 
@@ -429,6 +477,25 @@ public class ServiceBuilder
      * @param transportBeans The array of Transport configuration
      * @return An arry of Transport instance
      */
+    public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list )
+    {
+        Authenticator[] authenticators = new Authenticator[ list.size() ];
+        int i = 0;
+        
+        for ( AuthenticatorBean authenticatorBean : list )
+        {
+            authenticators[i++] = createAuthenticator( authenticatorBean );
+        }
+        
+        return authenticators;
+    }
+
+    /**
+     * Creates the array of transports read from the DIT 
+     * 
+     * @param transportBeans The array of Transport configuration
+     * @return An arry of Transport instance
+     */
     public static Transport[] createTransports( TransportBean[] transportBeans )
     {
         Transport[] transports = new Transport[ transportBeans.length ];
@@ -444,8 +511,6 @@ public class ServiceBuilder
         
         return transports;
     }
-
-    
     /**
      * Helper method to create an Array of EncryptionTypes from an array of Strings
      */
