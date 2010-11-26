@@ -72,12 +72,16 @@ public class AuthorizationDataInit extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        AuthorizationData authData = new AuthorizationData();
-        authDataContainer.setAuthorizationData( authData );
-        
-        if ( IS_DEBUG )
+        if ( authDataContainer.getAuthorizationData() == null )
         {
-            LOG.debug( "AuthorizationData created" );
+            AuthorizationData authData = new AuthorizationData();
+            authDataContainer.setAuthorizationData( authData );
+            
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "AuthorizationData created" );
+            }
         }
     }
 }

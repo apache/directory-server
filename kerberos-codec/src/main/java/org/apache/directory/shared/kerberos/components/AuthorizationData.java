@@ -271,16 +271,25 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public String toString()
     {
+        return toString( "" );
+    }
+    
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "AuthorizationData : \n" );
+        sb.append( tabs ).append( "AuthorizationData : \n" );
         
         for ( AD ad : authorizationData )
         {
-            sb.append( "    {\n" );
-            sb.append( "        adtype: " ).append( ad.adType ).append( '\n' );
-            sb.append( "        adData: " ).append( StringTools.dumpBytes( ad.adData ) ).append( '\n');
-            sb.append( "    }\n" );
+            sb.append( tabs ).append( "    {\n" );
+            sb.append( tabs ).append( "        adtype: " ).append( ad.adType ).append( '\n' );
+            sb.append( tabs ).append( "        adData: " ).append( StringTools.dumpBytes( ad.adData ) ).append( '\n');
+            sb.append( tabs ).append( "    }\n" );
         }
 
         return sb.toString();
