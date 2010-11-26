@@ -21,9 +21,11 @@ package org.apache.directory.shared.kerberos.codec;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
@@ -31,90 +33,90 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.kerberos.codec.etypeInfo2.ETypeInfo2Container;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.ETypeInfo2;
-import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
+import org.apache.directory.shared.kerberos.codec.methodData.MethodDataContainer;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
+import org.apache.directory.shared.kerberos.components.MethodData;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test the ETYPE-INFO2 decoder.
+ * Test the METHOD-DATA decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class EtypeInfo2DecoderTest
+public class MethodDataDecoderTest
 {
     /**
-     * Test the decoding of a ETYPE-INFO2
+     * Test the decoding of a METHOD-DATA
      */
     @Test
-    public void testETypeInfo2()
+    public void testMethodData()
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x20 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x24 );
         
         stream.put( new byte[]
             { 
-              0x30, 0x1E,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x1B, 0x04, 0x31, 0x32, 0x33, 0x34,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x1B, 0x04, 0x35, 0x36, 0x37, 0x38
+              0x30, 0x22,
+                0x30, 0x0F,
+                  (byte)0xA1, 0x03,                 // padata-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA2, 0x08,                 // padata-value
+                    0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f',
+                0x30, 0x0F,
+                  (byte)0xA1, 0x03,                 // padata-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA2, 0x08,                 // padata-value
+                    0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
-        // Allocate a ETypeInfo2 Container
-        Asn1Container etypeInfo2Container = new ETypeInfo2Container();
-        etypeInfo2Container.setStream( stream );
+        // Allocate a METHOD-DATA Container
+        Asn1Container methodDataContainer = new MethodDataContainer();
+        methodDataContainer.setStream( stream );
 
-        // Decode the ETypeInfo2 PDU
+        // Decode the MethodData PDU
         try
         {
-            kerberosDecoder.decode( stream, etypeInfo2Container );
+            kerberosDecoder.decode( stream, methodDataContainer );
         }
         catch ( DecoderException de )
         {
             fail( de.getMessage() );
         }
 
-        // Check the decoded ETypeInfo2
-        ETypeInfo2 etypeInfo2 = ( ( ETypeInfo2Container ) etypeInfo2Container ).getETypeInfo2();
+        // Check the decoded ETypeInfo
+        MethodData methodData = ( ( MethodDataContainer ) methodDataContainer ).getMethodData();
 
-        assertEquals( 2, etypeInfo2.getETypeInfo2Entries().length );
+        assertEquals( 2, methodData.getPaDatas().length );
         
-        String[] expected = new String[]{ "1234", "5678" };
+        String[] expected = new String[]{ "abcdef", "ghijkl" };
         int i = 0;
         
-        for ( ETypeInfo2Entry etypeInfo2Entry : etypeInfo2.getETypeInfo2Entries() )
+        for ( PaData paData : methodData.getPaDatas() )
         {
-            assertEquals( EncryptionType.DES3_CBC_MD5, etypeInfo2Entry.getEType() );
-            assertEquals( expected[i], etypeInfo2Entry.getSalt() );
+            assertEquals( PaDataType.PA_ENC_TIMESTAMP, paData.getPaDataType() );
+            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i] ), paData.getPaDataValue() ) );
             i++;
         }
 
         // Check the encoding
-        ByteBuffer bb = ByteBuffer.allocate( etypeInfo2.computeLength() );
+        ByteBuffer bb = ByteBuffer.allocate( methodData.computeLength() );
         
         try
         {
-            bb = etypeInfo2.encode( bb );
+            bb = methodData.encode( bb );
     
             // Check the length
-            assertEquals( 0x20, bb.limit() );
+            assertEquals( 0x24, bb.limit() );
     
             String encodedPdu = StringTools.dumpBytes( bb.array() );
     
@@ -128,10 +130,10 @@ public class EtypeInfo2DecoderTest
     
     
     /**
-     * Test the decoding of a ETypeInfo2 with nothing in it
+     * Test the decoding of a METHOD-DATA with nothing in it
      */
     @Test( expected = DecoderException.class)
-    public void testETypeInfo2Empty() throws DecoderException
+    public void testETypeInfoEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -142,20 +144,20 @@ public class EtypeInfo2DecoderTest
 
         stream.flip();
 
-        // Allocate a ETypeInfo2 Container
-        Asn1Container etypeInfo2Container = new ETypeInfo2Container();
+        // Allocate a METHOD-DATA Container
+        Asn1Container methodDataContainer = new MethodDataContainer();
 
-        // Decode the ETypeInfo2 PDU
-        kerberosDecoder.decode( stream, etypeInfo2Container );
+        // Decode the METHOD-DATA PDU
+        kerberosDecoder.decode( stream, methodDataContainer );
         fail();
     }
     
     
     /**
-     * Test the decoding of a ETypeInfo2 with empty ETypeInfo2Entry in it
+     * Test the decoding of a METHOD-DATA with empty PA-DATA in it
      */
     @Test( expected = DecoderException.class)
-    public void testETypeInfo2NoETypeInfo2Entry() throws DecoderException
+    public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -164,16 +166,17 @@ public class EtypeInfo2DecoderTest
         stream.put( new byte[]
             { 
               0x30, 0x02,
-                (byte)0x30, 0x00                  // empty ETypeInfo2Entry
+                (byte)0x30, 0x00                  // empty PA-DATA
             } );
 
         stream.flip();
 
-        // Allocate a ETypeInfo2 Container
-        Asn1Container etypeInfo2Container = new ETypeInfo2Container();
+        // Allocate a METHOD-DATA Container
+        Asn1Container methodDataContainer = new MethodDataContainer();
 
-        // Decode the ETypeInfo2 PDU
-        kerberosDecoder.decode( stream, etypeInfo2Container );
+        // Decode the METHOD-DATA PDU
+        kerberosDecoder.decode( stream, methodDataContainer );
+        fail();
         fail();
     }
 }
