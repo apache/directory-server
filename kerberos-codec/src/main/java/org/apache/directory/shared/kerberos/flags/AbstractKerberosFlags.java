@@ -82,6 +82,7 @@ public abstract class AbstractKerberosFlags extends BitString
         bytes[3] = (byte)( (value >> 8) & 0x00FF );
         bytes[4] = (byte)(value & 0x00FF);
         
+        super.setData( bytes );
         this.value = value;
     }
 
