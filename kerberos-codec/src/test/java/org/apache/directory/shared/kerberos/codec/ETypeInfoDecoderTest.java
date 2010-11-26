@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class EtypeInfoDecoderTest
+public class ETypeInfoDecoderTest
 {
     /**
      * Test the decoding of a ETYPE-INFO
