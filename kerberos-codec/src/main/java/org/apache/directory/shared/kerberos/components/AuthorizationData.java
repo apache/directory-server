@@ -24,6 +24,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
@@ -76,6 +77,58 @@ public class AuthorizationData extends AbstractAsn1Object
         {
             return adData;
         }
+        
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + Arrays.hashCode( adData );
+            result = prime * result + ( ( adType == null ) ? 0 : adType.hashCode() );
+            return result;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals( Object obj )
+        {
+            if ( this == obj )
+            {
+                return true;
+            }
+            
+            if ( obj == null )
+            {
+                return false;
+            }
+            
+            AD other = ( AD ) obj;
+            
+            if ( !Arrays.equals( adData, other.adData ) )
+            {
+                return false;
+            }
+            
+            if ( adType != other.adType )
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private AuthorizationData getOuterType()
+        {
+            return AuthorizationData.this;
+        }
+        
     }
     
     /** The list of AuthorizationData elements */
@@ -274,6 +327,61 @@ public class AuthorizationData extends AbstractAsn1Object
         return toString( "" );
     }
     
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( authorizationData == null ) ? 0 : authorizationData.hashCode() );
+        result = prime * result + ( ( currentAD == null ) ? 0 : currentAD.hashCode() );
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( obj == null )
+        {
+            return false;
+        }
+        
+        AuthorizationData other = ( AuthorizationData ) obj;
+        
+        if ( authorizationData == null )
+        {
+            if ( other.authorizationData != null )
+            {
+                return false;
+            }
+        }
+        else if ( !authorizationData.equals( other.authorizationData ) )
+        {
+            return false;
+        }
+        
+        if ( currentAD == null )
+        {
+            if ( other.currentAD != null )
+            {
+                return false;
+            }
+        }
+        else if ( !currentAD.equals( other.currentAD ) )
+        {
+            return false;
+        }
+        
+        return true;
+    }
+
 
     /**
      * @see Object#toString()
