@@ -333,6 +333,79 @@ public class Ticket extends KerberosMessage
     
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( encPart == null ) ? 0 : encPart.hashCode() );
+        result = prime * result + ( ( realm == null ) ? 0 : realm.hashCode() );
+        result = prime * result + ( ( sName == null ) ? 0 : sName.hashCode() );
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        if ( obj == null )
+        {
+            return false;
+        }
+        
+        Ticket other = ( Ticket ) obj;
+        
+        if ( encPart == null )
+        {
+            if ( other.encPart != null )
+            {
+                return false;
+            }
+        }
+        else if ( !encPart.equals( other.encPart ) )
+        {
+            return false;
+        }
+        
+        if ( realm == null )
+        {
+            if ( other.realm != null )
+            {
+                return false;
+            }
+        }
+        else if ( !realm.equals( other.realm ) )
+        {
+            return false;
+        }
+        
+        if ( sName == null )
+        {
+            if ( other.sName != null )
+            {
+                return false;
+            }
+        }
+        else if ( !sName.equals( other.sName ) )
+        {
+            return false;
+        }
+        
+        return true;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()

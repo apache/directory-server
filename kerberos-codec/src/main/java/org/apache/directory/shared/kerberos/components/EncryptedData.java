@@ -22,6 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
@@ -311,6 +312,57 @@ public class EncryptedData extends AbstractAsn1Object
         return buffer;
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode( cipher );
+        result = prime * result + ( ( eType == null ) ? 0 : eType.hashCode() );
+        result = prime * result + kvno;
+        return result;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        if ( obj == null )
+        {
+            return false;
+        }
+        
+        EncryptedData other = ( EncryptedData ) obj;
+        
+        if ( !Arrays.equals( cipher, other.cipher ) )
+        {
+            return false;
+        }
+        
+        if ( eType != other.eType )
+        {
+            return false;
+        }
+        
+        if ( kvno != other.kvno )
+        {
+            return false;
+        }
+        
+        return true;
+    }
 
     /**
      * @see Object#toString()
