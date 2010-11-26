@@ -256,4 +256,18 @@ public class KerberosConstants
     /** TransitedEncoding tags */
     public static final int TRANSITED_ENCODING_TR_TYPE_TAG = 0xA0;
     public static final int TRANSITED_ENCODING_CONTENTS_TAG = 0xA1;
+    
+    /** EncTicketPart tags */
+    public static final int ENC_TICKET_PART_TAG = 0x63;
+    public static final int ENC_TICKET_PART_FLAGS_TAG = 0xA0;
+    public static final int ENC_TICKET_PART_KEY_TAG = 0xA1;
+    public static final int ENC_TICKET_PART_CREALM_TAG = 0xA2;
+    public static final int ENC_TICKET_PART_CNAME_TAG = 0xA3;
+    public static final int ENC_TICKET_PART_TRANSITED_TAG = 0xA4;
+    public static final int ENC_TICKET_PART_AUTHTIME_TAG = 0xA5;
+    public static final int ENC_TICKET_PART_STARTTIME_TAG = 0xA6;
+    public static final int ENC_TICKET_PART_ENDTIME_TAG = 0xA7;
+    public static final int ENC_TICKET_PART_RENEWTILL_TAG = 0xA8;
+    public static final int ENC_TICKET_PART_CADDR_TAG = 0xA9;
+    public static final int ENC_TICKET_PART_AUTHORIZATION_DATA_TAG = 0xAA;
 }
