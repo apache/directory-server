@@ -72,12 +72,15 @@ public class EncryptedDataInit extends GrammarAction
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
         
-        EncryptedData encryptedData = new EncryptedData();
-        encryptedDataContainer.setEncryptedData( encryptedData );
-        
-        if ( IS_DEBUG )
+        if ( encryptedDataContainer.getEncryptedData() == null )
         {
-            LOG.debug( "EncryptedData created" );
+            EncryptedData encryptedData = new EncryptedData();
+            encryptedDataContainer.setEncryptedData( encryptedData );
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "EncryptedData created" );
+            }
         }
     }
 }

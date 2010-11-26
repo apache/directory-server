@@ -364,22 +364,32 @@ public class EncryptedData extends AbstractAsn1Object
         return true;
     }
 
+    
     /**
      * @see Object#toString()
      */
     public String toString()
     {
+        return toString( "" );
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "EncryptedData : {\n" );
-        sb.append( "    etype: " ).append( eType ).append( '\n' );
+        sb.append( tabs ).append( "EncryptedData : {\n" );
+        sb.append( tabs ).append( "    etype: " ).append( eType ).append( '\n' );
 
         if ( hasKvno )
         {
-            sb.append( "    kvno: " ).append( kvno ).append( '\n' );
+            sb.append( tabs ).append( "    kvno: " ).append( kvno ).append( '\n' );
         }
 
-        sb.append( "    cipher: " ).append( StringTools.dumpBytes( cipher ) ).append( "\n}\n" );
+        sb.append( tabs ).append( "    cipher: " ).append( StringTools.dumpBytes( cipher ) ).append( "\n}\n" );
 
         return sb.toString();
     }
