@@ -75,6 +75,7 @@ public class EncApRepPart extends KerberosMessage
     private transient int cusecLength;
     private transient int subKeyLength;
     private transient int seqNumberLength;
+    private transient int encApRepPartSeqLength;
     private transient int encApRepPartLength;
 
     /**
@@ -167,19 +168,21 @@ public class EncApRepPart extends KerberosMessage
      * 
      * 0x7B L1 EncApRepPart [APPLICATION 27]
      *  |
-     *  +--> 0xA0 11 ctime tag
-     *  |     |
-     *  |     +--> 0x18 0x0F ttt ctime (KerberosTime)
-     *  |
-     *  +--> 0xA1 L2 cusec tag
-     *  |     |
-     *  |     +--> 0x02 L2-1 cusec (INTEGER)
-     *  |
-     *  +--> 0xA2 L3 subkey (EncryptionKey)
-     *  |
-     *  +--> 0xA3 L4 seq-number tag
+     *  +--> 0x30 L2 SEQ
      *        |
-     *        +--> 0x02 L4-1 NN seq-number (INTEGER)
+     *        +--> 0xA0 11 ctime tag
+     *        |     |
+     *        |     +--> 0x18 0x0F ttt ctime (KerberosTime)
+     *        |
+     *        +--> 0xA1 L3 cusec tag
+     *        |     |
+     *        |     +--> 0x02 L3-1 cusec (INTEGER)
+     *        |
+     *        +--> 0xA2 L4 subkey (EncryptionKey)
+     *        |
+     *        +--> 0xA3 L5 seq-number tag
+     *              |
+     *              +--> 0x02 L5-1 NN seq-number (INTEGER)
      * </pre>
      */
     @Override
@@ -187,27 +190,28 @@ public class EncApRepPart extends KerberosMessage
     {
         // Compute the ctime length.
         ctimeLength = 1 + 1 + 0x0F;
-        encApRepPartLength = 1 + TLV.getNbBytes( ctimeLength ) + ctimeLength;
+        encApRepPartSeqLength = 1 + TLV.getNbBytes( ctimeLength ) + ctimeLength;
 
         // Compute the cusec length
         cusecLength = 1 + 1 + Value.getNbBytes( cusec );
-        encApRepPartLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
+        encApRepPartSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
         
         // Compute the subkey length, if any
         if ( subkey != null )
         {
             subKeyLength = subkey.computeLength();
-            encApRepPartLength += 1 + TLV.getNbBytes( subKeyLength ) + subKeyLength;
+            encApRepPartSeqLength += 1 + TLV.getNbBytes( subKeyLength ) + subKeyLength;
         }
         
         // Compute the sequence size, if any
         if ( seqNumber != null )
         {
             seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
-            encApRepPartLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
+            encApRepPartSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
         
-        
+        encApRepPartLength = 1 + TLV.getNbBytes( encApRepPartSeqLength ) + encApRepPartSeqLength;
+            
         return 1 + TLV.getNbBytes( encApRepPartLength ) + encApRepPartLength;
     }
 
@@ -218,14 +222,15 @@ public class EncApRepPart extends KerberosMessage
      * EncApRepPart :
      * 
      * 0x7B LL
-     *   0xA0 0x11 
-     *     0x18 0x0F ttt ctime 
-     *   0xA1 LL 
-     *     0x02 LL NN cusec
-     *  [0xA2 LL
-     *     0x30 LL abcd] subkey
-     *  [0xA3 LL
-     *     0x02 LL NN] seq-number
+     *   0x30 LL
+     *     0xA0 0x11 
+     *       0x18 0x0F ttt ctime 
+     *     0xA1 LL 
+     *       0x02 LL NN cusec
+     *    [0xA2 LL
+     *       0x30 LL abcd] subkey
+     *    [0xA3 LL
+     *       0x02 LL NN] seq-number
      * </pre>
      * @return The constructed PDU.
      */
@@ -242,6 +247,10 @@ public class EncApRepPart extends KerberosMessage
             // The EncApRepPart APPLICATION Tag
             buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_TAG );
             buffer.put( TLV.getBytes( encApRepPartLength ) );
+
+            // The EncApRepPart SEQ Tag
+            buffer.put( (byte)UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( encApRepPartSeqLength ) );
 
             // The ctime ------------------------------------------------------
             // The tag
@@ -273,12 +282,15 @@ public class EncApRepPart extends KerberosMessage
             }
             
             // The seq-number, if any -----------------------------------------
-            // The tag
-            buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_SEQ_NUMBER_TAG );
-            buffer.put( TLV.getBytes( seqNumberLength ) );
-            
-            // The value
-            Value.encode( buffer, seqNumber );
+            if ( seqNumber != null )
+            {
+                // The tag
+                buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_SEQ_NUMBER_TAG );
+                buffer.put( TLV.getBytes( seqNumberLength ) );
+                
+                // The value
+                Value.encode( buffer, seqNumber );
+            }
             
         }
         catch ( BufferOverflowException boe )
