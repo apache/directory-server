@@ -128,6 +128,13 @@ public class KerberosConstants
     public static final int KRB_ERR_ETEXT_TAG = 0xAB;
     public static final int KRB_ERR_EDATA_TAG = 0xAC;
 
+    /** KRB-CRED tags */
+    public static final int KRB_CRED_TAG = 0x76;
+    public static final int KRB_CRED_PVNO_TAG = 0xA0;
+    public static final int KRB_CRED_MSGTYPE_TAG = 0xA1;
+    public static final int KRB_CRED_TICKETS_TAG = 0xA2;
+    public static final int KRB_CRED_ENCPART_TAG = 0xA3;
+    
     //-------------------------------------------------------------------------
     // Components
     //-------------------------------------------------------------------------
