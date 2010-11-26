@@ -21,15 +21,10 @@ package org.apache.directory.shared.kerberos.codec.EncKdcRepPart.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadByteArray;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,14 +32,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreFlags extends GrammarAction
+public class StoreFlags extends AbstractReadByteArray
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreFlags.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
 
     /**
      * Instantiates a new StoreFlagss action.
@@ -58,29 +47,14 @@ public class StoreFlags extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setByteArry( byte[] data, Asn1Container container )
     {
         EncKdcRepPartContainer encKdcRepPartContainer = ( EncKdcRepPartContainer ) container;
-
-        TLV tlv = encKdcRepPartContainer.getCurrentTLV();
-
-        // The Length should not be null, and should be 5
-        if ( tlv.getLength() != 5 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
         EncKdcRepPart encKdcRepPart = encKdcRepPartContainer.getEncKdcRepPart();
-        TicketFlags flags = new TicketFlags( tlv.getValue().getData() );
+        TicketFlags flags = new TicketFlags( data );
         
         encKdcRepPart.setFlags( flags );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "TicketFlags : {}", flags );
-        }
+
     }
 }
