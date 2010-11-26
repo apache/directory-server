@@ -189,7 +189,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( ticketFlags != null )
         {
-            ticketFlagsLen = Value.getNbBytes( ticketFlags.getIntValue() );
+            ticketFlagsLen = ticketFlags.getData().length;
             ticketFlagsLen = 1 + TLV.getNbBytes( ticketFlagsLen ) + ticketFlagsLen;
             krbKredInfoSeqLen += 1 + TLV.getNbBytes( ticketFlagsLen ) + ticketFlagsLen;
         }
@@ -290,7 +290,7 @@ public class KrbCredInfo extends AbstractAsn1Object
                 // flags tag and value
                 buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_FLAGS_TAG );
                 buffer.put( TLV.getBytes( ticketFlagsLen ) );
-                Value.encode( buffer, ticketFlags.getIntValue() );
+                Value.encode( buffer, ticketFlags );
             }
 
             if ( authTime != null )

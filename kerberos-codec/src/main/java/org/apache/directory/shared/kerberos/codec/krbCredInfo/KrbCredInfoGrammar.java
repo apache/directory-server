@@ -99,8 +99,8 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
             KrbCredInfoStatesEnum.KRB_CRED_INFO_PNAME_TAG_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_TAG_STATE , KerberosConstants.KRB_CRED_INFO_FLAGS_TAG,
             new CheckNotNullLength());
         
-        super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_TAG_STATE .ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-            KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_TAG_STATE , KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE, UniversalTag.INTEGER.getValue(),
+        super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_TAG_STATE .ordinal()][UniversalTag.BIT_STRING.getValue()] = new GrammarTransition(
+            KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_TAG_STATE , KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE, UniversalTag.BIT_STRING.getValue(),
             new StoreFlags());
         
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_AUTHTIME_TAG] = new GrammarTransition(

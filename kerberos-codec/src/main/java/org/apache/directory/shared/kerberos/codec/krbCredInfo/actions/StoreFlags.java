@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.krbCredInfo.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.kerberos.codec.actions.AbstractReadInteger;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadByteArray;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.KrbCredInfoContainer;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 
@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreFlags extends AbstractReadInteger
+public class StoreFlags extends AbstractReadByteArray
 {
 
     /**
@@ -47,11 +47,10 @@ public class StoreFlags extends AbstractReadInteger
      * {@inheritDoc}
      */
     @Override
-    protected void setIntegerValue( int value, Asn1Container container )
+    protected void setByteArry( byte[] data, Asn1Container container )
     {
         KrbCredInfoContainer krbCredInfoContainer = ( KrbCredInfoContainer ) container;
-        krbCredInfoContainer.getKrbCredInfo().setTicketFlags( new TicketFlags( value ) );
+        krbCredInfoContainer.getKrbCredInfo().setTicketFlags( new TicketFlags( data ) );
         container.setGrammarEndAllowed( true );
     }
-
 }
