@@ -34,14 +34,12 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum ETypeInfo2StatesEnum implements States
 {
     // Start
-    START_STATE,                        // 0
+    START_STATE,                         // 0
     
     ETYPE_INFO2_SEQ_STATE,               // 1
     
-    ETYPE_INFO2_ETYPE_INFO_ENTRY_STATE,  // 2
-    
     // End
-    LAST_ETYPE_INFO2_STATE;              // 3
+    LAST_ETYPE_INFO2_STATE;              // 2
 
     
     /**

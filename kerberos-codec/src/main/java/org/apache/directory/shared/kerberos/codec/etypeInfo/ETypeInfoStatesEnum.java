@@ -38,10 +38,8 @@ public enum ETypeInfoStatesEnum implements States
     
     ETYPE_INFO_SEQ_STATE,               // 1
     
-    ETYPE_INFO_ETYPE_INFO_ENTRY_STATE,  // 2
-    
     // End
-    LAST_ETYPE_INFO_STATE;              // 3
+    LAST_ETYPE_INFO_STATE;              // 2
 
     
     /**
