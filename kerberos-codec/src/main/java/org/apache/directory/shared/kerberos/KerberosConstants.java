@@ -142,6 +142,12 @@ public class KerberosConstants
     public static final int AD_AND_OR_CONDITION_COUNT_TAG = 0xA0;
     public static final int AD_AND_OR_ELEMENTS_TAG = 0xA1;
     
+    /** AD-KDCIssued */
+    public static final int AD_KDC_ISSUED_AD_CHECKSUM_TAG = 0xA0;
+    public static final int AD_KDC_ISSUED_I_REALM_TAG = 0xA1;
+    public static final int AD_KDC_ISSUED_I_SNAME_TAG = 0xA2;
+    public static final int AD_KDC_ISSUED_ELEMENTS_TAG = 0xA3;
+    
     /** AuthorizationData tags */
     public static final int AUTHORIZATION_DATA_ADTYPE_TAG = 0xA0;
     public static final int AUTHORIZATION_DATA_ADDATA_TAG = 0xA1;
