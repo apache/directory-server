@@ -24,7 +24,7 @@ import org.apache.directory.shared.kerberos.components.KrbCredInfo;
 
 
 /**
- * The KrbError container stores the KrbCredInfo decoded by the Asn1Decoder.
+ * The KrbCredInfo container stores the KrbCredInfo decoded by the Asn1Decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -34,7 +34,7 @@ public class KrbCredInfoContainer extends AbstractContainer
     private KrbCredInfo krbCredInfo;
     
     /**
-     * Creates a new KrbErrorContainer object.
+     * Creates a new KrbCredInfoContainer object.
      */
     public KrbCredInfoContainer()
     {
