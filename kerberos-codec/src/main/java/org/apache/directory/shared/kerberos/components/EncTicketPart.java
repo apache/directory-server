@@ -94,7 +94,7 @@ public class EncTicketPart extends AbstractAsn1Object
     private HostAddresses clientAddresses;
 
     /** the authorization data */
-    private AuthorizationData authzData;
+    private AuthorizationData authorizationData;
 
 
     private transient int flagsLen;
@@ -125,7 +125,7 @@ public class EncTicketPart extends AbstractAsn1Object
      *        |
      *        +--> 0xA0 L2 flags tag
      *        |     |
-     *        |     +--> 0x02 L2-2 falgs
+     *        |     +--> 0x03 L2-2 flags (BitString)
      *        |
      *        +--> 0xA1 L3 key tag
      *        |     |
@@ -172,7 +172,7 @@ public class EncTicketPart extends AbstractAsn1Object
     @Override
     public int computeLength()
     {
-        flagsLen = Value.getNbBytes( flags.getIntValue() );
+        flagsLen = flags.getData().length;
         flagsLen = 1 + TLV.getNbBytes( flagsLen ) + flagsLen;
         encTikcetPartSeqLen = 1 + TLV.getNbBytes( flagsLen ) + flagsLen;
 
@@ -217,9 +217,9 @@ public class EncTicketPart extends AbstractAsn1Object
             encTikcetPartSeqLen += 1 + TLV.getNbBytes( clientAddressesLen ) + clientAddressesLen;
         }
 
-        if ( authzData != null )
+        if ( authorizationData != null )
         {
-            authzDataLen = authzData.computeLength();
+            authzDataLen = authorizationData.computeLength();
             encTikcetPartSeqLen += 1 + TLV.getNbBytes( authzDataLen ) + authzDataLen;
         }
 
@@ -249,7 +249,7 @@ public class EncTicketPart extends AbstractAsn1Object
             // flags tag and int value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( flagsLen ) );
-            Value.encode( buffer, flags.getIntValue() );
+            Value.encode( buffer, flags );
 
             // key tag and value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_KEY_TAG );
@@ -260,6 +260,7 @@ public class EncTicketPart extends AbstractAsn1Object
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_CREALM_TAG );
             buffer.put( TLV.getBytes( cRealmLen ) );
             buffer.put( UniversalTag.GENERAL_STRING.getValue() );
+            buffer.put( TLV.getBytes( cRealmBytes.length ) );
             buffer.put( cRealmBytes );
 
             // cname tag and value
@@ -314,12 +315,12 @@ public class EncTicketPart extends AbstractAsn1Object
                 clientAddresses.encode( buffer );
             }
 
-            if ( authzData != null )
+            if ( authorizationData != null )
             {
                 // authorization-data tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_AUTHORIZATION_DATA_TAG );
                 buffer.put( TLV.getBytes( authzDataLen ) );
-                authzData.encode( buffer );
+                authorizationData.encode( buffer );
             }
         }
         catch ( BufferOverflowException boe )
@@ -522,18 +523,18 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the authzData
      */
-    public AuthorizationData getAuthzData()
+    public AuthorizationData getAuthorizationData()
     {
-        return authzData;
+        return authorizationData;
     }
 
 
     /**
      * @param authzData the authzData to set
      */
-    public void setAuthzData( AuthorizationData authzData )
+    public void setAuthorizationData( AuthorizationData authzData )
     {
-        this.authzData = authzData;
+        this.authorizationData = authzData;
     }
 
 
@@ -570,9 +571,9 @@ public class EncTicketPart extends AbstractAsn1Object
             sb.append( "    clientAddresses: " ).append( clientAddresses ).append( '\n' );
         }
 
-        if ( authzData != null )
+        if ( authorizationData != null )
         {
-            sb.append( "    authzData: " ).append( authzData ).append( '\n' );
+            sb.append( "    authzData: " ).append( authorizationData ).append( '\n' );
         }
 
         sb.append( "}\n" );
