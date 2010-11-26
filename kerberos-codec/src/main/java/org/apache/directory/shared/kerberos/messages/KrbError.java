@@ -685,7 +685,7 @@ public class KrbError extends KerberosMessage
             sb.append( "    cTime: " ).append( cTime ).append( '\n' );
         }
 
-        if ( cusec > 0 )
+        if ( cusec != null )
         {
             sb.append( "    cusec: " ).append( cusec ).append( '\n' );
         }
