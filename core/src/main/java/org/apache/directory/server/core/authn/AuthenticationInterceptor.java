@@ -52,7 +52,6 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.PpolicyConfigContainer;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -128,7 +127,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    private Set<Authenticator> authenticators;
+    private Set<Authenticator> authenticators = new TreeSet<Authenticator>();
     private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
 
     /** A reference to the DirectoryService instance */
