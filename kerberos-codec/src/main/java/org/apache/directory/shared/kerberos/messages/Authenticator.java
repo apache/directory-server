@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A structure to hold the authoricator data.
- * 
+ * A structure to hold the authenticator data.
+ *  It will store the object described by the ASN.1 grammar :
  * <pre>
  * Authenticator   ::= [APPLICATION 2] SEQUENCE  {
  *         authenticator-vno       [0] INTEGER (5),
