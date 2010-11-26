@@ -139,8 +139,8 @@ public class KerberosConstants
     // Components
     //-------------------------------------------------------------------------
     /** AD-AND-OR */
-    public static final int AD_AND_IF_CONDITION_COUNT_TAG = 0xA0;
-    public static final int AD_AND_IF_ELEMENTS_TAG = 0xA1;
+    public static final int AD_AND_OR_CONDITION_COUNT_TAG = 0xA0;
+    public static final int AD_AND_OR_ELEMENTS_TAG = 0xA1;
     
     /** AuthorizationData tags */
     public static final int AUTHORIZATION_DATA_ADTYPE_TAG = 0xA0;
