@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.components;
 
 
 /**
- * The Checksum structure is used to store a AD-MANDATORY-FOR-KDC associated to a type.
+ * The AdIfRelevant structure is used to store a AD-MANDATORY-FOR-KDC associated to a type.
  * 
  * The ASN.1 grammar is :
  * <pre>
