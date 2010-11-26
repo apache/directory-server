@@ -96,6 +96,13 @@ public class KerberosConstants
     /** EncTgsRepPart's tags */
     public static final int ENC_TGS_REP_PART_TAG = 0x7A;
     
+    /** EncAPRepPart's tags */
+    public static final int ENC_AP_REP_PART_TAG = 0x7B;
+    public static final int ENC_AP_REP_PART_CTIME_TAG = 0xA0;
+    public static final int ENC_AP_REP_PART_CUSEC_TAG = 0xA1;
+    public static final int ENC_AP_REP_PART_SUB_KEY_TAG = 0xA2;
+    public static final int ENC_AP_REP_PART_SEQ_NUMBER_TAG = 0xA3;
+    
     /** EncKrbPrivPart */
     public static final int ENC_KRB_PRIV_PART_TAG = 0x7C;
     public static final int ENC_KRB_PRIV_PART_USER_DATA_TAG = 0xA0;
