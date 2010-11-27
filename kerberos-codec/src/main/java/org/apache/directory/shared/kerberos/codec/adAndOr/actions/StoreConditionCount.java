@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.codec.adAndOr.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.kerberos.codec.actions.AbstractReadInteger;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
 
 

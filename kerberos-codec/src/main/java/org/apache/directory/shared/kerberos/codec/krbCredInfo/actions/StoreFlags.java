@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.krbCredInfo.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.kerberos.codec.actions.AbstractReadByteArray;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadByteArray;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.KrbCredInfoContainer;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 

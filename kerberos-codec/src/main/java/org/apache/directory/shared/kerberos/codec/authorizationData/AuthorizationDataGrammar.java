@@ -24,11 +24,11 @@ import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
+import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.kerberos.codec.authorizationData.actions.AuthorizationDataInit;
 import org.apache.directory.shared.kerberos.codec.authorizationData.actions.StoreAdData;
 import org.apache.directory.shared.kerberos.codec.authorizationData.actions.StoreAdType;
-import org.apache.directory.shared.kerberos.codec.authorizationData.actions.AuthorizationDataInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,19 +21,8 @@ package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
-import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,64 +30,24 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreTktVno extends GrammarAction
+public class StoreTktVno extends AbstractReadInteger
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new TicketTktVno action.
      */
     public StoreTktVno()
     {
-        super( "Kerberos Ticket tktvno value" );
+        super( "Kerberos Ticket tktvno value", 5, 5 );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setIntegerValue( int value, Asn1Container container )
     {
         TicketContainer ticketContainer = ( TicketContainer ) container;
-
-        TLV tlv = ticketContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // The value should be an integer an equal to 5
-        Value value = tlv.getValue();
-        Ticket ticket = ticketContainer.getTicket();
-
-        try
-        {
-            int tktvno = IntegerDecoder.parse( value, 5, 5 );
-
-            ticket.setTktVno( tktvno );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "TktVno : " + tktvno );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        ticketContainer.getTicket().setTktVno( value );
     }
 }

@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.krbError.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.kerberos.codec.actions.AbstractReadInteger;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
 
 
@@ -51,5 +51,4 @@ public class StoreCusec extends AbstractReadInteger
         KrbErrorContainer krbErrorContainer = ( KrbErrorContainer ) container;
         krbErrorContainer.getKrbError().setCusec( value );
     }
-
 }
