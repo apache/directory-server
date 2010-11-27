@@ -34,24 +34,24 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum TicketStatesEnum implements States
 {
     // Start
-    START_STATE,
+    START_STATE,                // 0
     
     // ----- Ticket message --------------------------------------------
-    TICKET_STATE,
-    TICKET_SEQ_STATE,
+    TICKET_STATE,               // 1
+    TICKET_SEQ_STATE,           // 2
     
-    TICKET_VNO_TAG_STATE,
-    TICKET_VNO_STATE,
+    TICKET_VNO_TAG_STATE,       // 3
+    TICKET_VNO_STATE,           // 4
     
-    TICKET_REALM_TAG_STATE,
-    TICKET_REALM_STATE,
+    TICKET_REALM_TAG_STATE,     // 5
+    TICKET_REALM_STATE,         // 6
     
-    TICKET_SNAME_TAG_STATE,
+    TICKET_SNAME_TAG_STATE,     // 7
 
-    TICKET_ENC_PART_TAG_STATE,
+    TICKET_ENC_PART_TAG_STATE,  // 8
     
     // End
-    LAST_TICKET_STATE;
+    LAST_TICKET_STATE;          // 9
 
     
     /**

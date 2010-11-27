@@ -31,8 +31,6 @@ import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreRealm;
 import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreSName;
 import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreTktVno;
 import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketInit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,12 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class TicketGrammar extends AbstractGrammar
 {
-    /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger( TicketGrammar.class );
-
-    /** A speedup for logger */
-    static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
     /** The instance of grammar. TicketGrammar is a singleton */
     private static Grammar instance = new TicketGrammar();
 

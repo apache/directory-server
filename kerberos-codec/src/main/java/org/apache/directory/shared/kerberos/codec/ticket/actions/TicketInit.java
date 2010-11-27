@@ -20,11 +20,11 @@
 package org.apache.directory.shared.kerberos.codec.ticket.actions;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -63,10 +63,10 @@ public class TicketInit extends GrammarAction
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
         }
         
         // Create the Ticket now
