@@ -123,10 +123,12 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x07 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x09 );
         
         stream.put( new byte[]
-            { 0x30, 0x5,
+            { 
+              0x30, 0x7,
+               0x30, 0x5,
                 (byte)0xA1, 0x03,                 // ad-data
                   0x04, 0x01, 'a'
             } );
@@ -145,10 +147,12 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x07 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x09 );
         
         stream.put( new byte[]
-            { 0x30, 0x5,
+            { 
+              0x30, 0x7,
+               0x30, 0x5,
                 (byte)0xA0, 0x03,                 // ad-data
                   0x02, 0x01, 0x02
             } );
@@ -167,10 +171,13 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x02 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x04 );
         
         stream.put( new byte[]
-            { 0x30, 0x0 } );
+            { 
+              0x30, 0x2,
+               0x30, 0x0 
+            } );
 
         stream.flip();
 
@@ -186,10 +193,11 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0xB );
+        ByteBuffer stream = ByteBuffer.allocate( 0xD );
         
         stream.put( new byte[]
             { 
+               0x30, 0x0B,
                 0x30, 0x09,
                   (byte)0xA0, 0x03,                 // ad-type
                     0x02, 0x01, 0x02,
@@ -211,10 +219,11 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0xB );
+        ByteBuffer stream = ByteBuffer.allocate( 0xD );
         
         stream.put( new byte[]
             { 
+               0x30, 0x0B,    
                 0x30, 0x09,
                   (byte)0xA0, 0x02,                 // ad-type
                     0x02, 0x00,
