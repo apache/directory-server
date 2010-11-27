@@ -165,11 +165,11 @@ public class AuthorizationData extends AbstractAsn1Object
      *  |
      *  +-- 0x30 L2 The AD sequence
      *       |
-     *       +--> 0xA1 L3 adType tag
+     *       +--> 0xA0 L3 adType tag
      *       |     |
      *       |     +--> 0x02 L3-1 adType (int)
      *       |
-     *       +--> 0xA2 L4 adData tag
+     *       +--> 0xA1 L4 adData tag
      *             |
      *             +--> 0x04 L<4-1 adData (OCTET STRING)
      * </pre>
@@ -181,7 +181,6 @@ public class AuthorizationData extends AbstractAsn1Object
         authorizationDataSeqLen = new int[authorizationData.size()];
         adTypeTagLen = new int[authorizationData.size()];
         adDataTagLen = new int[authorizationData.size()];
-        authorizationDataSeqLen = new int[authorizationData.size()];
         
         for ( AD ad : authorizationData )
         {
@@ -236,6 +235,8 @@ public class AuthorizationData extends AbstractAsn1Object
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADDATA_TAG );
                 buffer.put( TLV.getBytes( adDataTagLen[i] ) );
                 Value.encode( buffer, ad.adData );
+                
+                i++;
             }
         }
         catch ( BufferOverflowException boe )

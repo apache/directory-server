@@ -50,21 +50,21 @@ public class AuthorizationDataDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x24 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x21 );
         
         stream.put( new byte[]
             { 
-              0x30, 0x22,
+              0x30, 0x1F,
                 0x30, 0x0F,
                   (byte)0xA0, 0x03,                 // ad-type
                     0x02, 0x01, 0x02,
                   (byte)0xA1, 0x08,                 // ad-data
                     0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f',
-                0x30, 0x0F,
+                0x30, 0x0C,
                   (byte)0xA0, 0x03,                 // ad-type
                     0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x08,                 // ad-data
-                    0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
+                  (byte)0xA1, 0x05,                 // ad-data
+                    0x04, 0x03, 'g', 'h', 'i'
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -87,7 +87,7 @@ public class AuthorizationDataDecoderTest
         assertNotNull( authData.getAuthorizationData().size() );
         assertEquals( 2, authData.getAuthorizationData().size() );
         
-        String[] expected = new String[]{ "abcdef", "ghijkl" };
+        String[] expected = new String[]{ "abcdef", "ghi" };
         int i = 0;
         
         for ( AuthorizationData.AD ad : authData.getAuthorizationData() )
@@ -105,7 +105,7 @@ public class AuthorizationDataDecoderTest
             bb = authData.encode( bb );
     
             // Check the length
-            assertEquals( 0x24, bb.limit() );
+            assertEquals( 0x21, bb.limit() );
     
             String encodedPdu = StringTools.dumpBytes( bb.array() );
     
@@ -229,5 +229,4 @@ public class AuthorizationDataDecoderTest
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
-
 }
