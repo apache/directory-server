@@ -56,7 +56,7 @@ public class TicketDecoderTest
      * Test the decoding of a Ticket message
      */
     @Test
-    public void testDecodeTicket()
+    public void testDecodeFullTicket()
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
