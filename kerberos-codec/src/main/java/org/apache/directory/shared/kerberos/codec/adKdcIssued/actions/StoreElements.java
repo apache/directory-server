@@ -21,16 +21,9 @@ package org.apache.directory.shared.kerberos.codec.adKdcIssued.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadAuthorizationData;
 import org.apache.directory.shared.kerberos.codec.adKdcIssued.AdKdcIssuedContainer;
-import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,15 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreElements extends GrammarAction
+public class StoreElements extends AbstractReadAuthorizationData
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreElements.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StoreElements action.
      */
@@ -59,53 +45,11 @@ public class StoreElements extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setAuthorizationData( AuthorizationData authorizationData, Asn1Container container )
     {
         AdKdcIssuedContainer adKdcIssuedContainer = ( AdKdcIssuedContainer ) container;
-
-        TLV tlv = adKdcIssuedContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // Now, let's decode the AuthorizationData
-        Asn1Decoder authorizationDataDecoder = new Asn1Decoder();
-        
-        AuthorizationDataContainer authorizationDataContainer = new AuthorizationDataContainer();
-        authorizationDataContainer.setStream( container.getStream() );
-        
-        // Decode the AuthorizationData PDU
-        try
-        {
-            authorizationDataDecoder.decode( container.getStream(), authorizationDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-
-        // Update the parent
-        container.updateParent();
-
-        // Store the AuthorizationData in the container
-        AuthorizationData elements = authorizationDataContainer.getAuthorizationData();
-        adKdcIssuedContainer.getAdKdcIssued().setElements( elements );
-        
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Elements added : {}", elements );
-        }
-        
-        container.setGrammarEndAllowed( true );
+        adKdcIssuedContainer.getAdKdcIssued().setElements( authorizationData );
+        adKdcIssuedContainer.setGrammarEndAllowed( true );
     }
 }

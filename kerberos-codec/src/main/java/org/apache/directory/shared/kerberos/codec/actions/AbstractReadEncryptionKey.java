@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractReadEncryptionKey extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadEncryptionKey.class );
+    private static final Logger LOG = LoggerFactory.getLogger( Asn1Decoder.ASN1_DECODER );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
