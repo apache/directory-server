@@ -37,6 +37,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -193,6 +195,9 @@ import org.junit.runner.RunWith;
 )
 public class PagedSearchIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
+
     /**
      * Create the searchControls with a paged size
      */
@@ -311,16 +316,6 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     
     
     /**
-     * Clear the server SizeLimit
-     */
-    @Before
-    public void reinitLdapServiceMaxSizeLimit()
-    {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
-    }
-    
-    
-    /**
      * Close a connection, and wait a bit to be sure it's done
      */
     private void closeConnection( DirContext ctx ) throws NamingException
@@ -351,6 +346,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchtest1() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
         
@@ -369,6 +365,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchtest2() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
@@ -406,6 +403,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest4() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
@@ -443,6 +441,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest6() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
@@ -480,6 +479,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest8() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
@@ -669,6 +669,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchtest18() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
         
@@ -687,6 +688,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchtest19() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
@@ -724,6 +726,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest21() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
@@ -761,6 +764,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest23() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
@@ -799,6 +803,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchTest25() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
@@ -989,6 +994,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchWithNegativePL() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, -2 );
         
@@ -1002,6 +1008,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test 
     public void testPagedSearchWrongCookie() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
 
@@ -1063,6 +1070,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test 
     public void testPagedSearchModifyingPagedLimit() throws Exception
     {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 4 );
 
