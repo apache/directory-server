@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class AddHostAddress extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( Asn1Decoder.ASN1_DECODER );
+    private static final Logger LOG = LoggerFactory.getLogger( AddHostAddress.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();

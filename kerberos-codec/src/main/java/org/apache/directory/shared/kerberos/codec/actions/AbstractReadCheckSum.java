@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractReadCheckSum extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( Asn1Decoder.ASN1_DECODER );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractReadCheckSum.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
