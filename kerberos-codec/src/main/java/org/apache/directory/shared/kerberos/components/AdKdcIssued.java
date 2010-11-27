@@ -124,7 +124,7 @@ public class AdKdcIssued extends AbstractAsn1Object
     /**
      * @return the irealm
      */
-    public String getIrealm()
+    public String getIRealm()
     {
         return irealm;
     }
@@ -133,7 +133,7 @@ public class AdKdcIssued extends AbstractAsn1Object
     /**
      * @param irealm the irealm to set
      */
-    public void setIrealm( String irealm )
+    public void setIRealm( String irealm )
     {
         this.irealm = irealm;
     }
@@ -142,7 +142,7 @@ public class AdKdcIssued extends AbstractAsn1Object
     /**
      * @return the isname
      */
-    public PrincipalName getIsname()
+    public PrincipalName getISName()
     {
         return isname;
     }
@@ -151,7 +151,7 @@ public class AdKdcIssued extends AbstractAsn1Object
     /**
      * @param isname the isname to set
      */
-    public void setIsname( PrincipalName isname )
+    public void setISName( PrincipalName isname )
     {
         this.isname = isname;
     }
@@ -255,7 +255,7 @@ public class AdKdcIssued extends AbstractAsn1Object
             }
 
             // the elements
-            buffer.put( ( byte ) KerberosConstants.AD_AND_OR_ELEMENTS_TAG );
+            buffer.put( ( byte ) KerberosConstants.AD_KDC_ISSUED_ELEMENTS_TAG );
             buffer.put( (byte)elementsTagLength );
             elements.encode( buffer );
         }
