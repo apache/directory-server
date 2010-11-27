@@ -284,4 +284,8 @@ public class KerberosConstants
     /** TransitedEncoding tags */
     public static final int TRANSITED_ENCODING_TR_TYPE_TAG = 0xA0;
     public static final int TRANSITED_ENCODING_CONTENTS_TAG = 0xA1;
+    
+    /** TypedData tags */
+    public static final int TYPED_DATA_TDTYPE_TAG = 0xA0;
+    public static final int TYPED_DATA_TDDATA_TAG = 0xA1;
 }
