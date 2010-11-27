@@ -33,7 +33,6 @@ import org.apache.directory.shared.kerberos.components.Checksum;
  */
 public class StoreChecksum extends AbstractReadCheckSum
 {
-
     /**
      * Instantiates a new StoreChecksum action.
      */

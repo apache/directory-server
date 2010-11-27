@@ -33,7 +33,6 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
  */
 public class StoreSubKey extends AbstractReadEncryptionKey
 {
-
     /**
      * Instantiates a new StoreEncryptionKey action.
      */

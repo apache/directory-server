@@ -34,7 +34,6 @@ import org.apache.directory.shared.kerberos.components.HostAddress;
  */
 public class StoreSenderAddress extends AbstractReadHostAddress
 {
-
     public StoreSenderAddress()
     {
         super( "KRB-SAFE-BODY s-address" );
@@ -52,5 +51,4 @@ public class StoreSenderAddress extends AbstractReadHostAddress
         
         container.setGrammarEndAllowed( true );
     }
-
 }
