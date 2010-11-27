@@ -27,13 +27,12 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
- * The action used to store the CName
+ * The action used to store the KDC-REP CName
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoreCName extends AbstractReadPrincipalName
 {
-
     /**
      * Instantiates a new StoreCName action.
      */

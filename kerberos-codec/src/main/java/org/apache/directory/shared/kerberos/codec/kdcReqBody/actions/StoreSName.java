@@ -21,17 +21,9 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadPrincipalName;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
-import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,15 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreSName extends GrammarAction
+public class StoreSName extends AbstractReadPrincipalName
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreSName.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StoreSName action.
      */
@@ -60,50 +45,10 @@ public class StoreSName extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setPrincipalName( PrincipalName principalName, Asn1Container container )
     {
         KdcReqBodyContainer kdcReqBodyContainer = ( KdcReqBodyContainer ) container;
-
-        TLV tlv = kdcReqBodyContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
-        
-        PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
-
-        // Decode the PrincipalName PDU
-        try
-        {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
-
-        // Store the Principal name in the container
-        PrincipalName principalName = principalNameContainer.getPrincipalName();
-        KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
-        kdcReqBody.setSName( principalName );
-        
-        // Update the expected length for the current TLV
-        tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
-
-        // Update the parent
-        container.updateParent();
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "SName : {}", principalName );
-        }
+        kdcReqBodyContainer.getKdcReqBody().setSName( principalName );
     }
 }

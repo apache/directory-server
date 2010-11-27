@@ -33,7 +33,6 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
  */
 public class StoreCName extends AbstractReadPrincipalName
 {
-
     /**
      * Instantiates a new StoreCName action.
      */
