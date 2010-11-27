@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreAut
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreAuthorizationData;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreCName;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreCRealm;
-import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreClientAddresses;
+import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreCaddr;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreEndTime;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreFlags;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.actions.StoreKey;
@@ -144,7 +144,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar
         
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_RENEWTILL_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_CADDR_TAG] = new GrammarTransition(
             EncTicketPartStatesEnum.ENC_TICKET_PART_RENEWTILL_STATE, EncTicketPartStatesEnum.ENC_TICKET_PART_CADDR_TAG_STATE, KerberosConstants.ENC_TICKET_PART_CADDR_TAG,
-            new StoreClientAddresses());
+            new StoreCaddr());
         
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_CADDR_TAG_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_AUTHORIZATION_DATA_TAG] = new GrammarTransition(
             EncTicketPartStatesEnum.ENC_TICKET_PART_CADDR_TAG_STATE, EncTicketPartStatesEnum.ENC_TICKET_PART_AUTHZ_DATA_TAG_STATE, KerberosConstants.ENC_TICKET_PART_AUTHORIZATION_DATA_TAG,
@@ -156,7 +156,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_CADDR_TAG] = new GrammarTransition(
             EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE, EncTicketPartStatesEnum.ENC_TICKET_PART_CADDR_TAG_STATE, KerberosConstants.ENC_TICKET_PART_CADDR_TAG,
-            new StoreClientAddresses());
+            new StoreCaddr());
         
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_AUTHORIZATION_DATA_TAG] = new GrammarTransition(
             EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE, EncTicketPartStatesEnum.ENC_TICKET_PART_AUTHZ_DATA_TAG_STATE, KerberosConstants.ENC_TICKET_PART_AUTHORIZATION_DATA_TAG,

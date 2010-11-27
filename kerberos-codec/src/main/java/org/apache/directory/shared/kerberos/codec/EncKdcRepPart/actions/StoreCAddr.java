@@ -33,7 +33,6 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
  */
 public class StoreCAddr extends AbstractReadHostAddresses
 {
-
     /**
      * Instantiates a new StoreAddresses action.
      */

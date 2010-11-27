@@ -31,13 +31,12 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreClientAddresses extends AbstractReadHostAddresses
+public class StoreCaddr extends AbstractReadHostAddresses
 {
-
     /**
      * Instantiates a new StoreClientAddresses action.
      */
-    public StoreClientAddresses()
+    public StoreCaddr()
     {
         super( "EncTicketPart caddr" );
     }

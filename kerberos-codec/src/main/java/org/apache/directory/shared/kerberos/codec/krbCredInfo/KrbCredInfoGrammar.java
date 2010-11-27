@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.KrbCredInfoInit;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreAuthTime;
-import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreClientAddresses;
+import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreCaddr;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreEndTime;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreFlags;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.actions.StoreKey;
@@ -149,7 +149,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_SNAME_TAG_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
             KrbCredInfoStatesEnum.KRB_CRED_INFO_SNAME_TAG_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-            new StoreClientAddresses());
+            new StoreCaddr());
 
         // ---------------------------- OPTIONAL transitions ------------------------
         
@@ -196,7 +196,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from key to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_KEY_TAG_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_KEY_TAG_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from prealm to flags
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_PREALM_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_FLAGS_TAG] = new GrammarTransition(
@@ -236,7 +236,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from prealm to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_PREALM_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_PREALM_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from pname to authtime
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_PNAME_TAG_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_AUTHTIME_TAG] = new GrammarTransition(
@@ -271,7 +271,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from pname to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_PNAME_TAG_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_PNAME_TAG_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from flags to starttime
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_STARTTIME_TAG] = new GrammarTransition(
@@ -301,7 +301,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from flags to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_FLAGS_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from authtime to endtime
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_AUTHTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_ENDTIME_TAG] = new GrammarTransition(
@@ -326,7 +326,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from authtime to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_AUTHTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_AUTHTIME_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from starttime to renewtill
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_STARTTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_RENEWTILL_TAG] = new GrammarTransition(
@@ -346,7 +346,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from starttime to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_STARTTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_STARTTIME_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from endtime to srealm
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_ENDTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_SREALM_TAG] = new GrammarTransition(
@@ -361,7 +361,7 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from endtime to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_ENDTIME_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_ENDTIME_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from renewtill to sname
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_RENEWTILL_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_SNAME_TAG] = new GrammarTransition(
@@ -371,12 +371,12 @@ public final class KrbCredInfoGrammar extends AbstractGrammar
         // transition from renewtill to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_RENEWTILL_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_RENEWTILL_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
 
         // transition from srealm to caddr
         super.transitions[KrbCredInfoStatesEnum.KRB_CRED_INFO_SREALM_STATE.ordinal()][KerberosConstants.KRB_CRED_INFO_CADDR_TAG] = new GrammarTransition(
          KrbCredInfoStatesEnum.KRB_CRED_INFO_SREALM_STATE, KrbCredInfoStatesEnum.KRB_CRED_INFO_CADDR_TAG_STATE, KerberosConstants.KRB_CRED_INFO_CADDR_TAG,
-         new StoreClientAddresses());
+         new StoreCaddr());
     }
 
 
