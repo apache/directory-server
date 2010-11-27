@@ -33,6 +33,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -47,6 +48,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -150,6 +152,8 @@ import org.junit.runner.RunWith;
     })
 public class IndexedNegationSearchIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
 
     /**
      * Tests to make sure a negated search for OU of "test1" returns
@@ -230,6 +234,9 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
             results.add( namingEnumeration.next() );
         }
         
+        namingEnumeration.close();
+        ctx.close();
+        
         return results;
     }
 
@@ -245,6 +252,9 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         {
             results.add( namingEnumeration.next() );
         }
+        
+        namingEnumeration.close();
+        ctx.close();
         
         return results;
     }

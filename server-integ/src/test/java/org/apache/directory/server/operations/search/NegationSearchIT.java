@@ -33,11 +33,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -107,7 +109,9 @@ import org.junit.runner.RunWith;
 )
 public class NegationSearchIT extends AbstractLdapTestUnit 
 {
-    
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
+
     /**
      * Tests to make sure a negated search for actors without ou
      * with value 'drama' returns those that do not have the attribute
@@ -169,6 +173,9 @@ public class NegationSearchIT extends AbstractLdapTestUnit
         {
             results.add( namingEnumeration.next() );
         }
+        
+        namingEnumeration.close();
+        ctx.close();
         
         return results;
     }
