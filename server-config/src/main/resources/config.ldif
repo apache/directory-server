@@ -106,7 +106,7 @@ objectclass: top
 dn: ads-authenticatorid=delegatingauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: delegatingauthenticator
 ads-delegateHost: nyc.com
-ads-delelegatePort: 389
+ads-delegatePort: 389
 objectClass: ads-authenticator
 objectClass: ads-delegatingAuthenticator
 objectclass: top
