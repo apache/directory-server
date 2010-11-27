@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
  */
 public class StoreCRealm extends AbstractReadRealm
 {
-
     /**
      * Instantiates a new StoreCRealm action.
      */

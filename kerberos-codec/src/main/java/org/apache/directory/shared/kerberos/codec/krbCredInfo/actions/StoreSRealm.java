@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.krbCredInfo.KrbCredInfoContain
  */
 public class StoreSRealm extends AbstractReadRealm
 {
-
     /**
      * Instantiates a new StoreSRealm action.
      */

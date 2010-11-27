@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorCon
  */
 public class StoreCRealm extends AbstractReadRealm
 {
-
     /**
      * Instantiates a new StoreCRealm action.
      */

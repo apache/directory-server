@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
  */
 public class StoreRealm extends AbstractReadRealm
 {
-
     /**
      * Instantiates a new StoreRealm action.
      */
