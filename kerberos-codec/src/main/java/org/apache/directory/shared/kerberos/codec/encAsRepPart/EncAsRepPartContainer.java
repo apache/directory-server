@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.encAsRepPart;
 
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncAsRepPartContainer extends KdcReqContainer
+public class EncAsRepPartContainer extends AbstractContainer
 {
     /** An EncAsRepPart container */
     private EncAsRepPart encAsRepPart = new EncAsRepPart();

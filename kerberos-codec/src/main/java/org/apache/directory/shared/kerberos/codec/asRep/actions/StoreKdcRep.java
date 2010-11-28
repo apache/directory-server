@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.asRep.AsRepContainer;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
@@ -100,6 +101,11 @@ public class StoreKdcRep extends GrammarAction
 
         // Update the parent
         container.updateParent();
+        
+        if ( asRep.getMessageType() != KerberosMessageType.AS_REP )
+        {
+            throw new DecoderException( "Bad message type" );
+        }
         
         asRepContainer.setAsRep( asRep );
 

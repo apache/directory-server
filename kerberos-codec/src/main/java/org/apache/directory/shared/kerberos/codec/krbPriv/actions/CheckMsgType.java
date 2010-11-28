@@ -20,49 +20,22 @@
 package org.apache.directory.shared.kerberos.codec.krbPriv.actions;
 
 
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.actions.AbstractReadMsgType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the msg-type
+ * The action used to check the KRB-PRIV msg-type
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class CheckMsgType extends AbstractReadMsgType
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( CheckMsgType.class );
-
-
     /**
      * Instantiates a new CheckMsgType action.
      */
     public CheckMsgType()
     {
-        super( "KRB-PRIV msg-type" );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void verifyMsgType( KerberosMessageType krbMsgType, Asn1Container container ) throws DecoderException
-    {
-        // The message type must be the expected one
-        if ( krbMsgType != KerberosMessageType.KRB_PRIV )
-        {
-            String msg = "The msg-type should be KRB-PRIV";
-            LOG.error( I18n.err( I18n.ERR_04070, krbMsgType, msg ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( msg );
-        }
+        super( "KRB-PRIV msg-type", KerberosMessageType.KRB_PRIV );
     }
 }

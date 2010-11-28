@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.adAndOr;
 
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.AdAndOr;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.components.AdAndOr;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AdAndOrContainer extends KdcReqContainer
+public class AdAndOrContainer extends AbstractContainer
 {
     /** An AD-AND-OR container */
     private AdAndOr adAndOr = new AdAndOr();

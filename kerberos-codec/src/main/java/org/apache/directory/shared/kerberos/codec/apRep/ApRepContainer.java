@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.apRep;
 
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.ApRep;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.messages.ApRep;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApRepContainer extends KdcReqContainer
+public class ApRepContainer extends AbstractContainer
 {
     /** An AP-REP container */
     private ApRep apRep;

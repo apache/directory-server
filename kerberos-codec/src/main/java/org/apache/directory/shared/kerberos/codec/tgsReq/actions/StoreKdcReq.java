@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
@@ -100,6 +101,11 @@ public class StoreKdcReq extends GrammarAction
 
         // Update the parent
         container.updateParent();
+        
+        if ( tgsReq.getMessageType() != KerberosMessageType.TGS_REQ )
+        {
+            throw new DecoderException( "Bad message type" );
+        }
         
         tgsReqContainer.setTgsReq( tgsReq );
 

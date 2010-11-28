@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.adKdcIssued;
 
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.AdKdcIssued;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.components.AdKdcIssued;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AdKdcIssuedContainer extends KdcReqContainer
+public class AdKdcIssuedContainer extends AbstractContainer
 {
     /** An AdKdcIssued container */
     private AdKdcIssued adKdcIssued = new AdKdcIssued();

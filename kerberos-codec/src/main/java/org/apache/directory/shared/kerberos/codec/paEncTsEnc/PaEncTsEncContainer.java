@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.paEncTsEnc;
 
-import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
+import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PaEncTsEncContainer extends KdcReqContainer
+public class PaEncTsEncContainer extends AbstractContainer
 {
     /** An PA-ENC-TS-ENC container */
     private PaEncTsEnc paEncTsEnc = new PaEncTsEnc();

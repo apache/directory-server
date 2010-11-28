@@ -29,6 +29,8 @@ import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
+import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +46,8 @@ public abstract class AbstractReadMsgType extends GrammarAction
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractReadMsgType.class );
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+    /** The msgType to decode */
+    private KerberosMessageType msgType = null;
 
     /**
      * Instantiates a new StoreMsgType action.
@@ -57,13 +59,13 @@ public abstract class AbstractReadMsgType extends GrammarAction
 
     
     /**
-     * verifies whether the given message type is acceptable for the ASN.1 object type
-     * present in the container
-     * 
-     * @param krbMsgType the message type
-     * @throws DecoderException if the message type is not acceptable for the ASN.1 object present in the container
+     * Instantiates a new StoreMsgType action.
      */
-    protected abstract void verifyMsgType( KerberosMessageType krbMsgType, Asn1Container container ) throws DecoderException;
+    public AbstractReadMsgType( String name, KerberosMessageType msgType )
+    {
+        super( name );
+        this.msgType = msgType;
+    }
 
     
     /**
@@ -86,15 +88,48 @@ public abstract class AbstractReadMsgType extends GrammarAction
 
         try
         {
-            int msgType = IntegerDecoder.parse( value );
-            KerberosMessageType krbMsgType = KerberosMessageType.getTypeByValue( msgType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "msg-type : {}", krbMsgType );
-            }
+            int msgTypeValue = IntegerDecoder.parse( value );
             
-            verifyMsgType( krbMsgType, container );
+            if ( msgType != null )
+            {
+                if ( msgType.getValue() == msgTypeValue )
+                {
+                    LOG.debug( "msg-type : {}", msgType );
+                    
+                    return;
+                }
+
+                String message = I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ) );
+                LOG.error( message );
+
+                // This will generate a PROTOCOL_ERROR
+                throw new DecoderException( message );
+            }
+            else
+            {
+                KerberosMessageType messageType = KerberosMessageType.getTypeByValue( msgTypeValue );
+                
+                if ( container instanceof KdcReqContainer )
+                {
+                    if ( ((KdcReqContainer)container).getKdcReq().getMessageType() == messageType )
+                    {
+                        return;
+                    }
+                }
+                else if ( container instanceof KdcRepContainer )
+                {
+                    if ( ((KdcRepContainer)container).getKdcRep().getMessageType() == messageType )
+                    {
+                        return;
+                    }
+                }
+                
+                String message = I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ) );
+                LOG.error( message );
+
+                // This will generate a PROTOCOL_ERROR
+                throw new DecoderException( message );
+            }
         }
         catch ( IntegerDecoderException ide )
         {
