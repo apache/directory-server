@@ -248,9 +248,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
     public void setAuthenticators( Authenticator[] authenticators )
     {
         this.authenticators.clear();
+        Set<Authenticator> set = new HashSet<Authenticator>();
         for (Authenticator authenticator : authenticators) {
-            this.authenticators.add( authenticator );
+            set.add( authenticator );
         }
+        setAuthenticators( set );
     }
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
