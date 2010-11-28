@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
  */
 public class StorePvno extends AbstractReadPvno
 {
-
     /**
      * Instantiates a new StorePvno action.
      */

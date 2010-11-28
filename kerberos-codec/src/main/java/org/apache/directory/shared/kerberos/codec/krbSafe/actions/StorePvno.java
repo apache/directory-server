@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
  */
 public class StorePvno extends AbstractReadPvno
 {
-
     /**
      * Instantiates a new StorePvno action.
      */
@@ -51,5 +50,4 @@ public class StorePvno extends AbstractReadPvno
         KrbSafeContainer krbSafeContainer = ( KrbSafeContainer ) container;
         krbSafeContainer.getKrbSafe().setProtocolVersionNumber( pvno );
     }
-
 }

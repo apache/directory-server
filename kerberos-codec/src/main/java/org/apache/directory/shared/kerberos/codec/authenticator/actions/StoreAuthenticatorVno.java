@@ -32,7 +32,6 @@ import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorCon
  */
 public class StoreAuthenticatorVno extends AbstractReadPvno
 {
-
     /**
      * Instantiates a new StoreAuthenticatorVno action.
      */

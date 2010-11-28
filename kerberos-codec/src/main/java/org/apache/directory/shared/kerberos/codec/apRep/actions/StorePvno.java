@@ -21,19 +21,8 @@ package org.apache.directory.shared.kerberos.codec.apRep.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.actions.AbstractReadPvno;
 import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
-import org.apache.directory.shared.kerberos.messages.ApRep;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,15 +30,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StorePvno extends GrammarAction
+public class StorePvno extends AbstractReadPvno
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StorePvno action.
      */
@@ -62,43 +44,10 @@ public class StorePvno extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setPvno( int pvno, Asn1Container container )
     {
         ApRepContainer apRepContainer = ( ApRepContainer ) container;
-
-        TLV tlv = apRepContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // The value should be an integer an equal to 5
-        Value value = tlv.getValue();
-        ApRep apRep = apRepContainer.getApRep();
-
-        try
-        {
-            int pvno = IntegerDecoder.parse( value, 5, 5 );
-
-            apRep.setProtocolVersionNumber( pvno );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "Pvno : " + pvno );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        apRepContainer.getApRep().setProtocolVersionNumber( pvno );
     }
 }
