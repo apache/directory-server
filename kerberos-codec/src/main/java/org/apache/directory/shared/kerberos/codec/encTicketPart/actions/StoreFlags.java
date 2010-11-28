@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.actions.AbstractReadByteArray;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadBitString;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 
@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreFlags extends AbstractReadByteArray
+public class StoreFlags extends AbstractReadBitString
 {
 
     /**
@@ -47,7 +47,7 @@ public class StoreFlags extends AbstractReadByteArray
      * {@inheritDoc}
      */
     @Override
-    protected void setByteArry( byte[] data, Asn1Container container )
+    protected void setBitString( byte[] data, Asn1Container container )
     {
         TicketFlags flags = new TicketFlags( data );
         EncTicketPartContainer encTickerPartContainer = ( EncTicketPartContainer ) container;

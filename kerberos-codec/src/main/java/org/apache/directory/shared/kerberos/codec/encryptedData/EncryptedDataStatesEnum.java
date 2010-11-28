@@ -33,9 +33,6 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
  */
 public enum EncryptedDataStatesEnum implements States
 {
-    // ~ Static fields/initializers
-    // -----------------------------------------------------------------
-
     // Start
     START_STATE,                            // 0
     

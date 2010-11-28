@@ -52,7 +52,6 @@ public final class EncryptedDataGrammar extends AbstractGrammar
     /** The instance of grammar. EncryptedDataGrammar is a singleton */
     private static Grammar instance = new EncryptedDataGrammar();
 
-
     /**
      * Creates a new EncryptedDataGrammar object.
      */
@@ -143,9 +142,6 @@ public final class EncryptedDataGrammar extends AbstractGrammar
             new StoreCipher() );
     }
 
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar
