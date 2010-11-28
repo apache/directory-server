@@ -62,7 +62,8 @@ public class EncryptedDataDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
         
         stream.put( new byte[]
-            { 0x30, 0x14,
+            { 
+              0x30, 0x14,
                 (byte)0xA0, 0x03,                 // etype
                   0x02, 0x01, 0x12,               //
                 (byte)0xA1, 0x03,                 // kvno
@@ -126,7 +127,8 @@ public class EncryptedDataDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
         
         stream.put( new byte[]
-            { 0x30, 0x0F,
+            { 
+              0x30, 0x0F,
                 (byte)0xA0, 0x03,                 // etype
                   0x02, 0x01, 0x12,               //
                 (byte)0xA2, 0x08,                 // cipher
@@ -228,6 +230,36 @@ public class EncryptedDataDecoderTest
     
     
     /**
+     * Test the decoding of a EncryptedData with a missing type
+     */
+    @Test( expected = DecoderException.class)
+    public void testEncryptedDataMissingEType() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
+        
+        stream.put( new byte[]
+            { 
+              0x30, 0x0F,
+                (byte)0xA1, 0x03,                 // kvno
+                  0x02, 0x01, 0x05,               //
+                (byte)0xA2, 0x08,                 // cipher
+                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
+            } );
+
+        stream.flip();
+
+        // Allocate a EncryptedData Container
+        Asn1Container encryptedDataContainer = new EncryptedDataContainer();
+
+        // Decode the EncryptedData PDU
+        kerberosDecoder.decode( stream, encryptedDataContainer );
+        fail();
+    }
+    
+    
+    /**
      * Test the decoding of a EncryptedData with an empty type
      */
     @Test( expected = DecoderException.class)
@@ -239,7 +271,7 @@ public class EncryptedDataDecoderTest
         
         stream.put( new byte[]
             { 0x30, 0x04,
-                (byte)0xA0, 0x03,                 // etype
+                (byte)0xA0, 0x02,                 // etype
                   0x02, 0x00                      // 
             } );
 

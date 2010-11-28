@@ -36,7 +36,7 @@ public enum EncryptedDataStatesEnum implements States
     // Start
     START_STATE,                            // 0
     
-    // ----- PrincipalName message --------------------------------------
+    // ----- EncryptedData message --------------------------------------
     ENCRYPTED_DATA_SEQ_STATE,               // 1
     
     ENCRYPTED_DATA_ETYPE_TAG_STATE,         // 2
