@@ -93,29 +93,33 @@ objectclass: top
 
 dn: ads-authenticatorid=anonymousauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: anonymousauthenticator
+objectclass: top
+objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-anonymousAuthenticator
-objectclass: top
 
 dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: simpleauthenticator
+objectclass: top
+objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-simpleAuthenticator
-objectclass: top
 
 dn: ads-authenticatorid=delegatingauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: delegatingauthenticator
 ads-delegateHost: nyc.com
 ads-delegatePort: 389
+objectclass: top
+objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-delegatingAuthenticator
-objectclass: top
 
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: strongauthenticator
+objectclass: top
+objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-strongAuthenticator
-objectclass: top
 
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
