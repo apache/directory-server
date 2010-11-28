@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.padata.actions.PaDataInit;
 import org.apache.directory.shared.kerberos.codec.padata.actions.StoreDataType;
-import org.apache.directory.shared.kerberos.codec.padata.actions.StoreValue;
+import org.apache.directory.shared.kerberos.codec.padata.actions.StorePaDataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +107,7 @@ public final class PaDataGrammar extends AbstractGrammar
         //          padata-value    [2] OCTET STRING
         super.transitions[PaDataStatesEnum.PADATA_VALUE_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             PaDataStatesEnum.PADATA_VALUE_TAG_STATE, PaDataStatesEnum.PADATA_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new StoreValue() );
+            new StorePaDataValue() );
     }
 
 

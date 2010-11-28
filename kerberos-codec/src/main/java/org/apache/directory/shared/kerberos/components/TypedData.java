@@ -53,27 +53,27 @@ public class TypedData extends AbstractAsn1Object
     public class TD
     {
         /** the type of TypedData */
-        private int tdType;
+        private int dataType;
 
         /** the TypedData data */
-        private byte[] tdData;
+        private byte[] dataValue;
 
 
         /**
          * @return the TD type
          */
-        public int getTdType()
+        public int getDataType()
         {
-            return tdType;
+            return dataType;
         }
 
 
         /**
          * @return the TD data
          */
-        public byte[] getTdData()
+        public byte[] getDataValue()
         {
-            return tdData;
+            return dataValue;
         }
     }
 
@@ -90,145 +90,45 @@ public class TypedData extends AbstractAsn1Object
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     // Storage for computed lengths
-    private transient int tdTypeTagLen[];
-    private transient int tdDataTagLen[];
-    private transient int typedDataSeqLen[];
-    private transient int typedDataSeqSeqLen;
-
-
-    /**
-     * Compute the TypedData length
-     * <pre>
-     * 0x30 L1 TypedData sequence
-     *  |
-     *  +-- 0x30 L2 The TD sequence
-     *       |
-     *       +--> 0xA0 L3 tdType tag
-     *       |     |
-     *       |     +--> 0x02 L3-2 tdType (int)
-     *       |
-     *       +--> [0xA1 L4 tdData tag
-     *             |
-     *             +--> 0x04 L4-2 tdData (OCTET STRING)]
-     * </pre>
-     */
-    @Override
-    public int computeLength()
-    {
-        int i = 0;
-        typedDataSeqLen = new int[typedDataList.size()];
-        tdTypeTagLen = new int[typedDataList.size()];
-        tdDataTagLen = new int[typedDataList.size()];
-
-        for ( TD td : typedDataList )
-        {
-            int adTypeLen = Value.getNbBytes( td.tdType );
-            tdTypeTagLen[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
-            typedDataSeqLen[i] = 1 + TLV.getNbBytes( tdTypeTagLen[i] ) + tdTypeTagLen[i];
-            
-            if ( td.tdData != null )
-            {
-                tdDataTagLen[i] = 1 + TLV.getNbBytes( td.tdData.length ) + td.tdData.length;
-                typedDataSeqLen[i] += 1 + TLV.getNbBytes( tdDataTagLen[i] ) + tdDataTagLen[i];
-            }
-
-            typedDataSeqSeqLen += 1 + TLV.getNbBytes( typedDataSeqLen[i] ) + typedDataSeqLen[i];
-            i++;
-        }
-
-        return 1 + TLV.getNbBytes( typedDataSeqSeqLen ) + typedDataSeqSeqLen;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
-    {
-        if ( buffer == null )
-        {
-            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
-        }
-
-        try
-        {
-            // The AuthorizationData SEQ OF Tag
-            buffer.put( UniversalTag.SEQUENCE.getValue() );
-            buffer.put( TLV.getBytes( typedDataSeqSeqLen ) );
-
-            int i = 0;
-            for ( TD td : typedDataList )
-            {
-                buffer.put( UniversalTag.SEQUENCE.getValue() );
-                buffer.put( TLV.getBytes( typedDataSeqLen[i] ) );
-
-                // the tdType
-                buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDTYPE_TAG );
-                buffer.put( TLV.getBytes( tdTypeTagLen[i] ) );
-                Value.encode( buffer, td.tdType );
-
-                if ( td.tdData != null )
-                {
-                    // the tdData
-                    buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDDATA_TAG );
-                    buffer.put( TLV.getBytes( tdDataTagLen[i] ) );
-                    Value.encode( buffer, td.tdData );
-                }
-                
-                i++;
-            }
-        }
-        catch ( BufferOverflowException boe )
-        {
-            LOG.error( I18n.err( I18n.ERR_743_CANNOT_ENCODE_TYPED_DATA, 1 + TLV.getNbBytes( typedDataSeqSeqLen )
-                + typedDataSeqSeqLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
-        }
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "TypedData encoding : {}", StringTools.dumpBytes( buffer.array() ) );
-            LOG.debug( "TypedData initial value : {}", toString() );
-        }
-
-        return buffer;
-    }
+    private transient int dataTypeTagLength[];
+    private transient int dataValueTagLength[];
+    private transient int typedDataSeqLength[];
+    private transient int typedDataSeqSeqLength;
 
 
     /**
      * @return the currentTD type
      */
-    public int getCurrentTdType()
+    public int getCurrentDataType()
     {
-        return currentTD.tdType;
+        return currentTD.dataType;
     }
 
 
     /**
      * Set the current TD type
      */
-    public void setCurrentTdType( int tdType )
+    public void setCurrentDataType( int tdType )
     {
-        currentTD.tdType = tdType;
+        currentTD.dataType = tdType;
     }
 
 
     /**
      * @return the currentTD data
      */
-    public byte[] getCurrentTdData()
+    public byte[] getCurrentDataValue()
     {
-        return currentTD.tdData;
+        return currentTD.dataValue;
     }
 
 
     /**
      * Set the current TD data
      */
-    public void setCurrentTdData( byte[] tdData )
+    public void setCurrentDataValue( byte[] tdData )
     {
-        currentTD.tdData = tdData;
+        currentTD.dataValue = tdData;
     }
 
 
@@ -261,6 +161,106 @@ public class TypedData extends AbstractAsn1Object
 
 
     /**
+     * Compute the TypedData length
+     * <pre>
+     * 0x30 L1 TypedData sequence
+     *  |
+     *  +-- 0x30 L2 The TD sequence
+     *       |
+     *       +--> 0xA0 L3 tdType tag
+     *       |     |
+     *       |     +--> 0x02 L3-2 tdType (int)
+     *       |
+     *       +--> [0xA1 L4 tdData tag
+     *             |
+     *             +--> 0x04 L4-2 tdData (OCTET STRING)]
+     * </pre>
+     */
+    @Override
+    public int computeLength()
+    {
+        int i = 0;
+        typedDataSeqLength = new int[typedDataList.size()];
+        dataTypeTagLength = new int[typedDataList.size()];
+        dataValueTagLength = new int[typedDataList.size()];
+
+        for ( TD td : typedDataList )
+        {
+            int adTypeLen = Value.getNbBytes( td.dataType );
+            dataTypeTagLength[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
+            typedDataSeqLength[i] = 1 + TLV.getNbBytes( dataTypeTagLength[i] ) + dataTypeTagLength[i];
+            
+            if ( td.dataValue != null )
+            {
+                dataValueTagLength[i] = 1 + TLV.getNbBytes( td.dataValue.length ) + td.dataValue.length;
+                typedDataSeqLength[i] += 1 + TLV.getNbBytes( dataValueTagLength[i] ) + dataValueTagLength[i];
+            }
+
+            typedDataSeqSeqLength += 1 + TLV.getNbBytes( typedDataSeqLength[i] ) + typedDataSeqLength[i];
+            i++;
+        }
+
+        return 1 + TLV.getNbBytes( typedDataSeqSeqLength ) + typedDataSeqSeqLength;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
+    {
+        if ( buffer == null )
+        {
+            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
+        }
+
+        try
+        {
+            // The AuthorizationData SEQ OF Tag
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( typedDataSeqSeqLength ) );
+
+            int i = 0;
+            for ( TD td : typedDataList )
+            {
+                buffer.put( UniversalTag.SEQUENCE.getValue() );
+                buffer.put( TLV.getBytes( typedDataSeqLength[i] ) );
+
+                // the tdType
+                buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDTYPE_TAG );
+                buffer.put( TLV.getBytes( dataTypeTagLength[i] ) );
+                Value.encode( buffer, td.dataType );
+
+                if ( td.dataValue != null )
+                {
+                    // the tdData
+                    buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDDATA_TAG );
+                    buffer.put( TLV.getBytes( dataValueTagLength[i] ) );
+                    Value.encode( buffer, td.dataValue );
+                }
+                
+                i++;
+            }
+        }
+        catch ( BufferOverflowException boe )
+        {
+            LOG.error( I18n.err( I18n.ERR_743_CANNOT_ENCODE_TYPED_DATA, 1 + TLV.getNbBytes( typedDataSeqSeqLength )
+                + typedDataSeqSeqLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "TypedData encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "TypedData initial value : {}", toString() );
+        }
+
+        return buffer;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
@@ -281,15 +281,14 @@ public class TypedData extends AbstractAsn1Object
         for ( TD td : typedDataList )
         {
             sb.append( tabs ).append( "    {\n" );
-            sb.append( tabs ).append( "        tdType: " ).append( td.tdType ).append( '\n' );
-            if ( td.tdData != null )
+            sb.append( tabs ).append( "        tdType: " ).append( td.dataType ).append( '\n' );
+            if ( td.dataValue != null )
             {
-                sb.append( tabs ).append( "        tdData: " ).append( StringTools.dumpBytes( td.tdData ) ).append( '\n' );
+                sb.append( tabs ).append( "        tdData: " ).append( StringTools.dumpBytes( td.dataValue ) ).append( '\n' );
             }
             sb.append( tabs ).append( "    }\n" );
         }
 
         return sb.toString();
     }
-
 }

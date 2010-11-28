@@ -91,8 +91,8 @@ public class TypedDataDecoderTest
         
         for ( TypedData.TD td : typedData.getTypedData() )
         {
-            assertEquals( 2, td.getTdType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), td.getTdData() ) );
+            assertEquals( 2, td.getDataType() );
+            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), td.getDataValue() ) );
         }
 
         // Check the encoding
@@ -162,7 +162,7 @@ public class TypedDataDecoderTest
         
         assertNotNull( typedData.getTypedData() );
         assertEquals( 1, typedData.getTypedData().size() );
-        assertEquals( 2, typedData.getCurrentTD().getTdType() );
+        assertEquals( 2, typedData.getCurrentTD().getDataType() );
     }
 
     

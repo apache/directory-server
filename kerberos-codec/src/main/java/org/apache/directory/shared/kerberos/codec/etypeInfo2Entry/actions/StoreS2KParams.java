@@ -21,68 +21,34 @@ package org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.ETypeInfo2EntryContainer;
-import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to store the ETYPE-INFO2-ENTRY cipher
+ * The action used to store the ETYPE-INFO2-ENTRY s2kparams
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreS2KParams extends GrammarAction
+public class StoreS2KParams extends AbstractReadOctetString
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreS2KParams.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
-     * Instantiates a new StoreS2Params action.
+     * Instantiates a new StoreS2KParams action.
      */
     public StoreS2KParams()
     {
-        super( "ETYPE-INFO2-ENTRY s2kparams" );
+        super( "ETYPE-INFO2-ENTRY s2kparams", true );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setOctetString( byte[] data, Asn1Container container )
     {
         ETypeInfo2EntryContainer etypeInfo2EntryContainer = ( ETypeInfo2EntryContainer ) container;
-
-        TLV tlv = etypeInfo2EntryContainer.getCurrentTLV();
-        ETypeInfo2Entry etypeInfo2Entry = etypeInfo2EntryContainer.getETypeInfo2Entry();
-
-        // The Length may be null
-        if ( tlv.getLength() != 0 ) 
-        {
-            Value value = tlv.getValue();
-            
-            // The encrypted data may be null
-            if ( value.getData() != null ) 
-            {
-                etypeInfo2Entry.setS2kparams( value.getData() );
-            }
-        }
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "salt : {}", StringTools.dumpBytes( etypeInfo2Entry.getS2kparams() ) );
-        }
-        
-        // We can end here
+        etypeInfo2EntryContainer.getETypeInfo2Entry().setS2kparams( data );
         etypeInfo2EntryContainer.setGrammarEndAllowed( true );
     }
 }

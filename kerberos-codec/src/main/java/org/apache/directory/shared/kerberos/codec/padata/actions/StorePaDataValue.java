@@ -17,27 +17,27 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
+package org.apache.directory.shared.kerberos.codec.padata.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
-import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 
 
 /**
- * The action used to add the HostAddress address value
+ * The action used to store the PaData's padata-value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAddress extends AbstractReadOctetString
+public class StorePaDataValue extends AbstractReadOctetString
 {
     /**
-     * Instantiates a new HostAddressAddress action.
+     * Instantiates a new PaDataValue action.
      */
-    public StoreAddress()
+    public StorePaDataValue()
     {
-        super( "Store the HostAddress' address" );
+        super( "PaData's padata-value" );
     }
 
 
@@ -47,8 +47,8 @@ public class StoreAddress extends AbstractReadOctetString
     @Override
     protected void setOctetString( byte[] data, Asn1Container container )
     {
-        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
-        hostAddressContainer.getHostAddress().setAddress( data );
+        PaDataContainer paDataContainer = ( PaDataContainer ) container;
+        paDataContainer.getPaData().setPaDataValue( data );
         container.setGrammarEndAllowed( true );
     }
 }

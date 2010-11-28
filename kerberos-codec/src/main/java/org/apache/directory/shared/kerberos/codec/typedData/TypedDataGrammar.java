@@ -26,7 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.typedData.actions.StoreTdData;
+import org.apache.directory.shared.kerberos.codec.typedData.actions.StoreDataValue;
 import org.apache.directory.shared.kerberos.codec.typedData.actions.StoreTdType;
 import org.apache.directory.shared.kerberos.codec.typedData.actions.TypedDataInit;
 import org.slf4j.Logger;
@@ -117,7 +117,7 @@ public final class TypedDataGrammar extends AbstractGrammar
         //         data-value     [1] (OCTET STRING)
         super.transitions[TypedDataStatesEnum.TYPED_DATA_TDDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
             TypedDataStatesEnum.TYPED_DATA_TDDATA_TAG_STATE, TypedDataStatesEnum.TYPED_DATA_TDDATA_STATE, UniversalTag.OCTET_STRING.getValue(),
-            new StoreTdData() );
+            new StoreDataValue() );
         
         // --------------------------------------------------------------------------------------------
         // Transition from ad-data value to SEQUENCE

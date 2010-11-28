@@ -21,16 +21,8 @@ package org.apache.directory.shared.kerberos.codec.encryptionKey.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
-import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,15 +30,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreKeyValue extends GrammarAction
+public class StoreKeyValue extends AbstractReadOctetString
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreKeyValue.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new EncryptionKeyKeyValue action.
      */
@@ -59,40 +44,11 @@ public class StoreKeyValue extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setOctetString( byte[] data, Asn1Container container )
     {
         EncryptionKeyContainer encKeyContainer = ( EncryptionKeyContainer ) container;
-
-        TLV tlv = encKeyContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 ) 
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        Value value = tlv.getValue();
-        
-        // The encrypted data should not be null
-        if ( value.getData() == null ) 
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        EncryptionKey encKey = encKeyContainer.getEncryptionKey();
-        encKey.setKeyValue( value.getData() );
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "keyvalue : {}", StringTools.dumpBytes( value.getData() ) );
-        }
-        
-        encKeyContainer.setGrammarEndAllowed( true );
+        encKeyContainer.getEncryptionKey().setKeyValue( data );
+        container.setGrammarEndAllowed( true );
     }
 }

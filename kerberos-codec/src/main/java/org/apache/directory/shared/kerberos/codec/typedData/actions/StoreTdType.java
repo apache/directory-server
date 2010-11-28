@@ -52,7 +52,7 @@ public class StoreTdType extends AbstractReadInteger
         
         TypedData typedData = typedDataContainer.getTypedData();
         typedData.createNewTD();
-        typedData.setCurrentTdType( value );
+        typedData.setCurrentDataType( value );
         
         container.setGrammarEndAllowed( true );
     }

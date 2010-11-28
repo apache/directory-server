@@ -17,27 +17,27 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
+package org.apache.directory.shared.kerberos.codec.typedData.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
-import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.kerberos.codec.typedData.TypedDataContainer;
 
 
 /**
- * The action used to add the HostAddress address value
+ * The action used to store the TypedData's ad-data
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreAddress extends AbstractReadOctetString
+public class StoreDataValue extends AbstractReadOctetString
 {
     /**
-     * Instantiates a new HostAddressAddress action.
+     * Instantiates a new StoreTdData action.
      */
-    public StoreAddress()
+    public StoreDataValue()
     {
-        super( "Store the HostAddress' address" );
+        super( "TypedData data-value" );
     }
 
 
@@ -47,8 +47,8 @@ public class StoreAddress extends AbstractReadOctetString
     @Override
     protected void setOctetString( byte[] data, Asn1Container container )
     {
-        HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
-        hostAddressContainer.getHostAddress().setAddress( data );
-        container.setGrammarEndAllowed( true );
+        TypedDataContainer typedDataContainer = ( TypedDataContainer ) container;
+        typedDataContainer.getTypedData().setCurrentDataValue( data );
+        typedDataContainer.setGrammarEndAllowed( true );
     }
 }

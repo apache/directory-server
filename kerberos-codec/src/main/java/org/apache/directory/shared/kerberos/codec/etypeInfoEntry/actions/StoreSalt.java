@@ -21,15 +21,8 @@ package org.apache.directory.shared.kerberos.codec.etypeInfoEntry.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryContainer;
-import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,52 +30,25 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreSalt extends GrammarAction
+public class StoreSalt extends AbstractReadOctetString
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( StoreSalt.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
     /**
      * Instantiates a new StoreSalt action.
      */
     public StoreSalt()
     {
-        super( "ETYPE-INFO-ENTRY salt" );
+        super( "ETYPE-INFO-ENTRY salt", true );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setOctetString( byte[] data, Asn1Container container )
     {
         ETypeInfoEntryContainer etypeInfoEntryContainer = ( ETypeInfoEntryContainer ) container;
-
-        TLV tlv = etypeInfoEntryContainer.getCurrentTLV();
-        ETypeInfoEntry etypeInfoEntry = etypeInfoEntryContainer.getETypeInfoEntry();
-
-        // The Length may be null
-        if ( tlv.getLength() != 0 ) 
-        {
-            Value value = tlv.getValue();
-            
-            // The encrypted data may be null
-            if ( value.getData() != null ) 
-            {
-                etypeInfoEntry.setSalt( value.getData() );
-            }
-        }
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "salt : {}", StringTools.dumpBytes( etypeInfoEntry.getSalt() ) );
-        }
-        
-        // We can end here
+        etypeInfoEntryContainer.getETypeInfoEntry().setSalt( data );
         etypeInfoEntryContainer.setGrammarEndAllowed( true );
     }
 }

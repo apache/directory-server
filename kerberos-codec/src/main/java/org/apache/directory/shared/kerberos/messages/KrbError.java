@@ -329,7 +329,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param eData the eData to set
      */
-    public void seteData( byte[] eData )
+    public void setEData( byte[] eData )
     {
         this.eData = eData;
     }
