@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A class used to start various servers in a give {@link InstanceLayout}
+ * A class used to start various servers in a given {@link InstanceLayout}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
