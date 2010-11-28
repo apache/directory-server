@@ -204,7 +204,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         loadPwdPolicyStateAtributeTypes();
 
-        if ( authenticators == null )
+        if ( authenticators == null || authenticators.size() == 0 )
         {
             setDefaultAuthenticators();
         }
