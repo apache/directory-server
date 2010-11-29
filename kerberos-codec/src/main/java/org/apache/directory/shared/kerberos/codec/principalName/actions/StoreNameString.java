@@ -20,14 +20,13 @@
 package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosUtils;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class StoreNameString extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreNameString.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -70,10 +69,10 @@ public class StoreNameString extends GrammarAction
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
         }
         
         // Get the principalName
@@ -96,10 +95,13 @@ public class StoreNameString extends GrammarAction
         }
         else
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            String valBytes = StringTools.dumpBytes( value.getData() );
+            String valStr = StringTools.utf8ToString( value.getData() );
+            String valAll = valBytes + "/" + valStr;
+            LOG.error( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
     
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
         }
     }
 }

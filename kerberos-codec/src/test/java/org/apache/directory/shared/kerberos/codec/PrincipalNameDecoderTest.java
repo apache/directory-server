@@ -172,11 +172,11 @@ public class PrincipalNameDecoderTest
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x0B );
+        ByteBuffer stream = ByteBuffer.allocate( 0x06 );
         
         stream.put( new byte[]
             { 0x30, 0x04,
-                (byte)0xA0, 0x03,                 // name-type
+                (byte)0xA0, 0x02,                 // name-type
                   0x02, 0x00                      // NT-PRINCIPAL
             } );
 
@@ -321,6 +321,35 @@ public class PrincipalNameDecoderTest
             { 0x30, 0x27,
                 (byte)0xA0, 0x03,                 // name-type
                   0x02, 0x01, 0x01,               // NT-PRINCIPAL
+                (byte)0xA1, 0x20,                 // name-string
+                  0x30, 0x1E,
+                    0x1B, 0x08, 'h', 'n', 'e', 'l', 's', 'o', 'n', '1',
+                    0x1B, 0x08, 'h', 'n', 'e', '\r', 's', 'o', 'n', '2',
+                    0x1B, 0x08, 'h', 'n', 'e', 'l', 's', 'o', 'n', '3',
+            } );
+
+        stream.flip();
+
+        // Allocate a PrincipalName Container
+        Asn1Container principalNameContainer = new PrincipalNameContainer();
+
+        // Decode the PrincipalName PDU
+        kerberosDecoder.decode( stream, principalNameContainer );
+    }
+    
+    
+    /**
+     * Test the decoding of a PrincipalName with no name-type
+     */
+    @Test( expected = DecoderException.class )
+    public void testPrincipalNameNoNameType() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x24 );
+        
+        stream.put( new byte[]
+            { 0x30, 0x22,
                 (byte)0xA1, 0x20,                 // name-string
                   0x30, 0x1E,
                     0x1B, 0x08, 'h', 'n', 'e', 'l', 's', 'o', 'n', '1',

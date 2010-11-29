@@ -21,18 +21,10 @@ package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +34,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreNameType extends GrammarAction
+public class StoreNameType extends AbstractReadInteger
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreNameType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -63,51 +55,19 @@ public class StoreNameType extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setIntegerValue( int value, Asn1Container container )
     {
         PrincipalNameContainer principalNameContainer = ( PrincipalNameContainer ) container;
-
-        TLV tlv = principalNameContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-        
-        // Get the principalName
         PrincipalName principalName = principalNameContainer.getPrincipalName();
         
-        Value value = tlv.getValue();
-        PrincipalNameType principalNameType = null;
-        
-        try
-        {
-            int nameType = IntegerDecoder.parse( value, PrincipalNameType.KRB_NT_UNKNOWN.getValue(), PrincipalNameType.KRB_NT_ENTERPRISE.getValue() );
-            principalNameType = PrincipalNameType.getTypeByValue( nameType );
-
-            principalName.setNameType( principalNameType );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "name-type : " + nameType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
-        }
+        PrincipalNameType principalNameType = PrincipalNameType.getTypeByValue( value );
+        principalName.setNameType( principalNameType );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName type : {}", principalNameType );
+            LOG.debug( "name-type : {}" + principalNameType );
         }
+
     }
 }
