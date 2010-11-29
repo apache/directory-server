@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 public class EncryptionKeyContainer extends AbstractContainer
 {
     /** holds EncryptionKey */
-    private EncryptionKey encKey;
+    private EncryptionKey encryptionKey;
 
     /**
      * Creates a new EncryptionKeyContainer object.
@@ -50,17 +50,17 @@ public class EncryptionKeyContainer extends AbstractContainer
      */
     public EncryptionKey getEncryptionKey()
     {
-        return encKey;
+        return encryptionKey;
     }
 
     
     /**
      * Set a EncryptionKey Object into the container
      * 
-     * @param encKey The EncryptionKey to set.
+     * @param encryptionKey The EncryptionKey to set.
      */
-    public void setEncryptionKey( EncryptionKey encKey )
+    public void setEncryptionKey( EncryptionKey encryptionKey )
     {
-        this.encKey = encKey;
+        this.encryptionKey = encryptionKey;
     }
 }

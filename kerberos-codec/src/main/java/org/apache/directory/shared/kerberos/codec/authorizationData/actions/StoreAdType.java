@@ -23,8 +23,11 @@ package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
+import org.apache.directory.shared.kerberos.codec.encryptedData.actions.StoreEType;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +37,12 @@ import org.apache.directory.shared.kerberos.components.AuthorizationData;
  */
 public class StoreAdType extends AbstractReadInteger
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( StoreEType.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
     /**
      * Instantiates a new AuthorizationDataAdType action.
      */
@@ -56,5 +65,10 @@ public class StoreAdType extends AbstractReadInteger
         AuthorizationData authorizationData = authDataContainer.getAuthorizationData();
         authorizationData.createNewAD();
         authorizationData.setCurrentAdType( authType );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "zdType : {}", authType );
+        }
     }
 }

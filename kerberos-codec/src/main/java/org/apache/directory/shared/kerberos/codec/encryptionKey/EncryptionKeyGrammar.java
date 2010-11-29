@@ -60,7 +60,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         setName( EncryptionKeyGrammar.class.getName() );
 
         // Create the transitions table
-        super.transitions = new GrammarTransition[EncryptionKeyStatesEnum.LAST_ENCKEY_STATE.ordinal()][256];
+        super.transitions = new GrammarTransition[EncryptionKeyStatesEnum.LAST_ENCRYPTION_KEY_STATE.ordinal()][256];
 
         // ============================================================================================
         // EncryptionKey 
@@ -70,7 +70,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         super.transitions[EncryptionKeyStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            EncryptionKeyStatesEnum.START_STATE, EncryptionKeyStatesEnum.ENCKEY_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+            EncryptionKeyStatesEnum.START_STATE, EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
             new EncryptionKeyInit() );
         
         // --------------------------------------------------------------------------------------------
@@ -78,8 +78,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         //       keytype     [0]
-        super.transitions[EncryptionKeyStatesEnum.ENCKEY_SEQ_STATE.ordinal()][KerberosConstants.ENCRYPTION_KEY_TYPE_TAG] = new GrammarTransition(
-            EncryptionKeyStatesEnum.ENCKEY_SEQ_STATE, EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE, KerberosConstants.ENCRYPTION_KEY_TYPE_TAG,
+        super.transitions[EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE.ordinal()][KerberosConstants.ENCRYPTION_KEY_TYPE_TAG] = new GrammarTransition(
+            EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE, EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE, KerberosConstants.ENCRYPTION_KEY_TYPE_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
@@ -87,8 +87,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         //       keytype     [0] Int32
-        super.transitions[EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-            EncryptionKeyStatesEnum.ENCKEY_TYPE_TAG_STATE, EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE, UniversalTag.INTEGER.getValue(),
+        super.transitions[EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
+            EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE, EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE, UniversalTag.INTEGER.getValue(),
             new StoreKeyType() );
         
         // --------------------------------------------------------------------------------------------
@@ -97,8 +97,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         // EncryptionKey         ::= SEQUENCE {
         //          ...
         //          keyvalue    [2]
-        super.transitions[EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE.ordinal()][KerberosConstants.ENCRYPTION_KEY_VALUE_TAG] = new GrammarTransition(
-            EncryptionKeyStatesEnum.ENCKEY_TYPE_STATE, EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE, KerberosConstants.ENCRYPTION_KEY_VALUE_TAG,
+        super.transitions[EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE.ordinal()][KerberosConstants.ENCRYPTION_KEY_VALUE_TAG] = new GrammarTransition(
+            EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE, EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE, KerberosConstants.ENCRYPTION_KEY_VALUE_TAG,
             new CheckNotNullLength() );
         
         // --------------------------------------------------------------------------------------------
@@ -106,8 +106,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // EncryptionKey         ::= SEQUENCE {
         //          keyvalue    [2] OCTET STRING
-        super.transitions[EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
-            EncryptionKeyStatesEnum.ENCKEY_VALUE_TAG_STATE, EncryptionKeyStatesEnum.ENCKEY_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
+        super.transitions[EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] = new GrammarTransition(
+            EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE, EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
             new StoreKeyValue() );
     }
 

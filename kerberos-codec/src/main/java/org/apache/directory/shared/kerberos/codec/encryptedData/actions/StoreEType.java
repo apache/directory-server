@@ -25,6 +25,8 @@ import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,12 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
  */
 public class StoreEType extends AbstractReadInteger
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( StoreEType.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
     /**
      * Instantiates a new EncryptedPartEType action.
      */
@@ -55,5 +63,10 @@ public class StoreEType extends AbstractReadInteger
         
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
         encryptedData.setEType( encryptionType );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "e-type : {}", encryptionType );
+        }
     }
 }

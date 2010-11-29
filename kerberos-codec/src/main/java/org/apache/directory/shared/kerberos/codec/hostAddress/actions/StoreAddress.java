@@ -23,6 +23,9 @@ package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,6 +35,12 @@ import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContain
  */
 public class StoreAddress extends AbstractReadOctetString
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( StoreAddress.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
     /**
      * Instantiates a new HostAddressAddress action.
      */
@@ -50,5 +59,10 @@ public class StoreAddress extends AbstractReadOctetString
         HostAddressContainer hostAddressContainer = ( HostAddressContainer ) container;
         hostAddressContainer.getHostAddress().setAddress( data );
         container.setGrammarEndAllowed( true );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Address : {}", StringTools.utf8ToString( data ) );
+        }
     }
 }

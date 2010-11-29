@@ -22,17 +22,10 @@ package org.apache.directory.shared.kerberos.codec.encryptionKey.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +35,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreKeyType extends GrammarAction
+public class StoreKeyType extends AbstractReadInteger
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreKeyType.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
 
     /**
      * Creates a new instance of EncryptionKeyKeyType.
@@ -63,44 +55,19 @@ public class StoreKeyType extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    @Override
+    protected void setIntegerValue( int value, Asn1Container container )
     {
         EncryptionKeyContainer encKeyContainer = ( EncryptionKeyContainer ) container;
-
-        TLV tlv = encKeyContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-
         EncryptionKey encKey = encKeyContainer.getEncryptionKey();
         
-        // The Key type is an integer
-        Value value = tlv.getValue();
+        EncryptionType encryptionType = EncryptionType.getTypeByValue( value );
+        
+        encKey.setKeyType( encryptionType );
 
-        try
+        if ( IS_DEBUG )
         {
-            int encKeyType = IntegerDecoder.parse( value );
-
-            encKey.setKeyType( EncryptionType.getTypeByValue( encKeyType ) );
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( "keytype : " + encKeyType );
-            }
-        }
-        catch ( IntegerDecoderException ide )
-        {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( ide.getMessage() );
+            LOG.debug( "keytype : {}", encryptionType );
         }
     }
 }

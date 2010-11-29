@@ -44,7 +44,7 @@ import org.junit.Test;
 public class EncryptionKeyDecoderTest
 {
     @Test
-    public void testDecodeEncryptionKey()
+    public void testDecodeFullEncryptionKey()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
         
@@ -101,15 +101,81 @@ public class EncryptionKeyDecoderTest
     
     
     @Test( expected = DecoderException.class )
+    public void testDecodeEncryptionKeyWithEmptySeq() throws DecoderException
+    {
+        Asn1Decoder krbDecoder = new Asn1Decoder();
+        
+        ByteBuffer stream = ByteBuffer.allocate( 0x02 );
+
+        stream.put( new byte[]
+            { 
+                0x30, 0x00
+            } );
+        
+        stream.flip();
+
+        EncryptionKeyContainer container = new EncryptionKeyContainer();
+        
+        krbDecoder.decode( stream, container );
+        fail();
+    }
+    
+    
+    @Test( expected = DecoderException.class )
+    public void testDecodeEncryptionKeyEmptyKeyTypeTag() throws DecoderException
+    {
+        Asn1Decoder krbDecoder = new Asn1Decoder();
+        
+        ByteBuffer stream = ByteBuffer.allocate( 0x04 );
+
+        stream.put( new byte[]
+            { 
+                0x30, 0x02,
+                  (byte)0xA0, 0x00
+            } );
+        
+        stream.flip();
+
+        EncryptionKeyContainer container = new EncryptionKeyContainer();
+        
+        krbDecoder.decode( stream, container );
+        fail();
+    }
+    
+    
+    @Test( expected = DecoderException.class )
+    public void testDecodeEncryptionKeyEmptyKeyTypeValue() throws DecoderException
+    {
+        Asn1Decoder krbDecoder = new Asn1Decoder();
+        
+        ByteBuffer stream = ByteBuffer.allocate( 0x06 );
+
+        stream.put( new byte[]
+            { 
+                0x30, 0x04,
+                  (byte)0xA0, 0x02,
+                    0x02, 0x00
+            } );
+        
+        stream.flip();
+
+        EncryptionKeyContainer container = new EncryptionKeyContainer();
+        
+        krbDecoder.decode( stream, container );
+        fail();
+    }
+    
+    
+    @Test( expected = DecoderException.class )
     public void testDecodeEncryptionKeyWithoutType() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
         
-        ByteBuffer stream = ByteBuffer.allocate( 0xC );
+        ByteBuffer stream = ByteBuffer.allocate( 0x0C );
 
         stream.put( new byte[]
             { 
-                0x30, 0xA,
+                0x30, 0x0A,
                   (byte)0xA1, 0x08,                 // keyvalue
                       0x04, 0x06, 'k', 'e', 'y', 'v', 'a', 'l'
             } );
@@ -147,15 +213,18 @@ public class EncryptionKeyDecoderTest
     
     
     @Test( expected = DecoderException.class )
-    public void testDecodeEncryptionKeyWithEmptySeq() throws DecoderException
+    public void testDecodeChecksumWitEmptyEncryptionKeyTag() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
         
-        ByteBuffer stream = ByteBuffer.allocate( 2 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
             { 
-                0x30, 0x0
+                0x30, 0x07,
+                  (byte)0xA0, 0x03,                 // keytype
+                    0x02, 0x01, 0x02,
+                  (byte)0xA1, 0x00
             } );
         
         stream.flip();
@@ -165,5 +234,29 @@ public class EncryptionKeyDecoderTest
         krbDecoder.decode( stream, container );
         fail();
     }
+    
+    
+    @Test( expected = DecoderException.class )
+    public void testDecodeChecksumWitEmptyEncryptionKeyValue() throws DecoderException
+    {
+        Asn1Decoder krbDecoder = new Asn1Decoder();
+        
+        ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
+        stream.put( new byte[]
+            { 
+                0x30, 0x09,
+                  (byte)0xA0, 0x03,                 // keytype
+                    0x02, 0x01, 0x02,
+                  (byte)0xA1, 0x02,
+                    0x04, 0x00
+            } );
+        
+        stream.flip();
+
+        EncryptionKeyContainer container = new EncryptionKeyContainer();
+        
+        krbDecoder.decode( stream, container );
+        fail();
+    }
 }

@@ -34,20 +34,20 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum EncryptionKeyStatesEnum implements States
 {
     // Start
-    START_STATE,             // 0
+    START_STATE,                     // 0
     
-    ENCKEY_SEQ_STATE,        // 1
+    ENCRYPTION_KEY_SEQ_STATE,        // 1
     
-    ENCKEY_TYPE_TAG_STATE,   // 2
+    ENCRYPTION_KEY_TYPE_TAG_STATE,   // 2
     
-    ENCKEY_TYPE_STATE,       // 3
+    ENCRYPTION_KEY_TYPE_STATE,       // 3
     
-    ENCKEY_VALUE_TAG_STATE,  // 4
+    ENCRYPTION_KEY_VALUE_TAG_STATE,  // 4
     
-    ENCKEY_VALUE_STATE,      // 5
+    ENCRYPTION_KEY_VALUE_STATE,      // 5
     
     // End
-    LAST_ENCKEY_STATE;       // 6
+    LAST_ENCRYPTION_KEY_STATE;       // 6
 
     
     /**
@@ -58,7 +58,7 @@ public enum EncryptionKeyStatesEnum implements States
      */
     public String getGrammarName( int grammar )
     {
-        return "ENCRYPTIONKEY_GRAMMAR";
+        return "ENCRYPTION_KEY_GRAMMAR";
     }
 
 
@@ -72,7 +72,7 @@ public enum EncryptionKeyStatesEnum implements States
     {
         if ( grammar instanceof KerberosMessageGrammar )
         {
-            return "ENCRYPTIONKEY_GRAMMAR";
+            return "ENCRYPTION_KEY_GRAMMAR";
         }
         else
         {
@@ -89,7 +89,7 @@ public enum EncryptionKeyStatesEnum implements States
      */
     public String getState( int state )
     {
-        return ( ( state == LAST_ENCKEY_STATE.ordinal() ) ? "LAST_ENCKEY_STATE" : name() );
+        return ( ( state == LAST_ENCRYPTION_KEY_STATE.ordinal() ) ? "LAST_ENCRYPTION_KEY_STATE" : name() );
     }
 
     
@@ -98,7 +98,7 @@ public enum EncryptionKeyStatesEnum implements States
      */
     public boolean isEndState()
     {
-        return this == LAST_ENCKEY_STATE;
+        return this == LAST_ENCRYPTION_KEY_STATE;
     }
     
     
