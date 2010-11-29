@@ -113,9 +113,6 @@ public final class HostAddressGrammar extends AbstractGrammar
     }
 
 
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
-
     /**
      * Get the instance of this grammar
      * 

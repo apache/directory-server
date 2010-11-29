@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
 public class HostAddressDecoderTest
 {
     /**
-     * Test the decoding of a HostAddress
+     * Test the decoding of a full HostAddress
      */
     @Test
     public void testHostAddress()
@@ -61,7 +61,8 @@ public class HostAddressDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
         
         stream.put( new byte[]
-            { 0x30, 0x14,
+            { 
+              0x30, 0x14,
                 (byte)0xA0, 0x03,                 // addr-type
                   0x02, 0x01, 0x02,               // IPV4
                 (byte)0xA1, 0x0D,                 // address : 192.168.0.1
@@ -146,7 +147,8 @@ public class HostAddressDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
         
         stream.put( new byte[]
-            { 0x30, 0x02,
+            { 
+              0x30, 0x02,
                 (byte)0xA0, 0x00                  // addr-type
             } );
 
@@ -172,7 +174,8 @@ public class HostAddressDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
         
         stream.put( new byte[]
-            { 0x30, 0x04,
+            { 
+              0x30, 0x04,
                 (byte)0xA0, 0x03,                 // addr-type
                   0x02, 0x00                      // 
             } );
@@ -227,11 +230,68 @@ public class HostAddressDecoderTest
         ByteBuffer stream = ByteBuffer.allocate( 0x0E );
         
         stream.put( new byte[]
-                             { 0x30, 0x14,
+        { 
+          0x30, 0x14,
             (byte)0xA0, 0x03,                 // addr-type
               0x02, 0x01, 0x02,               // IPV4
             (byte)0xA1, 0x02,                 // address
               0x04, 0x00
+        } );
+
+        stream.flip();
+
+        // Allocate a HostAddress Container
+        Asn1Container hostAddressContainer = new HostAddressContainer();
+
+        // Decode the HostAddress PDU
+        kerberosDecoder.decode( stream, hostAddressContainer );
+        fail();
+    }
+    
+    
+    /**
+     * Test the decoding of a HostAddress with no add-type
+     */
+    @Test( expected = DecoderException.class )
+    public void testHostAddressMissingAddrType() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
+        
+        stream.put( new byte[]
+        { 
+            0x30, 0x0F,
+              (byte)0xA1, 0x0D,                 // address : 192.168.0.1
+                0x04, 0x0B, '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1'
+        } );
+
+        stream.flip();
+
+        // Allocate a HostAddress Container
+        Asn1Container hostAddressContainer = new HostAddressContainer();
+
+        // Decode the HostAddress PDU
+        kerberosDecoder.decode( stream, hostAddressContainer );
+        fail();
+    }
+    
+    
+    /**
+     * Test the decoding of a HostAddress with no adddress
+     */
+    @Test( expected = DecoderException.class )
+    public void testHostAddressMissingAddress() throws DecoderException
+    {
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x07 );
+        
+        stream.put( new byte[]
+        { 
+            0x30, 0x05,
+              (byte)0xA0, 0x03,                 // addr-type
+                0x02, 0x01, 0x02,               // IPV4
         } );
 
         stream.flip();

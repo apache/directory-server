@@ -42,7 +42,6 @@ public class StoreNameType extends AbstractReadInteger
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-
     /**
      * Instantiates a new PrincipalNameInit action.
      */
@@ -68,6 +67,5 @@ public class StoreNameType extends AbstractReadInteger
         {
             LOG.debug( "name-type : {}" + principalNameType );
         }
-
     }
 }
