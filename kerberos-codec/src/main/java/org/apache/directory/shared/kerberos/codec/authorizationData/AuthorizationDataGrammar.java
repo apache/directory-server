@@ -131,9 +131,6 @@ public final class AuthorizationDataGrammar extends AbstractGrammar
     }
 
 
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
-
     /**
      * Get the instance of this grammar
      * 
