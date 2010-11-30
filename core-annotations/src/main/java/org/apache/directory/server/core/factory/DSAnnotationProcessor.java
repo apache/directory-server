@@ -24,14 +24,19 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
@@ -49,23 +54,27 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Helper class used to create a DS from the annotations
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory
+ *         Project</a>
  */
 public class DSAnnotationProcessor
 {
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
+    private static final Logger LOG = LoggerFactory
+            .getLogger( DSAnnotationProcessor.class );
 
 
     /**
      * Create the DirectoryService
      */
-    private static DirectoryService createDS( CreateDS dsBuilder ) throws Exception
+    private static DirectoryService createDS( CreateDS dsBuilder )
+            throws Exception
     {
         LOG.debug( "Starting DS {}...", dsBuilder.name() );
         Class<?> factory = dsBuilder.factory();
-        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
+        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory
+                .newInstance();
 
         DirectoryService service = dsf.getDirectoryService();
         service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
@@ -76,6 +85,38 @@ public class DSAnnotationProcessor
         for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
         {
             interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
+        }
+
+        if ( dsBuilder.additionalAuthenticators().length != 0 )
+        {
+            AuthenticationInterceptor authenticationInterceptor = null;
+            for ( Interceptor interceptor : interceptorList )
+            {
+                if ( interceptor instanceof AuthenticationInterceptor )
+                {
+                    authenticationInterceptor = ( AuthenticationInterceptor ) interceptor;
+                    break;
+                }
+            }
+            if ( authenticationInterceptor == null )
+            {
+                throw new IllegalStateException(
+                        "authentication interceptor not found" );
+            }
+            Set<Authenticator> authenticators = authenticationInterceptor
+                    .getAuthenticators();
+            for ( CreateAuthenticator createAuthenticator : dsBuilder
+                    .additionalAuthenticators() )
+            {
+                Authenticator auth = createAuthenticator.type().newInstance();
+                if ( auth instanceof DelegatingAuthenticator )
+                {
+                    DelegatingAuthenticator dauth = ( DelegatingAuthenticator ) auth;
+                    dauth.setDelegateHost( createAuthenticator.delegateHost() );
+                    dauth.setDelegatePort( createAuthenticator.delegatePort() );
+                }
+                authenticators.add( auth );
+            }
         }
 
         service.setInterceptors( interceptorList );
@@ -91,20 +132,25 @@ public class DSAnnotationProcessor
             if ( createPartition.type() == Partition.class )
             {
                 // The annotation does not specify a specific partition type.
-                // We use the partition factory to create partition and index instances.
+                // We use the partition factory to create partition and index
+                // instances.
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
-                partition = partitionFactory.createPartition( createPartition.name(), createPartition.suffix(),
-                    createPartition.cacheSize(), new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
+                partition = partitionFactory.createPartition( createPartition
+                        .name(), createPartition.suffix(), createPartition
+                        .cacheSize(), new File( service.getInstanceLayout()
+                        .getPartitionsDirectory(), createPartition.name() ) );
 
                 CreateIndex[] indexes = createPartition.indexes();
                 for ( CreateIndex createIndex : indexes )
                 {
-                    partitionFactory.addIndex( partition, createIndex.attribute(), createIndex.cacheSize() );
+                    partitionFactory.addIndex( partition,
+                            createIndex.attribute(), createIndex.cacheSize() );
                 }
             }
             else
             {
-                // The annotation contains a specific partition type, we use that type.
+                // The annotation contains a specific partition type, we use
+                // that type.
                 partition = createPartition.type().newInstance();
                 partition.setId( createPartition.name() );
                 partition.setSuffix( new DN( createPartition.suffix() ) );
@@ -113,18 +159,21 @@ public class DSAnnotationProcessor
                 {
                     BTreePartition<?> btreePartition = ( BTreePartition<?> ) partition;
                     btreePartition.setCacheSize( createPartition.cacheSize() );
-                    btreePartition.setPartitionDir( new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
+                    btreePartition.setPartitionDir( new File( service
+                            .getInstanceLayout().getPartitionsDirectory(),
+                            createPartition.name() ) );
 
                     // Process the indexes if any
                     CreateIndex[] indexes = createPartition.indexes();
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        // The annotation does not specify a specific index type.
+                        // The annotation does not specify a specific index
+                        // type.
                         // We use the generic index implementation.
                         JdbmIndex index = new JdbmIndex();
                         index.setAttributeId( createIndex.attribute() );
-                        
+
                         btreePartition.addIndexedAttributes( index );
                     }
                 }
@@ -150,11 +199,14 @@ public class DSAnnotationProcessor
 
     /**
      * Create a DirectoryService from a Unit test annotation
-     *
-     * @param description The annotations containing the info from which we will create the DS
+     * 
+     * @param description
+     *            The annotations containing the info from which we will create
+     *            the DS
      * @return A valid DS
      */
-    public static DirectoryService getDirectoryService( Description description ) throws Exception
+    public static DirectoryService getDirectoryService( Description description )
+            throws Exception
     {
         CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
 
@@ -171,11 +223,11 @@ public class DSAnnotationProcessor
 
 
     /**
-     * Create a DirectoryService from an annotation. The @CreateDS annotation must
-     * be associated with either the method or the encapsulating class. We will first
-     * try to get the annotation from the method, and if there is none, then we try
-     * at the class level. 
-     *
+     * Create a DirectoryService from an annotation. The @CreateDS annotation
+     * must be associated with either the method or the encapsulating class. We
+     * will first try to get the annotation from the method, and if there is
+     * none, then we try at the class level.
+     * 
      * @return A valid DS
      */
     public static DirectoryService getDirectoryService() throws Exception
@@ -185,7 +237,8 @@ public class DSAnnotationProcessor
         // Get the caller by inspecting the stackTrace
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        // In Java5 the 0th stacktrace element is: java.lang.Thread.dumpThreads(Native Method)
+        // In Java5 the 0th stacktrace element is:
+        // java.lang.Thread.dumpThreads(Native Method)
         int index = stackTrace[0].getMethodName().equals( "dumpThreads" ) ? 3 : 2;
 
         // Get the enclosing class
@@ -224,19 +277,25 @@ public class DSAnnotationProcessor
     /**
      * injects an LDIF entry in the given DirectoryService
      * 
-     * @param entry the LdifEntry to be injected
-     * @param service the DirectoryService
+     * @param entry
+     *            the LdifEntry to be injected
+     * @param service
+     *            the DirectoryService
      * @throws Exception
      */
-    private static void injectEntry( LdifEntry entry, DirectoryService service ) throws LdapException
+    private static void injectEntry( LdifEntry entry, DirectoryService service )
+            throws LdapException
     {
         if ( entry.isChangeAdd() || entry.isLdifContent() )
         {
-            service.getAdminSession().add( new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
+            service.getAdminSession().add(
+                    new DefaultEntry( service.getSchemaManager(), entry
+                            .getEntry() ) );
         }
         else if ( entry.isChangeModify() )
         {
-            service.getAdminSession().modify( entry.getDn(), entry.getModificationItems() );
+            service.getAdminSession().modify( entry.getDn(),
+                    entry.getModificationItems() );
         }
         else
         {
@@ -249,20 +308,25 @@ public class DSAnnotationProcessor
     /**
      * injects the LDIF entries present in a LDIF file
      * 
-     * @param service the DirectoryService 
-     * @param ldifFiles the array of LDIF file names (only )
+     * @param service
+     *            the DirectoryService
+     * @param ldifFiles
+     *            the array of LDIF file names (only )
      * @throws Exception
      */
-    public static void injectLdifFiles( Class<?> clazz, DirectoryService service, String[] ldifFiles ) throws Exception
+    public static void injectLdifFiles( Class<?> clazz,
+            DirectoryService service, String[] ldifFiles ) throws Exception
     {
         if ( ( ldifFiles != null ) && ( ldifFiles.length > 0 ) )
         {
             for ( String ldifFile : ldifFiles )
             {
-                InputStream is = clazz.getClassLoader().getResourceAsStream( ldifFile );
+                InputStream is = clazz.getClassLoader().getResourceAsStream(
+                        ldifFile );
                 if ( is == null )
                 {
-                    throw new FileNotFoundException( "LDIF file '" + ldifFile + "' not found." );
+                    throw new FileNotFoundException( "LDIF file '" + ldifFile
+                            + "' not found." );
                 }
                 else
                 {
@@ -281,14 +345,17 @@ public class DSAnnotationProcessor
 
 
     /**
-     * Inject an ldif String into the server. DN must be relative to the
-     * root.
-     *
-     * @param service the directory service to use 
-     * @param ldif the ldif containing entries to add to the server.
-     * @throws Exception if there is a problem adding the entries from the LDIF
+     * Inject an ldif String into the server. DN must be relative to the root.
+     * 
+     * @param service
+     *            the directory service to use
+     * @param ldif
+     *            the ldif containing entries to add to the server.
+     * @throws Exception
+     *             if there is a problem adding the entries from the LDIF
      */
-    public static void injectEntries( DirectoryService service, String ldif ) throws Exception
+    public static void injectEntries( DirectoryService service, String ldif )
+            throws Exception
     {
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
@@ -306,18 +373,21 @@ public class DSAnnotationProcessor
     /**
      * Apply the LDIF entries to the given service
      */
-    public static void applyLdifs( Description desc, DirectoryService service ) throws Exception
+    public static void applyLdifs( Description desc, DirectoryService service )
+            throws Exception
     {
         if ( desc == null )
         {
             return;
         }
 
-        ApplyLdifFiles applyLdifFiles = desc.getAnnotation( ApplyLdifFiles.class );
+        ApplyLdifFiles applyLdifFiles = desc
+                .getAnnotation( ApplyLdifFiles.class );
 
         if ( applyLdifFiles != null )
         {
-            LOG.debug( "Applying {} to {}", applyLdifFiles.value(), desc.getDisplayName() );
+            LOG.debug( "Applying {} to {}", applyLdifFiles.value(),
+                    desc.getDisplayName() );
             injectLdifFiles( desc.getClass(), service, applyLdifFiles.value() );
         }
 

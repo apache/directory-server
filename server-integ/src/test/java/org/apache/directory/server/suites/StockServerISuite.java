@@ -32,6 +32,7 @@ import org.apache.directory.server.kerberos.PasswordPolicyServiceIT;
 import org.apache.directory.server.operations.add.AddIT;
 import org.apache.directory.server.operations.add.AddingEntriesWithSpecialCharactersInRDNIT;
 import org.apache.directory.server.operations.bind.BindIT;
+import org.apache.directory.server.operations.bind.DelegatedAuthIT;
 import org.apache.directory.server.operations.bind.MiscBindIT;
 import org.apache.directory.server.operations.bind.SaslBindIT;
 import org.apache.directory.server.operations.bind.SimpleBindIT;
@@ -84,6 +85,7 @@ import org.junit.runners.Suite;
 
         // operations.bind
         BindIT.class,
+        DelegatedAuthIT.class,
         MiscBindIT.class,
         SaslBindIT.class,
         SimpleBindIT.class,

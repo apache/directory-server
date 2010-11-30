@@ -1,4 +1,24 @@
+/*
+ *   Licensed to the Apache Software Foundation (ASF) under one
+ *   or more contributor license agreements.  See the NOTICE file
+ *   distributed with this work for additional information
+ *   regarding copyright ownership.  The ASF licenses this file
+ *   to you under the Apache License, Version 2.0 (the
+ *   "License"); you may not use this file except in compliance
+ *   with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ *
+ */
 package org.apache.directory.server.core.authn;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +37,12 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
+
+/**
+ * Authenticator delegating to another LDAP server.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DelegatingAuthenticator extends AbstractAuthenticator
 {
     /**
@@ -28,7 +54,8 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         super( AuthenticationLevel.SIMPLE );
     }
 
-    protected DelegatingAuthenticator(AuthenticationLevel type)
+
+    protected DelegatingAuthenticator( AuthenticationLevel type )
     {
         super( type );
     }
@@ -39,55 +66,74 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     private int delegatePort;
     private List<String> dnPatterns = new ArrayList<String>();
 
+
     public String getDelegateHost()
     {
         return delegateHost;
     }
+
 
     public void setDelegateHost( String delegateHost )
     {
         this.delegateHost = delegateHost;
     }
 
+
     public int getDelegatePort()
     {
         return delegatePort;
     }
+
 
     public void setDelegatePort( int delegatePort )
     {
         this.delegatePort = delegatePort;
     }
 
+
     public List<String> getDnPatterns()
     {
         return dnPatterns;
     }
+
 
     public void setDnPatterns( List<String> dnPatterns )
     {
         this.dnPatterns = dnPatterns;
     }
 
+
     public LdapPrincipal authenticate( BindOperationContext bindContext )
             throws Exception
     {
-        LdapPrincipal principal = null; 
+        LdapPrincipal principal = null;
         if ( IS_DEBUG )
         {
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection(delegateHost, delegatePort);
-        try {
-            BindResponse bindResponse = ldapConnection.bind(bindContext.getDn(), StringTools.utf8ToString( bindContext.getCredentials() ));
-            if (bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS) {
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( delegateHost, delegatePort );
+        try
+        {
+            BindResponse bindResponse = ldapConnection.bind( bindContext.getDn(),
+                StringTools.utf8ToString( bindContext.getCredentials() ) );
+            if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+            {
                 String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
-            // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE, bindContext.getCredentials() );
-        } catch (LdapException e) {
+            else
+            {
+                // no need to remain bound to delegate host
+                ldapConnection.unBind();
+            }
+            // Create the new principal
+            principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE,
+                bindContext.getCredentials() );
+
+        }
+        catch ( LdapException e )
+        {
             // Bad password ...
             String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
             LOG.info( message );
@@ -96,9 +142,10 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         return principal;
     }
 
+
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
-        // TODO Auto-generated method stub
+        // no check for delegating authentication
 
     }
 
@@ -111,7 +158,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
     public void invalidateCache( DN bindDn )
     {
-        // TODO Auto-generated method stub
+        // cache is not implemented here
 
     }
 
