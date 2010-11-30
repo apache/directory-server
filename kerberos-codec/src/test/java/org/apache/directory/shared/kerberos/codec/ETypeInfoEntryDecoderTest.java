@@ -382,7 +382,6 @@ public class ETypeInfoEntryDecoderTest
                     0x02, 0x01, 0x40
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();

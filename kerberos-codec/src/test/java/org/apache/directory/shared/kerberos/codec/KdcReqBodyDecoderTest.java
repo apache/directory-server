@@ -178,7 +178,6 @@ public class KdcReqBodyDecoderTest
                               'a', 'b', 'c', 'd', 'e', 'f'
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a KdcReqBody Container

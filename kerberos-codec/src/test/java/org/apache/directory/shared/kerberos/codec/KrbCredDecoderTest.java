@@ -20,6 +20,8 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+import static org.junit.Assert.assertEquals;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KrbCred;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Test cases for KrbCred codec
