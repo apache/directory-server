@@ -26,48 +26,42 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 
 /**
  * This class store the Kerberos grammar's constants. It is also used for debugging
- * purpose
+ * purpose. We will decode all the Kerberos messages :
+ * <ul>
+ * <li>0x6A : AS-REQ</li>
+ * <li>0x6B : AS-REP</li>
+ * <li>0x6C : TGS-REQ</li>
+ * <li>0x6D : TGS-REP</li>
+ * <li>0x6E : AP-REQ</li>
+ * <li>0x6F : AP-REP</li>
+ * <li>0x74 : KRB-SAFE</li>
+ * <li>0x75 : KRB-PRIV</li>
+ * <li>0x76 : KRB-CRED</li>
+ * <li>0x7E : KRB-ERROR</li>
+ * </ul>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum KerberosStatesEnum implements States
+public enum KerberosMessageStatesEnum implements States
 {
-    // ~ Static fields/initializers
-    // -----------------------------------------------------------------
-
-    /** The END_STATE */
-    END_STATE,
-
     // Start
     START_STATE,
     
-    // ----- Ticket message --------------------------------------------
-    TICKET_STATE,
-    TICKET_SEQ_STATE,
+    // ----- Kerberos message --------------------------------------------
     
-    TICKET_VNO_TAG_STATE,
-    TICKET_VNO_STATE,
-    
-    TICKET_REALM_TAG_STATE,
-    TICKET_REALM_STATE,
-    
-    TICKET_SNAME_TAG_STATE,
+    AS_REQ_STATE,       // 0x6A
+    AS_REP_TAG_STATE,   // 0x6B
+    TGS_REQ_TAG_STATE,  // 0x6C
+    TGS_REP_TAG_STATE,  // 0x6D
+    AP_REQ_TAG_STATE,   // 0x6E
+    AP_REP_TAG_STATE,   // 0x6F
+    KRB_SAFE_STATE,     // 0x74
+    KRB_PRIV_STATE,     // 0x75
+    KRB_CRED_STATE,     // 0x76
+    KRB_ERROR_STATE,    // 0x7E
 
-    TICKET_ENC_PART_TAG_STATE,
-    
-    // ----- PrincipalName message --------------------------------------
-    PRINCIPAL_NAME_STATE,
-    
-    PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,
-    PRINCIPAL_NAME_NAME_TYPE_STATE,
-    
-    PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
-    
-    PRINCIPAL_NAME_NAME_STRING_TAG_STATE,
-    PRINCIPAL_NAME_NAME_STRING_STATE,
-    
     // End
-    LAST_KERBEROS_STATE;
+    LAST_KERBEROS_MESSAGE_STATE;
 
     
     /**
@@ -109,7 +103,7 @@ public enum KerberosStatesEnum implements States
      */
     public String getState( int state )
     {
-        return ( ( state == END_STATE.ordinal() ) ? "KERBEROS_MESSAGE_END_STATE" : name() );
+        return ( ( state == LAST_KERBEROS_MESSAGE_STATE.ordinal() ) ? "KERBEROS_MESSAGE_END_STATE" : name() );
     }
 
     
@@ -118,14 +112,14 @@ public enum KerberosStatesEnum implements States
      */
     public boolean isEndState()
     {
-        return this == END_STATE;
+        return this == LAST_KERBEROS_MESSAGE_STATE;
     }
     
     
     /**
      * {@inheritDoc}
      */
-    public KerberosStatesEnum getStartState()
+    public KerberosMessageStatesEnum getStartState()
     {
         return START_STATE;
     }

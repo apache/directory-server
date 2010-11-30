@@ -20,17 +20,28 @@
 package org.apache.directory.shared.kerberos.codec;
 
 
+import java.nio.ByteBuffer;
+
+import org.apache.directory.shared.asn1.ber.Asn1Container;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
+import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
-import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreEncPart;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreRealm;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreSName;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.StoreTktVno;
-import org.apache.directory.shared.kerberos.codec.ticket.actions.TicketInit;
+import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
+import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
+import org.apache.directory.shared.kerberos.codec.asRep.AsRepContainer;
+import org.apache.directory.shared.kerberos.codec.asReq.AsReqContainer;
+import org.apache.directory.shared.kerberos.codec.krbCred.KrbCredContainer;
+import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
+import org.apache.directory.shared.kerberos.codec.krbPriv.KrbPrivContainer;
+import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
+import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepContainer;
+import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +64,215 @@ public final class KerberosMessageGrammar extends AbstractGrammar
     /** The instance of grammar. KerberosMessageGrammar is a singleton */
     private static Grammar instance = new KerberosMessageGrammar();
 
+    Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+    
+    private class DecodeKerberosMessage extends GrammarAction 
+    {
+        public void action( Asn1Container container ) throws DecoderException
+        {
+            KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
+
+            ByteBuffer stream = kerberosMessageContainer.getStream();
+            stream.flip();
+            
+            TLV tlv = kerberosMessageContainer.getCurrentTLV();
+
+            // Now, dependening on the T, call the inner decoder
+            switch ( tlv.getTag() )
+            {
+                case KerberosConstants.AS_REQ_TAG :
+                    AsReqContainer asReqContainer = new AsReqContainer();
+                    asReqContainer.setStream( stream );
+                    
+                    // Decode the AS_REQ PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, asReqContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage asReq = asReqContainer.getAsReq();
+                    kerberosMessageContainer.setMessage( asReq );
+                    
+                    break;
+
+                case KerberosConstants.AS_REP_TAG :
+                    AsRepContainer asRepContainer = new AsRepContainer();
+                    asRepContainer.setStream( stream );
+                    
+                    // Decode the AS-REP PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, asRepContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage asRep = asRepContainer.getAsRep();
+                    kerberosMessageContainer.setMessage( asRep );
+                    
+                    break;
+
+                case KerberosConstants.TGS_REQ_TAG :
+                    TgsReqContainer tgsReqContainer = new TgsReqContainer();
+                    tgsReqContainer.setStream( stream );
+                    
+                    // Decode the TGS-REQ PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, tgsReqContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage tgsReq = tgsReqContainer.getTgsReq();
+                    kerberosMessageContainer.setMessage( tgsReq );
+                    
+                    break;
+
+                case KerberosConstants.TGS_REP_TAG :
+                    TgsRepContainer tgsRepContainer = new TgsRepContainer();
+                    tgsRepContainer.setStream( stream );
+                    
+                    // Decode the TGS-REP PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, tgsRepContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage tgsRep = tgsRepContainer.getTgsRep();
+                    kerberosMessageContainer.setMessage( tgsRep );
+                    
+                    break;
+
+                case KerberosConstants.AP_REQ_TAG :
+                    ApReqContainer apReqContainer = new ApReqContainer();
+                    apReqContainer.setStream( stream );
+                    
+                    // Decode the AP-REQ PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, apReqContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage apReq = apReqContainer.getApReq();
+                    kerberosMessageContainer.setMessage( apReq );
+                    break;
+
+                case KerberosConstants.AP_REP_TAG :
+                    ApRepContainer apRepContainer = new ApRepContainer();
+                    apRepContainer.setStream( stream );
+                    
+                    // Decode the AP-REP PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, apRepContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage apRep = apRepContainer.getApRep();
+                    kerberosMessageContainer.setMessage( apRep );
+                    break;
+
+                case KerberosConstants.KRB_SAFE_TAG :
+                    KrbSafeContainer krbSafeContainer = new KrbSafeContainer();
+                    krbSafeContainer.setStream( stream );
+                    
+                    // Decode the KRB-SAFE PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, krbSafeContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage krbSafe = krbSafeContainer.getKrbSafe();
+                    kerberosMessageContainer.setMessage( krbSafe );
+                    break;
+
+                case KerberosConstants.KRB_PRIV_TAG :
+                    KrbPrivContainer krbPrivContainer = new KrbPrivContainer();
+                    krbPrivContainer.setStream( stream );
+                    
+                    // Decode the KRB-PRIV PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, krbPrivContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage krbPriv = krbPrivContainer.getKrbPriv();
+                    kerberosMessageContainer.setMessage( krbPriv );
+                    break;
+
+                case KerberosConstants.KRB_CRED_TAG :
+                    KrbCredContainer krbCredContainer = new KrbCredContainer();
+                    krbCredContainer.setStream( stream );
+                    
+                    // Decode the KRB-CRED PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, krbCredContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage krbCred = krbCredContainer.getKrbCred();
+                    kerberosMessageContainer.setMessage( krbCred );
+                    break;
+
+                case KerberosConstants.KRB_ERROR_TAG :
+                    KrbErrorContainer krbErrorContainer = new KrbErrorContainer();
+                    krbErrorContainer.setStream( stream );
+                    
+                    // Decode the KRB-ERROR PDU
+                    try
+                    {
+                        kerberosDecoder.decode( stream, krbErrorContainer );
+                    }
+                    catch ( DecoderException de )
+                    {
+                        throw de;
+                    }
+                    
+                    KerberosMessage krbError = krbErrorContainer.getKrbError();
+                    kerberosMessageContainer.setMessage( krbError );
+                    break;
+            }
+            
+            // We are done, get out
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Decoded KerberosMessage {}", kerberosMessageContainer.getMessage() );
+            }
+        }
+    }
 
     /**
      * Creates a new KerberosMessageGrammar object.
@@ -62,7 +282,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         setName( KerberosMessageGrammar.class.getName() );
 
         // Create the transitions table
-        super.transitions = new GrammarTransition[KerberosStatesEnum.LAST_KERBEROS_STATE.ordinal()][256];
+        super.transitions = new GrammarTransition[KerberosMessageStatesEnum.LAST_KERBEROS_MESSAGE_STATE.ordinal()][256];
 
         // ============================================================================================
         // Ticket 
@@ -72,102 +292,38 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         // --------------------------------------------------------------------------------------------
         // This is the starting state :
         // Ticket          ::= [APPLICATION 1] ... 
-        super.transitions[KerberosStatesEnum.START_STATE.ordinal()][KerberosConstants.TICKET_TAG] = new GrammarTransition(
-            KerberosStatesEnum.START_STATE, KerberosStatesEnum.TICKET_STATE, KerberosConstants.TICKET_TAG,
-            new TicketInit() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from Ticket to Ticket-SEQ
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        super.transitions[KerberosStatesEnum.TICKET_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_STATE, KerberosStatesEnum.TICKET_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
-            new CheckNotNullLength() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from Ticket-SEQ to tkt-vno tag
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         tkt-vno         [0] 
-        super.transitions[KerberosStatesEnum.TICKET_SEQ_STATE.ordinal()][KerberosConstants.TICKET_TKT_VNO_TAG] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_SEQ_STATE, KerberosStatesEnum.TICKET_VNO_TAG_STATE, KerberosConstants.TICKET_TKT_VNO_TAG,
-            new CheckNotNullLength() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from tkt-vno tag to tkt-vno 
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         tkt-vno         [0] INTEGER (5),
-        super.transitions[KerberosStatesEnum.TICKET_VNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_VNO_TAG_STATE, KerberosStatesEnum.TICKET_VNO_STATE, UniversalTag.INTEGER.getValue(),
-            new StoreTktVno() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from tkt-vno to realm tag
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         tkt-vno         [0] INTEGER (5), 
-        //         realm           [1]
-        super.transitions[KerberosStatesEnum.TICKET_VNO_STATE.ordinal()][KerberosConstants.TICKET_REALM_TAG] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_VNO_STATE, KerberosStatesEnum.TICKET_REALM_TAG_STATE, KerberosConstants.TICKET_REALM_TAG,
-            new CheckNotNullLength() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from realm tag to realm value
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         tkt-vno         [0] INTEGER (5),
-        //         realm           [1] Realm,
-        super.transitions[KerberosStatesEnum.TICKET_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_REALM_TAG_STATE, KerberosStatesEnum.TICKET_REALM_STATE, UniversalTag.GENERAL_STRING.getValue(),
-            new StoreRealm() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from realm value to sname tag
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         tkt-vno         [0] INTEGER (5),
-        //         realm           [1] Realm,
-        //         sname           [2] 
-        super.transitions[KerberosStatesEnum.TICKET_REALM_STATE.ordinal()][KerberosConstants.TICKET_SNAME_TAG] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_REALM_STATE, KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosConstants.TICKET_SNAME_TAG,
-            new StoreSName() );
-
-
-        // --------------------------------------------------------------------------------------------
-        // Transition from sname tag to enc-part tag
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         ...
-        //         sname           [2] PrincipalName,
-        //         enc-part        [3]
-        // 
-        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][KerberosConstants.TICKET_ENC_PART_TAG] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.TICKET_ENC_PART_TAG_STATE, KerberosConstants.TICKET_ENC_PART_TAG,
-            new CheckNotNullLength() );
-
-        
-        // --------------------------------------------------------------------------------------------
-        // Transition from enc-part tag to enc-part value
-        // --------------------------------------------------------------------------------------------
-        // Ticket          ::= [APPLICATION 1] SEQUENCE { 
-        //         ...
-        //         enc-part        [3] EncryptedData
-        // 
-        super.transitions[KerberosStatesEnum.TICKET_SNAME_TAG_STATE.ordinal()][KerberosConstants.TICKET_ENC_PART_TAG] = new GrammarTransition(
-            KerberosStatesEnum.TICKET_SNAME_TAG_STATE, KerberosStatesEnum.TICKET_ENC_PART_TAG_STATE, KerberosConstants.TICKET_ENC_PART_TAG,
-            new StoreEncPart() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AS_REQ_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AS_REQ_STATE, KerberosConstants.AS_REQ_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AS_REP_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AS_REP_TAG_STATE, KerberosConstants.AS_REP_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.TGS_REQ_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.TGS_REQ_TAG_STATE, KerberosConstants.TGS_REQ_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.TGS_REP_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.TGS_REP_TAG_STATE, KerberosConstants.TGS_REP_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AP_REQ_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AP_REQ_TAG_STATE, KerberosConstants.AP_REQ_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AP_REP_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AP_REP_TAG_STATE, KerberosConstants.AP_REP_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_SAFE_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_SAFE_STATE, KerberosConstants.KRB_SAFE_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_PRIV_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_PRIV_STATE, KerberosConstants.KRB_PRIV_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_CRED_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_CRED_STATE, KerberosConstants.KRB_CRED_TAG,
+            new DecodeKerberosMessage() );
+        super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_ERROR_TAG] = new GrammarTransition(
+            KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_ERROR_STATE, KerberosConstants.KRB_ERROR_TAG,
+            new DecodeKerberosMessage() );
     }
 
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar
