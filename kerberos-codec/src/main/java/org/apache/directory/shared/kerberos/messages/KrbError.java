@@ -541,7 +541,7 @@ public class KrbError extends KerberosMessage
         try
         {
             // The KRB-ERROR APPLICATION tag
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_TAG );
             buffer.put( TLV.getBytes( krbErrorLength ) );
 
             // The KRB_ERROR sequence
@@ -549,12 +549,12 @@ public class KrbError extends KerberosMessage
             buffer.put( TLV.getBytes( krbErrorSeqLength ) );
 
             // pvno tag and value
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_PVNO_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLength ) );
             Value.encode( buffer, getProtocolVersionNumber() );
 
             // msg-type tag and value
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_MSGTYPE_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_MSGTYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLength ) );
             Value.encode( buffer, getMessageType().getValue() );
 
@@ -562,7 +562,7 @@ public class KrbError extends KerberosMessage
             if ( cTimeLength > 0 )
             {
                 // The tag
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_CTIME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_CTIME_TAG );
                 buffer.put( TLV.getBytes( cTimeLength ) );
                 
                 // The value
@@ -574,14 +574,14 @@ public class KrbError extends KerberosMessage
             // cusec tag and value if any
             if ( cusec != null )
             {
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_CUSEC_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_CUSEC_TAG );
                 buffer.put( TLV.getBytes( cusecLength ) );
                 Value.encode( buffer, cusec );
             }
 
             // stime tag and value
             // The tag
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_STIME_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_STIME_TAG );
             buffer.put( TLV.getBytes( sTimeLength ) );
 
             // The value
@@ -590,19 +590,19 @@ public class KrbError extends KerberosMessage
             buffer.put( sTime.getBytes() );
 
             // susec tag and value
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_SUSEC_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_SUSEC_TAG );
             buffer.put( TLV.getBytes( susecLength ) );
             Value.encode( buffer, susec );
 
             // error-code tag and value
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_ERROR_CODE_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_ERROR_CODE_TAG );
             buffer.put( TLV.getBytes( errorCodeLength ) );
             Value.encode( buffer, errorCode.getOrdinal() );
 
             // crealm tage and value, if any
             if ( cRealm != null)
             {
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_CREALM_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_CREALM_TAG );
                 buffer.put( TLV.getBytes( cRealmLength ) );
 
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
@@ -613,14 +613,14 @@ public class KrbError extends KerberosMessage
             // cname tag and value, if any
             if ( cName != null )
             {
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_CNAME_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_CNAME_TAG );
                 buffer.put( TLV.getBytes( cNameLength ) );
                 cName.encode( buffer );
             }
 
             // realm tag and value
             // the tag
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_REALM_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_REALM_TAG );
             buffer.put( TLV.getBytes( realmLength ) );
 
             // The value
@@ -629,14 +629,14 @@ public class KrbError extends KerberosMessage
             buffer.put( realmBytes );
 
             // sname tag and value
-            buffer.put( ( byte ) KerberosConstants.KRB_ERR_SNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.KRB_ERROR_SNAME_TAG );
             buffer.put( TLV.getBytes( sNameLength ) );
             sName.encode( buffer );
 
             // etext tag and value, if any
             if ( eText != null )
             {
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_ETEXT_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_ETEXT_TAG );
                 buffer.put( TLV.getBytes( eTextLength ) );
 
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
@@ -647,7 +647,7 @@ public class KrbError extends KerberosMessage
             // edata tag and value, if any
             if ( eData != null )
             {
-                buffer.put( ( byte ) KerberosConstants.KRB_ERR_EDATA_TAG );
+                buffer.put( ( byte ) KerberosConstants.KRB_ERROR_EDATA_TAG );
                 buffer.put( TLV.getBytes( eDataLength ) );
                 Value.encode( buffer, eData );
             }

@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum TypedDataStatesEnum implements States
 {
     // Start
-    START_STATE,                                // 0
+    START_STATE,                        // 0
     
     TYPED_DATA_SEQ_STATE,               // 1
     

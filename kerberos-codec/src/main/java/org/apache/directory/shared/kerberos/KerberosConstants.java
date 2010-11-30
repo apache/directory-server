@@ -113,20 +113,20 @@ public class KerberosConstants
     public static final int ENC_KRB_PRIV_PART_RECIPIENT_ADDRESS_TAG = 0xA5;
 
     /** KRB-ERROR tags */
-    public static final int KRB_ERR_TAG = 0x7E;
-    public static final int KRB_ERR_PVNO_TAG = 0xA0;
-    public static final int KRB_ERR_MSGTYPE_TAG = 0xA1;
-    public static final int KRB_ERR_CTIME_TAG = 0xA2;
-    public static final int KRB_ERR_CUSEC_TAG = 0xA3;
-    public static final int KRB_ERR_STIME_TAG = 0xA4;
-    public static final int KRB_ERR_SUSEC_TAG = 0xA5;
-    public static final int KRB_ERR_ERROR_CODE_TAG = 0xA6;
-    public static final int KRB_ERR_CREALM_TAG = 0xA7;
-    public static final int KRB_ERR_CNAME_TAG = 0xA8;
-    public static final int KRB_ERR_REALM_TAG = 0xA9;
-    public static final int KRB_ERR_SNAME_TAG = 0xAA;
-    public static final int KRB_ERR_ETEXT_TAG = 0xAB;
-    public static final int KRB_ERR_EDATA_TAG = 0xAC;
+    public static final int KRB_ERROR_TAG = 0x7E;
+    public static final int KRB_ERROR_PVNO_TAG = 0xA0;
+    public static final int KRB_ERROR_MSGTYPE_TAG = 0xA1;
+    public static final int KRB_ERROR_CTIME_TAG = 0xA2;
+    public static final int KRB_ERROR_CUSEC_TAG = 0xA3;
+    public static final int KRB_ERROR_STIME_TAG = 0xA4;
+    public static final int KRB_ERROR_SUSEC_TAG = 0xA5;
+    public static final int KRB_ERROR_ERROR_CODE_TAG = 0xA6;
+    public static final int KRB_ERROR_CREALM_TAG = 0xA7;
+    public static final int KRB_ERROR_CNAME_TAG = 0xA8;
+    public static final int KRB_ERROR_REALM_TAG = 0xA9;
+    public static final int KRB_ERROR_SNAME_TAG = 0xAA;
+    public static final int KRB_ERROR_ETEXT_TAG = 0xAB;
+    public static final int KRB_ERROR_EDATA_TAG = 0xAC;
 
     /** KRB-CRED tags */
     public static final int KRB_CRED_TAG = 0x76;
