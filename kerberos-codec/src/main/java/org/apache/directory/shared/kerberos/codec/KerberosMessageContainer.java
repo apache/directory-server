@@ -23,7 +23,6 @@ import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 
 
 /**
@@ -48,9 +47,9 @@ public class KerberosMessageContainer extends AbstractContainer
     public KerberosMessageContainer()
     {
         super();
-        this.stateStack = new int[10];
+        this.stateStack = new int[1];
         this.grammar = KerberosMessageGrammar.getInstance();
-        setTransition( LdapStatesEnum.START_STATE );
+        setTransition( KerberosMessageStatesEnum.START_STATE );
     }
 
 

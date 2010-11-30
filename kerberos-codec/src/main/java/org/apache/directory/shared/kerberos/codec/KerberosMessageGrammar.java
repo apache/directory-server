@@ -74,7 +74,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) container;
 
             ByteBuffer stream = kerberosMessageContainer.getStream();
-            stream.flip();
+            stream.rewind();
             
             TLV tlv = kerberosMessageContainer.getCurrentTLV();
 
@@ -295,30 +295,39 @@ public final class KerberosMessageGrammar extends AbstractGrammar
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AS_REQ_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AS_REQ_STATE, KerberosConstants.AS_REQ_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AS_REP_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AS_REP_TAG_STATE, KerberosConstants.AS_REP_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.TGS_REQ_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.TGS_REQ_TAG_STATE, KerberosConstants.TGS_REQ_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.TGS_REP_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.TGS_REP_TAG_STATE, KerberosConstants.TGS_REP_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AP_REQ_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AP_REQ_TAG_STATE, KerberosConstants.AP_REQ_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.AP_REP_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.AP_REP_TAG_STATE, KerberosConstants.AP_REP_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_SAFE_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_SAFE_STATE, KerberosConstants.KRB_SAFE_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_PRIV_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_PRIV_STATE, KerberosConstants.KRB_PRIV_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_CRED_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_CRED_STATE, KerberosConstants.KRB_CRED_TAG,
             new DecodeKerberosMessage() );
+        
         super.transitions[KerberosMessageStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_ERROR_TAG] = new GrammarTransition(
             KerberosMessageStatesEnum.START_STATE, KerberosMessageStatesEnum.KRB_ERROR_STATE, KerberosConstants.KRB_ERROR_TAG,
             new DecodeKerberosMessage() );
