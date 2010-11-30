@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.hostAddress;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -69,7 +68,7 @@ public enum HostAddressStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof HostAddressGrammar )
         {
             return "HOST_ADDRESS_GRAMMAR";
         }

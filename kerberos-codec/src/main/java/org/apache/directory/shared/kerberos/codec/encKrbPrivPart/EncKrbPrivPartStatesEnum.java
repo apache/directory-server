@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.encKrbPrivPart;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -82,7 +81,7 @@ public enum EncKrbPrivPartStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof EncKrbPrivPartGrammar )
         {
             return "ENC_KRB_PRIV_PART_GRAMMAR";
         }

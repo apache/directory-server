@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.krbCred;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -76,7 +75,7 @@ public enum KrbCredStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof KrbCredGrammar )
         {
             return "KRB_CRED_GRAMMAR";
         }

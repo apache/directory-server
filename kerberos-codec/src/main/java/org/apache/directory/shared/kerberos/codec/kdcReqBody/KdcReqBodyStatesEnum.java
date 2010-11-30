@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.kdcReqBody;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -97,7 +96,7 @@ public enum KdcReqBodyStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof KdcReqBodyGrammar )
         {
             return "KDC_REQ_BODY_GRAMMAR";
         }

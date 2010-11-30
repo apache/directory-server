@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.methodData;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -34,7 +33,7 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum MethodDataStatesEnum implements States
 {
     // Start
-    START_STATE,                        // 0
+    START_STATE,                         // 0
     
     METHOD_DATA_SEQ_STATE,               // 1
     
@@ -62,7 +61,7 @@ public enum MethodDataStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof MethodDataGrammar )
         {
             return "METHOD_DATA_GRAMMAR";
         }

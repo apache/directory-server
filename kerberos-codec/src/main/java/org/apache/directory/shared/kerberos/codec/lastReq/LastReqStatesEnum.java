@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.lastReq;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -34,7 +33,7 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum LastReqStatesEnum implements States
 {
     // Start
-    START_STATE,                          // 0
+    START_STATE,                      // 0
     
     LAST_REQ_SEQ_STATE,               // 1
     
@@ -70,7 +69,7 @@ public enum LastReqStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof LastReqGrammar )
         {
             return "LAST_REQ_GRAMMAR";
         }

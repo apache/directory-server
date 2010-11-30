@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.apRep;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -72,7 +71,7 @@ public enum ApRepStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof ApRepGrammar )
         {
             return "AP_REP_GRAMMAR";
         }

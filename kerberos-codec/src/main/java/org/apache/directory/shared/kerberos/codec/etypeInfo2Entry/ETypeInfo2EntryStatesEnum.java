@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.etypeInfo2Entry;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -74,7 +73,7 @@ public enum ETypeInfo2EntryStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof ETypeInfo2EntryGrammar )
         {
             return "ETYPE_INFO2_ENTRY_GRAMMAR";
         }

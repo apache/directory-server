@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.krbError;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -102,7 +101,7 @@ public enum KrbErrorStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof KrbErrorGrammar )
         {
             return "KRB_ERR_GRAMMAR";
         }

@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.encTgsRepPart;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -63,7 +62,7 @@ public enum EncTgsRepPartStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof EncTgsRepPartGrammar )
         {
             return "ENC_TGS_REP_PART_GRAMMAR";
         }
