@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -87,7 +88,7 @@ public class DSAnnotationProcessor
             interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
         }
 
-        if ( dsBuilder.additionalAuthenticators().length != 0 )
+        if ( dsBuilder.authenticators().length != 0 )
         {
             AuthenticationInterceptor authenticationInterceptor = null;
             for ( Interceptor interceptor : interceptorList )
@@ -103,10 +104,10 @@ public class DSAnnotationProcessor
                 throw new IllegalStateException(
                         "authentication interceptor not found" );
             }
-            Set<Authenticator> authenticators = authenticationInterceptor
-                    .getAuthenticators();
+            Set<Authenticator> authenticators = new HashSet<Authenticator>();
+
             for ( CreateAuthenticator createAuthenticator : dsBuilder
-                    .additionalAuthenticators() )
+                    .authenticators() )
             {
                 Authenticator auth = createAuthenticator.type().newInstance();
                 if ( auth instanceof DelegatingAuthenticator )

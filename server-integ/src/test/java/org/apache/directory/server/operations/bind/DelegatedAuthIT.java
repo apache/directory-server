@@ -31,7 +31,10 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
+import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.BindResponse;
@@ -75,7 +78,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @CreateDS(
         allowAnonAccess = true,
         name = "DelegatedAuthIT-method",
-        additionalAuthenticators =
+        authenticators =
             {
             @CreateAuthenticator(
                 type = DelegatingAuthenticator.class,
@@ -93,6 +96,96 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertEquals( "DelegatedAuthIT-method", service.getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
+        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+        {
+            fail( "this authentication should have been successful, got result code : "
+                + bindResponse.getLdapResult().getResultCode() );
+        }
+        ldapConnection.unBind();
+        bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
+        if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        {
+            fail( "this authentication should have failed due to wrong password, got result code : "
+                + bindResponse.getLdapResult().getResultCode() );
+        }
+        ldapConnection.unBind();
+        try
+        {
+            bindResponse = ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
+            if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+            {
+                fail( "this authentication should fail, user does not exist, got result code : "
+                    + bindResponse.getLdapResult().getResultCode() );
+            }
+            ldapConnection.unBind();
+        }
+        catch ( Exception exc )
+        {
+            System.out.println( "exception happened" + exc.getMessage() );
+        }
+    }
+    /**
+     * Test with bindDn which is not even found under any namingContext of the
+     * server.
+     * 
+     * @throws Exception 
+     */
+    @CreateDS(
+        allowAnonAccess = true,
+        name = "DelegatedAuthIT-MultipleAuthenticators-method",
+        authenticators =
+            {
+            @CreateAuthenticator(type = AnonymousAuthenticator.class),
+            @CreateAuthenticator(type = SimpleAuthenticator.class),
+            @CreateAuthenticator(
+                type = DelegatingAuthenticator.class,
+                delegateHost = "localhost",
+                delegatePort = 10200),
+            @CreateAuthenticator(type = StrongAuthenticator.class)})
+@ApplyLdifs(
+    {
+        // Entry # 1
+        "dn: uid=emmanuel,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
+        "objectClass: top",
+        "uid: emmanuel",
+        "cn: Emmanuel Lecharny",
+        "sn: Lecharny",
+        "userPassword: sesame" })
+    @CreateLdapServer(
+        transports =
+    {
+        @CreateTransport(protocol = "LDAP")
+    })
+    @Test
+    public void testMultipleAuthenticators() throws Exception
+    {
+        assertTrue( service.isStarted() );
+        assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", service.getInstanceId() );
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
+        BindResponse bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
+        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+        {
+            fail( "this authentication should have been successful through local simple authenticator, got result code : "
+                + bindResponse.getLdapResult().getResultCode() );
+        }
+        ldapConnection.unBind();
+        bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "crypto" );
+        if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        {
+            fail( "this authentication should fail due to wrong password, got result code : "
+                + bindResponse.getLdapResult().getResultCode() );
+        }
+        ldapConnection.unBind();
+        bindResponse = ldapConnection.bind();
+        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+        {
+            fail( "this authentication should have been successful through local anonymous authenticator, got result code : "
+                + bindResponse.getLdapResult().getResultCode() );
+        }
+        ldapConnection.unBind();
+        bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have been successful, got result code : "
