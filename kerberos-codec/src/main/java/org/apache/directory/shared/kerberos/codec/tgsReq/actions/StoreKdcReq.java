@@ -27,7 +27,6 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
 import org.apache.directory.shared.kerberos.messages.TgsReq;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class StoreKdcReq extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StoreKdcReq.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();

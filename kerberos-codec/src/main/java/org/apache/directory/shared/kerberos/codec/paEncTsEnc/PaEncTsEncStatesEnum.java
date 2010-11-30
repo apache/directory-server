@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.paEncTsEnc;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -69,7 +68,7 @@ public enum PaEncTsEncStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof PaEncTsEncGrammar )
         {
             return "PA_ENC_TS_ENC_GRAMMAR";
         }

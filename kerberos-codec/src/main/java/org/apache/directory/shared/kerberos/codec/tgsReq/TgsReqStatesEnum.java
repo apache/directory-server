@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.codec.tgsReq;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
+import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepGrammar;
 
 
 /**
@@ -34,9 +34,9 @@ import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 public enum TgsReqStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE,                             // 0
     
-    // ----- HostAddresses message --------------------------------------
+    // ----- TGS-REQ message --------------------------------------
     TGS_REQ_STATE,                           // 1
     
     // End
@@ -63,7 +63,7 @@ public enum TgsReqStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof TgsRepGrammar )
         {
             return "TGS_REQ_GRAMMAR";
         }

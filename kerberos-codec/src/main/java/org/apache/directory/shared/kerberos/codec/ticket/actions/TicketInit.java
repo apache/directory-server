@@ -25,7 +25,6 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class TicketInit extends GrammarAction
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosMessageGrammar.class );
+    private static final Logger LOG = LoggerFactory.getLogger( TicketInit.class );
 
     /**
      * Instantiates a new TicketInit action.

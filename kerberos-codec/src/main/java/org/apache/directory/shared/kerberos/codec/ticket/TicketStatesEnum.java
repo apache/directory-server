@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.ticket;
 
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.States;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageGrammar;
 
 
 /**
@@ -74,7 +73,7 @@ public enum TicketStatesEnum implements States
      */
     public String getGrammarName( Grammar grammar )
     {
-        if ( grammar instanceof KerberosMessageGrammar )
+        if ( grammar instanceof TicketGrammar )
         {
             return "TICKET_GRAMMAR";
         }
