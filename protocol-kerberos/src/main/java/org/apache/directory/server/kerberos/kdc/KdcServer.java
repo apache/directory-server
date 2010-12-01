@@ -28,7 +28,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
-import org.apache.directory.server.kerberos.protocol.KerberosTcpProtocolCodecFactory;
 import org.apache.directory.server.kerberos.protocol.KerberosUdpProtocolCodecFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
