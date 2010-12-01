@@ -42,6 +42,7 @@ import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
 import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepContainer;
 import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,8 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                 case KerberosConstants.AS_REQ_TAG :
                     AsReqContainer asReqContainer = new AsReqContainer();
                     asReqContainer.setStream( stream );
+                    
+                    System.out.println( StringTools.dumpBytes( stream.array() ) );
                     
                     // Decode the AS_REQ PDU
                     try

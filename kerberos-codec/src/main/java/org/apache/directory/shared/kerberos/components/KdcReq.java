@@ -164,30 +164,31 @@ public abstract class KdcReq extends KerberosMessage
     {
         // The pvno length
         pvnoLength = 1 + 1 + 1;
+        kdcReqSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
         
         // The msg-type length
         msgTypeLength = 1 + 1 + 1;
+        kdcReqSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
 
         // Compute the pa-data length.
-        paDataLengths = new int[paData.size()];
-        int pos = 0;
-        
-        for ( PaData paDataElem : paData )
+        if ( paData.size() > 0 )
         {
-            paDataLengths[pos] = paDataElem.computeLength();
-            paDataSeqLength += paDataLengths[pos];
-            pos++;
+            paDataLengths = new int[paData.size()];
+            int pos = 0;
+            
+            for ( PaData paDataElem : paData )
+            {
+                paDataLengths[pos] = paDataElem.computeLength();
+                paDataSeqLength += paDataLengths[pos];
+                pos++;
+            }
+            
+            paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
+            kdcReqSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
         }
-        
-        paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
         
         // The KDC-REQ-BODY length
         kdcReqBodyLength = kdcReqBody.computeLength();
-
-        // Compute the sequence size.
-        kdcReqSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
-        kdcReqSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
-        kdcReqSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
         kdcReqSeqLength += 1 + TLV.getNbBytes( kdcReqBodyLength ) + kdcReqBodyLength; 
         
         // compute the global size
@@ -231,19 +232,22 @@ public abstract class KdcReq extends KerberosMessage
         // The value
         Value.encode( buffer, getMessageType().getValue() );
         
-        // The PD-DATA --------------------------------------------------------
-        // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_PA_DATA_TAG );
-        buffer.put( TLV.getBytes( paDataLength ) );
-        
-        // The sequence
-        buffer.put( UniversalTag.SEQUENCE.getValue() );
-        buffer.put( TLV.getBytes( paDataSeqLength ) );
-        
-        // The values
-        for ( PaData paDataElem : paData )
+        // The PD-DATA if any -------------------------------------------------
+        if ( paData.size() > 0 )
         {
-            paDataElem.encode( buffer );
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REQ_PA_DATA_TAG );
+            buffer.put( TLV.getBytes( paDataLength ) );
+            
+            // The sequence
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( paDataSeqLength ) );
+            
+            // The values
+            for ( PaData paDataElem : paData )
+            {
+                paDataElem.encode( buffer );
+            }
         }
 
         // The KDC-REQ-BODY ---------------------------------------------------

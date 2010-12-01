@@ -41,7 +41,6 @@ public class AsReq extends KdcReq
 {
     // Storage for computed lengths
     private transient int kdcReqLength;
-    private transient int asReqLength;
 
     /**
      * Creates a new instance of AS-REQ.
@@ -65,9 +64,7 @@ public class AsReq extends KdcReq
     public int computeLength()
     {
         kdcReqLength = super.computeLength();
-        asReqLength = 1 + TLV.getNbBytes( kdcReqLength ) + kdcReqLength;
-        
-        return asReqLength;
+        return 1 + TLV.getNbBytes( kdcReqLength ) + kdcReqLength;
     }
     
     
@@ -87,7 +84,7 @@ public class AsReq extends KdcReq
         
         // The AS-REQ SEQ Tag
         buffer.put( (byte)KerberosConstants.AS_REQ_TAG );
-        buffer.put( TLV.getBytes( asReqLength ) );
+        buffer.put( TLV.getBytes( kdcReqLength ) );
         
         // The KDC-REQ --------------------------------------------------------
         super.encode( buffer );

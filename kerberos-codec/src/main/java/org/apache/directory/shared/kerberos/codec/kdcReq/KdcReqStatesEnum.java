@@ -43,15 +43,17 @@ public enum KdcReqStatesEnum implements States
     
     KDC_REQ_MSG_TYPE_TAG_STATE,            // 4
     KDC_REQ_MSG_TYPE_STATE,                // 5
+    
+    KDC_REQ_PA_DATA_OR_REQ_BODY_STATE,     // 6
 
-    KDC_REQ_PA_DATA_TAG_STATE,             // 6
-    KDC_REQ_PA_DATA_SEQ_STATE,             // 7
-    KDC_REQ_PA_DATA_STATE,                 // 8
+    KDC_REQ_PA_DATA_TAG_STATE,             // 7
+    KDC_REQ_PA_DATA_SEQ_STATE,             // 8
+    KDC_REQ_PA_DATA_STATE,                 // 9
 
-    KDC_REQ_KDC_REQ_BODY_STATE,            // 9
+    KDC_REQ_KDC_REQ_BODY_STATE,            // 10
 
     // End
-    LAST_KDC_REQ_STATE;                    // 10
+    LAST_KDC_REQ_STATE;                    // 11
 
     
     /**
