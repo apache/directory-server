@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.protocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -42,26 +41,28 @@ import org.slf4j.LoggerFactory;
  */
 public class KerberosUdpDecoder extends ProtocolDecoderAdapter
 {
+
     /** The logger */
     private static Logger LOG = LoggerFactory.getLogger( LdapDecoder.class );
 
     /** A speedup for logger */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    private KdcRequestDecoder decoder = new KdcRequestDecoder();
-
     /** The ASN 1 decoder instance */
     private Asn1Decoder asn1Decoder = new Asn1Decoder();
 
+    /** the key used while storing message container in the session */
+    private static final String KERBEROS_MESSAGE_CONTAINER = "kerberosMessageContainer";
+    
     public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
         ByteBuffer buf = in.buf();
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session.getAttribute( "kerberosMessageContainer" );
+        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session.getAttribute( KERBEROS_MESSAGE_CONTAINER );
 
         if ( kerberosMessageContainer == null )
         {
             kerberosMessageContainer = new KerberosMessageContainer();
-            session.setAttribute( "kerberosMessageContainer", kerberosMessageContainer );
+            session.setAttribute( KERBEROS_MESSAGE_CONTAINER, kerberosMessageContainer );
             kerberosMessageContainer.setStream( buf );
         }
         
@@ -91,7 +92,7 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                LOG.warn( "error while decoding", e );
             }
         }
     }

@@ -26,6 +26,8 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncode
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcReplyEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -43,22 +45,34 @@ public class KerberosUdpEncoder extends ProtocolEncoderAdapter
 
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
-        IoBuffer buf = IoBuffer.allocate( 1024 );
+        AbstractAsn1Object asn1Obj = ( AbstractAsn1Object ) message;
+        
+        IoBuffer buf = IoBuffer.allocate( asn1Obj.computeLength() );
 
-        if ( message instanceof KdcReply )
+        try
         {
-            replyEncoder.encode( ( KdcReply ) message, buf.buf() );
+            asn1Obj.encode( buf.buf() );
+
+            buf.flip();
+
+            out.write( buf );
         }
-        else
+        catch( EncoderException e )
         {
-            if ( message instanceof ErrorMessage )
-            {
-                errorEncoder.encode( ( ErrorMessage ) message, buf.buf() );
-            }
+            e.printStackTrace();
         }
+        
+//        if ( message instanceof KdcReply )
+//        {
+//            replyEncoder.encode( ( KdcReply ) message, buf.buf() );
+//        }
+//        else
+//        {
+//            if ( message instanceof ErrorMessage )
+//            {
+//                errorEncoder.encode( ( ErrorMessage ) message, buf.buf() );
+//            }
+//        }
 
-        buf.flip();
-
-        out.write( buf );
     }
 }
