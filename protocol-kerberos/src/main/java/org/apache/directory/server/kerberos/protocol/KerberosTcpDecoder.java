@@ -105,8 +105,6 @@ public class KerberosTcpDecoder extends ProtocolDecoderAdapter
         LdapMessageContainer messageContainer = ( LdapMessageContainer ) session
             .getAttribute( "messageContainer" );
         
-        
-        
         while ( buf.hasRemaining() )
         {
             try
