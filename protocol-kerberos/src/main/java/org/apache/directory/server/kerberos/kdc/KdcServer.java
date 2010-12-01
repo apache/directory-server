@@ -484,12 +484,12 @@ public class KdcServer extends DirectoryBackedService
                     
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
                     ((NioSocketAcceptor)acceptor).setReuseAddress( true );
-
-                    // Inject the codec
-                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                        new ProtocolCodecFilter( 
-                                KerberosUdpProtocolCodecFactory.getInstance() ) );
                 }
+                
+                // Inject the codec
+                ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
+                    new ProtocolCodecFilter( 
+                        KerberosUdpProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
                 
