@@ -118,6 +118,7 @@
     <module>core-avl</module>
     <module>ldif-partition</module>
     <module>protocol-shared</module>
+    <module>kerberos-codec</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
     <module>protocol-kerberos</module>
@@ -273,6 +274,12 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-kerberos-shared</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-kerberos-codec</artifactId>
         <version>${project.version}</version>
       </dependency>
       
