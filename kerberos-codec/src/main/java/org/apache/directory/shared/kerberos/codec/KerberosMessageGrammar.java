@@ -78,6 +78,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             stream.rewind();
             
             TLV tlv = kerberosMessageContainer.getCurrentTLV();
+            kerberosMessageContainer.setGrammarEndAllowed( true );
 
             // Now, dependening on the T, call the inner decoder
             switch ( tlv.getTag() )

@@ -24,7 +24,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
@@ -64,6 +65,7 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
             kerberosMessageContainer = new KerberosMessageContainer();
             session.setAttribute( KERBEROS_MESSAGE_CONTAINER, kerberosMessageContainer );
             kerberosMessageContainer.setStream( buf );
+            kerberosMessageContainer.setGathering( true );
         }
         
         while ( buf.hasRemaining() )
@@ -71,8 +73,11 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
             try
             {
                 asn1Decoder.decode( buf, kerberosMessageContainer );
+                
+                TLV tlv = kerberosMessageContainer.getCurrentTLV();
+                Value value = tlv.getValue();
 
-                if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
+                if ( ( value.getData() != null ) && ( value.getData().length == tlv.getLength() ) )
                 {
                     if ( IS_DEBUG )
                     {
