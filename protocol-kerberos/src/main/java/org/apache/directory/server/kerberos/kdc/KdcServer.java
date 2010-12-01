@@ -489,20 +489,8 @@ public class KdcServer extends DirectoryBackedService
                     // Inject the codec
                     ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
                         new ProtocolCodecFilter( 
-                                KerberosTcpProtocolCodecFactory.getInstance() ) );
-                }
-                else
-                {
-                    // Inject the codec
-                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                        new ProtocolCodecFilter( 
                                 KerberosUdpProtocolCodecFactory.getInstance() ) );
                 }
-
-//                // Inject the codec
-//                ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-//                    new ProtocolCodecFilter( 
-//                            KerberosTcpProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
                 
