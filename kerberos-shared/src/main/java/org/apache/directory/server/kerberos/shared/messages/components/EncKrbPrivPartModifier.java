@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 
 
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosTime;
 
 
 /**

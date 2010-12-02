@@ -26,11 +26,11 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRep
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 

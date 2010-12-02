@@ -23,8 +23,8 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
+import org.apache.directory.shared.kerberos.KerberosTime;
 
 
 /**
@@ -49,6 +49,6 @@ public class KerberosTimeDecoder
             pe.printStackTrace();
         }
 
-        return new KerberosTime( date );
+        return new KerberosTime( date.getTime() );
     }
 }

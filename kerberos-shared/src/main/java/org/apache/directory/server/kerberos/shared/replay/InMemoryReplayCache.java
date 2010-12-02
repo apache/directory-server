@@ -29,7 +29,7 @@ import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosTime;
 
 
 /**

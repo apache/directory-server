@@ -39,7 +39,7 @@ import javax.crypto.spec.DESKeySpec;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -178,7 +178,7 @@ public class KeytabTest
             date = dateFormat.parse( zuluTime );
         }
 
-        KerberosTime timeStamp = new KerberosTime( date );
+        KerberosTime timeStamp = new KerberosTime( date.getTime() );
 
         byte keyVersion = 1;
         String passPhrase = "secret";

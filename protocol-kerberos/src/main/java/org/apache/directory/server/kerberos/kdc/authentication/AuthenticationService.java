@@ -46,7 +46,6 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionTypeInfo
 import org.apache.directory.server.kerberos.shared.io.encoder.PreAuthenticationDataEncoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.InvalidTicketException;
@@ -55,7 +54,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
@@ -65,6 +63,7 @@ import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
@@ -195,7 +194,7 @@ public class AuthenticationService
                 LOG.debug( "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.", clientName );
             }
 
-            PaData[] preAuthData = request.getPreAuthData();
+            PaData[] preAuthData = request.getPaData();
 
             if ( preAuthData == null || preAuthData.length == 0 )
             {
@@ -237,7 +236,7 @@ public class AuthenticationService
         LOG.debug( "Verifying using encrypted timestamp." );
         
         KdcServer config = authContext.getConfig();
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
         String clientName = clientEntry.getPrincipal().getName();
@@ -263,7 +262,7 @@ public class AuthenticationService
 
             if ( config.isPaEncTimestampRequired() )
             {
-                PaData[] preAuthData = request.getPreAuthData();
+                PaData[] preAuthData = request.getPaData();
 
                 if ( preAuthData == null )
                 {
@@ -364,7 +363,7 @@ public class AuthenticationService
             newTicketBody.setFlag( TicketFlag.PRE_AUTHENT );
         }
 
-        if ( request.getOption( KdcOptions.FORWARDABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
             if ( !config.isForwardableAllowed() )
             {
@@ -374,7 +373,7 @@ public class AuthenticationService
             newTicketBody.setFlag( TicketFlag.FORWARDABLE );
         }
 
-        if ( request.getOption( KdcOptions.PROXIABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXIABLE ) )
         {
             if ( !config.isProxiableAllowed() )
             {
@@ -384,7 +383,7 @@ public class AuthenticationService
             newTicketBody.setFlag( TicketFlag.PROXIABLE );
         }
 
-        if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
@@ -394,9 +393,11 @@ public class AuthenticationService
             newTicketBody.setFlag( TicketFlag.MAY_POSTDATE );
         }
 
-        if ( request.getOption( KdcOptions.RENEW ) || request.getOption( KdcOptions.VALIDATE )
-            || request.getOption( KdcOptions.PROXY ) || request.getOption( KdcOptions.FORWARDED )
-            || request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEW ) 
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXY ) 
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDED )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
@@ -411,7 +412,7 @@ public class AuthenticationService
 
         newTicketBody.setAuthTime( now );
 
-        KerberosTime startTime = request.getFrom();
+        KerberosTime startTime = request.getKdcReqBody().getFrom();
 
         /*
          * "If the requested starttime is absent, indicates a time in the past,
@@ -420,7 +421,7 @@ public class AuthenticationService
          * ticket is set to the authentication server's current time."
          */
         if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getOption( KdcOptions.POSTDATED ) )
+            && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             startTime = now;
         }
@@ -431,7 +432,8 @@ public class AuthenticationService
          * KDC_ERR_CANNOT_POSTDATE is returned."
          */
         if ( startTime != null && startTime.greaterThan( now )
-            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) && !request.getOption( KdcOptions.POSTDATED ) )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) 
+            && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -441,7 +443,7 @@ public class AuthenticationService
          * local realm and if the ticket's starttime is acceptable, it is set as
          * requested, and the INVALID flag is set in the new ticket."
          */
-        if ( request.getOption( KdcOptions.POSTDATED ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
@@ -455,13 +457,13 @@ public class AuthenticationService
 
         long till = 0;
         
-        if ( request.getTill().getTime() == 0 )
+        if ( request.getKdcReqBody().getTill().getTime() == 0 )
         {
             till = Long.MAX_VALUE;
         }
         else
         {
-            till = request.getTill().getTime();
+            till = request.getKdcReqBody().getTill().getTime();
         }
 
         /*
@@ -495,9 +497,10 @@ public class AuthenticationService
          * flag is set in the new ticket, and the renew-till value is set as if the
          * 'RENEWABLE' option were requested."
          */
-        KerberosTime tempRtime = request.getRtime();
+        KerberosTime tempRtime = request.getKdcReqBody().getRTime();
 
-        if ( request.getOption( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE_OK ) 
+            && request.getKdcReqBody().getTill().greaterThan( kerberosEndTime ) )
         {
             if ( !config.isRenewableAllowed() )
             {
@@ -505,10 +508,10 @@ public class AuthenticationService
             }
 
             request.setOption( KdcOptions.RENEWABLE );
-            tempRtime = request.getTill();
+            tempRtime = request.getKdcReqBody().getTill();
         }
 
-        if ( request.getOption( KdcOptions.RENEWABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE ) )
         {
             if ( !config.isRenewableAllowed() )
             {
@@ -531,10 +534,10 @@ public class AuthenticationService
             newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
         }
 
-        if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
-            && request.getAddresses().getAddresses().length > 0 )
+        if ( request.getKdcReqBody().getAddresses() != null && request.getKdcReqBody().getAddresses().getAddresses() != null
+            && request.getKdcReqBody().getAddresses().getAddresses().length > 0 )
         {
-            newTicketBody.setClientAddresses( request.getAddresses() );
+            newTicketBody.setClientAddresses( request.getKdcReqBody().getAddresses() );
         }
         else
         {
@@ -575,7 +578,7 @@ public class AuthenticationService
         reply.setLastRequest( new LastRequest() );
         // TODO - resp.key-expiration := client.expiration; requires store
 
-        reply.setNonce( request.getNonce() );
+        reply.setNonce( request.getKdcReqBody().getNonce() );
 
         reply.setFlags( ticket.getEncTicketPart().getFlags() );
         reply.setAuthTime( ticket.getEncTicketPart().getAuthTime() );
@@ -621,16 +624,16 @@ public class AuthenticationService
                 sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
                 sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
                 sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
-                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+                sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
+                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
                 sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
                 sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getEType() ) );
-                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-                sb.append( "\n\t" + "from time:             " + request.getFrom() );
-                sb.append( "\n\t" + "till time:             " + request.getTill() );
-                sb.append( "\n\t" + "renew-till time:       " + request.getRtime() );
-                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
+                sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
+                sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
+                sb.append( "\n\t" + "till time:             " + request.getKdcReqBody().getTill() );
+                sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
+                sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
                 LOG.debug( sb.toString() );
             }

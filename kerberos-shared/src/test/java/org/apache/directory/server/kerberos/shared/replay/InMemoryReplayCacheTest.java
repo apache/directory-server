@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.kerberos.shared.replay;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -29,16 +33,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache.ReplayCacheEntry;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the InMemory replay cache

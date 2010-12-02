@@ -38,10 +38,10 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncTicket
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 

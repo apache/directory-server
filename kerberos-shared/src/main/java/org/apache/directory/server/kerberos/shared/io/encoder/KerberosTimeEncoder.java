@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
+import org.apache.directory.shared.kerberos.KerberosTime;
 
 
 /**

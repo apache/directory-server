@@ -19,8 +19,10 @@
  */
 package org.apache.directory.shared.kerberos;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosTime
+public class KerberosTime implements Comparable<KerberosTime>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosTime.class );
@@ -58,9 +60,24 @@ public class KerberosTime
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
     
-    /** The KerberosTime */
+    /** The KerberosTime as a String*/
     private String date;
     
+    /** The kerberosTime, as a long */
+    private long kerberosTime;
+    
+    /** Constant for the {@link KerberosTime} "infinity." */
+    public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
+
+    /** The number of milliseconds in a minute. */
+    public static final int MINUTE = 60000;
+
+    /** The number of milliseconds in a day. */
+    public static final int DAY = MINUTE * 1440;
+
+    /** The number of milliseconds in a week. */
+    public static final int WEEK = MINUTE * 10080;
+
     // Initialize the dateFormat with the UTC TZ
     static
     {
@@ -73,6 +90,7 @@ public class KerberosTime
      */
     public KerberosTime()
     {
+        kerberosTime = System.currentTimeMillis();
     }
 
     
@@ -83,7 +101,14 @@ public class KerberosTime
      */
     public KerberosTime( String date )
     {
-        setDate( date );
+        try
+        {
+            setDate( date );
+        }
+        catch ( ParseException pe )
+        {
+            // TODO : mnaage exception
+        }
     }
     
     
@@ -95,20 +120,80 @@ public class KerberosTime
         Calendar calendar = Calendar.getInstance( UTC );
         calendar.setTimeInMillis( date );
         this.date = sdf.format( calendar.getTime() );
+        kerberosTime = date;
     }
     
+    
+    /**
+     * Creates a new instance of KerberosTime.
+     *
+     * @param time
+     */
+    public KerberosTime( Date time )
+    {
+        kerberosTime = time.getTime();
+    }
+
+    
+    /**
+     * Returns the {@link KerberosTime} as a long.
+     *
+     * @return The {@link KerberosTime} as a long.
+     */
+    public long getTime()
+    {
+        return kerberosTime;
+    }
+
+
+    /**
+     * Returns the {@link KerberosTime} as a {@link Date}.
+     *
+     * @return The {@link KerberosTime} as a {@link Date}.
+     */
+    public Date toDate()
+    {
+        return new Date( kerberosTime );
+    }
+
+
+    /**
+     * Returns the {@link KerberosTime} for a given zulu time.
+     *
+     * @param zuluTime
+     * @return The {@link KerberosTime}.
+     * @throws ParseException
+     */
+    public static KerberosTime getTime( String zuluTime ) throws ParseException
+    {
+        Date date = null;
+        
+        synchronized ( sdf )
+        {
+            date = sdf.parse( zuluTime );
+        }
+        
+        return new KerberosTime( date );
+    }
+
     
     /**
      * Sets the date if it's a valid KerberosTime
      * @param date The date to store
      */
-    public void setDate( String date )
+    public void setDate( String date ) throws ParseException
     {
         boolean result = DATE_PATTERN.matcher( date ).find();
 
         if ( result )
         {
             this.date = date;
+
+            synchronized ( sdf )
+            {
+                kerberosTime = sdf.parse( date ).getTime();
+            }
+            
             LOG.debug( "Syntax valid for '{}'", date );
         }
         else
@@ -184,5 +269,47 @@ public class KerberosTime
         }
         
         return true;
+    }
+    
+    
+    /**
+     * Returns whether this {@link KerberosTime} is within the given clockskew.
+     *
+     * @param clockSkew
+     * @return true if this {@link KerberosTime} is within the given clockskew.
+     */
+    public boolean isInClockSkew( long clockSkew )
+    {
+        return Math.abs( kerberosTime - System.currentTimeMillis() ) < clockSkew;
+    }
+    
+    
+    /**
+     * TODO: Add javadoc
+     */
+    public int compareTo( KerberosTime that )
+    {
+        final int BEFORE = -1;
+        final int EQUAL = 0;
+        final int AFTER = 1;
+
+        // this optimization is usually worthwhile, and can always be added
+        if ( this == that )
+        {
+            return EQUAL;
+        }
+
+        // primitive numbers follow this form
+        if ( this.kerberosTime < that.kerberosTime )
+        {
+            return BEFORE;
+        }
+
+        if ( this.kerberosTime > that.kerberosTime )
+        {
+            return AFTER;
+        }
+
+        return EQUAL;
     }
 }

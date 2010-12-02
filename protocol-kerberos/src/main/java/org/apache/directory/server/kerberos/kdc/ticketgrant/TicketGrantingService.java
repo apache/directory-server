@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -55,7 +54,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
@@ -64,6 +62,7 @@ import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
@@ -145,16 +144,16 @@ public class TicketGrantingService
             sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
             sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
             sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-            sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
-            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+            sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
+            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
             sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
             sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-            sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getEType() ) );
-            sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-            sb.append( "\n\t" + "from time:             " + request.getFrom() );
-            sb.append( "\n\t" + "till time:             " + request.getTill() );
-            sb.append( "\n\t" + "renew-till time:       " + request.getRtime() );
-            sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+            sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
+            sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
+            sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
+            sb.append( "\n\t" + "till time:             " + request.getKdcReqBody().getTill() );
+            sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
+            sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
             LOG.debug( sb.toString() );
         }
@@ -171,7 +170,7 @@ public class TicketGrantingService
         KdcContext kdcContext = (KdcContext)tgsContext;
         KdcServer config = kdcContext.getConfig();
 
-        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
+        List<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -188,9 +187,9 @@ public class TicketGrantingService
     
     private static void getAuthHeader( TicketGrantingContext tgsContext ) throws Exception
     {
-        KdcRequest request = tgsContext.getRequest();
+        KdcReq request = tgsContext.getRequest();
 
-        PaData[] preAuthData = request.getPreAuthData();
+        PaData[] preAuthData = request.getPaData();
 
         if ( preAuthData == null || preAuthData.length < 1 )
         {
@@ -263,7 +262,7 @@ public class TicketGrantingService
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
         
-        boolean isValidate = tgsContext.getRequest().getKdcOptions().get( KdcOptions.VALIDATE );
+        boolean isValidate = tgsContext.getRequest().getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE );
 
         EncryptionType encryptionType = tgt.getEncPart().getEType();
         EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
@@ -315,7 +314,7 @@ public class TicketGrantingService
     
     private static void generateTicket( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        KdcRequest request = tgsContext.getRequest();
+        KdcReq request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
         Authenticator authenticator = tgsContext.getAuthenticator();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
@@ -351,7 +350,7 @@ public class TicketGrantingService
 
         EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
 
-        if ( request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
             /*
              * if (server not specified) then
@@ -381,7 +380,7 @@ public class TicketGrantingService
 
     private static void buildReply( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        KdcRequest request = tgsContext.getRequest();
+        KdcReq request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
         Ticket newTicket = tgsContext.getNewTicket();
 
@@ -389,7 +388,7 @@ public class TicketGrantingService
         reply.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
         reply.setTicket( newTicket );
         reply.setKey( newTicket.getEncTicketPart().getSessionKey() );
-        reply.setNonce( request.getNonce() );
+        reply.setNonce( request.getKdcReqBody().getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
         reply.setLastRequest( new LastRequest() );
         reply.setFlags( newTicket.getEncTicketPart().getFlags() );

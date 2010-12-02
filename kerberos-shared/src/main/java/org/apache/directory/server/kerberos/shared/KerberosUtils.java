@@ -38,12 +38,12 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncTicket
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -270,7 +270,7 @@ public class KerberosUtils
      * @param encryptionTypes The encryptionTypes
      * @return A list comma separated of the encryptionTypes
      */
-    public static String getEncryptionTypesString( Set<EncryptionType> encryptionTypes )
+    public static String getEncryptionTypesString( List<EncryptionType> encryptionTypes )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;

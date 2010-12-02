@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
+import org.apache.directory.shared.kerberos.KerberosTime;
 
 
 /**
