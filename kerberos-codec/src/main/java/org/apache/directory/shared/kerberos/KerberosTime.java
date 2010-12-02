@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
 
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -41,18 +40,6 @@ public class KerberosTime implements Comparable<KerberosTime>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosTime.class );
-
-    /** The GeneralizedDate pattern matching */
-    private static final String GENERALIZED_TIME_PATTERN =
-                    "^\\d{4}" // century + year : 0000 to 9999
-                    + "(0[1-9]|1[0-2])" // month : 01 to 12
-                    + "(0[1-9]|[12]\\d|3[01])" // day : 01 to 31
-                    + "([01]\\d|2[0-3])" // hour : 00 to 23
-                    + "([0-5]\\d)" // minute : 00 to 59
-                    + "([0-5]\\d)Z"; // second and UTC TZ
-
-    /** The date pattern. The regexp pattern is immutable, only one instance needed. */
-    private static final Pattern DATE_PATTERN = Pattern.compile( GENERALIZED_TIME_PATTERN );
 
     /** The format for a KerberosTime */
     private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
@@ -91,6 +78,7 @@ public class KerberosTime implements Comparable<KerberosTime>
     public KerberosTime()
     {
         kerberosTime = System.currentTimeMillis();
+        
     }
 
     
@@ -107,7 +95,7 @@ public class KerberosTime implements Comparable<KerberosTime>
         }
         catch ( ParseException pe )
         {
-            // TODO : mnaage exception
+            throw new IllegalArgumentException( "Bad time : " + date );
         }
     }
     
@@ -120,7 +108,7 @@ public class KerberosTime implements Comparable<KerberosTime>
         Calendar calendar = Calendar.getInstance( UTC );
         calendar.setTimeInMillis( date );
         this.date = sdf.format( calendar.getTime() );
-        kerberosTime = date;
+        kerberosTime = calendar.getTimeInMillis();
     }
     
     
@@ -183,23 +171,10 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public void setDate( String date ) throws ParseException
     {
-        boolean result = DATE_PATTERN.matcher( date ).find();
-
-        if ( result )
+        synchronized ( sdf )
         {
+            kerberosTime = sdf.parse( date ).getTime();
             this.date = date;
-
-            synchronized ( sdf )
-            {
-                kerberosTime = sdf.parse( date ).getTime();
-            }
-            
-            LOG.debug( "Syntax valid for '{}'", date );
-        }
-        else
-        {
-            LOG.debug( "Syntax invalid for '{}'", date );
-            throw new IllegalArgumentException();
         }
     }
     
@@ -220,24 +195,12 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return date;
     }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String toString()
-    {
-        return date;
-    }
 
 
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ( ( date == null ) ? 0 : date.hashCode() );
-        return result;
+        return (int)kerberosTime;
     }
 
 
@@ -256,19 +219,7 @@ public class KerberosTime implements Comparable<KerberosTime>
         
         KerberosTime other = ( KerberosTime ) obj;
         
-        if ( date == null )
-        {
-            if ( other.date != null )
-            {
-                return false;
-            }
-        }
-        else if ( !date.equals( other.date ) )
-        {
-            return false;
-        }
-        
-        return true;
+        return kerberosTime == other.kerberosTime;
     }
     
     
@@ -338,5 +289,24 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime > ktime.kerberosTime;
     }
-
+    
+    
+    /**
+     * Returns whether this {@link KerberosTime} is zero.
+     *
+     * @return true if this {@link KerberosTime} is zero.
+     */
+    public boolean isZero()
+    {
+        return kerberosTime == 0;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return date;
+    }
 }
