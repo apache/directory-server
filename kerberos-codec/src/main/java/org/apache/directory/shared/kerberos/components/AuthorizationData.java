@@ -234,6 +234,15 @@ public class AuthorizationData extends AbstractAsn1Object
 
 
     /**
+     * Add a new AuthorizationDataEntry
+     */
+    public void addEntry( AuthorizationDataEntry entry)
+    {
+        authorizationData.add( entry );
+    }
+
+
+    /**
      * @return the authorizationData
      */
     public List<AuthorizationDataEntry> getAuthorizationData()

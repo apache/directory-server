@@ -24,13 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 
 
 /**
@@ -134,34 +134,34 @@ public class AuthenticatorEncoder implements Encoder, EncoderFactory
      */
     private DERSequence encodeInitialSequence( Authenticator authenticator )
     {
-        String clientRealm = authenticator.getClientPrincipal().getRealm();
+        String clientRealm = authenticator.getCRealm();
 
         DERSequence sequence = new DERSequence();
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( authenticator.getVersionNumber() ) ) );
         sequence.add( new DERTaggedObject( 1, DERGeneralString.valueOf( clientRealm ) ) );
-        sequence.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( authenticator.getClientPrincipal() ) ) );
+        sequence.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( authenticator.getCName() ) ) );
 
         // OPTIONAL
-        if ( authenticator.getChecksum() != null )
+        if ( authenticator.getCksum() != null )
         {
-            sequence.add( new DERTaggedObject( 3, ChecksumEncoder.encode( authenticator.getChecksum() ) ) );
+            sequence.add( new DERTaggedObject( 3, ChecksumEncoder.encode( authenticator.getCksum() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 4, DERInteger.valueOf( authenticator.getClientMicroSecond() ) ) );
-        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( authenticator.getClientTime() ) ) );
+        sequence.add( new DERTaggedObject( 4, DERInteger.valueOf( authenticator.getCusec() ) ) );
+        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( authenticator.getCtime() ) ) );
 
         // OPTIONAL
-        if ( authenticator.getSubSessionKey() != null )
+        if ( authenticator.getSubKey() != null )
         {
             sequence.add( new DERTaggedObject( 6, EncryptionKeyEncoder
-                .encodeSequence( authenticator.getSubSessionKey() ) ) );
+                .encodeSequence( authenticator.getSubKey() ) ) );
         }
 
         // OPTIONAL
-        if ( authenticator.getSequenceNumber() > 0 )
+        if ( authenticator.getSeqNumber() > 0 )
         {
-            sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( authenticator.getSequenceNumber() ) ) );
+            sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( authenticator.getSeqNumber() ) ) );
         }
 
         // OPTIONAL

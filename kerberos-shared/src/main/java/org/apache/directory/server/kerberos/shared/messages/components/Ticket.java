@@ -22,13 +22,11 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.text.ParseException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -191,16 +189,8 @@ public class Ticket extends AbstractAsn1Object
      */
     public void setServerPrincipal( KerberosPrincipal serverPrincipal ) throws InvalidTicketException
     {
-        try
-        {
-            sName = new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() );
-            realm = serverPrincipal.getRealm();
-        }
-        catch ( ParseException pe )
-        {
-            LOG.error( I18n.err( I18n.ERR_135, serverPrincipal, pe.getLocalizedMessage() ) );
-            throw new InvalidTicketException( ErrorType.KRB_ERR_GENERIC, I18n.err( I18n.ERR_136, pe.getLocalizedMessage() ) );
-        }
+        sName = new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() );
+        realm = serverPrincipal.getRealm();
     }
     
 

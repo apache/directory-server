@@ -24,15 +24,15 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
-import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationDataEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.types.AuthorizationType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 
 
 /**
@@ -70,7 +70,7 @@ public class AuthorizationDataDecoder implements Decoder, DecoderFactory
         {
             DERSequence object = ( DERSequence ) e.nextElement();
             AuthorizationDataEntry entry = decodeAuthorizationEntry( object );
-            authData.add( entry );
+            authData.addEntry( entry );
         }
 
         return authData;
@@ -92,7 +92,7 @@ public class AuthorizationDataDecoder implements Decoder, DecoderFactory
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    type = AuthorizationType.getTypeByOrdinal( tag0.intValue() );
+                    type = AuthorizationType.getTypeByValue( tag0.intValue() );
                     break;
                     
                 case 1:

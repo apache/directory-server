@@ -37,28 +37,28 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,7 +243,7 @@ public class ChangePasswordService
         // TODO - check client principal in ticket is authorized to change password
 
         // get the subsession key from the Authenticator
-        EncryptionKey subSessionKey = authenticator.getSubSessionKey();
+        EncryptionKey subSessionKey = authenticator.getSubKey();
 
         // decrypt the request's private message with the subsession key
         EncryptedData encReqPrivPart = request.getPrivateMessage().getEncryptedPart();
@@ -366,7 +366,7 @@ public class ChangePasswordService
         EncKrbPrivPart privPart = modifier.getEncKrbPrivPart();
 
         // get the subsession key from the Authenticator
-        EncryptionKey subSessionKey = authenticator.getSubSessionKey();
+        EncryptionKey subSessionKey = authenticator.getSubKey();
 
         EncryptedData encPrivPart;
 
@@ -383,10 +383,10 @@ public class ChangePasswordService
 
         // Begin AP_REP generation
         EncApRepPartModifier encApModifier = new EncApRepPartModifier();
-        encApModifier.setClientTime( authenticator.getClientTime() );
-        encApModifier.setClientMicroSecond( authenticator.getClientMicroSecond() );
-        encApModifier.setSequenceNumber( Integer.valueOf( authenticator.getSequenceNumber() ) );
-        encApModifier.setSubSessionKey( authenticator.getSubSessionKey() );
+        encApModifier.setClientTime( authenticator.getCtime() );
+        encApModifier.setClientMicroSecond( authenticator.getCusec() );
+        encApModifier.setSequenceNumber( Integer.valueOf( authenticator.getSeqNumber() ) );
+        encApModifier.setSubSessionKey( authenticator.getSubKey() );
 
         EncApRepPart repPart = encApModifier.getEncApRepPart();
 

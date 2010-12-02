@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -45,7 +46,6 @@ import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
@@ -60,6 +60,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -170,7 +171,7 @@ public class TicketGrantingService
         KdcContext kdcContext = (KdcContext)tgsContext;
         KdcServer config = kdcContext.getConfig();
 
-        List<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
+        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -287,7 +288,7 @@ public class TicketGrantingService
         if ( config.isBodyChecksumVerified() )
         {
             byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
-            Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
+            Checksum authenticatorChecksum = tgsContext.getAuthenticator().getCksum();
 
             if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
                 || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
@@ -339,7 +340,7 @@ public class TicketGrantingService
         if ( request.getEncAuthorizationData() != null )
         {
             AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class,
-                authenticator.getSubSessionKey(), request.getEncAuthorizationData(), KeyUsage.NUMBER4 );
+                authenticator.getSubKey(), request.getKdcReqBody().getEncAuthorizationData(), KeyUsage.NUMBER4 );
             authData.add( tgt.getEncTicketPart().getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
@@ -416,9 +417,9 @@ public class TicketGrantingService
 
         EncryptedData encryptedData;
 
-        if ( authenticator.getSubSessionKey() != null )
+        if ( authenticator.getSubKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubSessionKey(), reply, KeyUsage.NUMBER9 );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), reply, KeyUsage.NUMBER9 );
         }
         else
         {
@@ -436,7 +437,7 @@ public class TicketGrantingService
         {
             Ticket tgt = tgsContext.getTgt();
             long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
-            ChecksumType checksumType = tgsContext.getAuthenticator().getChecksum().getChecksumType();
+            ChecksumType checksumType = tgsContext.getAuthenticator().getCksum().getChecksumType();
             InetAddress clientAddress = tgsContext.getClientAddress();
             HostAddresses clientAddresses = tgt.getEncTicketPart().getClientAddresses();
 
