@@ -190,9 +190,16 @@ public class PrincipalName extends AbstractAsn1Object
      * @param nameString
      * @param nameType
      */
-    public PrincipalName( String nameString, int nameType ) throws ParseException
+    public PrincipalName( String nameString, int nameType )
     {
-        this.nameString = KerberosUtils.getNames( nameString );
+        try
+        {
+            this.nameString = KerberosUtils.getNames( nameString );
+        }
+        catch ( ParseException pe )
+        {
+            throw new IllegalArgumentException( pe );
+        }
         
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
