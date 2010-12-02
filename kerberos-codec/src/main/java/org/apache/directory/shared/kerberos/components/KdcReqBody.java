@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -134,7 +134,7 @@ public class KdcReqBody extends AbstractAsn1Object
     public KdcReqBody()
     {
         additionalTickets = new ArrayList<Ticket>();
-        eType = new HashSet<EncryptionType>();
+        eType = new LinkedHashSet<EncryptionType>();
     }
 
 
