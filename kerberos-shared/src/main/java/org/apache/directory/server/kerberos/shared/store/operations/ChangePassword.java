@@ -23,18 +23,17 @@ package org.apache.directory.server.kerberos.shared.store.operations;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -50,7 +49,7 @@ public class ChangePassword implements DirectoryServiceOperation
     private static final long serialVersionUID = -7147685183641418353L;
 
     /** The Kerberos principal who's password is to be changed. */
-    protected KerberosPrincipal principal;
+    protected PrincipalName principal;
     /** The new password for the update. */
     protected String newPassword;
 
@@ -61,7 +60,7 @@ public class ChangePassword implements DirectoryServiceOperation
      * @param principal The principal to change the password for.
      * @param newPassword The password to change.
      */
-    public ChangePassword( KerberosPrincipal principal, String newPassword )
+    public ChangePassword( PrincipalName principal, String newPassword )
     {
         this.principal = principal;
         this.newPassword = newPassword;
@@ -84,12 +83,12 @@ public class ChangePassword implements DirectoryServiceOperation
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
         EntryAttribute principalAttribute = new DefaultEntryAttribute( 
-            schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
+            schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getNameString() );
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
         
         //FIXME check if keyderivation is necessary
         
-        Entry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
+        Entry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getNameString() );
         session.modify( entry.getDn(), mods );
 
         return entry.getDn().toString();
