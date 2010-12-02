@@ -337,11 +337,11 @@ public class TicketGrantingService
 
         newTicketBody.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
 
-        if ( request.getEncAuthorizationData() != null )
+        if ( request.getKdcReqBody().getEncAuthorizationData() != null )
         {
             AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class,
                 authenticator.getSubKey(), request.getKdcReqBody().getEncAuthorizationData(), KeyUsage.NUMBER4 );
-            authData.add( tgt.getEncTicketPart().getAuthorizationData() );
+            authData.addEntry( tgt.getEncTicketPart().getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
 
