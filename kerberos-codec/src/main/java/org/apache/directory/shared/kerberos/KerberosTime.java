@@ -285,7 +285,11 @@ public class KerberosTime implements Comparable<KerberosTime>
     
     
     /**
-     * TODO: Add javadoc
+     * compares current kerberos time with the given kerberos time
+     * @param that the kerberos time against which the current kerberos time is compared
+     * @return 0 if both times are equal,<br>
+     *         -1 if current time is less than the given time and<br>
+     *         1 if the given time is greater than the current time 
      */
     public int compareTo( KerberosTime that )
     {
@@ -312,4 +316,27 @@ public class KerberosTime implements Comparable<KerberosTime>
 
         return EQUAL;
     }
+    
+    
+    /**
+     * checks if the current kerberos time is less than the given kerberos time
+     * @param ktime the kerberos time against which the currnet kerberos time needs to be compared
+     * @return true if current kerberos time is less than the given kerberos time, false otherwise
+     */
+    public boolean lessThan( KerberosTime ktime )
+    {
+        return kerberosTime < ktime.kerberosTime;
+    }
+    
+    
+    /**
+     * checks if the current kerberos time is greater than the given kerberos time
+     * @param ktime the kerberos time against which the currnet kerberos time needs to be compared
+     * @return true if current kerberos time is greater than the given kerberos time, false otherwise
+     */
+    public boolean greaterThan( KerberosTime ktime )
+    {
+        return kerberosTime > ktime.kerberosTime;
+    }
+
 }
