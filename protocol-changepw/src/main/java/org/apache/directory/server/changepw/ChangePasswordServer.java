@@ -28,12 +28,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.mina.core.service.IoAcceptor;

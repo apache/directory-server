@@ -52,6 +52,11 @@
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-codec</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
     </dependency>
