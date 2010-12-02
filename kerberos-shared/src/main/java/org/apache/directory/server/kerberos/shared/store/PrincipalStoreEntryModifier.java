@@ -24,14 +24,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -46,7 +45,7 @@ public class PrincipalStoreEntryModifier
     // principal
     private String distinguishedName;
     private String commonName;
-    private KerberosPrincipal principal;
+    private PrincipalName principal;
     private String realmName;
 
     // uidObject
@@ -221,7 +220,7 @@ public class PrincipalStoreEntryModifier
      *
      * @param principal
      */
-    public void setPrincipal( KerberosPrincipal principal )
+    public void setPrincipal( PrincipalName principal )
     {
         this.principal = principal;
     }

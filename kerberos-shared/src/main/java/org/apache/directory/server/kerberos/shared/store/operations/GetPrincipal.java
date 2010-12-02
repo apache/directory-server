@@ -24,10 +24,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
@@ -37,7 +33,9 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModi
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
@@ -53,7 +51,7 @@ public class GetPrincipal implements DirectoryServiceOperation
     private static final long serialVersionUID = 4598007518413451945L;
 
     /** The name of the principal to get. */
-    private final KerberosPrincipal principal;
+    private final PrincipalName principal;
 
 
     /**
@@ -61,7 +59,7 @@ public class GetPrincipal implements DirectoryServiceOperation
      * 
      * @param principal The principal to search for in the directory.
      */
-    public GetPrincipal( KerberosPrincipal principal )
+    public GetPrincipal( PrincipalName principal )
     {
         this.principal = principal;
     }
@@ -78,7 +76,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             return null;
         }
 
-        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getName() ) );
+        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getNameString() ) );
     }
 
 
@@ -88,7 +86,7 @@ public class GetPrincipal implements DirectoryServiceOperation
      * @param dn the distinguished name of the Kerberos principal
      * @param attrs the attributes of the Kerberos principal
      * @return the entry for the principal
-     * @throws NamingException if there are any access problems
+     * @throws Exception if there are any access problems
      */
     private PrincipalStoreEntry getEntry( Entry entry ) throws Exception
     {
@@ -97,7 +95,7 @@ public class GetPrincipal implements DirectoryServiceOperation
         modifier.setDistinguishedName( entry.getDn().getName() );
 
         String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
-        modifier.setPrincipal( new KerberosPrincipal( principal ) );
+        modifier.setPrincipal( new PrincipalName( principal, PrincipalNameType.KRB_NT_PRINCIPAL ) );
 
         String keyVersionNumber = entry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).getString();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
@@ -123,7 +121,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             }
             catch ( ParseException e )
             {
-                throw new InvalidAttributeValueException( "Account expiration attribute "
+                throw new Exception( "Account expiration attribute "
                     + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT + " contained an invalid value for generalizedTime: "
                     + val );
             }
@@ -146,7 +144,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             }
             catch ( IOException ioe )
             {
-                throw new InvalidAttributeValueException( I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ) );
+                throw new Exception( I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ) );
             }
         }
 

@@ -22,12 +22,11 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import java.util.Map;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
@@ -38,7 +37,7 @@ public class PrincipalStoreEntry
     // principal
     private String distinguishedName;
     private String commonName;
-    private KerberosPrincipal principal;
+    private PrincipalName principal;
     private String realmName;
 
     // uidObject
@@ -61,7 +60,7 @@ public class PrincipalStoreEntry
     private Map<EncryptionType, EncryptionKey> keyMap;
 
 
-    PrincipalStoreEntry( String distinguishedName, String commonName, String userId, KerberosPrincipal principal,
+    PrincipalStoreEntry( String distinguishedName, String commonName, String userId, PrincipalName principal,
         int keyVersionNumber, KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife,
         int maxRenew, int kdcFlags, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
         boolean disabled, boolean lockedOut, KerberosTime expiration )
@@ -223,7 +222,7 @@ public class PrincipalStoreEntry
      *
      * @return The principal.
      */
-    public KerberosPrincipal getPrincipal()
+    public PrincipalName getPrincipal()
     {
         return principal;
     }
