@@ -24,7 +24,6 @@ package org.apache.directory.server.kerberos.shared.store;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -35,6 +34,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
@@ -67,7 +67,7 @@ class MultiBaseSearch implements PrincipalStore
     }
 
 
-    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
+    public PrincipalStoreEntry getPrincipal( PrincipalName principal ) throws Exception
     {
         try
         {
@@ -81,7 +81,7 @@ class MultiBaseSearch implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
+    public String changePassword( PrincipalName principal, String newPassword ) throws Exception
     {
         try
         {

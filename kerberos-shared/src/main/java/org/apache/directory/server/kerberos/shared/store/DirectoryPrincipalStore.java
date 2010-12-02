@@ -20,9 +20,8 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -51,20 +50,20 @@ public class DirectoryPrincipalStore implements PrincipalStore
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.kerberos.shared.store.PrincipalStore#changePassword(javax.security.auth.kerberos.KerberosPrincipal, java.lang.String)
+    /**
+     * {@inheritDoc}
      */
-    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
+    public String changePassword( PrincipalName principal, String newPassword ) throws Exception
     {
         SingleBaseSearch singleBaseSearch = new SingleBaseSearch( directoryService, searchBaseDn );
         return singleBaseSearch.changePassword( principal, newPassword );
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.kerberos.shared.store.PrincipalStore#getPrincipal(javax.security.auth.kerberos.KerberosPrincipal)
+    /**
+     * {@inheritDoc}
      */
-    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
+    public PrincipalStoreEntry getPrincipal( PrincipalName principal ) throws Exception
     {
         SingleBaseSearch singleBaseSearch = new SingleBaseSearch( directoryService, searchBaseDn );
         return singleBaseSearch.getPrincipal( principal );
