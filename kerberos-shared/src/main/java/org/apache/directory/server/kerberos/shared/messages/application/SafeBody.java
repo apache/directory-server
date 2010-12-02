@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
+import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.KerberosTime;
 
 
