@@ -24,13 +24,13 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
 
 
@@ -257,13 +257,13 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
-     * Returns the {@link LastRequest}.
+     * Returns the {@link LastReq}.
      *
-     * @return The {@link LastRequest}.
+     * @return The {@link LastReq}.
      */
-    public LastRequest getLastRequest()
+    public LastReq getLastReq()
     {
-        return encKDCRepPart.getLastRequest();
+        return encKDCRepPart.getLastReq();
     }
 
 
@@ -391,13 +391,13 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
-     * Sets the {@link LastRequest}.
+     * Sets the {@link LastReq}.
      *
      * @param request
      */
-    public void setLastRequest( LastRequest request )
+    public void setLastReq( LastReq request )
     {
-        encKDCRepPart.setLastRequest( request );
+        encKDCRepPart.setLastReq( request );
     }
 
 

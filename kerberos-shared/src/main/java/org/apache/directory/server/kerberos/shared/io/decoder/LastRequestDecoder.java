@@ -22,15 +22,15 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequestEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.types.LastRequestType;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.types.LastReqType;
+import org.apache.directory.shared.kerberos.components.LastReq;
+import org.apache.directory.shared.kerberos.components.LastReqEntry;
 
 
 /**
@@ -44,26 +44,23 @@ public class LastRequestDecoder
      * lr-value[1]              KerberosTime
      * }
      */
-    protected static LastRequest decodeSequence( DERSequence sequence )
+    protected static LastReq decodeSequence( DERSequence sequence )
     {
-        LastRequestEntry[] entries = new LastRequestEntry[sequence.size()];
+        LastReq lastReq = new LastReq();
 
-        int ii = 0;
         for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERSequence object = ( DERSequence ) e.nextElement();
-            LastRequestEntry entry = decode( object );
-            entries[ii] = entry;
-            ii++;
+            decode( lastReq, object );
         }
 
-        return new LastRequest( entries );
+        return lastReq;
     }
 
 
-    protected static LastRequestEntry decode( DERSequence sequence )
+    protected static void decode( LastReq lastReq, DERSequence sequence )
     {
-        LastRequestType type = LastRequestType.NONE;
+        LastReqType type = LastReqType.NONE;
         KerberosTime value = null;
 
         for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
@@ -76,7 +73,7 @@ public class LastRequestDecoder
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    type = LastRequestType.getTypeByOrdinal( tag0.intValue() );
+                    type = LastReqType.getTypeByValue( tag0.intValue() );
                     break;
                 case 1:
                     DERGeneralizedTime tag1 = ( DERGeneralizedTime ) derObject;
@@ -85,6 +82,6 @@ public class LastRequestDecoder
             }
         }
 
-        return new LastRequestEntry( type, value );
+        lastReq.addEntry( new LastReqEntry( type, value ) );
     }
 }

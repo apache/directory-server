@@ -46,7 +46,6 @@ import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -60,6 +59,7 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
@@ -578,7 +578,7 @@ public class AuthenticationService
         reply.setKey( ticket.getEncTicketPart().getSessionKey() );
 
         // TODO - fetch lastReq for this client; requires store
-        reply.setLastRequest( new LastRequest() );
+        reply.setLastReq( new LastReq() );
         // TODO - resp.key-expiration := client.expiration; requires store
 
         reply.setNonce( request.getKdcReqBody().getNonce() );

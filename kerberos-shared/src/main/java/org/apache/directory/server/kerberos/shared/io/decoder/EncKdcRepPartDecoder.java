@@ -96,7 +96,7 @@ public class EncKdcRepPartDecoder implements Decoder, DecoderFactory
                     break;
                 case 1:
                     DERSequence tag1 = ( DERSequence ) derObject;
-                    modifier.setLastRequest( LastRequestDecoder.decodeSequence( tag1 ) );
+                    modifier.setLastReq( LastRequestDecoder.decodeSequence( tag1 ) );
                     break;
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;

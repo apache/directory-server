@@ -23,11 +23,11 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.LastReq;
 
 
 /**
@@ -38,7 +38,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 public class EncKdcRepPart implements Encodable
 {
     private EncryptionKey key;
-    private LastRequest lastRequest;
+    private LastReq lastReq;
     private int nonce;
     private KerberosTime keyExpiration; //optional
     private TicketFlags flags = new TicketFlags();
@@ -76,12 +76,12 @@ public class EncKdcRepPart implements Encodable
      * @param caddr
      * @param componentType
      */
-    public EncKdcRepPart( EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
+    public EncKdcRepPart( EncryptionKey key, LastReq lastReq, int nonce, KerberosTime keyExpiration,
         TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
         KerberosPrincipal serverPrincipal, HostAddresses caddr, MessageComponentType componentType )
     {
         this.key = key;
-        this.lastRequest = lastReq;
+        this.lastReq = lastReq;
         this.nonce = nonce;
         this.keyExpiration = keyExpiration;
         this.flags = flags;
@@ -162,13 +162,13 @@ public class EncKdcRepPart implements Encodable
 
 
     /**
-     * Returns the {@link LastRequest}.
+     * Returns the {@link LastReq}.
      *
-     * @return The {@link LastRequest}.
+     * @return The {@link LastReq}.
      */
-    public LastRequest getLastRequest()
+    public LastReq getLastReq()
     {
-        return lastRequest;
+        return lastReq;
     }
 
 
@@ -305,13 +305,13 @@ public class EncKdcRepPart implements Encodable
 
 
     /**
-     * Sets the {@link LastRequest}.
+     * Sets the {@link LastReq}.
      *
      * @param request
      */
-    public void setLastRequest( LastRequest request )
+    public void setLastReq( LastReq request )
     {
-        lastRequest = request;
+        lastReq = request;
     }
 
 

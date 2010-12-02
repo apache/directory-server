@@ -22,11 +22,11 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.LastReq;
 
 
 /**
@@ -51,7 +51,7 @@ public class EncTgsRepPart extends EncKdcRepPart
      * @param serverPrincipal
      * @param caddr
      */
-    public EncTgsRepPart(EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
+    public EncTgsRepPart(EncryptionKey key, LastReq lastReq, int nonce, KerberosTime keyExpiration,
         TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
         KerberosPrincipal serverPrincipal, HostAddresses caddr)
     {

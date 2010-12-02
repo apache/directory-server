@@ -389,7 +389,7 @@ public class TicketGrantingService
         reply.setKey( newTicket.getEncTicketPart().getSessionKey() );
         reply.setNonce( request.getKdcReqBody().getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
-        reply.setLastRequest( new LastRequest() );
+        reply.setLastReq( new LastRequest() );
         reply.setFlags( newTicket.getEncTicketPart().getFlags() );
         reply.setClientAddresses( newTicket.getEncTicketPart().getClientAddresses() );
         reply.setAuthTime( newTicket.getEncTicketPart().getAuthTime() );
