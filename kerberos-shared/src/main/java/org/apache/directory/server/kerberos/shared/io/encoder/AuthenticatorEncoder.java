@@ -24,7 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;

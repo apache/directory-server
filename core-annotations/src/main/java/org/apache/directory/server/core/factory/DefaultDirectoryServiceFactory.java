@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
@@ -131,6 +132,19 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         }
 
         InstanceLayout instanceLayout = new InstanceLayout( instanceDirectory );
+        
+        if ( instanceLayout.getInstanceDirectory().exists() )
+        {
+            try
+            {
+                FileUtils.deleteDirectory( instanceLayout.getInstanceDirectory() );
+            }
+            catch( IOException e )
+            {
+                LOG.warn( "couldn't delete the instance directory before initializing the DirectoryService", e );
+            }
+        }
+        
         directoryService.setInstanceLayout( instanceLayout );
     }
 

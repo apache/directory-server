@@ -36,7 +36,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequest
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcRequestEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;

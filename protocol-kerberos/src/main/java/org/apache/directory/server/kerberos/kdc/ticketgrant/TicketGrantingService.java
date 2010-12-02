@@ -43,7 +43,7 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;

@@ -50,7 +50,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestamp
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;

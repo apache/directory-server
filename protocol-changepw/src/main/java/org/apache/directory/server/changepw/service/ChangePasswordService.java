@@ -44,7 +44,7 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
