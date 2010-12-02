@@ -34,6 +34,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -90,7 +91,7 @@ public class AuthorizationDataDecoderTest
         String[] expected = new String[]{ "abcdef", "ghi" };
         int i = 0;
         
-        for ( AuthorizationData.AD ad : authData.getAuthorizationData() )
+        for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
             assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );

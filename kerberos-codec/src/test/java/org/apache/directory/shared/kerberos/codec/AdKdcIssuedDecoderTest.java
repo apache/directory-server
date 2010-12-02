@@ -40,6 +40,7 @@ import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.AdKdcIssued;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
@@ -139,7 +140,7 @@ public class AdKdcIssuedDecoderTest
         String[] expected = new String[]{ "abcdef", "ghijkl" };
         int i = 0;
         
-        for ( AuthorizationData.AD ad : authData.getAuthorizationData() )
+        for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
             assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
@@ -242,7 +243,7 @@ public class AdKdcIssuedDecoderTest
         String[] expected = new String[]{ "abcdef", "ghijkl" };
         int i = 0;
         
-        for ( AuthorizationData.AD ad : authData.getAuthorizationData() )
+        for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
             assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );

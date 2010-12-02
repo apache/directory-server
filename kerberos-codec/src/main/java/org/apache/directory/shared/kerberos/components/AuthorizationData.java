@@ -24,7 +24,6 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
@@ -53,89 +52,11 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthorizationData extends AbstractAsn1Object
 {
-    // The inner class storing the individual ADs
-    public class AD
-    {
-        /** the type of authorization data */
-        private AuthorizationType adType;
-
-        /** the authorization data */
-        private byte[] adData;
-
-        /**
-         * @return the adType
-         */
-        public AuthorizationType getAdType()
-        {
-            return adType;
-        }
-
-        /**
-         * @return the adData
-         */
-        public byte[] getAdData()
-        {
-            return adData;
-        }
-        
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + getOuterType().hashCode();
-            result = prime * result + Arrays.hashCode( adData );
-            result = prime * result + ( ( adType == null ) ? 0 : adType.hashCode() );
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean equals( Object obj )
-        {
-            if ( this == obj )
-            {
-                return true;
-            }
-            
-            if ( obj == null )
-            {
-                return false;
-            }
-            
-            AD other = ( AD ) obj;
-            
-            if ( !Arrays.equals( adData, other.adData ) )
-            {
-                return false;
-            }
-            
-            if ( adType != other.adType )
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private AuthorizationData getOuterType()
-        {
-            return AuthorizationData.this;
-        }
-        
-    }
-    
     /** The list of AuthorizationData elements */
-    private List<AD> authorizationData = new ArrayList<AD>();
+    private List<AuthorizationDataEntry> authorizationData = new ArrayList<AuthorizationDataEntry>();
     
     /** The current AD being processed */
-    private AD currentAD;
+    private AuthorizationDataEntry currentAD;
 
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( EncryptedData.class );
@@ -182,11 +103,11 @@ public class AuthorizationData extends AbstractAsn1Object
         adTypeTagLen = new int[authorizationData.size()];
         adDataTagLen = new int[authorizationData.size()];
         
-        for ( AD ad : authorizationData )
+        for ( AuthorizationDataEntry ad : authorizationData )
         {
-            int adTypeLen = Value.getNbBytes( ad.adType.getValue() );
+            int adTypeLen = Value.getNbBytes( ad.getAdType().getValue() );
             adTypeTagLen[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
-            adDataTagLen[i] = 1 + TLV.getNbBytes( ad.adData.length ) + ad.adData.length;
+            adDataTagLen[i] = 1 + TLV.getNbBytes( ad.getAdDataRef().length ) + ad.getAdDataRef().length;
             
             authorizationDataSeqLen[i] = 1 + TLV.getNbBytes( adTypeTagLen[i] ) + adTypeTagLen[i] + 
                                          1 + TLV.getNbBytes( adDataTagLen[i] ) + adDataTagLen[i];
@@ -221,7 +142,8 @@ public class AuthorizationData extends AbstractAsn1Object
             buffer.put( TLV.getBytes( authorizationDataSeqSeqLen ) );
             
             int i = 0;
-            for ( AD ad : authorizationData )
+            
+            for ( AuthorizationDataEntry ad : authorizationData )
             {
                 buffer.put( UniversalTag.SEQUENCE.getValue() );
                 buffer.put( TLV.getBytes( authorizationDataSeqLen[i] ) );
@@ -229,12 +151,12 @@ public class AuthorizationData extends AbstractAsn1Object
                 // the adType
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADTYPE_TAG );
                 buffer.put( TLV.getBytes( adTypeTagLen[i] ) );
-                Value.encode( buffer, ad.adType.getValue() );
+                Value.encode( buffer, ad.getAdType().getValue() );
     
                 // the adData
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADDATA_TAG );
                 buffer.put( TLV.getBytes( adDataTagLen[i] ) );
-                Value.encode( buffer, ad.adData );
+                Value.encode( buffer, ad.getAdDataRef() );
                 
                 i++;
             }
@@ -261,7 +183,7 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public AuthorizationType getCurrentAdType()
     {
-        return currentAD.adType;
+        return currentAD.getAdType();
     }
 
 
@@ -270,7 +192,7 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public void setCurrentAdType( AuthorizationType adType )
     {
-        currentAD.adType = adType;
+        currentAD.setAdType( adType );
     }
 
 
@@ -279,7 +201,7 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public byte[] getCurrentAdData()
     {
-        return currentAD.adData;
+        return currentAD.getAdData();
     }
 
 
@@ -288,14 +210,14 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public void setCurrentAdData( byte[] adData )
     {
-        currentAD.adData = adData;
+        currentAD.setAdData( adData );
     }
 
 
     /**
      * @return the currentAD
      */
-    public AD getCurrentAD()
+    public AuthorizationDataEntry getCurrentAD()
     {
         return currentAD;
     }
@@ -306,7 +228,7 @@ public class AuthorizationData extends AbstractAsn1Object
      */
     public void createNewAD()
     {
-        currentAD = new AD();
+        currentAD = new AuthorizationDataEntry();
         authorizationData.add( currentAD );
     }
 
@@ -314,7 +236,7 @@ public class AuthorizationData extends AbstractAsn1Object
     /**
      * @return the authorizationData
      */
-    public List<AD> getAuthorizationData()
+    public List<AuthorizationDataEntry> getAuthorizationData()
     {
         return authorizationData;
     }
@@ -393,12 +315,9 @@ public class AuthorizationData extends AbstractAsn1Object
 
         sb.append( tabs ).append( "AuthorizationData : \n" );
         
-        for ( AD ad : authorizationData )
+        for ( AuthorizationDataEntry ad : authorizationData )
         {
-            sb.append( tabs ).append( "    {\n" );
-            sb.append( tabs ).append( "        adtype: " ).append( ad.adType ).append( '\n' );
-            sb.append( tabs ).append( "        adData: " ).append( StringTools.dumpBytes( ad.adData ) ).append( '\n');
-            sb.append( tabs ).append( "    }\n" );
+            sb.append( tabs ).append( ad );
         }
 
         return sb.toString();
