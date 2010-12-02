@@ -31,14 +31,14 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -125,7 +125,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
-        KdcRequest request = ( KdcRequest ) message;
+        KdcReq request = ( KdcReq ) message;
 
         KerberosMessageType messageType = request.getMessageType();
 

@@ -25,14 +25,14 @@ import java.io.IOException;
 import javax.security.auth.kerberos.KerberosKey;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**
@@ -46,7 +46,7 @@ public class TimestampChecker implements KeyIntegrityChecker
 
     public boolean checkKeyIntegrity( byte[] encryptedData, KerberosKey kerberosKey )
     {
-        EncryptionType keyType = EncryptionType.getTypeByOrdinal( kerberosKey.getKeyType() );
+        EncryptionType keyType = EncryptionType.getTypeByValue( kerberosKey.getKeyType() );
         EncryptionKey key = new EncryptionKey( keyType, kerberosKey.getEncoded() );
 
         try

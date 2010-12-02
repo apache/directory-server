@@ -24,13 +24,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

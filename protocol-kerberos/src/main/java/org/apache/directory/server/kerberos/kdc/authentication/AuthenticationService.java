@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -36,7 +37,6 @@ import org.apache.directory.server.kerberos.sam.SamSubsystem;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -53,7 +53,6 @@ import org.apache.directory.server.kerberos.shared.messages.components.InvalidTi
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -66,6 +65,9 @@ import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +131,7 @@ public class AuthenticationService
         KdcContext kdcContext = ( KdcContext ) authContext;
         KdcServer config = kdcContext.getConfig();
 
-        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
+        List<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -178,7 +180,7 @@ public class AuthenticationService
     private static void verifySam( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
         LOG.debug( "Verifying using SAM subsystem." );
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         KdcServer config = authContext.getConfig();
 
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
@@ -209,7 +211,7 @@ public class AuthenticationService
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
                             preAuthData[ii].getPaDataValue() );
-                        clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey.getKeyType() ), samKey
+                        clientKey = new EncryptionKey( EncryptionType.getTypeByValue( samKey.getKeyType() ), samKey
                             .getEncoded() );
                     }
                 }
@@ -342,7 +344,7 @@ public class AuthenticationService
     
     private static void generateTicket( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         KerberosPrincipal serverPrincipal = request.getServerPrincipal();
 
@@ -560,7 +562,7 @@ public class AuthenticationService
     
     private static void buildReply( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
         AuthenticationReply reply = new AuthenticationReply();
@@ -605,7 +607,7 @@ public class AuthenticationService
     
     private static void monitorRequest( KdcContext kdcContext )
     {
-        KdcRequest request = kdcContext.getRequest();
+        KdcReq request = kdcContext.getRequest();
 
         if ( LOG.isDebugEnabled() )
         {

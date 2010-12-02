@@ -33,8 +33,6 @@ import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
@@ -42,6 +40,8 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
@@ -153,7 +153,7 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
             EncryptionKey key = entry.getKeyMap().get( encryptionType );
 
             byte[] keyBytes = key.getKeyValue();
-            int type = key.getKeyType().getOrdinal();
+            int type = key.getKeyType().getValue();
             int kvno = key.getKeyVersion();
 
             KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );

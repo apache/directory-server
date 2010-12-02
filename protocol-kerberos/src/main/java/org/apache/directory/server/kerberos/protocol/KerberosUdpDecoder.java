@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
@@ -77,7 +78,7 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
                 TLV tlv = kerberosMessageContainer.getCurrentTLV();
                 Value value = tlv.getValue();
 
-                if ( ( value.getData() != null ) && ( value.getData().length == tlv.getLength() ) )
+                if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
                     if ( IS_DEBUG )
                     {
