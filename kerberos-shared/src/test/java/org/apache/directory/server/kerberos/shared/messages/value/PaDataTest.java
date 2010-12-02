@@ -20,16 +20,17 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the PaData encoding and decoding

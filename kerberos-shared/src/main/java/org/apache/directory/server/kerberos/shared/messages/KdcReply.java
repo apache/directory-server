@@ -24,14 +24,14 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.PaData;
 
 
 /**

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.PaData;
 
 
 /**
@@ -109,7 +109,7 @@ public class KdcReplyEncoder
         {
             DERSequence sequence = new DERSequence();
 
-            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getPaDataType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getPaDataType().getValue() ) ) );
             sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getPaDataValue() ) ) );
             preAuth.add( sequence );
         }

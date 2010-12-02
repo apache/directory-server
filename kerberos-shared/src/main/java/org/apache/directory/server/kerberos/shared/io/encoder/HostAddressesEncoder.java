@@ -20,12 +20,12 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 
 
 /**
@@ -84,7 +84,7 @@ public class HostAddressesEncoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( host.getAddrType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( host.getAddrType().getValue() ) ) );
         sequence.add( new DERTaggedObject( 1, new DEROctetString( host.getAddress() ) ) );
 
         return sequence;

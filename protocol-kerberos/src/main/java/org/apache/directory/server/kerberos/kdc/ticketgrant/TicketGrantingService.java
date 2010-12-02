@@ -45,13 +45,9 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -59,12 +55,16 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.slf4j.Logger;
@@ -190,20 +190,18 @@ public class TicketGrantingService
     {
         KdcReq request = tgsContext.getRequest();
 
-        PaData[] preAuthData = request.getPaData();
-
-        if ( preAuthData == null || preAuthData.length < 1 )
+        if ( ( request.getPaData() == null ) || ( request.getPaData().size() < 1 ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
         }
 
         byte[] undecodedAuthHeader = null;
 
-        for ( int ii = 0; ii < preAuthData.length; ii++ )
+        for ( PaData paData : request.getPaData() )
         {
-            if ( preAuthData[ii].getPaDataType() == PaDataType.PA_TGS_REQ )
+            if ( paData.getPaDataType() == PaDataType.PA_TGS_REQ )
             {
-                undecodedAuthHeader = preAuthData[ii].getPaDataValue();
+                undecodedAuthHeader = paData.getPaDataValue();
             }
         }
 

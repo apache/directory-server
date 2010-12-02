@@ -28,6 +28,7 @@ import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 
 
 /**

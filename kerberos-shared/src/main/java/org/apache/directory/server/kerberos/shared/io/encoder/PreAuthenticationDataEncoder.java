@@ -23,12 +23,12 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.PaData;
 
 
 /**
@@ -91,7 +91,7 @@ public class PreAuthenticationDataEncoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuth.getPaDataType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuth.getPaDataType().getValue() ) ) );
 
         if ( preAuth.getPaDataValue() != null )
         {

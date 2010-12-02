@@ -40,15 +40,16 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.PaData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +120,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         String passPhrase = "secret";
         PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
+        KdcReq message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
