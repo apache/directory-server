@@ -36,7 +36,6 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequest
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcRequestEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -234,21 +233,19 @@ public abstract class AbstractTicketGrantingServiceTest
     protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, RequestBody requestBody,
         ChecksumType checksumType ) throws IOException, KerberosException
     {
-        AuthenticatorModifier authenticatorModifier = new AuthenticatorModifier();
+        Authenticator authenticator = new Authenticator();
 
         clientMicroSeconds = random.nextInt();
 
-        authenticatorModifier.setVersionNumber( 5 );
-        authenticatorModifier.setClientPrincipal( clientPrincipal );
-        authenticatorModifier.setClientTime( now );
-        authenticatorModifier.setClientMicroSecond( clientMicroSeconds );
-        authenticatorModifier.setSubSessionKey( subSessionKey );
-        authenticatorModifier.setSequenceNumber( sequenceNumber );
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCName( new PrincipalName( clientPrincipal.getName(), clientPrincipal.getNameType() ) );
+        authenticator.setCTime( now );
+        authenticator.setCusec( clientMicroSeconds );
+        authenticator.setSubKey( subSessionKey );
+        authenticator.setSeqNumber( sequenceNumber );
 
         Checksum checksum = getBodyChecksum( requestBody, checksumType );
-        authenticatorModifier.setChecksum( checksum );
-
-        Authenticator authenticator = authenticatorModifier.getAuthenticator();
+        authenticator.setCksum( checksum );
 
         EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.NUMBER7 );
 

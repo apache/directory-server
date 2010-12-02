@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -34,6 +32,7 @@ import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 
 
 /**
@@ -77,7 +76,7 @@ public class AuthenticatorDecoder implements Decoder, DecoderFactory
      */
     protected static Authenticator decode( DERSequence sequence )
     {
-        AuthenticatorModifier modifier = new AuthenticatorModifier();
+        Authenticator authenticator = new Authenticator();
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
@@ -89,43 +88,43 @@ public class AuthenticatorDecoder implements Decoder, DecoderFactory
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    modifier.setVersionNumber( tag0.intValue() );
+                    authenticator.setVersionNumber( tag0.intValue() );
                     break;
                 case 1:
                     DERGeneralString tag1 = ( DERGeneralString ) derObject;
-                    modifier.setClientRealm( tag1.getString() );
+                    authenticator.setCRealm( tag1.getString() );
                     break;
                 case 2:
                     DERSequence tag2 = ( DERSequence ) derObject;
-                    modifier.setClientName( PrincipalNameDecoder.decode( tag2 ) );
+                    authenticator.setCName( PrincipalNameDecoder.decode( tag2 ) );
                     break;
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
-                    modifier.setChecksum( ChecksumDecoder.decode( tag3 ) );
+                    authenticator.setCksum( ChecksumDecoder.decode( tag3 ) );
                     break;
                 case 4:
                     DERInteger tag4 = ( DERInteger ) derObject;
-                    modifier.setClientMicroSecond( tag4.intValue() );
+                    authenticator.setCusec( tag4.intValue() );
                     break;
                 case 5:
                     DERGeneralizedTime tag5 = ( DERGeneralizedTime ) derObject;
-                    modifier.setClientTime( KerberosTimeDecoder.decode( tag5 ) );
+                    authenticator.setCTime( KerberosTimeDecoder.decode( tag5 ) );
                     break;
                 case 6:
                     DERSequence tag6 = ( DERSequence ) derObject;
-                    modifier.setSubSessionKey( EncryptionKeyDecoder.decode( tag6 ) );
+                    authenticator.setSubKey( EncryptionKeyDecoder.decode( tag6 ) );
                     break;
                 case 7:
                     DERInteger tag7 = ( DERInteger ) derObject;
-                    modifier.setSequenceNumber( tag7.intValue() );
+                    authenticator.setSeqNumber( tag7.intValue() );
                     break;
                 case 8:
                     DERSequence tag8 = ( DERSequence ) derObject;
-                    modifier.setAuthorizationData( AuthorizationDataDecoder.decodeSequence( tag8 ) );
+                    authenticator.setAuthorizationData( AuthorizationDataDecoder.decodeSequence( tag8 ) );
                     break;
             }
         }
 
-        return modifier.getAuthenticator();
+        return authenticator;
     }
 }

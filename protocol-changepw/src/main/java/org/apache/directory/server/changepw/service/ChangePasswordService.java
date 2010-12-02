@@ -107,7 +107,9 @@ public class ChangePasswordService
         PrincipalStore store = changepwContext.getStore();
         Authenticator authenticator = changepwContext.getAuthenticator();
         String newPassword = changepwContext.getPassword();
-        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+        KerberosPrincipal clientPrincipal = KerberosUtils.getKerberosPrincipal( 
+            authenticator.getCName(),
+            authenticator.getCRealm() );
 
         // usec and seq-number must be present per MS but aren't in legacy kpasswd
         // seq-number must have same value as authenticator
@@ -298,7 +300,8 @@ public class ChangePasswordService
             long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
 
             Authenticator authenticator = changepwContext.getAuthenticator();
-            KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+            KerberosPrincipal clientPrincipal = KerberosUtils.getKerberosPrincipal( 
+                authenticator.getCName(), authenticator.getCRealm() );
             String desiredPassword = changepwContext.getPassword();
 
             InetAddress clientAddress = changepwContext.getClientAddress();

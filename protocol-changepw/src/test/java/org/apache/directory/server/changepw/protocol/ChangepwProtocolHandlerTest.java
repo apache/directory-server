@@ -46,12 +46,10 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
@@ -59,8 +57,10 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.DummySession;
 import org.junit.BeforeClass;
@@ -162,17 +162,17 @@ public class ChangepwProtocolHandlerTest
 
         ApOptions apOptions = new ApOptions();
 
-        AuthenticatorModifier modifier = new AuthenticatorModifier();
-        modifier.setVersionNumber( 5 );
-        modifier.setClientRealm( "EXAMPLE.COM" );
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setClientTime( new KerberosTime() );
-        modifier.setClientMicroSecond( 0 );
+        Authenticator authenticator = new Authenticator();
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCRealm( "EXAMPLE.COM" );
+        authenticator.setCName( getPrincipalName( "hnelson" ) );
+        authenticator.setCTime( new KerberosTime() );
+        authenticator.setCusec( 0 );
 
-        modifier.setSubSessionKey( subSessionKey );
+        authenticator.setSubKey( subSessionKey );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getSessionKey(), modifier
-                .getAuthenticator(), KeyUsage.NUMBER11 );
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getSessionKey(), authenticator
+                , KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
 
@@ -240,14 +240,14 @@ public class ChangepwProtocolHandlerTest
 
         ApOptions apOptions = new ApOptions();
 
-        AuthenticatorModifier modifier = new AuthenticatorModifier();
-        modifier.setVersionNumber( 5 );
-        modifier.setClientRealm( "EXAMPLE.COM" );
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setClientTime( new KerberosTime() );
-        modifier.setClientMicroSecond( 0 );
+        Authenticator authenticator = new Authenticator();
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCRealm( "EXAMPLE.COM" );
+        authenticator.setCName( getPrincipalName( "hnelson" ) );
+        authenticator.setCTime( new KerberosTime() );
+        authenticator.setCusec( 0 );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, modifier.getAuthenticator(),
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, authenticator,
                 KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );

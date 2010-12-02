@@ -28,6 +28,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -54,7 +55,8 @@ public class CheckPasswordPolicy implements IoHandlerCommand
 
         ChangePasswordServer config = changepwContext.getConfig();
         Authenticator authenticator = changepwContext.getAuthenticator();
-        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+        KerberosPrincipal clientPrincipal = KerberosUtils.getKerberosPrincipal( 
+            authenticator.getCName(), authenticator.getCRealm() );
 
         String password = changepwContext.getPassword();
         String username = clientPrincipal.getName();

@@ -408,7 +408,7 @@ public class AuthenticationService
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
         newTicketBody.setSessionKey( sessionKey );
 
-        newTicketBody.setClientPrincipal( request.getClientPrincipal() );
+        newTicketBody.setcName( request.getKdcReqBody().getCName() );
         newTicketBody.setTransitedEncoding( new TransitedEncoding() );
 
         KerberosTime now = new KerberosTime();
@@ -573,7 +573,7 @@ public class AuthenticationService
 
         AuthenticationReply reply = new AuthenticationReply();
 
-        reply.setClientPrincipal( request.getClientPrincipal() );
+        reply.setClientPrincipal( request.getKdcReqBody().getCName() );
         reply.setTicket( ticket );
         reply.setKey( ticket.getEncTicketPart().getSessionKey() );
 
