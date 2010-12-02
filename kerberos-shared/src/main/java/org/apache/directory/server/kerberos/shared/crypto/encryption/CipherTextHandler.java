@@ -38,12 +38,10 @@ import org.apache.directory.server.kerberos.shared.io.decoder.EncKdcRepPartDecod
 import org.apache.directory.server.kerberos.shared.io.decoder.EncKrbPrivPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncTicketPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.AuthenticatorEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncApRepPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncAsRepPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncKrbPrivPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncTgsRepPartEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncTicketPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.Encoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncoderFactory;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestampEncoder;
@@ -53,11 +51,11 @@ import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 
