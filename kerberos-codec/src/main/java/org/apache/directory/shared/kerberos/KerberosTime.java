@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An specialization of the ASN.1 GeneralTime. The Kerberos time contains date and 
@@ -38,8 +36,6 @@ import org.slf4j.LoggerFactory;
  */
 public class KerberosTime implements Comparable<KerberosTime>
 {
-    /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( KerberosTime.class );
 
     /** The format for a KerberosTime */
     private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
@@ -78,7 +74,7 @@ public class KerberosTime implements Comparable<KerberosTime>
     public KerberosTime()
     {
         kerberosTime = System.currentTimeMillis();
-        
+        convertInternal( kerberosTime );
     }
 
     
@@ -105,13 +101,10 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public KerberosTime( long date )
     {
-        Calendar calendar = Calendar.getInstance( UTC );
-        calendar.setTimeInMillis( date );
-        this.date = sdf.format( calendar.getTime() );
-        kerberosTime = calendar.getTimeInMillis();
+        convertInternal( date );
     }
     
-    
+
     /**
      * Creates a new instance of KerberosTime.
      *
@@ -120,9 +113,30 @@ public class KerberosTime implements Comparable<KerberosTime>
     public KerberosTime( Date time )
     {
         kerberosTime = time.getTime();
+        convertInternal( kerberosTime );
     }
 
     
+    /**
+     * converts the given milliseconds time to seconds and
+     * also formats the time to the generalized form
+     * 
+     * @param date the time in milliseconds
+     */
+    private void convertInternal( long date )
+    {
+        Calendar calendar = Calendar.getInstance( UTC );
+        calendar.setTimeInMillis( date );
+        
+        synchronized ( sdf )
+        {
+            this.date = sdf.format( calendar.getTime() );
+        }
+        
+        kerberosTime = ( calendar.getTimeInMillis() / 1000 ); // drop the milliseconds
+    }
+    
+
     /**
      * Returns the {@link KerberosTime} as a long.
      *
@@ -174,8 +188,9 @@ public class KerberosTime implements Comparable<KerberosTime>
         synchronized ( sdf )
         {
             kerberosTime = sdf.parse( date ).getTime();
-            this.date = date;
         }
+        
+        convertInternal( kerberosTime );
     }
     
     
