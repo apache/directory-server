@@ -37,8 +37,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.security.krb5.internal.EncTicketPart;
-
 
 /**
  * Ticket message component as handed out by the ticket granting service. It will store
@@ -77,9 +75,6 @@ public class Ticket extends KerberosMessage
     /** The encoded part */
     private EncryptedData encPart;
     
-    /** The decoded ticket part */
-    private EncTicketPart encTicketPart;
-
     // Storage for computed lengths
     private transient int tktvnoLength;
     private transient int realmLength;
