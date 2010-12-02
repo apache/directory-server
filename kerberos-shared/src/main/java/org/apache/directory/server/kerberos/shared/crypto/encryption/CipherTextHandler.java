@@ -56,7 +56,7 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRep
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;

@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;

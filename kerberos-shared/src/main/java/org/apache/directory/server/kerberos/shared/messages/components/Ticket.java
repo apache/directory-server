@@ -29,7 +29,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;

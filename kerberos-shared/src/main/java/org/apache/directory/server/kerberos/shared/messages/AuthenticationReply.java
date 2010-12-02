@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.messages;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 
