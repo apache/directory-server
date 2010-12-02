@@ -487,7 +487,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the renewtill
      */
-    public KerberosTime getRenewtill()
+    public KerberosTime getRenewTill()
     {
         return renewtill;
     }
@@ -496,7 +496,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param renewtill the renewtill to set
      */
-    public void setRenewtill( KerberosTime renewtill )
+    public void setRenewTill( KerberosTime renewtill )
     {
         this.renewtill = renewtill;
     }

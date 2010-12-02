@@ -46,6 +46,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaData;
@@ -203,13 +204,13 @@ public abstract class AbstractTicketGrantingServiceTest
         throws Exception
     {
         // Get the session key from the service ticket.
-        sessionKey = tgt.getEncTicketPart().getSessionKey();
+        sessionKey = tgt.getEncTicketPart().getKey();
 
         // Generate a new sequence number.
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getClientPrincipal(), requestBody, checksumType );
+        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getcName(), requestBody, checksumType );
 
         PaData[] paData = getPreAuthenticationData( tgt, authenticator );
 

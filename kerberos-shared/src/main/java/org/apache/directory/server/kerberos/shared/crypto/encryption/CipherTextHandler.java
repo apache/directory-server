@@ -41,7 +41,7 @@ import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
@@ -49,7 +49,6 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 /**
@@ -73,7 +72,7 @@ public class CipherTextHandler
 
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
         map.put( Authenticator.class, AuthenticatorDecoder.class );
-        map.put( EncryptedTimeStamp.class, EncryptedTimestampDecoder.class );
+        map.put( PaEncTsEnc .class, EncryptedTimestampDecoder.class );
         map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );
@@ -105,7 +104,7 @@ public class CipherTextHandler
      * @return The Kerberos EncryptedData.
      * @throws KerberosException
      */
-    public EncryptedData seal( EncryptionKey key, KerberosMessage message, KeyUsage usage ) throws KerberosException
+    public EncryptedData seal( EncryptionKey key, AbstractAsn1Object message, KeyUsage usage ) throws KerberosException
     {
         try
         {

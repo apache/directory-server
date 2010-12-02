@@ -42,7 +42,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
@@ -59,6 +58,8 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
@@ -269,7 +270,7 @@ public class AuthenticationService
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
-                EncryptedTimeStamp timestamp = null;
+                PaEncTsEnc timestamp = null;
 
                 for ( int ii = 0; ii < preAuthData.size(); ii++ )
                 {
@@ -291,7 +292,7 @@ public class AuthenticationService
                             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
                         }
 
-                        timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,
+                        timestamp = ( PaEncTimestamp ) cipherTextHandler.unseal( PaEncTimestamp.class,
                             clientKey, dataValue, KeyUsage.NUMBER1 );
                     }
                 }

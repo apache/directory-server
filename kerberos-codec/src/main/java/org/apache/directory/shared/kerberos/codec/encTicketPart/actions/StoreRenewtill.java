@@ -50,7 +50,7 @@ public class StoreRenewtill extends AbstractReadKerberosTime
     protected void setKerberosTime( KerberosTime krbtime, Asn1Container container )
     {
         EncTicketPartContainer encTicketPartContainer = ( EncTicketPartContainer ) container;
-        encTicketPartContainer.getEncTicketPart().setRenewtill( krbtime );
+        encTicketPartContainer.getEncTicketPart().setRenewTill( krbtime );
         
         container.setGrammarEndAllowed( true );
     }

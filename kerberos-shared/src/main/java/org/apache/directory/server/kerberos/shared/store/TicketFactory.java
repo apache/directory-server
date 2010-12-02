@@ -141,8 +141,8 @@ public class TicketFactory
 
         KerberosPrincipal client = ticket.getEncTicketPart().getClientPrincipal();
         KerberosPrincipal server = ticket.getServerPrincipal();
-        byte[] sessionKey = ticket.getEncTicketPart().getSessionKey().getKeyValue();
-        int keyType = ticket.getEncTicketPart().getSessionKey().getKeyType().getValue();
+        byte[] sessionKey = ticket.getEncTicketPart().getKey().getKeyValue();
+        int keyType = ticket.getEncTicketPart().getKey().getKeyType().getValue();
 
         boolean[] flags = new boolean[32];
 

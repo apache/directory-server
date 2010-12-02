@@ -34,11 +34,11 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -138,7 +138,7 @@ public class CipherTextHandlerTest
     public void testDesGoodPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
         KerberosPrincipal principal = new KerberosPrincipal( "erodriguez@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "kerby".toCharArray(), "DES" );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES_CBC_MD5, kerberosKey.getEncoded() );
@@ -146,7 +146,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070322233107Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 291067, object.getMicroSeconds() );
         }
@@ -165,7 +165,7 @@ public class CipherTextHandlerTest
     public void testDesBadPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
         KerberosPrincipal principal = new KerberosPrincipal( "erodriguez@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "badpassword".toCharArray(), "DES" );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES_CBC_MD5, kerberosKey.getEncoded() );
@@ -192,7 +192,7 @@ public class CipherTextHandlerTest
     public void testTripleDesGoodPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String algorithm = VendorHelper.getTripleDesAlgorithm();
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), algorithm );
@@ -201,7 +201,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
         }
@@ -230,7 +230,7 @@ public class CipherTextHandlerTest
 
         String zuluTime = "20070410190400Z";
         int microSeconds = 460450;
-        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+        PaEncTsEnc encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
 
         EncryptedData encryptedData = null;
 
@@ -243,11 +243,11 @@ public class CipherTextHandlerTest
             fail( "Should not have caught exception." );
         }
 
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", zuluTime, object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", microSeconds, object.getMicroSeconds() );
@@ -273,7 +273,7 @@ public class CipherTextHandlerTest
         }
 
         CipherTextHandler lockBox = new CipherTextHandler();
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
         EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
@@ -281,7 +281,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410212557Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 379386, object.getMicroSeconds() );
         }
@@ -314,7 +314,7 @@ public class CipherTextHandlerTest
 
         String zuluTime = "20070410190400Z";
         int microSeconds = 460450;
-        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+        PaEncTsEnc encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
 
         EncryptedData encryptedData = null;
 
@@ -327,11 +327,11 @@ public class CipherTextHandlerTest
             fail( "Should not have caught exception." );
         }
 
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
@@ -357,7 +357,7 @@ public class CipherTextHandlerTest
         }
 
         CipherTextHandler lockBox = new CipherTextHandler();
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
 
         KerberosKey kerberosKey;
 
@@ -377,7 +377,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410212809Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 298294, object.getMicroSeconds() );
         }
@@ -422,7 +422,7 @@ public class CipherTextHandlerTest
 
         String zuluTime = "20070410190400Z";
         int microSeconds = 460450;
-        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+        PaEncTsEnc encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
 
         EncryptedData encryptedData = null;
 
@@ -435,11 +435,11 @@ public class CipherTextHandlerTest
             fail( "Should not have caught exception." );
         }
 
-        Class<EncryptedTimeStamp> hint = EncryptedTimeStamp.class;
+        Class<PaEncTsEnc> hint = PaEncTsEnc.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+            PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
@@ -451,7 +451,7 @@ public class CipherTextHandlerTest
     }
 
 
-    protected EncryptedTimeStamp getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException
+    protected PaEncTsEnc getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException
     {
         Date date = null;
         synchronized ( dateFormat )
@@ -461,14 +461,14 @@ public class CipherTextHandlerTest
 
         KerberosTime timeStamp = new KerberosTime( date );
 
-        return new EncryptedTimeStamp( timeStamp, microSeconds );
+        return new PaEncTsEnc( timeStamp, microSeconds );
     }
 
     /*
      public void testArcFourGoodPassword()
      {
      LockBox lockBox = new LockBox();
-     Class hint = EncryptedTimeStamp.class;
+     Class hint = PaEncTsEnc.class;
      KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
      KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "ArcFourHmac" );
      EncryptionKey key = new EncryptionKey( EncryptionType.RC4_HMAC, kerberosKey.getEncoded() );
@@ -476,7 +476,7 @@ public class CipherTextHandlerTest
 
      try
      {
-     EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data );
+     PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data );
      assertEquals( "TimeStamp", "20070322233107Z", object.getTimeStamp().toString() );
      assertEquals( "MicroSeconds", 291067, object.getMicroSeconds() );
      }

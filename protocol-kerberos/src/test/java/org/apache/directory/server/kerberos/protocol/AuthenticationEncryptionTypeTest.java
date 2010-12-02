@@ -37,7 +37,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -49,6 +48,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +119,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         String passPhrase = "secret";
         PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcReq message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
+        KdcReq message = new KdcReq( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -287,7 +287,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     {
         PaData[] paData = new PaData[1];
 
-        EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
+        PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
 

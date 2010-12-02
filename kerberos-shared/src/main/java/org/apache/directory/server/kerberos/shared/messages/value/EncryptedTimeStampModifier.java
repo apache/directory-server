@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -35,9 +36,9 @@ public class EncryptedTimeStampModifier
      *
      * @return The {@link EncryptedTimeStamp}.
      */
-    public EncryptedTimeStamp getEncryptedTimestamp()
+    public PaEncTsEnc getEncryptedTimestamp()
     {
-        return new EncryptedTimeStamp( timeStamp, microSecond );
+        return new PaEncTsEnc( timeStamp, microSecond );
     }
 
 

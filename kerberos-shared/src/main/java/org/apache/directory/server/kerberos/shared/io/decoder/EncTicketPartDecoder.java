@@ -134,7 +134,7 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
                     
                 case 8:
                     DERGeneralizedTime tag8 = ( DERGeneralizedTime ) derObject;
-                    modifier.setRenewtill( KerberosTimeDecoder.decode( tag8 ) );
+                    modifier.setRenewTill( KerberosTimeDecoder.decode( tag8 ) );
                     break;
                     
                 case 9:

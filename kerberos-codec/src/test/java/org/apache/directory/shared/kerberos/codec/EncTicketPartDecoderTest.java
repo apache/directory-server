@@ -106,7 +106,7 @@ public class EncTicketPartDecoderTest
         expected.setAuthTime( authTime );
         expected.setStartTime( startTime );
         expected.setEndTime( endTime );
-        expected.setRenewtill( renewtill );
+        expected.setRenewTill( renewtill );
         expected.setClientAddresses( caddr );
         expected.setAuthorizationData( authzData );
     }
@@ -123,7 +123,7 @@ public class EncTicketPartDecoderTest
     public void testDecodeEncTicketPartWithoutStartAndRenewtillTimes() throws Exception
     {
         expected.setStartTime( null );
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
 
         encodeDecodeAndTest( expected );
     }
@@ -132,7 +132,7 @@ public class EncTicketPartDecoderTest
     @Test
     public void testDecodeEncTicketPartWithoutRenwtillTime() throws Exception
     {
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
 
         encodeDecodeAndTest( expected );
     }
@@ -141,7 +141,7 @@ public class EncTicketPartDecoderTest
     @Test
     public void testDecodeEncTicketPartWithoutRenwtillAndClientAddresses() throws Exception
     {
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
         expected.setClientAddresses( null );
 
         encodeDecodeAndTest( expected );
@@ -152,7 +152,7 @@ public class EncTicketPartDecoderTest
     public void testDecodeEncTicketPartWithoutOptionalElements() throws Exception
     {
         expected.setStartTime( null );
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
         expected.setClientAddresses( null );
         expected.setAuthorizationData( null );
 
@@ -200,7 +200,7 @@ public class EncTicketPartDecoderTest
         assertEquals( expected.getAuthTime(), actual.getAuthTime() );
         assertEquals( expected.getStartTime(), actual.getStartTime() );
         assertEquals( expected.getEndTime(), actual.getEndTime() );
-        assertEquals( expected.getRenewtill(), actual.getRenewtill() );
+        assertEquals( expected.getRenewTill(), actual.getRenewTill() );
         assertEquals( expected.getClientAddresses(), actual.getClientAddresses() );
         assertEquals( expected.getAuthorizationData(), actual.getAuthorizationData() );
     }

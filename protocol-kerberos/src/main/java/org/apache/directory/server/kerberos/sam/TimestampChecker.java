@@ -28,11 +28,13 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+
+import sun.security.krb5.internal.PAEncTSEnc;
 
 
 /**
@@ -61,7 +63,7 @@ public class TimestampChecker implements KeyIntegrityChecker
              * Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC.  Decode the
              * decrypted timestamp into our timestamp object.
              */
-            EncryptedTimeStamp timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,
+            PaEncTsEnc timestamp = ( PaEncTsEnc ) cipherTextHandler.unseal( PAEncTSEnc.class,
                 key, sadValue, KeyUsage.NUMBER1 );
 
             /*
