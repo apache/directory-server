@@ -28,6 +28,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 
 
 /**
@@ -58,8 +59,18 @@ public class AuthenticatorModifier
             clientPrincipal = clientModifier.getKerberosPrincipal();
         }
 
-        return new Authenticator( versionNumber, clientPrincipal, checksum, clientMicroSecond, clientTime,
-            subSessionKey, sequenceNumber, authorizationData );
+        Authenticator authenticator = new Authenticator();
+        authenticator.setProtocolVersionNumber( versionNumber );
+        authenticator.setCksum( checksum );
+        authenticator.setCusec( clientMicroSecond );
+        authenticator.setCTime( clientTime );
+        authenticator.setSubKey( subSessionKey );
+        authenticator.setSeqNumber( sequenceNumber );
+        authenticator.setAuthorizationData( authorizationData );
+        authenticator.setCName( new PrincipalName( clientPrincipal.getName(), clientPrincipal.getNameType() ) );
+        authenticator.setCRealm( clientPrincipal.getRealm() );
+        
+        return authenticator;
     }
 
 
