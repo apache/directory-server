@@ -176,15 +176,24 @@ public class AuthorizationDataEntry
     /**
      * @see Object#toString()
      */
-    public String toString()
+    public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( "AuthorizationDataEntry : {\n" );
-        sb.append( "    adType : " ).append( adType ).append( "\n" );
-        sb.append( "    adData : " ).append( StringTools.dumpBytes( adData ) ).append( "\n" );
-        sb.append( "}" );
+        sb.append( tabs ).append( "AuthorizationDataEntry : {\n" );
+        sb.append( tabs ).append( "    adType : " ).append( adType ).append( "\n" );
+        sb.append( tabs ).append( "    adData : " ).append( StringTools.dumpBytes( adData ) ).append( "\n" );
+        sb.append( tabs ).append( "}" );
         return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
 

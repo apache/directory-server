@@ -252,15 +252,6 @@ public class AuthorizationData extends AbstractAsn1Object
 
 
     /**
-     * @see Object#toString()
-     */
-    public String toString()
-    {
-        return toString( "" );
-    }
-    
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -326,9 +317,16 @@ public class AuthorizationData extends AbstractAsn1Object
         
         for ( AuthorizationDataEntry ad : authorizationData )
         {
-            sb.append( tabs ).append( ad );
+            sb.append( ad.toString( tabs + "    " ) );
         }
 
         return sb.toString();
+    }
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

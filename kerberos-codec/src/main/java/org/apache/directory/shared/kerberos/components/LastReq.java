@@ -59,38 +59,11 @@ public class LastReq extends AbstractAsn1Object
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    // The inner class storing the individual LastReqs
-    public class LR
-    {
-        /** The LastReq type. */
-        private LastReqType lrType;
-
-        /** The LastReq value */
-        private KerberosTime lrValue;
-
-
-        /**
-         * @return the LastReqType
-         */
-        public LastReqType getLrType()
-        {
-            return lrType;
-        }
-
-        /**
-         * @return the lr-value
-         */
-        public KerberosTime getLrValue()
-        {
-            return lrValue;
-        }
-    }
-    
     /** The list of LastReq elements */
-    private List<LR> lastReqs = new ArrayList<LR>();
+    private List<LastReqEntry> lastReqs = new ArrayList<LastReqEntry>();
     
-    /** The current LR being processed */
-    private LR currentLR;
+    /** The current LastReqEntry being processed */
+    private LastReqEntry currentLR;
 
 
     // Storage for computed lengths
@@ -113,7 +86,7 @@ public class LastReq extends AbstractAsn1Object
      */
     public LastReqType getCurrentLrType()
     {
-        return currentLR.lrType;
+        return currentLR.getLrType();
     }
 
 
@@ -122,7 +95,7 @@ public class LastReq extends AbstractAsn1Object
      */
     public void setCurrentLrType( LastReqType lrType )
     {
-        currentLR.lrType = lrType;
+        currentLR.setLrType( lrType );
     }
 
 
@@ -131,7 +104,7 @@ public class LastReq extends AbstractAsn1Object
      */
     public KerberosTime getCurrentLrValue()
     {
-        return currentLR.lrValue;
+        return currentLR.getLrValue();
     }
 
 
@@ -140,14 +113,14 @@ public class LastReq extends AbstractAsn1Object
      */
     public void setCurrentLrValue( KerberosTime lrValue )
     {
-        currentLR.lrValue = lrValue;
+        currentLR.setLrValue( lrValue );
     }
 
 
     /**
      * @return the CurrentLR
      */
-    public LR getCurrentLR()
+    public LastReqEntry getCurrentLR()
     {
         return currentLR;
     }
@@ -158,15 +131,25 @@ public class LastReq extends AbstractAsn1Object
      */
     public void createNewLR()
     {
-        currentLR = new LR();
+        currentLR = new LastReqEntry();
         lastReqs.add( currentLR );
+    }
+
+
+    /**
+     * Add a new LastReqEntry
+     * @param lastReqEntry The enry to add
+     */
+    public void addEntry( LastReqEntry lastReqEntry)
+    {
+        lastReqs.add( lastReqEntry );
     }
 
 
     /**
      * @return the LastReqs
      */
-    public List<LR> getLastReqs()
+    public List<LastReqEntry> getLastReqs()
     {
         return lastReqs;
     }
@@ -199,11 +182,11 @@ public class LastReq extends AbstractAsn1Object
         lrValueTagLen = new int[lastReqs.size()];
         lastReqSeqLen = new int[lastReqs.size()];
         
-        for ( LR lr : lastReqs )
+        for ( LastReqEntry lre : lastReqs )
         {
-            int lrTypeLen = Value.getNbBytes( lr.lrType.getValue() );
+            int lrTypeLen = Value.getNbBytes( lre.getLrType().getValue() );
             lrTypeTagLen[i] = 1 + TLV.getNbBytes( lrTypeLen ) + lrTypeLen;
-            byte[] lrValyeBytes = lr.lrValue.getBytes();
+            byte[] lrValyeBytes = lre.getLrValue().getBytes();
             lrValueTagLen[i] = 1 + TLV.getNbBytes( lrValyeBytes.length ) + lrValyeBytes.length;
             
             lastReqSeqLen[i] = 1 + TLV.getNbBytes( lrTypeTagLen[i] ) + lrTypeTagLen[i] + 
@@ -250,7 +233,7 @@ public class LastReq extends AbstractAsn1Object
             
             int i = 0;
             
-            for ( LR lr : lastReqs )
+            for ( LastReqEntry lre : lastReqs )
             {
                 buffer.put( UniversalTag.SEQUENCE.getValue() );
                 buffer.put( TLV.getBytes( lastReqSeqLen[i] ) );
@@ -258,7 +241,7 @@ public class LastReq extends AbstractAsn1Object
                 // the lrType
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_TYPE_TAG );
                 buffer.put( TLV.getBytes( lrTypeTagLen[i] ) );
-                Value.encode( buffer, lr.lrType.getValue() );
+                Value.encode( buffer, lre.getLrType().getValue() );
     
                 // the lrValue tag
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_VALUE_TAG );
@@ -267,7 +250,7 @@ public class LastReq extends AbstractAsn1Object
                 // the lrValue value
                 buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
-                buffer.put( lr.lrValue.getBytes() );
+                buffer.put( lre.getLrValue().getBytes() );
             }
         }
         catch ( BufferOverflowException boe )
@@ -290,20 +273,26 @@ public class LastReq extends AbstractAsn1Object
     /**
      * @see Object#toString()
      */
-    public String toString()
+    public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "LastReq : {\n" );
+        sb.append( tabs ).append( "LastReq : \n" );
         
-        for ( LR lr : lastReqs )
+        for ( LastReqEntry lre : lastReqs )
         {
-            sb.append( "    {\n" );
-            sb.append( "        lr-type: " ).append( lr.lrType ).append( '\n' );
-            sb.append( "        lr-value: " ).append( lr.lrValue ).append( '\n');
-            sb.append( "    }\n" );
+            sb.append( lre.toString( tabs + "    " ) );
         }
 
         return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
