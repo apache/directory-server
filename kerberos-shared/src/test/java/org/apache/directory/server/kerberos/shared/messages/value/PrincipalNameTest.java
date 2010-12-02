@@ -20,16 +20,17 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test the PrincipalName encoding and decoding

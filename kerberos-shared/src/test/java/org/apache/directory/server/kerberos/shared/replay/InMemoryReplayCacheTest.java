@@ -33,9 +33,9 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache.ReplayCacheEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,8 +75,8 @@ public class InMemoryReplayCacheTest
         // Inject 100 entries, one every 20 ms
         while ( i < 100 )
         {
-            KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i%nbServer + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
-            KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i%nbClient + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
+            KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i%nbServer + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
+            KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i%nbClient + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
             
             cache.save( serverPrincipal, clientPrincipal, new KerberosTime( System.currentTimeMillis() ), 0 );
             

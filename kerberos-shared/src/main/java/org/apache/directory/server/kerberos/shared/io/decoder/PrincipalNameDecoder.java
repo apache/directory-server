@@ -22,12 +22,12 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**

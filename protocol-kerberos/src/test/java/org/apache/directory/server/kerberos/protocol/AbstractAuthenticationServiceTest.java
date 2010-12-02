@@ -33,12 +33,12 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncod
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoService;

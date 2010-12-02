@@ -507,7 +507,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            request.setOption( KdcOptions.RENEWABLE );
+            request.getKdcReqBody().getKdcOptions().set( KdcOptions.RENEWABLE );
             tempRtime = request.getKdcReqBody().getTill();
         }
 

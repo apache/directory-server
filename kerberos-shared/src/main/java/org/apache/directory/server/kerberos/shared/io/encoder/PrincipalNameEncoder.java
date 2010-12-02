@@ -26,11 +26,11 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
@@ -93,7 +93,7 @@ public class PrincipalNameEncoder
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType().getOrdinal() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType().getValue() ) ) );
         vector.add( new DERTaggedObject( 1, encodeNameSequence( name ) ) );
 
         return vector;

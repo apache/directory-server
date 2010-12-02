@@ -85,7 +85,7 @@ public class StoreUtils
 
         int keyVersion = encryptionKey.getKeyVersion();
 
-        outAttrs.add( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalEntry.getPrincipal().getName() );
+        outAttrs.add( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalEntry.getPrincipal().getNameString() );
         outAttrs.add( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, Integer.toString( keyVersion ) );
 
         return outAttrs;

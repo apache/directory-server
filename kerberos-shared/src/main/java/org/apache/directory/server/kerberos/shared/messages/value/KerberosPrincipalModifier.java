@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -52,7 +54,7 @@ public class KerberosPrincipalModifier
                 sb.append( realm );
             }
 
-            return new KerberosPrincipal( sb.toString(), nameComponent.getNameType().getOrdinal() );
+            return new KerberosPrincipal( sb.toString(), nameComponent.getNameType().getValue() );
         }
 
         return null;

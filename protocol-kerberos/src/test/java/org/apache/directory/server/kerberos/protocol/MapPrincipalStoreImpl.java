@@ -31,6 +31,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
@@ -41,7 +42,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
  */
 public class MapPrincipalStoreImpl implements PrincipalStore
 {
-    private static Map<KerberosPrincipal, PrincipalStoreEntry> store = new HashMap<KerberosPrincipal, PrincipalStoreEntry>();
+    private static Map<PrincipalName, PrincipalStoreEntry> store = new HashMap<KerberosPrincipal, PrincipalStoreEntry>();
 
     static
     {
