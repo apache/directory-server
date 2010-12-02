@@ -29,7 +29,8 @@ import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

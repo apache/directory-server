@@ -20,11 +20,11 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.Checksum;
 
 
 /**
@@ -47,7 +47,7 @@ public class ChecksumEncoder
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( checksum.getChecksumType().getOrdinal() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( checksum.getChecksumType().getValue() ) ) );
         vector.add( new DERTaggedObject( 1, new DEROctetString( checksum.getChecksumValue() ) ) );
 
         return vector;

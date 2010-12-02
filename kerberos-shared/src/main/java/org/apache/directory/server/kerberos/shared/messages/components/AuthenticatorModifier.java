@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosPrincipalModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 

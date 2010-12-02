@@ -24,6 +24,7 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 import java.util.zip.CRC32;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 
 
 /**

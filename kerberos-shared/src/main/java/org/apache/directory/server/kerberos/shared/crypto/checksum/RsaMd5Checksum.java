@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 
 

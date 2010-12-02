@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
@@ -49,7 +48,6 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncTicket
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
@@ -64,8 +62,10 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

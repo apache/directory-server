@@ -22,13 +22,13 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 
 
 /**
@@ -59,7 +59,7 @@ public class ChecksumDecoder
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    type = ChecksumType.getTypeByOrdinal( tag0.intValue() );
+                    type = ChecksumType.getTypeByValue( tag0.intValue() );
                     break;
                     
                 case 1:

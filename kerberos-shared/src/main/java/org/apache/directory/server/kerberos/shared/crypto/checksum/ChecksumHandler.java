@@ -30,7 +30,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
+import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 
 
 /**

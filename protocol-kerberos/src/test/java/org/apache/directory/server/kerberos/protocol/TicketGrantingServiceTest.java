@@ -33,7 +33,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -53,6 +52,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
