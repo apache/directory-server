@@ -20,16 +20,18 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.messages.value.types.AuthorizationType;
+import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the AuthorizationData encoding and decoding
@@ -44,7 +46,7 @@ public class AuthorizationDataTest
     public void testAuthorizationDataOneAD() throws Exception
     {
         AuthorizationData ad = new AuthorizationData();
-        ad.add( new AuthorizationDataEntry( AuthorizationType.AD_KDC_ISSUED, new byte[]
+        ad.addEntry( new AuthorizationDataEntry( AuthorizationType.AD_KDC_ISSUED, new byte[]
             { 0x01, 0x02, 0x03, 0x04 } ) );
 
         ByteBuffer encoded = ByteBuffer.allocate( ad.computeLength() );
@@ -69,11 +71,11 @@ public class AuthorizationDataTest
     public void testAuthorizationDataThreeAD() throws Exception
     {
         AuthorizationData ad = new AuthorizationData();
-        ad.add( new AuthorizationDataEntry( AuthorizationType.AD_KDC_ISSUED, new byte[]
+        ad.addEntry( new AuthorizationDataEntry( AuthorizationType.AD_KDC_ISSUED, new byte[]
             { 0x01, 0x02, 0x03, 0x04 } ) );
-        ad.add( new AuthorizationDataEntry( AuthorizationType.AD_IF_RELEVANT, new byte[]
+        ad.addEntry( new AuthorizationDataEntry( AuthorizationType.AD_IF_RELEVANT, new byte[]
             { 0x05, 0x06, 0x07, 0x08 } ) );
-        ad.add( new AuthorizationDataEntry( AuthorizationType.AD_MANDATORY_TICKET_EXTENSIONS, new byte[]
+        ad.addEntry( new AuthorizationDataEntry( AuthorizationType.AD_MANDATORY_TICKET_EXTENSIONS, new byte[]
             { 0x09, 0x0A, 0x0B, 0x0C } ) );
 
         ByteBuffer encoded = ByteBuffer.allocate( ad.computeLength() );
