@@ -30,6 +30,7 @@ import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 
 /**
  * Test the KerberosUtils class
