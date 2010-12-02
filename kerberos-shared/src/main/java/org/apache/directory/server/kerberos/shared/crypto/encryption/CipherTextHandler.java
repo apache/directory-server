@@ -29,8 +29,6 @@ import java.util.Map;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.decoder.AuthenticatorDecoder;
-import org.apache.directory.server.kerberos.shared.io.decoder.AuthorizationDataDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.Decoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.DecoderFactory;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncApRepPartDecoder;
@@ -38,26 +36,15 @@ import org.apache.directory.server.kerberos.shared.io.decoder.EncKdcRepPartDecod
 import org.apache.directory.server.kerberos.shared.io.decoder.EncKrbPrivPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncTicketPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncApRepPartEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncAsRepPartEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncKrbPrivPartEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncTgsRepPartEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.Encoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncoderFactory;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestampEncoder;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
 
 
 /**
@@ -80,14 +67,6 @@ public class CipherTextHandler
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
 
-        map.put( EncryptedTimeStamp.class, EncryptedTimestampEncoder.class );
-        map.put( EncTicketPart.class, EncTicketPartEncoder.class );
-        map.put( AuthenticationReply.class, EncAsRepPartEncoder.class );
-        map.put( TicketGrantReply.class, EncTgsRepPartEncoder.class );
-        map.put( EncKrbPrivPart.class, EncKrbPrivPartEncoder.class );
-        map.put( EncApRepPart.class, EncApRepPartEncoder.class );
-        map.put( Authenticator.class, AuthenticatorEncoder.class );
-
         DEFAULT_ENCODERS = Collections.unmodifiableMap( map );
     }
 
@@ -96,9 +75,7 @@ public class CipherTextHandler
         Map<Class, Class> map = new HashMap<Class, Class>();
 
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
-        map.put( Authenticator.class, AuthenticatorDecoder.class );
         map.put( EncryptedTimeStamp.class, EncryptedTimestampDecoder.class );
-        map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );
         map.put( EncKdcRepPart.class, EncKdcRepPartDecoder.class );
@@ -192,33 +169,7 @@ public class CipherTextHandler
 
     private byte[] encode( Encodable encodable ) throws IOException
     {
-        Class encodableClass = encodable.getClass();
-
-        Class clazz = ( Class ) DEFAULT_ENCODERS.get( encodableClass );
-
-        if ( clazz == null )
-        {
-            throw new IOException( I18n.err( I18n.ERR_597, encodableClass ) );
-        }
-
-        EncoderFactory factory = null;
-
-        try
-        {
-            factory = ( EncoderFactory ) clazz.newInstance();
-        }
-        catch ( IllegalAccessException iae )
-        {
-            throw new IOException( I18n.err( I18n.ERR_601, encodableClass ) );
-        }
-        catch ( InstantiationException ie )
-        {
-            throw new IOException( I18n.err( I18n.ERR_599, encodableClass ) );
-        }
-
-        Encoder encoder = factory.getEncoder();
-
-        return encoder.encode( encodable );
+        return null;
     }
 
 
