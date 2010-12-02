@@ -24,7 +24,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
