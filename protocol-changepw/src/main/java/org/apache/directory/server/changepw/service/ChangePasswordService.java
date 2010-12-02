@@ -49,7 +49,7 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPri
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;

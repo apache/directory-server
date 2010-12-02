@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;

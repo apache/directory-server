@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 
 
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KrbCredInfo;
 import org.apache.directory.shared.kerberos.KerberosTime;
 
