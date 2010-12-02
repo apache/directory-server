@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.keytab;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -139,7 +139,7 @@ class KeytabEncoder
      */
     private void putKeyBlock( IoBuffer buffer, EncryptionKey key )
     {
-        buffer.putShort( ( short ) key.getKeyType().getOrdinal() );
+        buffer.putShort( ( short ) key.getKeyType().getValue() );
         putCountedBytes( buffer, key.getKeyValue() );
     }
 

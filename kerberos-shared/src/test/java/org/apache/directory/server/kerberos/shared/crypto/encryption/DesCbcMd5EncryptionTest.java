@@ -20,17 +20,18 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import static org.junit.Assert.assertTrue;
+
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
 
 
 /**

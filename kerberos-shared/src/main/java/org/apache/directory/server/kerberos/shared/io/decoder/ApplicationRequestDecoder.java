@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
@@ -33,6 +32,7 @@ import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**
@@ -88,7 +88,7 @@ public class ApplicationRequestDecoder
                     
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    authHeader.setMessageType( KerberosMessageType.getTypeByOrdinal( tag1.intValue() ) );
+                    authHeader.setMessageType( KerberosMessageType.getTypeByValue( tag1.intValue() ) );
                     break;
                     
                 case 2:

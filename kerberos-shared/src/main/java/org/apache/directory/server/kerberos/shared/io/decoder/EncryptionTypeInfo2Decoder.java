@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfo2Entry;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 
 
 /**
@@ -98,7 +98,7 @@ public class EncryptionTypeInfo2Decoder
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    encryptionType = EncryptionType.getTypeByOrdinal( tag0.intValue() );
+                    encryptionType = EncryptionType.getTypeByValue( tag0.intValue() );
                     break;
                 case 1:
                     DERGeneralString tag1 = ( DERGeneralString ) derObject;

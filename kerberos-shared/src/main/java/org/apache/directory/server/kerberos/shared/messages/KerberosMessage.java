@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**

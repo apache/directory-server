@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
@@ -40,6 +39,7 @@ import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**
@@ -100,7 +100,7 @@ public class KdcRequestDecoder
                     
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;
-                    msgType = KerberosMessageType.getTypeByOrdinal( tag2.intValue() );
+                    msgType = KerberosMessageType.getTypeByValue( tag2.intValue() );
                     break;
                     
                 case 3:

@@ -77,7 +77,7 @@ public class ApplicationRequestEncoder
         DERSequence sequence = new DERSequence();
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( message.getProtocolVersionNumber() ) ) );
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getValue() ) ) );
         sequence.add( new DERTaggedObject( 2, new DERBitString( message.getApOptions().getBytes() ) ) );
         sequence.add( new DERTaggedObject( 3, TicketEncoder.encode( message.getTicket() ) ) );
         sequence.add( new DERTaggedObject( 4, EncryptedDataEncoder.encodeSequence( message.getEncPart() ) ) );

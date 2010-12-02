@@ -22,9 +22,9 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 
 import java.util.Set;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 
 
 /**
@@ -42,7 +42,7 @@ public class EncryptionTypeEncoder
 
         for ( EncryptionType encryptionType:eType )
         {
-            sequence.add( DERInteger.valueOf( encryptionType.getOrdinal() ) );
+            sequence.add( DERInteger.valueOf( encryptionType.getValue() ) );
         }
 
         return sequence;

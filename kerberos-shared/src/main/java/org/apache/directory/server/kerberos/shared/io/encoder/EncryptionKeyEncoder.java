@@ -23,12 +23,12 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**
@@ -69,7 +69,7 @@ public class EncryptionKeyEncoder
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( key.getKeyType().getOrdinal() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( key.getKeyType().getValue() ) ) );
         vector.add( new DERTaggedObject( 1, new DEROctetString( key.getKeyValue() ) ) );
 
         return vector;

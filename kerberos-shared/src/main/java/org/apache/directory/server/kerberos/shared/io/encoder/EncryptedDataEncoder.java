@@ -85,7 +85,7 @@ public class EncryptedDataEncoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( encryptedData.getEType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( encryptedData.getEType().getValue() ) ) );
 
         if ( encryptedData.hasKvno() )
         {

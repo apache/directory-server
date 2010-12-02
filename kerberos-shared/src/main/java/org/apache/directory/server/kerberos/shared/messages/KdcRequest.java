@@ -24,8 +24,6 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
@@ -33,6 +31,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 
 
 /**

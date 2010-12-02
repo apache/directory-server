@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.keytab;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

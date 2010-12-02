@@ -82,7 +82,7 @@ public class EncryptionTypeInfo2Encoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( entry.getEncryptionType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( entry.getEncryptionType().getValue() ) ) );
 
         if ( entry.getSalt() != null )
         {

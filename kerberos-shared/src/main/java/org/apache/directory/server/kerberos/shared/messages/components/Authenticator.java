@@ -26,8 +26,8 @@ import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

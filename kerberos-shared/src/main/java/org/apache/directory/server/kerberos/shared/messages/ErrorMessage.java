@@ -22,8 +22,8 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**

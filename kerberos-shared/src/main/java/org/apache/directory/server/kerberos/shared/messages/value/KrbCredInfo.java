@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

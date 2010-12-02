@@ -24,12 +24,12 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,7 +209,7 @@ public class EncryptedData extends AbstractAsn1Object
         encryptedDataSeqLength = 0;
 
         // Compute the encryption Type length
-        int eTypeLength = Value.getNbBytes( eType.getOrdinal() );
+        int eTypeLength = Value.getNbBytes( eType.getValue() );
         eTypeTagLength = 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
         encryptedDataSeqLength = 1 + TLV.getNbBytes( eTypeTagLength ) + eTypeTagLength; 
 
@@ -277,7 +277,7 @@ public class EncryptedData extends AbstractAsn1Object
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( eTypeTagLength ) );
 
-            Value.encode( buffer, eType.getOrdinal() );
+            Value.encode( buffer, eType.getValue() );
 
             // The kvno, if any, first the tag, then the value
             if ( hasKvno )

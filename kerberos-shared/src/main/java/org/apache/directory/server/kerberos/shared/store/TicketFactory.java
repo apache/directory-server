@@ -30,7 +30,6 @@ import javax.security.auth.kerberos.KerberosTicket;
 
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -39,11 +38,12 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncTicket
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**
@@ -143,7 +143,7 @@ public class TicketFactory
         KerberosPrincipal client = ticket.getEncTicketPart().getClientPrincipal();
         KerberosPrincipal server = ticket.getServerPrincipal();
         byte[] sessionKey = ticket.getEncTicketPart().getSessionKey().getKeyValue();
-        int keyType = ticket.getEncTicketPart().getSessionKey().getKeyType().getOrdinal();
+        int keyType = ticket.getEncTicketPart().getSessionKey().getKeyType().getValue();
 
         boolean[] flags = new boolean[32];
 

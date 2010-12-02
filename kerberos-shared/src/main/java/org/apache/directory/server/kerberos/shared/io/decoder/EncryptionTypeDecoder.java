@@ -24,10 +24,10 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 
 
 /**
@@ -46,7 +46,7 @@ public class EncryptionTypeDecoder
         for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERInteger object = ( DERInteger ) e.nextElement();
-            eTypes.add( EncryptionType.getTypeByOrdinal( object.intValue() ) );
+            eTypes.add( EncryptionType.getTypeByValue( object.intValue() ) );
         }
 
         return eTypes;

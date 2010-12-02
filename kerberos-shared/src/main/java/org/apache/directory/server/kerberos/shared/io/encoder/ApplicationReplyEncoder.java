@@ -67,7 +67,7 @@ public class ApplicationReplyEncoder
         DERSequence sequence = new DERSequence();
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( message.getProtocolVersionNumber() ) ) );
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getValue() ) ) );
         sequence.add( new DERTaggedObject( 2, EncryptedDataEncoder.encodeSequence( message.getEncPart() ) ) );
 
         return sequence;

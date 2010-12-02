@@ -30,7 +30,8 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

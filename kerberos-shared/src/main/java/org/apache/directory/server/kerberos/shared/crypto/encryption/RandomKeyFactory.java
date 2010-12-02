@@ -33,7 +33,8 @@ import javax.crypto.SecretKey;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

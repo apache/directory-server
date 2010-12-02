@@ -30,9 +30,10 @@ import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

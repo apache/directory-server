@@ -51,7 +51,7 @@ public class ErrorMessageEncoder
         ASN1OutputStream aos = new ASN1OutputStream( out );
 
         DERSequence errorReply = encodeErrorMessageSequence( message );
-        aos.writeObject( DERApplicationSpecific.valueOf( message.getMessageType().getOrdinal(), errorReply ) );
+        aos.writeObject( DERApplicationSpecific.valueOf( message.getMessageType().getValue(), errorReply ) );
 
         aos.close();
     }
@@ -126,7 +126,7 @@ public class ErrorMessageEncoder
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
         DERSequence errorReply = encodeErrorMessageSequence( message );
-        aos.writeObject( DERApplicationSpecific.valueOf( message.getMessageType().getOrdinal(), errorReply ) );
+        aos.writeObject( DERApplicationSpecific.valueOf( message.getMessageType().getValue(), errorReply ) );
 
         aos.close();
 
@@ -140,7 +140,7 @@ public class ErrorMessageEncoder
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( message.getProtocolVersionNumber() ) ) );
 
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getValue() ) ) );
 
         if ( message.getClientTime() != null )
         {

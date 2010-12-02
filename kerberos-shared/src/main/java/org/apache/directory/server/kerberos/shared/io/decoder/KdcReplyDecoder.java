@@ -26,7 +26,6 @@ import java.util.Enumeration;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**
@@ -102,7 +102,7 @@ public class KdcReplyDecoder
                     
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    msgType = KerberosMessageType.getTypeByOrdinal( tag1.intValue() );
+                    msgType = KerberosMessageType.getTypeByValue( tag1.intValue() );
                     break;
                     
                 case 2:

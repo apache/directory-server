@@ -67,7 +67,7 @@ public class PrivateMessageEncoder
         DERSequence privateMessageSequence = encodePrivateMessageSequence( message );
         aos
             .writeObject( DERApplicationSpecific
-                .valueOf( message.getMessageType().getOrdinal(), privateMessageSequence ) );
+                .valueOf( message.getMessageType().getValue(), privateMessageSequence ) );
         aos.close();
 
         return baos.toByteArray();
@@ -79,7 +79,7 @@ public class PrivateMessageEncoder
         DERSequence sequence = new DERSequence();
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( message.getProtocolVersionNumber() ) ) );
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getValue() ) ) );
         sequence.add( new DERTaggedObject( 3, EncryptedDataEncoder.encodeSequence( message.getEncryptedPart() ) ) );
 
         return sequence;

@@ -20,10 +20,10 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**

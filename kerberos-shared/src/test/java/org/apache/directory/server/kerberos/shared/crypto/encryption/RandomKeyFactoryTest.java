@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,12 +33,10 @@ import javax.crypto.spec.DESKeySpec;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for random-to-key functions for DES-, DES3-, AES-, and RC4-based

@@ -22,7 +22,8 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
 
 /**

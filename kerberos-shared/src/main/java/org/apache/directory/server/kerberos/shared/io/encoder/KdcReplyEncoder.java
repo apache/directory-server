@@ -54,7 +54,7 @@ public class KdcReplyEncoder
         ASN1OutputStream aos = new ASN1OutputStream( out );
 
         DERSequence kdcrep = encodeKdcReplySequence( app );
-        aos.writeObject( DERApplicationSpecific.valueOf( app.getMessageType().getOrdinal(), kdcrep ) );
+        aos.writeObject( DERApplicationSpecific.valueOf( app.getMessageType().getValue(), kdcrep ) );
 
         aos.close();
     }
@@ -76,7 +76,7 @@ public class KdcReplyEncoder
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( app.getProtocolVersionNumber() ) ) );
 
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( app.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( app.getMessageType().getValue() ) ) );
 
         if ( app.getPaData() != null )
         {

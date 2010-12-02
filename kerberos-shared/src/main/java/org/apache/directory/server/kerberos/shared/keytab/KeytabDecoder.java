@@ -24,9 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -136,7 +136,7 @@ class KeytabDecoder
         int type = buffer.getUnsignedShort();
         byte[] keyblock = getCountedBytes( buffer );
 
-        EncryptionType encryptionType = EncryptionType.getTypeByOrdinal( type );
+        EncryptionType encryptionType = EncryptionType.getTypeByValue( type );
         EncryptionKey key = new EncryptionKey( encryptionType, keyblock );
 
         return key;

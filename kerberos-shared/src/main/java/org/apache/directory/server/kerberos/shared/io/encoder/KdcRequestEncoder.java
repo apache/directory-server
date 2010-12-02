@@ -57,7 +57,7 @@ public class KdcRequestEncoder
         ASN1OutputStream aos = new ASN1OutputStream( out );
 
         DERSequence kdcRequest = encodeInitialSequence( request );
-        aos.writeObject( DERApplicationSpecific.valueOf( request.getMessageType().getOrdinal(), kdcRequest ) );
+        aos.writeObject( DERApplicationSpecific.valueOf( request.getMessageType().getValue(), kdcRequest ) );
         aos.close();
     }
 
@@ -75,7 +75,7 @@ public class KdcRequestEncoder
 
         sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( app.getProtocolVersionNumber() ) ) );
 
-        sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( app.getMessageType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( app.getMessageType().getValue() ) ) );
 
         if ( app.getPreAuthData() != null )
         {

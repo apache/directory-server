@@ -20,11 +20,11 @@
 package org.apache.directory.server.kerberos.shared.messages.components;
 
 
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
 
 
 /**
