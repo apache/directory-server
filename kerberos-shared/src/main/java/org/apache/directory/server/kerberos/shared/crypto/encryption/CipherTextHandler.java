@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,10 +42,14 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncApRepP
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 /**
@@ -56,10 +61,9 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
  */
 public class CipherTextHandler
 {
-    /** a map of the default encodable class names to the encoder class names */
-    private static final Map DEFAULT_ENCODERS;
     /** a map of the default encodable class names to the decoder class names */
     private static final Map DEFAULT_DECODERS;
+    
     /** a map of the default encryption types to the encryption engine class names */
     private static final Map DEFAULT_CIPHERS;
 
@@ -67,15 +71,10 @@ public class CipherTextHandler
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
 
-        DEFAULT_ENCODERS = Collections.unmodifiableMap( map );
-    }
-
-    static
-    {
-        Map<Class, Class> map = new HashMap<Class, Class>();
-
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
+        map.put( Authenticator.class, AuthenticatorDecoder.class );
         map.put( EncryptedTimeStamp.class, EncryptedTimestampDecoder.class );
+        map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );
         map.put( EncKdcRepPart.class, EncKdcRepPartDecoder.class );
@@ -106,13 +105,15 @@ public class CipherTextHandler
      * @return The Kerberos EncryptedData.
      * @throws KerberosException
      */
-    public EncryptedData seal( EncryptionKey key, Encodable encodable, KeyUsage usage ) throws KerberosException
+    public EncryptedData seal( EncryptionKey key, KerberosMessage message, KeyUsage usage ) throws KerberosException
     {
         try
         {
-            return encrypt( key, encode( encodable ), usage );
+            int bufferSize = message.computeLength();
+            ByteBuffer buffer = ByteBuffer.allocate( bufferSize );
+            return encrypt( key, message.encode( buffer ).array(), usage );
         }
-        catch ( IOException ioe )
+        catch ( EncoderException ioe )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
         }
@@ -164,12 +165,6 @@ public class CipherTextHandler
         EncryptionEngine engine = getEngine( key );
 
         return engine.getDecryptedData( key, data, usage );
-    }
-
-
-    private byte[] encode( Encodable encodable ) throws IOException
-    {
-        return null;
     }
 
 
