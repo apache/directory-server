@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
-import org.apache.directory.server.kerberos.shared.io.decoder.ErrorMessageDecoder;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 
 

@@ -22,10 +22,6 @@ package org.apache.directory.server.kerberos.protocol;
 
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.KdcReplyEncoder;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.mina.core.buffer.IoBuffer;

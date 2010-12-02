@@ -46,7 +46,6 @@ import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
@@ -64,6 +63,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
@@ -303,7 +303,8 @@ public class TicketGrantingService
 
     public static void getRequestPrincipalEntry( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        KerberosPrincipal principal = tgsContext.getRequest().getServerPrincipal();
+        KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal( 
+            tgsContext.getRequest().getKdcReqBody().getSName(), tgsContext.getRequest().getKdcReqBody().getRealm() );
         PrincipalStore store = tgsContext.getStore();
 
         PrincipalStoreEntry entry = KerberosUtils.getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN );
@@ -317,7 +318,8 @@ public class TicketGrantingService
         Ticket tgt = tgsContext.getTgt();
         Authenticator authenticator = tgsContext.getAuthenticator();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
-        KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
+        KerberosPrincipal ticketPrincipal = KerberosUtils.getKerberosPrincipal( 
+            request.getKdcReqBody().getSName(), request.getKdcReqBody().getRealm() );
 
         EncryptionType encryptionType = tgsContext.getEncryptionType();
         EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getKeyMap().get( encryptionType );
@@ -389,7 +391,7 @@ public class TicketGrantingService
         reply.setKey( newTicket.getEncTicketPart().getSessionKey() );
         reply.setNonce( request.getKdcReqBody().getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
-        reply.setLastReq( new LastRequest() );
+        reply.setLastReq( new LastReq() );
         reply.setFlags( newTicket.getEncTicketPart().getFlags() );
         reply.setClientAddresses( newTicket.getEncTicketPart().getClientAddresses() );
         reply.setAuthTime( newTicket.getEncTicketPart().getAuthTime() );

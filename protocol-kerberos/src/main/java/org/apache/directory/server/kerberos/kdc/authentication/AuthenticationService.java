@@ -40,8 +40,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFa
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionTypeInfoEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.PreAuthenticationDataEncoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;

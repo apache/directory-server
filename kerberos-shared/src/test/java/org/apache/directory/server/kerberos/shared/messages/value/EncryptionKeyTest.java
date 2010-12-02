@@ -24,13 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -144,7 +142,9 @@ public class EncryptionKeyTest
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
             { 0x01, 0x02, 0x03 } );
 
-        byte[] encoded = EncryptionKeyEncoder.encode( ec );
+        ByteBuffer buffer = ByteBuffer.allocate( ec.computeLength() );
+
+        ec.encode( buffer );
 
         byte[] expectedResult = new byte[]
             { 
@@ -155,22 +155,23 @@ public class EncryptionKeyTest
                   0x04, 0x03, 0x01, 0x02, 0x03 
             };
 
-        assertTrue( Arrays.equals( expectedResult, encoded ) );
+        assertTrue( Arrays.equals( expectedResult, buffer.array() ) );
     }
 
 
     @Test
-    public void testPerfSlow() throws IOException
+    public void testPerfSlow() throws EncoderException
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
             { 0x01, 0x02, 0x03 } );
-        EncryptionKeyEncoder.encode( ec );
+        ByteBuffer buffer = ByteBuffer.allocate( ec.computeLength() );
+        ec.encode( buffer );
 
         // long t0 = System.currentTimeMillis();
 
         //for ( int i = 0; i < 10000000; i++ )
         {
-            EncryptionKeyEncoder.encode( ec );
+            ec.encode( buffer );
         }
 
         // long t1 = System.currentTimeMillis();

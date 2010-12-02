@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
-import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequestEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.PrivateMessageEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 
