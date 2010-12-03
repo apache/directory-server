@@ -184,7 +184,7 @@ public class AuthenticationService
         KdcServer config = authContext.getConfig();
 
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
-        String clientName = clientEntry.getPrincipal().getNameString();
+        String clientName = clientEntry.getPrincipal().getName();
 
         EncryptionKey clientKey = null;
 
@@ -240,7 +240,7 @@ public class AuthenticationService
         KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
-        String clientName = clientEntry.getPrincipal().getNameString();
+        String clientName = clientEntry.getPrincipal().getName();
 
         EncryptionKey clientKey = null;
 
