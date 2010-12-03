@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -34,6 +32,7 @@ import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 
 
 /**
@@ -61,7 +60,7 @@ public class EncKrbPrivPartDecoder implements Decoder, DecoderFactory
 
     private EncKrbPrivPart decodePrivatePartSequence( DERSequence sequence )
     {
-        EncKrbPrivPartModifier modifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart encKrbPrivPart = new EncKrbPrivPart();
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
@@ -73,30 +72,30 @@ public class EncKrbPrivPartDecoder implements Decoder, DecoderFactory
             {
                 case 0:
                     DEROctetString tag0 = ( DEROctetString ) derObject;
-                    modifier.setUserData( tag0.getOctets() );
+                    encKrbPrivPart.setUserData( tag0.getOctets() );
                     break;
                 case 1:
                     DERGeneralizedTime tag1 = ( DERGeneralizedTime ) derObject;
-                    modifier.setTimestamp( KerberosTimeDecoder.decode( tag1 ) );
+                    encKrbPrivPart.setTimestamp( KerberosTimeDecoder.decode( tag1 ) );
                     break;
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;
-                    modifier.setMicroSecond( Integer.valueOf( tag2.intValue() ) );
+                    encKrbPrivPart.setMicroSecond( Integer.valueOf( tag2.intValue() ) );
                     break;
                 case 3:
                     DERInteger tag3 = ( DERInteger ) derObject;
-                    modifier.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
+                    encKrbPrivPart.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
                     break;
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
-                    modifier.setSenderAddress( HostAddressDecoder.decode( tag4 ) );
+                    encKrbPrivPart.setSenderAddress( HostAddressDecoder.decode( tag4 ) );
                     break;
                 case 5:
                     DERSequence tag5 = ( DERSequence ) derObject;
-                    modifier.setRecipientAddress( HostAddressDecoder.decode( tag5 ) );
+                    encKrbPrivPart.setRecipientAddress( HostAddressDecoder.decode( tag5 ) );
                     break;
             }
         }
-        return modifier.getEncKrbPrivPart();
+        return encKrbPrivPart.getEncKrbPrivPart();
     }
 }

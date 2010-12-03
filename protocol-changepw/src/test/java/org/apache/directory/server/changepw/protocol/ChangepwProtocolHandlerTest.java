@@ -46,8 +46,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
@@ -55,6 +53,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
@@ -273,10 +272,9 @@ public class ChangepwProtocolHandlerTest
             throws UnsupportedEncodingException, KerberosException, UnknownHostException
     {
         // Make private message part.
-        EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
-        privPartModifier.setUserData( newPassword.getBytes( "UTF-8" ) );
-        privPartModifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart encReqPrivPart = privPartModifier.getEncKrbPrivPart();
+        EncKrbPrivPart encReqPrivPart = new EncKrbPrivPart();
+        encReqPrivPart.setUserData( newPassword.getBytes( "UTF-8" ) );
+        encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
         EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
@@ -299,7 +297,7 @@ public class ChangepwProtocolHandlerTest
             UnknownHostException, IOException
     {
         // Make private message part.
-        EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart encReqPrivPart = new EncKrbPrivPart();
 
         ChangePasswordDataModifier dataModifier = new ChangePasswordDataModifier();
         dataModifier.setNewPassword( newPassword.getBytes() );
@@ -310,10 +308,9 @@ public class ChangepwProtocolHandlerTest
         ChangePasswordDataEncoder encoder = new ChangePasswordDataEncoder();
         byte[] dataBytes = encoder.encode( data );
 
-        privPartModifier.setUserData( dataBytes );
+        encReqPrivPart.setUserData( dataBytes );
 
-        privPartModifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart encReqPrivPart = privPartModifier.getEncKrbPrivPart();
+        encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
         EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
