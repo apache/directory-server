@@ -31,7 +31,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
 
 
 /**
@@ -63,7 +62,7 @@ public class MapPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public PrincipalStoreEntry getPrincipal( PrincipalName principal ) throws Exception
+    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
         PrincipalStoreEntry entry = store.get( principal );
 
@@ -71,9 +70,9 @@ public class MapPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public String changePassword( PrincipalName principal, String newPassword ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return principal.getNameString();
+        return principal.getName();
     }
 
 

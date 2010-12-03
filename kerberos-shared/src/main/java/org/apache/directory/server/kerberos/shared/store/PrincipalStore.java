@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 
-import org.apache.directory.shared.kerberos.components.PrincipalName;
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
@@ -40,7 +40,7 @@ public interface PrincipalStore
      * @return The name of the principal whose password is being changed.
      * @throws Exception
      */
-    public String changePassword( PrincipalName principal, String newPassword ) throws Exception;
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception;
 
 
     /**
@@ -50,5 +50,5 @@ public interface PrincipalStore
      * @return The {@link PrincipalStoreEntry} for the given Kerberos principal.
      * @throws Exception
      */
-    public PrincipalStoreEntry getPrincipal( PrincipalName principal ) throws Exception;
+    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception;
 }

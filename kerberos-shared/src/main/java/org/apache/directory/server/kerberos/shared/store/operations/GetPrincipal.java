@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
@@ -35,7 +37,6 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
@@ -51,7 +52,7 @@ public class GetPrincipal implements DirectoryServiceOperation
     private static final long serialVersionUID = 4598007518413451945L;
 
     /** The name of the principal to get. */
-    private final PrincipalName principal;
+    private final KerberosPrincipal principal;
 
 
     /**
@@ -59,7 +60,7 @@ public class GetPrincipal implements DirectoryServiceOperation
      * 
      * @param principal The principal to search for in the directory.
      */
-    public GetPrincipal( PrincipalName principal )
+    public GetPrincipal( KerberosPrincipal principal )
     {
         this.principal = principal;
     }
@@ -76,7 +77,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             return null;
         }
 
-        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getNameString() ) );
+        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getName() ) );
     }
 
 
@@ -95,7 +96,7 @@ public class GetPrincipal implements DirectoryServiceOperation
         modifier.setDistinguishedName( entry.getDn().getName() );
 
         String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
-        modifier.setPrincipal( new PrincipalName( principal, PrincipalNameType.KRB_NT_PRINCIPAL ) );
+        modifier.setPrincipal( new KerberosPrincipal( principal, PrincipalNameType.KRB_NT_PRINCIPAL.getValue() ) );
 
         String keyVersionNumber = entry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).getString();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );

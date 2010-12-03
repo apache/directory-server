@@ -21,13 +21,14 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -58,13 +59,13 @@ class SingleBaseSearch implements PrincipalStore
     }
 
 
-    public PrincipalStoreEntry getPrincipal( PrincipalName principal ) throws Exception
+    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
         return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( session, searchBaseDn );
     }
 
 
-    public String changePassword( PrincipalName principal, String newPassword ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
         return (String) new ChangePassword( principal, newPassword ).execute( session, searchBaseDn );
     }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
@@ -146,7 +147,8 @@ public class AuthenticationService
     
     private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        PrincipalName principal = authContext.getRequest().getKdcReqBody().getCName();
+        KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal( 
+            authContext.getRequest().getKdcReqBody().getCName(), authContext.getRequest().getKdcReqBody().getRealm() );
         PrincipalStore store = authContext.getStore();
 
         PrincipalStoreEntry storeEntry = getEntry( principal, store, ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN ); 
@@ -735,7 +737,7 @@ public class AuthenticationService
      * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
      * whether any resulting error pertains to a server or client.
      */
-    private static PrincipalStoreEntry getEntry( PrincipalName principal, PrincipalStore store, ErrorType errorType )
+    private static PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws KerberosException
     {
         PrincipalStoreEntry entry = null;
