@@ -189,7 +189,7 @@ public class ChangePasswordService
 
         if ( !ticket.getRealm().equals( primaryRealm ) || !serverPrincipal.equals( changepwPrincipal ) )
         {
-            throw new KerberosException( org.apache.directory.server.kerberos.shared.exceptions.ErrorType.KRB_AP_ERR_NOT_US );
+            throw new KerberosException( org.apache.directory.shared.kerberos.exceptions.ErrorType.KRB_AP_ERR_NOT_US );
         }
     }
     
@@ -199,7 +199,7 @@ public class ChangePasswordService
         KerberosPrincipal principal =  changepwContext.getTicket().getServerPrincipal();
         PrincipalStore store = changepwContext.getStore();
 
-        changepwContext.setServerEntry( KerberosUtils.getEntry( principal, store, org.apache.directory.server.kerberos.shared.exceptions.ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        changepwContext.setServerEntry( KerberosUtils.getEntry( principal, store, org.apache.directory.shared.kerberos.exceptions.ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
     }
     
     

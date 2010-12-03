@@ -40,28 +40,21 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-
-/**
- * Tests the Ticket-Granting Service (TGS) via the {@link KerberosProtocolHandler}.
- * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+</a>
  */
 public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 {

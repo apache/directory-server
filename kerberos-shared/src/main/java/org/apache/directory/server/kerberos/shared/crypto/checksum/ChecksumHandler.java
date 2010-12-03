@@ -28,10 +28,10 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSh
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes256CtsSha1Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1KdEncryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 
 
 /**

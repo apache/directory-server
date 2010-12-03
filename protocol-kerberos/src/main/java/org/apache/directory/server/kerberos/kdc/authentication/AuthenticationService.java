@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -38,31 +39,34 @@ import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
+import org.apache.directory.shared.kerberos.components.ETypeInfo;
+import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.LastReq;
+import org.apache.directory.shared.kerberos.components.MethodData;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -782,36 +786,37 @@ public class AuthenticationService
 
         paDataSequence[0] = paData;
 
-        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[ encryptionTypes.size() ];
-        int i = 0;
+        ETypeInfo eTypeInfo = new ETypeInfo();
         
         for ( EncryptionType encryptionType:encryptionTypes )
         {
-            entries[i++] = new EncryptionTypeInfoEntry( encryptionType, null );
+            ETypeInfoEntry etypeInfoEntry = new ETypeInfoEntry( encryptionType, null );
+            eTypeInfo.addETypeInfoEntry( etypeInfoEntry );
         }
 
         byte[] encTypeInfo = null;
 
         try
         {
-            encTypeInfo = EncryptionTypeInfoEncoder.encode( entries );
+            ByteBuffer buffer = ByteBuffer.allocate( eTypeInfo.computeLength() );
+            encTypeInfo = eTypeInfo.encode( buffer ).array();
         }
-        catch ( IOException ioe )
+        catch ( EncoderException ioe )
         {
             return null;
         }
 
-        PaData encType = new PaData();
-        encType.setPaDataType( PaDataType.PA_ENCTYPE_INFO );
-        encType.setPaDataValue( encTypeInfo );
+        PaData responsePaData = new PaData( PaDataType.PA_ENCTYPE_INFO, encTypeInfo );
 
-        paDataSequence[1] = encType;
+        MethodData methodData = new MethodData();
+        methodData.addPaData( responsePaData );
 
         try
         {
-            return PreAuthenticationDataEncoder.encode( paDataSequence );
+            ByteBuffer buffer = ByteBuffer.allocate( methodData.computeLength() );
+            return methodData.encode( buffer ).array();
         }
-        catch ( IOException ioe )
+        catch ( EncoderException ee )
         {
             return null;
         }

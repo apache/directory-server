@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.exceptions;
 
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+
 
 /**
  * The root of the Kerberos exception hierarchy.
