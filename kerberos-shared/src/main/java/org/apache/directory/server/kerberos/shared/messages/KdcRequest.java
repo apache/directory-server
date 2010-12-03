@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -41,7 +41,7 @@ import org.apache.directory.shared.kerberos.messages.Ticket;
 public class KdcRequest extends KerberosMessage
 {
     private PaData[] preAuthData; //optional
-    private RequestBody requestBody;
+    private KdcReqBody requestBody;
     private byte[] bodyBytes;
 
 
@@ -53,7 +53,7 @@ public class KdcRequest extends KerberosMessage
      * @param preAuthData
      * @param requestBody
      */
-    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody )
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, KdcReqBody requestBody )
     {
         super( pvno, messageType );
         this.preAuthData = preAuthData;
@@ -70,7 +70,7 @@ public class KdcRequest extends KerberosMessage
      * @param requestBody
      * @param bodyBytes
      */
-    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody,
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, KdcReqBody requestBody,
         byte[] bodyBytes )
     {
         this( pvno, messageType, preAuthData, requestBody );
@@ -94,7 +94,7 @@ public class KdcRequest extends KerberosMessage
      * 
      * @return The request body.
      */
-    public RequestBody getRequestBody()
+    public KdcReqBody getRequestBody()
     {
         return requestBody;
     }
@@ -112,7 +112,7 @@ public class KdcRequest extends KerberosMessage
     }
 
 
-    // RequestBody delegate methods
+    // KdcReqBody delegate methods
 
     /**
      * Returns additional {@link Ticket}s.
@@ -246,7 +246,7 @@ public class KdcRequest extends KerberosMessage
     }
 
 
-    // RequestBody KdcOptions delegate accesors
+    // KdcReqBody KdcOptions delegate accesors
 
     /**
      * Returns the option at the specified index.
