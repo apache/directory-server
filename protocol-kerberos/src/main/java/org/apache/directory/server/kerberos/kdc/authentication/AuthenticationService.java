@@ -295,7 +295,7 @@ public class AuthenticationService
                     }
                 }
 
-                if ( preAuthData.length > 0 && timestamp == null )
+                if ( ( preAuthData.size() > 0 ) && ( timestamp == null ) )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
                 }
@@ -306,7 +306,7 @@ public class AuthenticationService
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
-                if ( !timestamp.getTimeStamp().isInClockSkew( config.getAllowableClockSkew() ) )
+                if ( !timestamp.getPaTimestamp().isInClockSkew( config.getAllowableClockSkew() ) )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
@@ -351,12 +351,12 @@ public class AuthenticationService
 
         PrincipalName ticketPrincipal = request.getKdcReqBody().getSName();
         
-        EncTicketPart newTicketBody = new EncTicketPart();
+        EncTicketPart encTicketPart = new EncTicketPart();
         KdcServer config = authContext.getConfig();
 
         // The INITIAL flag indicates that a ticket was issued using the AS protocol.
         TicketFlags ticketFlags = new TicketFlags();
-        newTicketBody.setFlags( ticketFlags );
+        encTicketPart.setFlags( ticketFlags );
         ticketFlags.setFlag( TicketFlag.INITIAL );
 
         // The PRE-AUTHENT flag indicates that the client used pre-authentication.
@@ -405,14 +405,14 @@ public class AuthenticationService
         }
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
-        newTicketBody.setKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
-        newTicketBody.setcName( request.getKdcReqBody().getCName() );
-        newTicketBody.setTransited( new TransitedEncoding() );
+        encTicketPart.setcName( request.getKdcReqBody().getCName() );
+        encTicketPart.setTransited( new TransitedEncoding() );
 
         KerberosTime now = new KerberosTime();
 
-        newTicketBody.setAuthTime( now );
+        encTicketPart.setAuthTime( now );
 
         KerberosTime startTime = request.getKdcReqBody().getFrom();
 
@@ -454,7 +454,7 @@ public class AuthenticationService
 
             ticketFlags.setFlag( TicketFlag.POSTDATED );
             ticketFlags.setFlag( TicketFlag.INVALID );
-            newTicketBody.setStartTime( startTime );
+            encTicketPart.setStartTime( startTime );
         }
 
         long till = 0;
@@ -474,7 +474,7 @@ public class AuthenticationService
          */
         long endTime = Math.min( till, startTime.getTime() + config.getMaximumTicketLifetime() );
         KerberosTime kerberosEndTime = new KerberosTime( endTime );
-        newTicketBody.setEndTime( kerberosEndTime );
+        encTicketPart.setEndTime( kerberosEndTime );
 
         /*
          * "If the requested expiration time minus the starttime (as determined
@@ -533,13 +533,13 @@ public class AuthenticationService
              * configured in policy.
              */
             long renewTill = Math.min( tempRtime.getTime(), startTime.getTime() + config.getMaximumRenewableLifetime() );
-            newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
+            encTicketPart.setRenewTill( new KerberosTime( renewTill ) );
         }
 
         if ( request.getKdcReqBody().getAddresses() != null && request.getKdcReqBody().getAddresses().getAddresses() != null
             && request.getKdcReqBody().getAddresses().getAddresses().length > 0 )
         {
-            newTicketBody.setClientAddresses( request.getKdcReqBody().getAddresses() );
+            encTicketPart.setClientAddresses( request.getKdcReqBody().getAddresses() );
         }
         else
         {
@@ -549,12 +549,10 @@ public class AuthenticationService
             }
         }
 
-        EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
-
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
-        newTicket.setEncTicketPart( ticketPart );
+        newTicket.setEncTicketPart( encTicketPart );
 
         if ( LOG.isDebugEnabled() )
         {
