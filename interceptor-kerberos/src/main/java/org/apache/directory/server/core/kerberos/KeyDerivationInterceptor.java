@@ -20,12 +20,11 @@
 package org.apache.directory.server.core.kerberos;
 
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,8 +53,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -399,15 +398,15 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT,
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 
-        Iterator<EncryptionKey> it = keys.values().iterator();
-
-        while ( it.hasNext() )
+        for ( EncryptionKey encryptionKey : keys.values() )
         {
             try
             {
-                keyAttribute.add( EncryptionKeyEncoder.encode( it.next() ) );
+                ByteBuffer buffer = ByteBuffer.allocate( encryptionKey.computeLength() );
+                encryptionKey.encode( buffer );
+                keyAttribute.add( buffer.array() );
             }
-            catch ( IOException ioe )
+            catch ( EncoderException ioe )
             {
                 log.error( I18n.err( I18n.ERR_122 ), ioe );
             }
