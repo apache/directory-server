@@ -115,17 +115,17 @@ public class KrbErrorDecoderTest
         String time = "20101119080043Z";
         assertEquals( 5, krbError.getProtocolVersionNumber() );
         assertEquals( KerberosMessageType.KRB_ERROR, krbError.getMessageType() );
-        assertEquals( time, krbError.getcTime().getDate() );
+        assertEquals( time, krbError.getCTime().getDate() );
         assertEquals( 1, krbError.getCusec() );
-        assertEquals( time, krbError.getsTime().getDate() );
+        assertEquals( time, krbError.getSTime().getDate() );
         assertEquals( 2, krbError.getSusec() );
         assertEquals( ErrorType.KDC_ERR_NONE, krbError.getErrorCode() );
-        assertEquals( "crealm", krbError.getcRealm() );
-        assertEquals( "cname", krbError.getcName().getNameString() );
+        assertEquals( "crealm", krbError.getCRealm() );
+        assertEquals( "cname", krbError.getCName().getNameString() );
         assertEquals( "realm", krbError.getRealm() );
-        assertEquals( "sname", krbError.getsName().getNameString() );
-        assertEquals( "etext", krbError.geteText() );
-        assertTrue( Arrays.equals( new byte[]{0,1}, krbError.geteData() ) );
+        assertEquals( "sname", krbError.getSName().getNameString() );
+        assertEquals( "etext", krbError.getEText() );
+        assertTrue( Arrays.equals( new byte[]{0,1}, krbError.getEData() ) );
         
         int encodedLen = krbError.computeLength();
         
@@ -213,7 +213,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcTime() );
+        assertNull( krbError.getCTime() );
         
         int encodedLen = krbError.computeLength();
         
@@ -384,7 +384,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcTime() );
+        assertNull( krbError.getCTime() );
         assertEquals( 0, krbError.getCusec() );
         
         int encodedLen = krbError.computeLength();
@@ -471,7 +471,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcRealm() );
+        assertNull( krbError.getCRealm() );
         
         int encodedLen = krbError.computeLength();
         
@@ -552,7 +552,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcName() );
+        assertNull( krbError.getCName() );
         
         int encodedLen = krbError.computeLength();
         
@@ -631,8 +631,8 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcRealm() );
-        assertNull( krbError.getcName() );
+        assertNull( krbError.getCRealm() );
+        assertNull( krbError.getCName() );
         
         int encodedLen = krbError.computeLength();
         
@@ -718,7 +718,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.geteText() );
+        assertNull( krbError.getEText() );
         
         int encodedLen = krbError.computeLength();
         
@@ -802,7 +802,7 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.geteData() );
+        assertNull( krbError.getEData() );
         
         int encodedLen = krbError.computeLength();
         
@@ -885,8 +885,8 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.geteText() );
-        assertNull( krbError.geteData() );
+        assertNull( krbError.getEText() );
+        assertNull( krbError.getEData() );
         
         int encodedLen = krbError.computeLength();
         
@@ -955,12 +955,12 @@ public class KrbErrorDecoderTest
         
         KrbError krbError = container.getKrbError();
         
-        assertNull( krbError.getcTime() );
+        assertNull( krbError.getCTime() );
         assertEquals( 0, krbError.getCusec() );
-        assertNull( krbError.getcRealm() );
-        assertNull( krbError.getcName() );
-        assertNull( krbError.geteText() );
-        assertNull( krbError.geteData() );
+        assertNull( krbError.getCRealm() );
+        assertNull( krbError.getCName() );
+        assertNull( krbError.getEText() );
+        assertNull( krbError.getEData() );
         
         int encodedLen = krbError.computeLength();
         

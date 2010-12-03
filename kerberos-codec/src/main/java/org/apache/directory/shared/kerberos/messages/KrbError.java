@@ -135,7 +135,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the cTime
      */
-    public KerberosTime getcTime()
+    public KerberosTime getCTime()
     {
         return cTime;
     }
@@ -144,7 +144,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param cTime the cTime to set
      */
-    public void setcTime( KerberosTime cTime )
+    public void setCTime( KerberosTime cTime )
     {
         this.cTime = cTime;
     }
@@ -176,7 +176,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the sTime
      */
-    public KerberosTime getsTime()
+    public KerberosTime getSTime()
     {
         return sTime;
     }
@@ -185,7 +185,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param sTime the sTime to set
      */
-    public void setsTime( KerberosTime sTime )
+    public void setSTime( KerberosTime sTime )
     {
         this.sTime = sTime;
     }
@@ -230,7 +230,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the cRealm
      */
-    public String getcRealm()
+    public String getCRealm()
     {
         return cRealm;
     }
@@ -239,7 +239,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param cRealm the cRealm to set
      */
-    public void setcRealm( String cRealm )
+    public void setCRealm( String cRealm )
     {
         this.cRealm = cRealm;
     }
@@ -248,7 +248,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the cName
      */
-    public PrincipalName getcName()
+    public PrincipalName getCName()
     {
         return cName;
     }
@@ -257,7 +257,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param cName the cName to set
      */
-    public void setcName( PrincipalName cName )
+    public void setCName( PrincipalName cName )
     {
         this.cName = cName;
     }
@@ -284,7 +284,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the sName
      */
-    public PrincipalName getsName()
+    public PrincipalName getSName()
     {
         return sName;
     }
@@ -293,7 +293,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param sName the sName to set
      */
-    public void setsName( PrincipalName sName )
+    public void setSName( PrincipalName sName )
     {
         this.sName = sName;
     }
@@ -302,7 +302,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the eText
      */
-    public String geteText()
+    public String getEText()
     {
         return eText;
     }
@@ -311,7 +311,7 @@ public class KrbError extends KerberosMessage
     /**
      * @param eText the eText to set
      */
-    public void seteText( String eText )
+    public void setEText( String eText )
     {
         this.eText = eText;
     }
@@ -320,7 +320,7 @@ public class KrbError extends KerberosMessage
     /**
      * @return the eData
      */
-    public byte[] geteData()
+    public byte[] getEData()
     {
         return eData;
     }

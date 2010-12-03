@@ -69,6 +69,19 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
     /**
      * Creates a new instance of ETypeInfoEntry.
+     * 
+     * @param etype the Encryption type
+     * @param salt the salt
+     */
+    public ETypeInfoEntry( EncryptionType etype, byte[] salt )
+    {
+        this.etype = etype;
+        this.salt = salt;
+    }
+
+
+    /**
+     * Creates a new instance of ETypeInfoEntry.
      */
     public ETypeInfoEntry()
     {

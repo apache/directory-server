@@ -79,7 +79,7 @@ public class StoreEText extends GrammarAction
         String eText = StringTools.utf8ToString( value.getData() );
 
         KrbError krbError = krbErrContainer.getKrbError();
-        krbError.seteText( eText );
+        krbError.setEText( eText );
         
         if ( IS_DEBUG )
         {

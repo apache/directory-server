@@ -50,6 +50,6 @@ public class StoreCTime extends AbstractReadKerberosTime
     protected void setKerberosTime( KerberosTime krbtime, Asn1Container container )
     {
         KrbErrorContainer krbErrContainer = ( KrbErrorContainer ) container;
-        krbErrContainer.getKrbError().setcTime( krbtime );
+        krbErrContainer.getKrbError().setCTime( krbtime );
     }
 }
