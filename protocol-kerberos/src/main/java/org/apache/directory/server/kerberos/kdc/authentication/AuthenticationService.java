@@ -64,6 +64,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,14 +203,12 @@ public class AuthenticationService
 
             try
             {
-                for ( int ii = 0; ii < preAuthData.size(); ii++ )
+                for ( PaData paData : preAuthData )
                 {
-                    PaData pData = preAuthData.get( ii );
-                    
-                    if ( pData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
+                    if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
-                            pData.getPaDataValue() );
+                            paData.getPaDataValue() );
                         clientKey = new EncryptionKey( EncryptionType.getTypeByValue( samKey.getKeyType() ), samKey
                             .getEncoded() );
                     }
@@ -272,16 +271,15 @@ public class AuthenticationService
 
                 PaEncTsEnc timestamp = null;
 
-                for ( int ii = 0; ii < preAuthData.size(); ii++ )
+                for ( PaData paData : preAuthData )
                 {
-                    PaData pData = preAuthData.get( ii );
-                    if ( pData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
+                    if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue;
 
                         try
                         {
-                            dataValue = EncryptedDataDecoder.decode( pData.getPaDataValue() );
+                            dataValue = EncryptedDataDecoder.decode( paData.getPaDataValue() );
                         }
                         catch ( IOException ioe )
                         {
@@ -292,7 +290,7 @@ public class AuthenticationService
                             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
                         }
 
-                        timestamp = ( PaEncTimestamp ) cipherTextHandler.unseal( PaEncTimestamp.class,
+                        timestamp = ( PaEncTsEnc ) cipherTextHandler.unseal( PaEncTimestamp.class,
                             clientKey, dataValue, KeyUsage.NUMBER1 );
                     }
                 }
@@ -357,12 +355,14 @@ public class AuthenticationService
         KdcServer config = authContext.getConfig();
 
         // The INITIAL flag indicates that a ticket was issued using the AS protocol.
-        newTicketBody.setFlag( TicketFlag.INITIAL );
+        TicketFlags ticketFlags = new TicketFlags();
+        newTicketBody.setFlags( ticketFlags );
+        ticketFlags.setFlag( TicketFlag.INITIAL );
 
         // The PRE-AUTHENT flag indicates that the client used pre-authentication.
         if ( authContext.isPreAuthenticated() )
         {
-            newTicketBody.setFlag( TicketFlag.PRE_AUTHENT );
+            ticketFlags.setFlag( TicketFlag.PRE_AUTHENT );
         }
 
         if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDABLE ) )
@@ -372,7 +372,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.FORWARDABLE );
+            ticketFlags.setFlag( TicketFlag.FORWARDABLE );
         }
 
         if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXIABLE ) )
@@ -382,7 +382,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.PROXIABLE );
+            ticketFlags.setFlag( TicketFlag.PROXIABLE );
         }
 
         if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
@@ -392,7 +392,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.MAY_POSTDATE );
+            ticketFlags.setFlag( TicketFlag.MAY_POSTDATE );
         }
 
         if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEW ) 
@@ -405,10 +405,10 @@ public class AuthenticationService
         }
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
-        newTicketBody.setSessionKey( sessionKey );
+        newTicketBody.setKey( sessionKey );
 
         newTicketBody.setcName( request.getKdcReqBody().getCName() );
-        newTicketBody.setTransitedEncoding( new TransitedEncoding() );
+        newTicketBody.setTransited( new TransitedEncoding() );
 
         KerberosTime now = new KerberosTime();
 
@@ -452,8 +452,8 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.POSTDATED );
-            newTicketBody.setFlag( TicketFlag.INVALID );
+            ticketFlags.setFlag( TicketFlag.POSTDATED );
+            ticketFlags.setFlag( TicketFlag.INVALID );
             newTicketBody.setStartTime( startTime );
         }
 
@@ -520,7 +520,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.RENEWABLE );
+            ticketFlags.setFlag( TicketFlag.RENEWABLE );
 
             if ( tempRtime == null || tempRtime.isZero() )
             {

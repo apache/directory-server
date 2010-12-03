@@ -35,10 +35,6 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  */
 public class KerberosUdpEncoder extends ProtocolEncoderAdapter
 {
-    private KdcReplyEncoder replyEncoder = new KdcReplyEncoder();
-    private ErrorMessageEncoder errorEncoder = new ErrorMessageEncoder();
-
-
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
         AbstractAsn1Object asn1Obj = ( AbstractAsn1Object ) message;
