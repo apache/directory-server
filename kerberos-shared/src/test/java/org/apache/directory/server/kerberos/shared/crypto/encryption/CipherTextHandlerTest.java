@@ -147,8 +147,8 @@ public class CipherTextHandlerTest
         try
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070322233107Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 291067, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070322233107Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 291067, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -202,8 +202,8 @@ public class CipherTextHandlerTest
         try
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 460450, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -249,8 +249,8 @@ public class CipherTextHandlerTest
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", zuluTime, object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", microSeconds, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", zuluTime, object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", microSeconds, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -282,8 +282,8 @@ public class CipherTextHandlerTest
         try
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410212557Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 379386, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070410212557Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 379386, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -333,8 +333,8 @@ public class CipherTextHandlerTest
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 460450, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -378,8 +378,8 @@ public class CipherTextHandlerTest
         try
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410212809Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 298294, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070410212809Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 298294, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -441,8 +441,8 @@ public class CipherTextHandlerTest
         {
             PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
+            assertEquals( "MicroSeconds", 460450, object.getPausec() );
         }
         catch ( KerberosException ke )
         {
@@ -478,7 +478,7 @@ public class CipherTextHandlerTest
      {
      PaEncTsEnc object = ( PaEncTsEnc ) lockBox.unseal( hint, key, data );
      assertEquals( "TimeStamp", "20070322233107Z", object.getTimeStamp().toString() );
-     assertEquals( "MicroSeconds", 291067, object.getMicroSeconds() );
+     assertEquals( "MicroSeconds", 291067, object.getPausec() );
      }
      catch ( KerberosException ke )
      {

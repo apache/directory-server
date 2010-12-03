@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.store.operations;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
@@ -80,7 +82,9 @@ public class StoreUtils
         outAttrs.add( SchemaConstants.CN_AT, principalEntry.getCommonName() );
         
         EncryptionKey encryptionKey = principalEntry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
-        outAttrs.add( KerberosAttribute.KRB5_KEY_AT, EncryptionKeyEncoder.encode( encryptionKey ) );
+        
+        ByteBuffer buffer = ByteBuffer.allocate( encryptionKey.computeLength() );
+        outAttrs.add( KerberosAttribute.KRB5_KEY_AT, encryptionKey.encode( buffer ).array() );
 
         int keyVersion = encryptionKey.getKeyVersion();
 

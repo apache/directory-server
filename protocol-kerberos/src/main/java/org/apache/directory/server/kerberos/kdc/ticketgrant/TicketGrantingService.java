@@ -44,7 +44,6 @@ import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
@@ -67,6 +66,7 @@ import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -48,6 +48,7 @@ import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 
 
@@ -72,7 +73,7 @@ public class CipherTextHandler
 
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
         map.put( Authenticator.class, AuthenticatorDecoder.class );
-        map.put( PaEncTsEnc .class, EncryptedTimestampDecoder.class );
+        map.put( PaEncTsEnc.class, EncryptedTimestampDecoder.class );
         map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );

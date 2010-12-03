@@ -34,7 +34,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -119,10 +119,10 @@ public class TicketFactory
 
         Ticket ticket = new Ticket();
         ticket.setTktVno( KerberosConstants.KERBEROS_V5 );
-        ticket.setServerPrincipal( serverPrincipal );
+        ticket.setSName( serverPrincipal );
         ticket.setEncPart( encryptedTicketPart );
 
-        ticket.setEncTicketPart( encTicketPart );
+        ticket.setEncPart( encTicketPart );
 
         return ticket;
     }
@@ -137,7 +137,8 @@ public class TicketFactory
      */
     public KerberosTicket getKerberosTicket( Ticket ticket ) throws IOException
     {
-        byte[] asn1Encoding = TicketEncoder.encodeTicket( ticket );
+        
+        byte[] asn1Encoding = ticket.encode( null ).array();
 
         KerberosPrincipal client = ticket.getEncTicketPart().getClientPrincipal();
         KerberosPrincipal server = ticket.getServerPrincipal();

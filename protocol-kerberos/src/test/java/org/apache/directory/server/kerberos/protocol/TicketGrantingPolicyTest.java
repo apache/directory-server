@@ -33,9 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
@@ -43,6 +40,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

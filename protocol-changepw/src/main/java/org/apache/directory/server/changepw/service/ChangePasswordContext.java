@@ -26,11 +26,11 @@ import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.messages.AbstractPasswordMessage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**

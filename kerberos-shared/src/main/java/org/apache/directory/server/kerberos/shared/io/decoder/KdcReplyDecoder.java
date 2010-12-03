@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosPrincipalModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
