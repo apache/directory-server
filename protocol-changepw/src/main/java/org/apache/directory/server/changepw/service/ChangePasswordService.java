@@ -43,8 +43,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
@@ -58,6 +56,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -385,13 +384,11 @@ public class ChangePasswordService
         PrivateMessage privateMessage = new PrivateMessage( encPrivPart );
 
         // Begin AP_REP generation
-        EncApRepPartModifier encApModifier = new EncApRepPartModifier();
-        encApModifier.setClientTime( authenticator.getCtime() );
-        encApModifier.setClientMicroSecond( authenticator.getCusec() );
-        encApModifier.setSequenceNumber( Integer.valueOf( authenticator.getSeqNumber() ) );
-        encApModifier.setSubSessionKey( authenticator.getSubKey() );
-
-        EncApRepPart repPart = encApModifier.getEncApRepPart();
+        EncApRepPart repPart = new EncApRepPart();
+        repPart.setCTime( authenticator.getCtime() );
+        repPart.setCusec( authenticator.getCusec() );
+        repPart.setSeqNumber( Integer.valueOf( authenticator.getSeqNumber() ) );
+        repPart.setSubkey( authenticator.getSubKey() );
 
         EncryptedData encRepPart;
 

@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -33,6 +31,7 @@ import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 
 
 /**
@@ -73,7 +72,7 @@ public class EncApRepPartDecoder implements Decoder, DecoderFactory
      */
     private EncApRepPart decodeEncApRepPartSequence( DERSequence sequence )
     {
-        EncApRepPartModifier modifier = new EncApRepPartModifier();
+        EncApRepPart encApRepPart = new EncApRepPart();
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
@@ -85,23 +84,23 @@ public class EncApRepPartDecoder implements Decoder, DecoderFactory
             {
                 case 0:
                     DERGeneralizedTime tag0 = ( DERGeneralizedTime ) derObject;
-                    modifier.setClientTime( KerberosTimeDecoder.decode( tag0 ) );
+                    encApRepPart.setClientTime( KerberosTimeDecoder.decode( tag0 ) );
                     break;
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    modifier.setClientMicroSecond( Integer.valueOf( tag1.intValue() ) );
+                    encApRepPart.setClientMicroSecond( Integer.valueOf( tag1.intValue() ) );
                     break;
                 case 2:
                     DERSequence tag2 = ( DERSequence ) derObject;
-                    modifier.setSubSessionKey( EncryptionKeyDecoder.decode( tag2 ) );
+                    encApRepPart.setSubSessionKey( EncryptionKeyDecoder.decode( tag2 ) );
                     break;
                 case 3:
                     DERInteger tag3 = ( DERInteger ) derObject;
-                    modifier.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
+                    encApRepPart.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
                     break;
             }
         }
 
-        return modifier.getEncApRepPart();
+        return encApRepPart.getEncApRepPart();
     }
 }
