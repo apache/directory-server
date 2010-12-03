@@ -22,7 +22,6 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
@@ -31,6 +30,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 
 

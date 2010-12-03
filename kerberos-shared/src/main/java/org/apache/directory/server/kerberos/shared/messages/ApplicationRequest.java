@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 

@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -158,7 +160,7 @@ public class TicketFlagsTest
         {
             if ( t != TicketFlag.MAX_VALUE )
             {
-                i |= 1 << ( 31 - t.getOrdinal() );
+                i |= 1 << ( 31 - t.getValue() );
             }
         }
 

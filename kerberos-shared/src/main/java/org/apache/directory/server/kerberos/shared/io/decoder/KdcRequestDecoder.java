@@ -26,9 +26,6 @@ import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -39,6 +36,8 @@ import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 
 

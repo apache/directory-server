@@ -43,14 +43,13 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
@@ -359,13 +358,12 @@ public class ChangePasswordService
 
         // create priv message
         // user-data component is short result code
-        EncKrbPrivPartModifier modifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart privPart = new EncKrbPrivPart();
         byte[] resultCode =
             { ( byte ) 0x00, ( byte ) 0x00 };
-        modifier.setUserData( resultCode );
+        privPart.setUserData( resultCode );
 
-        modifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart privPart = modifier.getEncKrbPrivPart();
+        privPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // get the subsession key from the Authenticator
         EncryptionKey subSessionKey = authenticator.getSubKey();

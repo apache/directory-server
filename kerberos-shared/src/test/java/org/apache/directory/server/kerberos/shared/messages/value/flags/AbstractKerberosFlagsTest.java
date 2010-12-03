@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.kerberos.flags.AbstractKerberosFlags;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,10 +46,10 @@ public class AbstractKerberosFlagsTest
     {
         // Flags 1, 2, 4, 8 set
         AbstractKerberosFlags akf = new AbstractKerberosFlags(
-            ( int ) ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
-                  + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) ) 
-                  + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) )
-                  + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) )
+            ( int ) ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
+                  + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) ) 
+                  + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
+                  + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -57,17 +59,17 @@ public class AbstractKerberosFlagsTest
         assertEquals(
             "clear(KerberosFlag)",
             ( int ) ( 
-                  ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
-                + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
-                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ),
+                  ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ),
             akf.getIntValue() );
 
         // unset flag 2
-        akf.clearFlag( TicketFlag.FORWARDED.getOrdinal() );
+        akf.clearFlag( TicketFlag.FORWARDED.getValue() );
         assertEquals(
             "clear(int)",
-            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
-                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ), akf.getIntValue() );
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ), akf.getIntValue() );
     }
 
 
@@ -76,10 +78,10 @@ public class AbstractKerberosFlagsTest
     {
         // Flags 1, 2, 4, 8 set
         AbstractKerberosFlags akfIntConstructor = new AbstractKerberosFlags( 
-            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) )
-            + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
-            + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) ) 
-            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ) ) )
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
+            + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
+            + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) ) 
+            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ) )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -93,10 +95,10 @@ public class AbstractKerberosFlagsTest
         assertEquals( "intValue", 0, akfEmptyConstructor.getIntValue() );
         assertEquals(
             "intValue",
-            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getOrdinal() ) ) )
-                + ( 1 << ( 31 - TicketFlag.FORWARDED.getOrdinal() ) )
-                + ( 1 << ( 31 - TicketFlag.PROXY.getOrdinal() ) )
-                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getOrdinal() ) ), akfIntConstructor.getIntValue() );
+            ( int ) ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ), akfIntConstructor.getIntValue() );
     }
 
 
@@ -131,8 +133,8 @@ public class AbstractKerberosFlagsTest
             // Only set every 2nd ticket flag
             if ( setFlag )
             {
-                akf.setFlag( ticketFlag.getOrdinal() );
-                flagsValue += ( 1 << ( 31 - ticketFlag.getOrdinal() ) );
+                akf.setFlag( ticketFlag.getValue() );
+                flagsValue += ( 1 << ( 31 - ticketFlag.getValue() ) );
             }
             
             setFlag = !setFlag;
@@ -146,16 +148,16 @@ public class AbstractKerberosFlagsTest
             if ( setFlag )
             {
                 assertTrue( "isFlagSet(TicketFlag): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag ) );
-                assertTrue( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getOrdinal() ) );
+                assertTrue( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getValue() ) );
                 assertTrue( "isFlagSet(int,int): " + ticketFlag.toString(),
-                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getOrdinal() ) );
+                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ) );
             }
             else
             {
                 assertFalse( "isFlagSet(TicketFlag): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag ) );
-                assertFalse( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getOrdinal() ) );
+                assertFalse( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getValue() ) );
                 assertFalse( "isFlagSet(int,int): " + ticketFlag.toString(),
-                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getOrdinal() ) );
+                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ) );
             }
             
             setFlag = !setFlag;

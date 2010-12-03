@@ -25,7 +25,6 @@ import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosPrincipalModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -36,6 +35,7 @@ import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
 
 
 /**
