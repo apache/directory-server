@@ -42,7 +42,7 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -79,7 +79,6 @@ public class TicketGrantingService
     /** the log for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TicketGrantingService.class );
     
-    private static final InMemoryReplayCache replayCache = new InMemoryReplayCache();
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private static final String SERVICE_NAME = "Ticket-Granting Service (TGS)";
@@ -116,11 +115,6 @@ public class TicketGrantingService
     
     private static void configureTicketGranting( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        KdcServer config = tgsContext.getConfig();
-        long clockSkew = config.getAllowableClockSkew();
-        replayCache.setClockSkew( clockSkew );
-        tgsContext.setReplayCache( replayCache );
-
         tgsContext.setCipherTextHandler( cipherTextHandler );
 
         if ( tgsContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
@@ -266,7 +260,7 @@ public class TicketGrantingService
         EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
 
         long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
-        ReplayCache replayCache = tgsContext.getReplayCache();
+        ReplayCache replayCache = tgsContext.getConfig().getReplayCache();
         boolean emptyAddressesAllowed = tgsContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = tgsContext.getClientAddress();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();

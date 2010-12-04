@@ -43,7 +43,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -66,11 +65,8 @@ public class ChangePasswordService
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordService.class );
 
-    private static final ReplayCache replayCache = new InMemoryReplayCache();
-    
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
-    
     public static void execute( IoSession session, ChangePasswordContext changepwContext ) throws KerberosException, IOException
     {
         if ( LOG.isDebugEnabled() )
@@ -152,7 +148,6 @@ public class ChangePasswordService
     
     private static void configureChangePassword( ChangePasswordContext changepwContext )
     {
-        changepwContext.setReplayCache( replayCache );
         changepwContext.setCipherTextHandler( cipherTextHandler );
     }
     
@@ -212,7 +207,7 @@ public class ChangePasswordService
         EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
 
         long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
-        ReplayCache replayCache = changepwContext.getReplayCache();
+        ReplayCache replayCache = changepwContext.getConfig().getReplayCache();
         boolean emptyAddressesAllowed = changepwContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = changepwContext.getClientAddress();
         CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
@@ -294,7 +289,7 @@ public class ChangePasswordService
             PrincipalStore store = changepwContext.getStore();
             ApplicationRequest authHeader = changepwContext.getAuthHeader();
             Ticket ticket = changepwContext.getTicket();
-            ReplayCache replayCache = changepwContext.getReplayCache();
+            ReplayCache replayCache = changepwContext.getConfig().getReplayCache();
             long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
 
             Authenticator authenticator = changepwContext.getAuthenticator();

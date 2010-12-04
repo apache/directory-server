@@ -59,4 +59,9 @@ public interface ReplayCache
      */
     void save( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
         int clientMicroSeconds );
+    
+    /**
+     * removes all the elements present in the cache
+     */
+    void clear();
 }

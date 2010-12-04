@@ -93,7 +93,6 @@
 		on disk is needed to swap the data if it is too much to hold in memory -->
 	<cache name="groupCache" 
 	       maxElementsInMemory="10000"
-		   maxElementsOnDisk="1000"
 		   eternal="false" 
 		   overflowToDisk="true"
 		   diskSpoolBufferSizeMB="20"
@@ -104,13 +103,45 @@
     
     <cache name="dnCache" 
 	       maxElementsInMemory="10000"
-		   maxElementsOnDisk="1000"
 		   eternal="false" 
 		   overflowToDisk="false"
 		   diskSpoolBufferSizeMB="20"
 		   timeToIdleSeconds="300"
 		   timeToLiveSeconds="600"
 		   memoryStoreEvictionPolicy="LFU" 
+		   diskPersistent="false" />
+
+   <!-- Kerberos replay cache
+      NOTE1: keep the maxElementsInMemory as low as possible to avoid wasting memory
+      Cause the elements present in the cache won't be removed dynamically even after their TTL
+      expires. For a good explanation see http://forums.terracotta.org/forums/posts/list/4126.page
+      
+      NOTE2: We don't use the standard eviction policies like LFU or LRU rather we use a custom eviction
+             policy based on the value of clockskew setting. The default value of clokcskew is 5 minutes,
+             which is also set for the TTL and TTI values of cache config
+             
+      So what we do here is enable the overflowToDisk flag and then let the disk store be cleaned
+      periodically based on diskExpiryThreadIntervalSeconds
+   -->
+    <cache name="kdcReplayCache" 
+	       maxElementsInMemory="100"
+		   eternal="false" 
+		   overflowToDisk="true"
+		   diskSpoolBufferSizeMB="20"
+		   diskExpiryThreadIntervalSeconds="300"
+		   timeToLiveSeconds="300"
+		   timeToIdleSeconds="300"
+		   diskPersistent="false" />
+
+   <!-- ChangePassword replay cache, this has the same settings as the Kerberos replay cache -->
+    <cache name="changePwdReplayCache" 
+	       maxElementsInMemory="100"
+		   eternal="false" 
+		   overflowToDisk="true"
+		   diskSpoolBufferSizeMB="20"
+		   diskExpiryThreadIntervalSeconds="300"
+		   timeToLiveSeconds="300"
+		   timeToIdleSeconds="300"
 		   diskPersistent="false" />
 		   
 </ehcache>

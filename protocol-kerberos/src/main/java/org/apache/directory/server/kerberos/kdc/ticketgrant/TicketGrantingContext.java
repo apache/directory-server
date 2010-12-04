@@ -39,7 +39,6 @@ public class TicketGrantingContext extends KdcContext
     private Ticket tgt;
     private Ticket newTicket;
     private Authenticator authenticator;
-    private ReplayCache replayCache;
 
     private PrincipalStoreEntry ticketPrincipalEntry;
     private PrincipalStoreEntry requestPrincipalEntry;
@@ -78,24 +77,6 @@ public class TicketGrantingContext extends KdcContext
     public void setTicketPrincipalEntry( PrincipalStoreEntry ticketPrincipalEntry )
     {
         this.ticketPrincipalEntry = ticketPrincipalEntry;
-    }
-
-
-    /**
-     * @return Returns the replayCache.
-     */
-    public ReplayCache getReplayCache()
-    {
-        return replayCache;
-    }
-
-
-    /**
-     * @param replayCache The replayCache to set.
-     */
-    public void setReplayCache( ReplayCache replayCache )
-    {
-        this.replayCache = replayCache;
     }
 
 

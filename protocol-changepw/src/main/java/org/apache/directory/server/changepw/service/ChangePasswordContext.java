@@ -50,27 +50,8 @@ public class ChangePasswordContext
     private Ticket ticket;
     private Authenticator authenticator;
     private PrincipalStoreEntry serverEntry;
-    private ReplayCache replayCache;
     private CipherTextHandler cipherTextHandler;
     private String password;
-
-
-    /**
-     * @return Returns the replayCache.
-     */
-    public ReplayCache getReplayCache()
-    {
-        return replayCache;
-    }
-
-
-    /**
-     * @param replayCache The replayCache to set.
-     */
-    public void setReplayCache( ReplayCache replayCache )
-    {
-        this.replayCache = replayCache;
-    }
 
 
     /**

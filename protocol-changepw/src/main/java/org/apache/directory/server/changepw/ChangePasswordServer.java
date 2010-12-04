@@ -26,8 +26,12 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -114,6 +118,8 @@ public class ChangePasswordServer extends DirectoryBackedService
     /** The policy for token size. */
     private int policyTokenSize;
 
+    /** the cache used for storing change password requests */
+    private ReplayCache replayCache;
 
     /**
      * Creates a new instance of ChangePasswordConfiguration.
@@ -268,6 +274,11 @@ public class ChangePasswordServer extends DirectoryBackedService
     {
         PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
         
+        LOG.debug( "initializing the changepassword replay cache" );
+
+        Cache cache = getDirectoryService().getCacheService().getCache( "changePwdReplayCache" );
+        replayCache = new ReplayCacheImpl( cache );
+
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 464
@@ -334,6 +345,8 @@ public class ChangePasswordServer extends DirectoryBackedService
             }
         }
 
+        replayCache.clear();
+        
         LOG.info( "ChangePassword service stopped." );
         //System.out.println( "ChangePassword service stopped." );
     }
@@ -392,6 +405,15 @@ public class ChangePasswordServer extends DirectoryBackedService
     }
     
     
+    /**
+     * @return the replayCache
+     */
+    public ReplayCache getReplayCache()
+    {
+        return replayCache;
+    }
+
+
     /**
      * @see Object#toString()
      */

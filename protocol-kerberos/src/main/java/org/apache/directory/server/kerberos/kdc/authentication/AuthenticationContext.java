@@ -102,24 +102,6 @@ public class AuthenticationContext extends KdcContext
 
 
     /**
-     * @return Returns the replayCache.
-     */
-    public ReplayCache getReplayCache()
-    {
-        return replayCache;
-    }
-
-
-    /**
-     * @param replayCache The replayCache to set.
-     */
-    public void setReplayCache( ReplayCache replayCache )
-    {
-        this.replayCache = replayCache;
-    }
-
-
-    /**
      * @return Returns the clientKey.
      */
     public EncryptionKey getClientKey()

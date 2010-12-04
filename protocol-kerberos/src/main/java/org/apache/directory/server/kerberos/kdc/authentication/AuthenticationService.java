@@ -43,8 +43,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -83,7 +81,6 @@ public class AuthenticationService
     /** The log for this class. */
     private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
 
-    private static final ReplayCache replayCache = new InMemoryReplayCache();
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private static final String SERVICE_NAME = "Authentication Service (AS)";
@@ -96,7 +93,6 @@ public class AuthenticationService
             monitorRequest( authContext );
         }
         
-        authContext.setReplayCache( replayCache );
         authContext.setCipherTextHandler( cipherTextHandler );
 
         if ( authContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )

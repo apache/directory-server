@@ -26,9 +26,13 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.protocol.KerberosUdpProtocolCodecFactory;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -149,6 +153,8 @@ public class KdcServer extends DirectoryBackedService
     /** Whether to verify the body checksum. */
     private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
+    /** the cache used for storing AS and TGS requests */
+    private ReplayCache replayCache;
 
     /**
      * Creates a new instance of KdcConfiguration.
@@ -429,6 +435,15 @@ public class KdcServer extends DirectoryBackedService
 
 
     /**
+     * @return the replayCache
+     */
+    public ReplayCache getReplayCache()
+    {
+        return replayCache;
+    }
+
+
+    /**
      * @throws IOException if we cannot bind to the sockets
      */
     public void start() throws IOException, LdapInvalidDnException
@@ -437,6 +452,11 @@ public class KdcServer extends DirectoryBackedService
 
         // TODO - for now ignoring this catalog crap
         store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
+        
+        LOG.debug( "initializing the kerberos replay cache" );
+
+        Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
+        replayCache = new ReplayCacheImpl( cache, allowableClockSkew );
         
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
@@ -516,6 +536,8 @@ public class KdcServer extends DirectoryBackedService
                 acceptor.dispose();
             }
         }
+        
+        replayCache.clear();
         
         LOG.info( "Kerberos service stopped." );
     }

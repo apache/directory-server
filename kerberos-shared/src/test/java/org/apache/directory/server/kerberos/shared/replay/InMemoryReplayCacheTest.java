@@ -19,26 +19,26 @@
  */
 package org.apache.directory.server.kerberos.shared.replay;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
-import java.util.Iterator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.List;
-import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache.ReplayCacheEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * Test the InMemory replay cache
@@ -52,96 +52,58 @@ public class InMemoryReplayCacheTest
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
 
+
     /**
      * Test that the cache is working well. We will create a new entry
-     * every 20 ms, with 10 different serverPrincipals.
+     * every 500 ms, with 4 different serverPrincipals.
      * 
-     * After this period of time, we should only have 25 entries in the cache
+     * After this period of time, we should only have 2 entries in the cache
      */
     @Test
     public void testCacheSetting() throws Exception
     {
-        int delay = 500;
-        long clockSkew = 100;
-        
-        // Set a delay of 500 ms and a clock skew of 100 ms
-        InMemoryReplayCache cache = new InMemoryReplayCache( clockSkew, delay );
-        
-        // Loop for 2 seconds, then check that the cache is clean
+        long clockSkew = 1000; // 1 sec
+
+        CacheManager cacheManager = new CacheManager( InMemoryReplayCacheTest.class.getClassLoader().getResource(
+            "directory-cacheservice.xml" ) );
+
+        Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
+        ehCache.getCacheConfiguration().setMaxElementsInMemory( 2 );
+        ehCache.getCacheConfiguration().setTimeToLiveSeconds( 1 );
+        ehCache.getCacheConfiguration().setTimeToIdleSeconds( 1 );
+        ehCache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds( 1 );
+
+        ReplayCacheImpl cache = new ReplayCacheImpl( ehCache, clockSkew );
+
         int i = 0;
-        int nbClient = 20;
-        int nbServer = 10;
-        
-        // Inject 100 entries, one every 20 ms
-        while ( i < 100 )
+
+        // Inject 4 entries one every second 
+        while ( i < 4 )
         {
-            KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i%nbServer + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
-            KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i%nbClient + "@APACHE.ORG", PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
-            
+            KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i + "@APACHE.ORG",
+                PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
+            KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i + "@APACHE.ORG",
+                PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
+
             cache.save( serverPrincipal, clientPrincipal, new KerberosTime( System.currentTimeMillis() ), 0 );
-            
-            Thread.sleep( 20 );
+
             i++;
         }
-        
-        Map<KerberosPrincipal, List<ReplayCacheEntry>> map = cache.getCache();
 
-        // We should have 20 List of entries, as we have injected 20 different
-        // clientPrincipals
-        assertEquals( nbClient, map.size() );
-        
-        int nbEntries = 0;
-        
-        // Loop into the cache to see how many entries we have
-        Collection<List<ReplayCacheEntry>> entryList = map.values();
-        
-        for ( List<ReplayCacheEntry> entries:entryList )
+        List keys = ehCache.getKeys();
+
+        // We should have 4 entries
+        assertEquals( 4, keys.size() );
+
+        // Wait till the timetolive time exceeds 
+        Thread.sleep( 1000 );
+
+        // then access the cache so that the objects present in the cache will be expired
+        for ( Object k : keys )
         {
-            if ( ( entries == null ) || ( entries.size() == 0 ) )
-            {
-                continue;
-            }
-            
-            Iterator<ReplayCacheEntry> iterator = entries.iterator();
-            
-            while ( iterator.hasNext() )
-            {
-                iterator.next();
-                nbEntries ++;
-            }
+            assertNull( ehCache.get( k ) );
         }
 
-        // We should have some
-        assertNotNull( nbEntries );
-        assertTrue(nbEntries > 0);
-        
-        // Wait another delay, so that the cleaning thread will be kicked off
-        Thread.sleep( delay + 50 );
-        // It's not guaranteed that the thread run, so invoke the method manually
-        cache.cleanCache();
-        
-        nbEntries = 0;
-        
-        for ( List<ReplayCacheEntry> entries:entryList )
-        {
-            if ( ( entries == null ) || ( entries.size() == 0 ) )
-            {
-                continue;
-            }
-            
-            Iterator<ReplayCacheEntry> iterator = entries.iterator();
-            
-            while ( iterator.hasNext() )
-            {
-                iterator.next();
-                nbEntries ++;
-            }
-        }
-
-        // We should not have anymore entry in the cache
-        assertEquals( 0, nbEntries );
-
-        // Stop background thread
-        cache.interrupt();
+        assertEquals( 0, ehCache.getKeys().size() );
     }
 }
