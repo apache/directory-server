@@ -33,7 +33,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosUdpEncoder extends ProtocolEncoderAdapter
+public class KerberosEncoder extends ProtocolEncoderAdapter
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {

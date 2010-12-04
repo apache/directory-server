@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosUdpDecoder extends ProtocolDecoderAdapter
+public class KerberosDecoder extends ProtocolDecoderAdapter
 {
 
     /** The logger */

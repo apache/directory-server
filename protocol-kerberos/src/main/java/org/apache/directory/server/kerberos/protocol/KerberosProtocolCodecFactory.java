@@ -29,23 +29,23 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosUdpProtocolCodecFactory implements ProtocolCodecFactory
+public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static final KerberosUdpProtocolCodecFactory INSTANCE = new KerberosUdpProtocolCodecFactory();
+    private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
 
 
     /**
-     * Returns the singleton {@link KerberosUdpProtocolCodecFactory}.
+     * Returns the singleton {@link KerberosProtocolCodecFactory}.
      *
-     * @return The singleton {@link KerberosUdpProtocolCodecFactory}.
+     * @return The singleton {@link KerberosProtocolCodecFactory}.
      */
-    public static KerberosUdpProtocolCodecFactory getInstance()
+    public static KerberosProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
 
-    private KerberosUdpProtocolCodecFactory()
+    private KerberosProtocolCodecFactory()
     {
         // Private constructor prevents instantiation outside this class.
     }
@@ -54,13 +54,13 @@ public class KerberosUdpProtocolCodecFactory implements ProtocolCodecFactory
     public ProtocolEncoder getEncoder( IoSession session )
     {
         // Create a new encoder.
-        return new KerberosUdpEncoder();
+        return new KerberosEncoder();
     }
 
 
     public ProtocolDecoder getDecoder( IoSession session )
     {
         // Create a new decoder.
-        return new KerberosUdpDecoder();
+        return new KerberosDecoder();
     }
 }

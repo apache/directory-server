@@ -30,7 +30,7 @@ import net.sf.ehcache.Cache;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
-import org.apache.directory.server.kerberos.protocol.KerberosUdpProtocolCodecFactory;
+import org.apache.directory.server.kerberos.protocol.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
@@ -472,7 +472,7 @@ public class KdcServer extends DirectoryBackedService
 
             ((DefaultIoFilterChainBuilder)udpChainBuilder).addFirst( "codec", 
                     new ProtocolCodecFilter( 
-                            KerberosUdpProtocolCodecFactory.getInstance() ) );
+                            KerberosProtocolCodecFactory.getInstance() ) );
 
             acceptor.setFilterChainBuilder( udpChainBuilder );
 
@@ -509,7 +509,7 @@ public class KdcServer extends DirectoryBackedService
                 // Inject the codec
                 ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
                     new ProtocolCodecFilter( 
-                        KerberosUdpProtocolCodecFactory.getInstance() ) );
+                        KerberosProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
                 
