@@ -30,6 +30,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,21 +85,21 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setForwardableAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.FORWARDABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -122,21 +123,21 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setProxiableAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.PROXIABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -160,21 +161,21 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setPostdatedAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.ALLOW_POSTDATE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -198,21 +199,21 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setPostdatedAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.POSTDATED );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -236,21 +237,21 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setRenewableAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEWABLE_OK );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -274,24 +275,24 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setRenewableAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEWABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
-        modifier.setRtime( requestedRenewTillTime );
+        kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -315,23 +316,23 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         config.setPaEncTimestampRequired( false );
         config.setEmptyAddressesAllowed( false );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
-        modifier.setRtime( requestedRenewTillTime );
+        kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 

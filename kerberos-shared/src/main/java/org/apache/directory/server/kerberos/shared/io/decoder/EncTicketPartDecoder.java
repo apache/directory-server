@@ -104,12 +104,12 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
                     
                 case 2:
                     DERGeneralString tag2 = ( DERGeneralString ) derObject;
-                    modifier.setcRealm( tag2.getString() );
+                    modifier.setCRealm( tag2.getString() );
                     break;
                     
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
-                    modifier.setcName( PrincipalNameDecoder.decode( tag3 ) );
+                    modifier.setCName( PrincipalNameDecoder.decode( tag3 ) );
                     break;
                     
                 case 4:

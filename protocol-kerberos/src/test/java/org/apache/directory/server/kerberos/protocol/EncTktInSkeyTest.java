@@ -120,8 +120,8 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        KdcReqBody modifier = new KdcReqBody();
+        modifier.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
         modifier.setEType( config.getEncryptionTypes() );
         modifier.setNonce( random.nextInt() );
@@ -138,8 +138,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, modifier );
 
         handler.messageReceived( session, message );
 

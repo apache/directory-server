@@ -110,26 +110,25 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -164,26 +163,25 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -231,26 +229,25 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -297,27 +294,26 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
         int nonce = random.nextInt();
-        modifier.setNonce( nonce );
+        kdcReqBody.setNonce( nonce );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -366,26 +362,25 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -433,28 +428,27 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         subSessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 

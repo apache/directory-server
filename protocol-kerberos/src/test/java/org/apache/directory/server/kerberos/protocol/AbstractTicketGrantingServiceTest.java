@@ -210,7 +210,7 @@ public abstract class AbstractTicketGrantingServiceTest
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getcName(), requestBody, checksumType );
+        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getCName(), requestBody, checksumType );
 
         PaData[] paData = getPreAuthenticationData( tgt, authenticator );
 

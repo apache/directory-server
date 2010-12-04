@@ -36,6 +36,7 @@ import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.junit.After;
@@ -94,13 +95,13 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Test
     public void testPreAuthenticationRequired()
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -125,25 +126,25 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Test
     public void testPreAuthenticationIntegrityFailed() throws Exception
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
         PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -164,18 +165,18 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Test
     public void testPreAuthenticationFailed() throws Exception
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
@@ -183,7 +184,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         String passPhrase = "secret";
         PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -204,24 +205,24 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Test
     public void testPreAuthenticationNoSupport() throws Exception
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
         PaData[] paData = getPreAuthPublicKey( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
 
         handler.messageReceived( session, message );
 

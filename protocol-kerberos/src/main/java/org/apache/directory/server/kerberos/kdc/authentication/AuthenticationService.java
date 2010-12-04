@@ -413,7 +413,7 @@ public class AuthenticationService
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
         encTicketPart.setKey( sessionKey );
 
-        encTicketPart.setcName( request.getKdcReqBody().getCName() );
+        encTicketPart.setCName( request.getKdcReqBody().getCName() );
         encTicketPart.setTransited( new TransitedEncoding() );
 
         KerberosTime now = new KerberosTime();
@@ -578,7 +578,7 @@ public class AuthenticationService
 
         reply.setClientPrincipal( request.getKdcReqBody().getCName() );
         reply.setTicket( ticket );
-        reply.setKey( ticket.getEncTicketPart().getSessionKey() );
+        reply.setKey( ticket.getEncTicketPart().getKey() );
 
         // TODO - fetch lastReq for this client; requires store
         reply.setLastReq( new LastReq() );
@@ -632,8 +632,8 @@ public class AuthenticationService
                 sb.append( "\n\t" + "clientAddress:         " + clientAddress );
                 sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
                 sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
-                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+                sb.append( "\n\t" + "clientPrincipal:       " + request.getKdcReqBody().getCName() );
+                sb.append( "\n\t" + "serverPrincipal:       " + request.getKdcReqBody().getSName() );
                 sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
                 sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
                 sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );

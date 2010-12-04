@@ -147,8 +147,8 @@ public class TicketGrantingService
             sb.append( "\n\t" + "clientAddress:         " + clientAddress );
             sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
             sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
-            sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-            sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+            sb.append( "\n\t" + "clientPrincipal:       " + request.getKdcReqBody().getCName() );
+            sb.append( "\n\t" + "serverPrincipal:       " + request.getKdcReqBody().getSName() );
             sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
             sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
             sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
@@ -232,7 +232,7 @@ public class TicketGrantingService
         }
 
         String tgtServerName = tgt.getServerPrincipal().getName();
-        String requestServerName = tgsContext.getRequest().getServerPrincipal().getName();
+        String requestServerName = tgsContext.getRequest().getKdcReqBody().getSName().getNameString();
 
         /*
          * if (tgt.sname is not a TGT for local realm and is not req.sname)
@@ -335,7 +335,7 @@ public class TicketGrantingService
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( tgsContext.getEncryptionType() );
         newTicketBody.setSessionKey( sessionKey );
 
-        newTicketBody.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
+        newTicketBody.setClientPrincipal( tgt.getEncTicketPart().getCName() );
 
         if ( request.getKdcReqBody().getEncAuthorizationData() != null )
         {
@@ -386,9 +386,9 @@ public class TicketGrantingService
         Ticket newTicket = tgsContext.getNewTicket();
 
         TicketGrantReply reply = new TicketGrantReply();
-        reply.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
+        reply.setClientPrincipal( tgt.getEncTicketPart().getCName() );
         reply.setTicket( newTicket );
-        reply.setKey( newTicket.getEncTicketPart().getSessionKey() );
+        reply.setKey( newTicket.getEncTicketPart().getKey() );
         reply.setNonce( request.getKdcReqBody().getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
         reply.setLastReq( new LastReq() );
@@ -423,7 +423,7 @@ public class TicketGrantingService
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getSessionKey(), reply, KeyUsage.NUMBER8 );
+            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), reply, KeyUsage.NUMBER8 );
         }
 
         reply.setEncPart( encryptedData );
@@ -921,11 +921,11 @@ public class TicketGrantingService
         newTicketBody.setAuthorizationData( encTicketpart.getAuthorizationData() );
         newTicketBody.setAuthTime( encTicketpart.getAuthTime() );
         newTicketBody.setClientAddresses( encTicketpart.getClientAddresses() );
-        newTicketBody.setClientPrincipal( encTicketpart.getClientPrincipal() );
+        newTicketBody.setClientPrincipal( encTicketpart.getCName() );
         newTicketBody.setEndTime( encTicketpart.getEndTime() );
         newTicketBody.setFlags( encTicketpart.getFlags() );
         newTicketBody.setRenewTill( encTicketpart.getRenewTill() );
-        newTicketBody.setSessionKey( encTicketpart.getSessionKey() );
+        newTicketBody.setSessionKey( encTicketpart.getKey() );
         newTicketBody.setTransitedEncoding( encTicketpart.getTransitedEncoding() );
     }
 }

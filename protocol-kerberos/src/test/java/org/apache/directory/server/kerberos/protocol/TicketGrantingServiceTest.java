@@ -121,23 +121,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
     }
@@ -149,12 +147,12 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
     @Test
     public void testProtocolVersionNumber()
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        KdcRequest message = new KdcRequest( 4, KerberosMessageType.TGS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 4, KerberosMessageType.TGS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -179,23 +177,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "badservice" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "badservice" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -224,30 +220,28 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
-
-        KdcReqBody requestBody = modifier.getRequestBody();
+        kdcReqBody.setTill( requestedEndTime );
 
         // Get the session key from the service ticket.
-        sessionKey = tgt.getEncTicketPart().getSessionKey();
+        sessionKey = tgt.getEncTicketPart().getKey();
 
         // Generate a new sequence number.
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, requestBody );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -274,23 +268,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -317,25 +309,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
-
-        KdcReqBody requestBody = modifier.getRequestBody();
+        kdcReqBody.setTill( requestedEndTime );
 
         try
         {
-            getKdcRequest( tgt, requestBody, ChecksumType.DES_MAC_K );
+            getKdcRequest( tgt, kdcReqBody, ChecksumType.DES_MAC_K );
         }
         catch ( KerberosException ke )
         {
@@ -359,23 +349,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -400,23 +388,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -442,24 +428,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEW );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -495,24 +479,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.VALIDATE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -548,28 +530,27 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.PROXY );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         HostAddress[] address =
             { new HostAddress( InetAddress.getByName( null ) ) };
         HostAddresses addresses = new HostAddresses( address );
-        modifier.setAddresses( addresses );
+        kdcReqBody.setAddresses( addresses );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -609,28 +590,27 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.FORWARDED );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         HostAddress[] address =
             { new HostAddress( InetAddress.getByName( null ) ) };
         HostAddresses addresses = new HostAddresses( address );
-        modifier.setAddresses( addresses );
+        kdcReqBody.setAddresses( addresses );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -671,22 +651,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -721,23 +700,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEW );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -775,20 +753,19 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY / 2 );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -828,21 +805,20 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEW );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY / 2 );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -868,23 +844,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
     @Test
     public void testEncryptionTypeNoSupport() throws Exception
     {
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.DES3_CBC_MD5 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -910,23 +886,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "tquist" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "tquist" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -964,21 +938,20 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1020,24 +993,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedStartTime = new KerberosTime( now + -1 * KerberosTime.DAY );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1079,24 +1051,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedStartTime = new KerberosTime( now );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1137,26 +1108,25 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.POSTDATED );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedStartTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1194,25 +1164,24 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedStartTime = new KerberosTime( now );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now + 4 * KerberosTime.MINUTE );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1249,24 +1218,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedStartTime = new KerberosTime( now + 10 * KerberosTime.MINUTE );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1317,24 +1285,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.POSTDATED );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         KerberosTime requestedStartTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setFrom( requestedStartTime );
+        kdcReqBody.setFrom( requestedStartTime );
 
         KerberosTime requestedEndTime = new KerberosTime( now + 2 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1376,22 +1343,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1428,22 +1394,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY / 2 );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1481,22 +1446,21 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1532,21 +1496,19 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
-        modifier.setKdcOptions( new KdcOptions() );
+        kdcReqBody.setKdcOptions( new KdcOptions() );
 
         String epoch = "19700101000000Z";
         KerberosTime requestedEndTime = KerberosTime.getTime( epoch );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1590,23 +1552,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEWABLE_OK );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1652,23 +1613,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.FORWARDABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1709,23 +1669,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.ALLOW_POSTDATE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1766,23 +1725,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.PROXIABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1826,26 +1784,25 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEWABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
-        modifier.setRtime( requestedRenewTillTime );
+        kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1892,26 +1849,25 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
         kdcOptions.set( KdcOptions.RENEWABLE );
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + 2 * KerberosTime.WEEK );
-        modifier.setRtime( requestedRenewTillTime );
+        kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1953,24 +1909,23 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         subSessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -1998,24 +1953,22 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         Ticket tgt = getTgt( clientPrincipal, serverPrincipal, serverPassword );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "hnelson" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
-        modifier.setEType( config.getEncryptionTypes() );
-        modifier.setNonce( random.nextInt() );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
+        kdcReqBody.setEType( config.getEncryptionTypes() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        kdcOptions.set( KdcOptions.RESERVED );
-        modifier.setKdcOptions( kdcOptions );
+        kdcOptions.set( KdcOptions.RESERVED_0 );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long currentTime = System.currentTimeMillis();
 
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        KdcReqBody requestBody = modifier.getRequestBody();
-
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
