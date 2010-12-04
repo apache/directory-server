@@ -59,7 +59,6 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.MethodData;
 import org.apache.directory.shared.kerberos.components.PaData;
-import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
@@ -277,8 +276,8 @@ public class AuthenticationService
                     if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue = KerberosDecoder.decodeEncryptedData( paData.getPaDataValue() );
-                        timestamp = ( PaEncTsEnc ) cipherTextHandler.unseal( PaEncTimestamp.class,
-                            clientKey, dataValue, KeyUsage.NUMBER1 );
+                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue, KeyUsage.NUMBER1 );
+                        timestamp = KerberosDecoder.decodePaEncTsEnc( decryptedData );
                     }
                 }
 

@@ -130,7 +130,7 @@ public class CipherTextHandler
      * @return The Kerberos object resulting from a successful decrypt and decode.
      * @throws KerberosException
      */
-    public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data, KeyUsage usage )
+    public Encodable decrypt( Class hint, EncryptionKey key, EncryptedData data, KeyUsage usage )
         throws KerberosException
     {
         try
@@ -148,7 +148,7 @@ public class CipherTextHandler
     }
 
 
-    private EncryptedData encrypt( EncryptionKey key, byte[] plainText, KeyUsage usage ) throws KerberosException
+    public EncryptedData encrypt( EncryptionKey key, byte[] plainText, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 
@@ -156,7 +156,7 @@ public class CipherTextHandler
     }
 
 
-    private byte[] decrypt( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
+    public byte[] decrypt( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 

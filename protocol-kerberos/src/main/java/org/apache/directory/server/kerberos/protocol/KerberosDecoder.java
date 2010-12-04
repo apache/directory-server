@@ -32,7 +32,9 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -143,5 +145,40 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         EncryptedData encryptedData = ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
 
         return encryptedData;
+    }
+    
+    
+    /**
+     * Decode an PaEncTsEnc structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of PaEncTsEnc
+     * @throws KerberosException If the decoding fails
+     */
+    public static PaEncTsEnc decodePaEncTsEnc( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a PaEncTsEnc Container
+        Asn1Container paEncTsEncContainer = new PaEncTsEncContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the PaEncTsEnc PDU
+        try
+        {
+            kerberosDecoder.decode( stream, paEncTsEncContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded EncryptedData
+        PaEncTsEnc paEncTsEnc = ( ( PaEncTsEncContainer ) paEncTsEncContainer ).getPaEncTsEnc();
+
+        return paEncTsEnc;
     }
 }
