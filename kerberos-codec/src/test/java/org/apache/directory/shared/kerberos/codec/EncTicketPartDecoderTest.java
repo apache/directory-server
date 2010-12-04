@@ -100,8 +100,8 @@ public class EncTicketPartDecoderTest
         expected = new EncTicketPart();
         expected.setFlags( flags );
         expected.setKey( key );
-        expected.setcRealm( cRealm );
-        expected.setcName( cName );
+        expected.setCRealm( cRealm );
+        expected.setCName( cName );
         expected.setTransited( transited );
         expected.setAuthTime( authTime );
         expected.setStartTime( startTime );
@@ -194,8 +194,8 @@ public class EncTicketPartDecoderTest
 
         assertEquals( expected.getFlags(), actual.getFlags() );
         assertEquals( expected.getKey(), actual.getKey() );
-        assertEquals( expected.getcRealm(), actual.getcRealm() );
-        assertEquals( expected.getcName(), actual.getcName() );
+        assertEquals( expected.getCRealm(), actual.getCRealm() );
+        assertEquals( expected.getCName(), actual.getCName() );
         assertEquals( expected.getTransited(), actual.getTransited() );
         assertEquals( expected.getAuthTime(), actual.getAuthTime() );
         assertEquals( expected.getStartTime(), actual.getStartTime() );

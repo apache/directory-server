@@ -379,7 +379,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the cRealm
      */
-    public String getcRealm()
+    public String getCRealm()
     {
         return cRealm;
     }
@@ -388,7 +388,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param cRealm the cRealm to set
      */
-    public void setcRealm( String cRealm )
+    public void setCRealm( String cRealm )
     {
         this.cRealm = cRealm;
     }
@@ -397,7 +397,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the cName
      */
-    public PrincipalName getcName()
+    public PrincipalName getCName()
     {
         return cName;
     }
@@ -406,7 +406,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param cName the cName to set
      */
-    public void setcName( PrincipalName cName )
+    public void setCName( PrincipalName cName )
     {
         this.cName = cName;
     }

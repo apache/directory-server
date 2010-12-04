@@ -48,6 +48,6 @@ public class StoreCRealm extends AbstractReadRealm
     protected void setRealm( String realm, Asn1Container container )
     {
         EncTicketPartContainer encTicketPartContainer = ( EncTicketPartContainer ) container;
-        encTicketPartContainer.getEncTicketPart().setcRealm( realm );
+        encTicketPartContainer.getEncTicketPart().setCRealm( realm );
     }
 }
