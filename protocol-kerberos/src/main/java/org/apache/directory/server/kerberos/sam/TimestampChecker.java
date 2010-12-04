@@ -70,7 +70,7 @@ public class TimestampChecker implements KeyIntegrityChecker
              * Since we got here we must have a valid timestamp structure that we can
              * validate to be within a five minute skew.
              */
-            KerberosTime time = timestamp.getTimeStamp();
+            KerberosTime time = timestamp.getPaTimestamp();
 
             if ( time.isInClockSkew( FIVE_MINUTES ) )
             {

@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServi
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -41,6 +40,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
@@ -71,7 +71,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         /*
          * Body checksum verification must be disabled because we are bypassing
-         * the codecs, where the body bytes are set on the KdcRequest message.
+         * the codecs, where the body bytes are set on the KdcReq message.
          */
         config.setBodyChecksumVerified( false );
 
@@ -128,7 +128,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -181,7 +181,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -247,7 +247,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -313,7 +313,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -380,7 +380,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -448,7 +448,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         subSessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        KdcRequest message = getKdcRequest( tgt, kdcReqBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 

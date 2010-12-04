@@ -23,13 +23,12 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
-import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
 import org.junit.Before;
@@ -99,7 +98,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -137,7 +137,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -175,7 +176,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -213,7 +215,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -251,7 +254,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
         kdcReqBody.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -292,7 +296,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -332,7 +337,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         kdcReqBody.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 

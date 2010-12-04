@@ -27,17 +27,17 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
 import org.junit.Before;
@@ -101,7 +101,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         kdcReqBody.setRealm( "EXAMPLE.COM" );
         kdcReqBody.setEType( config.getEncryptionTypes() );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, null, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
 
         handler.messageReceived( session, message );
 
@@ -142,9 +143,15 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
-        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
+        
+        for ( PaData paData : paDatas )
+        {
+            message.addPaData( paData );
+        }
 
         handler.messageReceived( session, message );
 
@@ -182,9 +189,15 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KerberosTime timeStamp = new KerberosTime( 0 );
         String passPhrase = "secret";
-        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
+        
+        for ( PaData paData : paDatas )
+        {
+            message.addPaData( paData );
+        }
 
         handler.messageReceived( session, message );
 
@@ -220,9 +233,15 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paData = getPreAuthPublicKey( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthPublicKey( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REQ, paData, kdcReqBody );
+        KdcReq message = new AsReq();
+        message.setKdcReqBody( kdcReqBody );
+        
+        for ( PaData paData : paDatas )
+        {
+            message.addPaData( paData );
+        }
 
         handler.messageReceived( session, message );
 

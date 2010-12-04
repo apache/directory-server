@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
@@ -53,6 +53,7 @@ import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.TgsReq;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
@@ -191,16 +192,16 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected KdcRequest getKdcRequest( Ticket tgt, KdcReqBody requestBody ) throws Exception
+    protected KdcReq getKdcRequest( Ticket tgt, KdcReqBody requestBody ) throws Exception
     {
         return getKdcRequest( tgt, requestBody, ChecksumType.RSA_MD5 );
     }
 
 
     /**
-     * Create a KdcRequest, suitable for requesting a service Ticket.
+     * Create a KdcReq, suitable for requesting a service Ticket.
      */
-    protected KdcRequest getKdcRequest( Ticket tgt, KdcReqBody requestBody, ChecksumType checksumType )
+    protected KdcReq getKdcRequest( Ticket tgt, KdcReqBody kdcReqBody, ChecksumType checksumType )
         throws Exception
     {
         // Get the session key from the service ticket.
@@ -210,11 +211,17 @@ public abstract class AbstractTicketGrantingServiceTest
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getCName(), requestBody, checksumType );
+        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getCName(), kdcReqBody, checksumType );
 
-        PaData[] paData = getPreAuthenticationData( tgt, authenticator );
+        PaData[] paDatas = getPreAuthenticationData( tgt, authenticator );
 
-        return new KdcRequest( 5, KerberosMessageType.TGS_REQ, paData, requestBody );
+        KdcReq message = new TgsReq();
+        message.setKdcReqBody( kdcReqBody );
+        
+        for ( PaData paData : paDatas )
+        {
+            message.addPaData( paData );
+        }
     }
 
 

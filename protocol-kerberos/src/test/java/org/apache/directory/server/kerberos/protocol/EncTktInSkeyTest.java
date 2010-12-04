@@ -27,12 +27,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -65,7 +65,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
 
         /*
          * Body checksum verification must be disabled because we are bypassing
-         * the codecs, where the body bytes are set on the KdcRequest message.
+         * the codecs, where the body bytes are set on the KdcReq message.
          */
         config.setBodyChecksumVerified( false );
 
@@ -138,7 +138,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = getKdcRequest( tgt, modifier );
+        KdcReq message = getKdcRequest( tgt, modifier );
 
         handler.messageReceived( session, message );
 

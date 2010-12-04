@@ -40,7 +40,6 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
@@ -528,7 +527,7 @@ public class TicketGrantingService
     
 
     
-    private static void processFlags( KdcServer config, KdcRequest request, Ticket tgt,
+    private static void processFlags( KdcServer config, KdcReq request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException
     {
         if ( tgt.getEncTicketPart().getFlags().isPreAuth() )
@@ -536,7 +535,7 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.PRE_AUTHENT );
         }
 
-        if ( request.getOption( KdcOptions.FORWARDABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
             if ( !config.isForwardableAllowed() )
             {
@@ -551,7 +550,7 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.FORWARDABLE );
         }
 
-        if ( request.getOption( KdcOptions.FORWARDED ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDED ) )
         {
             if ( !config.isForwardableAllowed() )
             {
@@ -563,10 +562,10 @@ public class TicketGrantingService
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
-            if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
-                && request.getAddresses().getAddresses().length > 0 )
+            if ( request.getKdcReqBody().getAddresses() != null && request.getKdcReqBody().getAddresses().getAddresses() != null
+                && request.getKdcReqBody().getAddresses().getAddresses().length > 0 )
             {
-                newTicketBody.setClientAddresses( request.getAddresses() );
+                newTicketBody.setClientAddresses( request.getKdcReqBody().getAddresses() );
             }
             else
             {
@@ -584,7 +583,7 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.FORWARDED );
         }
 
-        if ( request.getOption( KdcOptions.PROXIABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXIABLE ) )
         {
             if ( !config.isProxiableAllowed() )
             {
@@ -599,7 +598,7 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.PROXIABLE );
         }
 
-        if ( request.getOption( KdcOptions.PROXY ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXY ) )
         {
             if ( !config.isProxiableAllowed() )
             {
@@ -611,10 +610,10 @@ public class TicketGrantingService
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
-            if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
-                && request.getAddresses().getAddresses().length > 0 )
+            if ( request.getKdcReqBody().getAddresses() != null && request.getKdcReqBody().getAddresses().getAddresses() != null
+                && request.getKdcReqBody().getAddresses().getAddresses().length > 0 )
             {
-                newTicketBody.setClientAddresses( request.getAddresses() );
+                newTicketBody.setClientAddresses( request.getKdcReqBody().getAddresses() );
             }
             else
             {
@@ -627,7 +626,7 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.PROXY );
         }
 
-        if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
@@ -652,7 +651,7 @@ public class TicketGrantingService
          * renew-till time of a newly-issued postdated ticket extend beyond the
          * renew-till time of the TGT."
          */
-        if ( request.getOption( KdcOptions.POSTDATED ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
@@ -667,10 +666,10 @@ public class TicketGrantingService
             newTicketBody.setFlag( TicketFlag.POSTDATED );
             newTicketBody.setFlag( TicketFlag.INVALID );
 
-            newTicketBody.setStartTime( request.getFrom() );
+            newTicketBody.setStartTime( request.getKdcReqBody().getFrom() );
         }
 
-        if ( request.getOption( KdcOptions.VALIDATE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
@@ -695,40 +694,40 @@ public class TicketGrantingService
             newTicketBody.clearFlag( TicketFlag.INVALID );
         }
 
-        if ( request.getOption( KdcOptions.RESERVED_0 ) || 
-             request.getOption( KdcOptions.RESERVED_7 ) ||
-             request.getOption( KdcOptions.RESERVED_9 ) ||
-             request.getOption( KdcOptions.RESERVED_10 ) ||
-             request.getOption( KdcOptions.RESERVED_11 ) ||
-             request.getOption( KdcOptions.RESERVED_12 ) ||
-             request.getOption( KdcOptions.RESERVED_13 ) ||
-             request.getOption( KdcOptions.RESERVED_14 ) ||
-             request.getOption( KdcOptions.RESERVED_15 ) ||
-             request.getOption( KdcOptions.RESERVED_16 ) ||
-             request.getOption( KdcOptions.RESERVED_17 ) ||
-             request.getOption( KdcOptions.RESERVED_18 ) ||
-             request.getOption( KdcOptions.RESERVED_19 ) ||
-             request.getOption( KdcOptions.RESERVED_20 ) ||
-             request.getOption( KdcOptions.RESERVED_21 ) ||
-             request.getOption( KdcOptions.RESERVED_22 ) ||
-             request.getOption( KdcOptions.RESERVED_23 ) ||
-             request.getOption( KdcOptions.RESERVED_24 ) ||
-             request.getOption( KdcOptions.RESERVED_25 ) ||
-             request.getOption( KdcOptions.RESERVED_29 ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_0 ) || 
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_7 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_9 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_10 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_11 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_12 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_13 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_14 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_15 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_16 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_17 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_18 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_19 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_20 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_21 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_22 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_23 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_24 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_25 ) ||
+             request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_29 ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
     }
 
 
-    private static void processTimes( KdcServer config, KdcRequest request, EncTicketPartModifier newTicketBody,
+    private static void processTimes( KdcServer config, KdcReq request, EncTicketPartModifier newTicketBody,
         Ticket tgt ) throws KerberosException
     {
         KerberosTime now = new KerberosTime();
 
         newTicketBody.setAuthTime( tgt.getEncTicketPart().getAuthTime() );
 
-        KerberosTime startTime = request.getFrom();
+        KerberosTime startTime = request.getKdcReqBody().getFrom();
 
         /*
          * "If the requested starttime is absent, indicates a time in the past,
@@ -737,7 +736,7 @@ public class TicketGrantingService
          * ticket is set to the authentication server's current time."
          */
         if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getOption( KdcOptions.POSTDATED ) )
+            && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             startTime = now;
         }
@@ -750,7 +749,7 @@ public class TicketGrantingService
          */
         if ( startTime != null && startTime.greaterThan( now )
             && !startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && ( !request.getOption( KdcOptions.POSTDATED ) || !tgt.getEncTicketPart().getFlags().isMayPosdate() ) )
+            && ( !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) || !tgt.getEncTicketPart().getFlags().isMayPosdate() ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -758,7 +757,7 @@ public class TicketGrantingService
         KerberosTime renewalTime = null;
         KerberosTime kerberosEndTime = null;
 
-        if ( request.getOption( KdcOptions.RENEW ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEW ) )
         {
             if ( !config.isRenewableAllowed() )
             {
@@ -796,13 +795,13 @@ public class TicketGrantingService
             }
 
             KerberosTime till;
-            if ( request.getTill().isZero() )
+            if ( request.getKdcReqBody().getTill().isZero() )
             {
                 till = KerberosTime.INFINITY;
             }
             else
             {
-                till = request.getTill();
+                till = request.getKdcReqBody().getTill();
             }
 
             /*
@@ -818,7 +817,7 @@ public class TicketGrantingService
 
             newTicketBody.setEndTime( kerberosEndTime );
 
-            if ( request.getOption( KdcOptions.RENEWABLE_OK ) && kerberosEndTime.lessThan( request.getTill() )
+            if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE_OK ) && kerberosEndTime.lessThan( request.getKdcReqBody().getTill() )
                 && tgt.getEncTicketPart().getFlags().isRenewable() )
             {
                 if ( !config.isRenewableAllowed() )
@@ -827,15 +826,15 @@ public class TicketGrantingService
                 }
 
                 // We set the RENEWABLE option for later processing.                           
-                request.setOption( KdcOptions.RENEWABLE );
-                long rtime = Math.min( request.getTill().getTime(), tgt.getEncTicketPart().getRenewTill().getTime() );
+                request.getKdcReqBody().getKdcOptions().set( KdcOptions.RENEWABLE );
+                long rtime = Math.min( request.getKdcReqBody().getTill().getTime(), tgt.getEncTicketPart().getRenewTill().getTime() );
                 renewalTime = new KerberosTime( rtime );
             }
         }
 
         if ( renewalTime == null )
         {
-            renewalTime = request.getRtime();
+            renewalTime = request.getKdcReqBody().getRTime();
         }
 
         KerberosTime rtime;
@@ -848,7 +847,7 @@ public class TicketGrantingService
             rtime = renewalTime;
         }
 
-        if ( request.getOption( KdcOptions.RENEWABLE ) && tgt.getEncTicketPart().getFlags().isRenewable() )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE ) && tgt.getEncTicketPart().getFlags().isRenewable() )
         {
             if ( !config.isRenewableAllowed() )
             {
