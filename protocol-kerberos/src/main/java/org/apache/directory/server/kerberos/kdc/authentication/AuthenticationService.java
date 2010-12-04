@@ -43,13 +43,9 @@ import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
@@ -279,29 +275,7 @@ public class AuthenticationService
                 {
                     if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
-                        byte[] data = paData.getPaDataValue();
-                        ByteBuffer stream = ByteBuffer.allocate( data.length );
-                        stream.put( data );
-                        stream.flip();
-                        
-                        // Allocate a EncryptedData Container
-                        Asn1Container encryptedDataContainer = new EncryptedDataContainer();
-
-                        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
-                        // Decode the EncryptedData PDU
-                        try
-                        {
-                            kerberosDecoder.decode( stream, encryptedDataContainer );
-                        }
-                        catch ( DecoderException de )
-                        {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
-                        }
-
-                        // get the decoded EncryptedData
-                        EncryptedData dataValue = ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
-
+                        EncryptedData dataValue = cipherTextHandler.decodeEncryptedData( paData.getPaDataValue() );
                         timestamp = ( PaEncTsEnc ) cipherTextHandler.unseal( PaEncTimestamp.class,
                             clientKey, dataValue, KeyUsage.NUMBER1 );
                     }
