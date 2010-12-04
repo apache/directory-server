@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.protocol;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.ByteBuffer;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -296,7 +298,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
 
-        byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
+        ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
+        byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();
 
         PaData preAuth = new PaData();
         preAuth.setPaDataType( PaDataType.PA_PK_AS_REQ );

@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -78,7 +79,8 @@ public abstract class AbstractAuthenticationServiceTest
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
 
-        byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
+        ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
+        byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();
 
         PaData preAuth = new PaData();
         preAuth.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );

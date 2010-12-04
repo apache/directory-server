@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -313,7 +314,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
 
-        byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
+        ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
+        byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();
 
         PaData preAuth = new PaData();
         preAuth.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );

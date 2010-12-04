@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -32,9 +33,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -52,6 +52,7 @@ import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.TgsReq;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -236,7 +237,7 @@ public abstract class AbstractTicketGrantingServiceTest
      * @throws KerberosException
      */
     protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, KdcReqBody requestBody,
-        ChecksumType checksumType ) throws IOException, KerberosException
+        ChecksumType checksumType ) throws EncoderException, KerberosException
     {
         Authenticator authenticator = new Authenticator();
 
@@ -258,13 +259,14 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected Checksum getBodyChecksum( KdcReqBody requestBody, ChecksumType checksumType ) throws IOException,
+    protected Checksum getBodyChecksum( KdcReqBody kdcReqBody, ChecksumType checksumType ) throws EncoderException,
         KerberosException
     {
-        KdcRequestEncoder bodyEncoder = new KdcRequestEncoder();
-        byte[] bodyBytes = bodyEncoder.encodeRequestBody( requestBody );
+        ByteBuffer buffer = ByteBuffer.allocate( kdcReqBody.computeLength() );
+        byte[] bodyBytes = kdcReqBody.encode( buffer ).array();
 
         ChecksumHandler checksumHandler = new ChecksumHandler();
+        
         return checksumHandler.calculateChecksum( checksumType, bodyBytes, null, KeyUsage.NUMBER8 );
     }
 
@@ -278,17 +280,15 @@ public abstract class AbstractTicketGrantingServiceTest
      * @throws IOException
      */
     protected PaData[] getPreAuthenticationData( Ticket ticket, EncryptedData authenticator )
-        throws IOException
+        throws EncoderException
     {
-        ApplicationRequest applicationRequest = new ApplicationRequest();
-        applicationRequest.setMessageType( KerberosMessageType.AP_REQ );
-        applicationRequest.setProtocolVersionNumber( 5 );
+        ApReq applicationRequest = new ApReq();
         applicationRequest.setApOptions( new ApOptions() );
         applicationRequest.setTicket( ticket );
-        applicationRequest.setEncPart( authenticator );
+        applicationRequest.setAuthenticator( authenticator );
 
-        ApplicationRequestEncoder encoder = new ApplicationRequestEncoder();
-        byte[] encodedApReq = encoder.encode( applicationRequest );
+        ByteBuffer buffer = ByteBuffer.allocate( applicationRequest.computeLength() );
+        byte[] encodedApReq = applicationRequest.encode( buffer ).array();
 
         PaData[] paData = new PaData[1];
 
