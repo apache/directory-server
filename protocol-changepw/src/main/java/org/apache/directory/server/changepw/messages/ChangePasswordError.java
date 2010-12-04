@@ -20,38 +20,39 @@
 package org.apache.directory.server.changepw.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 
 
 /**
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ChangePasswordError extends AbstractPasswordMessage
 {
-    private ErrorMessage errorMessage;
+    private KrbError krbError;
 
 
     /**
      * Creates a new instance of ChangePasswordError.
      *
      * @param versionNumber
-     * @param errorMessage
+     * @param krbError The KRB-ERROR
      */
-    public ChangePasswordError( short versionNumber, ErrorMessage errorMessage )
+    public ChangePasswordError( short versionNumber, KrbError krbError )
     {
         super( versionNumber );
 
-        this.errorMessage = errorMessage;
+        this.krbError = krbError;
     }
 
 
     /**
-     * Returns the {@link ErrorMessage}.
+     * Returns the {@link KrbError}.
      *
-     * @return The {@link ErrorMessage}.
+     * @return The {@link KrbError}.
      */
-    public ErrorMessage getErrorMessage()
+    public KrbError getKrbError()
     {
-        return errorMessage;
+        return krbError;
     }
 }

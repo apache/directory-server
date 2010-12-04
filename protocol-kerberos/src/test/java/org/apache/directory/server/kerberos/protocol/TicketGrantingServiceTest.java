@@ -36,7 +36,6 @@ import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServi
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
@@ -51,6 +50,7 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
@@ -157,8 +157,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Requested protocol version number not supported", 3, error.getErrorCode() );
     }
 
@@ -196,8 +196,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Server not found in Kerberos database", 7, error.getErrorCode() );
     }
 
@@ -246,8 +246,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "KDC has no support for padata type", 16, error.getErrorCode() );
     }
 
@@ -287,8 +287,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Inappropriate type of checksum in message", 50, error.getErrorCode() );
     }
 
@@ -368,8 +368,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Integrity check on decrypted field failed", 31, error.getErrorCode() );
     }
 
@@ -407,8 +407,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "The ticket isn't for us", 35, error.getErrorCode() );
     }
 
@@ -670,8 +670,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Ticket expired", 32, error.getErrorCode() );
     }
 
@@ -720,8 +720,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) msg;
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) msg;
         assertEquals( "Ticket expired", 32, error.getErrorCode() );
     }
 
@@ -865,8 +865,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "KDC has no support for encryption type", 14, error.getErrorCode() );
     }
 
@@ -905,8 +905,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
     }
 
@@ -1131,8 +1131,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
     }
 
@@ -1186,8 +1186,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
     }
 
@@ -1239,8 +1239,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "Ticket not eligible for postdating", 10, error.getErrorCode() );
     }
 
@@ -1973,8 +1973,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", ErrorMessage.class, msg.getClass() );
-        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+        assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
+        KrbError error = ( KrbError ) session.getMessage();
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
     }
 }

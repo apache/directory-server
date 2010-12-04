@@ -114,7 +114,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        ErrorMessage error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
@@ -132,7 +132,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        ErrorMessage error = reply.getKrbError();
         assertEquals( "Request failed due to an error in authentication processing", 3, error.getErrorCode() );
     }
 
@@ -184,7 +184,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        ErrorMessage error = reply.getKrbError();
         assertEquals( "Initial flag required", 7, error.getErrorCode() );
 
         //ChangePasswordReply reply = ( ChangePasswordReply ) session.getMessage();
@@ -260,7 +260,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        ErrorMessage error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
