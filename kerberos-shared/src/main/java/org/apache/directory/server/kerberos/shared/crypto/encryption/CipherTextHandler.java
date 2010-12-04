@@ -38,11 +38,7 @@ import org.apache.directory.server.kerberos.shared.io.decoder.EncTicketPartDecod
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
@@ -221,40 +217,5 @@ public class CipherTextHandler
         {
             throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, ie );
         }
-    }
-    
-    
-    /**
-     * Decrypt an EncrytedData structure
-     * 
-     * @param data The byte array containing the data structure to decode
-     * @return An instance of EncryptedData
-     * @throws KerberosException If the decoding fails
-     */
-    public EncryptedData decodeEncryptedData( byte[] data ) throws KerberosException
-    {
-        ByteBuffer stream = ByteBuffer.allocate( data.length );
-        stream.put( data );
-        stream.flip();
-        
-        // Allocate a EncryptedData Container
-        Asn1Container encryptedDataContainer = new EncryptedDataContainer();
-
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
-        // Decode the EncryptedData PDU
-        try
-        {
-            kerberosDecoder.decode( stream, encryptedDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
-        }
-
-        // get the decoded EncryptedData
-        EncryptedData encryptedData = ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
-
-        return encryptedData;
     }
 }

@@ -23,12 +23,17 @@ package org.apache.directory.server.kerberos.protocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
+import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -61,6 +66,8 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
         ByteBuffer buf = in.buf();
         KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session.getAttribute( KERBEROS_MESSAGE_CONTAINER );
 
+        //System.out.println( "IN : " + StringTools.dumpBytes( buf.array() ) );
+        
         if ( kerberosMessageContainer == null )
         {
             kerberosMessageContainer = new KerberosMessageContainer();
@@ -101,5 +108,40 @@ public class KerberosUdpDecoder extends ProtocolDecoderAdapter
                 LOG.warn( "error while decoding", e );
             }
         }
+    }
+    
+    
+    /**
+     * Decode an EncrytedData structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of EncryptedData
+     * @throws KerberosException If the decoding fails
+     */
+    public static EncryptedData decodeEncryptedData( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a EncryptedData Container
+        Asn1Container encryptedDataContainer = new EncryptedDataContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the EncryptedData PDU
+        try
+        {
+            kerberosDecoder.decode( stream, encryptedDataContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded EncryptedData
+        EncryptedData encryptedData = ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
+
+        return encryptedData;
     }
 }
