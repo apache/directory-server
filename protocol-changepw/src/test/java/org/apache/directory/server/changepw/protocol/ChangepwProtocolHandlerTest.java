@@ -44,7 +44,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
@@ -59,6 +58,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.DummySession;
@@ -114,7 +114,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getKrbError();
+        KrbError error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
@@ -132,7 +132,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getKrbError();
+        KrbError error = reply.getKrbError();
         assertEquals( "Request failed due to an error in authentication processing", 3, error.getErrorCode() );
     }
 
@@ -170,7 +170,7 @@ public class ChangepwProtocolHandlerTest
 
         authenticator.setSubKey( subSessionKey );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getSessionKey(), authenticator
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getKey(), authenticator
                 , KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
@@ -184,7 +184,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getKrbError();
+        KrbError error = reply.getKrbError();
         assertEquals( "Initial flag required", 7, error.getErrorCode() );
 
         //ChangePasswordReply reply = ( ChangePasswordReply ) session.getMessage();
@@ -260,7 +260,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getKrbError();
+        KrbError error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
