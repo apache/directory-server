@@ -695,7 +695,26 @@ public class TicketGrantingService
             newTicketBody.clearFlag( TicketFlag.INVALID );
         }
 
-        if ( request.getOption( KdcOptions.RESERVED ) )
+        if ( request.getOption( KdcOptions.RESERVED_0 ) || 
+             request.getOption( KdcOptions.RESERVED_7 ) ||
+             request.getOption( KdcOptions.RESERVED_9 ) ||
+             request.getOption( KdcOptions.RESERVED_10 ) ||
+             request.getOption( KdcOptions.RESERVED_11 ) ||
+             request.getOption( KdcOptions.RESERVED_12 ) ||
+             request.getOption( KdcOptions.RESERVED_13 ) ||
+             request.getOption( KdcOptions.RESERVED_14 ) ||
+             request.getOption( KdcOptions.RESERVED_15 ) ||
+             request.getOption( KdcOptions.RESERVED_16 ) ||
+             request.getOption( KdcOptions.RESERVED_17 ) ||
+             request.getOption( KdcOptions.RESERVED_18 ) ||
+             request.getOption( KdcOptions.RESERVED_19 ) ||
+             request.getOption( KdcOptions.RESERVED_20 ) ||
+             request.getOption( KdcOptions.RESERVED_21 ) ||
+             request.getOption( KdcOptions.RESERVED_22 ) ||
+             request.getOption( KdcOptions.RESERVED_23 ) ||
+             request.getOption( KdcOptions.RESERVED_24 ) ||
+             request.getOption( KdcOptions.RESERVED_25 ) ||
+             request.getOption( KdcOptions.RESERVED_29 ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }

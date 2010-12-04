@@ -54,8 +54,7 @@ import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-</a>
- */
+
 public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 {
     private KdcServer config;
