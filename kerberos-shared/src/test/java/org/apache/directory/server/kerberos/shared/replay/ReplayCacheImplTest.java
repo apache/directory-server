@@ -47,7 +47,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrent()
-public class InMemoryReplayCacheTest
+public class ReplayCacheImplTest
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
@@ -64,7 +64,7 @@ public class InMemoryReplayCacheTest
     {
         long clockSkew = 1000; // 1 sec
 
-        CacheManager cacheManager = new CacheManager( InMemoryReplayCacheTest.class.getClassLoader().getResource(
+        CacheManager cacheManager = new CacheManager( ReplayCacheImplTest.class.getClassLoader().getResource(
             "directory-cacheservice.xml" ) );
 
         Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
