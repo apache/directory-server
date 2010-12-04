@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
@@ -130,7 +131,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -182,7 +183,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -239,7 +240,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -291,7 +292,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -348,7 +349,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         HostAddresses addresses = new HostAddresses( address );
         modifier.setAddresses( addresses );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -405,7 +406,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -457,7 +458,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -509,7 +510,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -561,7 +562,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
 
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
@@ -607,7 +608,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( currentTime + KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
 
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
@@ -660,7 +661,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -715,7 +716,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );

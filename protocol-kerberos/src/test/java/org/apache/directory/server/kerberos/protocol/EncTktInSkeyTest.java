@@ -34,6 +34,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
@@ -137,7 +138,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );

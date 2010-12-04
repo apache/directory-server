@@ -41,6 +41,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
@@ -127,7 +128,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -181,7 +182,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -248,7 +249,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -315,7 +316,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -383,7 +384,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );
@@ -452,7 +453,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         subSessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        RequestBody requestBody = modifier.getRequestBody();
+        KdcReqBody requestBody = modifier.getRequestBody();
         KdcRequest message = getKdcRequest( tgt, requestBody );
 
         handler.messageReceived( session, message );

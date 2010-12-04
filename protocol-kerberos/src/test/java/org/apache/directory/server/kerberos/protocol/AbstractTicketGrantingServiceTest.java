@@ -45,6 +45,7 @@ import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
@@ -190,7 +191,7 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected KdcRequest getKdcRequest( Ticket tgt, RequestBody requestBody ) throws Exception
+    protected KdcRequest getKdcRequest( Ticket tgt, KdcReqBody requestBody ) throws Exception
     {
         return getKdcRequest( tgt, requestBody, ChecksumType.RSA_MD5 );
     }
@@ -199,7 +200,7 @@ public abstract class AbstractTicketGrantingServiceTest
     /**
      * Create a KdcRequest, suitable for requesting a service Ticket.
      */
-    protected KdcRequest getKdcRequest( Ticket tgt, RequestBody requestBody, ChecksumType checksumType )
+    protected KdcRequest getKdcRequest( Ticket tgt, KdcReqBody requestBody, ChecksumType checksumType )
         throws Exception
     {
         // Get the session key from the service ticket.
@@ -227,7 +228,7 @@ public abstract class AbstractTicketGrantingServiceTest
      * @return The {@link EncryptedData} containing the {@link Authenticator}.
      * @throws KerberosException
      */
-    protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, RequestBody requestBody,
+    protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, KdcReqBody requestBody,
         ChecksumType checksumType ) throws IOException, KerberosException
     {
         Authenticator authenticator = new Authenticator();
@@ -250,7 +251,7 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected Checksum getBodyChecksum( RequestBody requestBody, ChecksumType checksumType ) throws IOException,
+    protected Checksum getBodyChecksum( KdcReqBody requestBody, ChecksumType checksumType ) throws IOException,
         KerberosException
     {
         KdcRequestEncoder bodyEncoder = new KdcRequestEncoder();
