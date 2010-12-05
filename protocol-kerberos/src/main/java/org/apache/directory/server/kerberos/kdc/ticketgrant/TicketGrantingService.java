@@ -39,7 +39,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFa
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -398,7 +397,7 @@ public class TicketGrantingService
         if ( LOG.isDebugEnabled() )
         {
             monitorContext( tgsContext );
-            monitorReply( tgsContext );
+            monitorReply( reply, encKdcRepPart );
         }
 
         EncTgsRepPart encTgsRepPart = new EncTgsRepPart();
@@ -482,39 +481,32 @@ public class TicketGrantingService
     }
 
     
-    private static void monitorReply( KdcContext kdcContext )
+    private static void monitorReply( TgsRep success, EncKdcRepPart part )
     {
-        Object reply = kdcContext.getReply();
-
-        if ( reply instanceof KdcReply )
+        try
         {
-            KdcReply success = ( KdcReply ) reply;
-
-            try
-            {
-                StringBuffer sb = new StringBuffer();
-
-                sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-                sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
-                sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
-                sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
-                sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
-                sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
-                sb.append( "\n\t" + "start time:            " + success.getStartTime() );
-                sb.append( "\n\t" + "end time:              " + success.getEndTime() );
-                sb.append( "\n\t" + "renew-till time:       " + success.getRenewTill() );
-                sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
-
-                LOG.debug( sb.toString() );
-            }
-            catch ( Exception e )
-            {
-                // This is a monitor.  No exceptions should bubble up.
-                LOG.error( I18n.err( I18n.ERR_155 ), e );
-            }
+            StringBuffer sb = new StringBuffer();
+            
+            sb.append( "Responding with " + SERVICE_NAME + " reply:" );
+            sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
+            sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
+            sb.append( "\n\t" + "nonce:                 " + part.getNonce() );
+            sb.append( "\n\t" + "clientPrincipal:       " + success.getCName() );
+            sb.append( "\n\t" + "client realm:          " + success.getCRealm() );
+            sb.append( "\n\t" + "serverPrincipal:       " + part.getSName() );
+            sb.append( "\n\t" + "server realm:          " + part.getSRealm() );
+            sb.append( "\n\t" + "auth time:             " + part.getAuthTime() );
+            sb.append( "\n\t" + "start time:            " + part.getStartTime() );
+            sb.append( "\n\t" + "end time:              " + part.getEndTime() );
+            sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
+            sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
+            
+            LOG.debug( sb.toString() );
+        }
+        catch ( Exception e )
+        {
+            // This is a monitor.  No exceptions should bubble up.
+            LOG.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
     

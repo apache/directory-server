@@ -40,7 +40,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -582,7 +581,7 @@ public class AuthenticationService
         if ( LOG.isDebugEnabled() )
         {
             monitorContext( authContext );
-            monitorReply( ( KdcContext ) authContext );
+            monitorReply( reply, encKdcRepPart );
         }
         
         EncryptionKey clientKey = authContext.getClientKey();
@@ -679,31 +678,27 @@ public class AuthenticationService
     }
     
     
-    private static void monitorReply( KdcContext kdcContext )
+    private static void monitorReply( AsRep reply, EncKdcRepPart part )
     {
-        Object reply = kdcContext.getReply();
-
-        if ( LOG.isDebugEnabled() && reply instanceof KdcReply )
+        if ( LOG.isDebugEnabled() )
         {
-            KdcReply success = ( KdcReply ) reply;
-
             try
             {
                 StringBuffer sb = new StringBuffer();
 
                 sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-                sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
-                sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
-                sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
-                sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
-                sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
-                sb.append( "\n\t" + "start time:            " + success.getStartTime() );
-                sb.append( "\n\t" + "end time:              " + success.getEndTime() );
-                sb.append( "\n\t" + "renew-till time:       " + success.getRenewTill() );
-                sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
+                sb.append( "\n\t" + "messageType:           " + reply.getMessageType() );
+                sb.append( "\n\t" + "protocolVersionNumber: " + reply.getProtocolVersionNumber() );
+                sb.append( "\n\t" + "nonce:                 " + part.getNonce() );
+                sb.append( "\n\t" + "clientPrincipal:       " + reply.getCName() );
+                sb.append( "\n\t" + "client realm:          " + reply.getCRealm() );
+                sb.append( "\n\t" + "serverPrincipal:       " + part.getSName() );
+                sb.append( "\n\t" + "server realm:          " + part.getSRealm() );
+                sb.append( "\n\t" + "auth time:             " + part.getAuthTime() );
+                sb.append( "\n\t" + "start time:            " + part.getStartTime() );
+                sb.append( "\n\t" + "end time:              " + part.getEndTime() );
+                sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
+                sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
 
                 LOG.debug( sb.toString() );
             }
