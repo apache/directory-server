@@ -32,6 +32,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -538,6 +539,24 @@ public class EncTicketPart extends AbstractAsn1Object
     }
 
 
+    /**
+     * adds the given flag to the already existing flags.
+     * If no flags exist then creates a new TicketFlags object then sets this flag
+     * and assigns the TicketFlags to this ticket part
+     * 
+     * @param flag the flag to be set
+     */
+    public void setFlag( TicketFlag flag )
+    {
+        if ( flags == null )
+        {
+            flags = new TicketFlags();
+        }
+        
+        flags.setFlag( flag.getValue() );
+    }
+    
+    
     /**
      * @see Object#toString()
      */
