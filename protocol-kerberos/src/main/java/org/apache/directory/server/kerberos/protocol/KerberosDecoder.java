@@ -32,6 +32,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
+import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
 import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
@@ -51,6 +53,8 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.messages.ApRep;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -515,4 +519,73 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return authorizationData;
     }
 
+    
+    /**
+     * Decode a AP-REP structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of ApRep
+     * @throws KerberosException If the decoding fails
+     */
+    public static ApRep decodeApRep( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a ApRep Container
+        Asn1Container apRepContainer = new ApRepContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the ApRep PDU
+        try
+        {
+            kerberosDecoder.decode( stream, apRepContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded ApRep
+        ApRep apRep = ( ( ApRepContainer ) apRepContainer ).getApRep();
+
+        return apRep;
+    }
+
+    
+    /**
+     * Decode a AP-REQ structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of ApReq
+     * @throws KerberosException If the decoding fails
+     */
+    public static ApReq decodeApReq( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a ApReq Container
+        Asn1Container apReqContainer = new ApReqContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the ApReq PDU
+        try
+        {
+            kerberosDecoder.decode( stream, apReqContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded ApReq
+        ApReq apReq = ( ( ApReqContainer ) apReqContainer ).getApReq();
+
+        return apReq;
+    }
 }

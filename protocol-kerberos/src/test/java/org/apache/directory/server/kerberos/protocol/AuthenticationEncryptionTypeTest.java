@@ -34,7 +34,6 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
@@ -46,6 +45,7 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
@@ -129,8 +129,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
@@ -187,8 +187,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
@@ -248,14 +248,14 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
 
-        assertEquals( "Nonce", nonce, reply.getNonce() );
+        assertEquals( "Nonce", nonce, reply.getEncPart().getNonce() );
     }
 
 

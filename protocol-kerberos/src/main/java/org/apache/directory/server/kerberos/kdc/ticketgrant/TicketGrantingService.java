@@ -39,8 +39,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -69,6 +67,7 @@ import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncTgsRepPart;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
@@ -202,8 +201,7 @@ public class TicketGrantingService
             throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
         }
 
-        ApplicationRequestDecoder decoder = new ApplicationRequestDecoder();
-        ApplicationRequest authHeader = decoder.decode( undecodedAuthHeader );
+        ApReq authHeader = KerberosDecoder.decodeApReq( undecodedAuthHeader );
         
         Ticket tgt = authHeader.getTicket();
 
@@ -251,7 +249,7 @@ public class TicketGrantingService
 
     private static void verifyTgtAuthHeader( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        ApplicationRequest authHeader = tgsContext.getAuthHeader();
+        ApReq authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
         
         boolean isValidate = tgsContext.getRequest().getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE );
@@ -987,7 +985,7 @@ public class TicketGrantingService
      * @return The authenticator.
      * @throws KerberosException
      */
-    public static Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
+    public static Authenticator verifyAuthHeader( ApReq authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
         CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage, boolean isValidate ) throws KerberosException
     {
@@ -1096,7 +1094,7 @@ public class TicketGrantingService
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
         }
 
-        authHeader.setOption( ApOptions.MUTUAL_REQUIRED );
+        authHeader.getApOptions().set( ApOptions.MUTUAL_REQUIRED );
 
         return authenticator;
     }
