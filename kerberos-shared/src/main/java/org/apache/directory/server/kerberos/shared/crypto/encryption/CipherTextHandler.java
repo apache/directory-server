@@ -31,14 +31,12 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.Decoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.DecoderFactory;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 
 
@@ -60,8 +58,6 @@ public class CipherTextHandler
     static
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
-
-        map.put( PaEncTsEnc.class, EncryptedTimestampDecoder.class );
 
         DEFAULT_DECODERS = Collections.unmodifiableMap( map );
     }

@@ -36,14 +36,20 @@ import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartConta
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
+import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
+import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
+import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -328,5 +334,110 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         EncTicketPart encTicketPart = ( ( EncTicketPartContainer ) encTicketPartContainer ).getEncTicketPart();
 
         return encTicketPart;
+    }
+    
+    
+    /**
+     * Decode an EncryptionKey structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of EncryptionKey
+     * @throws KerberosException If the decoding fails
+     */
+    public static EncryptionKey decodeEncryptionKey( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a EncryptionKey Container
+        Asn1Container encryptionKeyContainer = new EncryptionKeyContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the EncryptionKey PDU
+        try
+        {
+            kerberosDecoder.decode( stream, encryptionKeyContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded EncryptionKey
+        EncryptionKey encryptionKey = ( ( EncryptionKeyContainer ) encryptionKeyContainer ).getEncryptionKey();
+
+        return encryptionKey;
+    }
+    
+    
+    /**
+     * Decode an PrincipalName structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of PrincipalName
+     * @throws KerberosException If the decoding fails
+     */
+    public static PrincipalName decodePrincipalName( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a PrincipalName Container
+        Asn1Container principalNameContainer = new PrincipalNameContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the PrincipalName PDU
+        try
+        {
+            kerberosDecoder.decode( stream, principalNameContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded PrincipalName
+        PrincipalName principalName = ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
+
+        return principalName;
+    }
+    
+    
+    /**
+     * Decode a Ticket structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of Ticket
+     * @throws KerberosException If the decoding fails
+     */
+    public static Ticket decodeTicket( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a Ticket Container
+        Asn1Container ticketContainer = new TicketContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the Ticket PDU
+        try
+        {
+            kerberosDecoder.decode( stream, ticketContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded Ticket
+        Ticket ticket = ( ( TicketContainer ) ticketContainer ).getTicket();
+
+        return ticket;
     }
 }

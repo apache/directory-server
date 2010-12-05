@@ -24,10 +24,10 @@ import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosKey;
 
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
@@ -57,7 +57,7 @@ public class TimestampChecker implements KeyIntegrityChecker
              * Since the pre-auth value is of type PA-ENC-TIMESTAMP, it should be a valid
              * ASN.1 PA-ENC-TS-ENC structure, so we can decode it into EncryptedData.
              */
-            EncryptedData sadValue = EncryptedDataDecoder.decode( encryptedData );
+            EncryptedData sadValue = KerberosDecoder.decodeEncryptedData( encryptedData );
 
             /*
              * Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC.  Decode the
