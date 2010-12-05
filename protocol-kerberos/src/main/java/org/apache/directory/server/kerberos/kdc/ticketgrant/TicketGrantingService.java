@@ -40,9 +40,7 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -53,6 +51,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -61,10 +60,13 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.EncTgsRepPart;
+import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,14 +104,6 @@ public class TicketGrantingService
         getRequestPrincipalEntry( tgsContext );
         generateTicket( tgsContext );
         buildReply( tgsContext );
-
-        if ( LOG.isDebugEnabled() )
-        {
-            monitorContext( tgsContext );
-            monitorReply( tgsContext );
-        }
-
-        sealReply( tgsContext );
     }
     
     
@@ -378,50 +372,55 @@ public class TicketGrantingService
         Ticket tgt = tgsContext.getTgt();
         Ticket newTicket = tgsContext.getNewTicket();
 
-        TicketGrantReply reply = new TicketGrantReply();
-        reply.setClientPrincipal( tgt.getEncTicketPart().getCName() );
+        TgsRep reply = new TgsRep();
+        
+        reply.setCName( tgt.getEncTicketPart().getCName() );
         reply.setTicket( newTicket );
-        reply.setKey( newTicket.getEncTicketPart().getKey() );
-        reply.setNonce( request.getKdcReqBody().getNonce() );
+        
+        EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
+        
+        encKdcRepPart.setKey( newTicket.getEncTicketPart().getKey() );
+        encKdcRepPart.setNonce( request.getKdcReqBody().getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
-        reply.setLastReq( new LastReq() );
-        reply.setFlags( newTicket.getEncTicketPart().getFlags() );
-        reply.setClientAddresses( newTicket.getEncTicketPart().getClientAddresses() );
-        reply.setAuthTime( newTicket.getEncTicketPart().getAuthTime() );
-        reply.setStartTime( newTicket.getEncTicketPart().getStartTime() );
-        reply.setEndTime( newTicket.getEncTicketPart().getEndTime() );
-        reply.setServerPrincipal( newTicket.getServerPrincipal() );
+        encKdcRepPart.setLastReq( new LastReq() );
+        encKdcRepPart.setFlags( newTicket.getEncTicketPart().getFlags() );
+        encKdcRepPart.setClientAddresses( newTicket.getEncTicketPart().getClientAddresses() );
+        encKdcRepPart.setAuthTime( newTicket.getEncTicketPart().getAuthTime() );
+        encKdcRepPart.setStartTime( newTicket.getEncTicketPart().getStartTime() );
+        encKdcRepPart.setEndTime( newTicket.getEncTicketPart().getEndTime() );
+        encKdcRepPart.setSName( newTicket.getSName() );
 
         if ( newTicket.getEncTicketPart().getFlags().isRenewable() )
         {
-            reply.setRenewTill( newTicket.getEncTicketPart().getRenewTill() );
+            encKdcRepPart.setRenewTill( newTicket.getEncTicketPart().getRenewTill() );
         }
 
-        tgsContext.setReply( reply );
-    }
-    
-    
-    private static void sealReply( TicketGrantingContext tgsContext ) throws KerberosException
-    {
-        TicketGrantReply reply = ( TicketGrantReply ) tgsContext.getReply();
-        Ticket tgt = tgsContext.getTgt();
-        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
+        if ( LOG.isDebugEnabled() )
+        {
+            monitorContext( tgsContext );
+            monitorReply( tgsContext );
+        }
+
+        EncTgsRepPart encTgsRepPart = new EncTgsRepPart();
+        encTgsRepPart.setEncKdcRepPart( encKdcRepPart );
+        
         Authenticator authenticator = tgsContext.getAuthenticator();
-
+        
         EncryptedData encryptedData;
-
+        
         if ( authenticator.getSubKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), reply, KeyUsage.NUMBER9 );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), encTgsRepPart, KeyUsage.NUMBER9 );
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), reply, KeyUsage.NUMBER8 );
+            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart, KeyUsage.NUMBER8 );
         }
-
+        
         reply.setEncPart( encryptedData );
+
+        tgsContext.setReply( reply );
     }
-    
     
     
     private static void monitorContext( TicketGrantingContext tgsContext )
@@ -450,7 +449,7 @@ public class TicketGrantingService
             sb.append( "\n\t" + "clientAddresses        " + clientAddresses );
             sb.append( "\n\t" + "caddr contains sender  " + caddrContainsSender );
 
-            KerberosPrincipal requestServerPrincipal = tgsContext.getRequest().getServerPrincipal();
+            PrincipalName requestServerPrincipal = tgsContext.getRequest().getKdcReqBody().getSName();
             PrincipalStoreEntry requestPrincipal = tgsContext.getRequestPrincipalEntry();
 
             sb.append( "\n\t" + "principal              " + requestServerPrincipal );
@@ -459,7 +458,7 @@ public class TicketGrantingService
             sb.append( "\n\t" + "principal              " + requestPrincipal.getPrincipal() );
             sb.append( "\n\t" + "SAM type               " + requestPrincipal.getSamType() );
 
-            KerberosPrincipal ticketServerPrincipal = tgsContext.getTgt().getServerPrincipal();
+            PrincipalName ticketServerPrincipal = tgsContext.getTgt().getSName();
             PrincipalStoreEntry ticketPrincipal = tgsContext.getTicketPrincipalEntry();
 
             sb.append( "\n\t" + "principal              " + ticketServerPrincipal );
