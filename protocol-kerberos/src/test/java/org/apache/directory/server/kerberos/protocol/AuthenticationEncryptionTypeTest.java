@@ -34,7 +34,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;

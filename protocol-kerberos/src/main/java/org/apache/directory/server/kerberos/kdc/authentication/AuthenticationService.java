@@ -40,7 +40,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -52,6 +51,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
+import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -66,6 +66,8 @@ import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.messages.AsRep;
+import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,14 +114,6 @@ public class AuthenticationService
         getServerEntry( authContext );
         generateTicket( authContext );
         buildReply( authContext );
-
-        if ( LOG.isDebugEnabled() )
-        {
-            monitorContext( authContext );
-            monitorReply( ( KdcContext ) authContext );
-        }
-        
-        sealReply( authContext );
     }
 
     
@@ -322,7 +316,8 @@ public class AuthenticationService
         PrincipalName principal = authContext.getRequest().getKdcReqBody().getSName();
         PrincipalStore store = authContext.getStore();
     
-        authContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        KerberosPrincipal principalWithRealm = new KerberosPrincipal( principal.getNameString() + "@" + authContext.getRequest().getKdcReqBody().getRealm() );
+        authContext.setServerEntry( getEntry( principalWithRealm, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
     }    
     
     
@@ -554,43 +549,47 @@ public class AuthenticationService
         KdcReq request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
-        AuthenticationReply reply = new AuthenticationReply();
-
-        reply.setClientPrincipal( request.getKdcReqBody().getCName() );
+        AsRep reply = new AsRep();
+        
+        reply.setCName( request.getKdcReqBody().getCName() );
         reply.setTicket( ticket );
-        reply.setKey( ticket.getEncTicketPart().getKey() );
+        
+        EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
+        encKdcRepPart.setKey( ticket.getEncTicketPart().getKey() );
 
         // TODO - fetch lastReq for this client; requires store
-        reply.setLastReq( new LastReq() );
+        encKdcRepPart.setLastReq( new LastReq() );
         // TODO - resp.key-expiration := client.expiration; requires store
 
-        reply.setNonce( request.getKdcReqBody().getNonce() );
+        encKdcRepPart.setNonce( request.getKdcReqBody().getNonce() );
 
-        reply.setFlags( ticket.getEncTicketPart().getFlags() );
-        reply.setAuthTime( ticket.getEncTicketPart().getAuthTime() );
-        reply.setStartTime( ticket.getEncTicketPart().getStartTime() );
-        reply.setEndTime( ticket.getEncTicketPart().getEndTime() );
+        encKdcRepPart.setFlags( ticket.getEncTicketPart().getFlags() );
+        encKdcRepPart.setAuthTime( ticket.getEncTicketPart().getAuthTime() );
+        encKdcRepPart.setStartTime( ticket.getEncTicketPart().getStartTime() );
+        encKdcRepPart.setEndTime( ticket.getEncTicketPart().getEndTime() );
 
         if ( ticket.getEncTicketPart().getFlags().isRenewable() )
         {
-            reply.setRenewTill( ticket.getEncTicketPart().getRenewTill() );
+            encKdcRepPart.setRenewTill( ticket.getEncTicketPart().getRenewTill() );
         }
 
-        reply.setServerPrincipal( ticket.getServerPrincipal() );
-        reply.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
+        encKdcRepPart.setSName( ticket.getSName() );
+        encKdcRepPart.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
 
-        authContext.setReply( reply );
-    }
-    
-    
-    private static void sealReply( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
-    {
-        AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
+        EncAsRepPart encAsRepPart = new EncAsRepPart();
+        encAsRepPart.setEncKdcRepPart( encKdcRepPart );
+
+        if ( LOG.isDebugEnabled() )
+        {
+            monitorContext( authContext );
+            monitorReply( ( KdcContext ) authContext );
+        }
+        
         EncryptionKey clientKey = authContext.getClientKey();
-        CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
-
-        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, reply, KeyUsage.NUMBER3 );
+        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart, KeyUsage.NUMBER3 );
         reply.setEncPart( encryptedData );
+        
+        authContext.setReply( reply );
     }
     
     
@@ -645,7 +644,7 @@ public class AuthenticationService
             sb.append( "\n\t" + "clockSkew              " + clockSkew );
             sb.append( "\n\t" + "clientAddress          " + clientAddress );
 
-            PrincipalName clientPrincipal = authContext.getClientEntry().getPrincipal();
+            KerberosPrincipal clientPrincipal = authContext.getClientEntry().getPrincipal();
             PrincipalStoreEntry clientEntry = authContext.getClientEntry();
 
             sb.append( "\n\t" + "principal              " + clientPrincipal );
@@ -654,7 +653,7 @@ public class AuthenticationService
             sb.append( "\n\t" + "principal              " + clientEntry.getPrincipal() );
             sb.append( "\n\t" + "SAM type               " + clientEntry.getSamType() );
 
-            PrincipalName serverPrincipal = authContext.getRequest().getServerPrincipal();
+            PrincipalName serverPrincipal = authContext.getRequest().getKdcReqBody().getSName();
             PrincipalStoreEntry serverEntry = authContext.getServerEntry();
 
             sb.append( "\n\t" + "principal              " + serverPrincipal );

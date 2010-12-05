@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.kdc;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 /**
