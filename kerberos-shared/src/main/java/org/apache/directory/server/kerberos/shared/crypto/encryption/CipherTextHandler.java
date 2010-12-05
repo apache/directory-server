@@ -21,17 +21,12 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.decoder.Decoder;
-import org.apache.directory.server.kerberos.shared.io.decoder.DecoderFactory;
-import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -41,30 +36,19 @@ import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 
 
 /**
- * A Hashed Adapter encapsulating ASN.1 encoders and decoders and cipher text engines to
- * perform seal() and unseal() operations.  A seal() operation performs an encode and an
- * encrypt, while an unseal() operation performs a decrypt and a decode.
+ * A Hashed Adapter encapsulating ASN.1 cipher text engines to
+ * perform encrypt() and decrypt() operations.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class CipherTextHandler
 {
-    /** a map of the default encodable class names to the decoder class names */
-    private static final Map DEFAULT_DECODERS;
-    
     /** a map of the default encryption types to the encryption engine class names */
-    private static final Map DEFAULT_CIPHERS;
+    private static final Map<EncryptionType, Class<? extends EncryptionEngine>> DEFAULT_CIPHERS;
 
     static
     {
-        Map<Class, Class> map = new HashMap<Class, Class>();
-
-        DEFAULT_DECODERS = Collections.unmodifiableMap( map );
-    }
-
-    static
-    {
-        Map<EncryptionType, Class> map = new HashMap<EncryptionType, Class>();
+        Map<EncryptionType, Class<? extends EncryptionEngine>> map = new HashMap<EncryptionType, Class<? extends EncryptionEngine>>();
 
         map.put( EncryptionType.DES_CBC_MD5, DesCbcMd5Encryption.class );
         map.put( EncryptionType.DES3_CBC_SHA1_KD, Des3CbcSha1KdEncryption.class );
@@ -104,34 +88,6 @@ public class CipherTextHandler
     }
 
 
-    /**
-     * Perform a decrypt and a decode.
-     *
-     * @param hint The class the encrypted data is expected to contain.
-     * @param key The key to use for decryption.
-     * @param data The data to decrypt.
-     * @param usage The key usage.
-     * @return The Kerberos object resulting from a successful decrypt and decode.
-     * @throws KerberosException
-     */
-    public Encodable decrypt( Class hint, EncryptionKey key, EncryptedData data, KeyUsage usage )
-        throws KerberosException
-    {
-        try
-        {
-            return decode( hint, decrypt( key, data, usage ) );
-        }
-        catch ( IOException ioe )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
-        }
-        catch ( ClassCastException cce )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
-        }
-    }
-
-
     public EncryptedData encrypt( EncryptionKey key, byte[] plainText, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
@@ -154,36 +110,6 @@ public class CipherTextHandler
         EncryptionEngine engine = getEngine( key );
 
         return engine.getDecryptedData( key, data, usage );
-    }
-
-
-    private Encodable decode( Class encodable, byte[] plainText ) throws IOException
-    {
-        Class clazz = ( Class ) DEFAULT_DECODERS.get( encodable );
-
-        if ( clazz == null )
-        {
-            throw new IOException( I18n.err( I18n.ERR_600, encodable ) );
-        }
-
-        DecoderFactory factory = null;
-
-        try
-        {
-            factory = ( DecoderFactory ) clazz.newInstance();
-        }
-        catch ( IllegalAccessException iae )
-        {
-            throw new IOException( I18n.err( I18n.ERR_601, encodable ) );
-        }
-        catch ( InstantiationException ie )
-        {
-            throw new IOException( I18n.err( I18n.ERR_602, encodable ) );
-        }
-
-        Decoder decoder = factory.getDecoder();
-
-        return decoder.decode( plainText );
     }
 
 
