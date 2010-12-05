@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
@@ -59,6 +61,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
@@ -275,7 +278,22 @@ public class TicketGrantingService
 
         if ( config.isBodyChecksumVerified() )
         {
-            byte[] bodyBytes = tgsContext.getRequest().getKdcReqBody().getBodyBytes();
+            KdcReqBody body = tgsContext.getRequest().getKdcReqBody();
+            // FIXME how this byte[] is computed??
+            // is it full ASN.1 encoded bytes OR just the bytes of all the values alone?
+            // for now am using the ASN.1 encoded value
+            ByteBuffer buf = ByteBuffer.allocate( body.computeLength() );
+            try
+            {
+                body.encode( buf );
+            }
+            catch( EncoderException e )
+            {
+                e.printStackTrace();
+                throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
+            }
+            
+            byte[] bodyBytes = buf.array();
             Checksum authenticatorChecksum = tgsContext.getAuthenticator().getCksum();
 
             if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
