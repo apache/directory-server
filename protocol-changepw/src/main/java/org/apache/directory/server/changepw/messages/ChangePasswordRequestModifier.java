@@ -20,8 +20,8 @@
 package org.apache.directory.server.changepw.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.directory.server.kerberos.shared.messages.application.PrivateM
  */
 public class ChangePasswordRequestModifier extends AbstractPasswordMessageModifier
 {
-    private ApplicationRequest authHeader;
+    private ApReq authHeader;
     private PrivateMessage privateMessage;
 
 
@@ -49,7 +49,7 @@ public class ChangePasswordRequestModifier extends AbstractPasswordMessageModifi
      *
      * @param authHeader
      */
-    public void setAuthHeader( ApplicationRequest authHeader )
+    public void setAuthHeader( ApReq authHeader )
     {
         this.authHeader = authHeader;
     }

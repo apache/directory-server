@@ -40,7 +40,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
@@ -53,6 +52,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -166,7 +166,7 @@ public class ChangePasswordService
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_AUTHERROR );
         }
 
-        ApplicationRequest authHeader = request.getAuthHeader();
+        ApReq authHeader = request.getAuthHeader();
         Ticket ticket = authHeader.getTicket();
 
         changepwContext.setAuthHeader( authHeader );
@@ -200,7 +200,7 @@ public class ChangePasswordService
     
     private static void verifyServiceTicketAuthHeader( ChangePasswordContext changepwContext ) throws KerberosException
     {
-        ApplicationRequest authHeader = changepwContext.getAuthHeader();
+        ApReq authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
 
         EncryptionType encryptionType = ticket.getEncPart().getEType();
@@ -287,7 +287,7 @@ public class ChangePasswordService
         try
         {
             PrincipalStore store = changepwContext.getStore();
-            ApplicationRequest authHeader = changepwContext.getAuthHeader();
+            ApReq authHeader = changepwContext.getAuthHeader();
             Ticket ticket = changepwContext.getTicket();
             ReplayCache replayCache = changepwContext.getConfig().getReplayCache();
             long clockSkew = changepwContext.getConfig().getAllowableClockSkew();

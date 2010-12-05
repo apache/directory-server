@@ -20,8 +20,8 @@
 package org.apache.directory.server.changepw.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+import org.apache.directory.shared.kerberos.messages.ApReq;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.directory.server.kerberos.shared.messages.application.PrivateM
  */
 public class ChangePasswordRequest extends AbstractPasswordMessage
 {
-    private ApplicationRequest authHeader;
+    private ApReq authHeader;
     private PrivateMessage privateMessage;
 
 
@@ -40,7 +40,7 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
      * @param authHeader
      * @param privateMessage
      */
-    public ChangePasswordRequest( short versionNumber, ApplicationRequest authHeader, PrivateMessage privateMessage )
+    public ChangePasswordRequest( short versionNumber, ApReq authHeader, PrivateMessage privateMessage )
     {
         super( versionNumber );
 
@@ -50,11 +50,11 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
 
 
     /**
-     * Returns the {@link ApplicationRequest}.
+     * Returns the {@link ApReq}.
      *
-     * @return The {@link ApplicationRequest}.
+     * @return The {@link ApReq}.
      */
-    public ApplicationRequest getAuthHeader()
+    public ApReq getAuthHeader()
     {
         return authHeader;
     }
