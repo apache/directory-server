@@ -32,6 +32,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
+import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
@@ -40,6 +42,7 @@ import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyCon
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
+import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
@@ -48,6 +51,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
@@ -440,4 +444,75 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return ticket;
     }
+    
+    
+    /**
+     * Decode a Authenticator structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of Authenticator
+     * @throws KerberosException If the decoding fails
+     */
+    public static Authenticator decodeAuthenticator( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a Authenticator Container
+        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the Ticket PDU
+        try
+        {
+            kerberosDecoder.decode( stream, authenticatorContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded Authenticator
+        Authenticator authenticator = ( ( AuthenticatorContainer ) authenticatorContainer ).getAuthenticator();
+
+        return authenticator;
+    }
+    
+    
+    /**
+     * Decode a AuthorizationData structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of AuthorizationData
+     * @throws KerberosException If the decoding fails
+     */
+    public static AuthorizationData decodeAuthorizationData( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a AuthorizationData Container
+        Asn1Container authorizationDataContainer = new AuthorizationDataContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the Ticket PDU
+        try
+        {
+            kerberosDecoder.decode( stream, authorizationDataContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded AuthorizationData
+        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer ).getAuthorizationData();
+
+        return authorizationData;
+    }
+
 }
