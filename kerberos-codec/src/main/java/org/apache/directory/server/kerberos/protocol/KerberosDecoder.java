@@ -216,7 +216,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a EncApRepPart Container
-        Asn1Container encApRepPartContainer = new EncApRepPartContainer();
+        Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -251,7 +251,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -286,7 +286,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a EncKrbPrivPart Container
-        Asn1Container encKrbPrivPartContainer = new EncKrbPrivPartContainer();
+        Asn1Container encKrbPrivPartContainer = new EncKrbPrivPartContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -321,7 +321,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a EncTicketPart Container
-        Asn1Container encTicketPartContainer = new EncTicketPartContainer();
+        Asn1Container encTicketPartContainer = new EncTicketPartContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -426,7 +426,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -461,7 +461,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
