@@ -105,15 +105,6 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-simpleAuthenticator
 
-dn: ads-authenticatorid=delegatingauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
-ads-authenticatorid: delegatingauthenticator
-ads-delegateHost: nyc.com
-ads-delegatePort: 389
-objectclass: top
-objectclass: ads-base
-objectClass: ads-authenticator
-objectClass: ads-delegatingAuthenticator
-
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: strongauthenticator
 objectclass: top
