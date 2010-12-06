@@ -265,17 +265,20 @@ public class KdcRep extends KerberosMessage
         msgTypeLength = 1 + 1 + 1;
 
         // Compute the pa-data length.
-        paDataLengths = new int[paData.size()];
-        int pos = 0;
-        
-        for ( PaData paDataElem : paData )
+        if ( paData.size() != 0 )
         {
-            paDataLengths[pos] = paDataElem.computeLength();
-            paDataSeqLength += paDataLengths[pos];
-            pos++;
+            paDataLengths = new int[paData.size()];
+            int pos = 0;
+            
+            for ( PaData paDataElem : paData )
+            {
+                paDataLengths[pos] = paDataElem.computeLength();
+                paDataSeqLength += paDataLengths[pos];
+                pos++;
+            }
+            
+            paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
         }
-        
-        paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
         
         // The crealm length
         crealmBytes = StringTools.getBytesUtf8( crealm );
@@ -340,19 +343,22 @@ public class KdcRep extends KerberosMessage
         // The value
         Value.encode( buffer, getMessageType().getValue() );
         
-        // The PD-DATA --------------------------------------------------------
-        // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_PA_DATA_TAG );
-        buffer.put( TLV.getBytes( paDataLength ) );
-        
-        // The sequence
-        buffer.put( UniversalTag.SEQUENCE.getValue() );
-        buffer.put( TLV.getBytes( paDataSeqLength ) );
-        
-        // The values
-        for ( PaData paDataElem : paData )
+        // The PD-DATA if any -------------------------------------------------
+        if ( paData.size() != 0 )
         {
-            paDataElem.encode( buffer );
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REP_PA_DATA_TAG );
+            buffer.put( TLV.getBytes( paDataLength ) );
+            
+            // The sequence
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( paDataSeqLength ) );
+            
+            // The values
+            for ( PaData paDataElem : paData )
+            {
+                paDataElem.encode( buffer );
+            }
         }
 
         // The CREALM ---------------------------------------------------------
