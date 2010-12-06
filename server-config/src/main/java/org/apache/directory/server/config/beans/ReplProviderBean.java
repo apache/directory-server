@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -30,51 +32,68 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ReplProviderBean extends AdsBaseBean
 {
     /** The provider id */
+    @AttributeType("ads-replProviderId")
+    @RDN
     private String replProviderId;
     
     /** The replication unique ID */
+    @AttributeType("ads-dsReplicaId")
     private String dsReplicaId;
     
     /** The Search Base DN */
+    @AttributeType("ads-searchBaseDN")
     private DN searchBaseDN;
     
     /** The replication provider host name */
+    @AttributeType("ads-replProvHostName")
     private String replProvHostName;
     
     /** The replication provider port */
+    @AttributeType("ads-replProvPort")
     private String replProvPort;
     
     /** The Alias Dereferencing mode */
+    @AttributeType("ads-replAliasDerefMode")
     private String replAliasDerefMode;
     
     /** The replication provider attribute */
+    @AttributeType("ads-replAttribute")
     private String replAttribute;
     
     /** The refresh interval */
+    @AttributeType("ads-replRefreshInterval")
     private String replRefreshInterval;
     
     /** Tells if we should persist */
+    @AttributeType("ads-replRefreshNPersist")
     private boolean replRefreshNPersist;
     
     /** The search scope */
+    @AttributeType("ads-replSearchScope")
     private String replSearchScope;
     
     /** The replication search filter */
+    @AttributeType("ads-replSearchFilter")
     private String replSearchFilter;
 
     /** The search size limit */
+    @AttributeType("ads-replSearchSizeLimit")
     private int replSearchSizeLimit;
     
     /** The search time limit */
+    @AttributeType("ads-replSearchTimeout")
     private int replSearchTimeout;
     
     /** The replication user DN */
+    @AttributeType("ads-replUserDN")
     private DN replUserDN;
     
     /** The replication user password */
+    @AttributeType("ads-replUserPassword")
     private String replUserPassword;
     
     /** The replication cookie */
+    @AttributeType("ads-replCookie")
     private String replCookie;
 
     /**

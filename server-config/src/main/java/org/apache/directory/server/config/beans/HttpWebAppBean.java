@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 
 /**
  * A class used to store the HttpWebApp configuration.
@@ -28,12 +31,16 @@ package org.apache.directory.server.config.beans;
 public class HttpWebAppBean extends AdsBaseBean
 {
     /** The server identifier */
+    @AttributeType("ads-id")
+    @RDN
     private String id;
     
     /** The context path */
+    @AttributeType("ads-httpAppCtxPath")
     private String httpAppCtxPath;
     
     /** The war file */
+    @AttributeType("ads-httpWarFile")
     private String httpWarFile;
 
     /**

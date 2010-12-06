@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.config.AttributeType;
+
 /**
  * A class used to store the KdcServer configuration.
  *
@@ -36,9 +38,6 @@ public class KdcServerBean extends DSBasedServerBean
 
     /** The default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
-
-    /** The allowable clock skew. */
-    private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
 
     /** The default for allowing forwardable tickets */
     private static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
@@ -70,40 +69,56 @@ public class KdcServerBean extends DSBasedServerBean
     /** The default kdc service principal */
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
+    /** The allowable clock skew. */
+    @AttributeType("ads-krbAllowableClockSkew")
+    private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
+
     /** Whether empty addresses are allowed. */
+    @AttributeType("ads-krbEmptyAddressesAllowed")
     private boolean krbEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
 
     /** Whether forwardable addresses are allowed. */
+    @AttributeType("ads-krbForwardableAllowed")
     private boolean krbForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
 
     /** Whether pre-authentication by encrypted timestamp is required. */
+    @AttributeType("ads-krbPAEncTimestampRequired")
     private boolean krbPAEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
 
     /** Whether postdated tickets are allowed. */
+    @AttributeType("ads-krbPostdatedAllowed")
     private boolean krbPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether proxiable addresses are allowed. */
+    @AttributeType("ads-krbProxiableAllowed")
     private boolean krbProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
+    @AttributeType("ads-krbRenewableAllowed")
     private boolean krbRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
     /** The maximum renewable lifetime. */
+    @AttributeType("ads-krbMaximumRenewableLifetime")
     private long krbMaximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
 
     /** The maximum ticket lifetime. */
+    @AttributeType("ads-krbMaximumTicketLifetime")
     private long krbMaximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
 
     /** The primary realm */
+    @AttributeType("ads-krbPrimaryRealm")
     private String krbPrimaryRealm = DEFAULT_REALM;
 
     /** Whether to verify the body checksum. */
+    @AttributeType("ads-krbBodyChecksumVerified")
     private boolean krbBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
+    @AttributeType("ads-krbEncryptionTypes")
     private List<String> krbEncryptionTypes = new ArrayList<String>();
 
     /** The service principal name. */
+    @AttributeType("ads-krbKdcPrincipal")
     private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
 
     /**

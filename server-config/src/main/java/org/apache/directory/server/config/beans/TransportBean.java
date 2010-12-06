@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 /**
  * A class used to store the Transport configuration.
  *
@@ -33,21 +36,28 @@ public class TransportBean extends AdsBaseBean
     private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
+    @AttributeType("ads-transportId")
+    @RDN
     private String transportId;
     
     /** The transport address */
+    @AttributeType("ads-transportAddress")
     private String transportAddress;
     
     /** The port number */
+    @AttributeType("ads-systemPort")
     private int systemPort = -1;
     
     /** A flag set if SSL is enabled */
+    @AttributeType("ads-transportEnableSsl")
     private boolean transportEnableSsl = false;
     
     /** The number of threads to use for the IoAcceptor executor */
+    @AttributeType("ads-transportNbThreads")
     private int transportNbThreads = DEFAULT_NB_THREADS;
     
     /** The backlog for the transport services */
+    @AttributeType("ads-transportBackLog")
     private int transportBackLog = DEFAULT_BACKLOG_NB;
     
     /**

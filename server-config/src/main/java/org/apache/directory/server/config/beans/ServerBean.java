@@ -22,6 +22,9 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 /**
  * A class used to store the Server configuration. It can't be instanciated
  *
@@ -30,6 +33,8 @@ import java.util.List;
 public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
+    @AttributeType("ads-serverId")
+    @RDN
     private String serverId;
     
     /** The set of transports to use for this server */

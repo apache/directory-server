@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 /**
  * A class used to store the IndexBean configuration. It can't be instanciated
  *
@@ -27,6 +30,8 @@ package org.apache.directory.server.config.beans;
 public abstract class IndexBean extends AdsBaseBean
 {
     /** The index unique identifier */
+    @AttributeType("ads-indexAttributeId")
+    @RDN
     private String indexAttributeId;
     
     /**

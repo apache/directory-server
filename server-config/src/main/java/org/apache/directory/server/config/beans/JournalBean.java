@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 /**
  * A class used to store the Journal configuration.
  *
@@ -27,15 +30,20 @@ package org.apache.directory.server.config.beans;
 public class JournalBean extends AdsBaseBean
 {
     /** The journal unique Id */
+    @AttributeType("ads-journalId")
+    @RDN
     private String journalId;
     
     /** The journal file name */
+    @AttributeType("ads-journalFileName")
     private String journalFileName;
     
     /** The journal working directory */
+    @AttributeType("ads-journalWorkingDir")
     private String journalWorkingDir;
     
     /** The journal rotation */
+    @AttributeType("ads-journalRotation")
     private int journalRotation;
 
     /**

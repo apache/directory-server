@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 
 
 /**
@@ -29,12 +32,16 @@ package org.apache.directory.server.config.beans;
 public class InterceptorBean extends AdsBaseBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
+    @AttributeType("ads-interceptorId")
+    @RDN
     private String interceptorId;
     
     /** The interceptor FQCN */
+    @AttributeType("ads-interceptorClassName")
     private String interceptorClassName;
     
     /** The interceptor position in the chain */
+    @AttributeType("ads-interceptorOrder")
     private int interceptorOrder;
 
 

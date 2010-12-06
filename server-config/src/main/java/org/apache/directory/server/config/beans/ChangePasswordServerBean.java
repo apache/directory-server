@@ -22,6 +22,8 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.config.AttributeType;
+
 
 /**
  * A class used to store the ChangePasswordServer configuration.
@@ -31,27 +33,35 @@ import java.util.List;
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
+    @AttributeType("ads-krbAllowableClockSkew")
     private long krbAllowableClockSkew;
     
     /** Whether empty addresses are allowed. */
+    @AttributeType("ads-krbEmptyAddressesAllowed")
     private boolean krbEmptyAddressesAllowed;
     
     /** The encryption types. */
+    @AttributeType("ads-krbEncryptionTypes")
     private List<String> krbEncryptionTypes = new ArrayList<String>();
     
     /** The primary realm. */
+    @AttributeType("ads-krbPrimaryRealm")
     private String krbPrimaryRealm;
     
     /** The policy for category count. */
+    @AttributeType("ads-chgPwdPolicyCategoryCount")
     private int chgPwdPolicyCategoryCount;
     
     /** The policy for password length. */
+    @AttributeType("ads-chgPwdPolicyPasswordLength")
     private int chgPwdPolicyPasswordLength;
     
     /** The policy for token size. */
+    @AttributeType("ads-chgPwdPolicyTokenSize")
     private int chgPwdPolicyTokenSize;
     
     /** The service principal name. */
+    @AttributeType("ads-chgPwdServicePrincipal")
     private String chgPwdServicePrincipal;
 
     /**

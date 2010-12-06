@@ -21,6 +21,8 @@
 package org.apache.directory.server.config.beans;
 
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
@@ -35,17 +37,21 @@ public class PasswordPolicyBean extends AdsBaseBean
     /**
      * The PasswordPolicy unique identifier
      */
+    @AttributeType("ads-pwdId")
+    @RDN
     private String pwdId;
     
     /** the name of the attribute to which the password policy is applied. 
      * Currently only "userPassword" attribute is supported
      */
+    @AttributeType("ads-pwdAttribute")
     private String pwdAttribute = SchemaConstants.USER_PASSWORD_AT;
 
     /** 
      * holds the number of seconds that must elapse between modifications to the password. 
      * Default value is 0 
      */
+    @AttributeType("ads-pwdMinAge")
     private int pwdMinAge = 0;
 
     /**
@@ -53,28 +59,33 @@ public class PasswordPolicyBean extends AdsBaseBean
      *  Default value is 0, does not expire.  If not 0, the value must be greater than or equal
      *  to the value of the pwdMinAge.
      */
+    @AttributeType("ads-pwdMaxAge")
     private int pwdMaxAge;
 
     /**
      *  specifies the maximum number of used passwords stored in the pwdHistory attribute.
      *  Default value is 0, no password history maintained
      */
+    @AttributeType("ads-pwdInHistory")
     private int pwdInHistory = 0;
 
     /** indicates how the password quality will be verified while being modified or added.
      *  Default value 0, do not check 
      */
+    @AttributeType("ads-pwdCheckQuality")
     private int pwdCheckQuality = 0;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
      *  Default value 0, no minimum length enforced
      */
+    @AttributeType("ads-pwdMinLength")
     private int pwdMinLength = 0;
 
     /**
      * this attribute holds the maximum number of characters that may be used in a password.
      * Default value 0, no maximum length enforced
      */
+    @AttributeType("ads-pwdMaxLength")
     private int pwdMaxLength = 0;
 
     /**
@@ -82,18 +93,21 @@ public class PasswordPolicyBean extends AdsBaseBean
      * messages will be returned to an authenticating user.
      * Default value is 0, never send a warning message.
      */
+    @AttributeType("ads-pwdExpireWarning")
     private int pwdExpireWarning = 0;
 
     /** 
      * the number of times an expired password can be used to authenticate.
      * Default value is 0, do not allow a expired password for authentication.
      */
+    @AttributeType("ads-pwdGraceAuthNLimit")
     private int pwdGraceAuthNLimit = 0;
 
     /** 
      * specifies the number of seconds the grace authentications are valid
      * Default value is 0, no limit.
      */
+    @AttributeType("ads-pwdGraceExpire")
     private int pwdGraceExpire = 0;
 
     /**
@@ -101,6 +115,7 @@ public class PasswordPolicyBean extends AdsBaseBean
      * consecutive failed bind attempts. The maximum number of consecutive
      * failed bind attempts is specified in {@link #pwdMaxFailure}
      */
+    @AttributeType("ads-pwdLockout")
     private boolean pwdLockout;
 
     /**
@@ -108,6 +123,7 @@ public class PasswordPolicyBean extends AdsBaseBean
      * too many failed bind attempts.
      * Default value is 300 seconds.
      */
+    @AttributeType("ads-pwdLockoutDuration")
     private int pwdLockoutDuration = 300;
 
     /**
@@ -115,12 +131,14 @@ public class PasswordPolicyBean extends AdsBaseBean
      * be used to authenticate.
      * Default value is 0, no limit on the number of authentication failures
      */
+    @AttributeType("ads-pwdMaxFailure")
     private int pwdMaxFailure;
 
     /**
      * the number of seconds after which the password failures are purged from the failure counter.
      * Default value is 0, reset all pwdFailureTimes after a successful authentication.
      */
+    @AttributeType("ads-pwdFailureCountInterval")
     private int pwdFailureCountInterval;
 
     /** 
@@ -128,9 +146,11 @@ public class PasswordPolicyBean extends AdsBaseBean
      * directory after a password is set or reset by a password administrator.
      * Default value is false, no need to change the password by user.
      */
+    @AttributeType("ads-pwdMustChange")
     private boolean pwdMustChange = false;
 
     /** indicates whether users can change their own passwords. Default value is true, allow change */
+    @AttributeType("ads-pwdAllowUserChange")
     private boolean pwdAllowUserChange = true;
 
     /**
@@ -138,21 +158,25 @@ public class PasswordPolicyBean extends AdsBaseBean
      *  new password when being changed.
      *  Default value is false.
      */
+    @AttributeType("ads-pwdSafeModify")
     private boolean pwdSafeModify = false;
 
     /** 
      * the number of seconds to delay responding to the first failed authentication attempt
      * Default value 0, no delay.
      */
+    @AttributeType("ads-pwdMinDelay")
     private int pwdMinDelay = 0;
 
     /** the maximum number of seconds to delay when responding to a failed authentication attempt.*/
+    @AttributeType("ads-pwdMaxDelay")
     private int pwdMaxDelay;
 
     /** 
      * the number of seconds an account may remain unused before it becomes locked
      * Default value is 0, no check for idle time.
      */
+    @AttributeType("ads-pwdMaxIdle")
     private int pwdMaxIdle;
 
     public String getPwdAttribute()

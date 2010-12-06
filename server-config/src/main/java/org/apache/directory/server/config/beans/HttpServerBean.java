@@ -22,6 +22,8 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.config.AttributeType;
+
 
 
 
@@ -33,9 +35,11 @@ import java.util.List;
 public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
+    @AttributeType("ads-httpConfFile")
     private String httpConfFile;
     
     /** The list of supported web apps */
+    @AttributeType("httpWebApps")
     private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
 
     /**

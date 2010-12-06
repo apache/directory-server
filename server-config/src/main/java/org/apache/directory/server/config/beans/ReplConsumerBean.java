@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -30,36 +32,48 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The consumer id */
+    @AttributeType("ads-replConsumerId")
+    @RDN
     private String replConsumerId;
     
     /** The replication unique ID */
+    @AttributeType("ads-dsReplicaId")
     private String dsReplicaId;
     
     /** The Alias Dereferencing mode */
+    @AttributeType("ads-replAliasDerefMode")
     private String replAliasDerefMode;
     
     /** The Search Base DN */
+    @AttributeType("ads-searchBaseDN")
     private DN searchBaseDN;
     
     /** The last CSN sent */
+    @AttributeType("ads-replLastSentCsn")
     private String replLastSentCsn;
     
     /** The search scope */
+    @AttributeType("ads-replSearchScope")
     private String replSearchScope;
     
     /** The replication search filter */
+    @AttributeType("ads-replSearchFilter")
     private String replSearchFilter;
     
     /** Tells if we should persist */
+    @AttributeType("ads-replRefreshNPersist")
     private boolean replRefreshNPersist;
     
     /** Tells if TLS should be used during replication */
+    @AttributeType("ads-replUseTls")
     private boolean replUseTls;
     
     /** Tells if the certificate validation should be strict or not */
+    @AttributeType("ads-replStrictCertValidation")
     private boolean replStrictCertValidation;
     
     /** The peer certificate */
+    @AttributeType("ads-replPeerCertificate")
     private String replPeerCertificate;
 
     /**

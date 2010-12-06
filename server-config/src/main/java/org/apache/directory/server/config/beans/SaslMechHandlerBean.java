@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 
 /**
  * A class used to store the SASL mechanism handler configuration.
@@ -28,12 +31,16 @@ package org.apache.directory.server.config.beans;
 public class SaslMechHandlerBean extends AdsBaseBean
 {
     /** The SASL mechanism handler */
+    @AttributeType("ads-saslMechName")
+    @RDN
     private String saslMechName;
     
     /** The SASL mechanism handler FQCN */
+    @AttributeType("ads-saslMechClassName")
     private String saslMechClassName;
     
     /** The NTLM provider */
+    @AttributeType("ads-ntlmMechProvider")
     private String ntlmMechProvider;
 
     /**

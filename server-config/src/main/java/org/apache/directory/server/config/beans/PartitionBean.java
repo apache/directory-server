@@ -22,6 +22,8 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -32,19 +34,24 @@ import org.apache.directory.shared.ldap.name.DN;
 public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
+    @AttributeType("ads-partitionId")
+    @RDN
     private String partitionId;
     
     /** The Partition suffix */
+    @AttributeType("ads-partitionSuffix")
     private DN partitionSuffix;
     
     /** Tells if the data should be flushed to disk immediately */
+    @AttributeType("ads-partitionSyncOnWrite")
     private boolean partitionSyncOnWrite;
-
-    /** The list of declared indexes */
-    private List<IndexBean> indexes = new ArrayList<IndexBean>();
     
     /** The partition's ContextEntry */
+    @AttributeType("ads-contextEntry")
     private String contextEntry;
+    
+    /** The list of declared indexes */
+    private List<IndexBean> indexes = new ArrayList<IndexBean>();
 
     /**
      * Create a new PartitionBean instance

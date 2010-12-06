@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 
 /**
  * A class used to store the LdapServerExtendedOpHandler configuration.
@@ -28,9 +31,12 @@ package org.apache.directory.server.config.beans;
 public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
+    @AttributeType("ads-extendedOpId")
+    @RDN
     private String extendedOpId;
     
     /** The Extended Operation FQCN */
+    @AttributeType("extendedOpHandlerClass")
     private String extendedOpHandlerClass;
 
     /**

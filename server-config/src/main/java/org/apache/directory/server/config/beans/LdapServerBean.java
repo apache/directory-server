@@ -22,6 +22,8 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.config.AttributeType;
+
 
 /**
  * A class used to store the LdapServer configuration.
@@ -31,30 +33,39 @@ import java.util.List;
 public class LdapServerBean extends DSBasedServerBean
 {
     /** */
+    @AttributeType("ads-confidentialityRequired")
     private boolean confidentialityRequired;
     
     /** The maximum number of entries returned by the server */
+    @AttributeType("ads-maxSizeLimit")
     private int maxSizeLimit;
     
     /** The maximum time to execute a request on the server */
+    @AttributeType("ads-maxTimeLimit")
     private int maxTimeLimit;
     
     /** The SASL host */
+    @AttributeType("ads-saslHost")
     private String saslHost;
     
     /** The SASL  principal */
+    @AttributeType("ads-saslPrincipal")
     private String saslPrincipal;
     
     /** The SASL realms */
+    @AttributeType("ads-saslRealms")
     private List<String> saslRealms = new ArrayList<String>();
     
     /** The keystore file */
+    @AttributeType("ads-keystoreFile")
     private String keystoreFile;
     
     /** The certificate password */
+    @AttributeType("ads-certificatePassword")
     private String certificatePassword;
     
     /** tells if the replication is enabled */
+    @AttributeType("ads-enableReplProvider")
     private boolean enableReplProvider; 
     
     /** The replication consumer Bean */

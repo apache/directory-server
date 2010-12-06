@@ -43,7 +43,6 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-ldif-partition</artifactId>
-      <scope>test</scope>
     </dependency>
     
     <dependency>

@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.RDN;
+
 
 /**
  * A class used to store the ChangeLog configuration.
@@ -28,9 +31,12 @@ package org.apache.directory.server.config.beans;
 public class ChangeLogBean extends AdsBaseBean
 {
     /** The ChangeLog unique ID */
+    @AttributeType("ads-changeLogId")
+    @RDN
     private String changeLogId;
 
     /** Tells if the ChangeLog is exposed to the users */
+    @AttributeType("ads-changeLogExposed")
     private boolean changeLogExposed;
 
     /**

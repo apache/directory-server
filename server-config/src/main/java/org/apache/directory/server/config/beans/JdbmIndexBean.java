@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.server.config.AttributeType;
+
 
 /**
  * A class used to store the JdbmIndex configuration.
@@ -40,9 +42,11 @@ public class JdbmIndexBean<K, E> extends IndexBean
     private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
     
     /** The index file name */
+    @AttributeType("ads-indexFileName")
     private String indexFileName;
     
     /** The index working directory */
+    @AttributeType("ads-indexWorkingDir")
     private String indexWorkingDir;
 
     /**
