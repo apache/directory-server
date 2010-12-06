@@ -49,11 +49,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-kerberos-shared</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
 

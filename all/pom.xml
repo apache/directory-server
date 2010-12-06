@@ -83,7 +83,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-kerberos-shared</artifactId>
+      <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
     
     <dependency>
