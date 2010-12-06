@@ -41,6 +41,7 @@ import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartC
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
+import org.apache.directory.shared.kerberos.codec.krbPriv.KrbPrivContainer;
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
@@ -57,6 +58,7 @@ import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
+import org.apache.directory.shared.kerberos.messages.KrbPriv;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -587,5 +589,40 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ApReq apReq = ( ( ApReqContainer ) apReqContainer ).getApReq();
 
         return apReq;
+    }
+
+    
+    /**
+     * Decode a KRB-PRIV structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of KrbPriv
+     * @throws KerberosException If the decoding fails
+     */
+    public static KrbPriv decodeKrbPriv( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a KrbPriv Container
+        Asn1Container krbPrivContainer = new KrbPrivContainer();
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the KrbPriv PDU
+        try
+        {
+            kerberosDecoder.decode( stream, krbPrivContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded KrbPriv
+        KrbPriv krbPriv = ( ( KrbPrivContainer ) krbPrivContainer ).getKrbPriv();
+
+        return krbPriv;
     }
 }

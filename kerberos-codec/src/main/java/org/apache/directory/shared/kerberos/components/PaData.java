@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The Pre-Authentication data. Tha ASN.1 GRAMMAR IS :
+ * The Pre-Authentication data. The ASN.1 GRAMMAR IS :
  * <pre>
  * PA-DATA         ::= SEQUENCE {
  *         -- NOTE: first tag is [1], not [0]

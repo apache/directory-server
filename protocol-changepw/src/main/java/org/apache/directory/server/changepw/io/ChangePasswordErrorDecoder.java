@@ -60,8 +60,7 @@ public class ChangePasswordErrorDecoder
         buf.get( errorBytes );
         ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
 
-        ErrorMessageDecoder errorDecoder = new ErrorMessageDecoder();
-        KrbError errorMessage = errorDecoder.decode( errorBuffer );
+        KrbError errorMessage = KerberosDecoder.decodeKrbError( errorBuffer );
 
         modifier.setErrorMessage( errorMessage );
 

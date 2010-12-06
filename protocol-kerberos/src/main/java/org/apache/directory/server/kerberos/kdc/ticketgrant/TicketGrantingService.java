@@ -1030,7 +1030,7 @@ public class TicketGrantingService
         EncTicketPart encPart = KerberosDecoder.decodeEncTicketPart( encTicketPartData ); 
         ticket.setEncTicketPart( encPart );
 
-        byte[] authenticatorData = lockBox.decrypt( ticket.getEncTicketPart().getKey(),  authHeader.getEncPart(), authenticatorKeyUsage );
+        byte[] authenticatorData = lockBox.decrypt( ticket.getEncTicketPart().getKey(),  authHeader.getAuthenticator(), authenticatorKeyUsage );
         
         Authenticator authenticator = KerberosDecoder.decodeAuthenticator( authenticatorData ); 
 
