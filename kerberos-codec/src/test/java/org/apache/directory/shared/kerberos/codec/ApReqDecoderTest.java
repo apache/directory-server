@@ -101,8 +101,7 @@ public class ApReqDecoderTest
         stream.flip();
 
         // Allocate a ApReq Container
-        ApReqContainer apReqContainer = new ApReqContainer();
-        apReqContainer.setStream( stream );
+        ApReqContainer apReqContainer = new ApReqContainer( stream );
         
         // Decode the ApReq PDU
         try
@@ -196,8 +195,7 @@ public class ApReqDecoderTest
         stream.flip();
 
         // Allocate a ApReq Container
-        ApReqContainer apReqContainer = new ApReqContainer();
-        apReqContainer.setStream( stream );
+        ApReqContainer apReqContainer = new ApReqContainer( stream );
         
         // Decode the ApReq PDU
         kerberosDecoder.decode( stream, apReqContainer );
@@ -221,7 +219,7 @@ public class ApReqDecoderTest
         stream.flip();
 
         // Allocate a AP-REQ Container
-        Asn1Container apReqContainer = new ApReqContainer();
+        Asn1Container apReqContainer = new ApReqContainer( stream );
 
         // Decode the AP-REQ PDU
         kerberosDecoder.decode( stream, apReqContainer );

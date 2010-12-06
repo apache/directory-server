@@ -23,12 +23,9 @@ package org.apache.directory.server.kerberos.protocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
@@ -54,6 +51,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
@@ -108,9 +106,6 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             {
                 asn1Decoder.decode( buf, kerberosMessageContainer );
                 
-                TLV tlv = kerberosMessageContainer.getCurrentTLV();
-                Value value = tlv.getValue();
-
                 if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
                     if ( IS_DEBUG )
@@ -536,7 +531,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a ApRep Container
-        Asn1Container apRepContainer = new ApRepContainer();
+        Asn1Container apRepContainer = new ApRepContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -571,7 +566,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a ApReq Container
-        Asn1Container apReqContainer = new ApReqContainer();
+        Asn1Container apReqContainer = new ApReqContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
@@ -606,7 +601,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         stream.flip();
         
         // Allocate a KrbPriv Container
-        Asn1Container krbPrivContainer = new KrbPrivContainer();
+        Asn1Container krbPrivContainer = new KrbPrivContainer( stream );
 
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 

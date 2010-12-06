@@ -188,8 +188,7 @@ public class KdcReqDecoderTest
         stream.flip();
 
         // Allocate a KdcReq Container
-        KdcReqContainer kdcReqContainer = new KdcReqContainer();
-        kdcReqContainer.setStream( stream );
+        KdcReqContainer kdcReqContainer = new KdcReqContainer( stream );
         kdcReqContainer.setKdcReq( new AsReq() );
         
         // Decode the KdcReq PDU
@@ -243,7 +242,7 @@ public class KdcReqDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ Container
-        Asn1Container kdcReqContainer = new KdcReqContainer();
+        Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
         kerberosDecoder.decode( stream, kdcReqContainer );
@@ -270,7 +269,7 @@ public class KdcReqDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ Container
-        Asn1Container kdcReqContainer = new KdcReqContainer();
+        Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
         kerberosDecoder.decode( stream, kdcReqContainer );
@@ -298,7 +297,7 @@ public class KdcReqDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ Container
-        Asn1Container kdcReqContainer = new KdcReqContainer();
+        Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
         kerberosDecoder.decode( stream, kdcReqContainer );

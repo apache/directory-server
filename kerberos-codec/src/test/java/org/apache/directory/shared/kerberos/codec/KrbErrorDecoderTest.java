@@ -98,8 +98,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -199,8 +198,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -285,8 +283,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -370,8 +367,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -457,8 +453,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -538,8 +533,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -617,8 +611,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -704,8 +697,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -788,8 +780,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -871,8 +862,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {
@@ -941,8 +931,7 @@ public class KrbErrorDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        KrbErrorContainer container = new KrbErrorContainer();
-        container.setStream( stream );
+        KrbErrorContainer container = new KrbErrorContainer( stream );
         
         try
         {

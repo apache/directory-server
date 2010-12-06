@@ -119,8 +119,7 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AsRep Container
-        AsRepContainer asRepContainer = new AsRepContainer();
-        asRepContainer.setStream( stream );
+        AsRepContainer asRepContainer = new AsRepContainer( stream );
         
         // Decode the AsRep PDU
         try
@@ -173,7 +172,7 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer();
+        Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
         kerberosDecoder.decode( stream, asRepContainer );
@@ -200,7 +199,7 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer();
+        Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
         kerberosDecoder.decode( stream, asRepContainer );
@@ -228,7 +227,7 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer();
+        Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
         kerberosDecoder.decode( stream, asRepContainer );

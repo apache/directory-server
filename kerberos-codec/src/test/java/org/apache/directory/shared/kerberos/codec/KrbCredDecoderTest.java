@@ -70,8 +70,7 @@ public class KrbCredDecoderTest
         expected.encode( stream );
         stream.flip();
         
-        KrbCredContainer container = new KrbCredContainer();
-        container.setStream( stream );
+        KrbCredContainer container = new KrbCredContainer( stream );
         
         Asn1Decoder decoder = new Asn1Decoder();
         

@@ -189,8 +189,7 @@ public class TgsReqDecoderTest
         stream.flip();
 
         // Allocate a TgsReq Container
-        TgsReqContainer tgsReqContainer = new TgsReqContainer();
-        tgsReqContainer.setStream( stream );
+        TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
         
         // Decode the TgsReq PDU
         try
@@ -372,8 +371,7 @@ public class TgsReqDecoderTest
         stream.flip();
 
         // Allocate a TgsReq Container
-        TgsReqContainer tgsReqContainer = new TgsReqContainer();
-        tgsReqContainer.setStream( stream );
+        TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
         
         // Decode the TgsReq PDU
         kerberosDecoder.decode( stream, tgsReqContainer );
@@ -397,7 +395,7 @@ public class TgsReqDecoderTest
         stream.flip();
 
         // Allocate a TGS-REQ Container
-        Asn1Container tgsReqContainer = new TgsReqContainer();
+        Asn1Container tgsReqContainer = new TgsReqContainer( stream );
 
         // Decode the TGS-REQ PDU
         kerberosDecoder.decode( stream, tgsReqContainer );

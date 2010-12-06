@@ -250,8 +250,7 @@ public class KerberosMessageDecoderTest
         stream.flip();
 
         // Allocate a TgsReq Container
-        TgsReqContainer tgsReqContainer = new TgsReqContainer();
-        tgsReqContainer.setStream( stream );
+        TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
         
         // Decode the TgsReq PDU
         try
@@ -423,8 +422,7 @@ public class KerberosMessageDecoderTest
         stream.flip();
 
         // Allocate a AsReq Container
-        AsReqContainer asReqContainer = new AsReqContainer();
-        asReqContainer.setStream( stream );
+        AsReqContainer asReqContainer = new AsReqContainer( stream );
         
         // Decode the AsReq PDU
         try
@@ -516,8 +514,7 @@ public class KerberosMessageDecoderTest
         stream.flip();
 
         // Allocate a AsReq Container
-        asReqContainer = new AsReqContainer();
-        asReqContainer.setStream( stream );
+        asReqContainer = new AsReqContainer( stream );
         
         // Decode the AsReq PDU
         try
