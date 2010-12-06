@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.value.types;
+package org.apache.directory.shared.kerberos.codec.types;
 
 
 

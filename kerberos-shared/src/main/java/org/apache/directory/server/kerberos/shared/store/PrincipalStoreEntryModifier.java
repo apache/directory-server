@@ -27,9 +27,9 @@ import java.util.Map;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;

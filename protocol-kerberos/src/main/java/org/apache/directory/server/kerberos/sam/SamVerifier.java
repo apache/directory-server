@@ -24,7 +24,7 @@ import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
+import org.apache.directory.shared.kerberos.codec.types.SamType;
 
 
 /**
