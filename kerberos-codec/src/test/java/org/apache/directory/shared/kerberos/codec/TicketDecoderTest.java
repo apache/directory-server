@@ -91,8 +91,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         try
@@ -159,8 +158,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -186,8 +184,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -214,8 +211,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -243,8 +239,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -272,8 +267,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -301,8 +295,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -331,8 +324,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -362,8 +354,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -393,8 +384,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -425,8 +415,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -458,8 +447,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -493,8 +481,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -531,8 +518,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -570,8 +556,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -610,8 +595,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );
@@ -651,8 +635,7 @@ public class TicketDecoderTest
         stream.flip();
 
         // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer();
-        ticketContainer.setStream( stream );
+        Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
         kerberosDecoder.decode( stream, ticketContainer );

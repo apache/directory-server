@@ -78,8 +78,7 @@ public class StoreKdcRep extends GrammarAction
         // Now, let's decode the KDC-REP
         Asn1Decoder kdcRepDecoder = new Asn1Decoder();
         
-        KdcRepContainer kdcRepContainer = new KdcRepContainer();
-        kdcRepContainer.setStream( container.getStream() );
+        KdcRepContainer kdcRepContainer = new KdcRepContainer( container.getStream() );
         
         // Store the created TGS-REP object into the KDC-REP container
         TgsRep tgsRep = new TgsRep();

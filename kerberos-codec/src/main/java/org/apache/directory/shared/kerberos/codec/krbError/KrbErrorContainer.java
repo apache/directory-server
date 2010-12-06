@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbError;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 
@@ -35,10 +37,11 @@ public class KrbErrorContainer extends AbstractContainer
     
     /**
      * Creates a new KrbErrorContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public KrbErrorContainer()
+    public KrbErrorContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KrbErrorGrammar.getInstance();
         setTransition( KrbErrorStatesEnum.START_STATE );

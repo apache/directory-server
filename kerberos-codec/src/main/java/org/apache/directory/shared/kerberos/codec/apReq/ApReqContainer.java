@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.apReq;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 
@@ -35,10 +37,11 @@ public class ApReqContainer extends AbstractContainer
 
     /**
      * Creates a new ApReqContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public ApReqContainer()
+    public ApReqContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = ApReqGrammar.getInstance();
         setTransition( ApReqStatesEnum.START_STATE );

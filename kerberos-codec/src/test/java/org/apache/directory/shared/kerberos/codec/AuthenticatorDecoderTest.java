@@ -111,8 +111,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
-        authenticatorContainer.setStream( stream );
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
         
         // Decode the Authenticator PDU
         try
@@ -166,7 +165,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
         kerberosDecoder.decode( stream, authenticatorContainer );
@@ -193,7 +192,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
         kerberosDecoder.decode( stream, authenticatorContainer );
@@ -221,7 +220,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
         kerberosDecoder.decode( stream, authenticatorContainer );
@@ -250,7 +249,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
         kerberosDecoder.decode( stream, authenticatorContainer );
@@ -379,7 +378,7 @@ public class AuthenticatorDecoderTest
         stream.flip();
 
         // Allocate a Authenticator Container
-        Asn1Container authenticatorContainer = new AuthenticatorContainer();
+        Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
         kerberosDecoder.decode( stream, authenticatorContainer );

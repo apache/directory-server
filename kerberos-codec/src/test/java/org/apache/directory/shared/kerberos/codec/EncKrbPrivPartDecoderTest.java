@@ -81,8 +81,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {
@@ -160,8 +159,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {
@@ -236,8 +234,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {
@@ -310,8 +307,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {
@@ -389,8 +385,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {
@@ -459,8 +454,7 @@ public class EncKrbPrivPartDecoderTest
         String decoded = StringTools.dumpBytes( stream.array() );
         stream.flip();
         
-        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer();
-        container.setStream( stream );
+        EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
         
         try
         {

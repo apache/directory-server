@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.encAsRepPart;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 
@@ -35,10 +37,11 @@ public class EncAsRepPartContainer extends AbstractContainer
 
     /**
      * Creates a new EncAsRepPartContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public EncAsRepPartContainer()
+    public EncAsRepPartContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = EncAsRepPartGrammar.getInstance();
         setTransition( EncAsRepPartStatesEnum.START_STATE );

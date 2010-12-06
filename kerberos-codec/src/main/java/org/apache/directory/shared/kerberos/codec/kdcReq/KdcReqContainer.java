@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.kdcReq;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 
@@ -35,10 +37,11 @@ public class KdcReqContainer extends AbstractContainer
     
     /**
      * Creates a new KdcReqContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public KdcReqContainer()
+    public KdcReqContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KdcReqGrammar.getInstance();
         setTransition( KdcReqStatesEnum.START_STATE );

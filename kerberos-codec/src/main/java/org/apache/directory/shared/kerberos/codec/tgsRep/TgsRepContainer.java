@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.tgsRep;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
 
@@ -35,10 +37,11 @@ public class TgsRepContainer extends KdcRepContainer
 
     /**
      * Creates a new TgsRepContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public TgsRepContainer()
+    public TgsRepContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = TgsRepGrammar.getInstance();
         setTransition( TgsRepStatesEnum.START_STATE );

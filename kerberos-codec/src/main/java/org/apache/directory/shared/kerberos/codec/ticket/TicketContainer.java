@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.ticket;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 
@@ -38,10 +40,11 @@ public class TicketContainer extends AbstractContainer
     /**
      * Creates a new TicketContainer object. We will store one grammars,
      * it's enough ...
+     * @param stream The stream containing the data to decode
      */
-    public TicketContainer()
+    public TicketContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[10];
         this.grammar = TicketGrammar.getInstance();
         setTransition( TicketStatesEnum.START_STATE );

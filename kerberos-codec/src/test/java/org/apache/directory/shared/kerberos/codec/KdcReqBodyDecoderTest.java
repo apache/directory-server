@@ -181,8 +181,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KdcReqBody Container
-        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
-        kdcReqBodyContainer.setStream( stream );
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
         
         // Decode the KdcReqBody PDU
         try
@@ -273,7 +272,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ-BODY Container
-        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
@@ -300,7 +299,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ-BODY Container
-        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
@@ -328,7 +327,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ-BODY Container
-        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
@@ -457,7 +456,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KDC-REQ-BODY Container
-        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer();
+        Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
@@ -502,8 +501,7 @@ public class KdcReqBodyDecoderTest
         stream.flip();
 
         // Allocate a KdcReqBody Container
-        KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer();
-        kdcReqBodyContainer.setStream( stream );
+        KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer( stream );
         
         // Decode the KdcReqBody PDU
         try

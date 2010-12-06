@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.encKrbPrivPart;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 
@@ -35,10 +37,11 @@ public class EncKrbPrivPartContainer extends AbstractContainer
     
     /**
      * Creates a new EncKrbPrivPartContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public EncKrbPrivPartContainer()
+    public EncKrbPrivPartContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = EncKrbPrivPartGrammar.getInstance();
         setTransition( EncKrbPrivPartStatesEnum.START_STATE );

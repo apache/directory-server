@@ -178,8 +178,7 @@ public class EncTicketPartDecoderTest
         stream.flip();
 
         Asn1Decoder decoder = new Asn1Decoder();
-        EncTicketPartContainer container = new EncTicketPartContainer();
-        container.setStream( stream );
+        EncTicketPartContainer container = new EncTicketPartContainer( stream );
 
         try
         {

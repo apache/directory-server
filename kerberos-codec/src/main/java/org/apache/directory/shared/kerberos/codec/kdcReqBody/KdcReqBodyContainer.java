@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.kdcReqBody;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 
@@ -36,9 +38,9 @@ public class KdcReqBodyContainer extends AbstractContainer
     /**
      * Creates a new KdcReqBodyContainer object.
      */
-    public KdcReqBodyContainer()
+    public KdcReqBodyContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KdcReqBodyGrammar.getInstance();
         setTransition( KdcReqBodyStatesEnum.START_STATE );

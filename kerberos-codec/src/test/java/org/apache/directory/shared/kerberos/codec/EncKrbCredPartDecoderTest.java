@@ -147,8 +147,7 @@ public class EncKrbCredPartDecoderTest
             stream.flip();
 
             Asn1Decoder decoder = new Asn1Decoder();
-            EncKrbCredPartContainer container = new EncKrbCredPartContainer();
-            container.setStream( stream );
+            EncKrbCredPartContainer container = new EncKrbCredPartContainer( stream );
 
             try
             {
@@ -193,8 +192,7 @@ public class EncKrbCredPartDecoderTest
             stream.flip();
 
             Asn1Decoder decoder = new Asn1Decoder();
-            EncKrbCredPartContainer container = new EncKrbCredPartContainer();
-            container.setStream( stream );
+            EncKrbCredPartContainer container = new EncKrbCredPartContainer( stream );
 
             try
             {

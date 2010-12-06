@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.asReq;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 
@@ -35,10 +37,11 @@ public class AsReqContainer extends KdcReqContainer
 
     /**
      * Creates a new AsReqContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public AsReqContainer()
+    public AsReqContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = AsReqGrammar.getInstance();
         setTransition( AsReqStatesEnum.START_STATE );
