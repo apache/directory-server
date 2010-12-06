@@ -54,7 +54,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -713,7 +712,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         for ( int ii = 0; ii < krb5key.size(); ii++ )
         {
             byte[] encryptionKeyBytes = ( byte[] ) krb5key.get( ii );
-            EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
+            EncryptionKey encryptionKey = KrbDecoder.decodeEncryptionKey( encryptionKeyBytes );
             map.put( encryptionKey.getKeyType(), encryptionKey );
         }
 
