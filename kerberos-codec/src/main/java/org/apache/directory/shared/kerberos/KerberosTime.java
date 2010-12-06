@@ -246,7 +246,9 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public boolean isInClockSkew( long clockSkew )
     {
-        return Math.abs( kerberosTime - System.currentTimeMillis() ) < clockSkew;
+        // The KerberosTime does not have milliseconds
+        long delta = Math.abs( kerberosTime - System.currentTimeMillis()/1000L );
+        return delta < clockSkew;
     }
     
     
