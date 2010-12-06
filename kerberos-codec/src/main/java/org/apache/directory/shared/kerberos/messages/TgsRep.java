@@ -48,7 +48,6 @@ public class TgsRep extends KdcRep
     
     // Storage for computed lengths
     private transient int kdcRepLength;
-    private transient int tgsRepLength;
 
     /**
      * Creates a new instance of TGS-REP.
@@ -138,9 +137,8 @@ public class TgsRep extends KdcRep
     public int computeLength()
     {
         kdcRepLength = super.computeLength();
-        tgsRepLength = 1 + TLV.getNbBytes( kdcRepLength ) + kdcRepLength;
         
-        return tgsRepLength;
+        return 1 + TLV.getNbBytes( kdcRepLength ) + kdcRepLength;
     }
     
     
@@ -160,7 +158,7 @@ public class TgsRep extends KdcRep
         
         // The TGS-REP SEQ Tag
         buffer.put( (byte)KerberosConstants.TGS_REP_TAG );
-        buffer.put( TLV.getBytes( tgsRepLength ) );
+        buffer.put( TLV.getBytes( kdcRepLength ) );
         
         // The KDC-REP --------------------------------------------------------
         super.encode( buffer );
