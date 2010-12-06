@@ -388,7 +388,9 @@ public class AuthenticationService
         encTicketPart.setKey( sessionKey );
 
         encTicketPart.setCName( request.getKdcReqBody().getCName() );
+        encTicketPart.setCRealm( request.getKdcReqBody().getRealm() );
         encTicketPart.setTransited( new TransitedEncoding() );
+        String serverRealm = request.getKdcReqBody().getRealm();
 
         KerberosTime now = new KerberosTime();
 
@@ -532,7 +534,10 @@ public class AuthenticationService
         EncryptedData encryptedData = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
+
+        newTicket.setRealm( serverRealm );
         newTicket.setEncTicketPart( encTicketPart );
+        
 
         if ( LOG.isDebugEnabled() )
         {
@@ -551,6 +556,7 @@ public class AuthenticationService
         AsRep reply = new AsRep();
         
         reply.setCName( request.getKdcReqBody().getCName() );
+        reply.setCRealm( request.getKdcReqBody().getRealm() );
         reply.setTicket( ticket );
         
         EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
@@ -573,6 +579,7 @@ public class AuthenticationService
         }
 
         encKdcRepPart.setSName( ticket.getSName() );
+        encKdcRepPart.setSRealm( ticket.getRealm() );
         encKdcRepPart.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
 
         EncAsRepPart encAsRepPart = new EncAsRepPart();
