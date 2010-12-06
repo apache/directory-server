@@ -260,9 +260,11 @@ public class KdcRep extends KerberosMessage
     {
         // The pvno length
         pvnoLength = 1 + 1 + 1;
-        
+        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
+
         // The msg-type length
         msgTypeLength = 1 + 1 + 1;
+        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
 
         // Compute the pa-data length.
         if ( paData.size() != 0 )
@@ -278,30 +280,26 @@ public class KdcRep extends KerberosMessage
             }
             
             paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
+            kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
         }
         
         // The crealm length
         crealmBytes = StringTools.getBytesUtf8( crealm );
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
+        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
 
         // Compute the client principalName length
         cnameLength = cname.computeLength();
-        
+        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength; 
+
         // Compute the ticket length
         ticketLength = ticket.computeLength();
-        
+        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength; 
+
         // Compute the encrypted part
         encPartLength = encPart.computeLength();
-
-        // Compute the sequence size.
-        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength; 
         kdcRepSeqLength += 1 + TLV.getNbBytes( encPartLength ) + encPartLength; 
-        
+
         // compute the global size
         kdcRepLength = 1 + TLV.getNbBytes( kdcRepSeqLength ) + kdcRepSeqLength;
         
