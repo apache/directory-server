@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -141,7 +140,10 @@ public abstract class AbstractTicketGrantingServiceTest
 
         EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
-        Ticket ticket = new Ticket( KerberosConstants.KERBEROS_V5, serverPrincipal, encryptedTicketPart );
+        Ticket ticket = new Ticket();
+        ticket.setSName( new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() ) );
+        ticket.setRealm( serverPrincipal.getRealm() );
+        ticket.setEncPart( encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
 
