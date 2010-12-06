@@ -27,10 +27,12 @@ import java.util.Map;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -278,7 +280,7 @@ public class PrincipalStoreEntryModifier
      * @throws LdapException
      * @throws IOException
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws IOException, LdapException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws KerberosException, LdapException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 

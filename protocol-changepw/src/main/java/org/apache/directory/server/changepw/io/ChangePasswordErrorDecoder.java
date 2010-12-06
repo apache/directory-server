@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 
 

@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
@@ -37,6 +36,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
@@ -143,7 +143,7 @@ public class GetPrincipal implements DirectoryServiceOperation
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
                 modifier.setKeyMap( keyMap );
             }
-            catch ( IOException ioe )
+            catch ( KerberosException ioe )
             {
                 throw new Exception( I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ) );
             }
