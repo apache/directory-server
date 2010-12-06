@@ -31,7 +31,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
@@ -388,8 +387,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -445,8 +444,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -502,8 +501,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -721,8 +720,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
@@ -780,8 +779,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
 
@@ -832,8 +831,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -879,8 +878,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         long now = System.currentTimeMillis();
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
@@ -927,8 +926,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "INITIAL flag", reply.getFlags().isInitial() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -936,7 +935,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         assertTrue( "INITIAL flag", reply.getTicket().getEncTicketPart().getFlags().isInitial() );
         assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
-        assertEquals( "Service principal name", reply.getServerPrincipal().getName(), servicePrincipalName );
+        assertEquals( "Service principal name", reply.getSName().getNameString(), servicePrincipalName );
         assertEquals( "Service principal name", reply.getTicket().getSName().getNames(), servicePrincipalName );
     }
 
@@ -988,8 +987,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -1046,8 +1045,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "FORWARDABLE flag", reply.getFlags().isForwardable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1099,8 +1098,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "MAY_POSTDATE flag", reply.getFlags().isMayPosdate() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1152,8 +1151,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "PROXIABLE flag", reply.getFlags().isProxiable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1211,8 +1210,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1273,8 +1272,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", AuthenticationReply.class, msg.getClass() );
-        AuthenticationReply reply = ( AuthenticationReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", AsRep.class, msg.getClass() );
+        AsRep reply = ( AsRep ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );

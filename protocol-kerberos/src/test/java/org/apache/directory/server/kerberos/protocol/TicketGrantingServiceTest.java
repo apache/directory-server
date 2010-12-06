@@ -36,7 +36,6 @@ import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServi
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -50,6 +49,7 @@ import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.KrbError;
+import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.TgsReq;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
@@ -451,8 +451,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedRenewTillTime = tgt.getEncTicketPart().getRenewTill();
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -502,8 +502,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedRenewTillTime = tgt.getEncTicketPart().getRenewTill();
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -558,8 +558,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "PROXY flag", reply.getFlags().isProxy() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -618,8 +618,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "FORWARDED flag", reply.getFlags().isForwarded() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -773,8 +773,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedEndTime = tgt.getEncTicketPart().getEndTime();
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -826,8 +826,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -960,8 +960,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -1018,8 +1018,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -1076,8 +1076,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedStartTime = new KerberosTime( now );
         boolean isClose = reply.getStartTime() == null
@@ -1310,8 +1310,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
@@ -1366,8 +1366,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
     }
@@ -1417,8 +1417,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
     }
@@ -1469,8 +1469,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -1517,8 +1517,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         long now = System.currentTimeMillis();
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
@@ -1576,8 +1576,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
@@ -1637,8 +1637,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "FORWARDABLE flag", reply.getFlags().isForwardable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1693,8 +1693,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "MAY_POSTDATE flag", reply.getFlags().isMayPosdate() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1749,8 +1749,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "PROXIABLE flag", reply.getFlags().isProxiable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1811,8 +1811,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1876,8 +1876,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
@@ -1934,8 +1934,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
         assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );

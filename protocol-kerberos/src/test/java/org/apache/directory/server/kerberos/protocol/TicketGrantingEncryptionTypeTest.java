@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServi
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -42,6 +41,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
@@ -133,8 +133,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
@@ -186,8 +186,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -252,8 +252,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -318,8 +318,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -385,8 +385,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -453,8 +453,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()

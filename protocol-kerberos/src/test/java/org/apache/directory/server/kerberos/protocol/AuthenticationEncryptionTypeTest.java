@@ -255,7 +255,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
 
-        assertEquals( "Nonce", nonce, reply.getEncPart().getNonce() );
+        assertEquals( "Nonce", nonce, reply.getNonce() );
     }
 
 
