@@ -133,7 +133,6 @@
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
     <module>server-jndi</module>
-    <module>kerberos-shared</module>
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
     <module>server-replication</module>
