@@ -343,6 +343,7 @@ public class TicketGrantingService
         newTicketPart.setKey( sessionKey );
 
         newTicketPart.setCName( tgt.getEncTicketPart().getCName() );
+        newTicketPart.setCRealm( tgt.getEncTicketPart().getCRealm() );
 
         if ( request.getKdcReqBody().getEncAuthorizationData() != null )
         {
@@ -377,6 +378,8 @@ public class TicketGrantingService
             EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart, KeyUsage.NUMBER2 );
 
             Ticket newTicket = new Ticket( request.getKdcReqBody().getSName(), encryptedData );
+            newTicket.setEncTicketPart( newTicketPart );
+            newTicket.setRealm( request.getKdcReqBody().getRealm() );
 
             tgsContext.setNewTicket( newTicket );
         }
@@ -392,6 +395,7 @@ public class TicketGrantingService
         TgsRep reply = new TgsRep();
         
         reply.setCName( tgt.getEncTicketPart().getCName() );
+        reply.setCRealm( tgt.getEncTicketPart().getCRealm() );
         reply.setTicket( newTicket );
         
         EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
@@ -406,6 +410,7 @@ public class TicketGrantingService
         encKdcRepPart.setStartTime( newTicket.getEncTicketPart().getStartTime() );
         encKdcRepPart.setEndTime( newTicket.getEncTicketPart().getEndTime() );
         encKdcRepPart.setSName( newTicket.getSName() );
+        encKdcRepPart.setSRealm( newTicket.getRealm() );
 
         if ( newTicket.getEncTicketPart().getFlags().isRenewable() )
         {
