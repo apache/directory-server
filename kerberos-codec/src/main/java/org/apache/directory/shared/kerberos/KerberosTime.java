@@ -133,7 +133,7 @@ public class KerberosTime implements Comparable<KerberosTime>
             this.date = sdf.format( calendar.getTime() );
         }
         
-        kerberosTime = ( calendar.getTimeInMillis() / 1000 ); // drop the milliseconds
+        kerberosTime = (calendar.getTimeInMillis()/1000L)*1000L; // drop the ms
     }
     
 
@@ -247,7 +247,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     public boolean isInClockSkew( long clockSkew )
     {
         // The KerberosTime does not have milliseconds
-        long delta = Math.abs( kerberosTime - System.currentTimeMillis()/1000L );
+        long delta = Math.abs( kerberosTime - System.currentTimeMillis() );
+        
         return delta < clockSkew;
     }
     
