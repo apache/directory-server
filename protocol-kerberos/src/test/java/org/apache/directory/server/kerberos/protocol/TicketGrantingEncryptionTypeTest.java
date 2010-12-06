@@ -33,11 +33,11 @@ import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServi
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
@@ -102,13 +102,13 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     {
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -155,13 +155,13 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -210,11 +210,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -227,7 +227,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -275,11 +275,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -292,7 +292,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -343,11 +343,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -360,7 +360,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -409,11 +409,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -426,7 +426,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );

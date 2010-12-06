@@ -30,10 +30,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
@@ -105,16 +105,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
+        encTicketPart.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -156,16 +156,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
+        encTicketPart.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -207,21 +207,21 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
+        encTicketPart.setFlag( TicketFlag.FORWARDABLE );
 
         HostAddress[] address =
                 {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
         HostAddresses addresses = new HostAddresses( address );
-        encTicketPartModifier.setClientAddresses( addresses );
+        encTicketPart.setClientAddresses( addresses );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -263,16 +263,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
+        encTicketPart.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -314,16 +314,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
+        encTicketPart.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -370,21 +370,21 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
+        encTicketPart.setFlag( TicketFlag.PROXIABLE );
 
         HostAddress[] address =
                 {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
         HostAddresses addresses = new HostAddresses( address );
-        encTicketPartModifier.setClientAddresses( addresses );
+        encTicketPart.setClientAddresses( addresses );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -426,16 +426,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
+        encTicketPart.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -477,16 +477,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
+        encTicketPart.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -528,16 +528,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.INVALID );
+        encTicketPart.setFlag( TicketFlag.INVALID );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "hnelson" ) );
@@ -623,16 +623,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
+        encTicketPart.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
@@ -674,16 +674,16 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
+        encTicketPart.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
