@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.ParseException;
 import java.util.Date;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -31,13 +32,15 @@ import javax.security.auth.kerberos.KerberosTicket;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
@@ -91,38 +94,35 @@ public class TicketFactory
      * @throws KerberosException
      */
     public Ticket getTicket( KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
-        EncryptionKey serverKey ) throws KerberosException
+        EncryptionKey serverKey ) throws KerberosException, ParseException
     {
-        EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
+        EncTicketPart encTicketPart = new EncTicketPart();
 
         TicketFlags ticketFlags = new TicketFlags();
         ticketFlags.setFlag( TicketFlag.RENEWABLE );
-        encTicketModifier.setFlags( ticketFlags );
+        encTicketPart.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        encTicketModifier.setSessionKey( sessionKey );
-        encTicketModifier.setClientPrincipal( clientPrincipal );
-        encTicketModifier.setTransitedEncoding( new TransitedEncoding() );
-        encTicketModifier.setAuthTime( new KerberosTime() );
+        encTicketPart.setKey( sessionKey );
+        encTicketPart.setCName( new PrincipalName( clientPrincipal.getName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
+        encTicketPart.setTransited( new TransitedEncoding() );
+        encTicketPart.setAuthTime( new KerberosTime() );
 
         long now = System.currentTimeMillis();
         KerberosTime endTime = new KerberosTime( now + ONE_DAY );
-        encTicketModifier.setEndTime( endTime );
+        encTicketPart.setEndTime( endTime );
 
         KerberosTime renewTill = new KerberosTime( now + ONE_WEEK );
-        encTicketModifier.setRenewTill( renewTill );
-
-        EncTicketPart encTicketPart = encTicketModifier.getEncTicketPart();
+        encTicketPart.setRenewTill( renewTill );
 
         EncryptedData encryptedTicketPart = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
         Ticket ticket = new Ticket();
         ticket.setTktVno( KerberosConstants.KERBEROS_V5 );
-        ticket.setSName( serverPrincipal );
+        ticket.setSName( new PrincipalName( serverPrincipal.getName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
+        ticket.setRealm( serverPrincipal.getRealm() );
         ticket.setEncPart( encryptedTicketPart );
-
-        ticket.setEncPart( encTicketPart );
 
         return ticket;
     }
@@ -137,11 +137,10 @@ public class TicketFactory
      */
     public KerberosTicket getKerberosTicket( Ticket ticket ) throws IOException
     {
-        
         byte[] asn1Encoding = ticket.encode( null ).array();
-
-        KerberosPrincipal client = ticket.getEncTicketPart().getClientPrincipal();
-        KerberosPrincipal server = ticket.getServerPrincipal();
+        
+        KerberosPrincipal client = KerberosUtils.getKerberosPrincipal( ticket.getEncTicketPart().getCName(), ticket.getEncTicketPart().getCRealm() );
+        KerberosPrincipal server = KerberosUtils.getKerberosPrincipal( ticket.getSName(), ticket.getRealm() );
         byte[] sessionKey = ticket.getEncTicketPart().getKey().getKeyValue();
         int keyType = ticket.getEncTicketPart().getKey().getKeyType().getValue();
 

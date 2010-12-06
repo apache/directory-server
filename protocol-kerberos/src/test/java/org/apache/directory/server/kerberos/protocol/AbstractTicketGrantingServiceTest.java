@@ -177,16 +177,15 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected Ticket getTicket( EncTicketPartModifier encTicketModifier, KerberosPrincipal serverPrincipal,
+    protected Ticket getTicket( EncTicketPart encTicketPart, KerberosPrincipal serverPrincipal,
         EncryptionKey serverKey ) throws KerberosException
     {
-        EncTicketPart encTicketPart = encTicketModifier.getEncTicketPart();
-
         EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
         Ticket ticket = new Ticket();
         ticket.setTktVno( 5 );
-        ticket.setServerPrincipal( serverPrincipal );
+        ticket.setSName( serverPrincipal );
+        ticket.setRealm( realm );
         ticket.setEncPart( encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
