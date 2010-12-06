@@ -221,8 +221,9 @@ public class TicketGrantingService
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOT_US );
         }
 
-        String tgtServerName = tgt.getSName().getNameString();
-        String requestServerName = tgsContext.getRequest().getKdcReqBody().getSName().getNameString();
+        String tgtServerName = KerberosUtils.getKerberosPrincipal( tgt.getSName(), tgt.getRealm() ).getName();
+        String requestServerName = KerberosUtils.getKerberosPrincipal( 
+            tgsContext.getRequest().getKdcReqBody().getSName(), tgsContext.getRequest().getKdcReqBody().getRealm() ).getName();
 
         /*
          * if (tgt.sname is not a TGT for local realm and is not req.sname)
