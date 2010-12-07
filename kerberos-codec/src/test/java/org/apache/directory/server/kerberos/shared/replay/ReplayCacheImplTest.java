@@ -77,7 +77,7 @@ public class ReplayCacheImplTest
 
         int i = 0;
 
-        // Inject 4 entries one every second 
+        // Inject 4 entries 
         while ( i < 4 )
         {
             KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i + "@APACHE.ORG",
