@@ -22,10 +22,10 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import java.security.SecureRandom;
 
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 
 
 /**
@@ -138,17 +138,12 @@ public abstract class EncryptionEngine
     // Encryption
     protected byte[] concatenateBytes( byte[] array1, byte[] array2 )
     {
-        byte concatenatedBytes[] = new byte[array1.length + array2.length];
+        int l1 = array1.length;
+        int l2 = array2.length;
+        byte concatenatedBytes[] = new byte[l1 + l2];
 
-        for ( int i = 0; i < array1.length; i++ )
-        {
-            concatenatedBytes[i] = array1[i];
-        }
-
-        for ( int j = array1.length; j < concatenatedBytes.length; j++ )
-        {
-            concatenatedBytes[j] = array2[j - array1.length];
-        }
+        System.arraycopy( array1, 0, concatenatedBytes, 0, l1 );
+        System.arraycopy( array2, 0, concatenatedBytes, l1, l2 );
 
         return concatenatedBytes;
     }

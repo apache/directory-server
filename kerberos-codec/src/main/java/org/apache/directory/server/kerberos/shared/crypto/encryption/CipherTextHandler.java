@@ -26,13 +26,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 
 
 /**
@@ -75,7 +75,8 @@ public class CipherTextHandler
         {
             int bufferSize = message.computeLength();
             ByteBuffer buffer = ByteBuffer.allocate( bufferSize );
-            return encrypt( key, message.encode( buffer ).array(), usage );
+            byte[] encoded = message.encode( buffer ).array();
+            return encrypt( key, encoded, usage );
         }
         catch ( EncoderException ioe )
         {
