@@ -44,7 +44,7 @@ public class PrincipalNameTest
     @Test
     public void testEncodingPrincipalNameOneName() throws Exception
     {
-        PrincipalName principal = new PrincipalName( "Test@APACHE", PrincipalNameType.KRB_NT_PRINCIPAL );
+        PrincipalName principal = new PrincipalName( "Test", PrincipalNameType.KRB_NT_PRINCIPAL );
 
         ByteBuffer encoded = ByteBuffer.allocate( principal.computeLength() );
 
@@ -68,7 +68,7 @@ public class PrincipalNameTest
     @Test
     public void testEncodingPrincipalName3names() throws Exception
     {
-        PrincipalName principal = new PrincipalName( "Test1@APACHE", PrincipalNameType.KRB_NT_PRINCIPAL );
+        PrincipalName principal = new PrincipalName( "Test1", PrincipalNameType.KRB_NT_PRINCIPAL );
         principal.addName( "Test2" );
         principal.addName( "Test3" );
 
@@ -106,11 +106,12 @@ public class PrincipalNameTest
 
         byte[] expectedResult = new byte[]
             { 
-              0x30, 0x09, 
+              0x30, 0x0B, 
                 ( byte ) 0xA0, 0x03, 
                   0x02, 0x01, 0x01, 
-                ( byte ) 0xA1, 0x02, 
-                  0x30, 0x00 
+                ( byte ) 0xA1, 0x04, 
+                  0x30, 0x02,
+                    0x1B, 0x00
             };
 
         assertEquals( StringTools.dumpBytes( expectedResult ), StringTools.dumpBytes( encoded.array() ) );
