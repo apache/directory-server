@@ -98,7 +98,10 @@ public class TicketFlagsTest
     {
         // Flags 1, 2, 4, 8 set
         TicketFlags tf = new TicketFlags(
-            getBytes( ( int ) ( Math.pow( 2, 31 - 1 ) + Math.pow( 2, 31 - 2 ) + Math.pow( 2, 31 - 4 ) + Math.pow( 2, 31 - 8 ) ) ) );
+            getBytes( ( int ) ( ( 1 << ( 31 - 1 ) ) | 
+                                ( 1 << ( 31 - 2 ) ) | 
+                                ( 1 << ( 31 - 4 ) ) |
+                                ( 1 << 31 - 8 ) ) ) );
         assertFalse( tf.isReserved() ); // 0
         assertTrue( tf.isForwardable() ); // 1
         assertTrue( tf.isForwarded() ); // 2
@@ -121,14 +124,15 @@ public class TicketFlagsTest
     public void testSetFlag() throws Exception
     {
         TicketFlags tf = new TicketFlags();
+        
         for ( TicketFlag t : TicketFlag.values() )
         {
-            if ( !t.equals( TicketFlags.MAX_SIZE ) )
+            if ( !t.equals( TicketFlag.MAX_VALUE ) )
             {
-
                 tf.setFlag( t );
             }
         }
+        
         assertTrue( tf.isReserved() ); // 0
         assertTrue( tf.isForwardable() ); // 1
         assertTrue( tf.isForwarded() ); // 2
@@ -197,8 +201,10 @@ public class TicketFlagsTest
     private byte[] getBytes( int flags )
     {
         return new byte[]
-            {
-                ( byte ) ( flags >>> 24 ), ( byte ) ( ( flags >> 16 ) & 0x00ff ), ( byte ) ( ( flags >> 8 ) & 0x00ff ),
+            {   0x00,
+                ( byte ) ( flags >>> 24 ), 
+                ( byte ) ( ( flags >> 16 ) & 0x00ff ), 
+                ( byte ) ( ( flags >> 8 ) & 0x00ff ),
                 ( byte ) ( flags & 0x00ff ) };
     }
 }
