@@ -20,21 +20,16 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.text.ParseException;
-import java.util.Date;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.kerberos.KerberosTicket;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
@@ -125,47 +120,5 @@ public class TicketFactory
         ticket.setEncPart( encryptedTicketPart );
 
         return ticket;
-    }
-
-
-    /**
-     * Convert an Apache Directory Kerberos {@link Ticket} into a {@link KerberosTicket}.
-     *
-     * @param ticket
-     * @return The {@link KerberosTicket}.
-     * @throws IOException 
-     */
-    public KerberosTicket getKerberosTicket( Ticket ticket ) throws IOException
-    {
-        byte[] asn1Encoding = ticket.encode( null ).array();
-        
-        KerberosPrincipal client = KerberosUtils.getKerberosPrincipal( ticket.getEncTicketPart().getCName(), ticket.getEncTicketPart().getCRealm() );
-        KerberosPrincipal server = KerberosUtils.getKerberosPrincipal( ticket.getSName(), ticket.getRealm() );
-        byte[] sessionKey = ticket.getEncTicketPart().getKey().getKeyValue();
-        int keyType = ticket.getEncTicketPart().getKey().getKeyType().getValue();
-
-        boolean[] flags = new boolean[32];
-
-        for ( int ii = 0; ii < flags.length; ii++ )
-        {
-            flags[ii] = ticket.getEncTicketPart().getFlags().isFlagSet( ii );
-        }
-
-        Date authTime = ticket.getEncTicketPart().getAuthTime().toDate();
-        Date endTime = ticket.getEncTicketPart().getEndTime().toDate();
-
-        Date startTime = ( ticket.getEncTicketPart().getStartTime() != null ? ticket.getEncTicketPart().getStartTime().toDate() : null );
-
-        Date renewTill = null;
-
-        if ( ticket.getEncTicketPart().getFlags().isRenewable() )
-        {
-            renewTill = ( ticket.getEncTicketPart().getRenewTill() != null ? ticket.getEncTicketPart().getRenewTill().toDate() : null );
-        }
-
-        InetAddress[] clientAddresses = new InetAddress[0];
-
-        return new KerberosTicket( asn1Encoding, client, server, sessionKey, keyType, flags, authTime, startTime,
-            endTime, renewTill, clientAddresses );
     }
 }
