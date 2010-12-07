@@ -154,7 +154,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Incorrect message direction", 47, error.getErrorCode() );
+        assertEquals( "Incorrect message direction", ErrorType.KRB_AP_ERR_BADDIRECTION, error.getErrorCode() );
 
         message = new TgsRep();
 
@@ -163,7 +163,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         error = ( KrbError ) msg;
-        assertEquals( "Incorrect message direction", 47, error.getErrorCode() );
+        assertEquals( "Incorrect message direction", ErrorType.KRB_AP_ERR_BADDIRECTION, error.getErrorCode() );
     }
 
 

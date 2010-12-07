@@ -31,13 +31,13 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
@@ -125,6 +125,16 @@ public class KerberosProtocolHandler implements IoHandler
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
+        
+        if ( !message.getClass().isAssignableFrom( KdcReq.class ) )
+        {
+            log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
+
+            session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
+                ErrorType.KRB_AP_ERR_BADDIRECTION ) ) );
+            return;
+        }
+        
         KdcReq request = ( KdcReq ) message;
 
         KerberosMessageType messageType = request.getMessageType();
@@ -191,7 +201,6 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-        e.printStackTrace();
             log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
