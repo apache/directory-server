@@ -93,11 +93,6 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-protocol-changepw</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-dhcp</artifactId>
     </dependency>
     

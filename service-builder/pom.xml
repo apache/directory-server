@@ -65,10 +65,10 @@
       <artifactId>apacheds-ldif-partition</artifactId>
     </dependency>
 
-    <dependency>
+    <!-- <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
-    </dependency>
+    </dependency> -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>

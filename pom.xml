@@ -124,7 +124,7 @@
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
-    <module>protocol-changepw</module>
+    <!-- <module>protocol-changepw</module> -->
     <module>server-integ</module>
     <!-- Tools are broken and need to be fixed -->
     <!--<module>server-tools</module>-->
@@ -300,11 +300,11 @@
         <version>${project.version}</version>
       </dependency>
       
-      <dependency>
+     <!-- <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-protocol-changepw</artifactId>
         <version>${project.version}</version>
-      </dependency>
+      </dependency> -->
       
       <dependency>
         <groupId>${project.groupId}</groupId>

@@ -28,11 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.directory.server.changepw.ChangePasswordServer;
-import org.apache.directory.server.config.ServiceBuilder;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
-import org.apache.directory.server.config.beans.ChangePasswordServerBean;
+import org.apache.directory.server.config.ServiceBuilder;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
@@ -101,8 +99,8 @@ public class ApacheDsService
     /** The DNS server instance */
     //    private DnsServer dnsServer;
 
-    /** The Change Password server instance */
-    private ChangePasswordServer changePwdServer;
+    /** The Change Password server instance *
+    private ChangePasswordServer changePwdServer;/
 
     /** The Kerberos server instance */
     private KdcServer kdcServer;
@@ -177,7 +175,7 @@ public class ApacheDsService
         // initDhcp( configBean );
 
         // start the ChangePwd server (Not ready yet)
-        startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
+        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
 
         // start the Kerberos server
         startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
@@ -454,7 +452,7 @@ public class ApacheDsService
 
     /**
      * start the Change Password server
-     */
+     *
     private void startChangePwd( ChangePasswordServerBean changePwdServerBean, DirectoryService directoryService ) throws Exception
     {
         changePwdServer = ServiceBuilder.createChangePasswordServer( changePwdServerBean, directoryService );
@@ -483,6 +481,7 @@ public class ApacheDsService
                 + "" );
         }
     }
+    */
 
 
     /**
@@ -536,10 +535,10 @@ public class ApacheDsService
             kdcServer.stop();
         }
 
-        if ( changePwdServer != null )
+        /*if ( changePwdServer != null )
         {
             changePwdServer.stop();
-        }
+        }*/
 
         if ( ntpServer != null )
         {

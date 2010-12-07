@@ -32,9 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.config.beans.ChangeLogBean;
-import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
@@ -703,7 +701,7 @@ public class ServiceBuilder
      * @param ldapServerBean The ChangePasswordServerBean containing the ChangePasswordServer configuration
      * @return Instance of ChangePasswordServer
      * @throws LdapException
-     */
+     *
     public static ChangePasswordServer createChangePasswordServer( ChangePasswordServerBean changePasswordServerBean, DirectoryService directoryService ) throws LdapException
     {
         // Fist, do nothing if the LdapServer is disabled
@@ -757,7 +755,7 @@ public class ServiceBuilder
         
         return changePasswordServer;
     }
-    
+    */
     
     /**
      * Instantiates a LdapServer based on the configuration present in the partition 
