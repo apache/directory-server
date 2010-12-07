@@ -44,7 +44,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 public class AsRep extends KdcRep
 {
     /** The decoded KDC-REP part */
-    private EncKdcRepPart encPart;
+    private EncKdcRepPart encKdcRepPart;
     
     // Storage for computed lengths
     private transient int kdcRepLength;
@@ -66,7 +66,7 @@ public class AsRep extends KdcRep
      */
     public KerberosTime getEndTime()
     {
-        return encPart.getEndTime();
+        return encKdcRepPart.getEndTime();
     }
 
     
@@ -77,7 +77,7 @@ public class AsRep extends KdcRep
      */
     public TicketFlags getFlags()
     {
-        return encPart.getFlags();
+        return encKdcRepPart.getFlags();
     }
 
 
@@ -88,7 +88,7 @@ public class AsRep extends KdcRep
      */
     public int getNonce()
     {
-        return encPart.getNonce();
+        return encKdcRepPart.getNonce();
     }
 
 
@@ -99,7 +99,7 @@ public class AsRep extends KdcRep
      */
     public KerberosTime getRenewTill()
     {
-        return encPart.getRenewTill();
+        return encKdcRepPart.getRenewTill();
     }
 
 
@@ -110,7 +110,7 @@ public class AsRep extends KdcRep
      */
     public KerberosTime getStartTime()
     {
-        return encPart.getStartTime();
+        return encKdcRepPart.getStartTime();
     }
     
     
@@ -121,7 +121,25 @@ public class AsRep extends KdcRep
      */
     public PrincipalName getSName()
     {
-        return encPart.getSName();
+        return encKdcRepPart.getSName();
+    }
+
+
+    /**
+     * @return the encKdcRepPart
+     */
+    public EncKdcRepPart getEncKdcRepPart()
+    {
+        return encKdcRepPart;
+    }
+
+
+    /**
+     * @param encKdcRepPart the encKdcRepPart to set
+     */
+    public void setEncKdcRepPart( EncKdcRepPart encKdcRepPart )
+    {
+        this.encKdcRepPart = encKdcRepPart;
     }
 
 

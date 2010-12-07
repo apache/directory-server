@@ -594,6 +594,7 @@ public class AuthenticationService
         EncryptionKey clientKey = authContext.getClientKey();
         EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart, KeyUsage.NUMBER3 );
         reply.setEncPart( encryptedData );
+        reply.setEncKdcRepPart( encKdcRepPart );
         
         authContext.setReply( reply );
     }

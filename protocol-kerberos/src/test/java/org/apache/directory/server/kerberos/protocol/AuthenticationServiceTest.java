@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
@@ -361,7 +362,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     {
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
-        kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        kdcReqBody.setSName( new PrincipalName( new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
         kdcReqBody.setEType( config.getEncryptionTypes() );
 
