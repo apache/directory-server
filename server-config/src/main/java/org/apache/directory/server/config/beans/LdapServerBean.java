@@ -78,11 +78,11 @@ public class LdapServerBean extends DSBasedServerBean
     private ReplProviderBean replProvider;
 
     /** The list of supported mechanisms */
-    @ConfigurationElement(container = "saslMechHandlers")
+    @ConfigurationElement(attributeType = "ads-saslMechHandlers", container = "saslMechHandlers")
     private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
 
     /** The list of supported extended operation handlers */
-    @ConfigurationElement(container = "extendedOpHandlers")
+    @ConfigurationElement(attributeType = "ads-extendedOpHandlers", container = "extendedOpHandlers")
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
 

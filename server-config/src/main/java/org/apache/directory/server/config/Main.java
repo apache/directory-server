@@ -40,14 +40,16 @@ public class Main
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.initialize();
-        
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, new File(
             "/Users/pajbam/Development/Apache/ApacheDS/apacheds/server-config/src/main/resources/" ) );
 
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=config" ) );
-        
-        ConfigWriter.writeConfiguration( schemaManager, configBean, null );
-        
+
+        long t1 = System.currentTimeMillis();
+        ConfigWriter.writeConfiguration( schemaManager, configBean, "/Users/pajbam/Desktop/config.ldif" );
+        long t2 = System.currentTimeMillis();
+
+        System.out.println( t2 - t1 );
     }
 }

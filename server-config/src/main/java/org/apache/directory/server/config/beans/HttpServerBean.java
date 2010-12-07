@@ -38,7 +38,7 @@ public class HttpServerBean extends ServerBean
     private String httpConfFile;
 
     /** The list of supported web apps */
-    @ConfigurationElement(container = "httpWebApps")
+    @ConfigurationElement(attributeType = "ads-httpWebApps", container = "httpWebApps")
     private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
 
 

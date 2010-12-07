@@ -71,6 +71,7 @@ public class ConfigWriter
 
         // Writing the file to disk
         FileWriter writer = new FileWriter( file );
+        writer.append( "version: 1\n" );
         for ( LdifEntry entry : entries )
         {
             writer.append( entry.toString() );
@@ -173,6 +174,32 @@ public class ConfigWriter
     private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
         throws Exception
     {
+        addBean( rootDn, schemaManager, bean, entries, null, null );
+    }
+
+
+    /**
+     * Adds a configuration bean to the list of entries.
+     *
+     * @param rootDn
+     *      the current root DN
+     * @param schemaManager
+     *      the schema manager
+     * @param bean
+     *      the configuration bean
+     * @param entries
+     *      the list of the entries
+     * @param parentEntry
+     *      the parent entry
+     * @param attributeTypeForParentEntry
+     *      the attribute type to use when adding the value of 
+     *      the RDN to the parent entry
+     * @throws Exception
+     */
+    private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries,
+        LdifEntry parentEntry, String attributeTypeForParentEntry )
+        throws Exception
+    {
         if ( bean != null )
         {
             // Getting the class of the bean
@@ -212,45 +239,62 @@ public class ConfigWriter
                     ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
                     if ( configurationElement != null )
                     {
-                        // Checking if we're dealing with an attribute type
+                        // Checking if we're have a value  for the attribute type
                         String attributeType = configurationElement.attributeType();
                         if ( ( attributeType != null ) && ( !"".equals( attributeType ) ) )
                         {
-                            addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
-                            continue;
-                        }
-
-                        // Checking if we're dealing with a container
-                        String container = configurationElement.container();
-                        if ( ( container != null ) && ( !"".equals( container ) ) )
-                        {
-                            // Creating the entry for the container and adding it to the list
-                            LdifEntry containerEntry = new LdifEntry();
-                            containerEntry.setDn( entry.getDn().add( new RDN( SchemaConstants.OU_AT, container ) ) );
-                            addObjectClassAttribute( schemaManager, containerEntry,
-                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-                            entries.add( containerEntry );
-
-                            if ( Collection.class.isAssignableFrom( fieldClass ) )
+                            // Checking if we're dealing with a container
+                            String container = configurationElement.container();
+                            if ( ( container != null ) && ( !"".equals( container ) ) )
                             {
-                                // Looping on the Collection's objects
-                                Collection<Object> collection = ( Collection<Object> ) fieldValue;
-                                for ( Object object : collection )
+                                // Creating the entry for the container and adding it to the list
+                                LdifEntry containerEntry = new LdifEntry();
+                                containerEntry.setDn( entry.getDn().add( new RDN( SchemaConstants.OU_AT, container ) ) );
+                                addObjectClassAttribute( schemaManager, containerEntry,
+                                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                                entries.add( containerEntry );
+
+                                if ( Collection.class.isAssignableFrom( fieldClass ) )
                                 {
-                                    if ( object instanceof AdsBaseBean )
+                                    // Looping on the Collection's objects
+                                    Collection<Object> collection = ( Collection<Object> ) fieldValue;
+                                    for ( Object object : collection )
                                     {
-                                        addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object, entries );
-                                        continue;
+                                        if ( object instanceof AdsBaseBean )
+                                        {
+                                            // Adding the bean
+                                            addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object,
+                                                entries, entry, attributeType );
+
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            // TODO throw an error, if we have a container, the type must be a subtype of AdsBaseBean
+                                            throw new Exception();
+                                        }
                                     }
-                                    else
-                                    {
-                                        // TODO throw an error, if we have a container, the type must be a subtype of AdsBaseBean
-                                    }
+                                }
+                                else
+                                {
+                                    // TODO throw an error, if we have a container, the type must be a subtype of Collection
+                                    throw new Exception();
                                 }
                             }
                             else
                             {
-                                // TODO throw an error, if we have a container, the type must be a subtype of Collection
+                                // Is it the field value used as RDN and do we need to insert a value in the parent entry?
+                                if ( ( configurationElement.isRDN() ) && ( parentEntry != null )
+                                    && ( attributeTypeForParentEntry != null ) )
+                                {
+                                    // Adding the field value to the parent entry
+                                    addAttributeTypeValues( attributeTypeForParentEntry, fieldValue, parentEntry );
+                                }
+
+                                // Adding values to the entry
+                                addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
+
+                                continue;
                             }
                         }
 
