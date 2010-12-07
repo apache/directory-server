@@ -536,8 +536,11 @@ public class KdcServer extends DirectoryBackedService
                 acceptor.dispose();
             }
         }
-        
-        replayCache.clear();
+
+        if ( replayCache != null )
+        {
+            replayCache.clear();
+        }
         
         LOG.info( "Kerberos service stopped." );
     }
