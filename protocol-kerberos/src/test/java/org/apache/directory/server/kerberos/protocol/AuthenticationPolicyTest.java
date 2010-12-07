@@ -28,6 +28,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
@@ -106,7 +107,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -145,7 +146,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -184,7 +185,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -223,7 +224,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -262,7 +263,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -304,7 +305,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -345,6 +346,6 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 }

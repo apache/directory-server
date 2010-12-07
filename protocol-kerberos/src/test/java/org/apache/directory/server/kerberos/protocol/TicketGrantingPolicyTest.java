@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -138,7 +139,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -189,7 +190,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -245,7 +246,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -296,7 +297,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -352,7 +353,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -408,7 +409,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -459,7 +460,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -510,7 +511,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -561,7 +562,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -605,7 +606,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -656,7 +657,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 
 
@@ -710,6 +711,6 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
+        assertEquals( "KDC policy rejects request", ErrorType.KDC_ERR_POLICY, error.getErrorCode() );
     }
 }

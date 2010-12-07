@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
@@ -110,7 +111,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KrbError error = ( KrbError ) session.getMessage();
 
-        assertEquals( "Additional pre-authentication required", 25, error.getErrorCode() );
+        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
     }
 
 
@@ -135,7 +136,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested protocol version number not supported", 3, error.getErrorCode() );
+        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO, error.getErrorCode() );
     }
 
 
@@ -190,7 +191,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Client not found in Kerberos database", 6, error.getErrorCode() );
+        assertEquals( "Client not found in Kerberos database", ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN, error.getErrorCode() );
     }
 
 
@@ -241,7 +242,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC has no support for encryption type", 14, error.getErrorCode() );
+        assertEquals( "KDC has no support for encryption type", ErrorType.KDC_ERR_ETYPE_NOSUPP, error.getErrorCode() );
     }
 
 
@@ -277,7 +278,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Server not found in Kerberos database", 7, error.getErrorCode() );
+        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN, error.getErrorCode() );
     }
 
 
@@ -302,7 +303,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
+        assertEquals( "The client or server has a null key", ErrorType.KDC_ERR_NULL_KEY, error.getErrorCode() );
     }
 
 
@@ -339,7 +340,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
+        assertEquals( "The client or server has a null key", ErrorType.KDC_ERR_NULL_KEY, error.getErrorCode() );
     }
 
 
@@ -559,7 +560,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
     }
 
 
@@ -610,7 +611,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
     }
 
 
@@ -660,7 +661,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Ticket not eligible for postdating", 10, error.getErrorCode() );
+        assertEquals( "Ticket not eligible for postdating", ErrorType.KDC_ERR_CANNOT_POSTDATE, error.getErrorCode() );
     }
 
 
@@ -1328,7 +1329,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 
 
@@ -1373,7 +1374,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 
 
@@ -1418,7 +1419,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 
 
@@ -1463,7 +1464,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 
 
@@ -1508,6 +1509,6 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 }

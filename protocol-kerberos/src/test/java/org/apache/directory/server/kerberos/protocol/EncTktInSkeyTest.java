@@ -34,6 +34,7 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
@@ -145,6 +146,6 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 }
