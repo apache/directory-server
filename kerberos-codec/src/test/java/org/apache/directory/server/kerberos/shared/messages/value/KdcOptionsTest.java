@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 public class KdcOptionsTest
 {
     private static final byte[] fpriOptions =
-        { ( byte ) 0x50, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x10 };
+        { 0x00, ( byte ) 0x50, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x10 };
 
 
     /**

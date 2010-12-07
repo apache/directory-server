@@ -169,8 +169,9 @@ public class EncryptionKeyTest
 
         // long t0 = System.currentTimeMillis();
 
-        //for ( int i = 0; i < 10000000; i++ )
+        for ( int i = 0; i < 10000000; i++ )
         {
+            buffer.flip();
             ec.encode( buffer );
         }
 
