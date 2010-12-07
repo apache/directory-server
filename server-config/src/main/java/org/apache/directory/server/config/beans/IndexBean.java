@@ -19,8 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the IndexBean configuration. It can't be instanciated
@@ -30,16 +31,17 @@ import org.apache.directory.server.config.RDN;
 public abstract class IndexBean extends AdsBaseBean
 {
     /** The index unique identifier */
-    @AttributeType("ads-indexAttributeId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-indexAttributeId", isRDN = true)
     private String indexAttributeId;
-    
+
+
     /**
      * Create a new IndexBean instance
      */
     protected IndexBean()
     {
     }
+
 
     /**
      * @return the indexAttributeId
@@ -49,7 +51,7 @@ public abstract class IndexBean extends AdsBaseBean
         return indexAttributeId;
     }
 
-    
+
     /**
      * @param indexAttributeId the indexAttributeId to set
      */
@@ -57,22 +59,22 @@ public abstract class IndexBean extends AdsBaseBean
     {
         this.indexAttributeId = indexAttributeId;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  indexed attribute ID : " ).append( indexAttributeId ).append( '\n' );
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

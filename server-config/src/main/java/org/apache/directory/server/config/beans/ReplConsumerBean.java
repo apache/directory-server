@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -32,49 +32,49 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The consumer id */
-    @AttributeType("ads-replConsumerId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-replConsumerId", isRDN = true)
     private String replConsumerId;
-    
+
     /** The replication unique ID */
-    @AttributeType("ads-dsReplicaId")
+    @ConfigurationElement(attributeType = "ads-dsReplicaId")
     private String dsReplicaId;
-    
+
     /** The Alias Dereferencing mode */
-    @AttributeType("ads-replAliasDerefMode")
+    @ConfigurationElement(attributeType = "ads-replAliasDerefMode")
     private String replAliasDerefMode;
-    
+
     /** The Search Base DN */
-    @AttributeType("ads-searchBaseDN")
+    @ConfigurationElement(attributeType = "ads-searchBaseDN")
     private DN searchBaseDN;
-    
+
     /** The last CSN sent */
-    @AttributeType("ads-replLastSentCsn")
+    @ConfigurationElement(attributeType = "ads-replLastSentCsn")
     private String replLastSentCsn;
-    
+
     /** The search scope */
-    @AttributeType("ads-replSearchScope")
+    @ConfigurationElement(attributeType = "ads-replSearchScope")
     private String replSearchScope;
-    
+
     /** The replication search filter */
-    @AttributeType("ads-replSearchFilter")
+    @ConfigurationElement(attributeType = "ads-replSearchFilter")
     private String replSearchFilter;
-    
+
     /** Tells if we should persist */
-    @AttributeType("ads-replRefreshNPersist")
+    @ConfigurationElement(attributeType = "ads-replRefreshNPersist")
     private boolean replRefreshNPersist;
-    
+
     /** Tells if TLS should be used during replication */
-    @AttributeType("ads-replUseTls")
+    @ConfigurationElement(attributeType = "ads-replUseTls")
     private boolean replUseTls;
-    
+
     /** Tells if the certificate validation should be strict or not */
-    @AttributeType("ads-replStrictCertValidation")
+    @ConfigurationElement(attributeType = "ads-replStrictCertValidation")
     private boolean replStrictCertValidation;
-    
+
     /** The peer certificate */
-    @AttributeType("ads-replPeerCertificate")
+    @ConfigurationElement(attributeType = "ads-replPeerCertificate")
     private String replPeerCertificate;
+
 
     /**
      * Create a new Replication Consumer instance
@@ -82,12 +82,12 @@ public class ReplConsumerBean extends AdsBaseBean
     public ReplConsumerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
 
-    
+
     /**
      * @return the replConsumerId
      */
@@ -105,7 +105,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replConsumerId = replConsumerId;
     }
 
-    
+
     /**
      * @return the dsreplicaid
      */
@@ -114,7 +114,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return dsReplicaId;
     }
 
-    
+
     /**
      * @param dsreplicaid the dsreplicaid to set
      */
@@ -123,7 +123,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.dsReplicaId = dsreplicaid;
     }
 
-    
+
     /**
      * @return the replAliasDerefMode
      */
@@ -132,7 +132,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replAliasDerefMode;
     }
 
-    
+
     /**
      * @param replAliasDerefMode the replAliasDerefMode to set
      */
@@ -141,7 +141,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replAliasDerefMode = replAliasDerefMode;
     }
 
-    
+
     /**
      * @return the searchBaseDN
      */
@@ -150,7 +150,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return searchBaseDN;
     }
 
-    
+
     /**
      * @param searchBaseDN the searchBaseDN to set
      */
@@ -159,7 +159,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.searchBaseDN = searchBaseDN;
     }
 
-    
+
     /**
      * @return the replLastSentCsn
      */
@@ -168,7 +168,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replLastSentCsn;
     }
 
-    
+
     /**
      * @param replLastSentCsn the replLastSentCsn to set
      */
@@ -177,7 +177,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replLastSentCsn = replLastSentCsn;
     }
 
-    
+
     /**
      * @return the replSearchScope
      */
@@ -186,7 +186,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replSearchScope;
     }
 
-    
+
     /**
      * @param replSearchScope the replSearchScope to set
      */
@@ -195,7 +195,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replSearchScope = replSearchScope;
     }
 
-    
+
     /**
      * @return the replSearchFilter
      */
@@ -204,7 +204,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replSearchFilter;
     }
 
-    
+
     /**
      * @param replSearchFilter the replSearchFilter to set
      */
@@ -213,7 +213,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replSearchFilter = replSearchFilter;
     }
 
-    
+
     /**
      * @return the replRefreshNPersist
      */
@@ -222,7 +222,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replRefreshNPersist;
     }
 
-    
+
     /**
      * @param replRefreshNPersist the replRefreshNPersist to set
      */
@@ -231,7 +231,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replRefreshNPersist = replRefreshNPersist;
     }
 
-    
+
     /**
      * @return the replUseTls
      */
@@ -240,7 +240,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replUseTls;
     }
 
-    
+
     /**
      * @param replUseTls the replUseTls to set
      */
@@ -249,7 +249,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replUseTls = replUseTls;
     }
 
-    
+
     /**
      * @return the replStrictCertValidation
      */
@@ -258,7 +258,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replStrictCertValidation;
     }
 
-    
+
     /**
      * @param replStrictCertValidation the replStrictCertValidation to set
      */
@@ -267,7 +267,7 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replStrictCertValidation = replStrictCertValidation;
     }
 
-    
+
     /**
      * @return the replPeerCertificate
      */
@@ -276,7 +276,7 @@ public class ReplConsumerBean extends AdsBaseBean
         return replPeerCertificate;
     }
 
-    
+
     /**
      * @param replPeerCertificate the replPeerCertificate to set
      */
@@ -285,14 +285,14 @@ public class ReplConsumerBean extends AdsBaseBean
         this.replPeerCertificate = replPeerCertificate;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "Replication consumer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
@@ -311,8 +311,8 @@ public class ReplConsumerBean extends AdsBaseBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

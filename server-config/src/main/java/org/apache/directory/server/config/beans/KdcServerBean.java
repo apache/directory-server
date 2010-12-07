@@ -19,12 +19,14 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the KdcServer configuration.
@@ -70,56 +72,57 @@ public class KdcServerBean extends DSBasedServerBean
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
     /** The allowable clock skew. */
-    @AttributeType("ads-krbAllowableClockSkew")
+    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")
     private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
 
     /** Whether empty addresses are allowed. */
-    @AttributeType("ads-krbEmptyAddressesAllowed")
+    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed")
     private boolean krbEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
 
     /** Whether forwardable addresses are allowed. */
-    @AttributeType("ads-krbForwardableAllowed")
+    @ConfigurationElement(attributeType = "ads-krbForwardableAllowed")
     private boolean krbForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
 
     /** Whether pre-authentication by encrypted timestamp is required. */
-    @AttributeType("ads-krbPAEncTimestampRequired")
+    @ConfigurationElement(attributeType = "ads-krbPAEncTimestampRequired")
     private boolean krbPAEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
 
     /** Whether postdated tickets are allowed. */
-    @AttributeType("ads-krbPostdatedAllowed")
+    @ConfigurationElement(attributeType = "ads-krbPostdatedAllowed")
     private boolean krbPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether proxiable addresses are allowed. */
-    @AttributeType("ads-krbProxiableAllowed")
+    @ConfigurationElement(attributeType = "ads-krbProxiableAllowed")
     private boolean krbProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
-    @AttributeType("ads-krbRenewableAllowed")
+    @ConfigurationElement(attributeType = "ads-krbRenewableAllowed")
     private boolean krbRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
     /** The maximum renewable lifetime. */
-    @AttributeType("ads-krbMaximumRenewableLifetime")
+    @ConfigurationElement(attributeType = "ads-krbMaximumRenewableLifetime")
     private long krbMaximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
 
     /** The maximum ticket lifetime. */
-    @AttributeType("ads-krbMaximumTicketLifetime")
+    @ConfigurationElement(attributeType = "ads-krbMaximumTicketLifetime")
     private long krbMaximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
 
     /** The primary realm */
-    @AttributeType("ads-krbPrimaryRealm")
+    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm")
     private String krbPrimaryRealm = DEFAULT_REALM;
 
     /** Whether to verify the body checksum. */
-    @AttributeType("ads-krbBodyChecksumVerified")
+    @ConfigurationElement(attributeType = "ads-krbBodyChecksumVerified")
     private boolean krbBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    @AttributeType("ads-krbEncryptionTypes")
+    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes")
     private List<String> krbEncryptionTypes = new ArrayList<String>();
 
     /** The service principal name. */
-    @AttributeType("ads-krbKdcPrincipal")
+    @ConfigurationElement(attributeType = "ads-krbKdcPrincipal")
     private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
+
 
     /**
      * Create a new KdcServerBean instance
@@ -127,12 +130,12 @@ public class KdcServerBean extends DSBasedServerBean
     public KdcServerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
-    
-    
+
+
     /**
      * Returns the allowable clock skew.
      *
@@ -171,7 +174,7 @@ public class KdcServerBean extends DSBasedServerBean
      */
     public void addKrbEncryptionTypes( String... krbEncryptionTypes )
     {
-        for ( String encryptionType:krbEncryptionTypes )
+        for ( String encryptionType : krbEncryptionTypes )
         {
             this.krbEncryptionTypes.add( encryptionType );
         }
@@ -381,14 +384,14 @@ public class KdcServerBean extends DSBasedServerBean
         this.krbKdcPrincipal = krbKdcPrincipal;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "KDCServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
         sb.append( toString( tabs, "  body checksum verified", krbBodyChecksumVerified ) );
@@ -407,17 +410,17 @@ public class KdcServerBean extends DSBasedServerBean
         if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() > 0 ) )
         {
             sb.append( tabs ).append( "  encryption types :\n" );
-            
+
             for ( String encryptionType : krbEncryptionTypes )
             {
                 sb.append( toString( tabs, "    encryption type", encryptionType ) );
             }
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

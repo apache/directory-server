@@ -20,7 +20,6 @@
 package org.apache.directory.server.config.beans;
 
 
-import org.apache.directory.server.config.AttributeType;
 import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -34,11 +33,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public abstract class AdsBaseBean
 {
     /** The enabled flag */
-    @AttributeType("ads-enabled")
+    @ConfigurationElement(attributeType = "ads-enabled")
     private boolean enabled = false;
 
     /** The description */
-    @AttributeType("description")
+    @ConfigurationElement(attributeType = "description")
     private String description;
 
 

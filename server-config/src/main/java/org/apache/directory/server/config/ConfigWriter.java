@@ -20,21 +20,21 @@
 package org.apache.directory.server.config;
 
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -48,150 +48,210 @@ public class ConfigWriter
     public static void writeConfiguration( SchemaManager schemaManager, ConfigBean configBean, String file )
         throws Exception
     {
-        // The default configuration location is 'ou=config'
-        DN dn = new DN( "ou=config" );
-
+        // Creating a list to store the created entries
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
+        // Building the default config root entry 'ou=config'
+        LdifEntry configRootEntry = new LdifEntry();
+        configRootEntry.setDn( new DN( SchemaConstants.OU_AT + "=" + "config" ) );
+        addObjectClassAttribute( schemaManager, configRootEntry, "organizationalUnit" );
+        addAttributeTypeValues( SchemaConstants.OU_AT, "config", configRootEntry );
+        entries.add( configRootEntry );
+
+        // Building entries from the directory service beans
         List<AdsBaseBean> directoryServiceBeans = configBean.getDirectoryServiceBeans();
         for ( AdsBaseBean adsBaseBean : directoryServiceBeans )
         {
-            addBean( dn, schemaManager, adsBaseBean, entries );
+            addBean( configRootEntry.getDn(), schemaManager, adsBaseBean, entries );
         }
 
         System.out.println( entries );
+        System.out.println( entries.size() );
+    }
+
+
+    private static void addObjectClassAttribute( SchemaManager schemaManager, LdifEntry entry, String objectClass )
+        throws LdapException
+    {
+        ObjectClass objectClassObject = schemaManager.getObjectClassRegistry().lookup( objectClass );
+        if ( objectClassObject != null )
+        {
+            // Building the list of 'objectClass' attribute values
+            List<String> objectClassAttributeValues = new ArrayList<String>();
+            computeObjectClassAttributeValues( schemaManager, objectClassAttributeValues, objectClassObject );
+
+            // Adding values to the entry
+            addAttributeTypeValues( SchemaConstants.OBJECT_CLASS_AT, objectClassAttributeValues, entry );
+        }
+        else
+        {
+            // TODO: throw an exception 
+        }
+    }
+
+
+    private static void computeObjectClassAttributeValues( SchemaManager schemaManager,
+        List<String> objectClassAttributeValues,
+        ObjectClass objectClass ) throws LdapException
+    {
+        ObjectClass topObjectClass = schemaManager.getObjectClassRegistry().lookup( SchemaConstants.TOP_OC );
+        if ( topObjectClass != null )
+        {
+            // TODO throw new exception (there should be a top object class 
+        }
+
+        if ( topObjectClass.equals( objectClass ) )
+        {
+            objectClassAttributeValues.add( objectClass.getName() );
+        }
+        else
+        {
+            objectClassAttributeValues.add( objectClass.getName() );
+
+            List<ObjectClass> superiors = objectClass.getSuperiors();
+            if ( ( superiors != null ) && ( superiors.size() > 0 ) )
+            {
+                for ( ObjectClass superior : superiors )
+                {
+                    computeObjectClassAttributeValues( schemaManager, objectClassAttributeValues, superior );
+                }
+            }
+            else
+            {
+                objectClassAttributeValues.add( topObjectClass.getName() );
+            }
+        }
     }
 
 
     private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
         throws Exception
     {
-        // Creating the entry to hold the bean and adding it to the list
-        LdifEntry entry = new LdifEntry();
-        entries.add( entry );
-        entry.setDn( getDn( rootDn, bean ) );
-
-        // Getting the class of the bean
-        Class<?> beanClass = bean.getClass();
-
-        // A flag to know when we reached the 'AdsBaseBean' class when 
-        // looping on the class hierarchy of the bean
-        boolean adsBaseBeanClassFound = false;
-
-        // Looping until the 'AdsBaseBean' class has been found
-        while ( !adsBaseBeanClassFound )
+        if ( bean != null )
         {
-            // Checking if we reached the 'AdsBaseBean' class
-            if ( beanClass == AdsBaseBean.class )
+            // Getting the class of the bean
+            Class<?> beanClass = bean.getClass();
+
+            // Creating the entry to hold the bean and adding it to the list
+            LdifEntry entry = new LdifEntry();
+            entry.setDn( getDn( rootDn, bean ) );
+            addObjectClassAttribute( schemaManager, entry, getObjectClassNameForBean( beanClass ) );
+            entries.add( entry );
+
+            // A flag to know when we reached the 'AdsBaseBean' class when 
+            // looping on the class hierarchy of the bean
+            boolean adsBaseBeanClassFound = false;
+
+            // Looping until the 'AdsBaseBean' class has been found
+            while ( !adsBaseBeanClassFound )
             {
-                adsBaseBeanClassFound = true;
-            }
-
-            // Looping on all fields of the bean
-            Field[] fields = beanClass.getDeclaredFields();
-            for ( Field field : fields )
-            {
-                // Making the field accessible (we get an exception if we don't do that)
-                field.setAccessible( true );
-
-                // Getting the class of the field
-                Class<?> fieldClass = field.getType();
-
-                // Looking for the @AttributeType annotation
-                AttributeType attributeTypeAnnotation = field.getAnnotation( AttributeType.class );
-                if ( attributeTypeAnnotation != null )
+                // Checking if we reached the 'AdsBaseBean' class
+                if ( beanClass == AdsBaseBean.class )
                 {
-                    System.out.println( fieldClass.getName() + " " + attributeTypeAnnotation.value() + " "
-                        + field.get( bean ) );
-                    addPrimaryTypeFieldValue( attributeTypeAnnotation.value(), field.get( bean ), entry );
-                    continue;
+                    adsBaseBeanClassFound = true;
                 }
 
-                // Looking for the @Container annotation
-                Container containerAnnotation = field.getAnnotation( Container.class );
-                if ( containerAnnotation != null )
+                // Looping on all fields of the bean
+                Field[] fields = beanClass.getDeclaredFields();
+                for ( Field field : fields )
                 {
-                    DN containerDN = entry.getDn().add(
-                        new org.apache.directory.shared.ldap.name.RDN( containerAnnotation.value() ) );
+                    // Making the field accessible (we get an exception if we don't do that)
+                    field.setAccessible( true );
 
-                    if ( Collection.class.isAssignableFrom( fieldClass ) )
+                    // Getting the class of the field
+                    Class<?> fieldClass = field.getType();
+                    Object fieldValue = field.get( bean );
+
+                    // Looking for the @ConfigurationElement annotation
+                    ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
+                    if ( configurationElement != null )
                     {
-                        // Looping on the Collection's objects
-                        Collection<Object> collection = ( Collection<Object> ) field.get( bean );
-                        for ( Object object : collection )
+                        // Checking if we're dealing with an attribute type
+                        String attributeType = configurationElement.attributeType();
+                        if ( ( attributeType != null ) && ( !"".equals( attributeType ) ) )
                         {
-                            if ( object instanceof AdsBaseBean )
+                            addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
+                            continue;
+                        }
+
+                        // Checking if we're dealing with a container
+                        String container = configurationElement.container();
+                        if ( ( container != null ) && ( !"".equals( container ) ) )
+                        {
+                            DN containerDN = entry.getDn().add( container );
+
+                            if ( Collection.class.isAssignableFrom( fieldClass ) )
                             {
-                                addBean( containerDN, schemaManager, ( AdsBaseBean ) object, entries );
+                                // Looping on the Collection's objects
+                                Collection<Object> collection = ( Collection<Object> ) fieldValue;
+                                for ( Object object : collection )
+                                {
+                                    if ( object instanceof AdsBaseBean )
+                                    {
+                                        addBean( containerDN, schemaManager, ( AdsBaseBean ) object, entries );
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        // TODO throw an error, if we have a container, the type must be a subtype of AdsBaseBean
+                                    }
+                                }
                             }
                             else
                             {
-                                AttributeType attributeType = field.getAnnotation( AttributeType.class );
-                                if ( attributeType != null )
-                                {
-                                    System.out.println( fieldClass.getName() + " " + attributeType.value() + " "
-                                                            + field.get( bean ) );
-                                    addPrimaryTypeFieldValue( attributeType.value(), object, entry );
-                                }
+                                // TODO throw an error, if we have a container, the type must be a subtype of Collection
                             }
                         }
-                    }
-                    else
-                    {
-                        // TODO throw an error, if we have a container, the type must be a subtype of Collection
-                    }
 
+                        // Checking if we're dealing with a AdsBaseBean subclass type
+                        if ( AdsBaseBean.class.isAssignableFrom( fieldClass ) )
+                        {
+                            addBean( entry.getDn(), schemaManager, ( AdsBaseBean ) fieldValue, entries );
+                            continue;
+                        }
+                    }
                 }
 
-                //                // Is the field a Collection object
-                //                if ( Collection.class.isAssignableFrom( fieldClass ) )
-                //                {
-                //                    // Looping on the Collection's objects
-                //                    Collection<Object> collection = ( Collection<Object> ) field.get( bean );
-                //                    for ( Object object : collection )
-                //                    {
-                //                        if ( object instanceof AdsBaseBean )
-                //                        {
-                //                            addBean( entry.getDn(), schemaManager, ( AdsBaseBean ) object, entries );
-                //                        }
-                //                        else
-                //                        {
-                //                            AttributeType attributeType = field.getAnnotation( AttributeType.class );
-                //                            if ( attributeType != null )
-                //                            {
-                //                                System.out.println( fieldClass.getName() + " " + attributeType.value() + " "
-                //                                    + field.get( bean ) );
-                //                                addPrimaryTypeFieldValue( attributeType.value(), object, entry );
-                //                            }
-                //                        }
-                //                    }
-                //                }
-                //                else if ( AdsBaseBean.class.isAssignableFrom( fieldClass ) )
-                //                {
-                //                    AdsBaseBean newBean = ( AdsBaseBean ) field.get( bean );
-                //                    if ( newBean != null )
-                //                    {
-                //                        addBean( entry.getDn(), schemaManager, newBean, entries );
-                //                    }
-                //                }
-                //                else
-                //                {
-                //                    AttributeType attributeType = field.getAnnotation( AttributeType.class );
-                //                    if ( attributeType != null )
-                //                    {
-                //                        System.out.println( fieldClass.getName() + " " + attributeType.value() + " "
-                //                            + field.get( bean ) );
-                //                        String attributeTypeId = attributeType.value();
-                //
-                //                        addPrimaryTypeFieldValue( attributeTypeId, field.get( bean ), entry );
-                //
-                //                    }
-                //                }
+                // Moving to the upper class in the class hierarchy
+                beanClass = beanClass.getSuperclass();
             }
-
-            // Moving to the upper class in the class hierarchy
-            beanClass = beanClass.getSuperclass();
         }
+    }
+
+
+    private static String getObjectClassNameForBean( Class<?> c )
+    {
+        String classNameWithPackage = getClassNameWithoutPackage( c );
+        return "ads-" + classNameWithPackage.substring( 0, classNameWithPackage.length() - 4 );
+    }
+
+
+    private static String getClassNameWithoutPackage( Class<?> c )
+    {
+        String className = c.getName();
+
+        int firstChar = className.lastIndexOf( '.' ) + 1;
+        if ( firstChar > 0 )
+        {
+            return className.substring( firstChar );
+        }
+
+        return className;
+    }
+
+
+    /**
+     * Indicates the given type is multiple.
+     *
+     * @param clazz
+     *      the class
+     * @return
+     *      <code>true</code> if the given is multiple,
+     *      <code>false</code> if not.
+     */
+    private static boolean isMultiple( Class<?> clazz )
+    {
+        return Collection.class.isAssignableFrom( clazz );
     }
 
 
@@ -234,20 +294,13 @@ public class ConfigWriter
                 // Making the field accessible (we get an exception if we don't do that)
                 field.setAccessible( true );
 
-                // Looking for the AttributeType annotation 
-                AttributeType attributeTypeAnnotation = field.getAnnotation( AttributeType.class );
-                if ( attributeTypeAnnotation != null )
+                // Looking for the @ConfigurationElement annotation and
+                // if the field is the RDN
+                ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
+                if ( ( configurationElement != null ) && ( configurationElement.isRDN() ) )
                 {
-                    String attributeTypeId = attributeTypeAnnotation.value();
-
-                    // Looking for the RDN annotation         
-                    RDN rdnAnnotation = field.getAnnotation( RDN.class );
-                    if ( rdnAnnotation != null )
-                    {
-                        // Getting the value from the entry
-                        return baseDN.add( new org.apache.directory.shared.ldap.name.RDN(
-                            attributeTypeId, field.get( bean ).toString() ) );
-                    }
+                    return baseDN.add( new org.apache.directory.shared.ldap.name.RDN(
+                        configurationElement.attributeType(), field.get( bean ).toString() ) );
                 }
             }
 
@@ -260,7 +313,7 @@ public class ConfigWriter
 
 
     /**
-     * Adds a primary type (String, int, long, boolean, byte[] ) field value to the given entry.
+     * Adds values for an attribute type to the given entry.
      *
      * @param attributeType
      *      the attribute type
@@ -270,11 +323,11 @@ public class ConfigWriter
      *      the entry
      * @throws LdapException
      */
-    private static void addPrimaryTypeFieldValue( String attributeType, Object value, LdifEntry entry )
+    private static void addAttributeTypeValues( String attributeType, Object o, LdifEntry entry )
         throws LdapException
     {
         // We don't store a 'null' value
-        if ( value != null )
+        if ( o != null )
         {
             // Getting the attribute from the entry
             EntryAttribute attribute = entry.get( attributeType );
@@ -286,6 +339,42 @@ public class ConfigWriter
                 entry.addAttribute( attribute );
             }
 
+            // Is the value multiple?
+            if ( isMultiple( o.getClass() ) )
+            {
+                // Adding each single value separately
+                Collection<?> values = ( Collection<?> ) o;
+                if ( values != null )
+                {
+                    for ( Object value : values )
+                    {
+                        addAttributeTypeValue( attribute, value );
+                    }
+                }
+            }
+            else
+            {
+                // Adding the single value
+                addAttributeTypeValue( attribute, o );
+            }
+        }
+    }
+
+
+    /**
+     * Adds a value, either byte[] or another type (converted into a String 
+     * via the Object.toString() method), to the attribute.
+     *
+     * @param attribute
+     *      the attribute
+     * @param value
+     *      the value
+     */
+    private static void addAttributeTypeValue( EntryAttribute attribute, Object value )
+    {
+        // We don't store a 'null' value
+        if ( value != null )
+        {
             // Storing the value to the attribute
             if ( value instanceof byte[] )
             {

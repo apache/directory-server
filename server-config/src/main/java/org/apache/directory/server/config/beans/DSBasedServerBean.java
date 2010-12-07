@@ -19,7 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
+
+import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -36,8 +37,9 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    @AttributeType("ads-searchBaseDN")
+    @ConfigurationElement(attributeType = "ads-searchBaseDN")
     private DN searchBaseDN;
+
 
     /**
      * Create a new JournalBean instance
@@ -45,7 +47,6 @@ public class DSBasedServerBean extends ServerBean
     public DSBasedServerBean()
     {
     }
-    
 
 
     /**
@@ -66,22 +67,22 @@ public class DSBasedServerBean extends ServerBean
     {
         this.searchBaseDN = searchBaseDn;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( super.toString( tabs ) );
         sb.append( toString( tabs, "searchBaseDN", searchBaseDN ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

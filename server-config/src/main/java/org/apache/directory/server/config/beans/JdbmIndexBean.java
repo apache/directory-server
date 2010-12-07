@@ -19,7 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
+
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -31,7 +32,7 @@ public class JdbmIndexBean<K, E> extends IndexBean
 {
     /** The default cache size */
     private static final int DEFAULT_INDEX_CACHE_SIZE = 100;
-    
+
     /** default duplicate limit before duplicate keys switch to using a btree for values */
     private static final int DEFAULT_DUPLICATE_LIMIT = 512;
 
@@ -40,14 +41,15 @@ public class JdbmIndexBean<K, E> extends IndexBean
 
     /** duplicate limit before duplicate keys switch to using a btree for values */
     private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
-    
+
     /** The index file name */
-    @AttributeType("ads-indexFileName")
+    @ConfigurationElement(attributeType = "ads-indexFileName")
     private String indexFileName;
-    
+
     /** The index working directory */
-    @AttributeType("ads-indexWorkingDir")
+    @ConfigurationElement(attributeType = "ads-indexWorkingDir")
     private String indexWorkingDir;
+
 
     /**
      * Create a new JdbmIndexBean instance
@@ -137,26 +139,26 @@ public class JdbmIndexBean<K, E> extends IndexBean
     {
         this.indexWorkingDir = indexWorkingDir;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "JdbmIndexBean :\n" );
         sb.append( super.toString( tabs ) );
         sb.append( toString( tabs, "  index file name", indexFileName ) );
         sb.append( toString( tabs, "  index working directory", indexWorkingDir ) );
         sb.append( toString( tabs, "  index cache size", indexCacheSize ) );
         sb.append( toString( tabs, "  index num dup limit", indexNumDupLimit ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

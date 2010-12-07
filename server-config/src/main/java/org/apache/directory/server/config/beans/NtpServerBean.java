@@ -33,26 +33,26 @@ public class NtpServerBean extends ServerBean
     public NtpServerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "NtpServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

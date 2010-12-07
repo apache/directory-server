@@ -19,8 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the Transport configuration.
@@ -31,35 +32,35 @@ public class TransportBean extends AdsBaseBean
 {
     /** The default backlog queue size */
     private static final int DEFAULT_BACKLOG_NB = 50;
-    
+
     /** The default number of threads */
     private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
-    @AttributeType("ads-transportId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-transportId", isRDN = true)
     private String transportId;
-    
+
     /** The transport address */
-    @AttributeType("ads-transportAddress")
+    @ConfigurationElement(attributeType = "ads-transportAddress")
     private String transportAddress;
-    
+
     /** The port number */
-    @AttributeType("ads-systemPort")
+    @ConfigurationElement(attributeType = "ads-systemPort")
     private int systemPort = -1;
-    
+
     /** A flag set if SSL is enabled */
-    @AttributeType("ads-transportEnableSsl")
+    @ConfigurationElement(attributeType = "ads-transportEnableSsl")
     private boolean transportEnableSsl = false;
-    
+
     /** The number of threads to use for the IoAcceptor executor */
-    @AttributeType("ads-transportNbThreads")
+    @ConfigurationElement(attributeType = "ads-transportNbThreads")
     private int transportNbThreads = DEFAULT_NB_THREADS;
-    
+
     /** The backlog for the transport services */
-    @AttributeType("ads-transportBackLog")
+    @ConfigurationElement(attributeType = "ads-transportBackLog")
     private int transportBackLog = DEFAULT_BACKLOG_NB;
-    
+
+
     /**
      * Create a new TransportBean instance
      */
@@ -67,41 +68,43 @@ public class TransportBean extends AdsBaseBean
     {
     }
 
-    
+
     /**
      * @param systemPort the port to set
      */
-    public void setSystemPort( int systemPort ) 
+    public void setSystemPort( int systemPort )
     {
         this.systemPort = systemPort;
     }
 
-    
+
     /**
      * @return the port
      */
-    public int getSystemPort() 
+    public int getSystemPort()
     {
         return systemPort;
     }
 
-    
+
     /**
      * @param transportAddress the address to set
      */
-    public void setTransportAddress( String transportAddress ) {
+    public void setTransportAddress( String transportAddress )
+    {
         this.transportAddress = transportAddress;
     }
 
-    
+
     /**
      * @return the address
      */
-    public String getTransportAddress() {
+    public String getTransportAddress()
+    {
         return transportAddress;
     }
-    
-    
+
+
     /**
      * @return <code>true</code> id SSL is enabled for this transport
      */
@@ -109,8 +112,8 @@ public class TransportBean extends AdsBaseBean
     {
         return transportEnableSsl;
     }
-    
-    
+
+
     /**
      * Enable or disable SSL
      * 
@@ -120,17 +123,17 @@ public class TransportBean extends AdsBaseBean
     {
         this.transportEnableSsl = transportEnableSSL;
     }
-    
-    
+
+
     /**
      * @return The number of threads used to handle the incoming requests
      */
-    public int getTransportNbThreads() 
+    public int getTransportNbThreads()
     {
         return transportNbThreads;
     }
-    
-    
+
+
     /**
      * Sets the number of thread to use to process incoming requests
      * 
@@ -140,8 +143,8 @@ public class TransportBean extends AdsBaseBean
     {
         this.transportNbThreads = transportNbThreads;
     }
-    
-    
+
+
     /**
      * @return the size of the incoming request waiting queue
      */
@@ -149,8 +152,8 @@ public class TransportBean extends AdsBaseBean
     {
         return transportBackLog;
     }
-    
-    
+
+
     /**
      * Sets the size of the incoming requests waiting queue
      * 
@@ -178,18 +181,18 @@ public class TransportBean extends AdsBaseBean
     {
         this.transportId = transportId;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( toString( tabs, "transport id", transportId ) );
         sb.append( tabs ).append( "transport address : " );
-        
+
         if ( transportAddress == null )
         {
             sb.append( "localhost" ).append( '\n' );
@@ -206,8 +209,8 @@ public class TransportBean extends AdsBaseBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

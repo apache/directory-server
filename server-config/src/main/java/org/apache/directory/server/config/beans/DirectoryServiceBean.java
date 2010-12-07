@@ -23,9 +23,7 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.Container;
-import org.apache.directory.server.config.RDN;
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -36,61 +34,63 @@ import org.apache.directory.server.config.RDN;
 public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
-    @AttributeType("ads-directoryServiceId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-directoryServiceId", isRDN = true)
     private String directoryServiceId;
 
     /** The directory instance replication ID */
-    @AttributeType("ads-dsReplicaId")
+    @ConfigurationElement(attributeType = "ads-dsReplicaId")
     private int dsReplicaId;
 
     /** The flag that tells if the AccessControl system is activated */
-    @AttributeType("ads-dsAccessControlEnabled")
+    @ConfigurationElement(attributeType = "ads-dsAccessControlEnabled")
     private boolean dsAccessControlEnabled = true;
 
     /** The flag that tells if Anonymous connections are allowed */
-    @AttributeType("ads-dsAllowAnonymousAccess")
+    @ConfigurationElement(attributeType = "ads-dsAllowAnonymousAccess")
     private boolean dsAllowAnonymousAccess = false;
 
     /** The flag that tells if DN must be denormalized */
-    @AttributeType("dsDenormalizeOpAttrsEnabled")
+    @ConfigurationElement(attributeType = "dsDenormalizeOpAttrsEnabled")
     private boolean dsDenormalizeOpAttrsEnabled = true;
 
     /** The maximum size of an incoming PDU */
-    @AttributeType("ads-dsMaxPDUSize")
+    @ConfigurationElement(attributeType = "ads-dsMaxPDUSize")
     private int dsMaxPDUSize = 2048;
 
     /** The flag that tells if the password should be returned as a normal attribute or not */
-    @AttributeType("ads-dsPasswordHidden")
+    @ConfigurationElement(attributeType = "ads-dsPasswordHidden")
     private boolean dsPasswordHidden = false;
 
     /** The delay between two flushes on disk */
-    @AttributeType("ads-dsSyncPeriodMillis")
+    @ConfigurationElement(attributeType = "ads-dsSyncPeriodMillis")
     private long dsSyncPeriodMillis = 15000L;
 
     /** The ldif entries to inject into the server at startup */
-    @AttributeType("dsTestEntries")
+    @ConfigurationElement(attributeType = "dsTestEntries")
     private String dsTestEntries;
 
     /** The ChangeLog component */
+    @ConfigurationElement
     private ChangeLogBean changeLog;
 
     /** The journal component */
+    @ConfigurationElement
     private JournalBean journal;
 
     /** The servers */
-    @Container( "ou=servers" )
+    @ConfigurationElement(container = "ou=servers")
     private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
-    @Container( "ou=interceptors" )
+    @ConfigurationElement(container = "ou=interceptors")
     private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
-    @Container( "ou=partitions" )
+    @ConfigurationElement(container = "ou=partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
+    @ConfigurationElement
     private PasswordPolicyBean passwordPolicy;
 
 

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 /**
  * A class used to store the UDP Transport configuration.
  *
@@ -33,17 +34,17 @@ public class UdpTransportBean extends TransportBean
     {
         super();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
-        return tabs + "UDP transport : \n" + super.toString( "  " + tabs);
+        return tabs + "UDP transport : \n" + super.toString( "  " + tabs );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

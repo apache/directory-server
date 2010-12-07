@@ -19,10 +19,11 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.config.AttributeType;
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -33,36 +34,37 @@ import org.apache.directory.server.config.AttributeType;
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
     /** The allowable clock skew. */
-    @AttributeType("ads-krbAllowableClockSkew")
+    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")
     private long krbAllowableClockSkew;
-    
+
     /** Whether empty addresses are allowed. */
-    @AttributeType("ads-krbEmptyAddressesAllowed")
+    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed")
     private boolean krbEmptyAddressesAllowed;
-    
+
     /** The encryption types. */
-    @AttributeType("ads-krbEncryptionTypes")
+    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes")
     private List<String> krbEncryptionTypes = new ArrayList<String>();
-    
+
     /** The primary realm. */
-    @AttributeType("ads-krbPrimaryRealm")
+    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm")
     private String krbPrimaryRealm;
-    
+
     /** The policy for category count. */
-    @AttributeType("ads-chgPwdPolicyCategoryCount")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyCategoryCount")
     private int chgPwdPolicyCategoryCount;
-    
+
     /** The policy for password length. */
-    @AttributeType("ads-chgPwdPolicyPasswordLength")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyPasswordLength")
     private int chgPwdPolicyPasswordLength;
-    
+
     /** The policy for token size. */
-    @AttributeType("ads-chgPwdPolicyTokenSize")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyTokenSize")
     private int chgPwdPolicyTokenSize;
-    
+
     /** The service principal name. */
-    @AttributeType("ads-chgPwdServicePrincipal")
+    @ConfigurationElement(attributeType = "ads-chgPwdServicePrincipal")
     private String chgPwdServicePrincipal;
+
 
     /**
      * Create a new ChangePasswordServer instance
@@ -72,6 +74,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         super();
     }
 
+
     /**
      * @return the krbAllowableClockSkew
      */
@@ -80,7 +83,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return krbAllowableClockSkew;
     }
 
-    
+
     /**
      * @param krbAllowableClockSkew the krbAllowableClockSkew to set
      */
@@ -89,7 +92,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.krbAllowableClockSkew = krbAllowableClockSkew;
     }
 
-    
+
     /**
      * @return the krbEmptyAddressesAllowed
      */
@@ -98,7 +101,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return krbEmptyAddressesAllowed;
     }
 
-    
+
     /**
      * @param krbEmptyAddressesAllowed the krbEmptyAddressesAllowed to set
      */
@@ -107,7 +110,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
     }
 
-    
+
     /**
      * @return the krbEncryptionTypes
      */
@@ -116,7 +119,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return krbEncryptionTypes;
     }
 
-    
+
     /**
      * @param krbEncryptionTypes the krbEncryptionTypes to set
      */
@@ -125,7 +128,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.krbEncryptionTypes = krbEncryptionTypes;
     }
 
-    
+
     /**
      * Initialize the encryptionTypes set
      * 
@@ -133,7 +136,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public void addKrbEncryptionTypes( String... krbEncryptionTypes )
     {
-        for ( String encryptionType:krbEncryptionTypes )
+        for ( String encryptionType : krbEncryptionTypes )
         {
             this.krbEncryptionTypes.add( encryptionType );
         }
@@ -148,7 +151,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return krbPrimaryRealm;
     }
 
-    
+
     /**
      * @param krbPrimaryRealm the krbPrimaryRealm to set
      */
@@ -157,7 +160,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.krbPrimaryRealm = krbPrimaryRealm;
     }
 
-    
+
     /**
      * @return the chgPwdPolicyCategoryCount
      */
@@ -166,7 +169,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return chgPwdPolicyCategoryCount;
     }
 
-    
+
     /**
      * @param chgPwdPolicyCategoryCount the chgPwdPolicyCategoryCount to set
      */
@@ -175,7 +178,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.chgPwdPolicyCategoryCount = chgPwdPolicyCategoryCount;
     }
 
-    
+
     /**
      * @return the chgPwdPolicyPasswordLength
      */
@@ -184,7 +187,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return chgPwdPolicyPasswordLength;
     }
 
-    
+
     /**
      * @param chgPwdPolicyPasswordLength the chgPwdPolicyPasswordLength to set
      */
@@ -193,7 +196,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.chgPwdPolicyPasswordLength = chgPwdPolicyPasswordLength;
     }
 
-    
+
     /**
      * @return the chgPwdPolicyTokenSize
      */
@@ -202,7 +205,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return chgPwdPolicyTokenSize;
     }
 
-    
+
     /**
      * @param chgPwdPolicyTokenSize the chgPwdPolicyTokenSize to set
      */
@@ -211,7 +214,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         this.chgPwdPolicyTokenSize = chgPwdPolicyTokenSize;
     }
 
-    
+
     /**
      * @return the chgPwdServicePrincipal
      */
@@ -220,7 +223,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         return chgPwdServicePrincipal;
     }
 
-    
+
     /**
      * @param chgPwdServicePrincipal the chgPwdServicePrincipal to set
      */
@@ -228,20 +231,20 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     {
         this.chgPwdServicePrincipal = chgPwdServicePrincipal;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "ChangePasswordServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
         sb.append( toString( tabs, "  change password service principal", chgPwdServicePrincipal ) );
         sb.append( toString( tabs, "  KRB primary realm", krbPrimaryRealm ) );
-        
+
         if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() != 0 ) )
         {
             sb.append( tabs ).append( "  encryption types : \n" );
@@ -251,7 +254,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
                 sb.append( tabs ).append( "    encryptionType : " ).append( encryptionType ).append( '\n' );
             }
         }
-        
+
         sb.append( toString( tabs, "  change password policy category count", chgPwdPolicyCategoryCount ) );
         sb.append( toString( tabs, "  change password policy password length", chgPwdPolicyPasswordLength ) );
         sb.append( toString( tabs, "  change password policy token size", chgPwdPolicyTokenSize ) );
@@ -260,8 +263,8 @@ public class ChangePasswordServerBean extends DSBasedServerBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

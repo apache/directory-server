@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -31,13 +31,13 @@ import org.apache.directory.server.config.RDN;
 public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
-    @AttributeType("ads-extendedOpId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-extendedOpId", isRDN = true)
     private String extendedOpId;
-    
+
     /** The Extended Operation FQCN */
-    @AttributeType("extendedOpHandlerClass")
+    @ConfigurationElement(attributeType = "extendedOpHandlerClass")
     private String extendedOpHandlerClass;
+
 
     /**
      * Create a new LdapServerExtendedOpHandlerBean instance
@@ -47,7 +47,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
         super();
     }
 
-    
+
     /**
      * @return the extendedOpId
      */
@@ -56,7 +56,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
         return extendedOpId;
     }
 
-    
+
     /**
      * @param extendedOpId the extendedOpId to set
      */
@@ -65,7 +65,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
         this.extendedOpId = extendedOpId;
     }
 
-    
+
     /**
      * @return the ldapServerExtendedOpHandlerClass
      */
@@ -74,7 +74,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
         return extendedOpHandlerClass;
     }
 
-    
+
     /**
      * @param extendedOpHandlerClass the ExtendedOpHandlerClass to set
      */
@@ -82,23 +82,24 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
     {
         this.extendedOpHandlerClass = extendedOpHandlerClass;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "Extended operation handler :\n" );
         sb.append( tabs ).append( "  extended operation ID : " ).append( extendedOpId ).append( '\n' );
-        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedOpHandlerClass ).append( '\n' );
-        
+        sb.append( tabs ).append( "  extended operation handler class : " ).append( extendedOpHandlerClass )
+            .append( '\n' );
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

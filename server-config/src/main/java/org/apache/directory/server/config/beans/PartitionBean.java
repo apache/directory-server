@@ -19,12 +19,13 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
+
 
 /**
  * A class used to store the Partition configuration. It can't be instanciated
@@ -34,24 +35,25 @@ import org.apache.directory.shared.ldap.name.DN;
 public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
-    @AttributeType("ads-partitionId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-partitionId", isRDN = true)
     private String partitionId;
-    
+
     /** The Partition suffix */
-    @AttributeType("ads-partitionSuffix")
+    @ConfigurationElement(attributeType = "ads-partitionSuffix")
     private DN partitionSuffix;
-    
+
     /** Tells if the data should be flushed to disk immediately */
-    @AttributeType("ads-partitionSyncOnWrite")
+    @ConfigurationElement(attributeType = "ads-partitionSyncOnWrite")
     private boolean partitionSyncOnWrite;
-    
+
     /** The partition's ContextEntry */
-    @AttributeType("ads-contextEntry")
+    @ConfigurationElement(attributeType = "ads-contextEntry")
     private String contextEntry;
-    
+
     /** The list of declared indexes */
+    @ConfigurationElement(container="ou=indexes")
     private List<IndexBean> indexes = new ArrayList<IndexBean>();
+
 
     /**
      * Create a new PartitionBean instance
@@ -60,7 +62,7 @@ public abstract class PartitionBean extends AdsBaseBean
     {
     }
 
-    
+
     /**
      * @return the partitionId
      */
@@ -69,7 +71,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionId;
     }
 
-    
+
     /**
      * @param partitionId the partitionId to set
      */
@@ -78,7 +80,7 @@ public abstract class PartitionBean extends AdsBaseBean
         this.partitionId = partitionId;
     }
 
-    
+
     /**
      * @return the partitionSuffix
      */
@@ -87,7 +89,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionSuffix;
     }
 
-    
+
     /**
      * @param partitionSuffix the partitionSuffix to set
      */
@@ -96,7 +98,7 @@ public abstract class PartitionBean extends AdsBaseBean
         this.partitionSuffix = partitionSuffix;
     }
 
-    
+
     /**
      * @return the partitionSyncOnWrite
      */
@@ -105,7 +107,7 @@ public abstract class PartitionBean extends AdsBaseBean
         return partitionSyncOnWrite;
     }
 
-    
+
     /**
      * @param partitionSyncOnWrite the partitionSyncOnWrite to set
      */
@@ -113,8 +115,8 @@ public abstract class PartitionBean extends AdsBaseBean
     {
         this.partitionSyncOnWrite = partitionSyncOnWrite;
     }
-    
-    
+
+
     /**
      * @return the indexes
      */
@@ -149,23 +151,23 @@ public abstract class PartitionBean extends AdsBaseBean
     {
         return contextEntry;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  partition ID : " ).append( partitionId ).append( '\n' );
         sb.append( tabs ).append( "  suffix : " ).append( partitionSuffix.getName() ).append( '\n' );
         sb.append( toString( tabs, "  sync on write", partitionSyncOnWrite ) );
         sb.append( toString( tabs, "  contextEntry", contextEntry ) );
-        
+
         sb.append( tabs ).append( "  indexes : \n" );
-        
+
         if ( indexes != null )
         {
             for ( IndexBean index : indexes )
@@ -173,11 +175,11 @@ public abstract class PartitionBean extends AdsBaseBean
                 sb.append( index.toString( tabs + "    " ) );
             }
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

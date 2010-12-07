@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -31,17 +31,17 @@ import org.apache.directory.server.config.RDN;
 public class HttpWebAppBean extends AdsBaseBean
 {
     /** The server identifier */
-    @AttributeType("ads-id")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-id", isRDN = true)
     private String id;
-    
+
     /** The context path */
-    @AttributeType("ads-httpAppCtxPath")
+    @ConfigurationElement(attributeType = "ads-httpAppCtxPath")
     private String httpAppCtxPath;
-    
+
     /** The war file */
-    @AttributeType("ads-httpWarFile")
+    @ConfigurationElement(attributeType = "ads-httpWarFile")
     private String httpWarFile;
+
 
     /**
      * Create a new HttpWebAppBean instance
@@ -49,12 +49,12 @@ public class HttpWebAppBean extends AdsBaseBean
     public HttpWebAppBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
 
-    
+
     /**
      * @return the id
      */
@@ -63,7 +63,7 @@ public class HttpWebAppBean extends AdsBaseBean
         return id;
     }
 
-    
+
     /**
      * @param id the id to set
      */
@@ -72,7 +72,7 @@ public class HttpWebAppBean extends AdsBaseBean
         this.id = id;
     }
 
-    
+
     /**
      * @return the httpAppCtxPath
      */
@@ -81,7 +81,7 @@ public class HttpWebAppBean extends AdsBaseBean
         return httpAppCtxPath;
     }
 
-    
+
     /**
      * @param httpAppCtxPath the httpAppCtxPath to set
      */
@@ -90,7 +90,7 @@ public class HttpWebAppBean extends AdsBaseBean
         this.httpAppCtxPath = httpAppCtxPath;
     }
 
-    
+
     /**
      * @return the httpWarFile
      */
@@ -99,7 +99,7 @@ public class HttpWebAppBean extends AdsBaseBean
         return httpWarFile;
     }
 
-    
+
     /**
      * @param httpWarFile the httpWarFile to set
      */
@@ -108,24 +108,24 @@ public class HttpWebAppBean extends AdsBaseBean
         this.httpWarFile = httpWarFile;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "HttpWebApp :\n" );
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  id : " ).append( id ).append( '\n' );
         sb.append( tabs ).append( "  war file : " ).append( httpWarFile ).append( '\n' );
-        sb.append(  toString( tabs, "  application context path", httpAppCtxPath ) );
+        sb.append( toString( tabs, "  application context path", httpAppCtxPath ) );
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

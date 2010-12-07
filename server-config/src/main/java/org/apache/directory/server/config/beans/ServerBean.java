@@ -19,11 +19,12 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the Server configuration. It can't be instanciated
@@ -33,12 +34,13 @@ import org.apache.directory.server.config.RDN;
 public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
-    @AttributeType("ads-serverId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-serverId", isRDN = true)
     private String serverId;
-    
+
     /** The set of transports to use for this server */
+    @ConfigurationElement(container="ou=transports")
     private List<TransportBean> transports = new ArrayList<TransportBean>();
+
 
     /**
      * Create a new ServerBean instance
@@ -46,14 +48,15 @@ public abstract class ServerBean extends AdsBaseBean
     protected ServerBean()
     {
     }
-    
-    
+
+
     /**
      * @return the transport
      */
     public TransportBean[] getTransports()
     {
-        return transports.toArray( new TransportBean[]{} );
+        return transports.toArray( new TransportBean[]
+            {} );
     }
 
 
@@ -63,13 +66,13 @@ public abstract class ServerBean extends AdsBaseBean
      */
     public void setTransports( TransportBean... transports )
     {
-        for ( TransportBean transport : transports ) 
+        for ( TransportBean transport : transports )
         {
             this.transports.add( transport );
         }
     }
-    
-    
+
+
     /**
      * Add underlying transports
      * @param transports The transports
@@ -99,19 +102,19 @@ public abstract class ServerBean extends AdsBaseBean
     {
         this.serverId = serverId;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( super.toString( tabs ) );
         sb.append( tabs ).append( "server id : " ).append( serverId ).append( '\n' );
         sb.append( tabs ).append( "transports : \n" );
-        
+
         if ( transports != null )
         {
             for ( TransportBean transport : transports )
@@ -119,11 +122,11 @@ public abstract class ServerBean extends AdsBaseBean
                 sb.append( transport.toString( tabs + "  " ) );
             }
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

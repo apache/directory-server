@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.server.config.AttributeType;
-import org.apache.directory.server.config.RDN;
+
+import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -32,69 +32,69 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ReplProviderBean extends AdsBaseBean
 {
     /** The provider id */
-    @AttributeType("ads-replProviderId")
-    @RDN
+    @ConfigurationElement(attributeType = "ads-replProviderId", isRDN = true)
     private String replProviderId;
-    
+
     /** The replication unique ID */
-    @AttributeType("ads-dsReplicaId")
+    @ConfigurationElement(attributeType = "ads-dsReplicaId")
     private String dsReplicaId;
-    
+
     /** The Search Base DN */
-    @AttributeType("ads-searchBaseDN")
+    @ConfigurationElement(attributeType = "ads-searchBaseDN")
     private DN searchBaseDN;
-    
+
     /** The replication provider host name */
-    @AttributeType("ads-replProvHostName")
+    @ConfigurationElement(attributeType = "ads-replProvHostName")
     private String replProvHostName;
-    
+
     /** The replication provider port */
-    @AttributeType("ads-replProvPort")
+    @ConfigurationElement(attributeType = "ads-replProvPort")
     private String replProvPort;
-    
+
     /** The Alias Dereferencing mode */
-    @AttributeType("ads-replAliasDerefMode")
+    @ConfigurationElement(attributeType = "ads-replAliasDerefMode")
     private String replAliasDerefMode;
-    
+
     /** The replication provider attribute */
-    @AttributeType("ads-replAttribute")
+    @ConfigurationElement(attributeType = "ads-replAttribute")
     private String replAttribute;
-    
+
     /** The refresh interval */
-    @AttributeType("ads-replRefreshInterval")
+    @ConfigurationElement(attributeType = "ads-replRefreshInterval")
     private String replRefreshInterval;
-    
+
     /** Tells if we should persist */
-    @AttributeType("ads-replRefreshNPersist")
+    @ConfigurationElement(attributeType = "ads-replRefreshNPersist")
     private boolean replRefreshNPersist;
-    
+
     /** The search scope */
-    @AttributeType("ads-replSearchScope")
+    @ConfigurationElement(attributeType = "ads-replSearchScope")
     private String replSearchScope;
-    
+
     /** The replication search filter */
-    @AttributeType("ads-replSearchFilter")
+    @ConfigurationElement(attributeType = "ads-replSearchFilter")
     private String replSearchFilter;
 
     /** The search size limit */
-    @AttributeType("ads-replSearchSizeLimit")
+    @ConfigurationElement(attributeType = "ads-replSearchSizeLimit")
     private int replSearchSizeLimit;
-    
+
     /** The search time limit */
-    @AttributeType("ads-replSearchTimeout")
+    @ConfigurationElement(attributeType = "ads-replSearchTimeout")
     private int replSearchTimeout;
-    
+
     /** The replication user DN */
-    @AttributeType("ads-replUserDN")
+    @ConfigurationElement(attributeType = "ads-replUserDN")
     private DN replUserDN;
-    
+
     /** The replication user password */
-    @AttributeType("ads-replUserPassword")
+    @ConfigurationElement(attributeType = "ads-replUserPassword")
     private String replUserPassword;
-    
+
     /** The replication cookie */
-    @AttributeType("ads-replCookie")
+    @ConfigurationElement(attributeType = "ads-replCookie")
     private String replCookie;
+
 
     /**
      * Create a new Replication Consumer instance
@@ -102,7 +102,7 @@ public class ReplProviderBean extends AdsBaseBean
     public ReplProviderBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
@@ -125,7 +125,7 @@ public class ReplProviderBean extends AdsBaseBean
         this.replProviderId = replProviderId;
     }
 
-    
+
     /**
      * @return the dsreplicaid
      */
@@ -395,14 +395,14 @@ public class ReplProviderBean extends AdsBaseBean
         this.replCookie = replCookie;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "Replication provider :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
@@ -425,8 +425,8 @@ public class ReplProviderBean extends AdsBaseBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
