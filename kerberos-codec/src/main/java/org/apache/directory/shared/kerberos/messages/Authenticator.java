@@ -328,74 +328,53 @@ public class Authenticator extends KerberosMessage
     {
         // Compute the Authenticator version length.
         authenticatorVnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
 
         // Compute the  crealm length.
         crealmBytes = StringTools.getBytesUtf8( crealm );
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
+        authenticatorSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength;
 
         // Compute the cname length
         cnameLength = cname.computeLength();
+        authenticatorSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength;
         
         // Compute the cksum length if any
         if ( cksum != null )
         {
             cksumLength = cksum.computeLength();
+            authenticatorSeqLength += 1 + TLV.getNbBytes( cksumLength ) + cksumLength;
         }
 
         // Compute the cusec length
         cusecLength = 1 + 1 + Value.getNbBytes( cusec );
+        authenticatorSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
 
         // Compute the ctime length
         ctimeLength = 1 + 1 + 0x0F;
+        authenticatorSeqLength += 1 + 1 + ctimeLength;
 
         // Compute the subkey length if any
         if ( subKey != null )
         {
             subkeyLength = subKey.computeLength();
+            authenticatorSeqLength += 1 + TLV.getNbBytes( subkeyLength ) + subkeyLength;
         }
 
         // Compute the seq-number  length if any
         if ( seqNumber != null )
         {
             seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
+            authenticatorSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
         
         // Compute the authorization-data length if any
         if ( authorizationData != null )
         {
             authorizationDataLength = authorizationData.computeLength();
-        }
-
-
-        // Compute the sequence size
-        authenticatorSeqLength = 
-            1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength +
-            1 + TLV.getNbBytes( crealmLength ) + crealmLength +
-            1 + TLV.getNbBytes( cnameLength ) + cnameLength + 
-            1 + TLV.getNbBytes( cusecLength ) + cusecLength +
-            1 + TLV.getNbBytes( ctimeLength ) + ctimeLength;
-
-        // The optional fields
-        if ( cksum != null )
-        {
-            authenticatorSeqLength += 1 + TLV.getNbBytes( cksumLength ) + cksumLength;
-        }
-
-        if ( subKey != null )
-        {
-            authenticatorSeqLength += 1 + TLV.getNbBytes( subkeyLength ) + subkeyLength;
-        }
-
-        if ( seqNumber != null )
-        {
-            authenticatorSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
-        }
-
-        if ( authorizationData != null )
-        {
             authenticatorSeqLength += 1 + TLV.getNbBytes( authorizationDataLength ) + authorizationDataLength;
         }
-        
+
         // compute the global size
         authenticatorLength = 1 + TLV.getNbBytes( authenticatorSeqLength ) + authenticatorSeqLength;
         
