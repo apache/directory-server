@@ -23,7 +23,9 @@ package org.apache.directory.server.config;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -70,6 +72,17 @@ public class ConfigWriter
     }
 
 
+    /**
+     * Adds the computed 'objectClass' attribute for the given entry and object class name.
+     *
+     * @param schemaManager
+     *      the schema manager
+     * @param entry
+     *      the entry
+     * @param objectClass
+     *      the object class name
+     * @throws LdapException
+     */
     private static void addObjectClassAttribute( SchemaManager schemaManager, LdifEntry entry, String objectClass )
         throws LdapException
     {
@@ -77,7 +90,7 @@ public class ConfigWriter
         if ( objectClassObject != null )
         {
             // Building the list of 'objectClass' attribute values
-            List<String> objectClassAttributeValues = new ArrayList<String>();
+            Set<String> objectClassAttributeValues = new HashSet<String>();
             computeObjectClassAttributeValues( schemaManager, objectClassAttributeValues, objectClassObject );
 
             // Adding values to the entry
@@ -90,8 +103,19 @@ public class ConfigWriter
     }
 
 
+    /**
+     * Recursively computes the 'objectClass' attribute values set.
+     *
+     * @param schemaManager
+     *      the schema manager
+     * @param objectClassAttributeValues
+     *      the set containing the values
+     * @param objectClass
+     *      the current object class
+     * @throws LdapException
+     */
     private static void computeObjectClassAttributeValues( SchemaManager schemaManager,
-        List<String> objectClassAttributeValues,
+        Set<String> objectClassAttributeValues,
         ObjectClass objectClass ) throws LdapException
     {
         ObjectClass topObjectClass = schemaManager.getObjectClassRegistry().lookup( SchemaConstants.TOP_OC );
@@ -124,6 +148,19 @@ public class ConfigWriter
     }
 
 
+    /**
+     * Adds a configuration bean to the list of entries.
+     *
+     * @param rootDn
+     *      the current root DN
+     * @param schemaManager
+     *      the schema manager
+     * @param bean
+     *      the configuration bean
+     * @param entries
+     *      the list of the entries
+     * @throws Exception
+     */
     private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
         throws Exception
     {
@@ -219,14 +256,30 @@ public class ConfigWriter
     }
 
 
+    /**
+     * Gets the name of the object class to use for the given bean class.
+     *
+     * @param c
+     *      the bean class
+     * @return
+     *      the name of the object class to use for the given bean class
+     */
     private static String getObjectClassNameForBean( Class<?> c )
     {
-        String classNameWithPackage = getClassNameWithoutPackage( c );
+        String classNameWithPackage = getClassNameWithoutPackageName( c );
         return "ads-" + classNameWithPackage.substring( 0, classNameWithPackage.length() - 4 );
     }
 
 
-    private static String getClassNameWithoutPackage( Class<?> c )
+    /**
+     * Gets the class name of the given class stripped from its package name.
+     *
+     * @param c
+     *      the class
+     * @return
+     *      the class name of the given class stripped from its package name
+     */
+    private static String getClassNameWithoutPackageName( Class<?> c )
     {
         String className = c.getName();
 
