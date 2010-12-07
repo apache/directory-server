@@ -20,6 +20,7 @@
 package org.apache.directory.server.config;
 
 
+import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -67,7 +69,14 @@ public class ConfigWriter
             addBean( configRootEntry.getDn(), schemaManager, adsBaseBean, entries );
         }
 
-        System.out.println( entries );
+        // Writing the file to disk
+        FileWriter writer = new FileWriter( file );
+        for ( LdifEntry entry : entries )
+        {
+            writer.append( entry.toString() );
+        }
+        writer.close();
+
         System.out.println( entries.size() );
     }
 
@@ -215,7 +224,12 @@ public class ConfigWriter
                         String container = configurationElement.container();
                         if ( ( container != null ) && ( !"".equals( container ) ) )
                         {
-                            DN containerDN = entry.getDn().add( container );
+                            // Creating the entry for the container and adding it to the list
+                            LdifEntry containerEntry = new LdifEntry();
+                            containerEntry.setDn( entry.getDn().add( new RDN( SchemaConstants.OU_AT, container ) ) );
+                            addObjectClassAttribute( schemaManager, containerEntry,
+                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                            entries.add( containerEntry );
 
                             if ( Collection.class.isAssignableFrom( fieldClass ) )
                             {
@@ -225,7 +239,7 @@ public class ConfigWriter
                                 {
                                     if ( object instanceof AdsBaseBean )
                                     {
-                                        addBean( containerDN, schemaManager, ( AdsBaseBean ) object, entries );
+                                        addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object, entries );
                                         continue;
                                     }
                                     else
@@ -352,8 +366,7 @@ public class ConfigWriter
                 ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
                 if ( ( configurationElement != null ) && ( configurationElement.isRDN() ) )
                 {
-                    return baseDN.add( new org.apache.directory.shared.ldap.name.RDN(
-                        configurationElement.attributeType(), field.get( bean ).toString() ) );
+                    return baseDN.add( new RDN( configurationElement.attributeType(), field.get( bean ).toString() ) );
                 }
             }
 

@@ -51,7 +51,7 @@ public abstract class PartitionBean extends AdsBaseBean
     private String contextEntry;
 
     /** The list of declared indexes */
-    @ConfigurationElement(container="ou=indexes")
+    @ConfigurationElement(container = "indexes")
     private List<IndexBean> indexes = new ArrayList<IndexBean>();
 
 

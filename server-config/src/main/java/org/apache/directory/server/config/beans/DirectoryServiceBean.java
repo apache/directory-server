@@ -78,15 +78,15 @@ public class DirectoryServiceBean extends AdsBaseBean
     private JournalBean journal;
 
     /** The servers */
-    @ConfigurationElement(container = "ou=servers")
+    @ConfigurationElement(container = "servers")
     private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
-    @ConfigurationElement(container = "ou=interceptors")
+    @ConfigurationElement(container = "interceptors")
     private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
-    @ConfigurationElement(container = "ou=partitions")
+    @ConfigurationElement(container = "partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
