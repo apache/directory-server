@@ -126,7 +126,7 @@ public class KerberosProtocolHandler implements IoHandler
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
         
-        if ( !message.getClass().isAssignableFrom( KdcReq.class ) )
+        if ( !( message instanceof KdcReq ) )
         {
             log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
 
