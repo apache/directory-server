@@ -42,7 +42,6 @@ import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
@@ -56,6 +55,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.KrbError;
@@ -173,7 +173,10 @@ public class ChangepwProtocolHandlerTest
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getKey(), authenticator
                 , KeyUsage.NUMBER11 );
 
-        ApReq apReq = new ApReq( apOptions, serviceTicket, encryptedAuthenticator );
+        ApReq apReq = new ApReq();
+        apReq.setOption( apOptions );
+        apReq.setTicket( serviceTicket );
+        apReq.setAuthenticator( encryptedAuthenticator );
 
         String newPassword = "secretsecret";
 
@@ -249,7 +252,10 @@ public class ChangepwProtocolHandlerTest
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, authenticator,
                 KeyUsage.NUMBER11 );
 
-        ApReq apReq = new ApReq( apOptions, serviceTicket, encryptedAuthenticator );
+        ApReq apReq = new ApReq();
+        apReq.setOption( apOptions );
+        apReq.setTicket( serviceTicket );
+        apReq.setAuthenticator( encryptedAuthenticator );
 
         String newPassword = "secretsecret";
 
