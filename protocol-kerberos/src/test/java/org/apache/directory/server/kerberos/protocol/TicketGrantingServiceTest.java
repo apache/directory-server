@@ -46,6 +46,7 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.KrbError;
@@ -161,7 +162,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested protocol version number not supported", 3, error.getErrorCode() );
+        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO, error.getErrorCode() );
     }
 
 
@@ -200,7 +201,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Server not found in Kerberos database", 7, error.getErrorCode() );
+        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN, error.getErrorCode() );
     }
 
 
@@ -251,7 +252,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "KDC has no support for padata type", 16, error.getErrorCode() );
+        assertEquals( "KDC has no support for padata type", ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP, error.getErrorCode() );
     }
 
 
@@ -292,7 +293,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Inappropriate type of checksum in message", 50, error.getErrorCode() );
+        assertEquals( "Inappropriate type of checksum in message", ErrorType.KRB_AP_ERR_INAPP_CKSUM, error.getErrorCode() );
     }
 
 
@@ -373,7 +374,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Integrity check on decrypted field failed", 31, error.getErrorCode() );
+        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY, error.getErrorCode() );
     }
 
 
@@ -412,7 +413,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "The ticket isn't for us", 35, error.getErrorCode() );
+        assertEquals( "The ticket isn't for us", ErrorType.KRB_AP_ERR_NOT_US, error.getErrorCode() );
     }
 
 
@@ -675,7 +676,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Ticket expired", 32, error.getErrorCode() );
+        assertEquals( "Ticket expired", ErrorType.KRB_AP_ERR_TKT_EXPIRED, error.getErrorCode() );
     }
 
 
@@ -725,7 +726,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Ticket expired", 32, error.getErrorCode() );
+        assertEquals( "Ticket expired", ErrorType.KRB_AP_ERR_TKT_EXPIRED, error.getErrorCode() );
     }
 
 
@@ -871,7 +872,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "KDC has no support for encryption type", 14, error.getErrorCode() );
+        assertEquals( "KDC has no support for encryption type", ErrorType.KDC_ERR_ETYPE_NOSUPP, error.getErrorCode() );
     }
 
 
@@ -911,7 +912,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
+        assertEquals( "The client or server has a null key", ErrorType.KDC_ERR_NULL_KEY, error.getErrorCode() );
     }
 
 
@@ -1137,7 +1138,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
     }
 
 
@@ -1192,7 +1193,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "Requested start time is later than end time", 11, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
     }
 
 
@@ -1245,7 +1246,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "Ticket not eligible for postdating", 10, error.getErrorCode() );
+        assertEquals( "Ticket not eligible for postdating", ErrorType.KDC_ERR_CANNOT_POSTDATE, error.getErrorCode() );
     }
 
 
@@ -1979,6 +1980,6 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
+        assertEquals( "KDC cannot accommodate requested option", ErrorType.KDC_ERR_BADOPTION, error.getErrorCode() );
     }
 }

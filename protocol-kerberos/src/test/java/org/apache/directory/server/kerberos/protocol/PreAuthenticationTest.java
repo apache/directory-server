@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
@@ -111,7 +112,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Additional pre-authentication required", 25, error.getErrorCode() );
+        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
     }
 
 
@@ -160,7 +161,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Integrity check on decrypted field failed", 31, error.getErrorCode() );
+        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY, error.getErrorCode() );
     }
 
 
@@ -207,7 +208,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "Pre-authentication information was invalid", 24, error.getErrorCode() );
+        assertEquals( "Pre-authentication information was invalid", ErrorType.KDC_ERR_PREAUTH_FAILED, error.getErrorCode() );
     }
 
 
@@ -251,7 +252,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "KDC has no support for padata type", 16, error.getErrorCode() );
+        assertEquals( "KDC has no support for padata type", ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP, error.getErrorCode() );
     }
 
 
