@@ -399,96 +399,82 @@ public class KrbError extends KerberosMessage
      */
     public int computeLength()
     {
+        // The PVNO
         pvnoLength = 1 + 1 + 1;
+        krbErrorSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength;
 
+        // The message type
         msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        krbErrorSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
+        // The ctime, if any
         if ( cTime != null )
         {
             cTimeLength = 1 + 1 + 0x0F;
+            krbErrorSeqLength += 1 + TLV.getNbBytes( cTimeLength ) + cTimeLength;
         }
 
+        // The cusec, if any
         if ( cusec != null )
         {
             int cusecLen = Value.getNbBytes( cusec );
             cusecLength = 1 + TLV.getNbBytes( cusecLen ) + cusecLen;
+            krbErrorSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
         }
 
+        // The stime
         sTimeLength = 1 + 1 + 0x0F;
+        krbErrorSeqLength += 1 + TLV.getNbBytes( sTimeLength ) + sTimeLength;
 
+        // The susec
         int susecLen = Value.getNbBytes( susec );
         susecLength = 1 + TLV.getNbBytes( susecLen ) + susecLen;
+        krbErrorSeqLength += 1 + TLV.getNbBytes( susecLength ) + susecLength;
 
+        // The error-code
         errorCodeLength = 1 + 1 + Value.getNbBytes( errorCode.getOrdinal() );
+        krbErrorSeqLength += 1 + TLV.getNbBytes( errorCodeLength ) + errorCodeLength;
 
+        // The crealm, if any
         if ( cRealm != null )
         {
             crealmBytes = StringTools.getBytesUtf8( cRealm );
             cRealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
+            krbErrorSeqLength += 1 + TLV.getNbBytes( cRealmLength ) + cRealmLength;
         }
 
+        // The cname if any
         if ( cName != null )
         {
             cNameLength = cName.computeLength();
+            krbErrorSeqLength += 1 + TLV.getNbBytes( cNameLength ) + cNameLength;
         }
 
+        // The realm
         realmBytes = StringTools.getBytesUtf8( realm );
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
+        krbErrorSeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
 
+        // The sname
         sNameLength = sName.computeLength();
+        krbErrorSeqLength += 1 + TLV.getNbBytes( sNameLength ) + sNameLength;
 
+        // The e-text, if any
         if ( eText != null )
         {
             eTextBytes = StringTools.getBytesUtf8( eText );
             eTextLength = 1 + TLV.getNbBytes( eTextBytes.length ) + eTextBytes.length;
-        }
-
-        if ( eData != null )
-        {
-            eDataLength = 1 + TLV.getNbBytes( eData.length ) + eData.length;
-        }
-        
-        // Compute the sequence size.
-        // The mandatory fields first
-        krbErrorSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( sTimeLength ) + sTimeLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( susecLength ) + susecLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( errorCodeLength ) + errorCodeLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
-        krbErrorSeqLength += 1 + TLV.getNbBytes( sNameLength ) + sNameLength;
-
-        // The optional fields then
-        if ( cTime != null )
-        {
-            krbErrorSeqLength += 1 + TLV.getNbBytes( cTimeLength ) + cTimeLength;
-        }
-
-        if ( cusec != null )
-        {
-            krbErrorSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
-        }
-
-        if ( cRealm != null )
-        {
-            krbErrorSeqLength += 1 + TLV.getNbBytes( cRealmLength ) + cRealmLength;
-        }
-
-        if ( cName != null )
-        {
-            krbErrorSeqLength += 1 + TLV.getNbBytes( cNameLength ) + cNameLength;
-        }
-
-        if ( eText != null )
-        {
             krbErrorSeqLength += 1 + TLV.getNbBytes( eTextLength ) + eTextLength;
         }
 
+        // The e-data, if any
         if ( eData != null )
         {
+            eDataLength = 1 + TLV.getNbBytes( eData.length ) + eData.length;
             krbErrorSeqLength += 1 + TLV.getNbBytes( eDataLength ) + eDataLength;
         }
-        
+
+        // The global sequence length
         krbErrorLength = 1 + TLV.getNbBytes( krbErrorSeqLength ) + krbErrorSeqLength;
 
         return 1 + TLV.getNbBytes( krbErrorLength ) + krbErrorLength;

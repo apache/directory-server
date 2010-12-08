@@ -233,7 +233,7 @@ public class KdcRep extends KerberosMessage
     {
         this.encKdcRepPart = encKdcRepPart;
     }
-
+    
     
     /**
      * Compute the KDC-REP length
@@ -292,6 +292,7 @@ public class KdcRep extends KerberosMessage
         {
             paDataLengths = new int[paData.size()];
             int pos = 0;
+            paDataSeqLength = 0;
             
             for ( PaData paDataElem : paData )
             {

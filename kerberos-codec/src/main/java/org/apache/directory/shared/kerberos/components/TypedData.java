@@ -158,8 +158,8 @@ public class TypedData extends AbstractAsn1Object
     {
         return typedDataList;
     }
-
-
+    
+    
     /**
      * Compute the TypedData length
      * <pre>
@@ -183,6 +183,7 @@ public class TypedData extends AbstractAsn1Object
         typedDataSeqLength = new int[typedDataList.size()];
         dataTypeTagLength = new int[typedDataList.size()];
         dataValueTagLength = new int[typedDataList.size()];
+        typedDataSeqSeqLength = 0;
 
         for ( TD td : typedDataList )
         {

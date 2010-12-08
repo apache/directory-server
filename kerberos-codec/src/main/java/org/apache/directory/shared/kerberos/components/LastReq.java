@@ -153,8 +153,8 @@ public class LastReq extends AbstractAsn1Object
     {
         return lastReqs;
     }
-
-
+    
+    
     /**
      * Compute the LastReq length
      * 
@@ -180,7 +180,7 @@ public class LastReq extends AbstractAsn1Object
         lastReqSeqLen = new int[lastReqs.size()];
         lrTypeTagLen = new int[lastReqs.size()];
         lrValueTagLen = new int[lastReqs.size()];
-        lastReqSeqLen = new int[lastReqs.size()];
+        lastReqSeqSeqLen = 0;
         
         for ( LastReqEntry lre : lastReqs )
         {

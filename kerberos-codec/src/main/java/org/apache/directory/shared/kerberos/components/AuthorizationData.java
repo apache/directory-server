@@ -77,8 +77,8 @@ public class AuthorizationData extends AbstractAsn1Object
     public AuthorizationData()
     {
     }
-
-
+    
+    
     /**
      * Compute the AuthorizationData length
      * <pre>
@@ -102,6 +102,7 @@ public class AuthorizationData extends AbstractAsn1Object
         authorizationDataSeqLen = new int[authorizationData.size()];
         adTypeTagLen = new int[authorizationData.size()];
         adDataTagLen = new int[authorizationData.size()];
+        authorizationDataSeqSeqLen = 0;
         
         for ( AuthorizationDataEntry ad : authorizationData )
         {
