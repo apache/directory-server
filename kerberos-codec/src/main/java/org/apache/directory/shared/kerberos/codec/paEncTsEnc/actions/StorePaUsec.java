@@ -38,7 +38,7 @@ public class StorePaUsec extends AbstractReadInteger
      */
     public StorePaUsec()
     {
-        super( "EncApRepPart pausec" );
+        super( "EncApRepPart pausec", 0, 999999 );
     }
 
 

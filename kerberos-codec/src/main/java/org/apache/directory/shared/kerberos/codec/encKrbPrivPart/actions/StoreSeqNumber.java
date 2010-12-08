@@ -38,7 +38,7 @@ public class StoreSeqNumber extends AbstractReadInteger
      */
     public StoreSeqNumber()
     {
-        super( "EncKrbPrivPart seq-number" );
+        super( "EncKrbPrivPart seq-number", Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
 

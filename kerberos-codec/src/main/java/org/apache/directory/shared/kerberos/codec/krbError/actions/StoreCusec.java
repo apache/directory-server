@@ -38,7 +38,7 @@ public class StoreCusec extends AbstractReadInteger
      */
     public StoreCusec()
     {
-        super( "KRB-ERROR cusec" );
+        super( "KRB-ERROR cusec", 0, 999999 );
     }
 
 

@@ -38,7 +38,7 @@ public class StoreUsec extends AbstractReadInteger
      */
     public StoreUsec()
     {
-        super( "EncKrbCredPart usec" );
+        super( "EncKrbCredPart usec", 0, 999999 );
     }
 
 

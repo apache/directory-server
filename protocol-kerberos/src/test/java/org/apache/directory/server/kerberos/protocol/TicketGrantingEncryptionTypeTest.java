@@ -28,6 +28,8 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.MockDirectoryService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
@@ -41,6 +43,7 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
@@ -111,7 +114,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
-        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setSName( new PrincipalName( new KerberosPrincipal( "ldap/ldap.example.com@EXAMPLE.COM" ) ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();

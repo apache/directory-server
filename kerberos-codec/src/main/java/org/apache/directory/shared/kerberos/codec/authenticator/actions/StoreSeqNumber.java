@@ -38,7 +38,7 @@ public class StoreSeqNumber extends AbstractReadInteger
      */
     public StoreSeqNumber()
     {
-        super( "Authenticator seq-number" );
+        super( "Authenticator seq-number", Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
 

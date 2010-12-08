@@ -37,7 +37,7 @@ public class StoreNonce extends AbstractReadInteger
      */
     public StoreNonce()
     {
-        super( "KDC-REQ-BODY nonce" );
+        super( "KDC-REQ-BODY nonce", Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
 
