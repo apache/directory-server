@@ -21,11 +21,14 @@
 package org.apache.directory.server.config;
 
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -127,8 +130,26 @@ public class ConfigWriterTest
             originalConfigEntries.add( ldifReader.next() );
         }
 
+        // Getting the list of entries of generated config
+        List<LdifEntry> generatedConfigEntries = configWriter.getConvertedLdifEntries();
+
         // Comparing the number of entries
-        assertEquals( originalConfigEntries.size(), configWriter.getConvertedLdifEntries().size() );
+        assertEquals( originalConfigEntries.size(), generatedConfigEntries.size() );
+
+        // Comparing each entry's DN in both lists (which have been sorted before)
+        Comparator<LdifEntry> dnComparator = new Comparator<LdifEntry>()
+        {
+            public int compare( LdifEntry o1, LdifEntry o2 )
+            {
+                return o1.getDn().toString().compareToIgnoreCase( o2.getDn().toString() );
+            }
+        };
+        Collections.sort( originalConfigEntries, dnComparator );
+        Collections.sort( generatedConfigEntries, dnComparator );
+        for ( int i = 0; i < originalConfigEntries.size(); i++ )
+        {
+            assertTrue( originalConfigEntries.get( i ).getDn().getNormName().equals( generatedConfigEntries.get( i ).getDn().getNormName() ) );
+        }
 
         // Destroying the config partition
         configPartition.destroy();
