@@ -28,10 +28,6 @@ public interface SchemaService
 
     SchemaPartition getSchemaPartition();
 
-
-    void setSchemaPartition( SchemaPartition schemaPartition );
-    
-    
     /**
      * Initializes the SchemaService
      *

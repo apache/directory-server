@@ -102,15 +102,6 @@ public class DefaultSchemaService implements SchemaService
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#setSchemaPartition(org.apache.directory.server.core.schema.SchemaPartition)
-     */
-    public void setSchemaPartition( SchemaPartition schemaPartition )
-    {
-        this.schemaPartition = schemaPartition;
-    }
-
-
     /**
      * Generate the comparators attribute from the registry
      */
