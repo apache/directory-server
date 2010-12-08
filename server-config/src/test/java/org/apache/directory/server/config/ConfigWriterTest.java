@@ -161,7 +161,11 @@ public class ConfigWriterTest
             Iterator<EntryAttribute> attributesIterator = originalConfigEntry.iterator();
             while ( attributesIterator.hasNext() )
             {
-                assertTrue( generatedConfigEntry.contains( ( EntryAttribute ) attributesIterator.next() ) );
+                EntryAttribute originalEntryAttribute = ( EntryAttribute ) attributesIterator.next();
+                assertTrue( generatedConfigEntry.contains( originalEntryAttribute ) );
+
+                EntryAttribute generatedEntryAttribute = generatedConfigEntry.get( originalEntryAttribute.getId() );
+                assertTrue( originalEntryAttribute.equals( generatedEntryAttribute ) );
             }
         }
 
