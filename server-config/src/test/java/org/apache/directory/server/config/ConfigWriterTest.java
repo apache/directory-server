@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +37,8 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
@@ -136,7 +139,7 @@ public class ConfigWriterTest
         // Comparing the number of entries
         assertEquals( originalConfigEntries.size(), generatedConfigEntries.size() );
 
-        // Comparing each entry's DN in both lists (which have been sorted before)
+        // Comparing each entry in both lists (which have been sorted before)
         Comparator<LdifEntry> dnComparator = new Comparator<LdifEntry>()
         {
             public int compare( LdifEntry o1, LdifEntry o2 )
@@ -148,7 +151,18 @@ public class ConfigWriterTest
         Collections.sort( generatedConfigEntries, dnComparator );
         for ( int i = 0; i < originalConfigEntries.size(); i++ )
         {
-            assertTrue( originalConfigEntries.get( i ).getDn().getNormName().equals( generatedConfigEntries.get( i ).getDn().getNormName() ) );
+            Entry originalConfigEntry = originalConfigEntries.get( i ).getEntry();
+            Entry generatedConfigEntry = generatedConfigEntries.get( i ).getEntry();
+
+            // Comparing DNs
+            assertTrue( originalConfigEntry.getDn().getNormName().equals( generatedConfigEntry.getDn().getNormName() ) );
+
+            // Comparing attributes
+            Iterator<EntryAttribute> attributesIterator = originalConfigEntry.iterator();
+            while ( attributesIterator.hasNext() )
+            {
+                assertTrue( generatedConfigEntry.contains( ( EntryAttribute ) attributesIterator.next() ) );
+            }
         }
 
         // Destroying the config partition
