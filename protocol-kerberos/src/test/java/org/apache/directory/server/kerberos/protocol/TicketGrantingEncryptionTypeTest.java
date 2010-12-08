@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.MockDirectoryService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;

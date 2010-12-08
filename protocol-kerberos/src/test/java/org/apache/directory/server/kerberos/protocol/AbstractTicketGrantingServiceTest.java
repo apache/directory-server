@@ -126,7 +126,7 @@ public abstract class AbstractTicketGrantingServiceTest
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
         encTicketPart.setKey( sessionKey );
-        encTicketPart.setCName( new PrincipalName( clientPrincipal.getName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
+        encTicketPart.setCName( new PrincipalName( clientPrincipal ) );
         encTicketPart.setCRealm( clientPrincipal.getRealm() );
         encTicketPart.setTransited( new TransitedEncoding() );
         encTicketPart.setAuthTime( new KerberosTime() );
