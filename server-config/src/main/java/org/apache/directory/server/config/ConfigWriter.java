@@ -20,7 +20,9 @@
 package org.apache.directory.server.config;
 
 
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,31 +45,106 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
- * TODO
- *
+ * This class implements a writer for ApacheDS Configuration.
+ * <p>
+ * It can be used either:
+ * <ul>
+ *      <li>write the configuration to an LDIF</li>
+ *      <li>get the list of LDIF entries from the configuration</li>
+ * </ul>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ConfigWriter
 {
-    public static void writeConfiguration( SchemaManager schemaManager, ConfigBean configBean, String file )
-        throws Exception
+    /** The schema manager */
+    private SchemaManager schemaManager;
+
+    /** The configuration bean */
+    private ConfigBean configBean;
+
+    /** The list of entries */
+    private List<LdifEntry> entries;
+
+
+    /**
+     * Creates a new instance of ConfigWriter.
+     *
+     * @param schemaManager
+     *      the schema manager
+     * @param configBean
+     *      the configuration bean
+     */
+    public ConfigWriter( SchemaManager schemaManager, ConfigBean configBean )
     {
-        // Creating a list to store the created entries
-        List<LdifEntry> entries = new ArrayList<LdifEntry>();
+        this.schemaManager = schemaManager;
+        this.configBean = configBean;
+    }
 
-        // Building the default config root entry 'ou=config'
-        LdifEntry configRootEntry = new LdifEntry();
-        configRootEntry.setDn( new DN( SchemaConstants.OU_AT + "=" + "config" ) );
-        addObjectClassAttribute( schemaManager, configRootEntry, "organizationalUnit" );
-        addAttributeTypeValues( SchemaConstants.OU_AT, "config", configRootEntry );
-        entries.add( configRootEntry );
 
-        // Building entries from the directory service beans
-        List<AdsBaseBean> directoryServiceBeans = configBean.getDirectoryServiceBeans();
-        for ( AdsBaseBean adsBaseBean : directoryServiceBeans )
+    /**
+     * Converts the configuration bean to a list of LDIF entries.
+     */
+    private void convertConfigurationBeanToLdifEntries() throws ConfigurationException
+    {
+        try
         {
-            addBean( configRootEntry.getDn(), schemaManager, adsBaseBean, entries );
+            if ( entries == null )
+            {
+                entries = new ArrayList<LdifEntry>();
+
+                // Building the default config root entry 'ou=config'
+                LdifEntry configRootEntry = new LdifEntry();
+                configRootEntry.setDn( new DN( SchemaConstants.OU_AT + "=" + "config" ) );
+                addObjectClassAttribute( schemaManager, configRootEntry, "organizationalUnit" );
+                addAttributeTypeValues( SchemaConstants.OU_AT, "config", configRootEntry );
+                entries.add( configRootEntry );
+
+                // Building entries from the directory service beans
+                List<AdsBaseBean> directoryServiceBeans = configBean.getDirectoryServiceBeans();
+                for ( AdsBaseBean adsBaseBean : directoryServiceBeans )
+                {
+                    addBean( configRootEntry.getDn(), schemaManager, adsBaseBean, entries );
+                }
+            }
         }
+        catch ( Exception e )
+        {
+            throw new ConfigurationException( "Unable to convert the configuration bean to LDIF entries", e );
+        }
+    }
+
+
+    /**
+     * Writes the configuration bean as LDIF to the given file.
+     *
+     * @param path
+     *      the output file path
+     * @throws ConfigurationException
+     *      if an error occurs during the conversion to LDIF
+     * @throws IOException
+     *      if an error occurs when writing the file
+     */
+    public void write( String path ) throws ConfigurationException, IOException
+    {
+        write( new File( path ) );
+    }
+
+
+    /**
+     * Writes the configuration bean as LDIF to the given file.
+     *
+     * @param file
+     *      the output file
+     * @throws ConfigurationException
+     *      if an error occurs during the conversion to LDIF
+     * @throws IOException
+     *      if an error occurs when writing the file
+     */
+    public void write( File file ) throws ConfigurationException, IOException
+    {
+        // Converting the configuration bean to a list of LDIF entries
+        convertConfigurationBeanToLdifEntries();
 
         // Writing the file to disk
         FileWriter writer = new FileWriter( file );
@@ -77,8 +154,23 @@ public class ConfigWriter
             writer.append( entry.toString() );
         }
         writer.close();
-
-        System.out.println( entries.size() );
+    }
+    
+    /**
+     * Gets the converted LDIF entries from the configuration bean.
+     *
+     * @return
+     *      the list of converted LDIF entries
+     * @throws ConfigurationException
+     *      if an error occurs during the conversion to LDIF
+     */
+    public List<LdifEntry> getConvertedLdifEntries() throws ConfigurationException
+    {
+        // Converting the configuration bean to a list of LDIF entries
+        convertConfigurationBeanToLdifEntries();
+        
+        // Returning the list of entries
+        return entries;
     }
 
 
@@ -93,7 +185,7 @@ public class ConfigWriter
      *      the object class name
      * @throws LdapException
      */
-    private static void addObjectClassAttribute( SchemaManager schemaManager, LdifEntry entry, String objectClass )
+    private void addObjectClassAttribute( SchemaManager schemaManager, LdifEntry entry, String objectClass )
         throws LdapException
     {
         ObjectClass objectClassObject = schemaManager.getObjectClassRegistry().lookup( objectClass );
@@ -124,7 +216,7 @@ public class ConfigWriter
      *      the current object class
      * @throws LdapException
      */
-    private static void computeObjectClassAttributeValues( SchemaManager schemaManager,
+    private void computeObjectClassAttributeValues( SchemaManager schemaManager,
         Set<String> objectClassAttributeValues,
         ObjectClass objectClass ) throws LdapException
     {
@@ -171,7 +263,7 @@ public class ConfigWriter
      *      the list of the entries
      * @throws Exception
      */
-    private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
+    private void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
         throws Exception
     {
         addBean( rootDn, schemaManager, bean, entries, null, null );
@@ -196,7 +288,7 @@ public class ConfigWriter
      *      the RDN to the parent entry
      * @throws Exception
      */
-    private static void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries,
+    private void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries,
         LdifEntry parentEntry, String attributeTypeForParentEntry )
         throws Exception
     {
@@ -322,7 +414,7 @@ public class ConfigWriter
      * @return
      *      the name of the object class to use for the given bean class
      */
-    private static String getObjectClassNameForBean( Class<?> c )
+    private String getObjectClassNameForBean( Class<?> c )
     {
         String classNameWithPackage = getClassNameWithoutPackageName( c );
         return "ads-" + classNameWithPackage.substring( 0, classNameWithPackage.length() - 4 );
@@ -337,7 +429,7 @@ public class ConfigWriter
      * @return
      *      the class name of the given class stripped from its package name
      */
-    private static String getClassNameWithoutPackageName( Class<?> c )
+    private String getClassNameWithoutPackageName( Class<?> c )
     {
         String className = c.getName();
 
@@ -360,7 +452,7 @@ public class ConfigWriter
      *      <code>true</code> if the given is multiple,
      *      <code>false</code> if not.
      */
-    private static boolean isMultiple( Class<?> clazz )
+    private boolean isMultiple( Class<?> clazz )
     {
         return Collection.class.isAssignableFrom( clazz );
     }
@@ -379,7 +471,7 @@ public class ConfigWriter
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    private static DN getDn( DN baseDN, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
+    private DN getDn( DN baseDN, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
         IllegalAccessException
     {
         // Getting the class of the bean
@@ -433,7 +525,7 @@ public class ConfigWriter
      *      the entry
      * @throws LdapException
      */
-    private static void addAttributeTypeValues( String attributeType, Object o, LdifEntry entry )
+    private void addAttributeTypeValues( String attributeType, Object o, LdifEntry entry )
         throws LdapException
     {
         // We don't store a 'null' value
@@ -480,7 +572,7 @@ public class ConfigWriter
      * @param value
      *      the value
      */
-    private static void addAttributeTypeValue( EntryAttribute attribute, Object value )
+    private void addAttributeTypeValue( EntryAttribute attribute, Object value )
     {
         // We don't store a 'null' value
         if ( value != null )

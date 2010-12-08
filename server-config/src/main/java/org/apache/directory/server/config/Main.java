@@ -14,22 +14,8 @@ import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 
 public class Main
 {
-    private Object field;
-
-
     public static void main( String[] args ) throws Exception
     {
-        //        Deprecated deprecatedAnnotation = TestClass.class.getAnnotation( Deprecated.class );
-        //        System.out.println( deprecatedAnnotation );
-        //        
-        //        deprecatedAnnotation = Main.class.getAnnotation( Deprecated.class );
-        //        
-        //        Field[] fields = Main.class.getDeclaredFields();
-        //        for ( Field field : fields )
-        //        {
-        //            System.out.println( field );
-        //        }
-
         SchemaLoader schemaLoader = new JarLdifSchemaLoader();
         SchemaManager schemaManager = new DefaultSchemaManager( schemaLoader );
         schemaManager.loadAllEnabled();
@@ -47,9 +33,11 @@ public class Main
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=config" ) );
 
         long t1 = System.currentTimeMillis();
-        ConfigWriter.writeConfiguration( schemaManager, configBean, "/Users/pajbam/Desktop/config.ldif" );
+        ConfigWriter configWriter = new ConfigWriter( schemaManager, configBean );
+        configWriter.write( "/Users/pajbam/Desktop/config.ldif" );
         long t2 = System.currentTimeMillis();
 
         System.out.println( t2 - t1 );
+        System.out.println( configWriter.getConvertedLdifEntries() );
     }
 }
