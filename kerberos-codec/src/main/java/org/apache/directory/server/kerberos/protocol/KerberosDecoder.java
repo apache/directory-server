@@ -89,8 +89,6 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
     {
         ByteBuffer buf = in.buf();
         KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session.getAttribute( KERBEROS_MESSAGE_CONTAINER );
-
-        //System.out.println( "IN : " + StringTools.dumpBytes( buf.array() ) );
         
         if ( kerberosMessageContainer == null )
         {
