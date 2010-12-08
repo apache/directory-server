@@ -73,7 +73,7 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public KerberosTime()
     {
-        kerberosTime = System.currentTimeMillis();
+        kerberosTime = (System.currentTimeMillis()/1000L)*1000L; // drop the ms
         convertInternal( kerberosTime );
     }
 
@@ -112,7 +112,7 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public KerberosTime( Date time )
     {
-        kerberosTime = time.getTime();
+        kerberosTime = (time.getTime()/1000L)*1000L; // drop the ms
         convertInternal( kerberosTime );
     }
 
@@ -288,13 +288,13 @@ public class KerberosTime implements Comparable<KerberosTime>
     
     
     /**
-     * checks if the current kerberos time is less than the given kerberos time
-     * @param ktime the kerberos time against which the currnet kerberos time needs to be compared
-     * @return true if current kerberos time is less than the given kerberos time, false otherwise
+     * checks if the current kerberos time is less or equal than the given kerberos time
+     * @param ktime the kerberos time against which the current kerberos time needs to be compared
+     * @return true if current kerberos time is less or equal than the given kerberos time, false otherwise
      */
     public boolean lessThan( KerberosTime ktime )
     {
-        return kerberosTime < ktime.kerberosTime;
+        return kerberosTime <= ktime.kerberosTime;
     }
     
     

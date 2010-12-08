@@ -65,7 +65,7 @@ public class EncTicketPart extends AbstractAsn1Object
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** the ticket's flags */
-    private TicketFlags flags;
+    private TicketFlags flags = new TicketFlags();
 
     /** the encryption key */
     private EncryptionKey key;
