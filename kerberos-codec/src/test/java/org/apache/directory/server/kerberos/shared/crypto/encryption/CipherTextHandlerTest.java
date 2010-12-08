@@ -146,7 +146,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070322233107Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 291067, object.getPausec() );
@@ -173,7 +173,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            lockBox.decrypt( key, data, KeyUsage.NUMBER1 );
+            lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             fail( "Should have thrown exception." );
         }
         catch ( KerberosException ke )
@@ -200,7 +200,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object =  KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getPausec() );
@@ -236,7 +236,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
         }
         catch ( KerberosException ke )
         {
@@ -245,7 +245,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", zuluTime, object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", microSeconds, object.getPausec() );
@@ -278,7 +278,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410212557Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 379386, object.getPausec() );
@@ -318,7 +318,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
         }
         catch ( KerberosException ke )
         {
@@ -327,7 +327,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getPausec() );
@@ -371,7 +371,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410212809Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 298294, object.getPausec() );
@@ -423,7 +423,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
         }
         catch ( KerberosException ke )
         {
@@ -432,7 +432,7 @@ public class CipherTextHandlerTest
 
         try
         {
-            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.NUMBER1 );
+            byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getPausec() );

@@ -213,7 +213,7 @@ public class ChangePasswordService
         CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         Authenticator authenticator = KerberosUtils.verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11, false );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.AP_REQ_AUTHNT_SESS_KEY, false );
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
@@ -248,7 +248,7 @@ public class ChangePasswordService
         try
         {
             privatePart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey,
-                encReqPrivPart, KeyUsage.NUMBER13 );
+                encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
         }
         catch ( KerberosException ke )
         {
@@ -367,7 +367,7 @@ public class ChangePasswordService
 
         try
         {
-            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.NUMBER13 );
+            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
         }
         catch ( KerberosException ke )
         {
@@ -387,7 +387,7 @@ public class ChangePasswordService
 
         try
         {
-            encRepPart = cipherTextHandler.seal( ticket.getEncTicketPart().getSessionKey(), repPart, KeyUsage.NUMBER12 );
+            encRepPart = cipherTextHandler.seal( ticket.getEncTicketPart().getSessionKey(), repPart, KeyUsage.AP_REP_ENC_PART_SESS_KEY );
         }
         catch ( KerberosException ke )
         {

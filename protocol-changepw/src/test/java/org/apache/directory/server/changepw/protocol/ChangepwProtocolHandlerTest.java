@@ -171,7 +171,7 @@ public class ChangepwProtocolHandlerTest
         authenticator.setSubKey( subSessionKey );
 
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getKey(), authenticator
-                , KeyUsage.NUMBER11 );
+                , KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
 
         ApReq apReq = new ApReq();
         apReq.setOption( apOptions );
@@ -250,7 +250,7 @@ public class ChangepwProtocolHandlerTest
         authenticator.setCusec( 0 );
 
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, authenticator,
-                KeyUsage.NUMBER11 );
+                KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
 
         ApReq apReq = new ApReq();
         apReq.setOption( apOptions );
@@ -283,7 +283,7 @@ public class ChangepwProtocolHandlerTest
         encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
-        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
+        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
 
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();
@@ -319,7 +319,7 @@ public class ChangepwProtocolHandlerTest
         encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
-        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
+        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
 
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();

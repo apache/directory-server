@@ -265,7 +265,7 @@ public class TicketGrantingService
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7, isValidate );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY, isValidate );
 
         tgsContext.setAuthenticator( authenticator );
     }
@@ -303,7 +303,7 @@ public class TicketGrantingService
 
             LOG.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
-            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
+            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
         }
     }
     
@@ -347,7 +347,7 @@ public class TicketGrantingService
 
         if ( request.getKdcReqBody().getEncAuthorizationData() != null )
         {
-            byte[] authorizationData = cipherTextHandler.decrypt( authenticator.getSubKey(), request.getKdcReqBody().getEncAuthorizationData(), KeyUsage.NUMBER4 );
+            byte[] authorizationData = cipherTextHandler.decrypt( authenticator.getSubKey(), request.getKdcReqBody().getEncAuthorizationData(), KeyUsage.TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY );
             AuthorizationData authData = KerberosDecoder.decodeAuthorizationData( authorizationData ); 
             authData.addEntry( tgt.getEncTicketPart().getAuthorizationData().getCurrentAD() );
             newTicketPart.setAuthorizationData( authData );
@@ -375,7 +375,7 @@ public class TicketGrantingService
         }
         else
         {
-            EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart, KeyUsage.NUMBER2 );
+            EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
             Ticket newTicket = new Ticket( request.getKdcReqBody().getSName(), encryptedData );
             newTicket.setEncTicketPart( newTicketPart );
@@ -432,11 +432,11 @@ public class TicketGrantingService
         
         if ( authenticator.getSubKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), encTgsRepPart, KeyUsage.NUMBER9 );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), encTgsRepPart, KeyUsage.TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY );
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart, KeyUsage.NUMBER8 );
+            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
         }
         
         reply.setEncPart( encryptedData );
@@ -1033,7 +1033,7 @@ public class TicketGrantingService
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOKEY );
         }
         
-        byte[] encTicketPartData = lockBox.decrypt( ticketKey, ticket.getEncPart(), KeyUsage.NUMBER2 );
+        byte[] encTicketPartData = lockBox.decrypt( ticketKey, ticket.getEncPart(), KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
         EncTicketPart encPart = KerberosDecoder.decodeEncTicketPart( encTicketPartData ); 
         ticket.setEncTicketPart( encPart );
 

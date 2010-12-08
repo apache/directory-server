@@ -269,7 +269,7 @@ public class AuthenticationService
                     if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue = KerberosDecoder.decodeEncryptedData( paData.getPaDataValue() );
-                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue, KeyUsage.NUMBER1 );
+                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
                         timestamp = KerberosDecoder.decodePaEncTsEnc( decryptedData );
                     }
                 }
@@ -531,7 +531,7 @@ public class AuthenticationService
             }
         }
 
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
 
@@ -592,7 +592,7 @@ public class AuthenticationService
         }
         
         EncryptionKey clientKey = authContext.getClientKey();
-        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart, KeyUsage.NUMBER3 );
+        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart, KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
         reply.setEncPart( encryptedData );
         reply.setEncKdcRepPart( encKdcRepPart );
         
@@ -734,6 +734,7 @@ public class AuthenticationService
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new KerberosException( errorType, e );
         }
 

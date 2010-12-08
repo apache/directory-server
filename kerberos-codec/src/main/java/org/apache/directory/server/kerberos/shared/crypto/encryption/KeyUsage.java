@@ -45,74 +45,74 @@ public final class KeyUsage implements Comparable<KeyUsage>
     /**
      * AS-REQ PA-ENC-TIMESTAMP padata timestamp, encrypted with the client key (Section 5.2.7.2)
      */
-    public static final KeyUsage NUMBER1 = new KeyUsage( 1, I18n.err( I18n.ERR_603 ) );
+    public static final KeyUsage AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY = new KeyUsage( 1, I18n.err( I18n.ERR_603 ) );
 
     /**
      * AS-REP Ticket and TGS-REP Ticket (includes TGS session key or application session key), encrypted with the service key (Section 5.3)
      */
-    public static final KeyUsage NUMBER2 = new KeyUsage( 2, I18n.err( I18n.ERR_604 ) );
+    public static final KeyUsage AS_OR_TGS_REP_TICKET_WITH_SRVKEY = new KeyUsage( 2, I18n.err( I18n.ERR_604 ) );
 
     /**
      * AS-REP encrypted part (includes TGS session key or application session key), encrypted with the client key (Section 5.4.2)
      */
-    public static final KeyUsage NUMBER3 = new KeyUsage( 3, I18n.err( I18n.ERR_605 ) );
+    public static final KeyUsage AS_REP_ENC_PART_WITH_CKEY = new KeyUsage( 3, I18n.err( I18n.ERR_605 ) );
 
     /**
      * TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with the TGS session key (Section 5.4.1)
      */
-    public static final KeyUsage NUMBER4 = new KeyUsage( 4, I18n.err( I18n.ERR_606 ) );
+    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY = new KeyUsage( 4, I18n.err( I18n.ERR_606 ) );
 
     /**
      * TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with the TGS authenticator subkey (Section 5.4.1)
      */
-    public static final KeyUsage NUMBER5 = new KeyUsage( 5, I18n.err( I18n.ERR_607 ) );
+    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY = new KeyUsage( 5, I18n.err( I18n.ERR_607 ) );
 
     /**
      * TGS-REQ PA-TGS-REQ padata AP-REQ Authenticator cksum, keyed with the TGS session key (Section 5.5.1)
      */
-    public static final KeyUsage NUMBER6 = new KeyUsage( 6, I18n.err( I18n.ERR_608 ) );
+    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY = new KeyUsage( 6, I18n.err( I18n.ERR_608 ) );
 
     /**
      * TGS-REQ PA-TGS-REQ padata AP-REQ Authenticator (includes TGS authenticator subkey), encrypted with the TGS session key (Section 5.5.1)
      */
-    public static final KeyUsage NUMBER7 = new KeyUsage( 7, I18n.err( I18n.ERR_609 ) );
+    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY = new KeyUsage( 7, I18n.err( I18n.ERR_609 ) );
 
     /**
      * TGS-REP encrypted part (includes application session key), encrypted with the TGS session key (Section 5.4.2)
      */
-    public static final KeyUsage NUMBER8 = new KeyUsage( 8, I18n.err( I18n.ERR_610 ) );
+    public static final KeyUsage TGS_REP_ENC_PART_TGS_SESS_KEY = new KeyUsage( 8, I18n.err( I18n.ERR_610 ) );
 
     /**
      * TGS-REP encrypted part (includes application session key), encrypted with the TGS authenticator subkey (Section 5.4.2)
      */
-    public static final KeyUsage NUMBER9 = new KeyUsage( 9, I18n.err( I18n.ERR_610 ) );
+    public static final KeyUsage TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY = new KeyUsage( 9, I18n.err( I18n.ERR_610 ) );
 
     /**
      * AP-REQ Authenticator cksum, keyed with the application session key (Section 5.5.1)
      */
-    public static final KeyUsage NUMBER10 = new KeyUsage( 10, I18n.err( I18n.ERR_612 ) );
+    public static final KeyUsage AP_REQ_AUTHNT_CKSUM_SESS_KEY = new KeyUsage( 10, I18n.err( I18n.ERR_612 ) );
 
     /**
      * AP-REQ Authenticator (includes application authenticator subkey), encrypted with the application session key (Section 5.5.1)
      */
-    public static final KeyUsage NUMBER11 = new KeyUsage( 11, I18n.err( I18n.ERR_613 ) );
+    public static final KeyUsage AP_REQ_AUTHNT_SESS_KEY = new KeyUsage( 11, I18n.err( I18n.ERR_613 ) );
 
     /**
      * AP-REP encrypted part (includes application session subkey), encrypted with the application session key (Section 5.5.2)
      */
-    public static final KeyUsage NUMBER12 = new KeyUsage( 12, I18n.err( I18n.ERR_614 ) );
+    public static final KeyUsage AP_REP_ENC_PART_SESS_KEY = new KeyUsage( 12, I18n.err( I18n.ERR_614 ) );
 
     /**
      * KRB-PRIV encrypted part, encrypted with a key chosen by the application (Section 5.7.1)
      */
-    public static final KeyUsage NUMBER13 = new KeyUsage( 13, I18n.err( I18n.ERR_615 ) );
+    public static final KeyUsage KRB_PRIV_ENC_PART_CHOSEN_KEY = new KeyUsage( 13, I18n.err( I18n.ERR_615 ) );
 
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
     private static final KeyUsage[] values =
-        { NUMBER1, NUMBER2, NUMBER3, NUMBER4, NUMBER5, NUMBER6, NUMBER7, NUMBER8, NUMBER9, NUMBER10, NUMBER11,
-            NUMBER12, NUMBER13 };
+        { AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY, AS_OR_TGS_REP_TICKET_WITH_SRVKEY, AS_REP_ENC_PART_WITH_CKEY, TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY, TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY, TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY, TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY, TGS_REP_ENC_PART_TGS_SESS_KEY, TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY, AP_REQ_AUTHNT_CKSUM_SESS_KEY, AP_REQ_AUTHNT_SESS_KEY,
+            AP_REP_ENC_PART_SESS_KEY, KRB_PRIV_ENC_PART_CHOSEN_KEY };
 
     /**
      * VALUES needs to be located here, otherwise illegal forward reference.
@@ -149,7 +149,7 @@ public final class KeyUsage implements Comparable<KeyUsage>
             }
         }
 
-        return NUMBER1;
+        return AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY;
     }
 
 
