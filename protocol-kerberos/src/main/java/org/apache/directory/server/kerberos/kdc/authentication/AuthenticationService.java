@@ -734,7 +734,6 @@ public class AuthenticationService
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             throw new KerberosException( errorType, e );
         }
 
