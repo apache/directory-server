@@ -34,6 +34,7 @@ import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
 import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
+import org.apache.directory.shared.kerberos.codec.encAsRepPart.EncAsRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
@@ -56,6 +57,7 @@ import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
+import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
@@ -260,6 +262,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         }
         catch ( DecoderException de )
         {
+            de.printStackTrace();
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
         }
 
@@ -618,4 +621,40 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return krbPriv;
     }
+    
+    
+    /**
+     * Decode an EncAsRepPart structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of EncAsRepPart
+     * @throws KerberosException If the decoding fails
+     */
+    public static EncAsRepPart decodeEncAsRepPart( byte[] data ) throws KerberosException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a EncAsRepPart Container
+        Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the EncAsRepPart PDU
+        try
+        {
+            kerberosDecoder.decode( stream, encAsRepPartContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
+        }
+
+        // get the decoded EncAsRepPart
+        EncAsRepPart encAsRepPart = ( ( EncAsRepPartContainer ) encAsRepPartContainer ).getEncAsRepPart();
+
+        return encAsRepPart;
+    }
+
 }
