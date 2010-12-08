@@ -345,6 +345,7 @@ public class ConfigWriter
                                 containerEntry.setDn( entry.getDn().add( new RDN( SchemaConstants.OU_AT, container ) ) );
                                 addObjectClassAttribute( schemaManager, containerEntry,
                                     SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                                addAttributeTypeValues( SchemaConstants.OU_AT, container, containerEntry );
                                 entries.add( containerEntry );
 
                                 if ( Collection.class.isAssignableFrom( fieldClass ) )
