@@ -899,11 +899,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     @Test
     public void testInitialServiceTicket() throws Exception
     {
-        String servicePrincipalName = "ldap/ldap.example.com@EXAMPLE.COM";
+        KerberosPrincipal servicePrincipalName = new KerberosPrincipal( "ldap/ldap.example.com@EXAMPLE.COM" );
 
         KdcReqBody kdcReqBody = new KdcReqBody();
         kdcReqBody.setCName( getPrincipalName( "hnelson" ) );
-        kdcReqBody.setSName( getPrincipalName( servicePrincipalName ) );
+        kdcReqBody.setSName( new PrincipalName( servicePrincipalName ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
         kdcReqBody.setEType( config.getEncryptionTypes() );
 
@@ -937,8 +937,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         assertTrue( "INITIAL flag", reply.getTicket().getEncTicketPart().getFlags().isInitial() );
         assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
-        assertEquals( "Service principal name", reply.getSName().getNameString(), servicePrincipalName );
-        assertEquals( "Service principal name", reply.getTicket().getSName().getNames(), servicePrincipalName );
+        assertEquals( "Service principal name", "ldap/ldap.example.com", reply.getSName().getNameString() );
+        assertEquals( "Service principal name", "ldap/ldap.example.com", reply.getTicket().getSName().getNameString() );
     }
 
 
