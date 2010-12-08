@@ -4,11 +4,6 @@ ou: config
 objectclass: top
 objectclass: organizationalUnit
 
-dn: ou=replProviders,ou=config
-ou: replProviders
-objectclass: organizationalUnit
-objectclass: top
-
 dn: ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
@@ -51,7 +46,6 @@ objectclass: ads-changeLog
 ads-changeLogId: defaultChangeLog
 ads-changeLogExposed: FALSE
 
-
 dn: ads-journalId=defaultJournal,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
@@ -60,7 +54,6 @@ ads-journalId: defaultJournal
 ads-journalFileName: Journal.txt
 ads-journalWorkingDir: /
 ads-journalRotation: 2
-
 
 dn: ou=interceptors,ads-directoryServiceId=default,ou=config
 ou: interceptors
