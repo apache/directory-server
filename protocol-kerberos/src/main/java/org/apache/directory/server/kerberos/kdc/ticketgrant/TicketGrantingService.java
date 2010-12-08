@@ -440,6 +440,7 @@ public class TicketGrantingService
         }
         
         reply.setEncPart( encryptedData );
+        reply.setEncKdcRepPart( encKdcRepPart );
 
         tgsContext.setReply( reply );
     }
@@ -1065,12 +1066,15 @@ public class TicketGrantingService
         KerberosTime clientTime = authenticator.getCtime();
         int clientMicroSeconds = authenticator.getCusec();
 
-        if ( replayCache.isReplay( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) )
+        if ( replayCache != null )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_REPEAT );
+            if ( replayCache.isReplay( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_REPEAT );
+            }
+    
+            replayCache.save( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
         }
-
-        replayCache.save( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
 
         if ( !authenticator.getCtime().isInClockSkew( clockSkew ) )
         {

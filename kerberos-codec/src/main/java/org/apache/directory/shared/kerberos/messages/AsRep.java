@@ -27,7 +27,6 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -43,9 +42,6 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
  */
 public class AsRep extends KdcRep
 {
-    /** The decoded KDC-REP part */
-    private EncKdcRepPart encKdcRepPart;
-    
     // Storage for computed lengths
     private transient int kdcRepLength;
     private transient int asRepLength;
@@ -122,24 +118,6 @@ public class AsRep extends KdcRep
     public PrincipalName getSName()
     {
         return encKdcRepPart.getSName();
-    }
-
-
-    /**
-     * @return the encKdcRepPart
-     */
-    public EncKdcRepPart getEncKdcRepPart()
-    {
-        return encKdcRepPart;
-    }
-
-
-    /**
-     * @param encKdcRepPart the encKdcRepPart to set
-     */
-    public void setEncKdcRepPart( EncKdcRepPart encKdcRepPart )
-    {
-        this.encKdcRepPart = encKdcRepPart;
     }
 
 

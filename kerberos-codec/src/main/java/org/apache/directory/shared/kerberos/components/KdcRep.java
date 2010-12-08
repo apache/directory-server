@@ -71,6 +71,9 @@ public class KdcRep extends KerberosMessage
     
     /** Encoded part */
     private EncryptedData encPart;
+    
+    /** The decoded KDC-REP part */
+    protected EncKdcRepPart encKdcRepPart;
 
     // Storage for computed lengths
     private transient int pvnoLength;
@@ -211,6 +214,24 @@ public class KdcRep extends KerberosMessage
     public void setEncPart( EncryptedData encPart )
     {
         this.encPart = encPart;
+    }
+
+    
+    /**
+     * @return the encKdcRepPart
+     */
+    public EncKdcRepPart getEncKdcRepPart()
+    {
+        return encKdcRepPart;
+    }
+
+
+    /**
+     * @param encKdcRepPart the encKdcRepPart to set
+     */
+    public void setEncKdcRepPart( EncKdcRepPart encKdcRepPart )
+    {
+        this.encKdcRepPart = encKdcRepPart;
     }
 
     

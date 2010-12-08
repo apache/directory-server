@@ -27,7 +27,6 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -43,9 +42,6 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
  */
 public class TgsRep extends KdcRep
 {
-    /** The decoded KDC-REP part */
-    private EncKdcRepPart encPart;
-    
     // Storage for computed lengths
     private transient int kdcRepLength;
 
@@ -65,7 +61,7 @@ public class TgsRep extends KdcRep
      */
     public KerberosTime getEndTime()
     {
-        return encPart.getEndTime();
+        return encKdcRepPart.getEndTime();
     }
 
     
@@ -76,7 +72,7 @@ public class TgsRep extends KdcRep
      */
     public TicketFlags getFlags()
     {
-        return encPart.getFlags();
+        return encKdcRepPart.getFlags();
     }
 
 
@@ -87,7 +83,7 @@ public class TgsRep extends KdcRep
      */
     public int getNonce()
     {
-        return encPart.getNonce();
+        return encKdcRepPart.getNonce();
     }
 
 
@@ -98,7 +94,7 @@ public class TgsRep extends KdcRep
      */
     public KerberosTime getRenewTill()
     {
-        return encPart.getRenewTill();
+        return encKdcRepPart.getRenewTill();
     }
 
 
@@ -109,7 +105,7 @@ public class TgsRep extends KdcRep
      */
     public KerberosTime getStartTime()
     {
-        return encPart.getStartTime();
+        return encKdcRepPart.getStartTime();
     }
     
     
@@ -120,7 +116,7 @@ public class TgsRep extends KdcRep
      */
     public PrincipalName getSName()
     {
-        return encPart.getSName();
+        return encKdcRepPart.getSName();
     }
 
     
