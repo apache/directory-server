@@ -155,7 +155,8 @@ public class ConfigWriter
         }
         writer.close();
     }
-    
+
+
     /**
      * Gets the converted LDIF entries from the configuration bean.
      *
@@ -168,7 +169,7 @@ public class ConfigWriter
     {
         // Converting the configuration bean to a list of LDIF entries
         convertConfigurationBeanToLdifEntries();
-        
+
         // Returning the list of entries
         return entries;
     }
@@ -583,10 +584,16 @@ public class ConfigWriter
                 // Value is a byte[]
                 attribute.add( ( byte[] ) value );
             }
+            // Storing the boolean value in UPPERCASE (TRUE or FALSE) to the attribute
+            else if ( value instanceof Boolean )
+            {
+                // Value is a byte[]
+                attribute.add( value.toString().toUpperCase() );
+            }
             else
             {
                 // Value is another type of object that we store as a String
-                // (There will be an automatic translation for primary types like int, long, boolean, etc.)
+                // (There will be an automatic translation for primary types like int, long, etc.)
                 attribute.add( value.toString() );
             }
         }
