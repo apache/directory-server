@@ -35,7 +35,7 @@ public class ExtendedOpHandlerBean extends AdsBaseBean
     private String extendedOpId;
 
     /** The Extended Operation FQCN */
-    @ConfigurationElement(attributeType = "extendedOpHandlerClass")
+    @ConfigurationElement(attributeType = "ads-extendedOpHandlerClass")
     private String extendedOpHandlerClass;
 
 

@@ -37,9 +37,11 @@ public class JdbmIndexBean<K, E> extends IndexBean
     private static final int DEFAULT_DUPLICATE_LIMIT = 512;
 
     /** the size (number of index entries) for the cache */
+    @ConfigurationElement(attributeType = "ads-indexCacheSize")
     private int indexCacheSize = DEFAULT_INDEX_CACHE_SIZE;
 
     /** duplicate limit before duplicate keys switch to using a btree for values */
+    @ConfigurationElement(attributeType = "ads-indexNumDupLimit")
     private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
 
     /** The index file name */
