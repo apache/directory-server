@@ -50,7 +50,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private boolean dsAllowAnonymousAccess = false;
 
     /** The flag that tells if DN must be denormalized */
-    @ConfigurationElement(attributeType = "dsDenormalizeOpAttrsEnabled")
+    @ConfigurationElement(attributeType = "ads-dsDenormalizeOpAttrsEnabled")
     private boolean dsDenormalizeOpAttrsEnabled = true;
 
     /** The maximum size of an incoming PDU */
