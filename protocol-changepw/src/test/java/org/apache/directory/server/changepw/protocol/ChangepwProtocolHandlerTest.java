@@ -20,6 +20,8 @@
 package org.apache.directory.server.changepw.protocol;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -37,36 +39,33 @@ import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.options.ApOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.KrbError;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.DummySession;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the ChangePasswordProtocolHandler.
@@ -115,7 +114,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        KrbError error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
@@ -133,7 +132,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        KrbError error = reply.getKrbError();
         assertEquals( "Request failed due to an error in authentication processing", 3, error.getErrorCode() );
     }
 
@@ -162,19 +161,22 @@ public class ChangepwProtocolHandlerTest
 
         ApOptions apOptions = new ApOptions();
 
-        AuthenticatorModifier modifier = new AuthenticatorModifier();
-        modifier.setVersionNumber( 5 );
-        modifier.setClientRealm( "EXAMPLE.COM" );
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setClientTime( new KerberosTime() );
-        modifier.setClientMicroSecond( 0 );
+        Authenticator authenticator = new Authenticator();
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCRealm( "EXAMPLE.COM" );
+        authenticator.setCName( getPrincipalName( "hnelson" ) );
+        authenticator.setCTime( new KerberosTime() );
+        authenticator.setCusec( 0 );
 
-        modifier.setSubSessionKey( subSessionKey );
+        authenticator.setSubKey( subSessionKey );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getSessionKey(), modifier
-                .getAuthenticator(), KeyUsage.NUMBER11 );
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getKey(), authenticator
+                , KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
 
-        ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
+        ApReq apReq = new ApReq();
+        apReq.setOption( apOptions );
+        apReq.setTicket( serviceTicket );
+        apReq.setAuthenticator( encryptedAuthenticator );
 
         String newPassword = "secretsecret";
 
@@ -185,7 +187,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        KrbError error = reply.getKrbError();
         assertEquals( "Initial flag required", 7, error.getErrorCode() );
 
         //ChangePasswordReply reply = ( ChangePasswordReply ) session.getMessage();
@@ -240,17 +242,20 @@ public class ChangepwProtocolHandlerTest
 
         ApOptions apOptions = new ApOptions();
 
-        AuthenticatorModifier modifier = new AuthenticatorModifier();
-        modifier.setVersionNumber( 5 );
-        modifier.setClientRealm( "EXAMPLE.COM" );
-        modifier.setClientName( getPrincipalName( "hnelson" ) );
-        modifier.setClientTime( new KerberosTime() );
-        modifier.setClientMicroSecond( 0 );
+        Authenticator authenticator = new Authenticator();
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCRealm( "EXAMPLE.COM" );
+        authenticator.setCName( getPrincipalName( "hnelson" ) );
+        authenticator.setCTime( new KerberosTime() );
+        authenticator.setCusec( 0 );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, modifier.getAuthenticator(),
-                KeyUsage.NUMBER11 );
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, authenticator,
+                KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
 
-        ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
+        ApReq apReq = new ApReq();
+        apReq.setOption( apOptions );
+        apReq.setTicket( serviceTicket );
+        apReq.setAuthenticator( encryptedAuthenticator );
 
         String newPassword = "secretsecret";
 
@@ -261,7 +266,7 @@ public class ChangepwProtocolHandlerTest
         handler.messageReceived( session, message );
 
         ChangePasswordError reply = ( ChangePasswordError ) session.getMessage();
-        ErrorMessage error = reply.getErrorMessage();
+        KrbError error = reply.getKrbError();
         assertEquals( "Protocol version unsupported", 6, error.getErrorCode() );
     }
 
@@ -273,13 +278,12 @@ public class ChangepwProtocolHandlerTest
             throws UnsupportedEncodingException, KerberosException, UnknownHostException
     {
         // Make private message part.
-        EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
-        privPartModifier.setUserData( newPassword.getBytes( "UTF-8" ) );
-        privPartModifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart encReqPrivPart = privPartModifier.getEncKrbPrivPart();
+        EncKrbPrivPart encReqPrivPart = new EncKrbPrivPart();
+        encReqPrivPart.setUserData( newPassword.getBytes( "UTF-8" ) );
+        encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
-        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
+        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
 
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();
@@ -299,7 +303,7 @@ public class ChangepwProtocolHandlerTest
             UnknownHostException, IOException
     {
         // Make private message part.
-        EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart encReqPrivPart = new EncKrbPrivPart();
 
         ChangePasswordDataModifier dataModifier = new ChangePasswordDataModifier();
         dataModifier.setNewPassword( newPassword.getBytes() );
@@ -310,13 +314,12 @@ public class ChangepwProtocolHandlerTest
         ChangePasswordDataEncoder encoder = new ChangePasswordDataEncoder();
         byte[] dataBytes = encoder.encode( data );
 
-        privPartModifier.setUserData( dataBytes );
+        encReqPrivPart.setUserData( dataBytes );
 
-        privPartModifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart encReqPrivPart = privPartModifier.getEncKrbPrivPart();
+        encReqPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // Seal private message part.
-        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.NUMBER13 );
+        EncryptedData encryptedPrivPart = cipherTextHandler.seal( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
 
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();

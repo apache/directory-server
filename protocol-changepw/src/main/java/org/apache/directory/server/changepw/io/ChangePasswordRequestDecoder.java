@@ -25,10 +25,9 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequestModifier;
-import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
-import org.apache.directory.server.kerberos.shared.io.decoder.PrivateMessageDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.KrbPriv;
 
 
 /**
@@ -56,16 +55,14 @@ public class ChangePasswordRequestDecoder
         byte[] undecodedAuthHeader = new byte[authHeaderLength];
         buf.get( undecodedAuthHeader, 0, authHeaderLength );
 
-        ApplicationRequestDecoder decoder = new ApplicationRequestDecoder();
-        ApplicationRequest authHeader = decoder.decode( undecodedAuthHeader );
+        ApReq authHeader = KerberosDecoder.decodeApReq( undecodedAuthHeader );
 
         modifier.setAuthHeader( authHeader );
 
         byte[] encodedPrivate = new byte[buf.remaining()];
         buf.get( encodedPrivate, 0, buf.remaining() );
 
-        PrivateMessageDecoder privateDecoder = new PrivateMessageDecoder();
-        PrivateMessage privMessage = privateDecoder.decode( encodedPrivate );
+        KrbPriv privMessage = KerberosDecoder.decodeKrbPriv( encodedPrivate );
 
         modifier.setPrivateMessage( privMessage );
 

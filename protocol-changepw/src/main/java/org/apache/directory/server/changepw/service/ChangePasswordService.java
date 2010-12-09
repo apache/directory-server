@@ -37,28 +37,25 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.KerberosUtils;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddress;
+import org.apache.directory.shared.kerberos.components.HostAddresses;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.EncApRepPart;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +65,8 @@ public class ChangePasswordService
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordService.class );
 
-    private static final ReplayCache replayCache = new InMemoryReplayCache();
-    
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
-    
     public static void execute( IoSession session, ChangePasswordContext changepwContext ) throws KerberosException, IOException
     {
         if ( LOG.isDebugEnabled() )
@@ -107,7 +101,9 @@ public class ChangePasswordService
         PrincipalStore store = changepwContext.getStore();
         Authenticator authenticator = changepwContext.getAuthenticator();
         String newPassword = changepwContext.getPassword();
-        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+        KerberosPrincipal clientPrincipal = KerberosUtils.getKerberosPrincipal( 
+            authenticator.getCName(),
+            authenticator.getCRealm() );
 
         // usec and seq-number must be present per MS but aren't in legacy kpasswd
         // seq-number must have same value as authenticator
@@ -152,7 +148,6 @@ public class ChangePasswordService
     
     private static void configureChangePassword( ChangePasswordContext changepwContext )
     {
-        changepwContext.setReplayCache( replayCache );
         changepwContext.setCipherTextHandler( cipherTextHandler );
     }
     
@@ -171,7 +166,7 @@ public class ChangePasswordService
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_AUTHERROR );
         }
 
-        ApplicationRequest authHeader = request.getAuthHeader();
+        ApReq authHeader = request.getAuthHeader();
         Ticket ticket = authHeader.getTicket();
 
         changepwContext.setAuthHeader( authHeader );
@@ -189,7 +184,7 @@ public class ChangePasswordService
 
         if ( !ticket.getRealm().equals( primaryRealm ) || !serverPrincipal.equals( changepwPrincipal ) )
         {
-            throw new KerberosException( org.apache.directory.server.kerberos.shared.exceptions.ErrorType.KRB_AP_ERR_NOT_US );
+            throw new KerberosException( org.apache.directory.shared.kerberos.exceptions.ErrorType.KRB_AP_ERR_NOT_US );
         }
     }
     
@@ -199,26 +194,26 @@ public class ChangePasswordService
         KerberosPrincipal principal =  changepwContext.getTicket().getServerPrincipal();
         PrincipalStore store = changepwContext.getStore();
 
-        changepwContext.setServerEntry( KerberosUtils.getEntry( principal, store, org.apache.directory.server.kerberos.shared.exceptions.ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        changepwContext.setServerEntry( KerberosUtils.getEntry( principal, store, org.apache.directory.shared.kerberos.exceptions.ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
     }
     
     
     private static void verifyServiceTicketAuthHeader( ChangePasswordContext changepwContext ) throws KerberosException
     {
-        ApplicationRequest authHeader = changepwContext.getAuthHeader();
+        ApReq authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
 
         EncryptionType encryptionType = ticket.getEncPart().getEType();
         EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
 
         long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
-        ReplayCache replayCache = changepwContext.getReplayCache();
+        ReplayCache replayCache = changepwContext.getConfig().getReplayCache();
         boolean emptyAddressesAllowed = changepwContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = changepwContext.getClientAddress();
         CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         Authenticator authenticator = KerberosUtils.verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11, false );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.AP_REQ_AUTHNT_SESS_KEY, false );
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
@@ -243,7 +238,7 @@ public class ChangePasswordService
         // TODO - check client principal in ticket is authorized to change password
 
         // get the subsession key from the Authenticator
-        EncryptionKey subSessionKey = authenticator.getSubSessionKey();
+        EncryptionKey subSessionKey = authenticator.getSubKey();
 
         // decrypt the request's private message with the subsession key
         EncryptedData encReqPrivPart = request.getPrivateMessage().getEncryptedPart();
@@ -253,7 +248,7 @@ public class ChangePasswordService
         try
         {
             privatePart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey,
-                encReqPrivPart, KeyUsage.NUMBER13 );
+                encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
         }
         catch ( KerberosException ke )
         {
@@ -292,13 +287,14 @@ public class ChangePasswordService
         try
         {
             PrincipalStore store = changepwContext.getStore();
-            ApplicationRequest authHeader = changepwContext.getAuthHeader();
+            ApReq authHeader = changepwContext.getAuthHeader();
             Ticket ticket = changepwContext.getTicket();
-            ReplayCache replayCache = changepwContext.getReplayCache();
+            ReplayCache replayCache = changepwContext.getConfig().getReplayCache();
             long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
 
             Authenticator authenticator = changepwContext.getAuthenticator();
-            KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+            KerberosPrincipal clientPrincipal = KerberosUtils.getKerberosPrincipal( 
+                authenticator.getCName(), authenticator.getCRealm() );
             String desiredPassword = changepwContext.getPassword();
 
             InetAddress clientAddress = changepwContext.getClientAddress();
@@ -357,22 +353,21 @@ public class ChangePasswordService
 
         // create priv message
         // user-data component is short result code
-        EncKrbPrivPartModifier modifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart privPart = new EncKrbPrivPart();
         byte[] resultCode =
             { ( byte ) 0x00, ( byte ) 0x00 };
-        modifier.setUserData( resultCode );
+        privPart.setUserData( resultCode );
 
-        modifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart privPart = modifier.getEncKrbPrivPart();
+        privPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // get the subsession key from the Authenticator
-        EncryptionKey subSessionKey = authenticator.getSubSessionKey();
+        EncryptionKey subSessionKey = authenticator.getSubKey();
 
         EncryptedData encPrivPart;
 
         try
         {
-            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.NUMBER13 );
+            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
         }
         catch ( KerberosException ke )
         {
@@ -382,19 +377,17 @@ public class ChangePasswordService
         PrivateMessage privateMessage = new PrivateMessage( encPrivPart );
 
         // Begin AP_REP generation
-        EncApRepPartModifier encApModifier = new EncApRepPartModifier();
-        encApModifier.setClientTime( authenticator.getClientTime() );
-        encApModifier.setClientMicroSecond( authenticator.getClientMicroSecond() );
-        encApModifier.setSequenceNumber( Integer.valueOf( authenticator.getSequenceNumber() ) );
-        encApModifier.setSubSessionKey( authenticator.getSubSessionKey() );
-
-        EncApRepPart repPart = encApModifier.getEncApRepPart();
+        EncApRepPart repPart = new EncApRepPart();
+        repPart.setCTime( authenticator.getCtime() );
+        repPart.setCusec( authenticator.getCusec() );
+        repPart.setSeqNumber( Integer.valueOf( authenticator.getSeqNumber() ) );
+        repPart.setSubkey( authenticator.getSubKey() );
 
         EncryptedData encRepPart;
 
         try
         {
-            encRepPart = cipherTextHandler.seal( ticket.getEncTicketPart().getSessionKey(), repPart, KeyUsage.NUMBER12 );
+            encRepPart = cipherTextHandler.seal( ticket.getEncTicketPart().getSessionKey(), repPart, KeyUsage.AP_REP_ENC_PART_SESS_KEY );
         }
         catch ( KerberosException ke )
         {

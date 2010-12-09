@@ -24,11 +24,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordReply;
-import org.apache.directory.server.changepw.messages.ChangePasswordReplyModifier;
-import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationReplyDecoder;
-import org.apache.directory.server.kerberos.shared.io.decoder.PrivateMessageDecoder;
-import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+import org.apache.directory.shared.kerberos.messages.ApRep;
 
 
 /**
@@ -48,20 +46,14 @@ public class ChangePasswordReplyDecoder
      */
     public ChangePasswordReply decode( ByteBuffer buf ) throws IOException
     {
-        ChangePasswordReplyModifier modifier = new ChangePasswordReplyModifier();
-
         short messageLength = buf.getShort();
         short protocolVersion = buf.getShort();
         short encodedAppReplyLength = buf.getShort();
 
-        modifier.setProtocolVersionNumber( protocolVersion );
-
         byte[] encodedAppReply = new byte[encodedAppReplyLength];
         buf.get( encodedAppReply );
 
-        ApplicationReplyDecoder appDecoder = new ApplicationReplyDecoder();
-        ApplicationReply applicationReply = appDecoder.decode( encodedAppReply );
-        modifier.setApplicationReply( applicationReply );
+        ApRep applicationReply = KerberosDecoder.decodeApRep( encodedAppReply );
 
         int privateBytesLength = messageLength - HEADER_LENGTH - encodedAppReplyLength;
         byte[] encodedPrivateMessage = new byte[privateBytesLength];
@@ -69,8 +61,8 @@ public class ChangePasswordReplyDecoder
 
         PrivateMessageDecoder privateDecoder = new PrivateMessageDecoder();
         PrivateMessage privateMessage = privateDecoder.decode( encodedPrivateMessage );
-        modifier.setPrivateMessage( privateMessage );
+        applicationReply.setPrivateMessage( privateMessage );
 
-        return modifier.getChangePasswordReply();
+        return applicationReply.getChangePasswordReply();
     }
 }

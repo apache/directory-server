@@ -24,9 +24,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
-import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
-import org.apache.directory.server.kerberos.shared.io.decoder.ErrorMessageDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 
 
 /**
@@ -62,8 +61,7 @@ public class ChangePasswordErrorDecoder
         buf.get( errorBytes );
         ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
 
-        ErrorMessageDecoder errorDecoder = new ErrorMessageDecoder();
-        ErrorMessage errorMessage = errorDecoder.decode( errorBuffer );
+        KrbError errorMessage = KerberosDecoder.decodeKrbError( errorBuffer );
 
         modifier.setErrorMessage( errorMessage );
 

@@ -31,16 +31,14 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
-import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
 import org.apache.directory.server.changepw.service.ChangePasswordService;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -150,7 +148,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
                 log.warn( ke.getLocalizedMessage() );
             }
 
-            ErrorMessage errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
+            KrbError errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
 
             ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
             modifier.setErrorMessage( errorMessage );
@@ -182,20 +180,20 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
-    private ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    private KrbError getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
-        ErrorMessageModifier modifier = new ErrorMessageModifier();
+        KrbError krbError = new KrbError();
 
         KerberosTime now = new KerberosTime();
 
-        modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getLocalizedMessage() );
-        modifier.setServerPrincipal( principal );
-        modifier.setServerTime( now );
-        modifier.setServerMicroSecond( 0 );
-        modifier.setExplanatoryData( buildExplanatoryData( exception ) );
+        krbError.setErrorCode( ErrorType.getTypeByOrdinal( exception.getErrorCode() ) );
+        krbError.setEText( exception.getLocalizedMessage() );
+        krbError.setSName( principal );
+        krbError.setSTime( now );
+        krbError.setSusec( 0 );
+        krbError.setEData( buildExplanatoryData( exception ) );
 
-        return modifier.getErrorMessage();
+        return krbError;
     }
 
 

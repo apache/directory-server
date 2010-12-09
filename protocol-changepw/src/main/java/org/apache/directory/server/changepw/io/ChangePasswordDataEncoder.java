@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.value.ChangePasswordData;
-import org.apache.directory.server.kerberos.shared.io.encoder.PrincipalNameEncoder;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DEROctetString;

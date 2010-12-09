@@ -25,12 +25,11 @@ import java.net.InetAddress;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.messages.AbstractPasswordMessage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -46,31 +45,12 @@ public class ChangePasswordContext
     private AbstractPasswordMessage reply;
     private InetAddress clientAddress;
 
-    private ApplicationRequest authHeader;
+    private ApReq authHeader;
     private Ticket ticket;
     private Authenticator authenticator;
     private PrincipalStoreEntry serverEntry;
-    private ReplayCache replayCache;
     private CipherTextHandler cipherTextHandler;
     private String password;
-
-
-    /**
-     * @return Returns the replayCache.
-     */
-    public ReplayCache getReplayCache()
-    {
-        return replayCache;
-    }
-
-
-    /**
-     * @param replayCache The replayCache to set.
-     */
-    public void setReplayCache( ReplayCache replayCache )
-    {
-        this.replayCache = replayCache;
-    }
 
 
     /**
@@ -202,7 +182,7 @@ public class ChangePasswordContext
     /**
      * @return Returns the authHeader.
      */
-    public ApplicationRequest getAuthHeader()
+    public ApReq getAuthHeader()
     {
         return authHeader;
     }
@@ -211,7 +191,7 @@ public class ChangePasswordContext
     /**
      * @param authHeader The authHeader to set.
      */
-    public void setAuthHeader( ApplicationRequest authHeader )
+    public void setAuthHeader( ApReq authHeader )
     {
         this.authHeader = authHeader;
     }

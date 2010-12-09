@@ -21,7 +21,7 @@
 package org.apache.directory.server.changepw.exceptions;
 
 
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 
 
 /**
