@@ -262,7 +262,6 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         }
         catch ( DecoderException de )
         {
-            de.printStackTrace();
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
         }
 

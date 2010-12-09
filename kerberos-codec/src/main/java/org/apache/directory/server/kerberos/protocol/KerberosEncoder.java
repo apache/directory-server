@@ -51,20 +51,7 @@ public class KerberosEncoder extends ProtocolEncoderAdapter
         }
         catch( EncoderException e )
         {
-            e.printStackTrace();
+            throw new IOException(e.getMessage(), e);
         }
-        
-//        if ( message instanceof KdcReply )
-//        {
-//            replyEncoder.encode( ( KdcReply ) message, buf.buf() );
-//        }
-//        else
-//        {
-//            if ( message instanceof ErrorMessage )
-//            {
-//                errorEncoder.encode( ( ErrorMessage ) message, buf.buf() );
-//            }
-//        }
-
     }
 }

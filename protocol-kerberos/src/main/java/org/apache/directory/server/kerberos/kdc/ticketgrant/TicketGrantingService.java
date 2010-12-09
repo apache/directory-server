@@ -288,7 +288,6 @@ public class TicketGrantingService
             }
             catch( EncoderException e )
             {
-                e.printStackTrace();
                 throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
             }
             
