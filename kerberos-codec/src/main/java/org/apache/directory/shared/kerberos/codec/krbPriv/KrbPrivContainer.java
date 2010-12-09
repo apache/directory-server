@@ -20,6 +20,8 @@
 package org.apache.directory.shared.kerberos.codec.krbPriv;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
 
@@ -37,10 +39,11 @@ public class KrbPrivContainer extends AbstractContainer
 
     /**
      * Creates a new KrbPrivContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public KrbPrivContainer()
+    public KrbPrivContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KrbPrivGrammar.getInstance();
         setTransition( KrbPrivStatesEnum.START_STATE );

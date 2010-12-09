@@ -71,6 +71,9 @@ public class KdcRep extends KerberosMessage
     
     /** Encoded part */
     private EncryptedData encPart;
+    
+    /** The decoded KDC-REP part */
+    protected EncKdcRepPart encKdcRepPart;
 
     // Storage for computed lengths
     private transient int pvnoLength;
@@ -215,6 +218,24 @@ public class KdcRep extends KerberosMessage
 
     
     /**
+     * @return the encKdcRepPart
+     */
+    public EncKdcRepPart getEncKdcRepPart()
+    {
+        return encKdcRepPart;
+    }
+
+
+    /**
+     * @param encKdcRepPart the encKdcRepPart to set
+     */
+    public void setEncKdcRepPart( EncKdcRepPart encKdcRepPart )
+    {
+        this.encKdcRepPart = encKdcRepPart;
+    }
+    
+    
+    /**
      * Compute the KDC-REP length
      * <pre>
      * KDC-REP :
@@ -260,45 +281,47 @@ public class KdcRep extends KerberosMessage
     {
         // The pvno length
         pvnoLength = 1 + 1 + 1;
-        
+        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
+
         // The msg-type length
         msgTypeLength = 1 + 1 + 1;
+        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
 
         // Compute the pa-data length.
-        paDataLengths = new int[paData.size()];
-        int pos = 0;
-        
-        for ( PaData paDataElem : paData )
+        if ( paData.size() != 0 )
         {
-            paDataLengths[pos] = paDataElem.computeLength();
-            paDataSeqLength += paDataLengths[pos];
-            pos++;
+            paDataLengths = new int[paData.size()];
+            int pos = 0;
+            paDataSeqLength = 0;
+            
+            for ( PaData paDataElem : paData )
+            {
+                paDataLengths[pos] = paDataElem.computeLength();
+                paDataSeqLength += paDataLengths[pos];
+                pos++;
+            }
+            
+            paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
+            kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
         }
-        
-        paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
         
         // The crealm length
         crealmBytes = StringTools.getBytesUtf8( crealm );
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
+        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
 
         // Compute the client principalName length
         cnameLength = cname.computeLength();
-        
+        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength; 
+
         // Compute the ticket length
         ticketLength = ticket.computeLength();
-        
+        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength; 
+
         // Compute the encrypted part
         encPartLength = encPart.computeLength();
-
-        // Compute the sequence size.
-        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength; 
-        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength; 
         kdcRepSeqLength += 1 + TLV.getNbBytes( encPartLength ) + encPartLength; 
-        
+
         // compute the global size
         kdcRepLength = 1 + TLV.getNbBytes( kdcRepSeqLength ) + kdcRepSeqLength;
         
@@ -340,19 +363,22 @@ public class KdcRep extends KerberosMessage
         // The value
         Value.encode( buffer, getMessageType().getValue() );
         
-        // The PD-DATA --------------------------------------------------------
-        // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_PA_DATA_TAG );
-        buffer.put( TLV.getBytes( paDataLength ) );
-        
-        // The sequence
-        buffer.put( UniversalTag.SEQUENCE.getValue() );
-        buffer.put( TLV.getBytes( paDataSeqLength ) );
-        
-        // The values
-        for ( PaData paDataElem : paData )
+        // The PD-DATA if any -------------------------------------------------
+        if ( paData.size() != 0 )
         {
-            paDataElem.encode( buffer );
+            // The tag
+            buffer.put( (byte)KerberosConstants.KDC_REP_PA_DATA_TAG );
+            buffer.put( TLV.getBytes( paDataLength ) );
+            
+            // The sequence
+            buffer.put( UniversalTag.SEQUENCE.getValue() );
+            buffer.put( TLV.getBytes( paDataSeqLength ) );
+            
+            // The values
+            for ( PaData paDataElem : paData )
+            {
+                paDataElem.encode( buffer );
+            }
         }
 
         // The CREALM ---------------------------------------------------------

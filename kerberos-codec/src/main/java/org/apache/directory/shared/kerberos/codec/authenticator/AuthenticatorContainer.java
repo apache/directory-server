@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.authenticator;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 
@@ -35,10 +37,11 @@ public class AuthenticatorContainer extends AbstractContainer
     
     /**
      * Creates a new AuthenticatorContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public AuthenticatorContainer()
+    public AuthenticatorContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = AuthenticatorGrammar.getInstance();
         setTransition( AuthenticatorStatesEnum.START_STATE );

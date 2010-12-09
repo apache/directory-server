@@ -38,7 +38,7 @@ public class StoreCusec extends AbstractReadInteger
      */
     public StoreCusec()
     {
-        super( "Authenticator cusec" );
+        super( "Authenticator cusec", 0, 999999 );
     }
 
 

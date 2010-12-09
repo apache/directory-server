@@ -22,7 +22,9 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
@@ -94,7 +96,7 @@ public class KdcReqBody extends AbstractAsn1Object
     private int nonce;
     
     /** Set of desired encryption types */
-    private List<EncryptionType> eType;
+    private Set<EncryptionType> eType;
     
     /** Addresses valid for the requested ticket */
     private HostAddresses addresses;
@@ -132,7 +134,7 @@ public class KdcReqBody extends AbstractAsn1Object
     public KdcReqBody()
     {
         additionalTickets = new ArrayList<Ticket>();
-        eType = new ArrayList<EncryptionType>();
+        eType = new LinkedHashSet<EncryptionType>();
     }
 
 
@@ -230,7 +232,7 @@ public class KdcReqBody extends AbstractAsn1Object
      *
      * @return The requested {@link EncryptionType}s.
      */
-    public List<EncryptionType> getEType()
+    public Set<EncryptionType> getEType()
     {
         return eType;
     }
@@ -239,7 +241,7 @@ public class KdcReqBody extends AbstractAsn1Object
     /**
      * @param eType the eType to set
      */
-    public void setEType( List<EncryptionType> eType )
+    public void setEType( Set<EncryptionType> eType )
     {
         this.eType = eType;
     }
@@ -390,7 +392,7 @@ public class KdcReqBody extends AbstractAsn1Object
     {
         this.till = till;
     }
-
+    
     
     /**
      * Compute the KdcReqBody length
@@ -464,44 +466,53 @@ public class KdcReqBody extends AbstractAsn1Object
     {
         // The KdcOptions length
         kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
-        
+        kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength; 
+
         // The cname length
         if ( cName != null )
         {
             cNameLength = cName.computeLength();
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( cNameLength ) + cNameLength;
         }
 
         // Compute the realm length.
         realmBytes = StringTools.getBytesUtf8( realm );
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
-        
+        kdcReqBodySeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
+
         // The sname length
         if ( sName != null )
         {
             sNameLength = sName.computeLength();
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( sNameLength ) + sNameLength;
         }
 
         // The from length
         if ( from != null )
         {
             fromLength = 1 + 1 + 0x0F;
+            kdcReqBodySeqLength += 1 + 1 + fromLength;
         }
 
         // The till length
         tillLength = 1 + 1 + 0x0F;
+        kdcReqBodySeqLength += 1 + 1 + tillLength;
 
         // The rtime length
         if ( rtime != null )
         {
             rtimeLength = 1 + 1 + 0x0F;
+            kdcReqBodySeqLength += 1 + 1 + rtimeLength;
         }
 
         // The nonce length
         nonceLength = 1 + 1 + Value.getNbBytes( nonce );
-        
+        kdcReqBodySeqLength += 1 + 1 + nonceLength;
+
         // The eType length
         eTypeLengths = new int[eType.size()];
         int pos = 0;
+        eTypeSeqLength = 0;
         
         for ( EncryptionType encryptionType : eType )
         {
@@ -511,23 +522,27 @@ public class KdcReqBody extends AbstractAsn1Object
         }
         
         eTypeLength = 1 + TLV.getNbBytes( eTypeSeqLength ) + eTypeSeqLength;
-        
+        kdcReqBodySeqLength += 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
+
         // The Addresses length
         if ( addresses != null )
         {
             addressesLength = addresses.computeLength();
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( addressesLength ) + addressesLength;
         }
         
         // The EncAuthorizationData length
         if ( encAuthorizationData != null )
         {
             encAuthzDataLength = encAuthorizationData.computeLength();
+            kdcReqBodySeqLength += 1 + TLV.getNbBytes( encAuthzDataLength ) + encAuthzDataLength;
         }
         
         // The additionalTickets length
         if ( additionalTickets.size() != 0 )
         {
             additionalTicketsLengths = new int[additionalTickets.size()];
+            additionalTicketSeqLength = 0;
             pos = 0;
             
             for ( Ticket ticket : additionalTickets )
@@ -538,52 +553,9 @@ public class KdcReqBody extends AbstractAsn1Object
             }
             
             additionalTicketLength = 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
-        }
-
-        // Compute the sequence size.
-        // The mandatory fields first
-        kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength; 
-        kdcReqBodySeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
-        kdcReqBodySeqLength += 1 + 1 + tillLength;
-        kdcReqBodySeqLength += 1 + 1 + nonceLength;
-        kdcReqBodySeqLength += 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
-        
-        // The optional fields
-        if ( cName != null )
-        {
-            kdcReqBodySeqLength += 1 + TLV.getNbBytes( cNameLength ) + cNameLength;
-        }
-        
-        if ( sName != null )
-        {
-            kdcReqBodySeqLength += 1 + TLV.getNbBytes( sNameLength ) + sNameLength;
-        }
-        
-        if ( from != null )
-        {
-            kdcReqBodySeqLength += 1 + 1 + fromLength;
-        }
-        
-        if ( rtime != null )
-        {
-            kdcReqBodySeqLength += 1 + 1 + rtimeLength;
-        }
-
-        if ( addresses != null )
-        {
-            kdcReqBodySeqLength += 1 + TLV.getNbBytes( addressesLength ) + addressesLength;
-        }
-        
-        if ( encAuthorizationData != null )
-        {
-            kdcReqBodySeqLength += 1 + TLV.getNbBytes( encAuthzDataLength ) + encAuthzDataLength;
-        }
-        
-        if ( additionalTickets.size() != 0 )
-        {
             kdcReqBodySeqLength += 1 + TLV.getNbBytes( additionalTicketLength ) + additionalTicketLength;
         }
-        
+
         // compute the global size
         kdcReqBodyLength = 1 + TLV.getNbBytes( kdcReqBodySeqLength ) + kdcReqBodySeqLength;
         

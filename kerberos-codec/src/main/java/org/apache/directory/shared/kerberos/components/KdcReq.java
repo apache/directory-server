@@ -129,7 +129,7 @@ public abstract class KdcReq extends KerberosMessage
     {
         this.kdcReqBody = kdcReqBody;
     }
-
+    
     
     /**
      * Compute the KDC-REQ length
@@ -175,6 +175,7 @@ public abstract class KdcReq extends KerberosMessage
         {
             paDataLengths = new int[paData.size()];
             int pos = 0;
+            paDataSeqLength = 0;
             
             for ( PaData paDataElem : paData )
             {

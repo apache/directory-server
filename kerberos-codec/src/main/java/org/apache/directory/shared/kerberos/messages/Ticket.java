@@ -30,14 +30,13 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.security.krb5.internal.EncTicketPart;
 
 
 /**
@@ -77,9 +76,9 @@ public class Ticket extends KerberosMessage
     /** The encoded part */
     private EncryptedData encPart;
     
-    /** The decoded ticket part */
-    private EncTicketPart encTicketPart;
-
+    /** The encoded ticket part, stored in its original form (not encoded) */
+    private transient EncTicketPart encTicketPart;
+    
     // Storage for computed lengths
     private transient int tktvnoLength;
     private transient int realmLength;
@@ -209,6 +208,24 @@ public class Ticket extends KerberosMessage
     }
     
 
+    /**
+     * @return the encTicketPart
+     */
+    public EncTicketPart getEncTicketPart()
+    {
+        return encTicketPart;
+    }
+
+
+    /**
+     * @param encTicketPart the encTicketPart to set
+     */
+    public void setEncTicketPart( EncTicketPart encTicketPart )
+    {
+        this.encTicketPart = encTicketPart;
+    }
+
+    
     /**
      * Compute the Ticket length
      * <pre>

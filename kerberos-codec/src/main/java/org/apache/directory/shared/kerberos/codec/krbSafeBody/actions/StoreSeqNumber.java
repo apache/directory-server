@@ -38,7 +38,7 @@ public class StoreSeqNumber extends AbstractReadInteger
      */
     public StoreSeqNumber()
     {
-        super( "KRB-SAFE-BODY seq-number" );
+        super( "KRB-SAFE-BODY seq-number", Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
 

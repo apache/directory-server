@@ -42,7 +42,6 @@ import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
 import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepContainer;
 import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,15 +77,13 @@ public final class KerberosMessageGrammar extends AbstractGrammar
             stream.rewind();
             
             TLV tlv = kerberosMessageContainer.getCurrentTLV();
+            kerberosMessageContainer.setGrammarEndAllowed( true );
 
-            // Now, dependening on the T, call the inner decoder
+            // Now, depending on the T, call the inner decoder
             switch ( tlv.getTag() )
             {
                 case KerberosConstants.AS_REQ_TAG :
-                    AsReqContainer asReqContainer = new AsReqContainer();
-                    asReqContainer.setStream( stream );
-                    
-                    System.out.println( StringTools.dumpBytes( stream.array() ) );
+                    AsReqContainer asReqContainer = new AsReqContainer( stream );
                     
                     // Decode the AS_REQ PDU
                     try
@@ -104,8 +101,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.AS_REP_TAG :
-                    AsRepContainer asRepContainer = new AsRepContainer();
-                    asRepContainer.setStream( stream );
+                    AsRepContainer asRepContainer = new AsRepContainer( stream );
                     
                     // Decode the AS-REP PDU
                     try
@@ -123,8 +119,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.TGS_REQ_TAG :
-                    TgsReqContainer tgsReqContainer = new TgsReqContainer();
-                    tgsReqContainer.setStream( stream );
+                    TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
                     
                     // Decode the TGS-REQ PDU
                     try
@@ -142,8 +137,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.TGS_REP_TAG :
-                    TgsRepContainer tgsRepContainer = new TgsRepContainer();
-                    tgsRepContainer.setStream( stream );
+                    TgsRepContainer tgsRepContainer = new TgsRepContainer( stream );
                     
                     // Decode the TGS-REP PDU
                     try
@@ -161,8 +155,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.AP_REQ_TAG :
-                    ApReqContainer apReqContainer = new ApReqContainer();
-                    apReqContainer.setStream( stream );
+                    ApReqContainer apReqContainer = new ApReqContainer( stream );
                     
                     // Decode the AP-REQ PDU
                     try
@@ -179,8 +172,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.AP_REP_TAG :
-                    ApRepContainer apRepContainer = new ApRepContainer();
-                    apRepContainer.setStream( stream );
+                    ApRepContainer apRepContainer = new ApRepContainer( stream );
                     
                     // Decode the AP-REP PDU
                     try
@@ -197,8 +189,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.KRB_SAFE_TAG :
-                    KrbSafeContainer krbSafeContainer = new KrbSafeContainer();
-                    krbSafeContainer.setStream( stream );
+                    KrbSafeContainer krbSafeContainer = new KrbSafeContainer( stream );
                     
                     // Decode the KRB-SAFE PDU
                     try
@@ -215,8 +206,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.KRB_PRIV_TAG :
-                    KrbPrivContainer krbPrivContainer = new KrbPrivContainer();
-                    krbPrivContainer.setStream( stream );
+                    KrbPrivContainer krbPrivContainer = new KrbPrivContainer( stream );
                     
                     // Decode the KRB-PRIV PDU
                     try
@@ -233,8 +223,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.KRB_CRED_TAG :
-                    KrbCredContainer krbCredContainer = new KrbCredContainer();
-                    krbCredContainer.setStream( stream );
+                    KrbCredContainer krbCredContainer = new KrbCredContainer( stream );
                     
                     // Decode the KRB-CRED PDU
                     try
@@ -251,8 +240,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar
                     break;
 
                 case KerberosConstants.KRB_ERROR_TAG :
-                    KrbErrorContainer krbErrorContainer = new KrbErrorContainer();
-                    krbErrorContainer.setStream( stream );
+                    KrbErrorContainer krbErrorContainer = new KrbErrorContainer( stream );
                     
                     // Decode the KRB-ERROR PDU
                     try

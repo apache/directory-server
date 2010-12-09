@@ -49,7 +49,7 @@ public class StoreSName extends AbstractReadPrincipalName
     protected void setPrincipalName( PrincipalName principalName, Asn1Container container )
     {
         KrbErrorContainer krbErrContainer = ( KrbErrorContainer ) container;
-        krbErrContainer.getKrbError().setsName( principalName );
+        krbErrContainer.getKrbError().setSName( principalName );
         container.setGrammarEndAllowed( true );
     }
 }

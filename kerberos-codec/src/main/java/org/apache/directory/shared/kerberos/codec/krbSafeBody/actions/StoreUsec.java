@@ -38,7 +38,7 @@ public class StoreUsec extends AbstractReadInteger
      */
     public StoreUsec()
     {
-        super( "KRB-SAFE-BODY usec" );
+        super( "KRB-SAFE-BODY usec", 0, 999999 );
     }
 
 

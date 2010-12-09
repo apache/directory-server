@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbSafe;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.KrbSafe;
 
@@ -35,10 +37,11 @@ public class KrbSafeContainer extends AbstractContainer
     
     /**
      * Creates a new KrbSafeContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public KrbSafeContainer()
+    public KrbSafeContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KrbSafeGrammar.getInstance();
         setTransition( KrbSafeStatesEnum.START_STATE );

@@ -77,8 +77,7 @@ public class StoreEncAsRepPart extends GrammarAction
         // Now, let's decode the EncKdcRepPart
         Asn1Decoder encKdcRepPartDecoder = new Asn1Decoder();
         
-        EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( container.getStream() );
+        EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( container.getStream() );
         
         // Decode the EncKdcRepPart PDU
         try

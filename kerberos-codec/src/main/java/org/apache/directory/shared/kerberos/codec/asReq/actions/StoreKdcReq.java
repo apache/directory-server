@@ -78,8 +78,7 @@ public class StoreKdcReq extends GrammarAction
         // Now, let's decode the KDC-REQ
         Asn1Decoder kdcReqDecoder = new Asn1Decoder();
         
-        KdcReqContainer kdcReqContainer = new KdcReqContainer();
-        kdcReqContainer.setStream( container.getStream() );
+        KdcReqContainer kdcReqContainer = new KdcReqContainer( container.getStream() );
         
         // Store the created AS-REQ object into the KDC-REQ container
         AsReq asReq = new AsReq();

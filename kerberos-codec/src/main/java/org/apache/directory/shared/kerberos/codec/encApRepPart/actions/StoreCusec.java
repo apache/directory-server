@@ -38,7 +38,7 @@ public class StoreCusec extends AbstractReadInteger
      */
     public StoreCusec()
     {
-        super( "EncApRepPart cusec" );
+        super( "EncApRepPart cusec", 0, 999999 );
     }
 
 

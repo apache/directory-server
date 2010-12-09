@@ -49,6 +49,6 @@ public class StoreCName extends AbstractReadPrincipalName
     protected void setPrincipalName( PrincipalName principalName, Asn1Container container )
     {
         EncTicketPartContainer encTicketPartContainer = ( EncTicketPartContainer ) container;
-        encTicketPartContainer.getEncTicketPart().setcName( principalName );
+        encTicketPartContainer.getEncTicketPart().setCName( principalName );
     }
 }

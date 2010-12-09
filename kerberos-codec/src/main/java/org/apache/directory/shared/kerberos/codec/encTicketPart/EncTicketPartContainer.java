@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.encTicketPart;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
 
@@ -35,10 +37,11 @@ public class EncTicketPartContainer extends AbstractContainer
 
     /**
      * Creates a new EncTicketPartContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public EncTicketPartContainer()
+    public EncTicketPartContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = EncTicketPartGrammar.getInstance();
         setTransition( EncTicketPartStatesEnum.START_STATE );

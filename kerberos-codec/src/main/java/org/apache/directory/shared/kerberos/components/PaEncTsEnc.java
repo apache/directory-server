@@ -77,6 +77,16 @@ public class PaEncTsEnc extends AbstractAsn1Object
 
     
     /**
+     * Creates a new instance of PaEncTsEnc.
+     */
+    public PaEncTsEnc( KerberosTime paTimestamp, int pausec )
+    {
+        this.patimestamp = paTimestamp;
+        this.pausec = pausec;
+    }
+
+    
+    /**
      * Returns the patimestamp value.
      *
      * @return The patimestamp value.

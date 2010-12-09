@@ -77,8 +77,7 @@ public class StoreTicket extends GrammarAction
         // Now, let's decode the Ticket
         Asn1Decoder ticketDecoder = new Asn1Decoder();
         
-        TicketContainer ticketContainer = new TicketContainer();
-        ticketContainer.setStream( container.getStream() );
+        TicketContainer ticketContainer = new TicketContainer( container.getStream() );
 
         // Decode the Ticket PDU
         try

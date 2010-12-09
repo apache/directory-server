@@ -70,8 +70,7 @@ public class StoreTickets extends GrammarAction
         Asn1Decoder decoder = new Asn1Decoder();
 
         // Ticket container
-        TicketContainer ticketContainer = new TicketContainer();
-        ticketContainer.setStream( container.getStream() );
+        TicketContainer ticketContainer = new TicketContainer( container.getStream() );
 
         container.rewind();
         

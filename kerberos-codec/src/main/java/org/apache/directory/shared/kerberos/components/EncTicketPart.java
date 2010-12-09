@@ -32,6 +32,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class EncTicketPart extends AbstractAsn1Object
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** the ticket's flags */
-    private TicketFlags flags;
+    private TicketFlags flags = new TicketFlags();
 
     /** the encryption key */
     private EncryptionKey key;
@@ -379,7 +380,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the cRealm
      */
-    public String getcRealm()
+    public String getCRealm()
     {
         return cRealm;
     }
@@ -388,7 +389,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param cRealm the cRealm to set
      */
-    public void setcRealm( String cRealm )
+    public void setCRealm( String cRealm )
     {
         this.cRealm = cRealm;
     }
@@ -397,7 +398,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the cName
      */
-    public PrincipalName getcName()
+    public PrincipalName getCName()
     {
         return cName;
     }
@@ -406,7 +407,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param cName the cName to set
      */
-    public void setcName( PrincipalName cName )
+    public void setCName( PrincipalName cName )
     {
         this.cName = cName;
     }
@@ -487,7 +488,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @return the renewtill
      */
-    public KerberosTime getRenewtill()
+    public KerberosTime getRenewTill()
     {
         return renewtill;
     }
@@ -496,7 +497,7 @@ public class EncTicketPart extends AbstractAsn1Object
     /**
      * @param renewtill the renewtill to set
      */
-    public void setRenewtill( KerberosTime renewtill )
+    public void setRenewTill( KerberosTime renewtill )
     {
         this.renewtill = renewtill;
     }
@@ -538,6 +539,24 @@ public class EncTicketPart extends AbstractAsn1Object
     }
 
 
+    /**
+     * adds the given flag to the already existing flags.
+     * If no flags exist then creates a new TicketFlags object then sets this flag
+     * and assigns the TicketFlags to this ticket part
+     * 
+     * @param flag the flag to be set
+     */
+    public void setFlag( TicketFlag flag )
+    {
+        if ( flags == null )
+        {
+            flags = new TicketFlags();
+        }
+        
+        flags.setFlag( flag.getValue() );
+    }
+    
+    
     /**
      * @see Object#toString()
      */

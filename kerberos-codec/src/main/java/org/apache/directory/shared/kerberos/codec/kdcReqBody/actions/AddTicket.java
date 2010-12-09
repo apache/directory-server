@@ -77,8 +77,7 @@ public class AddTicket extends GrammarAction
         // Now, let's decode the Ticket
         Asn1Decoder ticketDecoder = new Asn1Decoder();
         
-        TicketContainer ticketContainer = new TicketContainer();
-        ticketContainer.setStream( container.getStream() );
+        TicketContainer ticketContainer = new TicketContainer( container.getStream() );
 
         // We have to move back to the Ticket tag
         container.rewind();

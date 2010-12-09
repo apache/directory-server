@@ -38,7 +38,7 @@ public class StoreSusec extends AbstractReadInteger
      */
     public StoreSusec()
     {
-        super( "KRB-ERROR susec" );
+        super( "KRB-ERROR susec", 0, 999999 );
     }
 
 

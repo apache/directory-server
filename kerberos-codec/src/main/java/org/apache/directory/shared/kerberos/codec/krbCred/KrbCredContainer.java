@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbCred;
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.KrbCred;
 
@@ -35,10 +37,11 @@ public class KrbCredContainer extends AbstractContainer
     
     /**
      * Creates a new KrbErrorContainer object.
+     * @param stream The stream containing the data to decode
      */
-    public KrbCredContainer()
+    public KrbCredContainer( ByteBuffer stream )
     {
-        super();
+        super( stream );
         this.stateStack = new int[1];
         this.grammar = KrbCredGrammar.getInstance();
         setTransition( KrbCredStatesEnum.START_STATE );

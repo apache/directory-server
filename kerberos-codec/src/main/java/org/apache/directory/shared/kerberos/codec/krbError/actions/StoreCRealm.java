@@ -48,6 +48,6 @@ public class StoreCRealm extends AbstractReadRealm
     protected void setRealm( String realm, Asn1Container container )
     {
         KrbErrorContainer krbErrContainer = ( KrbErrorContainer ) container;
-        krbErrContainer.getKrbError().setcRealm( realm );
+        krbErrContainer.getKrbError().setCRealm( realm );
     }
 }

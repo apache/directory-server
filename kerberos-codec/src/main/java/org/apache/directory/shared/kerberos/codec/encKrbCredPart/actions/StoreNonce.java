@@ -37,7 +37,7 @@ public class StoreNonce extends AbstractReadInteger
      */
     public StoreNonce()
     {
-        super( "EncKrbCredPart nonce" );
+        super( "EncKrbCredPart nonce", Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
 

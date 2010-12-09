@@ -49,6 +49,6 @@ public class StoreCName extends AbstractReadPrincipalName
     protected void setPrincipalName( PrincipalName principalName, Asn1Container container )
     {
         KrbErrorContainer krbErrContainer = ( KrbErrorContainer ) container;
-        krbErrContainer.getKrbError().setcName( principalName );
+        krbErrContainer.getKrbError().setCName( principalName );
     }
 }
