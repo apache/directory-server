@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -45,6 +42,15 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DelegatingAuthenticator extends AbstractAuthenticator
 {
+    /** A speedup for logger in debug mode */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+    
+    /** The host in charge of delegated authentication */
+    private String delegateHost;
+    
+    /** The associated port */
+    private int delegatePort;
+    
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
@@ -55,67 +61,75 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     }
 
 
+    /**
+     * Creates a new instance, for a specific authentication level.
+     * @see AbstractAuthenticator
+     * @param type The relevant AuthenticationLevel
+     */
     protected DelegatingAuthenticator( AuthenticationLevel type )
     {
         super( type );
     }
 
-    /** A speedup for logger in debug mode */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-    private String delegateHost;
-    private int delegatePort;
-    private List<String> dnPatterns = new ArrayList<String>();
 
-
+    /**
+     * @return the delegateHost
+     */
     public String getDelegateHost()
     {
         return delegateHost;
     }
 
 
+    /**
+     * @param delegateHost the delegateHost to set
+     */
     public void setDelegateHost( String delegateHost )
     {
         this.delegateHost = delegateHost;
     }
 
 
+    /**
+     * @return the delegatePort
+     */
     public int getDelegatePort()
     {
         return delegatePort;
     }
 
 
+    /**
+     * @param delegatePort the delegatePort to set
+     */
     public void setDelegatePort( int delegatePort )
     {
         this.delegatePort = delegatePort;
     }
 
 
-    public List<String> getDnPatterns()
-    {
-        return dnPatterns;
-    }
-
-
-    public void setDnPatterns( List<String> dnPatterns )
-    {
-        this.dnPatterns = dnPatterns;
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public LdapPrincipal authenticate( BindOperationContext bindContext )
             throws Exception
     {
         LdapPrincipal principal = null;
+        
         if ( IS_DEBUG )
         {
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
+        
+        // Create a connection on the remote host 
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( delegateHost, delegatePort );
+        
         try
         {
+            // Try to bind
             BindResponse bindResponse = ldapConnection.bind( bindContext.getDn(),
                 StringTools.utf8ToString( bindContext.getCredentials() ) );
+            
             if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {
                 String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
@@ -127,9 +141,12 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
                 // no need to remain bound to delegate host
                 ldapConnection.unBind();
             }
+            
             // Create the new principal
             principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
+            
+            return principal;
 
         }
         catch ( LdapException e )
@@ -139,27 +156,23 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             LOG.info( message );
             throw new LdapAuthenticationException( message );
         }
-        return principal;
     }
 
 
+    /**
+     * We don't handle any password policy when using a delegated authentication
+     */
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
         // no check for delegating authentication
-
     }
 
 
-    public AuthenticationLevel getAuthenticatorType()
-    {
-        return AuthenticationLevel.SIMPLE;
-    }
-
-
+    /**
+     * We don't handle any cache when using a delegated authentication
+     */
     public void invalidateCache( DN bindDn )
     {
         // cache is not implemented here
-
     }
-
 }

@@ -44,9 +44,10 @@ public @interface CreateAuthenticator
 {
     /** The authenticator implementation class */
     Class<? extends Authenticator> type() default AnonymousAuthenticator.class;
+    
     /** Delegate host, use for testing DelegatingAuthenticator */
     String delegateHost() default "localhost";
+    
     /** Delegate port, use for testing DelegatingAuthenticator */
     int delegatePort() default -1;
-    
 }

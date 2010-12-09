@@ -254,6 +254,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     }
 
 
+    /**
+     * Get the lower port out of all the transports
+     */
     private int getMinPort()
     {
         int minPort = 0;
@@ -273,6 +276,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 }
             }
         }
+        
         return minPort;
     }
 
@@ -285,6 +289,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     {
         /** The LdapServer for this method, if any */
         LdapServer methodLdapServer = null;
+        
         // Don't run the test if the @Ignored annotation is used
         if ( method.getAnnotation( Ignore.class ) != null )
         {
@@ -307,7 +312,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         // Before running any test, check to see if we must create a class DS
         // Get the LdapServerBuilder, if any
         CreateLdapServer methodLdapServerBuilder = methodDescription.getAnnotation( CreateLdapServer.class );
-        //if (meth)
+
         // Ok, ready to run the test
         try
         {
@@ -365,6 +370,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
+
             if ( methodLdapServerBuilder != null )
             {
                 int minPort = getMinPort();

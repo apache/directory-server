@@ -33,8 +33,6 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     /** The delegate port */
     private int delegatePort;
 
-    
-
 
 
     /**
@@ -97,6 +95,5 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     {
         return toString( "" );
     }
-    
 
 }

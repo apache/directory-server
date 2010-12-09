@@ -56,14 +56,12 @@ import org.slf4j.LoggerFactory;
 /**
  * A Helper class used to create a DS from the annotations
  * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DSAnnotationProcessor
 {
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory
-            .getLogger( DSAnnotationProcessor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
 
 
     /**
@@ -91,6 +89,7 @@ public class DSAnnotationProcessor
         if ( dsBuilder.authenticators().length != 0 )
         {
             AuthenticationInterceptor authenticationInterceptor = null;
+            
             for ( Interceptor interceptor : interceptorList )
             {
                 if ( interceptor instanceof AuthenticationInterceptor )
@@ -99,23 +98,27 @@ public class DSAnnotationProcessor
                     break;
                 }
             }
+            
             if ( authenticationInterceptor == null )
             {
                 throw new IllegalStateException(
                         "authentication interceptor not found" );
             }
+            
             Set<Authenticator> authenticators = new HashSet<Authenticator>();
 
             for ( CreateAuthenticator createAuthenticator : dsBuilder
                     .authenticators() )
             {
                 Authenticator auth = createAuthenticator.type().newInstance();
+                
                 if ( auth instanceof DelegatingAuthenticator )
                 {
                     DelegatingAuthenticator dauth = ( DelegatingAuthenticator ) auth;
                     dauth.setDelegateHost( createAuthenticator.delegateHost() );
                     dauth.setDelegatePort( createAuthenticator.delegatePort() );
                 }
+                
                 authenticators.add( auth );
             }
         }
@@ -142,6 +145,7 @@ public class DSAnnotationProcessor
                         .getPartitionsDirectory(), createPartition.name() ) );
 
                 CreateIndex[] indexes = createPartition.indexes();
+                
                 for ( CreateIndex createIndex : indexes )
                 {
                     partitionFactory.addIndex( partition,
@@ -201,9 +205,8 @@ public class DSAnnotationProcessor
     /**
      * Create a DirectoryService from a Unit test annotation
      * 
-     * @param description
-     *            The annotations containing the info from which we will create
-     *            the DS
+     * @param description The annotations containing the info from which we will create
+     *  the DS
      * @return A valid DS
      */
     public static DirectoryService getDirectoryService( Description description )

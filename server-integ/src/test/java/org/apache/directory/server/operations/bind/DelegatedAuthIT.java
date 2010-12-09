@@ -96,34 +96,43 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertEquals( "DelegatedAuthIT-method", service.getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
+        
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have been successful, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
         bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
+        
         if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have failed due to wrong password, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
+        
         try
         {
             bindResponse = ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
+        
             if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
             {
                 fail( "this authentication should fail, user does not exist, got result code : "
                     + bindResponse.getLdapResult().getResultCode() );
             }
+            
             ldapConnection.unBind();
         }
         catch ( Exception exc )
         {
-            System.out.println( "exception happened" + exc.getMessage() );
+            assertTrue( true );
         }
     }
+    
+    
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
@@ -142,22 +151,22 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
                 delegateHost = "localhost",
                 delegatePort = 10200),
             @CreateAuthenticator(type = StrongAuthenticator.class)})
-@ApplyLdifs(
-    {
-        // Entry # 1
-        "dn: uid=emmanuel,ou=users,ou=system",
-        "objectClass: uidObject",
-        "objectClass: person",
-        "objectClass: top",
-        "uid: emmanuel",
-        "cn: Emmanuel Lecharny",
-        "sn: Lecharny",
-        "userPassword: sesame" })
-    @CreateLdapServer(
-        transports =
-    {
-        @CreateTransport(protocol = "LDAP")
-    })
+            @ApplyLdifs(
+                {
+                    // Entry # 1
+                    "dn: uid=emmanuel,ou=users,ou=system",
+                    "objectClass: uidObject",
+                    "objectClass: person",
+                    "objectClass: top",
+                    "uid: emmanuel",
+                    "cn: Emmanuel Lecharny",
+                    "sn: Lecharny",
+                    "userPassword: sesame" })
+                @CreateLdapServer(
+                    transports =
+                {
+                    @CreateTransport(protocol = "LDAP")
+                })
     @Test
     public void testMultipleAuthenticators() throws Exception
     {
@@ -165,54 +174,66 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", service.getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
+
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have been successful through local simple authenticator, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
         bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "crypto" );
+        
         if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should fail due to wrong password, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
         bindResponse = ldapConnection.bind();
+        
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have been successful through local anonymous authenticator, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
         bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
+        
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have been successful, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
         bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
+        
         if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             fail( "this authentication should have failed due to wrong password, got result code : "
                 + bindResponse.getLdapResult().getResultCode() );
         }
+        
         ldapConnection.unBind();
+        
         try
         {
             bindResponse = ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
+        
             if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
             {
                 fail( "this authentication should fail, user does not exist, got result code : "
                     + bindResponse.getLdapResult().getResultCode() );
             }
+            
             ldapConnection.unBind();
         }
         catch ( Exception exc )
         {
-            System.out.println( "exception happened" + exc.getMessage() );
+            assertTrue( true );
         }
     }
-
 }

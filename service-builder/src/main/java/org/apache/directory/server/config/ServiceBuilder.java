@@ -162,12 +162,14 @@ public class ServiceBuilder
             {
                 LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getInterceptorClassName() );
                 Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() ).newInstance();
+                
                 if (interceptorBean instanceof AuthenticationInterceptorBean) {
                     // Transports
                     Authenticator[] authenticators = createAuthenticators( ((AuthenticationInterceptorBean)interceptorBean).getAuthenticators() );
                     ((AuthenticationInterceptor) interceptor).setAuthenticators( authenticators );
                     
                 }
+                
                 interceptors.add( interceptor );
             }
             catch ( Exception e )
@@ -412,10 +414,10 @@ public class ServiceBuilder
      * @param authenticatorBean The created instance of authenticator
      * @return An instance of authenticator
      */
-    public static Authenticator createAuthenticator(
-            AuthenticatorBean authenticatorBean )
+    public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean )
     {
         Authenticator authenticator = null;
+        
         if (authenticatorBean instanceof SimpleAuthenticatorBean)
         {
             authenticator = new SimpleAuthenticator();
@@ -434,6 +436,7 @@ public class ServiceBuilder
             ((DelegatingAuthenticator)authenticator).setDelegateHost( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegateHost() );
             ((DelegatingAuthenticator)authenticator).setDelegatePort( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegatePort() );
         }
+        
         return authenticator;
     }
 
