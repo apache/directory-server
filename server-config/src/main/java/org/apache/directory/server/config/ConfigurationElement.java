@@ -51,15 +51,6 @@ public @interface ConfigurationElement
 
 
     /**
-     * Returns the object class.
-     *
-     * @return
-     *      the object class
-     */
-    String objectClass() default "";
-
-
-    /**
      * Returns true if of the qualified field (attribute type and value) 
      * is the RDN of the entry.
      *
@@ -68,17 +59,7 @@ public @interface ConfigurationElement
      * is the RDN of the entry,
      *      <code>false</code> if not.
      */
-    boolean isRDN() default false;
-
-
-    /**
-     * Returns true if the qualified field contains multiple values.
-     *
-     * @return
-     *      <code>true</code> if the qualified field contains multiple values,
-     *      <code>false</code> if not.
-     */
-    boolean isMultiple() default false;
+    boolean isRdn() default false;
 
 
     /**

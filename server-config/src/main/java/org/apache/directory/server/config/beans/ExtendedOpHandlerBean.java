@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class ExtendedOpHandlerBean extends AdsBaseBean
 {
     /** The Extended Operation ID */
-    @ConfigurationElement(attributeType = "ads-extendedOpId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-extendedOpId", isRdn = true)
     private String extendedOpId;
 
     /** The Extended Operation FQCN */

@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class HttpWebAppBean extends AdsBaseBean
 {
     /** The server identifier */
-    @ConfigurationElement(attributeType = "ads-id", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-id", isRdn = true)
     private String id;
 
     /** The context path */

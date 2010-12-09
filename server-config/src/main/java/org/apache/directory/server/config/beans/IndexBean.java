@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public abstract class IndexBean extends AdsBaseBean
 {
     /** The index unique identifier */
-    @ConfigurationElement(attributeType = "ads-indexAttributeId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-indexAttributeId", isRdn = true)
     private String indexAttributeId;
 
 

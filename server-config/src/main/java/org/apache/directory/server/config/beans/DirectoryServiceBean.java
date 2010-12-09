@@ -34,7 +34,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
-    @ConfigurationElement(attributeType = "ads-directoryServiceId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-directoryServiceId", isRdn = true)
     private String directoryServiceId;
 
     /** The directory instance replication ID */

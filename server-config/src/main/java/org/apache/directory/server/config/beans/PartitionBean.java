@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.name.DN;
 public abstract class PartitionBean extends AdsBaseBean
 {
     /** The Partition identifier */
-    @ConfigurationElement(attributeType = "ads-partitionId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-partitionId", isRdn = true)
     private String partitionId;
 
     /** The Partition suffix */

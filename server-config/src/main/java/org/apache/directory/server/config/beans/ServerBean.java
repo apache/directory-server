@@ -34,7 +34,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public abstract class ServerBean extends AdsBaseBean
 {
     /** The server unique identifier */
-    @ConfigurationElement(attributeType = "ads-serverId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-serverId", isRdn = true)
     private String serverId;
 
     /** The set of transports to use for this server */

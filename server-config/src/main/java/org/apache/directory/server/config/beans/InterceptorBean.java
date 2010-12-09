@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class InterceptorBean extends AdsBaseBean implements Comparable<InterceptorBean>
 {
     /** The Interceptor ID */
-    @ConfigurationElement(attributeType = "ads-interceptorId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-interceptorId", isRdn = true)
     private String interceptorId;
 
     /** The interceptor FQCN */

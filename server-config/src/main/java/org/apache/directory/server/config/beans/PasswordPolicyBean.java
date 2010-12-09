@@ -36,7 +36,7 @@ public class PasswordPolicyBean extends AdsBaseBean
     /**
      * The PasswordPolicy unique identifier
      */
-    @ConfigurationElement(attributeType = "ads-pwdId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-pwdId", isRdn = true)
     private String pwdId;
 
     /** the name of the attribute to which the password policy is applied. 

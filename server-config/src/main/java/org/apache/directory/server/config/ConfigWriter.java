@@ -378,7 +378,7 @@ public class ConfigWriter
                             else
                             {
                                 // Is it the field value used as RDN and do we need to insert a value in the parent entry?
-                                if ( ( configurationElement.isRDN() ) && ( parentEntry != null )
+                                if ( ( configurationElement.isRdn() ) && ( parentEntry != null )
                                     && ( attributeTypeForParentEntry != null ) )
                                 {
                                     // Adding the field value to the parent entry
@@ -502,7 +502,7 @@ public class ConfigWriter
                 // Looking for the @ConfigurationElement annotation and
                 // if the field is the RDN
                 ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
-                if ( ( configurationElement != null ) && ( configurationElement.isRDN() ) )
+                if ( ( configurationElement != null ) && ( configurationElement.isRdn() ) )
                 {
                     return baseDN.add( new RDN( configurationElement.attributeType(), field.get( bean ).toString() ) );
                 }

@@ -37,7 +37,7 @@ public class TransportBean extends AdsBaseBean
     private static final int DEFAULT_NB_THREADS = 3;
 
     /** The unique identifier for this transport */
-    @ConfigurationElement(attributeType = "ads-transportId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-transportId", isRdn = true)
     private String transportId;
 
     /** The transport address */

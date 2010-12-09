@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class SaslMechHandlerBean extends AdsBaseBean
 {
     /** The SASL mechanism handler */
-    @ConfigurationElement(attributeType = "ads-saslMechName", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-saslMechName", isRdn = true)
     private String saslMechName;
 
     /** The SASL mechanism handler FQCN */

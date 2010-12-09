@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class ChangeLogBean extends AdsBaseBean
 {
     /** The ChangeLog unique ID */
-    @ConfigurationElement(attributeType = "ads-changeLogId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-changeLogId", isRdn = true)
     private String changeLogId;
 
     /** Tells if the ChangeLog is exposed to the users */

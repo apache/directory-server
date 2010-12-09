@@ -31,7 +31,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class JournalBean extends AdsBaseBean
 {
     /** The journal unique Id */
-    @ConfigurationElement(attributeType = "ads-journalId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-journalId", isRdn = true)
     private String journalId;
 
     /** The journal file name */

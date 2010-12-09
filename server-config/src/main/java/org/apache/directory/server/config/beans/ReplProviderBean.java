@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ReplProviderBean extends AdsBaseBean
 {
     /** The provider id */
-    @ConfigurationElement(attributeType = "ads-replProviderId", isRDN = true)
+    @ConfigurationElement(attributeType = "ads-replProviderId", isRdn = true)
     private String replProviderId;
 
     /** The replication unique ID */
