@@ -27,8 +27,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.shared.ldap.name.DN;
-
 
 /**
  * An annotation used to specify that the qualified field is configuration element.
