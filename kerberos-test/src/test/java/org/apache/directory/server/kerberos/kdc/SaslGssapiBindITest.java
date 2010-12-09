@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
@@ -40,6 +41,11 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -60,8 +66,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.shared.jaas.CallbackHandlerBean;
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
@@ -250,9 +255,9 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         attrs.put( "cn", cn );
         attrs.put( "sn", sn );
         attrs.put( "uid", uid );
-        attrs.put( SchemaConstants.USER_PASSWORD_AT, userPassword );
-        attrs.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
-        attrs.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
+        attrs.put( "userPassword", userPassword );
+        attrs.put( "krb5PrincipalName", principal );
+        attrs.put( "krb5KeyVersionNumber", "0" );
 
         return attrs;
     }
@@ -344,7 +349,6 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
                 }
                 catch ( NamingException e )
                 {
-                    e.printStackTrace();
                     fail( "Should not have caught exception:  " + e.getMessage() + e.getRootCause() );
                 }
 
@@ -408,4 +412,50 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
     
+    
+    private class CallbackHandlerBean implements CallbackHandler
+    {
+        private String name;
+        private String password;
+
+
+        /**
+         * Creates a new instance of CallbackHandlerBean.
+         *
+         * @param name
+         * @param password
+         */
+        public CallbackHandlerBean( String name, String password )
+        {
+            this.name = name;
+            this.password = password;
+        }
+
+
+        public void handle( Callback[] callbacks ) throws UnsupportedCallbackException, IOException
+        {
+            for ( int ii = 0; ii < callbacks.length; ii++ )
+            {
+                Callback callBack = callbacks[ii];
+
+                // Handles username callback.
+                if ( callBack instanceof NameCallback )
+                {
+                    NameCallback nameCallback = ( NameCallback ) callBack;
+                    nameCallback.setName( name );
+                    // Handles password callback.
+                }
+                else if ( callBack instanceof PasswordCallback )
+                {
+                    PasswordCallback passwordCallback = ( PasswordCallback ) callBack;
+                    passwordCallback.setPassword( password.toCharArray() );
+                }
+                else
+                {
+                    throw new UnsupportedCallbackException( callBack, I18n.err( I18n.ERR_617 ) );
+                }
+            }
+        }
+    }
+
 }

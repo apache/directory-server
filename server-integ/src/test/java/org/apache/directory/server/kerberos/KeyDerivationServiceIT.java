@@ -54,9 +54,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -64,6 +62,9 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.junit.Before;
 import org.junit.Test;
@@ -220,7 +221,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
     @Test
-    public void testAddDerivedKeys() throws NamingException, IOException
+    public void testAddDerivedKeys() throws NamingException, KerberosException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -291,7 +292,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
      @Test
-    public void testModifyDerivedKeys() throws NamingException, IOException
+    public void testModifyDerivedKeys() throws NamingException, KerberosException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -428,7 +429,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
      @Test
-    public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, IOException
+    public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, KerberosException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -557,7 +558,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws InvalidKeyException if the incorrect key results
      */
      @Test
-    public void testAddRandomKeys() throws NamingException, IOException, InvalidKeyException
+    public void testAddRandomKeys() throws NamingException, KerberosException, InvalidKeyException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -706,14 +707,14 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
 
     private Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws NamingException,
-        IOException
+        KerberosException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 
         for ( int ii = 0; ii < krb5key.size(); ii++ )
         {
             byte[] encryptionKeyBytes = ( byte[] ) krb5key.get( ii );
-            EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
+            EncryptionKey encryptionKey = KerberosDecoder.decodeEncryptionKey( encryptionKeyBytes );
             map.put( encryptionKey.getKeyType(), encryptionKey );
         }
 

@@ -118,12 +118,13 @@
     <module>core-avl</module>
     <module>ldif-partition</module>
     <module>protocol-shared</module>
+    <module>kerberos-codec</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
-    <module>protocol-changepw</module>
+    <!-- <module>protocol-changepw</module> -->
     <module>server-integ</module>
     <!-- Tools are broken and need to be fixed -->
     <!--<module>server-tools</module>-->
@@ -132,7 +133,6 @@
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
     <module>server-jndi</module>
-    <module>kerberos-shared</module>
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
     <module>server-replication</module>
@@ -278,6 +278,12 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-kerberos-codec</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-kerberos-test</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -294,11 +300,11 @@
         <version>${project.version}</version>
       </dependency>
       
-      <dependency>
+     <!-- <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-protocol-changepw</artifactId>
         <version>${project.version}</version>
-      </dependency>
+      </dependency> -->
       
       <dependency>
         <groupId>${project.groupId}</groupId>
