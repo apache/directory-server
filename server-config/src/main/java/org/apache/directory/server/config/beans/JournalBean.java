@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.config.beans;
 
+
+import org.apache.directory.server.config.ConfigurationElement;
+
+
 /**
  * A class used to store the Journal configuration.
  *
@@ -27,16 +31,21 @@ package org.apache.directory.server.config.beans;
 public class JournalBean extends AdsBaseBean
 {
     /** The journal unique Id */
+    @ConfigurationElement(attributeType = "ads-journalId", isRdn = true)
     private String journalId;
-    
+
     /** The journal file name */
+    @ConfigurationElement(attributeType = "ads-journalFileName")
     private String journalFileName;
-    
+
     /** The journal working directory */
+    @ConfigurationElement(attributeType = "ads-journalWorkingDir")
     private String journalWorkingDir;
-    
+
     /** The journal rotation */
+    @ConfigurationElement(attributeType = "ads-journalRotation")
     private int journalRotation;
+
 
     /**
      * Create a new JournalBean instance
@@ -45,7 +54,7 @@ public class JournalBean extends AdsBaseBean
     {
         // Default to infinite
         journalRotation = 0;
-        
+
         // Not enabled by default
         setEnabled( false );
     }
@@ -67,79 +76,79 @@ public class JournalBean extends AdsBaseBean
     {
         this.journalId = journalId;
     }
-    
-    
+
+
     /**
      * @return the fileName
      */
-    public String getJournalFileName() 
+    public String getJournalFileName()
     {
         return journalFileName;
     }
 
-    
+
     /**
      * @param journalFileName the journalFileName to set
      */
-    public void setJournalFileName( String journalFileName ) 
+    public void setJournalFileName( String journalFileName )
     {
         this.journalFileName = journalFileName;
     }
 
-    
+
     /**
      * @return the journal WorkingDir
      */
-    public String getJournalWorkingDir() 
+    public String getJournalWorkingDir()
     {
         return journalWorkingDir;
     }
 
-    
+
     /**
      * @param journalWorkingDir the journal WorkingDir to set
      */
-    public void setJournalWorkingDir( String journalWorkingDir ) 
+    public void setJournalWorkingDir( String journalWorkingDir )
     {
         this.journalWorkingDir = journalWorkingDir;
     }
 
-    
+
     /**
      * @return the journal Rotation
      */
-    public int getJournalRotation() 
+    public int getJournalRotation()
     {
         return journalRotation;
     }
 
-    
+
     /**
      * @param journalRotation the journal Rotation to set
      */
-    public void setJournalRotation( int journalRotation ) 
+    public void setJournalRotation( int journalRotation )
     {
         this.journalRotation = journalRotation;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "Journal :\n" );
         sb.append( tabs ).append( "  journal id : " ).append( journalId ).append( '\n' );
         sb.append( tabs ).append( "  journal file name : " ).append( journalFileName ).append( '\n' );
         sb.append( toString( tabs, "  journal working dir", journalWorkingDir ) );
         sb.append( toString( tabs, "  journal rotation", journalRotation ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

@@ -20,6 +20,9 @@
 package org.apache.directory.server.config.beans;
 
 
+import org.apache.directory.server.config.ConfigurationElement;
+
+
 /**
  * A class used to store the JdbmIndex configuration.
  *
@@ -29,21 +32,26 @@ public class JdbmIndexBean<K, E> extends IndexBean
 {
     /** The default cache size */
     private static final int DEFAULT_INDEX_CACHE_SIZE = 100;
-    
+
     /** default duplicate limit before duplicate keys switch to using a btree for values */
     private static final int DEFAULT_DUPLICATE_LIMIT = 512;
 
     /** the size (number of index entries) for the cache */
+    @ConfigurationElement(attributeType = "ads-indexCacheSize")
     private int indexCacheSize = DEFAULT_INDEX_CACHE_SIZE;
 
     /** duplicate limit before duplicate keys switch to using a btree for values */
+    @ConfigurationElement(attributeType = "ads-indexNumDupLimit")
     private int indexNumDupLimit = DEFAULT_DUPLICATE_LIMIT;
-    
+
     /** The index file name */
+    @ConfigurationElement(attributeType = "ads-indexFileName")
     private String indexFileName;
-    
+
     /** The index working directory */
+    @ConfigurationElement(attributeType = "ads-indexWorkingDir")
     private String indexWorkingDir;
+
 
     /**
      * Create a new JdbmIndexBean instance
@@ -133,26 +141,26 @@ public class JdbmIndexBean<K, E> extends IndexBean
     {
         this.indexWorkingDir = indexWorkingDir;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "JdbmIndexBean :\n" );
         sb.append( super.toString( tabs ) );
         sb.append( toString( tabs, "  index file name", indexFileName ) );
         sb.append( toString( tabs, "  index working directory", indexWorkingDir ) );
         sb.append( toString( tabs, "  index cache size", indexCacheSize ) );
         sb.append( toString( tabs, "  index num dup limit", indexNumDupLimit ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

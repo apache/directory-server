@@ -19,21 +19,27 @@
  */
 package org.apache.directory.server.config.beans;
 
+
+import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * A class used to store the Base ADS configuration. It can't be instanciated
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AdsBaseBean 
+public abstract class AdsBaseBean
 {
     /** The enabled flag */
+    @ConfigurationElement(attributeType = "ads-enabled")
     private boolean enabled = false;
-    
+
     /** The description */
+    @ConfigurationElement(attributeType = "description")
     private String description;
+
 
     /**
      * Create a new BaseBean instance
@@ -41,8 +47,8 @@ public abstract class AdsBaseBean
     protected AdsBaseBean()
     {
     }
-    
-    
+
+
     /**
      * @return <code>true</code> if the component is enabled
      */
@@ -50,8 +56,8 @@ public abstract class AdsBaseBean
     {
         return enabled;
     }
-    
-    
+
+
     /**
      * Enable or disable the component
      * @param enabled if <code>true</code>, the component is enabled.
@@ -60,17 +66,17 @@ public abstract class AdsBaseBean
     {
         this.enabled = enabled;
     }
-    
-    
+
+
     /**
      * @return the description for this component
      */
-    public String getDescription() 
+    public String getDescription()
     {
         return description;
     }
-    
-    
+
+
     /**
      * Sets the component description
      * 
@@ -80,8 +86,8 @@ public abstract class AdsBaseBean
     {
         this.description = description;
     }
-    
-    
+
+
     /**
      * Formated print of a boolean
      */
@@ -90,7 +96,7 @@ public abstract class AdsBaseBean
         StringBuilder sb = new StringBuilder();
 
         sb.append( tabs ).append( name ).append( " : " );
-        
+
         if ( value )
         {
             sb.append( "TRUE" );
@@ -99,13 +105,13 @@ public abstract class AdsBaseBean
         {
             sb.append( "FALSE" );
         }
-        
+
         sb.append( '\n' );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * Formated print of a String that can be null
      */
@@ -120,8 +126,8 @@ public abstract class AdsBaseBean
             return "";
         }
     }
-    
-    
+
+
     /**
      * Formated print of a DN that can be null
      */
@@ -136,7 +142,8 @@ public abstract class AdsBaseBean
             return "";
         }
     }
-    
+
+
     /**
      * a convenient method to finding if this bean was disabled in the config
      * 
@@ -146,8 +153,8 @@ public abstract class AdsBaseBean
     {
         return !enabled;
     }
-    
-    
+
+
     /**
      * Formated print of a long
      */
@@ -155,26 +162,26 @@ public abstract class AdsBaseBean
     {
         return tabs + name + " : " + value + "\n";
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( toString( tabs, "enabled", enabled ) );
-        
+
         if ( !StringTools.isEmpty( description ) )
         {
             sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

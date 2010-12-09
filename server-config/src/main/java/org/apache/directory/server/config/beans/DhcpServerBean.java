@@ -33,26 +33,26 @@ public class DhcpServerBean extends DSBasedServerBean
     public DhcpServerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "DhcpServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

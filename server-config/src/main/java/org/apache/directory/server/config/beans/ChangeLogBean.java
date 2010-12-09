@@ -20,6 +20,9 @@
 package org.apache.directory.server.config.beans;
 
 
+import org.apache.directory.server.config.ConfigurationElement;
+
+
 /**
  * A class used to store the ChangeLog configuration.
  *
@@ -28,10 +31,13 @@ package org.apache.directory.server.config.beans;
 public class ChangeLogBean extends AdsBaseBean
 {
     /** The ChangeLog unique ID */
+    @ConfigurationElement(attributeType = "ads-changeLogId", isRdn = true)
     private String changeLogId;
 
     /** Tells if the ChangeLog is exposed to the users */
+    @ConfigurationElement(attributeType = "ads-changeLogExposed")
     private boolean changeLogExposed;
+
 
     /**
      * Create a new ChangeLogBean instance
@@ -40,7 +46,7 @@ public class ChangeLogBean extends AdsBaseBean
     {
         // Not exposed by default
         changeLogExposed = false;
-        
+
         // Not enabled by default
         setEnabled( false );
     }
@@ -62,41 +68,41 @@ public class ChangeLogBean extends AdsBaseBean
     {
         this.changeLogId = changeLogId;
     }
-    
-    
+
+
     /**
      * @return <code>true</code> if the ChangeLog is exposed
      */
-    public boolean isChangeLogExposed() 
+    public boolean isChangeLogExposed()
     {
         return changeLogExposed;
     }
 
-    
+
     /**
      * @param exposed Set the exposed flag
      */
-    public void setChangeLogExposed( boolean changeLogExposed ) 
+    public void setChangeLogExposed( boolean changeLogExposed )
     {
         this.changeLogExposed = changeLogExposed;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "ChangeLog :\n" );
         sb.append( tabs ).append( "  changeLog id : " ).append( changeLogId ).append( '\n' );
         sb.append( toString( tabs, "  changeLog exposed", changeLogExposed ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

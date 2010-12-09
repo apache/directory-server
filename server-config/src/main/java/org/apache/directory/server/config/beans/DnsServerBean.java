@@ -33,26 +33,26 @@ public class DnsServerBean extends DSBasedServerBean
     public DnsServerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "DnsServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

@@ -23,7 +23,9 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.core.PasswordPolicyConfiguration;
+import org.apache.directory.server.config.ConfigurationElement;
+
+
 /**
  * A class used to store the DirectoryService configuration.
  *
@@ -32,49 +34,65 @@ import org.apache.directory.server.core.PasswordPolicyConfiguration;
 public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
+    @ConfigurationElement(attributeType = "ads-directoryServiceId", isRdn = true)
     private String directoryServiceId;
 
     /** The directory instance replication ID */
+    @ConfigurationElement(attributeType = "ads-dsReplicaId")
     private int dsReplicaId;
 
     /** The flag that tells if the AccessControl system is activated */
+    @ConfigurationElement(attributeType = "ads-dsAccessControlEnabled")
     private boolean dsAccessControlEnabled = true;
 
     /** The flag that tells if Anonymous connections are allowed */
+    @ConfigurationElement(attributeType = "ads-dsAllowAnonymousAccess")
     private boolean dsAllowAnonymousAccess = false;
 
     /** The flag that tells if DN must be denormalized */
+    @ConfigurationElement(attributeType = "ads-dsDenormalizeOpAttrsEnabled")
     private boolean dsDenormalizeOpAttrsEnabled = true;
 
     /** The maximum size of an incoming PDU */
+    @ConfigurationElement(attributeType = "ads-dsMaxPDUSize")
     private int dsMaxPDUSize = 2048;
 
     /** The flag that tells if the password should be returned as a normal attribute or not */
+    @ConfigurationElement(attributeType = "ads-dsPasswordHidden")
     private boolean dsPasswordHidden = false;
 
     /** The delay between two flushes on disk */
+    @ConfigurationElement(attributeType = "ads-dsSyncPeriodMillis")
     private long dsSyncPeriodMillis = 15000L;
 
     /** The ldif entries to inject into the server at startup */
+    @ConfigurationElement(attributeType = "dsTestEntries")
     private String dsTestEntries;
 
     /** The ChangeLog component */
+    @ConfigurationElement
     private ChangeLogBean changeLog;
 
     /** The journal component */
+    @ConfigurationElement
     private JournalBean journal;
 
     /** The servers */
+    @ConfigurationElement(attributeType = "ads-servers", container = "servers")
     private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
+    @ConfigurationElement(attributeType = "ads-interceptors", container = "interceptors")
     private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
+    @ConfigurationElement(attributeType = "ads-partitions", container = "partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
+    @ConfigurationElement
     private PasswordPolicyBean passwordPolicy;
+
 
     /**
      * Create a new DnsServerBean instance
@@ -364,7 +382,7 @@ public class DirectoryServiceBean extends AdsBaseBean
         return servers;
     }
 
-    
+
     /**
      * @return The LdapServerBean configuration
      */
@@ -374,14 +392,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof LdapServerBean )
             {
-                return (LdapServerBean)server;
+                return ( LdapServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The NtpServerBean configuration
      */
@@ -391,14 +409,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof NtpServerBean )
             {
-                return (NtpServerBean)server;
+                return ( NtpServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The DnsServerBean configuration
      */
@@ -408,14 +426,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof DnsServerBean )
             {
-                return (DnsServerBean)server;
+                return ( DnsServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The DhcpServerBean configuration
      */
@@ -425,14 +443,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof DhcpServerBean )
             {
-                return (DhcpServerBean)server;
+                return ( DhcpServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The HttpServerBean configuration
      */
@@ -442,14 +460,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof HttpServerBean )
             {
-                return (HttpServerBean)server;
+                return ( HttpServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The KdcServerBean configuration
      */
@@ -459,14 +477,14 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof KdcServerBean )
             {
-                return (KdcServerBean)server;
+                return ( KdcServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * @return The ChangePasswordServerBean configuration
      */
@@ -476,13 +494,13 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             if ( server instanceof ChangePasswordServerBean )
             {
-                return (ChangePasswordServerBean)server;
+                return ( ChangePasswordServerBean ) server;
             }
         }
-        
+
         return null;
     }
-    
+
 
     /**
      * @param servers the servers to set
@@ -504,7 +522,7 @@ public class DirectoryServiceBean extends AdsBaseBean
         }
     }
 
-    
+
     /**
      * @return the passwordPolicy
      */
@@ -529,10 +547,10 @@ public class DirectoryServiceBean extends AdsBaseBean
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "DirectoryServiceBean : \n" );
         sb.append( super.toString( "  " ) );
-        
+
         // Dump the must attributes
         sb.append( "  directoryService ID : " ).append( directoryServiceId ).append( '\n' );
         sb.append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
@@ -543,9 +561,9 @@ public class DirectoryServiceBean extends AdsBaseBean
         sb.append( "  max PDU size : " ).append( dsMaxPDUSize ).append( '\n' );
         sb.append( "  sync period millisecond : " ).append( dsSyncPeriodMillis ).append( '\n' );
         sb.append( toString( "  ", "test entries", dsTestEntries ) );
-        
+
         sb.append( "  interceptors : \n" );
-        
+
         if ( ( interceptors != null ) && ( interceptors.size() > 0 ) )
         {
             for ( InterceptorBean interceptor : interceptors )
@@ -553,9 +571,9 @@ public class DirectoryServiceBean extends AdsBaseBean
                 sb.append( interceptor.toString( "    " ) );
             }
         }
-        
+
         sb.append( "  partitions : \n" );
-        
+
         if ( ( partitions != null ) && ( partitions.size() > 0 ) )
         {
             for ( PartitionBean partition : partitions )
@@ -568,19 +586,19 @@ public class DirectoryServiceBean extends AdsBaseBean
         {
             sb.append( journal.toString( "  " ) );
         }
-        
+
         if ( changeLog != null )
         {
             sb.append( changeLog.toString( "  " ) );
         }
-        
+
         if ( passwordPolicy != null )
         {
             sb.append( passwordPolicy.toString( "  " ) );
         }
-        
+
         sb.append( "  servers : \n" );
-        
+
         if ( ( servers != null ) && ( servers.size() > 0 ) )
         {
             for ( ServerBean server : servers )

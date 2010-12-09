@@ -20,6 +20,8 @@
 package org.apache.directory.server.config.beans;
 
 
+import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the JdbmPartition configuration.
@@ -29,11 +31,14 @@ package org.apache.directory.server.config.beans;
 public class JdbmPartitionBean extends PartitionBean
 {
     /** The Entry cache size for this partition */
+    @ConfigurationElement(attributeType = "ads-partitionCacheSize")
     private int partitionCacheSize = -1;
 
     /** Tells if the optimizer is enabled or not */
+    @ConfigurationElement(attributeType = "ads-jdbmPartitionOptimizerEnabled")
     private boolean jdbmPartitionOptimizerEnabled = true;
-    
+
+
     /**
      * Create a new JdbmPartitionBean instance
      */
@@ -65,7 +70,7 @@ public class JdbmPartitionBean extends PartitionBean
         return partitionCacheSize;
     }
 
-    
+
     /**
      * @return <code>true</code> if the optimizer is enabled
      */
@@ -84,24 +89,24 @@ public class JdbmPartitionBean extends PartitionBean
     {
         this.jdbmPartitionOptimizerEnabled = jdbmPartitionOptimizerEnabled;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "JdbmPartitionBean :\n" );
         sb.append( super.toString( tabs ) );
         sb.append( tabs ).append( "  partition cache size : " ).append( partitionCacheSize ).append( '\n' );
         sb.append( toString( tabs, "  jdbm partition optimizer enabled", jdbmPartitionOptimizerEnabled ) );
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

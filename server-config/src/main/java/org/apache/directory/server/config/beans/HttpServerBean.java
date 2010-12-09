@@ -19,10 +19,11 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-
+import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -33,10 +34,13 @@ import java.util.List;
 public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
+    @ConfigurationElement(attributeType = "ads-httpConfFile")
     private String httpConfFile;
-    
+
     /** The list of supported web apps */
+    @ConfigurationElement(attributeType = "ads-httpWebApps", container = "httpWebApps")
     private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
+
 
     /**
      * Create a new HttpServerBean instance
@@ -44,12 +48,12 @@ public class HttpServerBean extends ServerBean
     public HttpServerBean()
     {
         super();
-        
+
         // Enabled by default
         setEnabled( true );
     }
 
-    
+
     /**
      * @return the httpConfFile
      */
@@ -58,7 +62,7 @@ public class HttpServerBean extends ServerBean
         return httpConfFile;
     }
 
-    
+
     /**
      * @param httpConfFile the httpConfFile to set
      */
@@ -67,7 +71,7 @@ public class HttpServerBean extends ServerBean
         this.httpConfFile = httpConfFile;
     }
 
-    
+
     /**
      * @return the httpWebApps
      */
@@ -76,7 +80,7 @@ public class HttpServerBean extends ServerBean
         return httpWebApps;
     }
 
-    
+
     /**
      * @param httpWebApps the httpWebApps to set
      */
@@ -85,34 +89,34 @@ public class HttpServerBean extends ServerBean
         this.httpWebApps = httpWebApps;
     }
 
-    
+
     /**
      * @param httpWebApps the httpWebApps to add
      */
     public void addHttpWebApps( HttpWebAppBean... httpWebApps )
     {
         for ( HttpWebAppBean httpWebApp : httpWebApps )
-        {   
+        {
             this.httpWebApps.add( httpWebApp );
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "HttpServer :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        sb.append(  toString( tabs, "  http configuration file", httpConfFile ) );
-        
+        sb.append( toString( tabs, "  http configuration file", httpConfFile ) );
+
         if ( ( httpWebApps != null ) && ( httpWebApps.size() > 0 ) )
         {
             sb.append( tabs ).append( "  web applications :\n" );
-            
+
             for ( HttpWebAppBean httpWebApp : httpWebApps )
             {
                 sb.append( httpWebApp.toString( tabs + "    " ) );
@@ -121,8 +125,8 @@ public class HttpServerBean extends ServerBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
