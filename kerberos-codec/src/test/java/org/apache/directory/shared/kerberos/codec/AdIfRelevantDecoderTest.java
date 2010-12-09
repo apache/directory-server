@@ -34,7 +34,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.adIfRelevant.AdIfRelevantContainer;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdIfRelevant;
-import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -91,7 +91,7 @@ public class AdIfRelevantDecoderTest
         String[] expected = new String[]{ "abcdef", "ghijkl" };
         int i = 0;
         
-        for ( AuthorizationData.AD ad : adIfRelevant.getAuthorizationData() )
+        for ( AuthorizationDataEntry ad : adIfRelevant.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
             assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );

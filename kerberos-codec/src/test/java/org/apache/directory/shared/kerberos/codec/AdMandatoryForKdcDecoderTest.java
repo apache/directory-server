@@ -34,7 +34,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.adMandatoryForKdc.AdMandatoryForKdcContainer;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdMandatoryForKdc;
-import org.apache.directory.shared.kerberos.components.AuthorizationData;
+import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -91,7 +91,7 @@ public class AdMandatoryForKdcDecoderTest
         String[] expected = new String[]{ "abcdef", "ghijkl" };
         int i = 0;
         
-        for ( AuthorizationData.AD ad : adMandatoryForKdc.getAuthorizationData() )
+        for ( AuthorizationDataEntry ad : adMandatoryForKdc.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
             assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );

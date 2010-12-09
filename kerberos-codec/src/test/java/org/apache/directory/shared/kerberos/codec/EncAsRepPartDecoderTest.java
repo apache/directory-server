@@ -105,8 +105,7 @@ public class EncAsRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncAsRepPart Container
-        EncAsRepPartContainer encAsRepPartContainer = new EncAsRepPartContainer();
-        encAsRepPartContainer.setStream( stream );
+        EncAsRepPartContainer encAsRepPartContainer = new EncAsRepPartContainer( stream );
         
         // Decode the EncAsRepPart PDU
         try
@@ -159,7 +158,7 @@ public class EncAsRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncAsRepPart Container
-        Asn1Container encAsRepPartContainer = new EncAsRepPartContainer();
+        Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
         kerberosDecoder.decode( stream, encAsRepPartContainer );
@@ -186,8 +185,7 @@ public class EncAsRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncAsRepPart Container
-        Asn1Container encAsRepPartContainer = new EncAsRepPartContainer();
-        encAsRepPartContainer.setStream( stream );
+        Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
         kerberosDecoder.decode( stream, encAsRepPartContainer );

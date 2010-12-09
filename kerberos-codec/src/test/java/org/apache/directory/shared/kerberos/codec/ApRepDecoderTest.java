@@ -75,8 +75,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AsRep Container
-        ApRepContainer apRepContainer = new ApRepContainer();
-        apRepContainer.setStream( stream );
+        ApRepContainer apRepContainer = new ApRepContainer( stream );
         
         // Decode the ApRep PDU
         try
@@ -141,8 +140,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AsRep Container
-        ApRepContainer apRepContainer = new ApRepContainer();
-        apRepContainer.setStream( stream );
+        ApRepContainer apRepContainer = new ApRepContainer( stream );
         
         // Decode the ApRep PDU
         kerberosDecoder.decode( stream, apRepContainer );
@@ -166,7 +164,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer();
+        Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
         kerberosDecoder.decode( stream, apRepContainer );
@@ -193,7 +191,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer();
+        Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
         kerberosDecoder.decode( stream, apRepContainer );
@@ -221,7 +219,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer();
+        Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
         kerberosDecoder.decode( stream, apRepContainer );
@@ -250,7 +248,7 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer();
+        Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
         kerberosDecoder.decode( stream, apRepContainer );

@@ -78,8 +78,7 @@ public class KrbSafeDecoderTest
         
         Asn1Decoder decoder = new Asn1Decoder();
         
-        KrbSafeContainer container = new  KrbSafeContainer();
-        container.setStream( stream );
+        KrbSafeContainer container = new  KrbSafeContainer( stream );
         
         try
         {
@@ -132,10 +131,8 @@ public class KrbSafeDecoderTest
         
         Asn1Decoder decoder = new Asn1Decoder();
         
-        KrbSafeContainer container = new  KrbSafeContainer();
-        container.setStream( stream );
+        KrbSafeContainer container = new  KrbSafeContainer( stream );
         
         decoder.decode( stream, container );
     }
-    
 }

@@ -119,8 +119,7 @@ public class KdcRepDecoderTest
         stream.flip();
 
         // Allocate a KdcRep Container
-        KdcRepContainer kdcRepContainer = new KdcRepContainer();
-        kdcRepContainer.setStream( stream );
+        KdcRepContainer kdcRepContainer = new KdcRepContainer( stream );
         kdcRepContainer.setKdcRep( new AsRep() );
         
         // Decode the KdcRep PDU
@@ -174,7 +173,7 @@ public class KdcRepDecoderTest
         stream.flip();
 
         // Allocate a KDC-REP Container
-        Asn1Container kdcRepContainer = new KdcRepContainer();
+        Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
         kerberosDecoder.decode( stream, kdcRepContainer );
@@ -201,7 +200,7 @@ public class KdcRepDecoderTest
         stream.flip();
 
         // Allocate a KDC-REP Container
-        Asn1Container kdcRepContainer = new KdcRepContainer();
+        Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
         kerberosDecoder.decode( stream, kdcRepContainer );
@@ -229,7 +228,7 @@ public class KdcRepDecoderTest
         stream.flip();
 
         // Allocate a KDC-REP Container
-        Asn1Container kdcRepContainer = new KdcRepContainer();
+        Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
         kerberosDecoder.decode( stream, kdcRepContainer );

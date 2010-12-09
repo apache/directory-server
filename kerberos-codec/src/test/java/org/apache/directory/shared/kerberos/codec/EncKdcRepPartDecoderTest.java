@@ -60,7 +60,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -88,7 +88,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -116,8 +116,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -152,8 +151,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -188,8 +186,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -238,8 +235,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -288,8 +284,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -340,8 +335,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         decoder.decode( stream, encKdcRepPartContainer );
@@ -410,8 +404,7 @@ public class EncKdcRepPartDecoderTest
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
-        EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer();
-        encKdcRepPartContainer.setStream( stream );
+        EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
         try

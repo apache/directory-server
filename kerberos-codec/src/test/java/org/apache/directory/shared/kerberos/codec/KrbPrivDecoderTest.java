@@ -67,8 +67,7 @@ public class KrbPrivDecoderTest
         
         Asn1Decoder decoder = new Asn1Decoder();
         
-        KrbPrivContainer container = new  KrbPrivContainer();
-        container.setStream( stream );
+        KrbPrivContainer container = new  KrbPrivContainer( stream );
         
         try
         {

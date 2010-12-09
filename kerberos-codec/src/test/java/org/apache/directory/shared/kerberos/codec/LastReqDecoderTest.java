@@ -32,6 +32,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.lastReq.LastReqContainer;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
 import org.apache.directory.shared.kerberos.components.LastReq;
+import org.apache.directory.shared.kerberos.components.LastReqEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -88,10 +89,10 @@ public class LastReqDecoderTest
         String[] expected = new String[]{ "20101110154525Z", "20101110154526Z" };
         int i = 0;
         
-        for ( LastReq.LR lr : lastReq.getLastReqs() )
+        for ( LastReqEntry lre : lastReq.getLastReqs() )
         {
-            assertEquals( LastReqType.TIME_OF_INITIAL_REQ, lr.getLrType() );
-            assertEquals( expected[i++], lr.getLrValue().toString() );
+            assertEquals( LastReqType.TIME_OF_INITIAL_REQ, lre.getLrType() );
+            assertEquals( expected[i++], lre.getLrValue().toString() );
             
         }
 

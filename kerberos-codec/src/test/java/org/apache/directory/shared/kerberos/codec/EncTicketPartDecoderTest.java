@@ -100,13 +100,13 @@ public class EncTicketPartDecoderTest
         expected = new EncTicketPart();
         expected.setFlags( flags );
         expected.setKey( key );
-        expected.setcRealm( cRealm );
-        expected.setcName( cName );
+        expected.setCRealm( cRealm );
+        expected.setCName( cName );
         expected.setTransited( transited );
         expected.setAuthTime( authTime );
         expected.setStartTime( startTime );
         expected.setEndTime( endTime );
-        expected.setRenewtill( renewtill );
+        expected.setRenewTill( renewtill );
         expected.setClientAddresses( caddr );
         expected.setAuthorizationData( authzData );
     }
@@ -123,7 +123,7 @@ public class EncTicketPartDecoderTest
     public void testDecodeEncTicketPartWithoutStartAndRenewtillTimes() throws Exception
     {
         expected.setStartTime( null );
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
 
         encodeDecodeAndTest( expected );
     }
@@ -132,7 +132,7 @@ public class EncTicketPartDecoderTest
     @Test
     public void testDecodeEncTicketPartWithoutRenwtillTime() throws Exception
     {
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
 
         encodeDecodeAndTest( expected );
     }
@@ -141,7 +141,7 @@ public class EncTicketPartDecoderTest
     @Test
     public void testDecodeEncTicketPartWithoutRenwtillAndClientAddresses() throws Exception
     {
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
         expected.setClientAddresses( null );
 
         encodeDecodeAndTest( expected );
@@ -152,7 +152,7 @@ public class EncTicketPartDecoderTest
     public void testDecodeEncTicketPartWithoutOptionalElements() throws Exception
     {
         expected.setStartTime( null );
-        expected.setRenewtill( null );
+        expected.setRenewTill( null );
         expected.setClientAddresses( null );
         expected.setAuthorizationData( null );
 
@@ -178,8 +178,7 @@ public class EncTicketPartDecoderTest
         stream.flip();
 
         Asn1Decoder decoder = new Asn1Decoder();
-        EncTicketPartContainer container = new EncTicketPartContainer();
-        container.setStream( stream );
+        EncTicketPartContainer container = new EncTicketPartContainer( stream );
 
         try
         {
@@ -194,13 +193,13 @@ public class EncTicketPartDecoderTest
 
         assertEquals( expected.getFlags(), actual.getFlags() );
         assertEquals( expected.getKey(), actual.getKey() );
-        assertEquals( expected.getcRealm(), actual.getcRealm() );
-        assertEquals( expected.getcName(), actual.getcName() );
+        assertEquals( expected.getCRealm(), actual.getCRealm() );
+        assertEquals( expected.getCName(), actual.getCName() );
         assertEquals( expected.getTransited(), actual.getTransited() );
         assertEquals( expected.getAuthTime(), actual.getAuthTime() );
         assertEquals( expected.getStartTime(), actual.getStartTime() );
         assertEquals( expected.getEndTime(), actual.getEndTime() );
-        assertEquals( expected.getRenewtill(), actual.getRenewtill() );
+        assertEquals( expected.getRenewTill(), actual.getRenewTill() );
         assertEquals( expected.getClientAddresses(), actual.getClientAddresses() );
         assertEquals( expected.getAuthorizationData(), actual.getAuthorizationData() );
     }
