@@ -21,11 +21,10 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -35,11 +34,10 @@ public class TicketGrantingContext extends KdcContext
 {
     private static final long serialVersionUID = 2130665703752837491L;
 
-    private ApplicationRequest authHeader;
+    private ApReq authHeader;
     private Ticket tgt;
     private Ticket newTicket;
     private Authenticator authenticator;
-    private ReplayCache replayCache;
 
     private PrincipalStoreEntry ticketPrincipalEntry;
     private PrincipalStoreEntry requestPrincipalEntry;
@@ -78,24 +76,6 @@ public class TicketGrantingContext extends KdcContext
     public void setTicketPrincipalEntry( PrincipalStoreEntry ticketPrincipalEntry )
     {
         this.ticketPrincipalEntry = ticketPrincipalEntry;
-    }
-
-
-    /**
-     * @return Returns the replayCache.
-     */
-    public ReplayCache getReplayCache()
-    {
-        return replayCache;
-    }
-
-
-    /**
-     * @param replayCache The replayCache to set.
-     */
-    public void setReplayCache( ReplayCache replayCache )
-    {
-        this.replayCache = replayCache;
     }
 
 
@@ -156,7 +136,7 @@ public class TicketGrantingContext extends KdcContext
     /**
      * @return Returns the authHeader.
      */
-    public ApplicationRequest getAuthHeader()
+    public ApReq getAuthHeader()
     {
         return authHeader;
     }
@@ -165,7 +145,7 @@ public class TicketGrantingContext extends KdcContext
     /**
      * @param authHeader The authHeader to set.
      */
-    public void setAuthHeader( ApplicationRequest authHeader )
+    public void setAuthHeader( ApReq authHeader )
     {
         this.authHeader = authHeader;
     }

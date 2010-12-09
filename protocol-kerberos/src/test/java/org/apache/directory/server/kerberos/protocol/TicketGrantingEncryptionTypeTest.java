@@ -31,19 +31,19 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.messages.TgsRep;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         /*
          * Body checksum verification must be disabled because we are bypassing
-         * the codecs, where the body bytes are set on the KdcRequest message.
+         * the codecs, where the body bytes are set on the KdcReq message.
          */
         config.setBodyChecksumVerified( false );
 
@@ -103,40 +103,39 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     {
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( new PrincipalName( new KerberosPrincipal( "ldap/ldap.example.com@EXAMPLE.COM" ) ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
@@ -157,40 +156,39 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         String passPhrase = "randomKey";
         EncryptionKey serverKey = getEncryptionKey( serverPrincipal, passPhrase );
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -213,11 +211,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -230,34 +228,33 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -279,11 +276,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -296,35 +293,34 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
         int nonce = random.nextInt();
-        modifier.setNonce( nonce );
+        kdcReqBody.setNonce( nonce );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -348,11 +344,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -365,34 +361,33 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
@@ -415,11 +410,11 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
+        EncTicketPart encTicketPart = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
         sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        encTicketPartModifier.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
         // Seal the ticket for the server.
         String principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
@@ -432,36 +427,35 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
                 preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
+        Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
 
-        RequestBodyModifier modifier = new RequestBodyModifier();
-        modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
-        modifier.setRealm( "EXAMPLE.COM" );
+        KdcReqBody kdcReqBody = new KdcReqBody();
+        kdcReqBody.setSName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
+        kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
-        modifier.setEType( encryptionTypes );
+        kdcReqBody.setEType( encryptionTypes );
 
-        modifier.setNonce( random.nextInt() );
+        kdcReqBody.setNonce( random.nextInt() );
 
         KdcOptions kdcOptions = new KdcOptions();
-        modifier.setKdcOptions( kdcOptions );
+        kdcReqBody.setKdcOptions( kdcOptions );
 
         long now = System.currentTimeMillis();
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
-        modifier.setTill( requestedEndTime );
+        kdcReqBody.setTill( requestedEndTime );
 
         subSessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        RequestBody requestBody = modifier.getRequestBody();
-        KdcRequest message = getKdcRequest( tgt, requestBody );
+        KdcReq message = getKdcRequest( tgt, kdcReqBody );
 
         handler.messageReceived( session, message );
 
         Object msg = session.getMessage();
-        assertEquals( "session.getMessage() instanceOf", TicketGrantReply.class, msg.getClass() );
-        TicketGrantReply reply = ( TicketGrantReply ) msg;
+        assertEquals( "session.getMessage() instanceOf", TgsRep.class, msg.getClass() );
+        TgsRep reply = ( TgsRep ) msg;
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()

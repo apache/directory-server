@@ -20,9 +20,10 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -31,41 +32,44 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.server.kerberos.sam.SamException;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
-import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionTypeInfoEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.PreAuthenticationDataEncoder;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
-import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.InvalidTicketException;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
-import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
-import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosConstants;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosUtils;
+import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.LastReqType;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
+import org.apache.directory.shared.kerberos.components.ETypeInfo;
+import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
+import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.LastReq;
+import org.apache.directory.shared.kerberos.components.LastReqEntry;
+import org.apache.directory.shared.kerberos.components.MethodData;
+import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.components.TransitedEncoding;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.messages.AsRep;
+import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +82,6 @@ public class AuthenticationService
     /** The log for this class. */
     private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
 
-    private static final ReplayCache replayCache = new InMemoryReplayCache();
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private static final String SERVICE_NAME = "Authentication Service (AS)";
@@ -91,7 +94,6 @@ public class AuthenticationService
             monitorRequest( authContext );
         }
         
-        authContext.setReplayCache( replayCache );
         authContext.setCipherTextHandler( cipherTextHandler );
 
         if ( authContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
@@ -113,14 +115,6 @@ public class AuthenticationService
         getServerEntry( authContext );
         generateTicket( authContext );
         buildReply( authContext );
-
-        if ( LOG.isDebugEnabled() )
-        {
-            monitorContext( authContext );
-            monitorReply( ( KdcContext ) authContext );
-        }
-        
-        sealReply( authContext );
     }
 
     
@@ -129,7 +123,7 @@ public class AuthenticationService
         KdcContext kdcContext = ( KdcContext ) authContext;
         KdcServer config = kdcContext.getConfig();
 
-        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
+        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -146,7 +140,8 @@ public class AuthenticationService
     
     private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KerberosPrincipal principal = authContext.getRequest().getClientPrincipal();
+        KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal( 
+            authContext.getRequest().getKdcReqBody().getCName(), authContext.getRequest().getKdcReqBody().getRealm() );
         PrincipalStore store = authContext.getStore();
 
         PrincipalStoreEntry storeEntry = getEntry( principal, store, ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN ); 
@@ -178,7 +173,7 @@ public class AuthenticationService
     private static void verifySam( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
         LOG.debug( "Verifying using SAM subsystem." );
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         KdcServer config = authContext.getConfig();
 
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
@@ -193,9 +188,9 @@ public class AuthenticationService
                 LOG.debug( "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.", clientName );
             }
 
-            PaData[] preAuthData = request.getPreAuthData();
+            List<PaData> preAuthData = request.getPaData();
 
-            if ( preAuthData == null || preAuthData.length == 0 )
+            if ( preAuthData == null || preAuthData.size() == 0 )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config
                     .getEncryptionTypes() ) );
@@ -203,13 +198,13 @@ public class AuthenticationService
 
             try
             {
-                for ( int ii = 0; ii < preAuthData.length; ii++ )
+                for ( PaData paData : preAuthData )
                 {
-                    if ( preAuthData[ii].getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
+                    if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
-                            preAuthData[ii].getPaDataValue() );
-                        clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey.getKeyType() ), samKey
+                            paData.getPaDataValue() );
+                        clientKey = new EncryptionKey( EncryptionType.getTypeByValue( samKey.getKeyType() ), samKey
                             .getEncoded() );
                     }
                 }
@@ -235,7 +230,7 @@ public class AuthenticationService
         LOG.debug( "Verifying using encrypted timestamp." );
         
         KdcServer config = authContext.getConfig();
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
         String clientName = clientEntry.getPrincipal().getName();
@@ -261,7 +256,7 @@ public class AuthenticationService
 
             if ( config.isPaEncTimestampRequired() )
             {
-                PaData[] preAuthData = request.getPreAuthData();
+                List<PaData> preAuthData = request.getPaData();
 
                 if ( preAuthData == null )
                 {
@@ -269,33 +264,19 @@ public class AuthenticationService
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
-                EncryptedTimeStamp timestamp = null;
+                PaEncTsEnc timestamp = null;
 
-                for ( int ii = 0; ii < preAuthData.length; ii++ )
+                for ( PaData paData : preAuthData )
                 {
-                    if ( preAuthData[ii].getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
+                    if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
-                        EncryptedData dataValue;
-
-                        try
-                        {
-                            dataValue = EncryptedDataDecoder.decode( preAuthData[ii].getPaDataValue() );
-                        }
-                        catch ( IOException ioe )
-                        {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
-                        }
-                        catch ( ClassCastException cce )
-                        {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
-                        }
-
-                        timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,
-                            clientKey, dataValue, KeyUsage.NUMBER1 );
+                        EncryptedData dataValue = KerberosDecoder.decodeEncryptedData( paData.getPaDataValue() );
+                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+                        timestamp = KerberosDecoder.decodePaEncTsEnc( decryptedData );
                     }
                 }
 
-                if ( preAuthData.length > 0 && timestamp == null )
+                if ( ( preAuthData.size() > 0 ) && ( timestamp == null ) )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
                 }
@@ -306,7 +287,7 @@ public class AuthenticationService
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
-                if ( !timestamp.getTimeStamp().isInClockSkew( config.getAllowableClockSkew() ) )
+                if ( !timestamp.getPaTimestamp().isInClockSkew( config.getAllowableClockSkew() ) )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
@@ -333,83 +314,91 @@ public class AuthenticationService
     
     private static void getServerEntry( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KerberosPrincipal principal = authContext.getRequest().getServerPrincipal();
+        PrincipalName principal = authContext.getRequest().getKdcReqBody().getSName();
         PrincipalStore store = authContext.getStore();
     
-        authContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        KerberosPrincipal principalWithRealm = new KerberosPrincipal( principal.getNameString() + "@" + authContext.getRequest().getKdcReqBody().getRealm() );
+        authContext.setServerEntry( getEntry( principalWithRealm, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
     }    
     
     
     private static void generateTicket( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
-        KerberosPrincipal serverPrincipal = request.getServerPrincipal();
+        PrincipalName serverPrincipal = request.getKdcReqBody().getSName();
 
         EncryptionType encryptionType = authContext.getEncryptionType();
         EncryptionKey serverKey = authContext.getServerEntry().getKeyMap().get( encryptionType );
 
-        KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
-        EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
+        PrincipalName ticketPrincipal = request.getKdcReqBody().getSName();
+        
+        EncTicketPart encTicketPart = new EncTicketPart();
         KdcServer config = authContext.getConfig();
 
         // The INITIAL flag indicates that a ticket was issued using the AS protocol.
-        newTicketBody.setFlag( TicketFlag.INITIAL );
+        TicketFlags ticketFlags = new TicketFlags();
+        encTicketPart.setFlags( ticketFlags );
+        ticketFlags.setFlag( TicketFlag.INITIAL );
 
         // The PRE-AUTHENT flag indicates that the client used pre-authentication.
         if ( authContext.isPreAuthenticated() )
         {
-            newTicketBody.setFlag( TicketFlag.PRE_AUTHENT );
+            ticketFlags.setFlag( TicketFlag.PRE_AUTHENT );
         }
 
-        if ( request.getOption( KdcOptions.FORWARDABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
             if ( !config.isForwardableAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.FORWARDABLE );
+            ticketFlags.setFlag( TicketFlag.FORWARDABLE );
         }
 
-        if ( request.getOption( KdcOptions.PROXIABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXIABLE ) )
         {
             if ( !config.isProxiableAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.PROXIABLE );
+            ticketFlags.setFlag( TicketFlag.PROXIABLE );
         }
 
-        if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.MAY_POSTDATE );
+            ticketFlags.setFlag( TicketFlag.MAY_POSTDATE );
         }
 
-        if ( request.getOption( KdcOptions.RENEW ) || request.getOption( KdcOptions.VALIDATE )
-            || request.getOption( KdcOptions.PROXY ) || request.getOption( KdcOptions.FORWARDED )
-            || request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEW ) 
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXY ) 
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDED )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
-        newTicketBody.setSessionKey( sessionKey );
+        encTicketPart.setKey( sessionKey );
 
-        newTicketBody.setClientPrincipal( request.getClientPrincipal() );
-        newTicketBody.setTransitedEncoding( new TransitedEncoding() );
+        encTicketPart.setCName( request.getKdcReqBody().getCName() );
+        encTicketPart.setCRealm( request.getKdcReqBody().getRealm() );
+        encTicketPart.setTransited( new TransitedEncoding() );
+        String serverRealm = request.getKdcReqBody().getRealm();
 
         KerberosTime now = new KerberosTime();
 
-        newTicketBody.setAuthTime( now );
+        encTicketPart.setAuthTime( now );
 
-        KerberosTime startTime = request.getFrom();
+        KerberosTime startTime = request.getKdcReqBody().getFrom();
 
         /*
          * "If the requested starttime is absent, indicates a time in the past,
@@ -418,7 +407,7 @@ public class AuthenticationService
          * ticket is set to the authentication server's current time."
          */
         if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getOption( KdcOptions.POSTDATED ) )
+            && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             startTime = now;
         }
@@ -429,7 +418,8 @@ public class AuthenticationService
          * KDC_ERR_CANNOT_POSTDATE is returned."
          */
         if ( startTime != null && startTime.greaterThan( now )
-            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) && !request.getOption( KdcOptions.POSTDATED ) )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) 
+            && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -439,27 +429,27 @@ public class AuthenticationService
          * local realm and if the ticket's starttime is acceptable, it is set as
          * requested, and the INVALID flag is set in the new ticket."
          */
-        if ( request.getOption( KdcOptions.POSTDATED ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
             if ( !config.isPostdatedAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.POSTDATED );
-            newTicketBody.setFlag( TicketFlag.INVALID );
-            newTicketBody.setStartTime( startTime );
+            ticketFlags.setFlag( TicketFlag.POSTDATED );
+            ticketFlags.setFlag( TicketFlag.INVALID );
+            encTicketPart.setStartTime( startTime );
         }
 
         long till = 0;
         
-        if ( request.getTill().getTime() == 0 )
+        if ( request.getKdcReqBody().getTill().getTime() == 0 )
         {
             till = Long.MAX_VALUE;
         }
         else
         {
-            till = request.getTill().getTime();
+            till = request.getKdcReqBody().getTill().getTime();
         }
 
         /*
@@ -468,7 +458,7 @@ public class AuthenticationService
          */
         long endTime = Math.min( till, startTime.getTime() + config.getMaximumTicketLifetime() );
         KerberosTime kerberosEndTime = new KerberosTime( endTime );
-        newTicketBody.setEndTime( kerberosEndTime );
+        encTicketPart.setEndTime( kerberosEndTime );
 
         /*
          * "If the requested expiration time minus the starttime (as determined
@@ -493,27 +483,28 @@ public class AuthenticationService
          * flag is set in the new ticket, and the renew-till value is set as if the
          * 'RENEWABLE' option were requested."
          */
-        KerberosTime tempRtime = request.getRtime();
+        KerberosTime tempRtime = request.getKdcReqBody().getRTime();
 
-        if ( request.getOption( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE_OK ) 
+            && request.getKdcReqBody().getTill().greaterThan( kerberosEndTime ) )
         {
             if ( !config.isRenewableAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            request.setOption( KdcOptions.RENEWABLE );
-            tempRtime = request.getTill();
+            request.getKdcReqBody().getKdcOptions().set( KdcOptions.RENEWABLE );
+            tempRtime = request.getKdcReqBody().getTill();
         }
 
-        if ( request.getOption( KdcOptions.RENEWABLE ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEWABLE ) )
         {
             if ( !config.isRenewableAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlag.RENEWABLE );
+            ticketFlags.setFlag( TicketFlag.RENEWABLE );
 
             if ( tempRtime == null || tempRtime.isZero() )
             {
@@ -526,13 +517,13 @@ public class AuthenticationService
              * configured in policy.
              */
             long renewTill = Math.min( tempRtime.getTime(), startTime.getTime() + config.getMaximumRenewableLifetime() );
-            newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
+            encTicketPart.setRenewTill( new KerberosTime( renewTill ) );
         }
 
-        if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
-            && request.getAddresses().getAddresses().length > 0 )
+        if ( request.getKdcReqBody().getAddresses() != null && request.getKdcReqBody().getAddresses().getAddresses() != null
+            && request.getKdcReqBody().getAddresses().getAddresses().length > 0 )
         {
-            newTicketBody.setClientAddresses( request.getAddresses() );
+            encTicketPart.setClientAddresses( request.getKdcReqBody().getAddresses() );
         }
         else
         {
@@ -542,12 +533,13 @@ public class AuthenticationService
             }
         }
 
-        EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
-
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
-        newTicket.setEncTicketPart( ticketPart );
+
+        newTicket.setRealm( serverRealm );
+        newTicket.setEncTicketPart( encTicketPart );
+        
 
         if ( LOG.isDebugEnabled() )
         {
@@ -560,52 +552,62 @@ public class AuthenticationService
     
     private static void buildReply( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
-        KdcRequest request = authContext.getRequest();
+        KdcReq request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
-        AuthenticationReply reply = new AuthenticationReply();
-
-        reply.setClientPrincipal( request.getClientPrincipal() );
+        AsRep reply = new AsRep();
+        
+        reply.setCName( request.getKdcReqBody().getCName() );
+        reply.setCRealm( request.getKdcReqBody().getRealm() );
         reply.setTicket( ticket );
-        reply.setKey( ticket.getEncTicketPart().getSessionKey() );
+        
+        EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
+        encKdcRepPart.setKey( ticket.getEncTicketPart().getKey() );
 
         // TODO - fetch lastReq for this client; requires store
-        reply.setLastRequest( new LastRequest() );
+        // FIXME temporary fix, IMO we should create some new ATs to store this info in DIT
+        LastReq lastReq = new LastReq();
+        lastReq.addEntry( new LastReqEntry( LastReqType.TIME_OF_INITIAL_REQ, new KerberosTime() ) );
+        encKdcRepPart.setLastReq( lastReq );
         // TODO - resp.key-expiration := client.expiration; requires store
 
-        reply.setNonce( request.getNonce() );
+        encKdcRepPart.setNonce( request.getKdcReqBody().getNonce() );
 
-        reply.setFlags( ticket.getEncTicketPart().getFlags() );
-        reply.setAuthTime( ticket.getEncTicketPart().getAuthTime() );
-        reply.setStartTime( ticket.getEncTicketPart().getStartTime() );
-        reply.setEndTime( ticket.getEncTicketPart().getEndTime() );
+        encKdcRepPart.setFlags( ticket.getEncTicketPart().getFlags() );
+        encKdcRepPart.setAuthTime( ticket.getEncTicketPart().getAuthTime() );
+        encKdcRepPart.setStartTime( ticket.getEncTicketPart().getStartTime() );
+        encKdcRepPart.setEndTime( ticket.getEncTicketPart().getEndTime() );
 
         if ( ticket.getEncTicketPart().getFlags().isRenewable() )
         {
-            reply.setRenewTill( ticket.getEncTicketPart().getRenewTill() );
+            encKdcRepPart.setRenewTill( ticket.getEncTicketPart().getRenewTill() );
         }
 
-        reply.setServerPrincipal( ticket.getServerPrincipal() );
-        reply.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
+        encKdcRepPart.setSName( ticket.getSName() );
+        encKdcRepPart.setSRealm( ticket.getRealm() );
+        encKdcRepPart.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
 
-        authContext.setReply( reply );
-    }
-    
-    
-    private static void sealReply( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
-    {
-        AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
+        EncAsRepPart encAsRepPart = new EncAsRepPart();
+        encAsRepPart.setEncKdcRepPart( encKdcRepPart );
+
+        if ( LOG.isDebugEnabled() )
+        {
+            monitorContext( authContext );
+            monitorReply( reply, encKdcRepPart );
+        }
+        
         EncryptionKey clientKey = authContext.getClientKey();
-        CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
-
-        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, reply, KeyUsage.NUMBER3 );
+        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart, KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
         reply.setEncPart( encryptedData );
+        reply.setEncKdcRepPart( encKdcRepPart );
+        
+        authContext.setReply( reply );
     }
     
     
     private static void monitorRequest( KdcContext kdcContext )
     {
-        KdcRequest request = kdcContext.getRequest();
+        KdcReq request = kdcContext.getRequest();
 
         if ( LOG.isDebugEnabled() )
         {
@@ -619,16 +621,16 @@ public class AuthenticationService
                 sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
                 sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
                 sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
-                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
-                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getEType() ) );
-                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-                sb.append( "\n\t" + "from time:             " + request.getFrom() );
-                sb.append( "\n\t" + "till time:             " + request.getTill() );
-                sb.append( "\n\t" + "renew-till time:       " + request.getRtime() );
-                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+                sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
+                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
+                sb.append( "\n\t" + "clientPrincipal:       " + request.getKdcReqBody().getCName() );
+                sb.append( "\n\t" + "serverPrincipal:       " + request.getKdcReqBody().getSName() );
+                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
+                sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
+                sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
+                sb.append( "\n\t" + "till time:             " + request.getKdcReqBody().getTill() );
+                sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
+                sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
                 LOG.debug( sb.toString() );
             }
@@ -663,7 +665,7 @@ public class AuthenticationService
             sb.append( "\n\t" + "principal              " + clientEntry.getPrincipal() );
             sb.append( "\n\t" + "SAM type               " + clientEntry.getSamType() );
 
-            KerberosPrincipal serverPrincipal = authContext.getRequest().getServerPrincipal();
+            PrincipalName serverPrincipal = authContext.getRequest().getKdcReqBody().getSName();
             PrincipalStoreEntry serverEntry = authContext.getServerEntry();
 
             sb.append( "\n\t" + "principal              " + serverPrincipal );
@@ -689,31 +691,27 @@ public class AuthenticationService
     }
     
     
-    private static void monitorReply( KdcContext kdcContext )
+    private static void monitorReply( AsRep reply, EncKdcRepPart part )
     {
-        Object reply = kdcContext.getReply();
-
-        if ( LOG.isDebugEnabled() && reply instanceof KdcReply )
+        if ( LOG.isDebugEnabled() )
         {
-            KdcReply success = ( KdcReply ) reply;
-
             try
             {
                 StringBuffer sb = new StringBuffer();
 
                 sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-                sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
-                sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
-                sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
-                sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
-                sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
-                sb.append( "\n\t" + "start time:            " + success.getStartTime() );
-                sb.append( "\n\t" + "end time:              " + success.getEndTime() );
-                sb.append( "\n\t" + "renew-till time:       " + success.getRenewTill() );
-                sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
+                sb.append( "\n\t" + "messageType:           " + reply.getMessageType() );
+                sb.append( "\n\t" + "protocolVersionNumber: " + reply.getProtocolVersionNumber() );
+                sb.append( "\n\t" + "nonce:                 " + part.getNonce() );
+                sb.append( "\n\t" + "clientPrincipal:       " + reply.getCName() );
+                sb.append( "\n\t" + "client realm:          " + reply.getCRealm() );
+                sb.append( "\n\t" + "serverPrincipal:       " + part.getSName() );
+                sb.append( "\n\t" + "server realm:          " + part.getSRealm() );
+                sb.append( "\n\t" + "auth time:             " + part.getAuthTime() );
+                sb.append( "\n\t" + "start time:            " + part.getStartTime() );
+                sb.append( "\n\t" + "end time:              " + part.getEndTime() );
+                sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
+                sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
 
                 LOG.debug( sb.toString() );
             }
@@ -775,36 +773,37 @@ public class AuthenticationService
 
         paDataSequence[0] = paData;
 
-        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[ encryptionTypes.size() ];
-        int i = 0;
+        ETypeInfo eTypeInfo = new ETypeInfo();
         
         for ( EncryptionType encryptionType:encryptionTypes )
         {
-            entries[i++] = new EncryptionTypeInfoEntry( encryptionType, null );
+            ETypeInfoEntry etypeInfoEntry = new ETypeInfoEntry( encryptionType, null );
+            eTypeInfo.addETypeInfoEntry( etypeInfoEntry );
         }
 
         byte[] encTypeInfo = null;
 
         try
         {
-            encTypeInfo = EncryptionTypeInfoEncoder.encode( entries );
+            ByteBuffer buffer = ByteBuffer.allocate( eTypeInfo.computeLength() );
+            encTypeInfo = eTypeInfo.encode( buffer ).array();
         }
-        catch ( IOException ioe )
+        catch ( EncoderException ioe )
         {
             return null;
         }
 
-        PaData encType = new PaData();
-        encType.setPaDataType( PaDataType.PA_ENCTYPE_INFO );
-        encType.setPaDataValue( encTypeInfo );
+        PaData responsePaData = new PaData( PaDataType.PA_ENCTYPE_INFO, encTypeInfo );
 
-        paDataSequence[1] = encType;
+        MethodData methodData = new MethodData();
+        methodData.addPaData( responsePaData );
 
         try
         {
-            return PreAuthenticationDataEncoder.encode( paDataSequence );
+            ByteBuffer buffer = ByteBuffer.allocate( methodData.computeLength() );
+            return methodData.encode( buffer ).array();
         }
-        catch ( IOException ioe )
+        catch ( EncoderException ee )
         {
             return null;
         }

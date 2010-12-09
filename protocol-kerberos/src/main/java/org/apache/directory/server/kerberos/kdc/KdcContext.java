@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.kdc;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 /**
@@ -38,7 +38,7 @@ public class KdcContext
 
     private KdcServer config;
     private PrincipalStore store;
-    private KdcRequest request;
+    private KdcReq request;
     private KerberosMessage reply;
     private InetAddress clientAddress;
     private CipherTextHandler cipherTextHandler;
@@ -84,7 +84,7 @@ public class KdcContext
     /**
      * @return Returns the request.
      */
-    public KdcRequest getRequest()
+    public KdcReq getRequest()
     {
         return request;
     }
@@ -93,7 +93,7 @@ public class KdcContext
     /**
      * @param request The request to set.
      */
-    public void setRequest( KdcRequest request )
+    public void setRequest( KdcReq request )
     {
         this.request = request;
     }

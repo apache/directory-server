@@ -26,17 +26,20 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.kerberos.protocol.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
-import org.apache.directory.server.kerberos.protocol.KerberosTcpProtocolCodecFactory;
-import org.apache.directory.server.kerberos.protocol.KerberosUdpProtocolCodecFactory;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -150,6 +153,8 @@ public class KdcServer extends DirectoryBackedService
     /** Whether to verify the body checksum. */
     private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
+    /** the cache used for storing AS and TGS requests */
+    private ReplayCache replayCache;
 
     /**
      * Creates a new instance of KdcConfiguration.
@@ -430,6 +435,15 @@ public class KdcServer extends DirectoryBackedService
 
 
     /**
+     * @return the replayCache
+     */
+    public ReplayCache getReplayCache()
+    {
+        return replayCache;
+    }
+
+
+    /**
      * @throws IOException if we cannot bind to the sockets
      */
     public void start() throws IOException, LdapInvalidDnException
@@ -438,6 +452,11 @@ public class KdcServer extends DirectoryBackedService
 
         // TODO - for now ignoring this catalog crap
         store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
+        
+        LOG.debug( "initializing the kerberos replay cache" );
+
+        Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
+        replayCache = new ReplayCacheImpl( cache, allowableClockSkew );
         
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
@@ -453,7 +472,7 @@ public class KdcServer extends DirectoryBackedService
 
             ((DefaultIoFilterChainBuilder)udpChainBuilder).addFirst( "codec", 
                     new ProtocolCodecFilter( 
-                            KerberosUdpProtocolCodecFactory.getInstance() ) );
+                            KerberosProtocolCodecFactory.getInstance() ) );
 
             acceptor.setFilterChainBuilder( udpChainBuilder );
 
@@ -485,19 +504,12 @@ public class KdcServer extends DirectoryBackedService
                     
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
                     ((NioSocketAcceptor)acceptor).setReuseAddress( true );
-
-                    // Inject the codec
-                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                        new ProtocolCodecFilter( 
-                                KerberosTcpProtocolCodecFactory.getInstance() ) );
                 }
-                else
-                {
-                    // Inject the codec
-                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                        new ProtocolCodecFilter( 
-                                KerberosUdpProtocolCodecFactory.getInstance() ) );
-                }
+                
+                // Inject the codec
+                ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
+                    new ProtocolCodecFilter( 
+                        KerberosProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
                 
@@ -523,6 +535,11 @@ public class KdcServer extends DirectoryBackedService
             {
                 acceptor.dispose();
             }
+        }
+
+        if ( replayCache != null )
+        {
+            replayCache.clear();
         }
         
         LOG.info( "Kerberos service stopped." );

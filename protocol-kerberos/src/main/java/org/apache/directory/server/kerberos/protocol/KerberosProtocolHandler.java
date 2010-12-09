@@ -31,14 +31,14 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.shared.kerberos.KerberosMessageType;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -125,7 +125,17 @@ public class KerberosProtocolHandler implements IoHandler
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
-        KdcRequest request = ( KdcRequest ) message;
+        
+        if ( !( message instanceof KdcReq ) )
+        {
+            log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
+
+            session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
+                ErrorType.KRB_AP_ERR_BADDIRECTION ) ) );
+            return;
+        }
+        
+        KdcReq request = ( KdcReq ) message;
 
         KerberosMessageType messageType = request.getMessageType();
 
@@ -180,7 +190,7 @@ public class KerberosProtocolHandler implements IoHandler
                 log.warn( messageText );
             }
 
-            ErrorMessage error = getErrorMessage( config.getServicePrincipal(), ke );
+            KrbError error = getErrorMessage( config.getServicePrincipal(), ke );
 
             if ( log.isDebugEnabled() )
             {
@@ -191,7 +201,6 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-        e.printStackTrace();
             log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
@@ -209,36 +218,37 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
-    protected ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    protected KrbError getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
-        ErrorMessageModifier modifier = new ErrorMessageModifier();
+        KrbError krbError = new KrbError();
 
         KerberosTime now = new KerberosTime();
 
-        modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getLocalizedMessage() );
-        modifier.setServerPrincipal( principal );
-        modifier.setServerTime( now );
-        modifier.setServerMicroSecond( 0 );
-        modifier.setExplanatoryData( exception.getExplanatoryData() );
+        krbError.setErrorCode( ErrorType.getTypeByOrdinal( exception.getErrorCode() ) );
+        krbError.setEText( exception.getLocalizedMessage() );
+        krbError.setSName( new PrincipalName( principal ) );
+        krbError.setRealm( principal.getRealm() );
+        krbError.setSTime( now );
+        krbError.setSusec(  0 );
+        krbError.setEData( exception.getExplanatoryData() );
 
-        return modifier.getErrorMessage();
+        return krbError;
     }
 
 
-    protected void logErrorMessage( ErrorMessage error )
+    protected void logErrorMessage( KrbError error )
     {
         try
         {
             StringBuffer sb = new StringBuffer();
 
             sb.append( "Responding to request with error:" );
-            sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
+            sb.append( "\n\t" + "explanatory text:      " + error.getEText() );
             sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
-            sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
-            sb.append( "\n\t" + "client time:           " + error.getClientTime() );
-            sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
-            sb.append( "\n\t" + "server time:           " + error.getServerTime() );
+            sb.append( "\n\t" + "clientPrincipal:       " + error.getCName() ).append( "@" ).append( error.getCRealm() );
+            sb.append( "\n\t" + "client time:           " + error.getCTime() );
+            sb.append( "\n\t" + "serverPrincipal:       " + error.getSName() ).append( "@" ).append( error.getRealm() );
+            sb.append( "\n\t" + "server time:           " + error.getSTime() );
 
             log.debug( sb.toString() );
         }

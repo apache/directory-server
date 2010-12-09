@@ -21,42 +21,41 @@ package org.apache.directory.server.kerberos.protocol;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.text.ParseException;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.KerberosConstants;
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequestEncoder;
-import org.apache.directory.server.kerberos.shared.io.encoder.KdcRequestEncoder;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PaData;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
-import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
-import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
-import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
+import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosUtils;
+import org.apache.directory.shared.kerberos.codec.options.ApOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.PaDataType;
+import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.apache.directory.shared.kerberos.components.Checksum;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
+import org.apache.directory.shared.kerberos.components.EncryptedData;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
+import org.apache.directory.shared.kerberos.components.PaData;
+import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.components.TransitedEncoding;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.flags.TicketFlag;
+import org.apache.directory.shared.kerberos.flags.TicketFlags;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.TgsReq;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -116,76 +115,34 @@ public abstract class AbstractTicketGrantingServiceTest
      * @throws KerberosException
      */
     protected Ticket getTicket( KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
-        EncryptionKey serverKey ) throws KerberosException
+        EncryptionKey serverKey ) throws KerberosException, ParseException
     {
-        EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
+        EncTicketPart encTicketPart = new EncTicketPart();
 
         TicketFlags ticketFlags = new TicketFlags();
         ticketFlags.setFlag( TicketFlag.RENEWABLE );
-        encTicketModifier.setFlags( ticketFlags );
+        encTicketPart.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
 
-        encTicketModifier.setSessionKey( sessionKey );
-        encTicketModifier.setClientPrincipal( clientPrincipal );
-        encTicketModifier.setTransitedEncoding( new TransitedEncoding() );
-        encTicketModifier.setAuthTime( new KerberosTime() );
+        encTicketPart.setKey( sessionKey );
+        encTicketPart.setCName( new PrincipalName( clientPrincipal ) );
+        encTicketPart.setCRealm( clientPrincipal.getRealm() );
+        encTicketPart.setTransited( new TransitedEncoding() );
+        encTicketPart.setAuthTime( new KerberosTime() );
 
         long now = System.currentTimeMillis();
         KerberosTime endTime = new KerberosTime( now + KerberosTime.DAY );
-        encTicketModifier.setEndTime( endTime );
+        encTicketPart.setEndTime( endTime );
 
         KerberosTime renewTill = new KerberosTime( now + KerberosTime.WEEK );
-        encTicketModifier.setRenewTill( renewTill );
+        encTicketPart.setRenewTill( renewTill );
 
-        EncTicketPart encTicketPart = encTicketModifier.getEncTicketPart();
-
-        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
-
-        Ticket ticket = new Ticket( KerberosConstants.KERBEROS_V5, serverPrincipal, encryptedTicketPart );
-
-        ticket.setEncTicketPart( encTicketPart );
-
-        return ticket;
-    }
-
-
-    protected EncTicketPartModifier getTicketArchetype( KerberosPrincipal clientPrincipal ) throws KerberosException
-    {
-        EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
-
-        TicketFlags ticketFlags = new TicketFlags();
-        ticketFlags.setFlag( TicketFlag.RENEWABLE );
-        encTicketModifier.setFlags( ticketFlags );
-
-        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
-
-        encTicketModifier.setSessionKey( sessionKey );
-        encTicketModifier.setClientPrincipal( clientPrincipal );
-        encTicketModifier.setTransitedEncoding( new TransitedEncoding() );
-        encTicketModifier.setAuthTime( new KerberosTime() );
-
-        long now = System.currentTimeMillis();
-        KerberosTime endTime = new KerberosTime( now + KerberosTime.DAY );
-        encTicketModifier.setEndTime( endTime );
-
-        KerberosTime renewTill = new KerberosTime( now + KerberosTime.WEEK );
-        encTicketModifier.setRenewTill( renewTill );
-
-        return encTicketModifier;
-    }
-
-
-    protected Ticket getTicket( EncTicketPartModifier encTicketModifier, KerberosPrincipal serverPrincipal,
-        EncryptionKey serverKey ) throws KerberosException
-    {
-        EncTicketPart encTicketPart = encTicketModifier.getEncTicketPart();
-
-        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
+        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket ticket = new Ticket();
-        ticket.setTktVno( 5 );
-        ticket.setServerPrincipal( serverPrincipal );
+        ticket.setSName( new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() ) );
+        ticket.setRealm( serverPrincipal.getRealm() );
         ticket.setEncPart( encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
@@ -194,30 +151,82 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected KdcRequest getKdcRequest( Ticket tgt, RequestBody requestBody ) throws Exception
+    protected EncTicketPart getTicketArchetype( KerberosPrincipal clientPrincipal ) throws KerberosException, ParseException
+    {
+        EncTicketPart encTicketPart = new EncTicketPart();
+
+        TicketFlags ticketFlags = new TicketFlags();
+        ticketFlags.setFlag( TicketFlag.RENEWABLE );
+        encTicketPart.setFlags( ticketFlags );
+
+        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
+
+        encTicketPart.setKey( sessionKey );
+        encTicketPart.setCName( new PrincipalName( clientPrincipal ) );
+        encTicketPart.setCRealm( clientPrincipal.getRealm() );
+        encTicketPart.setTransited( new TransitedEncoding() );
+        encTicketPart.setAuthTime( new KerberosTime() );
+
+        long now = System.currentTimeMillis();
+        KerberosTime endTime = new KerberosTime( now + KerberosTime.DAY );
+        encTicketPart.setEndTime( endTime );
+
+        KerberosTime renewTill = new KerberosTime( now + KerberosTime.WEEK );
+        encTicketPart.setRenewTill( renewTill );
+
+        return encTicketPart;
+    }
+
+
+    protected Ticket getTicket( EncTicketPart encTicketPart, KerberosPrincipal serverPrincipal,
+        EncryptionKey serverKey ) throws KerberosException, ParseException
+    {
+        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+
+        Ticket ticket = new Ticket();
+        ticket.setTktVno( 5 );
+        ticket.setSName( new PrincipalName( serverPrincipal.getName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
+        ticket.setRealm( serverPrincipal.getRealm() );
+        ticket.setEncPart( encryptedTicketPart );
+
+        ticket.setEncTicketPart( encTicketPart );
+
+        return ticket;
+    }
+
+
+    protected KdcReq getKdcRequest( Ticket tgt, KdcReqBody requestBody ) throws Exception
     {
         return getKdcRequest( tgt, requestBody, ChecksumType.RSA_MD5 );
     }
 
 
     /**
-     * Create a KdcRequest, suitable for requesting a service Ticket.
+     * Create a KdcReq, suitable for requesting a service Ticket.
      */
-    protected KdcRequest getKdcRequest( Ticket tgt, RequestBody requestBody, ChecksumType checksumType )
+    protected KdcReq getKdcRequest( Ticket tgt, KdcReqBody kdcReqBody, ChecksumType checksumType )
         throws Exception
     {
         // Get the session key from the service ticket.
-        sessionKey = tgt.getEncTicketPart().getSessionKey();
+        sessionKey = tgt.getEncTicketPart().getKey();
 
         // Generate a new sequence number.
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getClientPrincipal(), requestBody, checksumType );
+        EncryptedData authenticator = getAuthenticator( KerberosUtils.getKerberosPrincipal( tgt.getEncTicketPart().getCName(), tgt.getEncTicketPart().getCRealm() ), kdcReqBody, checksumType );
 
-        PaData[] paData = getPreAuthenticationData( tgt, authenticator );
+        PaData[] paDatas = getPreAuthenticationData( tgt, authenticator );
 
-        return new KdcRequest( 5, KerberosMessageType.TGS_REQ, paData, requestBody );
+        KdcReq message = new TgsReq();
+        message.setKdcReqBody( kdcReqBody );
+        
+        for ( PaData paData : paDatas )
+        {
+            message.addPaData( paData );
+        }
+        
+        return message;
     }
 
 
@@ -231,39 +240,39 @@ public abstract class AbstractTicketGrantingServiceTest
      * @return The {@link EncryptedData} containing the {@link Authenticator}.
      * @throws KerberosException
      */
-    protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, RequestBody requestBody,
-        ChecksumType checksumType ) throws IOException, KerberosException
+    protected EncryptedData getAuthenticator( KerberosPrincipal clientPrincipal, KdcReqBody requestBody,
+        ChecksumType checksumType ) throws EncoderException, KerberosException
     {
-        AuthenticatorModifier authenticatorModifier = new AuthenticatorModifier();
+        Authenticator authenticator = new Authenticator();
 
-        clientMicroSeconds = random.nextInt();
+        clientMicroSeconds = random.nextInt(999999);
 
-        authenticatorModifier.setVersionNumber( 5 );
-        authenticatorModifier.setClientPrincipal( clientPrincipal );
-        authenticatorModifier.setClientTime( now );
-        authenticatorModifier.setClientMicroSecond( clientMicroSeconds );
-        authenticatorModifier.setSubSessionKey( subSessionKey );
-        authenticatorModifier.setSequenceNumber( sequenceNumber );
+        authenticator.setVersionNumber( 5 );
+        authenticator.setCName( new PrincipalName( clientPrincipal.getName(), clientPrincipal.getNameType() ) );
+        authenticator.setCRealm( clientPrincipal.getRealm() );
+        authenticator.setCTime( now );
+        authenticator.setCusec( clientMicroSeconds );
+        authenticator.setSubKey( subSessionKey );
+        authenticator.setSeqNumber( sequenceNumber );
 
         Checksum checksum = getBodyChecksum( requestBody, checksumType );
-        authenticatorModifier.setChecksum( checksum );
+        authenticator.setCksum( checksum );
 
-        Authenticator authenticator = authenticatorModifier.getAuthenticator();
-
-        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.NUMBER7 );
+        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY );
 
         return encryptedAuthenticator;
     }
 
 
-    protected Checksum getBodyChecksum( RequestBody requestBody, ChecksumType checksumType ) throws IOException,
+    protected Checksum getBodyChecksum( KdcReqBody kdcReqBody, ChecksumType checksumType ) throws EncoderException,
         KerberosException
     {
-        KdcRequestEncoder bodyEncoder = new KdcRequestEncoder();
-        byte[] bodyBytes = bodyEncoder.encodeRequestBody( requestBody );
+        ByteBuffer buffer = ByteBuffer.allocate( kdcReqBody.computeLength() );
+        byte[] bodyBytes = kdcReqBody.encode( buffer ).array();
 
         ChecksumHandler checksumHandler = new ChecksumHandler();
-        return checksumHandler.calculateChecksum( checksumType, bodyBytes, null, KeyUsage.NUMBER8 );
+        
+        return checksumHandler.calculateChecksum( checksumType, bodyBytes, null, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
     }
 
 
@@ -276,17 +285,15 @@ public abstract class AbstractTicketGrantingServiceTest
      * @throws IOException
      */
     protected PaData[] getPreAuthenticationData( Ticket ticket, EncryptedData authenticator )
-        throws IOException
+        throws EncoderException
     {
-        ApplicationRequest applicationRequest = new ApplicationRequest();
-        applicationRequest.setMessageType( KerberosMessageType.AP_REQ );
-        applicationRequest.setProtocolVersionNumber( 5 );
+        ApReq applicationRequest = new ApReq();
         applicationRequest.setApOptions( new ApOptions() );
         applicationRequest.setTicket( ticket );
-        applicationRequest.setEncPart( authenticator );
+        applicationRequest.setAuthenticator( authenticator );
 
-        ApplicationRequestEncoder encoder = new ApplicationRequestEncoder();
-        byte[] encodedApReq = encoder.encode( applicationRequest );
+        ByteBuffer buffer = ByteBuffer.allocate( applicationRequest.computeLength() );
+        byte[] encodedApReq = applicationRequest.encode( buffer ).array();
 
         PaData[] paData = new PaData[1];
 
