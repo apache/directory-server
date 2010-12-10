@@ -132,6 +132,7 @@ public class ConfigWriterTest
         {
             originalConfigEntries.add( ldifReader.next() );
         }
+        ldifReader.close();
 
         // Getting the list of entries of generated config
         List<LdifEntry> generatedConfigEntries = configWriter.getConvertedLdifEntries();
