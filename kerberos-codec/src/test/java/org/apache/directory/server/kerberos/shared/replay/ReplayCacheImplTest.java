@@ -97,7 +97,7 @@ public class ReplayCacheImplTest
         assertTrue( keys.size() != 0 );
 
         // Wait till the timetolive time exceeds 
-        Thread.sleep( 1000 );
+        Thread.sleep( 1200 );
 
         // then access the cache so that the objects present in the cache will be expired
         for ( Object k : keys )
