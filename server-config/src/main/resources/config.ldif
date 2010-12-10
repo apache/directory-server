@@ -73,10 +73,37 @@ dn: ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directorySer
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
+objectclass: ads-authenticationInterceptor
 ads-interceptororder: 2
 ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationInterceptor
 ads-interceptorid: authenticationInterceptor
 ads-enabled: TRUE
+
+dn: ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+ou: authenticators
+objectclass: top
+objectclass: organizationalUnit
+
+dn: ads-authenticatorid=anonymousauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+ads-authenticatorid: anonymousauthenticator
+objectclass: top
+objectclass: ads-base
+objectClass: ads-authenticator
+objectClass: ads-anonymousAuthenticator
+
+dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+ads-authenticatorid: simpleauthenticator
+objectclass: top
+objectclass: ads-base
+objectClass: ads-authenticator
+objectClass: ads-simpleAuthenticator
+
+dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+ads-authenticatorid: strongauthenticator
+objectclass: top
+objectclass: ads-base
+objectClass: ads-authenticator
+objectClass: ads-strongAuthenticator
 
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top

@@ -84,7 +84,7 @@ public class LdapServerBean extends DSBasedServerBean
     /** The list of supported extended operation handlers */
     @ConfigurationElement(attributeType = "ads-extendedOpHandlers", container = "extendedOpHandlers")
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
-
+    
 
     /**
      * Create a new LdapServerBean instance
@@ -329,6 +329,7 @@ public class LdapServerBean extends DSBasedServerBean
     }
 
 
+    
     /**
      * @param extendedOps the extendedOps to set
      */

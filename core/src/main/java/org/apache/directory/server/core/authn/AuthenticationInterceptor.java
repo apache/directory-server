@@ -52,7 +52,6 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.PpolicyConfigContainer;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -128,13 +127,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    private Set<Authenticator> authenticators;
+    /** A Set of all the existing Authenticator to be used by the bind operation */
+    private Set<Authenticator> authenticators = new HashSet<Authenticator>();
+    
+    /** A map of authenticators associated with the authentication level required */
     private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
 
     /** A reference to the DirectoryService instance */
     private DirectoryService directoryService;
-
-    //private PasswordPolicyConfiguration policyConfig;
 
     /** A reference to the SchemaManager instance */
     private SchemaManager schemaManager;
@@ -205,10 +205,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         loadPwdPolicyStateAtributeTypes();
 
-        if ( authenticators == null )
+        if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
         {
             setDefaultAuthenticators();
         }
+        
         // Register all authenticators
         for ( Authenticator authenticator : authenticators )
         {
@@ -217,14 +218,20 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Initialize the set of authenticators with some default values
+     */
     private void setDefaultAuthenticators()
     {
-        Set<Authenticator> set = new HashSet<Authenticator>();
-        set.add( new AnonymousAuthenticator() );
-        set.add( new SimpleAuthenticator() );
-        set.add( new StrongAuthenticator() );
-
-        setAuthenticators( set );
+        if ( authenticators == null )
+        {
+            authenticators = new HashSet<Authenticator>();
+        }
+        
+        authenticators.clear();
+        authenticators.add( new AnonymousAuthenticator() );
+        authenticators.add( new SimpleAuthenticator() );
+        authenticators.add( new StrongAuthenticator() );
     }
 
 
@@ -239,10 +246,36 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public void setAuthenticators( Set<Authenticator> authenticators )
     {
-        this.authenticators = authenticators;
+        if ( authenticators == null )
+        {
+            this.authenticators.clear();
+        }
+        else
+        {
+            this.authenticators = authenticators;
+        }
     }
 
 
+    /**
+     * @param authenticators authenticators to be used by this AuthenticationInterceptor
+     */
+    public void setAuthenticators( Authenticator[] authenticators )
+    {
+        if ( authenticators == null )
+        {
+            throw new IllegalArgumentException( "The given authenticators set is null" );
+        }
+        
+        this.authenticators.clear();
+
+        for (Authenticator authenticator : authenticators) 
+        {
+            this.authenticators.add( authenticator );
+        }
+    }
+    
+    
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
@@ -1088,6 +1121,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Initialize the PasswordPolicy attributeTypes
+     * 
+     * @throws LdapException If the initialization failed
+     */
     public void loadPwdPolicyStateAtributeTypes() throws LdapException
     {
         if ( directoryService.isPwdPolicyEnabled() )

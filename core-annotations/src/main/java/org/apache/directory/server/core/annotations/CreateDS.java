@@ -54,4 +54,7 @@ public @interface CreateDS
     
     /** additional interceptors */
     Class<?>[] additionalInterceptors() default {};
+    
+    /** authenticators, when empty the default authenticators are used, else this must contain the complete list */
+    CreateAuthenticator[] authenticators() default {};
 }

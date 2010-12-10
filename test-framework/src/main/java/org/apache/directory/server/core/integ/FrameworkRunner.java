@@ -182,23 +182,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // then use the DS created above
             if ( classLdapServerBuilder != null )
             {
-                int minPort = 0;
-
-                if ( suite != null )
-                {
-                    LdapServer suiteServer = suite.getLdapServer();
-
-                    if ( suiteServer != null )
-                    {
-                        for ( Transport transport : suiteServer.getTransports() )
-                        {
-                            if ( minPort <= transport.getPort() )
-                            {
-                                minPort = transport.getPort();
-                            }
-                        }
-                    }
-                }
+                int minPort = getMinPort();
 
                 classLdapServer = ServerAnnotationProcessor.createLdapServer( getDescription(), directoryService,
                     minPort + 1 );
@@ -279,11 +263,41 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
 
     /**
+     * Get the lower port out of all the transports
+     */
+    private int getMinPort()
+    {
+        int minPort = 0;
+
+        if ( suite != null )
+        {
+            LdapServer suiteServer = suite.getLdapServer();
+
+            if ( suiteServer != null )
+            {
+                for ( Transport transport : suiteServer.getTransports() )
+                {
+                    if ( minPort <= transport.getPort() )
+                    {
+                        minPort = transport.getPort();
+                    }
+                }
+            }
+        }
+        
+        return minPort;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     @Override
     protected void runChild( FrameworkMethod method, RunNotifier notifier )
     {
+        /** The LdapServer for this method, if any */
+        LdapServer methodLdapServer = null;
+        
         // Don't run the test if the @Ignored annotation is used
         if ( method.getAnnotation( Ignore.class ) != null )
         {
@@ -302,6 +316,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
         Description classDescription = getDescription();
         Description methodDescription = describeChild( method );
+
+        // Before running any test, check to see if we must create a class DS
+        // Get the LdapServerBuilder, if any
+        CreateLdapServer methodLdapServerBuilder = methodDescription.getAnnotation( CreateLdapServer.class );
 
         // Ok, ready to run the test
         try
@@ -361,6 +379,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
 
+            if ( methodLdapServerBuilder != null )
+            {
+                int minPort = getMinPort();
+
+                methodLdapServer = ServerAnnotationProcessor.createLdapServer( methodDescription, directoryService,
+                    minPort + 1 );
+            }
+
             // At this point, we know which service to use.
             // Inject it into the class
             Field dirServiceField = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
@@ -377,7 +403,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             DirectoryService oldLdapServerDirService = null;
             DirectoryService oldKdcServerDirService = null;
             
-            if ( classLdapServer != null )
+            if ( methodLdapServer != null ) {
+                // setting the directoryService is required to inject the correct level DS instance in the class or suite level LdapServer
+                methodLdapServer.setDirectoryService( directoryService );
+                
+                ldapServerField.set( getTestClass().getJavaClass(), methodLdapServer );
+            }    
+            else if ( classLdapServer != null )
             {
                 oldLdapServerDirService = classLdapServer.getDirectoryService();
                 
@@ -399,6 +431,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // Run the test
             super.runChild( method, notifier );
+
+            if ( methodLdapServer != null )
+            {
+                methodLdapServer.stop();
+            }
 
             if ( oldLdapServerDirService != null )
             {
