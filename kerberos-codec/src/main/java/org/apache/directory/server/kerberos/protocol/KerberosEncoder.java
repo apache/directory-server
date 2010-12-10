@@ -51,7 +51,7 @@ public class KerberosEncoder extends ProtocolEncoderAdapter
         }
         catch( EncoderException e )
         {
-            throw new IOException(e.getMessage(), e);
+            throw new IOException(e.getMessage());
         }
     }
 }
