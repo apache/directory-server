@@ -1503,6 +1503,70 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Tests the addition of a new attributeType where the DESC contains only spaces
+     */
+    @Test
+    public void testAddAttributeTypeWithSpaceDesc() throws Exception
+    {
+        enableSchema( "nis" );
+        DN dn = new DN( getSubschemaSubentryDN() );
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC '  ' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        ModificationItem[] mods = new ModificationItem[1];
+        mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "attributeTypes", substrate ) );
+
+        // Apply the addition
+        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
+
+        // Get back the list of attributes, and find the one we just added
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "attributeTypes" );
+        AttributeType attributeType = null;
+
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+
+            if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
+            {
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                break;
+            }
+        }
+
+        assertNotNull( attributeType );
+        assertEquals( true, attributeType.isSingleValued() );
+        assertEquals( false, attributeType.isCollective() );
+        assertEquals( false, attributeType.isObsolete() );
+        assertEquals( true, attributeType.isUserModifiable() );
+        assertEquals( "  ", attributeType.getDescription() );
+        assertEquals( "bogus", attributeType.getNames().get( 0 ) );
+        assertEquals( "bogusName", attributeType.getNames().get( 1 ) );
+        assertEquals( "name", attributeType.getSuperiorOid() );
+
+        // Now check that the entry has been added
+        attrs = getSchemaContext( service ).getAttributes(
+            "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        assertNotNull( attrs );
+        SchemaEntityFactory factory = new SchemaEntityFactory();
+
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+
+        AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
+            .getSchemaManager().getRegistries(), "nis" );
+        assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
+        assertEquals( "name", at.getSuperiorOid() );
+        assertEquals( "  ", at.getDescription() );
+        assertEquals( "bogus", at.getNames().get( 0 ) );
+        assertEquals( "bogusName", at.getNames().get( 1 ) );
+        assertEquals( true, at.isUserModifiable() );
+        assertEquals( false, at.isCollective() );
+        assertEquals( false, at.isObsolete() );
+        assertEquals( true, at.isSingleValued() );
+    }
+
+
     // -----------------------------------------------------------------------
     // ObjectClass Tests
     // -----------------------------------------------------------------------
