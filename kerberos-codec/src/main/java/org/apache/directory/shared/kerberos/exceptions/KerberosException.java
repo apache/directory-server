@@ -50,7 +50,7 @@ public class KerberosException extends Exception
     {
         super( errorType.getMessage() );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
     }
 
 
@@ -65,7 +65,7 @@ public class KerberosException extends Exception
     {
         super( errorType.getMessage(), cause );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
     }
 
 
@@ -79,7 +79,7 @@ public class KerberosException extends Exception
     {
         super( msg );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
     }
 
 
@@ -95,7 +95,7 @@ public class KerberosException extends Exception
     {
         super( msg, cause );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
     }
 
 
@@ -110,7 +110,7 @@ public class KerberosException extends Exception
     {
         super( errorType.getMessage() );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
         this.explanatoryData = explanatoryData;
     }
 
@@ -127,7 +127,7 @@ public class KerberosException extends Exception
     {
         super( errorType.getMessage(), cause );
 
-        this.errorCode = errorType.getOrdinal();
+        this.errorCode = errorType.getValue();
         this.explanatoryData = explanatoryData;
     }
 
