@@ -51,7 +51,7 @@ public class StoreErrorCode extends AbstractReadInteger
     {
         KrbErrorContainer krbErrContainer = ( KrbErrorContainer ) container;
         
-        ErrorType errorCode = ErrorType.getTypeByOrdinal( value );
+        ErrorType errorCode = ErrorType.getTypeByValue( value );
         
         krbErrContainer.getKrbError().setErrorCode( errorCode );
     }

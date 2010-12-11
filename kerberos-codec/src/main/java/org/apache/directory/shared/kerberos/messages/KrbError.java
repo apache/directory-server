@@ -432,7 +432,7 @@ public class KrbError extends KerberosMessage
         krbErrorSeqLength += 1 + TLV.getNbBytes( susecLength ) + susecLength;
 
         // The error-code
-        errorCodeLength = 1 + 1 + Value.getNbBytes( errorCode.getOrdinal() );
+        errorCodeLength = 1 + 1 + Value.getNbBytes( errorCode.getValue() );
         krbErrorSeqLength += 1 + TLV.getNbBytes( errorCodeLength ) + errorCodeLength;
 
         // The crealm, if any
@@ -583,7 +583,7 @@ public class KrbError extends KerberosMessage
             // error-code tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_ERROR_ERROR_CODE_TAG );
             buffer.put( TLV.getBytes( errorCodeLength ) );
-            Value.encode( buffer, errorCode.getOrdinal() );
+            Value.encode( buffer, errorCode.getValue() );
 
             // crealm tage and value, if any
             if ( cRealm != null)

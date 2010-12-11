@@ -461,15 +461,15 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * The value/code for the error type.
      */
-    private final int ordinal;
+    private final int value;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ErrorType( int ordinal, String name )
+    private ErrorType(int value, String name)
     {
-        this.ordinal = ordinal;
+        this.value = value;
         this.name = name;
     }
 
@@ -501,25 +501,25 @@ public final class ErrorType implements Comparable<ErrorType>
      * type.
      *
      * @param that the object to compare this KerberosError to
-     * @return ordinal - ( ( KerberosError ) that ).ordinal;
+     * @return value - ( ( KerberosError ) that ).ordinal;
      */
     public int compareTo( ErrorType that )
     {
-        return ordinal - that.ordinal;
+        return value - that.value;
     }
 
 
     /**
-     * Gets the ordinal by its ordinal value.
+     * Gets the value by its value value.
      *
-     * @param ordinal the ordinal value of the ordinal
-     * @return the type corresponding to the ordinal value
+     * @param value the value value of the value
+     * @return the type corresponding to the value value
      */
-    public static ErrorType getTypeByOrdinal( int ordinal )
+    public static ErrorType getTypeByValue(int ordinal)
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ii].ordinal == ordinal )
+            if ( values[ii].value == ordinal )
             {
                 return values[ii];
             }
@@ -530,12 +530,12 @@ public final class ErrorType implements Comparable<ErrorType>
 
 
     /**
-     * Gets the ordinal value associated with this Kerberos error.
+     * Gets the value value associated with this Kerberos error.
      *
-     * @return the ordinal value associated with this Kerberos error
+     * @return the value value associated with this Kerberos error
      */
-    public int getOrdinal()
+    public int getValue()
     {
-        return ordinal;
+        return value;
     }
 }

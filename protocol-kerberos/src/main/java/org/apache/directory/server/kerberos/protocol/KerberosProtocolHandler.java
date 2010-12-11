@@ -54,10 +54,15 @@ import org.slf4j.LoggerFactory;
  */
 public class KerberosProtocolHandler implements IoHandler
 {
+    /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( KerberosProtocolHandler.class );
 
+    /** The KDC server instance */
     private KdcServer config;
+
+    /** The principal Name store */
     private PrincipalStore store;
+
     private static final String CONTEXT_KEY = "context";
     
 
@@ -224,12 +229,12 @@ public class KerberosProtocolHandler implements IoHandler
 
         KerberosTime now = new KerberosTime();
 
-        krbError.setErrorCode( ErrorType.getTypeByOrdinal( exception.getErrorCode() ) );
+        krbError.setErrorCode( ErrorType.getTypeByValue( exception.getErrorCode() ) );
         krbError.setEText( exception.getLocalizedMessage() );
         krbError.setSName( new PrincipalName( principal ) );
         krbError.setRealm( principal.getRealm() );
         krbError.setSTime( now );
-        krbError.setSusec(  0 );
+        krbError.setSusec( 0 );
         krbError.setEData( exception.getExplanatoryData() );
 
         return krbError;
