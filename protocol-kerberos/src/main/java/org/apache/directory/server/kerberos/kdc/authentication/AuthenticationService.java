@@ -75,6 +75,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * Subsystem in charge of authenticating the incoming users.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AuthenticationService
@@ -82,11 +84,19 @@ public class AuthenticationService
     /** The log for this class. */
     private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
 
+    /** The module responsible for encryption and decryption */
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
+    /** The service name */
     private static final String SERVICE_NAME = "Authentication Service (AS)";
 
 
+    /**
+     * Handle the authentication, given a specific context
+     *
+     * @param authContext The authentication context
+     * @throws Exception If the authentication failed
+     */
     public static void execute( AuthenticationContext authContext ) throws Exception
     {
         if ( LOG.isDebugEnabled() )

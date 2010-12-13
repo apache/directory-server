@@ -46,6 +46,7 @@ public class CipherTextHandler
     /** a map of the default encryption types to the encryption engine class names */
     private static final Map<EncryptionType, Class<? extends EncryptionEngine>> DEFAULT_CIPHERS;
 
+    // Initialize the list of encyption mechanisms
     static
     {
         Map<EncryptionType, Class<? extends EncryptionEngine>> map = new HashMap<EncryptionType, Class<? extends EncryptionEngine>>();

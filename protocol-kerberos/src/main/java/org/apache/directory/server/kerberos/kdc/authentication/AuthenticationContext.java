@@ -28,13 +28,13 @@ import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
+ * A context used to store and manage Authentication elements
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AuthenticationContext extends KdcContext
 {
     private static final long serialVersionUID = -2249170923251265359L;
-
-    //private Map checksumEngines = new HashMap();
 
     private Ticket ticket;
     private EncryptionKey clientKey;
