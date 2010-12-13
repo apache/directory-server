@@ -118,7 +118,7 @@ public class ConfigWriterTest
         configPartition.initialize();
 
         // Reading the config partition
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         ConfigBean configBean = cpReader.readConfig();
         assertNotNull( configBean );
 

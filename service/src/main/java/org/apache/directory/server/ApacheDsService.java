@@ -153,9 +153,9 @@ public class ApacheDsService
         initConfigPartition( instanceLayout );
 
         // Read the configuration
-        cpReader = new ConfigPartitionReader( configPartition, partitionsDir );
+        cpReader = new ConfigPartitionReader( configPartition );
         
-        ConfigBean configBean = cpReader.readConfig( "ou=config" );
+        ConfigBean configBean = cpReader.readConfig();
         
         DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
         

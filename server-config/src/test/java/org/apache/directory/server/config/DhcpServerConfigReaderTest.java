@@ -108,7 +108,7 @@ public class DhcpServerConfigReaderTest
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC.getValue() );
 

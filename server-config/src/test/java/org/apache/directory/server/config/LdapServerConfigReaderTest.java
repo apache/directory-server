@@ -107,7 +107,7 @@ public class LdapServerConfigReaderTest
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_LDAP_SERVER_OC.getValue() );
 

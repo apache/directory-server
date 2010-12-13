@@ -107,7 +107,7 @@ public class KerberosServerConfigReaderTest
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
         ConfigBean configBean = cpReader.readConfig( new DN( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC.getValue() );
 

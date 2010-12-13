@@ -110,7 +110,7 @@ public class ConfigPartitionReaderTest
 
         configPartition.initialize();
 
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition, workDir );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
 
         ConfigBean configBean = cpReader.readConfig( "ou=config" );
 
