@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
- * This class implements the Server Configuration Editor.
+ * This class implements a read-only configuration partition.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -56,6 +56,14 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     private InputStream inputStream;
 
 
+    /**
+     * Creates a new instance of ReadOnlyConfigurationPartition.
+     *
+     * @param inputStream
+     *      the input stream
+     * @param schemaManager
+     *      the schema manager
+     */
     public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager )
     {
         this.inputStream = inputStream;
