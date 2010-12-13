@@ -125,9 +125,9 @@ public class ConfigWriter
      * @throws IOException
      *      if an error occurs when writing the file
      */
-    public void write( String path ) throws ConfigurationException, IOException
+    public void writeToPath( String path ) throws ConfigurationException, IOException
     {
-        write( new File( path ) );
+        writeToFile( new File( path ) );
     }
 
 
@@ -141,19 +141,38 @@ public class ConfigWriter
      * @throws IOException
      *      if an error occurs when writing the file
      */
-    public void write( File file ) throws ConfigurationException, IOException
+    public void writeToFile( File file ) throws ConfigurationException, IOException
+    {
+        // Writing the file to disk
+        FileWriter writer = new FileWriter( file );
+        writer.append( writeToString() );
+        writer.close();
+    }
+
+
+    /**
+     * Writes the configuration to a String object.
+     *
+     * @return
+     *      a String containing the LDIF 
+     *      representation of the configuration
+     * @throws ConfigurationException
+     *      if an error occurs during the conversion to LDIF
+     */
+    public String writeToString() throws ConfigurationException
     {
         // Converting the configuration bean to a list of LDIF entries
         convertConfigurationBeanToLdifEntries();
 
-        // Writing the file to disk
-        FileWriter writer = new FileWriter( file );
-        writer.append( "version: 1\n" );
+        // Building the StringBuilder
+        StringBuilder sb = new StringBuilder();
+        sb.append( "version: 1\n" );
         for ( LdifEntry entry : entries )
         {
-            writer.append( entry.toString() );
+            sb.append( entry.toString() );
         }
-        writer.close();
+
+        return sb.toString();
     }
 
 
