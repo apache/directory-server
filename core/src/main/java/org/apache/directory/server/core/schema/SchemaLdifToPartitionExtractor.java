@@ -247,17 +247,15 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
         }
         catch ( LdapLdifException ne )
         {
-            // throw an exception : we should not have more than one entry per schema ldif file
             String msg = I18n.err( I18n.ERR_08004, source, ne.getLocalizedMessage() );
             LOG.error( msg );
-            throw new IOException( msg, ne );
+            throw new InvalidObjectException( msg );
         }
         catch ( LdapException ne )
         {
-            // throw an exception : we should not have more than one entry per schema ldif file
             String msg = I18n.err( I18n.ERR_08004, source, ne.getLocalizedMessage() );
             LOG.error( msg );
-            throw new IOException( msg, ne );
+            throw new InvalidObjectException( msg );
         }
     }
 
