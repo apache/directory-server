@@ -142,6 +142,10 @@
     <module>ldap-client-test</module>
     <module>service</module>
     <module>wrapper</module>
+    <!--
+    <module>hbase-partition</module>
+    <module>hbase-partition-test</module>
+    -->
   </modules>
   
   <profiles>

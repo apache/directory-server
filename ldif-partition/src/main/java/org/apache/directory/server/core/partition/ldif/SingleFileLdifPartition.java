@@ -72,9 +72,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /** flag used internally to detect if partition data was updated in memory but not on disk */
     private boolean dirty = false;
 
-    /** file name of the underlying LDIF store */
-    private String fileName;
-
     /** lock for serializing the operations on the backing LDIF file */
     private Object lock = new Object();
 
@@ -82,32 +79,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     /**
-     * 
      * Creates a new instance of SingleFileLdifPartition.
-     *
-     * @param file the LDIF file containing the partition's data (can also be empty)
      */
-    public SingleFileLdifPartition( String file )
+    public SingleFileLdifPartition()
     {
-        if ( file == null )
-        {
-            throw new IllegalArgumentException( "ldif file cannot be null" );
-        }
-
-        try
-        {
-            ldifFile = new RandomAccessFile( file, "rws" );
-            fileName = file;
-
-            File partitionDir = new File( file ).getParentFile();
-            setPartitionDir( partitionDir );
-            setWorkingDirectory( partitionDir.getAbsolutePath() );
-        }
-        catch ( IOException e )
-        {
-            throw new RuntimeException( e );
-        }
-
         wrappedPartition = new AvlPartition();
     }
 
@@ -115,6 +90,19 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     @Override
     protected void doInit() throws InvalidNameException, Exception
     {
+        if ( getPartitionPath() == null )
+        {
+            throw new IllegalArgumentException( "Partition path cannot be null" );
+        }
+
+        File partitionFile = new File( getPartitionPath() );
+        if ( partitionFile.exists() && !partitionFile.isFile() )
+        {
+            throw new IllegalArgumentException( "Partition path must be a LDIF file" );
+        }
+
+        ldifFile = new RandomAccessFile( partitionFile, "rws" );
+
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
         wrappedPartition.setSuffix( suffix );
@@ -140,28 +128,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
 
         loadEntries();
-    }
-
-
-    @Override
-    public void setPartitionDir( File partitionDir )
-    {
-        // partition directory will always be the directory
-        // in which the backing LDIF file is present 
-        if ( getPartitionDir() != null )
-        {
-            super.setPartitionDir( partitionDir );
-        }
-    }
-
-
-    @Override
-    public void setWorkingDirectory( String workingDirectory )
-    {
-        if ( getWorkingDirectory() != null )
-        {
-            super.setWorkingDirectory( workingDirectory );
-        }
     }
 
 
@@ -296,15 +262,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             dirty = true;
             rewritePartitionData();
         }
-    }
-
-
-    /**
-     * @return the backing LDIF file's name
-     */
-    public String getFileName()
-    {
-        return fileName;
     }
 
 

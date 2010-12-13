@@ -999,7 +999,7 @@ public class ServiceBuilder
         else
         {
             // Set the Partition working dir as a default
-            index.setWkDirPath( partition.getPartitionDir() );
+            index.setWkDirPath( new File( partition.getPartitionPath() ) );
         }
                 
         return index;
@@ -1045,7 +1045,8 @@ public class ServiceBuilder
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
         jdbmPartition.setOptimizerEnabled( jdbmPartitionBean.isJdbmPartitionOptimizerEnabled() );
-        jdbmPartition.setPartitionDir( new File( directoryService.getInstanceLayout().getPartitionsDirectory(), jdbmPartitionBean.getPartitionId() ) );
+        File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), jdbmPartitionBean.getPartitionId() );
+        jdbmPartition.setPartitionPath( partitionPath.toURI() );
         
         try
         {

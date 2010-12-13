@@ -164,9 +164,9 @@ public class DSAnnotationProcessor
                 {
                     BTreePartition<?> btreePartition = ( BTreePartition<?> ) partition;
                     btreePartition.setCacheSize( createPartition.cacheSize() );
-                    btreePartition.setPartitionDir( new File( service
+                    btreePartition.setPartitionPath( new File( service
                             .getInstanceLayout().getPartitionsDirectory(),
-                            createPartition.name() ) );
+                            createPartition.name() ).toURI() );
 
                     // Process the indexes if any
                     CreateIndex[] indexes = createPartition.indexes();

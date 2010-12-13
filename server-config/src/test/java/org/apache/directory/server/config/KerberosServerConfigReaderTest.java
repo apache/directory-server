@@ -101,8 +101,9 @@ public class KerberosServerConfigReaderTest
         File configDir = new File( workDir, "kerberosServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
+        configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         

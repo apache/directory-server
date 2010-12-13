@@ -134,7 +134,8 @@ public class ApacheDS
             {
                 if( p instanceof BTreePartition )
                 {
-                    ( ( BTreePartition ) p ).setPartitionDir( new File( directoryService.getInstanceLayout().getPartitionsDirectory(), p.getId() ) );
+                    File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), p.getId() );
+                    ( ( BTreePartition ) p ).setPartitionPath( partitionPath.toURI() );
                 }
                 
                 if( p.getSchemaManager() == null )
@@ -148,7 +149,8 @@ public class ApacheDS
             
             if( sysPartition instanceof BTreePartition )
             {
-                ( ( BTreePartition ) sysPartition ).setPartitionDir( new File( directoryService.getInstanceLayout().getPartitionsDirectory(), sysPartition.getId() ) );
+                File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), sysPartition.getId() );
+                ( ( BTreePartition ) sysPartition ).setPartitionPath( partitionPath.toURI() );
             }
 
             if( sysPartition.getSchemaManager() == null )
@@ -477,7 +479,7 @@ public class ApacheDS
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition();
         String workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory().getPath();
-        ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+        ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );

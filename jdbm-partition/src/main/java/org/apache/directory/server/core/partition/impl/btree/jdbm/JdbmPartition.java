@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.File;
+
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
 import org.apache.directory.server.xdbm.Index;
@@ -51,7 +53,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
 
     protected void doInit() throws Exception
     {
-        store.setPartitionDir( getPartitionDir() );
+        store.setPartitionDir( new File( getPartitionPath() ) );
 
         EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( store, schemaManager );
         CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( store, evaluatorBuilder );
@@ -75,7 +77,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         // Normalize the suffix
         suffix.normalize( schemaManager );
         store.setSuffixDn( suffix );
-        store.setPartitionDir( getPartitionDir() );
+        store.setPartitionDir( new File( getPartitionPath() ) );
 
         for ( Index<?, Entry, Long> index : getIndexedAttributes() )
         {

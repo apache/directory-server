@@ -210,12 +210,12 @@ public class SingleFileLdifPartitionTest
             rf.setLength( 0 );
         }
 
-        SingleFileLdifPartition partition = new SingleFileLdifPartition( fileName );
+        SingleFileLdifPartition partition = new SingleFileLdifPartition();
         partition.setCheckHasEntryDuringAdd( true );
         partition.setId( "test-ldif" );
+        partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffix( new DN( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
-        partition.setWorkingDirectory( ldifFileInUse.getParent() );
         partition.initialize();
 
         return partition;
@@ -279,7 +279,7 @@ public class SingleFileLdifPartitionTest
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 
-        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
+        RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( getEntryLdifLen( contextEntry ), file.length() );
 
@@ -367,7 +367,7 @@ public class SingleFileLdifPartitionTest
         modOpCtx.setDn( contextEntry.getDn() );
 
         partition.modify( modOpCtx );
-        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
+        RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
         assertEquals( getEntryLdifLen( modOpCtx.getAlteredEntry() ), file.length() );
 
         // perform the above operation, this time without causing change to the entry's size
@@ -551,7 +551,7 @@ public class SingleFileLdifPartitionTest
         delOpCtx.setDn( contextEntry.getDn() );
 
         partition.delete( delOpCtx );
-        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
+        RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( 0L, file.length() );
         assertNull( partition.getContextEntry() );
@@ -845,7 +845,7 @@ public class SingleFileLdifPartitionTest
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 
-        RandomAccessFile file = new RandomAccessFile( partition.getFileName(), "r" );
+        RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         // but the file will be empty
         assertFalse( getEntryLdifLen( contextEntry ) == file.length() );

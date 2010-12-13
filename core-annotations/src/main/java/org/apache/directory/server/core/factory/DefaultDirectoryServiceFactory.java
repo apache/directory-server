@@ -158,12 +158,12 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory().getPath();
-        ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+        File workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory();
+        ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workingDirectory );
         
         try
         {

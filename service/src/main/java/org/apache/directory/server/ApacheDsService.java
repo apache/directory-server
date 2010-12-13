@@ -197,7 +197,7 @@ public class ApacheDsService
 
         // Init the LdifPartition
         schemaLdifPartition = new LdifPartition();
-        schemaLdifPartition.setWorkingDirectory( schemaPartitionDirectory.getPath() );
+        schemaLdifPartition.setPartitionPath( schemaPartitionDirectory.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         if ( schemaPartitionDirectory.exists() )
@@ -249,10 +249,10 @@ public class ApacheDsService
             isConfigPartitionFirstExtraction = true;
         }
 
-        configPartition = new SingleFileLdifPartition( confFile.getAbsolutePath() );
-
+        configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
-        configPartition.setSuffix( new DN( "ou=config" ) );
+        configPartition.setPartitionPath( confFile.toURI() );
+        configPartition.setSuffix( new DN( "ou=config", schemaManager ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.initialize();

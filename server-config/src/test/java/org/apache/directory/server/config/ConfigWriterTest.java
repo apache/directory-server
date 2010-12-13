@@ -111,8 +111,9 @@ public class ConfigWriterTest
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         // Creating of the config partition
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( configFile );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
+        configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.initialize();

@@ -143,6 +143,8 @@ public class LdifPartition extends AbstractLdifPartition
 
         LOG.debug( "id is : {}", wrappedPartition.getId() );
 
+        File partitionDir = new File( getPartitionPath() );
+
         // Initialize the suffixDirectory : it's a composition
         // of the workingDirectory followed by the suffix
         if ( ( suffix == null ) || ( suffix.isEmpty() ) )
@@ -158,13 +160,13 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         String suffixDirName = getFileName( suffix );
-        suffixDirectory = new File( workingDirectory, suffixDirName );
+        suffixDirectory = new File( partitionDir, suffixDirName );
 
         // Create the context entry now, if it does not exists, or load the
         // existing entries
         if ( suffixDirectory.exists() )
         {
-            loadEntries( new File( workingDirectory ) );
+            loadEntries( partitionDir );
         }
         else
         {

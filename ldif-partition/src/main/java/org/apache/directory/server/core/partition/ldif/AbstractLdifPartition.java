@@ -47,9 +47,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public abstract class AbstractLdifPartition extends BTreePartition<Long>
 {
-    /** The directory into which the partition is stored */
-    protected String workingDirectory;
-
     /** We use a partition to manage searches on this partition */
     protected AvlPartition wrappedPartition;
 
@@ -65,24 +62,6 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
-    }
-
-
-    /**
-     * @return the workingDirectory
-     */
-    public String getWorkingDirectory()
-    {
-        return workingDirectory;
-    }
-
-
-    /**
-     * @param workingDirectory the workingDirectory to set
-     */
-    public void setWorkingDirectory( String workingDirectory )
-    {
-        this.workingDirectory = workingDirectory;
     }
 
 

@@ -48,8 +48,7 @@ public class LdifPartitionFactory implements PartitionFactory
         partition.setId( id );
         partition.setSuffix( new DN( suffix ) );
         partition.setCacheSize( 500 );
-        partition.setWorkingDirectory( workingDirectory.getAbsolutePath() );
-        partition.setPartitionDir( workingDirectory );
+        partition.setPartitionPath( workingDirectory.toURI() );
         return partition;
     }
 

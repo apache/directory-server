@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.io.File;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -80,7 +81,9 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     
     /** The root DN for this partition */
     protected DN suffix;
-    private File partitionDir;
+    
+    /** The path in which this Partition stores files */
+    protected URI partitionPath;
 
     /** The set of indexed attributes */
     private Set<Index<? extends Object, Entry, ID>> indexedAttributes;
@@ -103,24 +106,25 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
     /**
-     * Gets the directory in which this Partition stores files.
+     * Gets the path in which this Partition stores data.
      *
-     * @return the directory in which this Partition stores files.
+     * @return the path in which this Partition stores data.
      */
-    public File getPartitionDir()
+    public URI getPartitionPath()
     {
-        return partitionDir;
+        return partitionPath;
     }
 
 
     /**
-     * Sets the directory in which this Partition stores files.
+     * Sets the path in which this Partition stores data. This may be an URL to
+     * a file or directory, or an JDBC URL.
      *
-     * @param partitionDir the directory in which this Partition stores files.
+     * @param partitionDir the path in which this Partition stores data.
      */
-    public void setPartitionDir( File partitionDir )
+    public void setPartitionPath( URI partitionPath )
     {
-        this.partitionDir = partitionDir;
+        this.partitionPath = partitionPath;
     }
 
 
