@@ -243,35 +243,34 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid ) throws LdapException
     {
+        if ( isAAP( adminPoint ) )
+        {
+            // The AC AAP
+            AccessControlAdministrativePoint acAap = new AccessControlAAP( dn, uuid );
+            directoryService.getAccessControlAPCache().add( dn, acAap );
+
+            // The CA AAP
+            CollectiveAttributeAdministrativePoint caAap = new CollectiveAttributeAAP( dn, uuid );
+            directoryService.getCollectiveAttributeAPCache().add( dn, caAap );
+
+            // The TE AAP
+            TriggerExecutionAdministrativePoint teAap = new TriggerExecutionAAP( dn, uuid );
+            directoryService.getTriggerExecutionAPCache().add( dn, teAap );
+
+            // The SS AAP
+            SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid );
+            directoryService.getSubschemaAPCache().add( dn, ssAap );
+
+            // TODO : Here, we have to update the children, removing any 
+            // reference to any other underlying AP
+
+            // If it's an AAP, we can get out immediately
+            return;
+        }
+
         for ( Value<?> value : adminPoint )
         {
             String role = value.getString();
-
-            // Deal with Autonomous AP : create the 4 associated SAP/AAP
-            if ( isAutonomousAreaRole( role ) )
-            {
-                // The AC AAP
-                AccessControlAdministrativePoint acAap = new AccessControlAAP( dn, uuid );
-                directoryService.getAccessControlAPCache().add( dn, acAap );
-
-                // The CA AAP
-                CollectiveAttributeAdministrativePoint caAap = new CollectiveAttributeAAP( dn, uuid );
-                directoryService.getCollectiveAttributeAPCache().add( dn, caAap );
-
-                // The TE AAP
-                TriggerExecutionAdministrativePoint teAap = new TriggerExecutionAAP( dn, uuid );
-                directoryService.getTriggerExecutionAPCache().add( dn, teAap );
-
-                // The SS AAP
-                SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid );
-                directoryService.getSubschemaAPCache().add( dn, ssAap );
-                
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying AP
-
-                // If it's an AAP, we can get out immediately
-                return;
-            }
 
             // Deal with AccessControl AP
             if ( isAccessControlSpecificRole( role ) )
@@ -627,7 +626,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             throw new LdapUnwillingToPerformException( message );
         }
 
-        // If we are trying to add an Administrative point, we have to check that 
+        // If we are trying to add an AAP, we have to check that 
         // it's the only role in the AdminPoint AT
         if ( isAutonomousAreaRole( roleStr ) )
         {
@@ -986,6 +985,16 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Tells if the Administrative Point role is an AAP
+     */
+    private boolean isAAP( EntryAttribute adminPoint )
+    {
+        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
+            .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
+    }
+
+
     private boolean hasAccessControlSpecificRole( EntryAttribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
@@ -1174,6 +1183,17 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
+    private void updateAPEntries( EntryAttribute adminPoint, String apUuid )
+    {
+        if ( isAAP( adminPoint ) )
+        {
+
+        }
+
+        return;
+    }
+
+
     /**
      * Add an administrative point into the DIT.
      * 
@@ -1219,8 +1239,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Ok, we are golden.
         next.add( addContext );
 
+        String apUuid = entry.get( ENTRY_UUID_AT ).getString();
+
         // Now, update the AdminPoint cache
-        createAdministrativePoints( adminPoint, dn, entry.get( ENTRY_UUID_AT ).getString() );
+        createAdministrativePoints( adminPoint, dn, apUuid );
 
         // Release the APCaches lock
         unlock();

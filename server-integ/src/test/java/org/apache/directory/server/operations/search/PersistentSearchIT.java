@@ -55,9 +55,9 @@ import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryC
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;

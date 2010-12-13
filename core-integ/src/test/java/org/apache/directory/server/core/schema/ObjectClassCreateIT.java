@@ -42,8 +42,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

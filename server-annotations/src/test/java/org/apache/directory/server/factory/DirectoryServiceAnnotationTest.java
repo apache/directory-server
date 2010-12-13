@@ -46,9 +46,9 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 

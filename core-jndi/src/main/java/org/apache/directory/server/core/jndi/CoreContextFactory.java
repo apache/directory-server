@@ -34,8 +34,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

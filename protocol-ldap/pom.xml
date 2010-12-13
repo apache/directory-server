@@ -85,11 +85,6 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-jndi</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>

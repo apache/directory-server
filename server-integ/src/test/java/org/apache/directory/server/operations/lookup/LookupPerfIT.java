@@ -39,10 +39,9 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
-import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
