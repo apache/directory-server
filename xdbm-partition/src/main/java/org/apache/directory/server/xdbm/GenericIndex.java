@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.io.File;
+import java.net.URI;
 
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
 {
     /** Index working directory */
-    protected File wkDirPath;
+    protected URI wkDirPath;
 
 
     /**
@@ -68,7 +68,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
      * @param cacheSize the cache size
      * @param wkDirPath the working directory
      */
-    public GenericIndex( String attributeId, int cacheSize, File wkDirPath )
+    public GenericIndex( String attributeId, int cacheSize, URI wkDirPath )
     {
         super( attributeId );
         this.cacheSize = cacheSize;
@@ -220,7 +220,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public File getWkDirPath()
+    public URI getWkDirPath()
     {
         return wkDirPath;
     }
@@ -268,7 +268,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public void setWkDirPath( File wkDirPath )
+    public void setWkDirPath( URI wkDirPath )
     {
         this.wkDirPath = wkDirPath;
     }

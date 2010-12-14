@@ -204,9 +204,9 @@ public class AvlStoreTest
         store.addIndex( new AvlIndex<Object, Attributes>( "1.2.3.4" ) );
         assertEquals( 1, store.getUserIndices().size() );
 
-        assertNull( store.getPartitionDir() );
-        store.setPartitionDir( new File( "." ) );
-        assertNull( store.getPartitionDir() );
+        assertNull( store.getPartitionPath() );
+        store.setPartitionPath( new File( "." ).toURI() );
+        assertNull( store.getPartitionPath() );
 
         assertFalse( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );
@@ -382,7 +382,7 @@ public class AvlStoreTest
         {
         }
 
-        assertNull( store.getPartitionDir() );
+        assertNull( store.getPartitionPath() );
         assertTrue( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );
 
@@ -558,7 +558,7 @@ public class AvlStoreTest
     @Test
     public void testConvertIndex() throws Exception
     {
-        Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ) );
+        Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ).toURI() );
 
         Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );

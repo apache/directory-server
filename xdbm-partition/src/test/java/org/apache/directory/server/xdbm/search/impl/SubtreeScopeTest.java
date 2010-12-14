@@ -123,7 +123,7 @@ public class SubtreeScopeTest
         store = new AvlStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
-        store.setPartitionDir( wkdir );
+        store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( true );
 
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );

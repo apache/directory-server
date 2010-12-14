@@ -109,10 +109,10 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         super.init( schemaManager );
 
-        partitionDir.mkdirs();
+        getPartitionDir().mkdirs();
 
         // First, check if the file storing the data exists
-        String path = partitionDir.getPath() + File.separator + "master";
+        String path = getPartitionDir().getPath() + File.separator + "master";
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
 
@@ -305,7 +305,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             
             if ( jdbmIndex.getWkDirPath() == null )
             {
-                jdbmIndex.setWkDirPath( partitionDir );
+                jdbmIndex.setWkDirPath( partitionPath );
             }
         }
         else
@@ -371,8 +371,14 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             }
         }
     }
-    
-    
+
+
+    private File getPartitionDir()
+    {
+        return new File( getPartitionPath() );
+    }
+
+
     /**
      * builds a user defined index on a attribute by browsing all the entries present in master db
      * 

@@ -119,11 +119,11 @@ public class JdbmRdnIndexTest
             idx.close();
 
             // created by this test
-            File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".db" );
+            File dbFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".db" );
             assertTrue( dbFile.delete() );
 
             // created by TransactionManager, if transactions are not disabled
-            File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".lg" );
+            File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
             
             if ( logFile.exists() )
             {
@@ -138,7 +138,7 @@ public class JdbmRdnIndexTest
     void initIndex() throws Exception
     {
         JdbmRdnIndex<Long> index = new JdbmRdnIndex<Long>();
-        index.setWkDirPath( dbFileDir );
+        index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
 
@@ -192,30 +192,30 @@ public class JdbmRdnIndexTest
 
         // uninitialized index
         JdbmRdnIndex<Long> jdbmRdnIndex = new JdbmRdnIndex<Long>();
-        jdbmRdnIndex.setWkDirPath( wkdir );
-        assertEquals( "foo", jdbmRdnIndex.getWkDirPath().getName() );
+        jdbmRdnIndex.setWkDirPath( wkdir.toURI() );
+        assertEquals( "foo", new File( jdbmRdnIndex.getWkDirPath() ).getName() );
 
         // initialized index
         initIndex();
         
         try
         {
-            idx.setWkDirPath( wkdir );
+            idx.setWkDirPath( wkdir.toURI() );
             fail( "Should not be able to set wkDirPath after initialization." );
         }
         catch ( Exception e )
         {
         }
         
-        assertEquals( dbFileDir, idx.getWkDirPath() );
+        assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
         
         jdbmRdnIndex = new JdbmRdnIndex<Long>();
         wkdir.mkdirs();
-        jdbmRdnIndex.setWkDirPath( wkdir );
+        jdbmRdnIndex.setWkDirPath( wkdir.toURI() );
         initIndex( jdbmRdnIndex );
-        assertEquals( wkdir, idx.getWkDirPath() );
+        assertEquals( wkdir.toURI(), idx.getWkDirPath() );
     }
 
 

@@ -150,15 +150,15 @@ public class JdbmStoreTest
         store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
-        store.setPartitionDir( wkdir );
+        store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         JdbmIndex ouIndex = new JdbmIndex( SchemaConstants.OU_AT_OID );
-        ouIndex.setWkDirPath( wkdir );
+        ouIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( ouIndex );
         
         JdbmIndex uidIndex = new JdbmIndex( SchemaConstants.UID_AT_OID );
-        uidIndex.setWkDirPath( wkdir );
+        uidIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( uidIndex );
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -204,7 +204,7 @@ public class JdbmStoreTest
         JdbmStore<Entry> store2 = new JdbmStore<Entry>();
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
-        store2.setPartitionDir( wkdir2 );
+        store2.setPartitionPath( wkdir2.toURI() );
         store2.setSyncOnWrite( false );
         store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
@@ -283,9 +283,9 @@ public class JdbmStoreTest
         store.addIndex( new JdbmIndex<Object, Attributes>( "1.2.3.4" ) );
         assertEquals( 1, store.getUserIndices().size() );
 
-        assertNull( store.getPartitionDir() );
-        store.setPartitionDir( new File( "." ) );
-        assertEquals( new File( "." ), store.getPartitionDir() );
+        assertNull( store.getPartitionPath() );
+        store.setPartitionPath( new File( "." ).toURI() );
+        assertEquals( new File( "." ).toURI(), store.getPartitionPath() );
 
         assertFalse( store.isInitialized() );
         assertTrue( store.isSyncOnWrite() );
@@ -460,10 +460,10 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getPartitionDir() );
+        assertNotNull( store.getPartitionPath() );
         try
         {
-            store.setPartitionDir( new File( "." ) );
+            store.setPartitionPath( new File( "." ).toURI() );
             fail();
         }
         catch ( IllegalStateException e )
@@ -654,7 +654,7 @@ public class JdbmStoreTest
         File testSpecificDir = new File( wkdir, "testConvertIndex" );
         testSpecificDir.mkdirs();
 
-        Index<?, Object, Long> nonJdbmIndex = new GenericIndex<Object, Object, Long>( "ou", 10, testSpecificDir );
+        Index<?, Object, Long> nonJdbmIndex = new GenericIndex<Object, Object, Long>( "ou", 10, testSpecificDir.toURI() );
 
         Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
@@ -933,7 +933,7 @@ public class JdbmStoreTest
         store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
-        store.setPartitionDir( wkdir );
+        store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
         // do not add ou index this time
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );

@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.io.File;
+import java.net.URI;
 
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -88,7 +88,7 @@ public interface Index<K, O, ID>
      *
      * @param wkDirPath optional working directory path
      */
-    void setWkDirPath( File wkDirPath );
+    void setWkDirPath( URI wkDirPath );
 
 
     /**
@@ -97,7 +97,7 @@ public interface Index<K, O, ID>
      *
      * @return optional working directory path
      */
-    File getWkDirPath();
+    URI getWkDirPath();
 
 
     /**

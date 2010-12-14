@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import java.io.File;
+import java.net.URI;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
@@ -415,7 +415,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * throws UnsupportedOperationException cause it is a in-memory index
      */
-    public void setWkDirPath( File wkDirPath )
+    public void setWkDirPath( URI wkDirPath )
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_213 ) );
     }
@@ -424,7 +424,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * this method always returns null for AvlIndex cause this is a in-memory index.
      */
-    public File getWkDirPath()
+    public URI getWkDirPath()
     {
         return null;
     }
