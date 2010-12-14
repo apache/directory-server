@@ -352,9 +352,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update the cache clones with the added roles
      */
-    private void addRole( String role, DN dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
-        DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
-        DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
+    private void addRole( String role, DN dn, String uuid, DnNode<AdministrativePoint> acapCache,
+        DnNode<AdministrativePoint> caapCache, DnNode<AdministrativePoint> teapCache,
+        DnNode<AdministrativePoint> ssapCache ) throws LdapException
     {
         // Deal with Autonomous AP : create the 4 associated SAP/AAP
         if ( isAutonomousAreaRole( role ) )
@@ -446,9 +446,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update the cache clones with the added roles
      */
-    private void delRole( String role, DN dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
-        DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
-        DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
+    private void delRole( String role, DN dn, String uuid, DnNode<AdministrativePoint> acapCache,
+        DnNode<AdministrativePoint> caapCache, DnNode<AdministrativePoint> teapCache,
+        DnNode<AdministrativePoint> ssapCache ) throws LdapException
     {
         // Deal with Autonomous AP : remove the 4 associated SAP/AAP
         if ( isAutonomousAreaRole( role ) )
@@ -611,6 +611,24 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
+     * Find the parent AP for the given entry. 
+     */
+    private AdministrativePoint findParentAP( DN entryDn, DnNode<AdministrativePoint> currentNode )
+    {
+        AdministrativePoint aps = currentNode.getElement();
+        
+        if ( aps == null )
+        {
+            return null;
+        }
+        else
+        {
+            return aps;
+        }
+    }
+
+    
+    /**
      * Check if we can safely add a role. If it's an AAP, we have to be sure that
      * it's the only role present in the AT.
      */
@@ -692,14 +710,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // the children IAPs will depend on this parent.
             
             // Process the ACs
-            DnNode<AccessControlAdministrativePoint> acAps = directoryService.getAccessControlAPCache();
+            DnNode<AdministrativePoint> acAps = directoryService.getAccessControlAPCache();
             
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
-                List<AccessControlAdministrativePoint> children = acAps.getDescendantElements( dn );
+                List<AdministrativePoint> children = acAps.getDescendantElements( dn );
                 
-                for ( AccessControlAdministrativePoint child : children )
+                for ( AdministrativePoint child : children )
                 {
                     if ( child.isInner() )
                     {
@@ -712,14 +730,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
             
             // Process the CAs
-            DnNode<CollectiveAttributeAdministrativePoint> caAps = directoryService.getCollectiveAttributeAPCache();
+            DnNode<AdministrativePoint> caAps = directoryService.getCollectiveAttributeAPCache();
             
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
-                List<CollectiveAttributeAdministrativePoint> children = caAps.getDescendantElements( dn );
+                List<AdministrativePoint> children = caAps.getDescendantElements( dn );
                 
-                for ( CollectiveAttributeAdministrativePoint child : children )
+                for ( AdministrativePoint child : children )
                 {
                     if ( child.isInner() )
                     {
@@ -732,14 +750,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             }
             
             // Process the TEs
-            DnNode<TriggerExecutionAdministrativePoint> teAps = directoryService.getTriggerExecutionAPCache();
+            DnNode<AdministrativePoint> teAps = directoryService.getTriggerExecutionAPCache();
             
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
-                List<TriggerExecutionAdministrativePoint> children = teAps.getDescendantElements( dn );
+                List<AdministrativePoint> children = teAps.getDescendantElements( dn );
                 
-                for ( TriggerExecutionAdministrativePoint child : children )
+                for ( AdministrativePoint child : children )
                 {
                     if ( child.isInner() )
                     {
@@ -1087,9 +1105,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Check for the AC role
         if ( isAccessControlInnerRole( role ) )
         {
-            DnNode<AccessControlAdministrativePoint> acCache = directoryService.getAccessControlAPCache();
+            DnNode<AdministrativePoint> acCache = directoryService.getAccessControlAPCache();
             
-            DnNode<AccessControlAdministrativePoint> parent =  acCache.getNode( dn );
+            DnNode<AdministrativePoint> parent =  acCache.getNode( dn );
             
             if ( parent == null )
             {
@@ -1101,7 +1119,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
         else if ( isCollectiveAttributeInnerRole( role ) )
         {
-            DnNode<CollectiveAttributeAdministrativePoint> caCache = directoryService.getCollectiveAttributeAPCache();
+            DnNode<AdministrativePoint> caCache = directoryService.getCollectiveAttributeAPCache();
             
             boolean hasAP = caCache.hasParentElement( dn );
             
@@ -1115,9 +1133,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
         else if ( isTriggerExecutionInnerRole( role ) )
         {
-            DnNode<TriggerExecutionAdministrativePoint> caCache = directoryService.getTriggerExecutionAPCache();
+            DnNode<AdministrativePoint> caCache = directoryService.getTriggerExecutionAPCache();
             
-            DnNode<TriggerExecutionAdministrativePoint> parent =  caCache.getNode( dn );
+            DnNode<AdministrativePoint> parent =  caCache.getNode( dn );
             
             if ( parent == null )
             {
@@ -1195,6 +1213,26 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
+     * Add the AP seq number in the added entry. We have 2 cases :
+     * - the entry is an AP or a subtree
+     * - the entry is a standard entry
+     */
+    private void addAPSeqNumber( boolean isAdmin, Entry entry )
+    {
+        // Check if we are adding an Administrative Point
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        if ( adminPoint == null )
+        {
+            // A normal entry. We have to search the AP it depends on, for each role
+            // if we have any
+            AdministrativePoint ap = findParentAP( entry.getDn(), directoryService.getAccessControlAPCache() );
+            
+        }
+    }
+    
+
+    /**
      * Add an administrative point into the DIT.
      * 
      * We have to deal with some specific cases :
@@ -1217,7 +1255,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         if ( adminPoint == null )
         {
-            // Nope, go on.
+            // Not an AP. We still have to check the SeqNumber if this entry
+            // depends on an AP
+            
             next.add( addContext );
 
             LOG.debug( "Exit from Administrative Interceptor, no AP in the added entry" );
@@ -1343,10 +1383,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Clone the AP caches before applying modifications to them modify it
-        DnNode<AccessControlAdministrativePoint> acapCacheCopy = directoryService.getAccessControlAPCache().clone();
-        DnNode<CollectiveAttributeAdministrativePoint> caapCacheCopy = directoryService.getCollectiveAttributeAPCache().clone();
-        DnNode<TriggerExecutionAdministrativePoint> teapCacheCopy = directoryService.getTriggerExecutionAPCache().clone();
-        DnNode<SubschemaAdministrativePoint> ssapCacheCopy = directoryService.getSubschemaAPCache().clone();
+        DnNode<AdministrativePoint> acapCacheCopy = directoryService.getAccessControlAPCache().clone();
+        DnNode<AdministrativePoint> caapCacheCopy = directoryService.getCollectiveAttributeAPCache().clone();
+        DnNode<AdministrativePoint> teapCacheCopy = directoryService.getTriggerExecutionAPCache().clone();
+        DnNode<AdministrativePoint> ssapCacheCopy = directoryService.getSubschemaAPCache().clone();
         
         // Loop on the modification to select the AdministrativeRole and process it :
         // we will create a new AT containing all the roles after having applied the modifications

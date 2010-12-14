@@ -46,6 +46,12 @@ public interface AdministrativePoint
      * @return The AdministrativePoint UUID
      */
     String getUuid();
+    
+    
+    /**
+     * @return The AdministrativePoint sequence number
+     */
+    long getSeqNumber();
 
 
     /**

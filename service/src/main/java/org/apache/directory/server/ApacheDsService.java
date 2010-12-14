@@ -134,7 +134,7 @@ public class ApacheDsService
      * starts various services configured according to the 
      * configuration present in the given instance's layout
      *
-     * @param instanceLayout the on disk location's layout of the intance to be started
+     * @param instanceLayout the on disk location's layout of the instance to be started
      * @throws Exception
      */
     public void start( InstanceLayout instanceLayout ) throws Exception

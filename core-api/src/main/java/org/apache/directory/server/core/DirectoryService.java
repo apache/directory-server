@@ -23,10 +23,7 @@ package org.apache.directory.server.core;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
-import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
-import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.event.EventService;
@@ -532,25 +529,25 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * @return The AccessControl AdministrativePoint cache
      */
-    DnNode<AccessControlAdministrativePoint> getAccessControlAPCache();
+    DnNode<AdministrativePoint> getAccessControlAPCache();
 
 
     /**
      * @return The CollectiveAttribute AdministrativePoint cache
      */
-    DnNode<CollectiveAttributeAdministrativePoint> getCollectiveAttributeAPCache();
+    DnNode<AdministrativePoint> getCollectiveAttributeAPCache();
 
 
     /**
      * @return The Subschema AdministrativePoint cache
      */
-    DnNode<SubschemaAdministrativePoint> getSubschemaAPCache();
+    DnNode<AdministrativePoint> getSubschemaAPCache();
 
 
     /**
      * @return The TriggerExecution AdministrativePoint cache
      */
-    DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache();
+    DnNode<AdministrativePoint> getTriggerExecutionAPCache();
     
     
     /**

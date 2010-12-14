@@ -28,11 +28,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
-import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
-import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -191,12 +187,10 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
         // Check the caches
-        DnNode<AccessControlAdministrativePoint> acCache = ldapServer.getDirectoryService().getAccessControlAPCache();
-        DnNode<CollectiveAttributeAdministrativePoint> caCache = ldapServer.getDirectoryService()
-            .getCollectiveAttributeAPCache();
-        DnNode<TriggerExecutionAdministrativePoint> teCache = ldapServer.getDirectoryService()
-            .getTriggerExecutionAPCache();
-        DnNode<SubschemaAdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
+        DnNode<AdministrativePoint> acCache = ldapServer.getDirectoryService().getAccessControlAPCache();
+        DnNode<AdministrativePoint> caCache = ldapServer.getDirectoryService().getCollectiveAttributeAPCache();
+        DnNode<AdministrativePoint> teCache = ldapServer.getDirectoryService().getTriggerExecutionAPCache();
+        DnNode<AdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
 
         // The ACs
         AdministrativePoint aap1 = acCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );

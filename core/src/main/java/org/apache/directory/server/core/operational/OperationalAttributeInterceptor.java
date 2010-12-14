@@ -142,6 +142,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Create the Admin DN 
         adminDn = service.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
+        // Init the At we use locally
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
         ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
@@ -151,8 +152,27 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void destroy()
     {
     }
+    
+    
+    private void addOpAttr( boolean isAdmin, Entry entry, String attributeType, String value ) throws LdapNoPermissionException
+    {
+        if ( entry.containsAttribute( attributeType ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message = I18n.err( I18n.ERR_30, attributeType );
+                LOG.error( message );
+                throw new LdapNoPermissionException( message );
+            }
+        }
+        else
+        {
+            entry.put( attributeType, value );
+        }
+    }
 
-
+    
     /**
      * Adds extra operational attributes to the entry before it is added.
      * 
@@ -173,66 +193,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getName().equals(
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
-        if ( entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_UUID_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
-        {
-            entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        }
-
-        if ( entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
-        {
-            entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
-        }
-
-        if ( entry.containsAttribute( SchemaConstants.CREATORS_NAME_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATORS_NAME_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
-        {
-            entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
-        }
-
-        if ( entry.containsAttribute( SchemaConstants.CREATE_TIMESTAMP_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATE_TIMESTAMP_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
-        {
-            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        }
-
+        // The EntryUUID
+        addOpAttr( isAdmin, entry, SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        
+        // The EntryCSN
+        addOpAttr( isAdmin, entry, SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
+        
+        // The CreatorsName
+        addOpAttr( isAdmin, entry, SchemaConstants.CREATORS_NAME_AT, principal );
+        
+        // The CreateTimestamp
+        addOpAttr( isAdmin, entry, SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
         nextInterceptor.add( addContext );
     }
 

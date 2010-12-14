@@ -34,15 +34,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
-import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
-import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
-import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -250,16 +248,16 @@ public class DefaultDirectoryService implements DirectoryService
     private CacheService cacheService;
 
     /** The AccessControl AdministrativePoint cache */
-    private DnNode<AccessControlAdministrativePoint> accessControlAPCache;
+    private DnNode<AdministrativePoint> accessControlAPCache;
 
     /** The CollectiveAttribute AdministrativePoint cache */
-    private DnNode<CollectiveAttributeAdministrativePoint> collectiveAttributeAPCache;
+    private DnNode<AdministrativePoint> collectiveAttributeAPCache;
 
     /** The Subschema AdministrativePoint cache */
-    private DnNode<SubschemaAdministrativePoint> subschemaAPCache;
+    private DnNode<AdministrativePoint> subschemaAPCache;
 
     /** The TriggerExecution AdministrativePoint cache */
-    private DnNode<TriggerExecutionAdministrativePoint> triggerExecutionAPCache;
+    private DnNode<AdministrativePoint> triggerExecutionAPCache;
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
@@ -269,6 +267,10 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The DN factory */
     private DNFactory dnFactory;
+    
+    /** The current AdminPoint sequence number. It's a long, so we can create up to
+     * 9 exa APs ! Should be enough */
+    private AtomicLong apSeqNumber = new AtomicLong( -1 );
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -924,6 +926,37 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return operationManager;
     }
+    
+
+    /**
+     * Get the highest AP sequence number, from the read APs. 
+     */
+    private void getAPSeqNumber()
+    {
+        long maxSeqNumber = -1L;
+        
+        for ( AdministrativePoint adminPoint : accessControlAPCache.getDescendantElements( DN.EMPTY_DN ) )
+        {
+            maxSeqNumber = Math.max( maxSeqNumber, adminPoint.getSeqNumber() );
+        }
+
+        for ( AdministrativePoint adminPoint : collectiveAttributeAPCache.getDescendantElements( DN.EMPTY_DN ) )
+        {
+            maxSeqNumber = Math.max( maxSeqNumber, adminPoint.getSeqNumber() );
+        }
+        
+        for ( AdministrativePoint adminPoint : subschemaAPCache.getDescendantElements( DN.EMPTY_DN ) )
+        {
+            maxSeqNumber = Math.max( maxSeqNumber, adminPoint.getSeqNumber() );
+        }
+
+        for ( AdministrativePoint adminPoint : subschemaAPCache.getDescendantElements( DN.EMPTY_DN ) )
+        {
+            maxSeqNumber = Math.max( maxSeqNumber, adminPoint.getSeqNumber() );
+        }
+
+        apSeqNumber.set( maxSeqNumber + 1 );
+    }
 
 
     /**
@@ -973,6 +1006,9 @@ public class DefaultDirectoryService implements DirectoryService
             workerThread = new Thread( worker, "SynchWorkerThread" );
             workerThread.start();
         }
+        
+        // Load the highest AP sequence number
+        getAPSeqNumber();
 
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
@@ -981,7 +1017,8 @@ public class DefaultDirectoryService implements DirectoryService
         ClonedServerEntry entry = systemPartition.lookup( loc );
 
         EntryAttribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
-        if( cntextCsnAt != null )
+        
+        if ( cntextCsnAt != null )
         {
             // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
             contextCsn = cntextCsnAt.getString();
@@ -1471,10 +1508,13 @@ public class DefaultDirectoryService implements DirectoryService
         cacheService.initialize( this );
 
         // Initialize the AP caches
-        accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
-        collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
-        subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
-        triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
+        accessControlAPCache = new DnNode<AdministrativePoint>();
+        collectiveAttributeAPCache = new DnNode<AdministrativePoint>();
+        subschemaAPCache = new DnNode<AdministrativePoint>();
+        triggerExecutionAPCache = new DnNode<AdministrativePoint>();
+        
+        // Get the highest AP sequence number
+        getAPSeqNumber();
 
         dnFactory = new DefaultDNFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
@@ -1842,7 +1882,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DnNode<AccessControlAdministrativePoint> getAccessControlAPCache()
+    public DnNode<AdministrativePoint> getAccessControlAPCache()
     {
         return accessControlAPCache;
     }
@@ -1851,7 +1891,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DnNode<CollectiveAttributeAdministrativePoint> getCollectiveAttributeAPCache()
+    public DnNode<AdministrativePoint> getCollectiveAttributeAPCache()
     {
         return collectiveAttributeAPCache;
     }
@@ -1860,7 +1900,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DnNode<SubschemaAdministrativePoint> getSubschemaAPCache()
+    public DnNode<AdministrativePoint> getSubschemaAPCache()
     {
         return subschemaAPCache;
     }
@@ -1869,7 +1909,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache()
+    public DnNode<AdministrativePoint> getTriggerExecutionAPCache()
     {
         return triggerExecutionAPCache;
     }
@@ -1927,6 +1967,17 @@ public class DefaultDirectoryService implements DirectoryService
     public DNFactory getDNFactory()
     {
         return dnFactory;
+    }
+
+
+    /**
+     * Get a new sequence number. The counter will be incremented when this method
+     * is called, even if we don't use the number.
+     * @return the apSeqNumber
+     */
+    public long getApSeqNumber()
+    {
+        return apSeqNumber.getAndIncrement();
     }
 
 }

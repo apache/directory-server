@@ -34,11 +34,14 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  */
 public abstract class AbstractAdministrativePoint implements AdministrativePoint
 {
-    /** The AA's DN */
+    /** The AP's DN */
     protected DN dn;
 
-    /** The AA's UUID */
+    /** The AP's UUID */
     protected String uuid;
+    
+    /** The AP's sequence number */
+    private long seqNumber;
 
     /** The AdmonistrativeRole */
     protected AdministrativeRole role;
@@ -130,6 +133,24 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
 
 
     /**
+     * @return the seqNumber
+     */
+    public long getSeqNumber()
+    {
+        return seqNumber;
+    }
+
+
+    /**
+     * @param seqNumber the seqNumber to set
+     */
+    public void setSeqNumber( long seqNumber )
+    {
+        this.seqNumber = seqNumber;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString()
@@ -138,7 +159,8 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
 
         sb.append( "Role: '" ).append( role ).append( "', " );
         sb.append( "DN: '" ).append( dn ).append( "', " );
-        sb.append( "UUID: " ).append( uuid ).append( '\n' );
+        sb.append( "UUID: " ).append( uuid ).append( ", " );
+        sb.append( "SeqNumber: " ).append( seqNumber ).append( '\n' );
 
         return sb.toString();
     }
