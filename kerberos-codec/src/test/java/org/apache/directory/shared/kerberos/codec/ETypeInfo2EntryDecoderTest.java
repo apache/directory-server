@@ -28,9 +28,9 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.shared.asn1.DecoderException;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.ETypeInfo2EntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
@@ -291,7 +291,7 @@ public class ETypeInfo2EntryDecoderTest
     
     /**
      * Test the decoding of an ETYPE-INFO2-ENTRY with no etype
-     * @throws DecoderException
+     * @throws org.apache.directory.shared.asn1.DecoderException
      */
     @Test( expected = DecoderException.class )
     public void testDecodeEmptyETypeInfo2EntryNoEType() throws DecoderException
@@ -371,7 +371,7 @@ public class ETypeInfo2EntryDecoderTest
     
     /**
      * Test the decoding of an ETYPE-INFO2-ENTRY with a bad etype
-     * @throws DecoderException
+     * @throws org.apache.directory.shared.asn1.DecoderException
      */
     @Test
     public void testDecodeEmptyETypeInfo2EntryBadEType() throws DecoderException

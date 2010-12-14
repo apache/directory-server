@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.messages;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.KdcReq;
@@ -76,7 +76,7 @@ public class TgsReq extends KdcReq
      * 
      * @param buffer The buffer containing the encoded result
      * @return The encoded component
-     * @throws EncoderException If the encoding failed
+     * @throws org.apache.directory.shared.asn1.EncoderException If the encoding failed
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
