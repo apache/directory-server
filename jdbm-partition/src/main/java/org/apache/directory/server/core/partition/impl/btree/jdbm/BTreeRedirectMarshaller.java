@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.codec.binary.Hex;
+import org.apache.directory.shared.asn1.Hex;
 
 
 /**

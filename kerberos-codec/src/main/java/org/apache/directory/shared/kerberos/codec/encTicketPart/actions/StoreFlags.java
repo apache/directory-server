@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.actions.AbstractReadBitString;
+import org.apache.directory.shared.asn1.actions.AbstractReadBitString;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 

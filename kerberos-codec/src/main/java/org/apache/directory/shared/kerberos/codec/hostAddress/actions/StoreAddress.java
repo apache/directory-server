@@ -21,7 +21,7 @@ package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.actions.AbstractReadOctetString;
+import org.apache.directory.shared.asn1.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
