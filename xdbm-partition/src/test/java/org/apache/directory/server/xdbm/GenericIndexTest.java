@@ -113,7 +113,7 @@ public class GenericIndexTest
 
         index.setWkDirPath( zzzDir.toURI() );
         assertNotNull( index.getWkDirPath() );
-        assertEquals( zzzDir.getPath(), index.getWkDirPath().getPath() );
+        assertEquals( zzzDir, new File( index.getWkDirPath() ) );
         index.setWkDirPath( null );
         assertNull( index.getWkDirPath() );
     }
