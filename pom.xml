@@ -103,7 +103,7 @@
   
   <modules>
     <module>i18n</module>
-    <module>all</module>
+    <!-- <module>all</module> -->
     <module>jdbm</module>
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>

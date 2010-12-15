@@ -245,7 +245,7 @@ public class HostAddress extends AbstractAsn1Object
         hostAddressLength += 1 + TLV.getNbBytes( addressLength ) + addressLength;
 
         // Compute the whole sequence length
-        hostAddressSeqLength = 1 + Value.getNbBytes( hostAddressLength ) + hostAddressLength;
+        hostAddressSeqLength = 1 + Value.getNbBytes(hostAddressLength) + hostAddressLength;
 
         return hostAddressSeqLength;
     }
@@ -282,7 +282,7 @@ public class HostAddress extends AbstractAsn1Object
             // The addr-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( addrTypeLength ) );
-            Value.encode( buffer, addrType.getValue() );
+            Value.encode(buffer, addrType.getValue());
 
             // The address, first the tag, then the value
             buffer.put( ( byte ) 0xA1 );

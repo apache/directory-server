@@ -434,7 +434,7 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( authenticatorVnoLength ) );
             
             // The value
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
             
             // The crealm -----------------------------------------------------
             // The tag

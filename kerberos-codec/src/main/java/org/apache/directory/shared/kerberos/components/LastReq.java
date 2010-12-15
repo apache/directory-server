@@ -184,7 +184,7 @@ public class LastReq extends AbstractAsn1Object
         
         for ( LastReqEntry lre : lastReqs )
         {
-            int lrTypeLen = Value.getNbBytes( lre.getLrType().getValue() );
+            int lrTypeLen = Value.getNbBytes(lre.getLrType().getValue());
             lrTypeTagLen[i] = 1 + TLV.getNbBytes( lrTypeLen ) + lrTypeLen;
             byte[] lrValyeBytes = lre.getLrValue().getBytes();
             lrValueTagLen[i] = 1 + TLV.getNbBytes( lrValyeBytes.length ) + lrValyeBytes.length;
@@ -241,7 +241,7 @@ public class LastReq extends AbstractAsn1Object
                 // the lrType
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_TYPE_TAG );
                 buffer.put( TLV.getBytes( lrTypeTagLen[i] ) );
-                Value.encode( buffer, lre.getLrType().getValue() );
+                Value.encode(buffer, lre.getLrType().getValue());
     
                 // the lrValue tag
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_VALUE_TAG );

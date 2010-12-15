@@ -220,7 +220,7 @@ public class ApReq extends KerberosMessage
         pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the msg-type length
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + Value.getNbBytes(getMessageType().getValue());
         
         // Compute the APOptions length
         apOptionsLength = 1 + 1 + apOptions.getBytes().length;

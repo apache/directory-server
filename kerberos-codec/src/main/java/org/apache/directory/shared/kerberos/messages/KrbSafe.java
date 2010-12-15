@@ -190,7 +190,7 @@ public class KrbSafe extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_MSGTYPE_TAG );

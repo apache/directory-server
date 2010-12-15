@@ -663,7 +663,7 @@ public class KdcReqBody extends AbstractAsn1Object
         buffer.put( TLV.getBytes( nonceLength ) );
         
         // The value
-        Value.encode( buffer, nonce );
+        Value.encode(buffer, nonce);
         
         // The etype ----------------------------------------------------------
         // The tag

@@ -289,7 +289,7 @@ public class EncApRepPart extends KerberosMessage
                 buffer.put( TLV.getBytes( seqNumberLength ) );
                 
                 // The value
-                Value.encode( buffer, seqNumber );
+                Value.encode(buffer, seqNumber);
             }
             
         }

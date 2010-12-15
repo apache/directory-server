@@ -260,7 +260,7 @@ public class EncryptionKey extends AbstractAsn1Object
         encryptionKeyLength += 1 + TLV.getNbBytes( keyValueLength ) + keyValueLength;
 
         // Compute the whole sequence length
-        int encryptionKeySeqLength = 1 + Value.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
+        int encryptionKeySeqLength = 1 + Value.getNbBytes(encryptionKeyLength) + encryptionKeyLength;
 
         return encryptionKeySeqLength;
 
@@ -298,7 +298,7 @@ public class EncryptionKey extends AbstractAsn1Object
             // The keyType, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_TYPE_TAG );
             buffer.put( TLV.getBytes( keyTypeLength ) );
-            Value.encode( buffer, keyType.getValue() );
+            Value.encode(buffer, keyType.getValue());
 
             // The keyValue, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_VALUE_TAG );

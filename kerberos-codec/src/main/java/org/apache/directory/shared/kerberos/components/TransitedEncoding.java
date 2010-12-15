@@ -152,7 +152,7 @@ public class TransitedEncoding extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the trType. The Length will always be contained in 1 byte
-        trTypeLength = 1 + 1 + Value.getNbBytes( trType.getValue() );
+        trTypeLength = 1 + 1 + Value.getNbBytes(trType.getValue());
         transitedEncodingLength = 1 + TLV.getNbBytes( trTypeLength ) + trTypeLength;
 
         // Compute the contents length
@@ -205,7 +205,7 @@ public class TransitedEncoding extends AbstractAsn1Object
             // The tr-type, first the tag, then the value
             buffer.put( ( byte )KerberosConstants.TRANSITED_ENCODING_TR_TYPE_TAG );
             buffer.put( TLV.getBytes( trTypeLength ) );
-            Value.encode( buffer, trType.getValue() );
+            Value.encode(buffer, trType.getValue());
 
             // The contents, first the tag, then the value
             buffer.put( ( byte )KerberosConstants.TRANSITED_ENCODING_CONTENTS_TAG );

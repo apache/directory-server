@@ -294,7 +294,7 @@ public class EncryptedData extends AbstractAsn1Object
             // The cipher tag
             buffer.put( ( byte ) 0xA2 );
             buffer.put( TLV.getBytes( cipherTagLength ) );
-            Value.encode( buffer, cipher );
+            Value.encode(buffer, cipher);
         }
         catch ( BufferOverflowException boe )
         {

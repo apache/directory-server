@@ -120,7 +120,7 @@ public class KrbPriv extends KerberosMessage
         pvnoLen = 1 + 1 + 1;
         krbPrivSeqLen = 1 + TLV.getNbBytes( pvnoLen ) + pvnoLen;
 
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + Value.getNbBytes(getMessageType().getValue());
         krbPrivSeqLen += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         encPartLen = encPart.computeLength();
@@ -156,7 +156,7 @@ public class KrbPriv extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_PRIV_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_PRIV_MSGTYPE_TAG );

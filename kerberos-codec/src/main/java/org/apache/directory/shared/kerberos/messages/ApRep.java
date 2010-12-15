@@ -126,7 +126,7 @@ public class ApRep extends KerberosMessage
         pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the msg-type length
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + Value.getNbBytes(getMessageType().getValue());
         
         // Compute the enc-part length
         encPartLength = encPart.computeLength();
@@ -173,7 +173,7 @@ public class ApRep extends KerberosMessage
             buffer.put( TLV.getBytes( pvnoLength ) );
             
             // The value
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
             
             // The msg-type ---------------------------------------------------
             // The tag

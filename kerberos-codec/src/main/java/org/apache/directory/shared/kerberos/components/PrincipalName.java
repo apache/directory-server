@@ -319,7 +319,7 @@ public class PrincipalName extends AbstractAsn1Object
     public int computeLength()
     {
         // The principalName can't be empty.
-        principalTypeLength = Value.getNbBytes( nameType.getValue() );
+        principalTypeLength = Value.getNbBytes(nameType.getValue());
         principalTypeTagLength = 1 + 1 + principalTypeLength;
         
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
@@ -393,7 +393,7 @@ public class PrincipalName extends AbstractAsn1Object
             // The name-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( principalTypeTagLength ) );
-            Value.encode( buffer, nameType.getValue() );
+            Value.encode(buffer, nameType.getValue());
 
             // The name-string tag
             buffer.put( ( byte ) 0xA1 );

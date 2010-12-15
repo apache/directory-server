@@ -578,7 +578,7 @@ public class KrbError extends KerberosMessage
             // susec tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_ERROR_SUSEC_TAG );
             buffer.put( TLV.getBytes( susecLength ) );
-            Value.encode( buffer, susec );
+            Value.encode(buffer, susec);
 
             // error-code tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_ERROR_ERROR_CODE_TAG );

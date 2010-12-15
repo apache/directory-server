@@ -199,7 +199,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
             // The etype, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ETYPE_INFO_ENTRY_ETYPE_TAG );
             buffer.put( TLV.getBytes( etypeTagLength ) );
-            Value.encode( buffer, etype.getValue() );
+            Value.encode(buffer, etype.getValue());
 
             // The salt, first the tag, then the value, if salt is not null
             if ( salt != null )

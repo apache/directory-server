@@ -454,7 +454,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( lastReqLength ) + lastReqLength;
         
         // The nonce
-        nonceLength = Value.getNbBytes( nonce );
+        nonceLength = Value.getNbBytes(nonce);
         nonceLength = 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
 
@@ -555,7 +555,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The flags
             buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( 0x07 ) );
-            Value.encode( buffer, flags );
+            Value.encode(buffer, flags);
             
             // The authtime
             buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_AUTH_TIME_TAG );

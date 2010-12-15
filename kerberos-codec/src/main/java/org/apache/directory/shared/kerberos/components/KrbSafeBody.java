@@ -331,7 +331,7 @@ public class KrbSafeBody extends AbstractAsn1Object
                 // seq-number
                 buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_SEQ_NUMBER_TAG );
                 buffer.put( TLV.getBytes( seqNumberLen ) );
-                Value.encode( buffer, seqNumber );
+                Value.encode(buffer, seqNumber);
             }
 
             // s-address

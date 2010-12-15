@@ -255,7 +255,7 @@ public class Checksum extends AbstractAsn1Object
             // The checksum, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.CHECKSUM_CHECKSUM_TAG );
             buffer.put( TLV.getBytes( checksumBytesLength ) );
-            Value.encode( buffer, checksum );
+            Value.encode(buffer, checksum);
         }
         catch ( BufferOverflowException boe )
         {

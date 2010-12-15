@@ -141,7 +141,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
 
         if ( nonce != null )
         {
-            nonceLen = Value.getNbBytes( nonce );
+            nonceLen = Value.getNbBytes(nonce);
             nonceLen = 1 + TLV.getNbBytes( nonceLen ) + nonceLen;
             encKrbCredPartSeqLen += 1 + TLV.getNbBytes( nonceLen ) + nonceLen;
         }
@@ -217,7 +217,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
                 // nonce tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_KRB_CRED_PART_NONCE_TAG );
                 buffer.put( TLV.getBytes( nonceLen ) );
-                Value.encode( buffer, nonce );
+                Value.encode(buffer, nonce);
             }
 
             if ( timestamp != null )

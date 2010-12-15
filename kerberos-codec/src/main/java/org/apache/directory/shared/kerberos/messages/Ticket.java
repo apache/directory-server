@@ -313,7 +313,7 @@ public class Ticket extends KerberosMessage
             // The tkt-vno Tag and value
             buffer.put( ( byte )KerberosConstants.TICKET_TKT_VNO_TAG );
             buffer.put( TLV.getBytes( tktvnoLength ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
 
             // The realm Tag and value
             buffer.put( ( byte )KerberosConstants.TICKET_REALM_TAG );

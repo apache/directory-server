@@ -172,7 +172,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the etype. The Length will always be contained in 1 byte
-        int etypeLength = Value.getNbBytes( etype.getValue() );
+        int etypeLength = Value.getNbBytes(etype.getValue());
         etypeTagLength = 1 + TLV.getNbBytes( etypeLength ) + etypeLength;
         etypeInfo2EntrySeqLength = 1 + TLV.getNbBytes( etypeTagLength ) + etypeTagLength;
 
@@ -248,7 +248,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
             {
                 buffer.put( ( byte ) KerberosConstants.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG );
                 buffer.put( TLV.getBytes( saltTagLength ) );
-                Value.encode( buffer, s2kparams );
+                Value.encode(buffer, s2kparams);
             }
         }
         catch ( BufferOverflowException boe )

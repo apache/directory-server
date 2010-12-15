@@ -250,7 +250,7 @@ public class EncTicketPart extends AbstractAsn1Object
             // flags tag and int value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( flagsLen ) );
-            Value.encode( buffer, flags );
+            Value.encode(buffer, flags);
 
             // key tag and value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_KEY_TAG );

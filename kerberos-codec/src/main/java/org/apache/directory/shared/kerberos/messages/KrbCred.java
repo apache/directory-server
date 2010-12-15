@@ -157,7 +157,7 @@ public class KrbCred extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_CRED_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            Value.encode(buffer, getProtocolVersionNumber());
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_CRED_MSGTYPE_TAG );

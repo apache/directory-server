@@ -306,7 +306,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
             // user-data
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_USER_DATA_TAG );
             buffer.put( TLV.getBytes( userDataLen ) );
-            Value.encode( buffer, userData );
+            Value.encode(buffer, userData);
 
             if ( timestamp != null )
             {
@@ -325,7 +325,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
                 // usec
                 buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_USEC_TAG );
                 buffer.put( TLV.getBytes( usecLen ) );
-                Value.encode( buffer, usec );
+                Value.encode(buffer, usec);
             }
 
             if ( seqNumber != null )

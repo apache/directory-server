@@ -231,7 +231,7 @@ public abstract class KdcReq extends KerberosMessage
         buffer.put( TLV.getBytes( msgTypeLength ) );
         
         // The value
-        Value.encode( buffer, getMessageType().getValue() );
+        Value.encode(buffer, getMessageType().getValue());
         
         // The PD-DATA if any -------------------------------------------------
         if ( paData.size() > 0 )

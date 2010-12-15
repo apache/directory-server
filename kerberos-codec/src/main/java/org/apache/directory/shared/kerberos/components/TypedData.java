@@ -231,7 +231,7 @@ public class TypedData extends AbstractAsn1Object
                 // the tdType
                 buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDTYPE_TAG );
                 buffer.put( TLV.getBytes( dataTypeTagLength[i] ) );
-                Value.encode( buffer, td.dataType );
+                Value.encode(buffer, td.dataType);
 
                 if ( td.dataValue != null )
                 {

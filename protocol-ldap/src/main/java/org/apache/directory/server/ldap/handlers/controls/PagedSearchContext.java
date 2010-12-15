@@ -101,7 +101,7 @@ public class PagedSearchContext
      */
     public byte[] getNewCookie()
     {
-        cookie = Value.getBytes( cookieValue.incrementAndGet() );
+        cookie = Value.getBytes(cookieValue.incrementAndGet());
 
         return cookie;
     }
