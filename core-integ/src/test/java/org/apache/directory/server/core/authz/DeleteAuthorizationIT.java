@@ -136,11 +136,23 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantRemove perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems {entry}, "
-            + "       grantsAndDenials { grantRemove, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "administratorAdd", 
+              "{ " 
+            + "  identificationTag \"addAci\", "
+            + "  precedence 14, " 
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " 
+            + "    userPermissions "
+            + "    { " 
+            + "      { " 
+            + "        protectedItems {entry}, "
+            + "       grantsAndDenials { grantRemove, grantBrowse } " 
+            + "      } "
+            + "    } " 
+            + "  } " 
+            + "}" );
 
         // see if we can now delete that test entry which we could not before
         // delete op should still fail since billd is not in the admin group
@@ -169,11 +181,23 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to delete an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
-            + "      { " + "        protectedItems {entry}, "
-            + "        grantsAndDenials { grantRemove, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "billydAdd", 
+              "{ " 
+            + "  identificationTag \"addAci\", " 
+            + "  precedence 14, "
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " 
+            + "    userPermissions " 
+            + "    { "
+            + "      { " 
+            + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantRemove, grantBrowse } " 
+            + "      } " 
+            + "    } " 
+            + "  } " 
+            + "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -195,11 +219,26 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to delte an entry below ou=system
-        createAccessControlSubentry( "billyAddBySubtree", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses " + "    { " + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, "
-            + "    userPermissions " + "    { " + "      { " + "        protectedItems {entry}, "
-            + "        grantsAndDenials { grantRemove, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "billyAddBySubtree", 
+              "{ " 
+            + "  identificationTag \"addAci\", "
+            + "  precedence 14, " 
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses " 
+            + "    { " 
+            + "      subtree { { base \"ou=users,ou=system\" } } " 
+            + "    }, "
+            + "    userPermissions " 
+            + "    { " 
+            + "      { " 
+            + "        protectedItems {entry}, "
+            + "        grantsAndDenials { grantRemove, grantBrowse } " 
+            + "      } " 
+            + "    } " 
+            + "  } " 
+            + "}" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -221,11 +260,23 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables anyone to add an entry below ou=system
-        createAccessControlSubentry( "anybodyAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry}, " + "        grantsAndDenials { grantRemove, grantBrowse } "
-            + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "anybodyAdd", 
+              "{ " 
+            + "  identificationTag \"addAci\", " 
+            + "  precedence 14, "
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { allUsers }, " 
+            + "    userPermissions " 
+            + "    { " 
+            + "      { "
+            + "        protectedItems {entry}, " 
+            + "        grantsAndDenials { grantRemove, grantBrowse } "
+            + "      } " 
+            + "    } " 
+            + "  } " 
+            + "}" );
 
         // see if we can now delete that test entry which we could not before
         // should work now with billyd now that all users are authorized
