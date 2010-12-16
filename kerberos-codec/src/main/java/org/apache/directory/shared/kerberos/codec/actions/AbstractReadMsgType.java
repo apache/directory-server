@@ -31,7 +31,7 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
 import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +99,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
                     return;
                 }
 
-                String message = I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -124,7 +124,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
                     }
                 }
                 
-                String message = I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -133,7 +133,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

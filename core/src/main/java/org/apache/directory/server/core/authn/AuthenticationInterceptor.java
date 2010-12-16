@@ -109,6 +109,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.CharConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -899,7 +900,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 // remove creds so there is no security risk
                 bindContext.setCredentials( null );
-                clonedPrincipal.setUserPassword( StringTools.EMPTY_BYTES );
+                clonedPrincipal.setUserPassword( CharConstants.EMPTY_BYTES );
 
                 // authentication was successful
                 CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );

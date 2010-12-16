@@ -59,6 +59,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.CharConstants;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -815,10 +816,10 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
-        nbAdded = attr2.add( StringTools.EMPTY_BYTES );
+        nbAdded = attr2.add( CharConstants.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
+        assertTrue( Arrays.equals( CharConstants.EMPTY_BYTES, attr2.getBytes() ) );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
 
@@ -1169,10 +1170,10 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
-        nbAdded = attr2.add( StringTools.EMPTY_BYTES );
+        nbAdded = attr2.add( CharConstants.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
+        assertTrue( Arrays.equals( CharConstants.EMPTY_BYTES, attr2.getBytes() ) );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
 

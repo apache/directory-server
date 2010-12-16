@@ -28,7 +28,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,7 +61,7 @@ public class PrincipalNameTest
                       'T', 'e', 's', 't' 
             };
 
-        assertEquals( StringTools.dumpBytes( expectedResult ), StringTools.dumpBytes( encoded.array() ) );
+        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
     }
 
 
@@ -91,7 +91,7 @@ public class PrincipalNameTest
                       'T', 'e', 's', 't', '3' 
             };
 
-        assertEquals( StringTools.dumpBytes( expectedResult ), StringTools.dumpBytes( encoded.array() ) );
+        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
     }
 
 
@@ -114,6 +114,6 @@ public class PrincipalNameTest
                     0x1B, 0x00
             };
 
-        assertEquals( StringTools.dumpBytes( expectedResult ), StringTools.dumpBytes( encoded.array() ) );
+        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
     }
 }

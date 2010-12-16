@@ -39,6 +39,7 @@ import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -82,7 +83,7 @@ public class HostAddressesDecoderTest
                     0x04, 0x0B, '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '3'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a HostAddresses Container
@@ -124,7 +125,7 @@ public class HostAddressesDecoderTest
             // Check the length
             assertEquals( 0x44, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

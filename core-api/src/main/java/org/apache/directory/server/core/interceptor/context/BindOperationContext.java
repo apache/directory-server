@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,7 +179,7 @@ public class BindOperationContext extends AbstractOperationContext
     public String toString()
     {
         return "BindContext for DN '" + getDn().getName() + "', credentials <" +
-            ( credentials != null ? StringTools.dumpBytes( credentials ) : "" ) + ">" +
+            ( credentials != null ? Strings.dumpBytes(credentials) : "" ) + ">" +
             ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
     }

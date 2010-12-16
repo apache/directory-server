@@ -35,6 +35,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -341,7 +342,7 @@ public class Ticket extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Ticket encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "Ticket encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "Ticket initial value : {}", toString() );
         }
 

@@ -32,6 +32,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,7 +261,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", toString() );
         }
 
@@ -285,7 +286,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
 
         if ( salt != null )
         {
-            sb.append( "    s2kparams: " ).append( StringTools.dumpBytes( s2kparams ) ).append( '\n' );
+            sb.append( "    s2kparams: " ).append( Strings.dumpBytes(s2kparams) ).append( '\n' );
         }
 
         sb.append( "}\n" );

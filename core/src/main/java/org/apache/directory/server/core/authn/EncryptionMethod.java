@@ -22,7 +22,7 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -85,7 +85,7 @@ public class EncryptionMethod
     @Override
     public String toString()
     {
-        return "EncryptionMethod [algorithm=" + algorithm.getName().toUpperCase() + ", salt=" + StringTools.dumpBytes( salt ) + "]";
+        return "EncryptionMethod [algorithm=" + algorithm.getName().toUpperCase() + ", salt=" + Strings.dumpBytes(salt) + "]";
     }
     
     

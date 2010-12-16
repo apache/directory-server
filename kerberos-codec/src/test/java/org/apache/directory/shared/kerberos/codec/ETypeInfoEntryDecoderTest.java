@@ -35,6 +35,7 @@ import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryC
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -63,7 +64,7 @@ public class ETypeInfoEntryDecoderTest
                     0x04, 0x04, 0x31, 0x32, 0x33, 0x34
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
@@ -93,7 +94,7 @@ public class ETypeInfoEntryDecoderTest
             // Check the length
             assertEquals( 0x0F, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }
@@ -121,7 +122,7 @@ public class ETypeInfoEntryDecoderTest
                     0x02, 0x01, 0x05
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
@@ -151,7 +152,7 @@ public class ETypeInfoEntryDecoderTest
             // Check the length
             assertEquals( 0x07, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }
@@ -237,7 +238,7 @@ public class ETypeInfoEntryDecoderTest
             // Check the length
             assertEquals( 0x07, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             ByteBuffer stream2 = ByteBuffer.allocate( 0x07 );
 
@@ -248,7 +249,7 @@ public class ETypeInfoEntryDecoderTest
                          0x02, 0x01, 0x05
                  } );
              
-            String decodedPdu2 = StringTools.dumpBytes( stream2.array() );
+            String decodedPdu2 = Strings.dumpBytes(stream2.array());
 
             assertEquals( encodedPdu, decodedPdu2 );
         }
@@ -411,7 +412,7 @@ public class ETypeInfoEntryDecoderTest
             // Check the length
             assertEquals( 0x07, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             ByteBuffer stream2 = ByteBuffer.allocate( 0x07 );
 
@@ -422,7 +423,7 @@ public class ETypeInfoEntryDecoderTest
                          0x02, 0x01, (byte)0xFF
                  } );
              
-            String decodedPdu2 = StringTools.dumpBytes( stream2.array() );
+            String decodedPdu2 = Strings.dumpBytes(stream2.array());
             assertEquals( decodedPdu2, encodedPdu );
         }
         catch ( EncoderException ee )

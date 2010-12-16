@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.PrepareString;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.CharConstants;
 
 import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
@@ -225,7 +226,7 @@ public class PlainSaslServer extends AbstractSaslServer
             }
         }
 
-        return StringTools.EMPTY_BYTES;
+        return CharConstants.EMPTY_BYTES;
     }
 
 

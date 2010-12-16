@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,7 +200,7 @@ public class ApRep extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AP-REP encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "AP-REP encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "AP-REP initial value : {}", toString() );
         }
 

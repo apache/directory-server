@@ -34,6 +34,7 @@ import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyCon
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -59,7 +60,7 @@ public class EncryptionKeyDecoderTest
                     0x04, 0x06, 'k', 'e', 'y', 'v', 'a', 'l'
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
@@ -89,7 +90,7 @@ public class EncryptionKeyDecoderTest
             // Check the length
             assertEquals( 0x11, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

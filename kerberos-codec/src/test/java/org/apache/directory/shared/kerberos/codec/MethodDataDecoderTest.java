@@ -38,6 +38,7 @@ import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.MethodData;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,7 +77,7 @@ public class MethodDataDecoderTest
                     0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a METHOD-DATA Container
@@ -118,7 +119,7 @@ public class MethodDataDecoderTest
             // Check the length
             assertEquals( 0x24, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

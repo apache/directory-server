@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.CharConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,7 +282,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
         {
-            bindRequest.setCredentials( StringTools.EMPTY_BYTES );
+            bindRequest.setCredentials( CharConstants.EMPTY_BYTES );
         }
 
         try

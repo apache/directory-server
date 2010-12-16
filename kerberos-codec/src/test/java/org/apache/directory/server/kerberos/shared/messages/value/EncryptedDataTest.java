@@ -30,7 +30,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,7 +64,7 @@ public class EncryptedDataTest
                     0x04, 0x04, 0x01, 0x02, 0x03, 0x04 
             };
 
-        assertEquals( StringTools.dumpBytes( expectedResult ), StringTools.dumpBytes( encoded.array() ) );
+        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
     }
 
 

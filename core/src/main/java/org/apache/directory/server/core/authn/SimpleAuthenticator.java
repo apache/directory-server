@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.UnixCrypt;
+import org.apache.directory.shared.util.CharConstants;
 
 
 /**
@@ -295,7 +296,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
-            return StringTools.EMPTY_BYTES;
+            return CharConstants.EMPTY_BYTES;
         }
         else
         {

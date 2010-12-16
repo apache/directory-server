@@ -34,6 +34,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -373,7 +374,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbCredInfo encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "KrbCredInfo encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "KrbCredInfo initial value : {}", toString() );
         }
 

@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * The structure which stores the informations relative to the pagedSearch control.
@@ -315,7 +315,7 @@ public class PagedSearchContext
         StringBuilder sb = new StringBuilder();
 
         sb.append( "PagedSearch context : <" );
-        sb.append( StringTools.dumpBytes( cookie ) );
+        sb.append( Strings.dumpBytes(cookie) );
         sb.append( ", " );
         sb.append( currentPosition );
         sb.append( ">" );

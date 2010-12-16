@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,7 +237,7 @@ public class PaData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "PreAuthenticationData encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "PreAuthenticationData initial value : {}", toString() );
         }
 
@@ -266,7 +266,7 @@ public class PaData extends AbstractAsn1Object
 
         if ( paDataValue != null )
         {
-            sb.append( tabs + "    padata-value:" ).append( StringTools.dumpBytes( paDataValue ) ).append( '\n' );
+            sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes(paDataValue) ).append( '\n' );
         }
 
         sb.append( tabs + "}\n" );
