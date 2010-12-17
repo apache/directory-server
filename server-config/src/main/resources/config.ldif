@@ -78,6 +78,9 @@ ads-interceptororder: 2
 ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationInterceptor
 ads-interceptorid: authenticationInterceptor
 ads-enabled: TRUE
+ads-authenticators: anonymousauthenticator
+ads-authenticators: simpleauthenticator
+ads-authenticators: strongauthenticator
 
 dn: ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ou: authenticators
