@@ -584,4 +584,21 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the DN factory
      */
     DNFactory getDNFactory();
+
+    
+    /**
+     * Get a new sequence number. The counter will be incremented when this method
+     * is called, even if we don't use the number.
+     * 
+     * @return the apSeqNumber
+     */
+    public long getNewApSeqNumber();
+
+    
+    /**
+     * Get the last created sequence number.
+     * 
+     * @return the apSeqNumber, or -1 if no AP sequence number has been created
+     */
+    public long getApSeqNumber();
 }

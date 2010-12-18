@@ -561,4 +561,22 @@ public class MockDirectoryService implements DirectoryService
     {
         return null;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getNewApSeqNumber()
+    {
+        return -1L;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApSeqNumber()
+    {
+        return -1L;
+    }
 }

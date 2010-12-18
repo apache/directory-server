@@ -1971,13 +1971,19 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Get a new sequence number. The counter will be incremented when this method
-     * is called, even if we don't use the number.
-     * @return the apSeqNumber
+     * {@inheritDoc}
      */
-    public long getApSeqNumber()
+    public long getNewApSeqNumber()
     {
         return apSeqNumber.getAndIncrement();
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApSeqNumber()
+    {
+        return apSeqNumber.get();
+    }
 }
