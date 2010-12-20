@@ -89,8 +89,8 @@ import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSch
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1929,7 +1929,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Calendar cal = Calendar.getInstance( tz );
         String modifyTimestampStr = ( String ) modifyTimestampAttr.get();
-        Date modifyTimestamp = DateUtils.getDate( modifyTimestampStr );
+        Date modifyTimestamp = DateUtils.getDate(modifyTimestampStr);
         Date currentTimestamp = cal.getTime();
 
         assertFalse( modifyTimestamp.after( currentTimestamp ) );
@@ -2075,7 +2075,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             out.write( in.read() );
         }
 
-        return new String( Base64.encode( out.toByteArray() ) );
+        return new String( Base64.encode(out.toByteArray()) );
     }
 
 

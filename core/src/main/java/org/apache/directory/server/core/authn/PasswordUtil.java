@@ -35,8 +35,8 @@ import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.ldap.util.UnixCrypt;
 import org.apache.directory.shared.util.Strings;
 

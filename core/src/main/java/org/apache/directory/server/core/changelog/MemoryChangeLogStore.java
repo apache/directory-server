@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.DateUtils;
 
 
 /**
@@ -464,7 +464,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
-        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
                 principal, forward, reverse );
         events.add( event );
         return event;

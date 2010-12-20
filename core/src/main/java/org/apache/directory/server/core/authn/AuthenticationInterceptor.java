@@ -107,7 +107,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.CharConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;

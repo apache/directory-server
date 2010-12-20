@@ -57,7 +57,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.ldap.util.UnixCrypt;
 import org.apache.directory.shared.util.CharConstants;
 import org.apache.directory.shared.util.Strings;

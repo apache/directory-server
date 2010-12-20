@@ -74,7 +74,7 @@ import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.GeneralizedTimeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

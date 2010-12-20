@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

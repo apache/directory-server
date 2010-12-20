@@ -22,8 +22,8 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -70,7 +70,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     public PasswordHistory( String time, byte[] password )
     {
         this.time = time;
-        this.data = String.valueOf( Base64.encode( password ) );
+        this.data = String.valueOf( Base64.encode(password) );
         this.length = data.length();
     }
 

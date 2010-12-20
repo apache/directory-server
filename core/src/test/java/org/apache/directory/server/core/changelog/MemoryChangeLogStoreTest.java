@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
