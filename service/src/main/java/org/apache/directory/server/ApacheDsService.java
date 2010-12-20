@@ -58,6 +58,7 @@ import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -83,6 +84,16 @@ import org.slf4j.LoggerFactory;
 /**
  * A class used to start various servers in a given {@link InstanceLayout}.
  * 
+ * Initialize the schemaPartition
+ * Initialize the configuration partition
+ * Read the configuration
+ * Initialize the directoryService
+ * Start the LDAP Server
+ * Start the NTP Server
+ * Start the ChangePassword Sercer
+ * Start the Kerberos Server
+ * Start the Http Server
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ApacheDsService
@@ -105,22 +116,24 @@ public class ApacheDsService
     /** The Kerberos server instance */
     private KdcServer kdcServer;
 
+    /** The Http Server instance */
     private HttpServer httpServer;
 
+    /** The schema partition */
     private LdifPartition schemaLdifPartition;
 
+    /** The SchemaManager instance */
     private SchemaManager schemaManager;
 
+    /** The configuration partition */
     private SingleFileLdifPartition configPartition;
 
+    /** The configuration reader */
     private ConfigPartitionReader cpReader;
     
-    // variables used during the initial startup to update the mandatory operational
-    // attributes
+    // variables used during the initial startup to update the mandatory operational attributes
     private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
-
     private CsnSyntaxChecker csnChecker = new CsnSyntaxChecker();
-
     private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();
 
     private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
@@ -259,6 +272,22 @@ public class ApacheDsService
     }
     
     
+    /**
+     * Update the Map containing the mandatory AttributeTypeOptions 
+     */
+    private void createMandatoryAT( String... attributeTypes ) throws LdapException
+    {
+        for ( String attributeType : attributeTypes )
+        {
+            AttributeType at = schemaManager.lookupAttributeTypeRegistry( attributeType );
+            MANDATORY_ENTRY_ATOP_MAP.put( at.getName(), new AttributeTypeOptions( at ) );
+        }
+    }
+    
+    
+    /**
+     * Initialize the DirectoryService.
+     */
     private DirectoryService initDirectoryService( InstanceLayout instanceLayout, DirectoryServiceBean directoryServiceBean ) throws Exception
     {
         LOG.info( "Initializing the DirectoryService..." );
@@ -278,20 +307,9 @@ public class ApacheDsService
 
         directoryService.startup();
 
-        AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        MANDATORY_ENTRY_ATOP_MAP.put( ocAt.getName(), new AttributeTypeOptions( ocAt ) );
-
-        AttributeType uuidAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
-        MANDATORY_ENTRY_ATOP_MAP.put( uuidAt.getName(), new AttributeTypeOptions( uuidAt ) );
-
-        AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
-        MANDATORY_ENTRY_ATOP_MAP.put( csnAt.getName(), new AttributeTypeOptions( csnAt ) );
-
-        AttributeType creatorAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT );
-        MANDATORY_ENTRY_ATOP_MAP.put( creatorAt.getName(), new AttributeTypeOptions( creatorAt ) );
-
-        AttributeType createdTimeAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
-        MANDATORY_ENTRY_ATOP_MAP.put( createdTimeAt.getName(), new AttributeTypeOptions( createdTimeAt ) );
+        // Create the map containing the mandatory attributeTypeOptions
+        createMandatoryAT( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ENTRY_UUID_AT, 
+            SchemaConstants.ENTRY_CSN_AT, SchemaConstants.CREATORS_NAME_AT, SchemaConstants.CREATE_TIMESTAMP_AT );
 
         if ( isConfigPartitionFirstExtraction )
         {
