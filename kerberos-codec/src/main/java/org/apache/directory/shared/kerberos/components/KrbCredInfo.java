@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +176,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( pRealm != null )
         {
-            pRealmBytes = StringTools.getBytesUtf8( pRealm );
+            pRealmBytes = Strings.getBytesUtf8(pRealm);
             pRealmLen = 1 + TLV.getNbBytes( pRealmBytes.length ) + pRealmBytes.length;
             krbKredInfoSeqLen += 1 + TLV.getNbBytes( pRealmLen ) + pRealmLen;
         }
@@ -225,7 +224,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( sRealm != null )
         {
-            sRealmBytes = StringTools.getBytesUtf8( sRealm );
+            sRealmBytes = Strings.getBytesUtf8(sRealm);
             sRealmLen = 1 + TLV.getNbBytes( sRealmBytes.length ) + sRealmBytes.length;
             krbKredInfoSeqLen += 1 + TLV.getNbBytes( sRealmLen ) + sRealmLen;
         }

@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,15 +55,15 @@ public class SimpleAuthenticatorOneWayEncryptedTest
     public void testGetAlgorithmForHashedPassword()
     {
         String digestetValue = "{SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=";
-        assertEquals( "SHA", auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( digestetValue ) ) );
+        assertEquals( "SHA", auth.getAlgorithmForHashedPassword( Strings.getBytesUtf8(digestetValue) ) );
         assertEquals( "SHA", auth.getAlgorithmForHashedPassword( digestetValue.getBytes() ) );
 
         String noAlgorithm = "Secret1!";
-        assertEquals( null, auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( noAlgorithm ) ) );
+        assertEquals( null, auth.getAlgorithmForHashedPassword( Strings.getBytesUtf8(noAlgorithm) ) );
         assertEquals( null, auth.getAlgorithmForHashedPassword( noAlgorithm.getBytes() ) );
 
         String unknownAlgorithm = "{XYZ}LhkDrSoM6qr0fW6hzlfOJQW61tc=";
-        assertEquals( null, auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( unknownAlgorithm ) ) );
+        assertEquals( null, auth.getAlgorithmForHashedPassword( Strings.getBytesUtf8(unknownAlgorithm) ) );
         assertEquals( null, auth.getAlgorithmForHashedPassword( unknownAlgorithm.getBytes() ) );
     }
 
@@ -73,7 +73,7 @@ public class SimpleAuthenticatorOneWayEncryptedTest
     {
         String pwd = "Secret1!";
         String expected = "{SHA}znbJr3+tymFoQD4+Njh4ITtI7Cc=";
-        String digested = auth.createDigestedPassword( "SHA", StringTools.getBytesUtf8( pwd ) );
+        String digested = auth.createDigestedPassword( "SHA", Strings.getBytesUtf8(pwd) );
 
         assertEquals( expected, digested );
     }

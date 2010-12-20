@@ -58,8 +58,8 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.CharConstants;
+import org.apache.directory.shared.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -2114,7 +2114,7 @@ public class SchemaAwareEntryAttributeTest
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atPwd );
         dsa.setHR( false );
-        byte[] password = StringTools.getBytesUtf8( "secret" );
+        byte[] password = Strings.getBytesUtf8("secret");
         dsa.add( password );
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );

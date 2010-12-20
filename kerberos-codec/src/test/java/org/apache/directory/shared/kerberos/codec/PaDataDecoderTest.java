@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.PaData;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -79,7 +78,7 @@ public class PaDataDecoderTest
         PaData checksum = container.getPaData();
         
         assertEquals( PaDataType.getTypeByValue( 2 ), checksum.getPaDataType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "padata" ), checksum.getPaDataValue() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("padata"), checksum.getPaDataValue() ) );
         
         ByteBuffer bb = ByteBuffer.allocate( checksum.computeLength() );
         

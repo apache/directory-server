@@ -44,7 +44,6 @@ import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -123,7 +122,7 @@ public class AdKdcIssuedDecoderTest
         Checksum checksum = adKdcIssued.getAdChecksum();
         
         assertEquals( ChecksumType.getTypeByValue( 2 ), checksum.getChecksumType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "chksum" ), checksum.getChecksumValue() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("chksum"), checksum.getChecksumValue() ) );
 
         assertEquals( "EXAMPLE.COM", adKdcIssued.getIRealm() );
         
@@ -144,7 +143,7 @@ public class AdKdcIssuedDecoderTest
         for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), ad.getAdData() ) );
             
         }
 
@@ -227,7 +226,7 @@ public class AdKdcIssuedDecoderTest
         Checksum checksum = adKdcIssued.getAdChecksum();
         
         assertEquals( ChecksumType.getTypeByValue( 2 ), checksum.getChecksumType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "chksum" ), checksum.getChecksumValue() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("chksum"), checksum.getChecksumValue() ) );
 
         // The realm
         assertNull( adKdcIssued.getIRealm() );
@@ -247,7 +246,7 @@ public class AdKdcIssuedDecoderTest
         for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), ad.getAdData() ) );
             
         }
 

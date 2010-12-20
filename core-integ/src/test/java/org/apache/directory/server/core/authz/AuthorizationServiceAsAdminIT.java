@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,7 +123,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 
         connection = getConnectionAs( adminDn, newPwd );
         Entry entry = connection.lookup( adminDn.getName() );
-        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
+        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8(newPwd), entry.get( "userPassword" ).get()
             .getBytes() ) );
     }
 

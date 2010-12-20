@@ -102,7 +102,6 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.CharConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -340,7 +339,7 @@ public class PrincipalName extends AbstractAsn1Object
             {
                 if ( name != null )
                 {
-                    byte[] bytes = StringTools.getBytesUtf8( name );
+                    byte[] bytes = Strings.getBytesUtf8(name);
                     nameBytes.add( bytes );
                     principalStringsSeqLength += 1 + TLV.getNbBytes( bytes.length ) + bytes.length;
                 }

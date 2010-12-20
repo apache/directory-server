@@ -38,7 +38,6 @@ import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesCon
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,7 +110,7 @@ public class HostAddressesDecoderTest
         for ( HostAddress hostAddress : hostAddresses.getAddresses() )
         {
             assertEquals( HostAddrType.ADDRTYPE_INET, hostAddress.getAddrType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i] ), hostAddress.getAddress() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i]), hostAddress.getAddress() ) );
             i++;
         }
 

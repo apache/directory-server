@@ -94,7 +94,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -1190,7 +1190,7 @@ public abstract class ServerContext implements EventContext
      */
     public Object lookup( String name ) throws NamingException
     {
-        if ( StringTools.isEmpty( name ) )
+        if ( Strings.isEmpty(name) )
         {
             return lookup( new LdapName( "" ) );
         }

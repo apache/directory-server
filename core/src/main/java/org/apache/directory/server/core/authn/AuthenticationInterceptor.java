@@ -108,8 +108,8 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.CharConstants;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -632,7 +632,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 while ( itr.hasNext() )
                 {
                     Value<?> val = itr.next();
-                    PasswordHistory pwdh = new PasswordHistory( StringTools.utf8ToString( val.getBytes() ) );
+                    PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString(val.getBytes()) );
 
                     boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
 
@@ -1183,7 +1183,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
 
-        String strPassword = StringTools.utf8ToString( password );
+        String strPassword = Strings.utf8ToString(password);
         validatePasswordLength( strPassword, policyConfig );
         checkUsernameSubstring( username, strPassword, policyConfig );
         //        checkPasswordChars( strPassword );

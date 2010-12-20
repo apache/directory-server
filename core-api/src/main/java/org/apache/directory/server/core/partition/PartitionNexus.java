@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationC
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -47,7 +47,7 @@ public interface PartitionNexus extends Partition
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD_STRING = "secret";
     
-    public static final byte[] ADMIN_PASSWORD_BYTES = StringTools.getBytesUtf8( ADMIN_PASSWORD_STRING );
+    public static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8(ADMIN_PASSWORD_STRING);
 
 
     /**

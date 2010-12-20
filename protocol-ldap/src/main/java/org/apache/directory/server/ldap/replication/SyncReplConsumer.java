@@ -86,6 +86,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -301,7 +302,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         if ( syncDoneCtrl.getCookie() != null )
         {
             syncCookie = syncDoneCtrl.getCookie();
-            LOG.debug( "assigning cookie from sync done value control: " + StringTools.utf8ToString( syncCookie ) );
+            LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString(syncCookie) );
             storeCookie();
         }
 
@@ -345,7 +346,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 syncCookie = syncStateCtrl.getCookie();
                 LOG.debug( "assigning the cookie from sync state value control: "
-                    + StringTools.utf8ToString( syncCookie ) );
+                    + Strings.utf8ToString(syncCookie) );
             }
 
             SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
@@ -436,7 +437,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
             if ( cookie != null )
             {
-                LOG.debug( "setting the cookie from the sync info: " + StringTools.utf8ToString( cookie ) );
+                LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString(cookie) );
                 syncCookie = cookie;
             }
 
@@ -541,7 +542,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( syncCookie != null )
         {
-            LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncCookie ) );
+            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString(syncCookie) );
             syncReq.setCookie( syncCookie );
         }
 
@@ -702,7 +703,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     lastSavedCookie = new byte[syncCookie.length];
                     System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
 
-                    LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
+                    LOG.debug( "read the cookie from file: " + Strings.utf8ToString(syncCookie) );
                 }
             }
             else

@@ -31,8 +31,8 @@ import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.PrepareString;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.CharConstants;
+import org.apache.directory.shared.util.Strings;
 
 import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
@@ -115,7 +115,7 @@ public class PlainSaslServer extends AbstractSaslServer
      */
     public byte[] evaluateResponse( byte[] initialResponse ) throws SaslException
     {
-        if ( StringTools.isEmpty( initialResponse ) )
+        if ( Strings.isEmpty(initialResponse) )
         {
             state = NegotiationState.MECH_RECEIVED;
             return null;
@@ -196,7 +196,7 @@ public class PlainSaslServer extends AbstractSaslServer
                 }
                 
                 start++;
-                String value = StringTools.utf8ToString( initialResponse, start, end - start + 1 );
+                String value = Strings.utf8ToString(initialResponse, start, end - start + 1);
                 
                 password = PrepareString.normalize( value, PrepareString.StringType.CASE_EXACT_IA5 );
                 
@@ -243,7 +243,7 @@ public class PlainSaslServer extends AbstractSaslServer
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new DN( user ) );
-        bindContext.setCredentials( StringTools.getBytesUtf8( password ) );
+        bindContext.setCredentials( Strings.getBytesUtf8(password) );
         
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
         

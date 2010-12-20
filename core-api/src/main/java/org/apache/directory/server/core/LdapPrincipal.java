@@ -29,7 +29,7 @@ import java.security.Principal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -159,7 +159,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public String toString()
     {
-        return "['" + dn.getName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
+        return "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
     }
 
 

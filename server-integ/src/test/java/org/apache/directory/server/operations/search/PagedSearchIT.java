@@ -47,7 +47,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -295,7 +295,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             // check if this is over
             byte[] cookie = responseControl.getCookie();
             
-            if ( StringTools.isEmpty( cookie ) )
+            if ( Strings.isEmpty(cookie) )
             {
                 // If so, exit the loop
                 break;
@@ -1047,7 +1047,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             // check if this is over
             byte[] cookie = responseControl.getCookie();
             
-            if ( StringTools.isEmpty( cookie ) )
+            if ( Strings.isEmpty(cookie) )
             {
                 // If so, exit the loop
                 break;
@@ -1103,7 +1103,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             // check if this is over
             byte[] cookie = responseControl.getCookie();
             
-            if ( StringTools.isEmpty( cookie ) )
+            if ( Strings.isEmpty(cookie) )
             {
                 // If so, exit the loop
                 break;

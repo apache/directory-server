@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1499,7 +1499,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
         while ( !parentId.equals( getRootId() ) );
 
-        DN dn = new DN( upName, normName, StringTools.getBytesUtf8( normName ), rdnList );
+        DN dn = new DN( upName, normName, Strings.getBytesUtf8(normName), rdnList );
 
         return dn;
     }

@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -387,7 +387,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         synchronized ( lock )
         {
             String ldif = LdifUtils.convertEntryToLdif( entry );
-            ldifFile.write( StringTools.getBytesUtf8( ldif + "\n" ) );
+            ldifFile.write( Strings.getBytesUtf8(ldif + "\n") );
         }
     }
 

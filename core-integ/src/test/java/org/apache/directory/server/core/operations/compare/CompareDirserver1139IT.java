@@ -39,7 +39,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -176,7 +176,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         {
             SearchResult result = list.next();
             assertNotNull( result );
-            assertTrue( StringTools.isEmpty( result.getName() ) );
+            assertTrue( Strings.isEmpty(result.getName()) );
             assertNotNull( result.getAttributes() );
             assertEquals( 0, result.getAttributes().size() );
             count++;

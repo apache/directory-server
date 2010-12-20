@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -351,7 +350,7 @@ public class HostAddress extends AbstractAsn1Object
         }
         catch ( UnknownHostException uhe )
         {
-            return "Unknow host : " + StringTools.utf8ToString( address );
+            return "Unknow host : " + Strings.utf8ToString(address);
         }
     }
 }

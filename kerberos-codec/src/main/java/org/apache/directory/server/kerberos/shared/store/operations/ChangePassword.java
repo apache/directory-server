@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -80,7 +80,7 @@ public class ChangePassword implements DirectoryServiceOperation
         List<Modification> mods = new ArrayList<Modification>(2);
         
         EntryAttribute newPasswordAttribute = new DefaultEntryAttribute( 
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), Strings.getBytesUtf8(newPassword) );
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
         EntryAttribute principalAttribute = new DefaultEntryAttribute( 

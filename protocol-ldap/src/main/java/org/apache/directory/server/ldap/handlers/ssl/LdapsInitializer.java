@@ -30,7 +30,7 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -60,7 +60,7 @@ public class LdapsInitializer
             
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
             
-            if ( StringTools.isEmpty( certificatePassord ) )
+            if ( Strings.isEmpty(certificatePassord) )
             {
                 kmf.init( ks, null );
             }

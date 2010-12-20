@@ -32,7 +32,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * The KDC-REP data structure. It will store the object described by the ASN.1 grammar :
@@ -306,7 +306,7 @@ public class KdcRep extends KerberosMessage
         }
         
         // The crealm length
-        crealmBytes = StringTools.getBytesUtf8( crealm );
+        crealmBytes = Strings.getBytesUtf8(crealm);
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
         kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
 

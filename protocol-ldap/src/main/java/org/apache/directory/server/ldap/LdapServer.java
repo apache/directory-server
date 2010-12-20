@@ -83,7 +83,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
@@ -323,7 +323,7 @@ public class LdapServer extends DirectoryBackedService
     @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadKeyStore() throws Exception
     {
-        if ( StringTools.isEmpty( keystoreFile ) )
+        if ( Strings.isEmpty(keystoreFile) )
         {
             Provider provider = Security.getProvider( "SUN" );
             LOG.debug( "provider = {}", provider );
