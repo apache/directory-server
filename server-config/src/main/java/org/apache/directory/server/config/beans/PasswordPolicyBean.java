@@ -49,7 +49,7 @@ public class PasswordPolicyBean extends AdsBaseBean
      * holds the number of seconds that must elapse between modifications to the password. 
      * Default value is 0 
      */
-    @ConfigurationElement(attributeType = "ads-pwdMinAge")
+    @ConfigurationElement(attributeType = "ads-pwdMinAge", isOptional = true, defaultValue = "0")
     private int pwdMinAge = 0;
 
     /**
@@ -57,33 +57,33 @@ public class PasswordPolicyBean extends AdsBaseBean
      *  Default value is 0, does not expire.  If not 0, the value must be greater than or equal
      *  to the value of the pwdMinAge.
      */
-    @ConfigurationElement(attributeType = "ads-pwdMaxAge")
-    private int pwdMaxAge;
+    @ConfigurationElement(attributeType = "ads-pwdMaxAge", isOptional = true, defaultValue = "0")
+    private int pwdMaxAge = 0;
 
     /**
      *  specifies the maximum number of used passwords stored in the pwdHistory attribute.
      *  Default value is 0, no password history maintained
      */
-    @ConfigurationElement(attributeType = "ads-pwdInHistory")
+    @ConfigurationElement(attributeType = "ads-pwdInHistory", isOptional = true, defaultValue = "0")
     private int pwdInHistory = 0;
 
     /** indicates how the password quality will be verified while being modified or added.
      *  Default value 0, do not check 
      */
-    @ConfigurationElement(attributeType = "ads-pwdCheckQuality")
+    @ConfigurationElement(attributeType = "ads-pwdCheckQuality", isOptional = true, defaultValue = "0")
     private int pwdCheckQuality = 0;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
      *  Default value 0, no minimum length enforced
      */
-    @ConfigurationElement(attributeType = "ads-pwdMinLength")
+    @ConfigurationElement(attributeType = "ads-pwdMinLength", isOptional = true, defaultValue = "0")
     private int pwdMinLength = 0;
 
     /**
      * this attribute holds the maximum number of characters that may be used in a password.
      * Default value 0, no maximum length enforced
      */
-    @ConfigurationElement(attributeType = "ads-pwdMaxLength")
+    @ConfigurationElement(attributeType = "ads-pwdMaxLength", isOptional = true, defaultValue = "0")
     private int pwdMaxLength = 0;
 
     /**
@@ -91,21 +91,21 @@ public class PasswordPolicyBean extends AdsBaseBean
      * messages will be returned to an authenticating user.
      * Default value is 0, never send a warning message.
      */
-    @ConfigurationElement(attributeType = "ads-pwdExpireWarning")
+    @ConfigurationElement(attributeType = "ads-pwdExpireWarning", isOptional = true, defaultValue = "0")
     private int pwdExpireWarning = 0;
 
     /** 
      * the number of times an expired password can be used to authenticate.
      * Default value is 0, do not allow a expired password for authentication.
      */
-    @ConfigurationElement(attributeType = "ads-pwdGraceAuthNLimit")
+    @ConfigurationElement(attributeType = "ads-pwdGraceAuthNLimit", isOptional = true, defaultValue = "0")
     private int pwdGraceAuthNLimit = 0;
 
     /** 
      * specifies the number of seconds the grace authentications are valid
      * Default value is 0, no limit.
      */
-    @ConfigurationElement(attributeType = "ads-pwdGraceExpire")
+    @ConfigurationElement(attributeType = "ads-pwdGraceExpire", isOptional = true, defaultValue = "0")
     private int pwdGraceExpire = 0;
 
     /**
@@ -113,15 +113,15 @@ public class PasswordPolicyBean extends AdsBaseBean
      * consecutive failed bind attempts. The maximum number of consecutive
      * failed bind attempts is specified in {@link #pwdMaxFailure}
      */
-    @ConfigurationElement(attributeType = "ads-pwdLockout")
-    private boolean pwdLockout;
+    @ConfigurationElement(attributeType = "ads-pwdLockout", isOptional = true, defaultValue = "false")
+    private boolean pwdLockout = false;
 
     /**
      * the number of seconds that the password cannot be used to authenticate due to 
      * too many failed bind attempts.
      * Default value is 300 seconds.
      */
-    @ConfigurationElement(attributeType = "ads-pwdLockoutDuration")
+    @ConfigurationElement(attributeType = "ads-pwdLockoutDuration", isOptional = true, defaultValue = "300")
     private int pwdLockoutDuration = 300;
 
     /**
@@ -129,26 +129,26 @@ public class PasswordPolicyBean extends AdsBaseBean
      * be used to authenticate.
      * Default value is 0, no limit on the number of authentication failures
      */
-    @ConfigurationElement(attributeType = "ads-pwdMaxFailure")
-    private int pwdMaxFailure;
+    @ConfigurationElement(attributeType = "ads-pwdMaxFailure", isOptional = true, defaultValue = "0")
+    private int pwdMaxFailure = 0;
 
     /**
      * the number of seconds after which the password failures are purged from the failure counter.
      * Default value is 0, reset all pwdFailureTimes after a successful authentication.
      */
-    @ConfigurationElement(attributeType = "ads-pwdFailureCountInterval")
-    private int pwdFailureCountInterval;
+    @ConfigurationElement(attributeType = "ads-pwdFailureCountInterval", isOptional = true, defaultValue = "0")
+    private int pwdFailureCountInterval = 0;
 
     /** 
      * flag to indicate if the password must be changed by the user after they bind to the 
      * directory after a password is set or reset by a password administrator.
      * Default value is false, no need to change the password by user.
      */
-    @ConfigurationElement(attributeType = "ads-pwdMustChange")
+    @ConfigurationElement(attributeType = "ads-pwdMustChange", isOptional = true, defaultValue = "false")
     private boolean pwdMustChange = false;
 
     /** indicates whether users can change their own passwords. Default value is true, allow change */
-    @ConfigurationElement(attributeType = "ads-pwdAllowUserChange")
+    @ConfigurationElement(attributeType = "ads-pwdAllowUserChange", isOptional = true, defaultValue = "true")
     private boolean pwdAllowUserChange = true;
 
     /**
@@ -156,26 +156,26 @@ public class PasswordPolicyBean extends AdsBaseBean
      *  new password when being changed.
      *  Default value is false.
      */
-    @ConfigurationElement(attributeType = "ads-pwdSafeModify")
+    @ConfigurationElement(attributeType = "ads-pwdSafeModify", isOptional = true, defaultValue = "false")
     private boolean pwdSafeModify = false;
 
     /** 
      * the number of seconds to delay responding to the first failed authentication attempt
      * Default value 0, no delay.
      */
-    @ConfigurationElement(attributeType = "ads-pwdMinDelay")
+    @ConfigurationElement(attributeType = "ads-pwdMinDelay", isOptional = true, defaultValue = "0")
     private int pwdMinDelay = 0;
 
     /** the maximum number of seconds to delay when responding to a failed authentication attempt.*/
-    @ConfigurationElement(attributeType = "ads-pwdMaxDelay")
-    private int pwdMaxDelay;
+    @ConfigurationElement(attributeType = "ads-pwdMaxDelay", isOptional = true, defaultValue = "0")
+    private int pwdMaxDelay = 0;
 
     /** 
      * the number of seconds an account may remain unused before it becomes locked
      * Default value is 0, no check for idle time.
      */
-    @ConfigurationElement(attributeType = "ads-pwdMaxIdle")
-    private int pwdMaxIdle;
+    @ConfigurationElement(attributeType = "ads-pwdMaxIdle", isOptional = true, defaultValue = "0")
+    private int pwdMaxIdle = 0;
 
 
     public String getPwdAttribute()

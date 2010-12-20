@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
@@ -289,11 +290,11 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      *
      * @param wkDirPath optional working directory path
      */
-    public void setWkDirPath( File wkDirPath )
+    public void setWkDirPath( URI wkDirPath )
     {
         //.out.println( "IDX Defining a WorkingDir : " + wkDirPath );
         protect( "wkDirPath" );
-        this.wkDirPath = wkDirPath;
+        this.wkDirPath = new File( wkDirPath );
     }
 
 
@@ -303,9 +304,9 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      *
      * @return optional working directory path 
      */
-    public File getWkDirPath()
+    public URI getWkDirPath()
     {
-        return wkDirPath;
+        return wkDirPath != null ? wkDirPath.toURI() : null;
     }
 
 

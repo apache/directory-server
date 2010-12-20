@@ -114,7 +114,7 @@ public class SubstringTest
         store = new AvlStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
-        store.setPartitionDir( wkdir );
+        store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );

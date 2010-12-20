@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import java.io.File;
+import java.net.URI;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
@@ -133,7 +133,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      * always returns null, cause this is a in-memory store
      */
     @Override
-    public File getPartitionDir()
+    public URI getPartitionPath()
     {
         // returns null always
         return null;

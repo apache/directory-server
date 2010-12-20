@@ -161,7 +161,7 @@ public class AvlRdnIndexTest
     {
         // uninitialized index
         AvlRdnIndex AvlRdnIndex = new AvlRdnIndex();
-        AvlRdnIndex.setWkDirPath( new File( dbFileDir, "foo" ) );
+        AvlRdnIndex.setWkDirPath( new File( dbFileDir, "foo" ).toURI() );
     }
 
 

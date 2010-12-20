@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -119,19 +119,19 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Sets the partition directory (working directory) for the store.
+     * Sets the partition path (working directory) for the store.
      * 
-     * @param partitionDir the new partition directory
+     * @param partitionDir the new partition path
      */
-    void setPartitionDir( File partitionDir );
+    void setPartitionPath( URI partitionPath );
 
 
     /**
-     * Gets the partition directory (working directory) for the store.
+     * Gets the partition path (working directory) for the store.
      * 
-     * @return The current partition directory (working directory) for the store
+     * @return The current partition path (working directory) for the store
      */
-    File getPartitionDir();
+    URI getPartitionPath();
 
 
     /**

@@ -403,6 +403,16 @@ public class ConfigWriter
                                     // Adding the field value to the parent entry
                                     addAttributeTypeValues( attributeTypeForParentEntry, fieldValue, parentEntry );
                                 }
+                                
+                                // Checking if the field is optional and if the default value matches
+                                if ( configurationElement.isOptional() )
+                                {
+                                    if ( configurationElement.defaultValue().equalsIgnoreCase( fieldValue.toString() ) )
+                                    {
+                                        // Skipping the additin of the value
+                                        continue;
+                                    }
+                                }
 
                                 // Adding values to the entry
                                 addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
