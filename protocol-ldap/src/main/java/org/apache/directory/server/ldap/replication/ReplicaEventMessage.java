@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.DnSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.UTFUtils;
+import org.apache.directory.shared.util.UTFUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +180,7 @@ public class ReplicaEventMessage implements Externalizable
             
             SyncModifyDnType modDnType = modDnControl.getModDnType();
             out.writeShort( modDnType.getValue() );
-            UTFUtils.writeUTF( out, modDnControl.getEntryDn() );
+            UTFUtils.writeUTF(out, modDnControl.getEntryDn());
             
             switch( modDnType )
             {

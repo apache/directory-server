@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
+import org.apache.directory.shared.util.EmptyEnumeration;
 import org.apache.directory.shared.util.Strings;
 
 /**
