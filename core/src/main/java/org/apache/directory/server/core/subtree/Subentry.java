@@ -29,7 +29,8 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 /**
  * An operational view of a subentry within the system. A Subentry can have
  * many types (Collective, Schema, AccessControl or Trigger) but only one
- * Subtree Specification.
+ * Subtree Specification. This subtreeSpecification will apply to all the
+ * subentry's roles.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -40,10 +41,9 @@ public class Subentry
 
     /** The administratives roles */
     private Set<AdministrativeRole> administrativeRoles;
-
-
+    
     /**
-     * Stores the subtree
+     * Stores the subtreeSpecification
      *
      * @param ss The subtree specification
      */
@@ -63,10 +63,9 @@ public class Subentry
 
 
     /**
+     * Stores the set of roles for this subentry
      *
-     * TODO setAdministrativeRoles.
-     *
-     * @param administrativeRoles
+     * @param administrativeRoles The roles to be added
      */
     final void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
     {
@@ -74,6 +73,9 @@ public class Subentry
     }
 
 
+    /**
+     * @return The list of roles for this subentry
+     */
     final Set<AdministrativeRole> getAdministrativeRoles()
     {
         return administrativeRoles;
@@ -124,6 +126,26 @@ public class Subentry
      */
     public String toString()
     {
-        return "Subentry[" + administrativeRoles + ", " + ss + "]";
+        StringBuilder sb = new StringBuilder();
+        sb.append( "Subentry[" );
+        
+        boolean isFirst = true;
+        
+        for ( AdministrativeRole role : administrativeRoles )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ", " );
+            }
+            
+            sb.append( role );
+        }
+        sb.append( "]" );
+        
+        return sb.toString();
     }
 }
