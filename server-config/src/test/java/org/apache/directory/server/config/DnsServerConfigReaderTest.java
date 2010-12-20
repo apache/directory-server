@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +89,7 @@ public class DnsServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
+            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors(errors) );
         }
     }
 

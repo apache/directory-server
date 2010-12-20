@@ -75,7 +75,7 @@ import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.GeneralizedTimeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
 import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,7 +223,7 @@ public class ApacheDsService
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, LdapExceptionUtils.printErrors( errors ) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors(errors) ) );
         }
     }
 

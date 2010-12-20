@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.apache.directory.shared.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -92,7 +92,7 @@ public class ServerEntrySerializerTest
 
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors(errors) );
         }
 
         oids = new HashMap<String, OidNormalizer>();

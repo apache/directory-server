@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -512,7 +512,7 @@ public class ApacheDS
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, LdapExceptionUtils.printErrors( errors ) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors(errors) ) );
         }
     }
 

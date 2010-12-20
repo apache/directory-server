@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -175,7 +175,7 @@ public class SchemaAwareModificationTest
 
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors(errors) );
         }
 
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );

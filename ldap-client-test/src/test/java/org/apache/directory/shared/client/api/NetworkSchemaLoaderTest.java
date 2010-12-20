@@ -32,7 +32,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +60,7 @@ public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors(sm.getErrors()) );
         }
 
         assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );

@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
-import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
+import org.apache.directory.shared.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -99,14 +99,14 @@ public class NestedFilterTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors(schemaManager.getErrors()) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors(schemaManager.getErrors()) );
         }
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
