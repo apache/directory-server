@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.ldap.util.UnixCrypt;
+import org.apache.directory.shared.util.UnixCrypt;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -302,8 +302,8 @@ public class PasswordUtil
                 return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
 
             case HASH_METHOD_CRYPT:
-                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString(credentials), Strings
-                    .utf8ToString(salt) );
+                String saltWithCrypted = UnixCrypt.crypt(Strings.utf8ToString(credentials), Strings
+                        .utf8ToString(salt));
                 String crypted = saltWithCrypted.substring( 2 );
 
                 return Strings.getBytesUtf8(crypted);
