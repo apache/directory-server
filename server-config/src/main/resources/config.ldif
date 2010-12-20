@@ -531,7 +531,6 @@ objectclass: top
 
 dn: ads-transportId=tcp,ou=transports,ads-serverId=changePasswordServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 60464
-ads-transportbacklog: 50
 ads-transportnbthreads: 2
 ads-transportid: tcp
 objectclass: ads-transport
@@ -542,7 +541,6 @@ ads-enabled: TRUE
 
 dn: ads-transportId=udp,ou=transports,ads-serverId=changePasswordServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 60464
-ads-transportbacklog: 50
 ads-transportnbthreads: 2
 ads-transportid: udp
 objectclass: ads-transport
@@ -666,7 +664,6 @@ objectclass: top
 
 dn: ads-transportid=tcp,ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 60088
-ads-transportbacklog: 50
 ads-transportnbthreads: 4
 ads-transportaddress: 0.0.0.0
 ads-transportid: tcp
@@ -678,7 +675,6 @@ ads-enabled: TRUE
 
 dn: ads-transportid=udp,ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 60088
-ads-transportbacklog: 50
 ads-transportnbthreads: 4
 ads-transportaddress: 0.0.0.0
 ads-transportid: udp
@@ -724,8 +720,6 @@ objectclass: top
 
 dn: ads-transportid=ldap,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ads-systemport: 10389
-ads-transportenablessl: FALSE
-ads-transportbacklog: 50
 ads-transportnbthreads: 8
 ads-transportaddress: 0.0.0.0
 ads-transportid: ldap
