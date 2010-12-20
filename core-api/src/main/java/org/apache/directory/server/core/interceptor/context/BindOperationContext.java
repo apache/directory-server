@@ -24,7 +24,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.util.StringTools;

@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
