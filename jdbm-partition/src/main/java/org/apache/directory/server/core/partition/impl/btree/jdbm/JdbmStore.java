@@ -35,7 +35,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.MultiException;
+import org.apache.directory.shared.util.exception.MultiException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.shared.ldap.entry.Entry;
