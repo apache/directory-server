@@ -39,8 +39,8 @@ public abstract class SubschemaAdministrativePoint extends AbstractAdministrativ
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected SubschemaAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected SubschemaAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
     {
-        super( dn, uuid, role );
+        super( dn, uuid, role, seqNumber );
     }
 }

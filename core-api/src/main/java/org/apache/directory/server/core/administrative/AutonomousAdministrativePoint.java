@@ -48,9 +48,9 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public AutonomousAdministrativePoint( DN dn, String uuid )
+    public AutonomousAdministrativePoint( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.AutonomousArea );
+        super( dn, uuid, AdministrativeRole.AutonomousArea, seqNumber );
     }
 
 

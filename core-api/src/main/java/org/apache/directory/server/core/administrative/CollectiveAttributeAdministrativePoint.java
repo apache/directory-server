@@ -39,8 +39,8 @@ public abstract class CollectiveAttributeAdministrativePoint extends AbstractAdm
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected CollectiveAttributeAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected CollectiveAttributeAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
     {
-        super( dn, uuid, role );
+        super( dn, uuid, role, seqNumber );
     }
 }

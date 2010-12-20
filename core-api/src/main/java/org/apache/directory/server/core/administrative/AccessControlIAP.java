@@ -37,9 +37,9 @@ public class AccessControlIAP extends AccessControlAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public AccessControlIAP( DN dn, String uuid )
+    public AccessControlIAP( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.AccessControlInnerArea );
+        super( dn, uuid, AdministrativeRole.AccessControlInnerArea, seqNumber );
     }
 
 

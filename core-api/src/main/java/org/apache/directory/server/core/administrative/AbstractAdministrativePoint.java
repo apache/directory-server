@@ -56,12 +56,13 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * Creates a new instance of AbstractAdministrativePoint.
      */
-    protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
     {
         this.dn = dn;
         this.uuid = uuid;
         this.role = role;
         this.children = new ConcurrentHashMap<String, AdministrativePoint>();
+        this.seqNumber = seqNumber;
     }
 
 

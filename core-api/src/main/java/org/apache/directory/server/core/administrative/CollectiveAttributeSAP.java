@@ -37,9 +37,9 @@ public class CollectiveAttributeSAP extends CollectiveAttributeAdministrativePoi
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public CollectiveAttributeSAP( DN dn, String uuid )
+    public CollectiveAttributeSAP( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.CollectiveAttributeSpecificArea );
+        super( dn, uuid, AdministrativeRole.CollectiveAttributeSpecificArea, seqNumber );
     }
 
 

@@ -37,9 +37,9 @@ public class SubschemaAAP extends SubschemaAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public SubschemaAAP( DN dn, String uuid )
+    public SubschemaAAP( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.SubSchemaSpecificArea );
+        super( dn, uuid, AdministrativeRole.SubSchemaSpecificArea, seqNumber );
     }
 
 

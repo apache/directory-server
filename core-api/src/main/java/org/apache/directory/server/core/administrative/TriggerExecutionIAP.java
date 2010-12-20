@@ -37,9 +37,9 @@ public class TriggerExecutionIAP extends TriggerExecutionAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public TriggerExecutionIAP( DN dn, String uuid )
+    public TriggerExecutionIAP( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.TriggerExecutionInnerArea );
+        super( dn, uuid, AdministrativeRole.TriggerExecutionInnerArea, seqNumber );
     }
 
 

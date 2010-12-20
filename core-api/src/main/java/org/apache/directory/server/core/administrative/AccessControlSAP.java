@@ -38,9 +38,9 @@ public class AccessControlSAP extends AccessControlAdministrativePoint
      * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      */
-    public AccessControlSAP( DN dn, String uuid )
+    public AccessControlSAP( DN dn, String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.AccessControlSpecificArea );
+        super( dn, uuid, AdministrativeRole.AccessControlSpecificArea, seqNumber );
     }
 
 

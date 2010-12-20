@@ -39,8 +39,8 @@ public abstract class AccessControlAdministrativePoint extends AbstractAdministr
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected AccessControlAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected AccessControlAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
     {
-        super( dn, uuid, role );
+        super( dn, uuid, role, seqNumber );
     }
 }
