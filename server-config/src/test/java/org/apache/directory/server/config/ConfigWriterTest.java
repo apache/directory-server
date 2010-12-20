@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test class for ConfigPartitionReader
+ * Test class for ConfigWriter
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -104,10 +105,10 @@ public class ConfigWriterTest
 
 
     @Test
-    public void testConfigReader() throws Exception
+    public void testConfigWriter() throws Exception
     {
         // Extracting of the config file
-        File configDir = new File( workDir, "configReader" ); // could be any directory, cause the config is now in a single file
+        File configDir = new File( workDir, "configWriter" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         // Creating of the config partition
@@ -158,17 +159,6 @@ public class ConfigWriterTest
 
             // Comparing DNs
             assertTrue( originalConfigEntry.getDn().getNormName().equals( generatedConfigEntry.getDn().getNormName() ) );
-
-            // Comparing attributes
-            Iterator<EntryAttribute> attributesIterator = originalConfigEntry.iterator();
-            while ( attributesIterator.hasNext() )
-            {
-                EntryAttribute originalEntryAttribute = ( EntryAttribute ) attributesIterator.next();
-                assertTrue( generatedConfigEntry.contains( originalEntryAttribute ) );
-
-                EntryAttribute generatedEntryAttribute = generatedConfigEntry.get( originalEntryAttribute.getId() );
-                assertTrue( originalEntryAttribute.equals( generatedEntryAttribute ) );
-            }
         }
 
         // Destroying the config partition

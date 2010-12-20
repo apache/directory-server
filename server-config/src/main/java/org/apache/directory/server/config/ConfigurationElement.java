@@ -67,4 +67,23 @@ public @interface ConfigurationElement
      *      the string value of the DN of the container.
      */
     String container() default "";
+
+
+    /**
+     * Returns true if the qualified field is optional.
+     *
+     * @return
+     *      <code>true</code> if the qualified field is optional,
+     *      <code>false</code> if not.
+     */
+    boolean isOptional() default false;
+
+
+    /**
+     * Returns the string value of the default value.
+     *
+     * @return
+     *      the string value of the default value
+     */
+    String defaultValue() default "";
 }

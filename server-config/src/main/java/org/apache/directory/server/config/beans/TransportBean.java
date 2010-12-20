@@ -49,15 +49,15 @@ public class TransportBean extends AdsBaseBean
     private int systemPort = -1;
 
     /** A flag set if SSL is enabled */
-    @ConfigurationElement(attributeType = "ads-transportEnableSsl")
+    @ConfigurationElement(attributeType = "ads-transportEnableSsl", isOptional = true, defaultValue = "false")
     private boolean transportEnableSsl = false;
 
     /** The number of threads to use for the IoAcceptor executor */
-    @ConfigurationElement(attributeType = "ads-transportNbThreads")
+    @ConfigurationElement(attributeType = "ads-transportNbThreads", isOptional = true, defaultValue = "3")
     private int transportNbThreads = DEFAULT_NB_THREADS;
 
     /** The backlog for the transport services */
-    @ConfigurationElement(attributeType = "ads-transportBackLog")
+    @ConfigurationElement(attributeType = "ads-transportBackLog", isOptional = true, defaultValue = "50")
     private int transportBackLog = DEFAULT_BACKLOG_NB;
 
 
