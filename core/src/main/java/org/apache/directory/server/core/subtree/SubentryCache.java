@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.shared.ldap.name.DN;
 
 

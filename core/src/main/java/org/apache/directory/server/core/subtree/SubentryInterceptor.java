@@ -21,9 +21,12 @@ package org.apache.directory.server.core.subtree;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.directory.SearchControls;
 
@@ -33,10 +36,28 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.administrative.AccessControlAAP;
+import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
+import org.apache.directory.server.core.administrative.AccessControlIAP;
+import org.apache.directory.server.core.administrative.AccessControlSAP;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.CollectiveAttributeAAP;
+import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
+import org.apache.directory.server.core.administrative.CollectiveAttributeIAP;
+import org.apache.directory.server.core.administrative.CollectiveAttributeSAP;
+import org.apache.directory.server.core.administrative.Subentry;
+import org.apache.directory.server.core.administrative.SubschemaAAP;
+import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
+import org.apache.directory.server.core.administrative.SubschemaSAP;
+import org.apache.directory.server.core.administrative.TriggerExecutionAAP;
+import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
+import org.apache.directory.server.core.administrative.TriggerExecutionIAP;
+import org.apache.directory.server.core.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -48,7 +69,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
@@ -65,11 +85,11 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -82,6 +102,8 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +137,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
 
+    /** A reference to the DirectoryService instance */
+    private DirectoryService directoryService;
+
     /** The SchemManager instance */
     private SchemaManager schemaManager;
 
@@ -136,6 +161,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the CollectiveAttributeSubentries AT */
     private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
 
+    /** A reference to the EntryUUID AT */
+    private static AttributeType ENTRY_UUID_AT;
+    
     /** A reference to the TriggerExecutionSubentries AT */
     private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
 
@@ -146,7 +174,84 @@ public class SubentryInterceptor extends BaseInterceptor
         REMOVE,
         REPLACE
     }
+    
+    /** The possible roles */
+    private static final Set<String> ROLES = new HashSet<String>();
 
+    // Initialize the ROLES field
+    static
+    {
+        ROLES.add( SchemaConstants.AUTONOMOUS_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.AUTONOMOUS_AREA_OID );
+        ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
+        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+    /** A Map to associate a role with it's OID */
+    private static final Map<String, String> ROLES_OID = new HashMap<String, String>();
+
+    // Initialize the roles/oid map
+    static
+    {
+        ROLES_OID.put( SchemaConstants.AUTONOMOUS_AREA.toLowerCase(), SchemaConstants.AUTONOMOUS_AREA_OID );
+        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase(),
+            SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase(),
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        ROLES_OID.put( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase(),
+            SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase(),
+            SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+    /** The possible inner area roles */
+    private static final Set<String> INNER_AREA_ROLES = new HashSet<String>();
+
+    static
+    {
+        INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+    /** The possible specific area roles */
+    private static final Set<String> SPECIFIC_AREA_ROLES = new HashSet<String>();
+
+    static
+    {
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+    }
+
+    /** A lock to guarantee the AP cache consistency */
+    private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
     //-------------------------------------------------------------------------------------------
     // Search filter methods
@@ -202,6 +307,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
+        this.directoryService = directoryService;
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
 
@@ -213,6 +319,7 @@ public class SubentryInterceptor extends BaseInterceptor
         SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {
@@ -300,29 +407,22 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
 
-        EntryAttribute oc = subentry.get( OBJECT_CLASS_AT );
-
-        if ( oc == null )
-        {
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_305 ) );
-        }
-
-        if ( oc.contains( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
+        if ( subentry.hasObjectClass( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
         {
             adminRoles.add( AdministrativeRole.AccessControlInnerArea );
         }
 
-        if ( oc.contains( SchemaConstants.SUBSCHEMA_OC ) )
+        if ( subentry.hasObjectClass( SchemaConstants.SUBSCHEMA_OC ) )
         {
             adminRoles.add( AdministrativeRole.SubSchemaSpecificArea );
         }
 
-        if ( oc.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        if ( subentry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             adminRoles.add( AdministrativeRole.CollectiveAttributeSpecificArea );
         }
 
-        if ( oc.contains( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
+        if ( subentry.hasObjectClass( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
         {
             adminRoles.add( AdministrativeRole.TriggerExecutionInnerArea );
         }
@@ -426,12 +526,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     /**
-     * Get the administrativePoint role
-     */
-    private void checkAdministrativeRole( OperationContext opContext, DN apDn ) throws LdapException
+     * Check that a subentry has the same role than it's parent AP
+     *
+    private void checkAdministrativeRole( Entry entry, DN apDn ) throws LdapException
     {
-        Entry administrationPoint = opContext.lookup( apDn, ByPassConstants.LOOKUP_BYPASS );
-
         // The administrativeRole AT must exist and not be null
         EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
 
@@ -572,8 +670,361 @@ public class SubentryInterceptor extends BaseInterceptor
 
         return modifications;
     }
+    
+    
+    /**
+     * Check that the AT contains the AccessControl SAP role
+     */
+    private boolean hasAccessControlSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+    }
 
 
+    /**
+     * Check that the AT contains the CollectiveAttribute SAP role
+     */
+    private boolean hasCollectiveAttributeSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Check that the AT contains the TriggerExecution SAP role
+     */
+    private boolean hasTriggerExecutionSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Check that the AT contains the SubSchema SAP role
+     */
+    private boolean hasSubSchemaSpecificRole( EntryAttribute adminPoint )
+    {
+        return adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
+               adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is an AC IAP
+     */
+    private boolean isAccessControlInnerRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
+               role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is an AC SAP
+     */
+    private boolean isAccessControlSpecificRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
+               role.equals( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is a CA IAP
+     */
+    private boolean isCollectiveAttributeInnerRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+               role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is a CA SAP
+     */
+    private boolean isCollectiveAttributeSpecificRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
+               role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is a TE IAP
+     */
+    private boolean isTriggerExecutionInnerRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+               role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is a TE SAP
+     */
+    private boolean isTriggerExecutionSpecificRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
+               role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is a SS SAP
+     */
+    private boolean isSubschemaSpecficRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
+               role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the role is an AAP
+     */
+    private boolean isAutonomousAreaRole( String role )
+    {
+        return role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
+               role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
+    }
+
+
+    /**
+     * Tells if the Administrative Point role is an AAP
+     */
+    private boolean isAAP( EntryAttribute adminPoint )
+    {
+        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
+            .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
+    }
+
+
+    /**
+     * Check that we don't have an IAP and a SAP with the same family
+     */
+    private void checkInnerSpecificMix( String role, EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    {
+        if ( isAccessControlInnerRole( role ) )
+        {
+            if ( hasAccessControlSpecificRole( adminPoint ) )
+            {
+                // This is inconsistent
+                String message = "Cannot add a specific Administrative Point and the same"
+                    + " inner Administrative point at the same time : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if ( isCollectiveAttributeInnerRole( role ) )
+        {
+            if ( hasCollectiveAttributeSpecificRole( adminPoint ) )
+            {
+                // This is inconsistent
+                String message = "Cannot add a specific Administrative Point and the same"
+                    + " inner Administrative point at the same time : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if ( isTriggerExecutionInnerRole( role ) )
+        {
+            if ( hasTriggerExecutionSpecificRole( adminPoint ) )
+            {
+                // This is inconsistent
+                String message = "Cannot add a specific Administrative Point and the same"
+                    + " inner Administrative point at the same time : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
+
+    private boolean isIAP( String role )
+    {
+        return INNER_AREA_ROLES.contains( role );
+    }
+
+
+    /**
+     * Check that the IAPs (if any) have a parent. We will check for each kind or role :
+     * AC, CA and TE.
+     */
+    private void checkIAPHasParent( String role, EntryAttribute adminPoint, DN dn )
+        throws LdapUnwillingToPerformException
+    {
+        // Check for the AC role
+        if ( isAccessControlInnerRole( role ) )
+        {
+            DnNode<AdministrativePoint> acCache = directoryService.getAccessControlAPCache();
+            
+            DnNode<AdministrativePoint> parent =  acCache.getNode( dn );
+            
+            if ( parent == null )
+            {
+                // We don't have any AC administrativePoint in the tree, this is an error
+                String message = "Cannot add an IAP with no parent : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+        else if ( isCollectiveAttributeInnerRole( role ) )
+        {
+            DnNode<AdministrativePoint> caCache = directoryService.getCollectiveAttributeAPCache();
+            
+            boolean hasAP = caCache.hasParentElement( dn );
+            
+            if ( !hasAP )
+            {
+                // We don't have any AC administrativePoint in the tree, this is an error
+                String message = "Cannot add an IAP with no parent : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+        else if ( isTriggerExecutionInnerRole( role ) )
+        {
+            DnNode<AdministrativePoint> caCache = directoryService.getTriggerExecutionAPCache();
+            
+            DnNode<AdministrativePoint> parent =  caCache.getNode( dn );
+            
+            if ( parent == null )
+            {
+                // We don't have any AC administrativePoint in the tree, this is an error
+                String message = "Cannot add an IAP with no parent : " + adminPoint;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+        else
+        {
+            // Wtf ? We *must* have an IAP here...
+            String message = "This is not an IAP : " + role;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+    }
+    
+    
+    /**
+     * Check if we can safely add a role. If it's an AAP, we have to be sure that
+     * all the 4 SAPs are present.
+     */
+    private void checkAddRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
+    {
+        String roleStr = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+
+        // Check that the added AdministrativeRole is valid
+        if ( !ROLES.contains( roleStr ) )
+        {
+            String message = "Cannot add the given role, it's not a valid one :" + role;
+            LOG.error( message );
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        // If we are trying to add an AAP, we have to check that 
+        // all the SAP roles are present 
+        if ( isAutonomousAreaRole( roleStr ) )
+        {
+            if ( hasAccessControlSpecificRole( adminPoint ) && hasCollectiveAttributeSpecificRole( adminPoint )
+                && hasTriggerExecutionSpecificRole( adminPoint ) && hasSubSchemaSpecificRole( adminPoint ) )
+            {
+                // Check thet we don't have any other role : we should have only 5 roles
+                if ( adminPoint.size() != 5 )
+                {
+                    String message = "Cannot add an Autonomous Administrative Point if we have some IAP roles : "
+                        + adminPoint;
+                    LOG.error( message );
+                    
+                    throw new LdapUnwillingToPerformException( message );
+                }
+                
+                // Fine, we have an AAP and the 4 SAPs
+                return;
+            }
+            else
+            {
+                // We have some missing SAP : this is not allowed
+                String message = "Cannot add an Autonomous Administrative Point if the other SAP are not present"
+                    + adminPoint;
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
+            }
+        }
+        
+        // check that we can't mix Inner and Specific areas
+        checkInnerSpecificMix( roleStr, adminPoint );
+
+        // Check that we don't add an IAP with no parent. The IAP must be added under
+        // either a AAP, or a SAP/IAP within the same family
+        if ( isIAP( roleStr ) )
+        {
+            checkIAPHasParent( roleStr, adminPoint, dn );
+        }
+    }
+
+
+    /**
+     * Check if an AP being added is valid or not :
+     * - it's not under a subentry
+     * - it cannot be a subentry
+     * - the roles must be consistent (ie, AAP is coming with the 4 SAPs, we can't have a SAP and a IAP for the same role)
+     * - it can't be the rootDSE or a NamingContext
+     */
+    private boolean checkIsValidAP( Entry entry ) throws LdapException
+    {
+        DN dn = entry.getDn();
+        
+        // Not rootDSE nor a namingContext
+        if ( dn.isRootDSE() || isNamingContext( dn ) )
+        {
+            return false;
+        }
+        
+        // Not a subentry
+        if ( entry.hasObjectClass( SchemaConstants.SUBENTRY_OC ) )
+        {
+            return false;
+        }
+        
+        DN parentDN = dn.getParent();
+        
+        // The parent is not a subentry
+        if ( subentryCache.getSubentry( parentDN ) != null )
+        {
+            return false;
+        }
+        
+        // Check the roles
+        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        for ( Value<?> role : adminPoint )
+        {
+            checkAddRole( role, adminPoint, dn );
+        }
+
+        return true;
+    }
+
+    
     // -----------------------------------------------------------------------
     // Methods dealing with subentry modification
     // -----------------------------------------------------------------------
@@ -846,84 +1297,376 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Get a read-lock on the AP cache.
+     * No read operation can be done on the AP cache if this
+     * method is not called before.
+     */
+    public void lockRead()
+    {
+        mutex.readLock().lock();
+    }
+
+
+    /**
+     * Get a write-lock on the AP cache.
+     * No write operation can be done on the apCache if this
+     * method is not called before.
+     */
+    public void lockWrite()
+    {
+        mutex.writeLock().lock();
+    }
+
+
+    /**
+     * Release the read-write lock on the AP cache.
+     * This method must be called after having read or modified the
+     * AP cache
+     */
+    public void unlock()
+    {
+        if ( mutex.isWriteLockedByCurrentThread() )
+        {
+            mutex.writeLock().unlock();
+        }
+        else
+        {
+            mutex.readLock().unlock();
+        }
+    }
+
+    
+    /**
+     * Create the list of AP for a given entry.
+     */
+    private void createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid, long seqNumber ) throws LdapException
+    {
+        if ( isAAP( adminPoint ) )
+        {
+            // The AC AAP
+            AccessControlAdministrativePoint acAap = new AccessControlAAP( dn, uuid, seqNumber );
+            directoryService.getAccessControlAPCache().add( dn, acAap );
+
+            // The CA AAP
+            CollectiveAttributeAdministrativePoint caAap = new CollectiveAttributeAAP( dn, uuid, seqNumber );
+            directoryService.getCollectiveAttributeAPCache().add( dn, caAap );
+
+            // The TE AAP
+            TriggerExecutionAdministrativePoint teAap = new TriggerExecutionAAP( dn, uuid, seqNumber );
+            directoryService.getTriggerExecutionAPCache().add( dn, teAap );
+
+            // The SS AAP
+            SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid, seqNumber );
+            directoryService.getSubschemaAPCache().add( dn, ssAap );
+
+            // If it's an AAP, we can get out immediately
+            return;
+        }
+
+        // Not an AAP
+        for ( Value<?> value : adminPoint )
+        {
+            String role = value.getString();
+
+            // Deal with AccessControl AP
+            if ( isAccessControlSpecificRole( role ) )
+            {
+                AccessControlAdministrativePoint sap = new AccessControlSAP( dn, uuid, seqNumber );
+                directoryService.getAccessControlAPCache().add( dn, sap );
+
+                continue;
+            }
+
+            if ( isAccessControlInnerRole( role ) )
+            {
+                AccessControlAdministrativePoint iap = new AccessControlIAP( dn, uuid, seqNumber );
+                directoryService.getAccessControlAPCache().add( dn, iap );
+
+                continue;
+            }
+
+            // Deal with CollectiveAttribute AP
+            if ( isCollectiveAttributeSpecificRole( role ) )
+            {
+                CollectiveAttributeAdministrativePoint sap = new CollectiveAttributeSAP( dn, uuid, seqNumber );
+                directoryService.getCollectiveAttributeAPCache().add( dn, sap );
+
+                continue;
+            }
+
+            if ( isCollectiveAttributeInnerRole( role ) )
+            {
+                CollectiveAttributeAdministrativePoint iap = new CollectiveAttributeIAP( dn, uuid, seqNumber );
+                directoryService.getCollectiveAttributeAPCache().add( dn, iap );
+
+                continue;
+            }
+
+            // Deal with SubSchema AP
+            if ( isSubschemaSpecficRole( role ) )
+            {
+                SubschemaAdministrativePoint sap = new SubschemaSAP( dn, uuid, seqNumber );
+                directoryService.getSubschemaAPCache().add( dn, sap );
+
+                continue;
+            }
+
+            // Deal with TriggerExecution AP
+            if ( isTriggerExecutionSpecificRole( role ) )
+            {
+                TriggerExecutionAdministrativePoint sap = new TriggerExecutionSAP( dn, uuid, seqNumber );
+                directoryService.getTriggerExecutionAPCache().add( dn, sap );
+
+                continue;
+            }
+
+            if ( isTriggerExecutionInnerRole( role ) )
+            {
+                TriggerExecutionAdministrativePoint iap = new TriggerExecutionIAP( dn, uuid, seqNumber );
+                directoryService.getTriggerExecutionAPCache().add( dn, iap );
+
+                continue;
+            }
+        }
+
+        return;
+    }
+    
+    
+    /**
+     * Get the AdministrativePoint associated with a subentry
+     * @param apDn
+     * @return
+     */
+    private AdministrativePoint getAdministrativePoint( DN apDn )
+    {
+        AdministrativePoint administrativePoint = directoryService.getAccessControlAPCache().getElement( apDn );
+        
+        if ( administrativePoint != null )
+        {
+            return administrativePoint;
+        }
+        
+        administrativePoint = directoryService.getCollectiveAttributeAPCache().getElement( apDn );
+
+        if ( administrativePoint != null )
+        {
+            return administrativePoint;
+        }
+        
+        administrativePoint = directoryService.getTriggerExecutionAPCache().getElement( apDn );
+
+        if ( administrativePoint != null )
+        {
+            return administrativePoint;
+        }
+        
+        administrativePoint = directoryService.getSubschemaAPCache().getElement( apDn );
+
+        if ( administrativePoint != null )
+        {
+            return administrativePoint;
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * Tells if the subentry's roles point to an AP
+     */
+    private boolean isValidSubentry( Entry subentry, DN apDn )
+    {
+        boolean isValid = true;
+        
+        // Check that the ACAP exists if the AC subentry OC is present in the subentry
+        if ( subentry.hasObjectClass( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) ||
+             subentry.hasObjectClass( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ) )
+        {
+            isValid &= directoryService.getAccessControlAPCache().hasElement( apDn );
+        }
+
+        // Check that the CAAP exists if the CA subentry OC is present in the subentry
+        if ( subentry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) ||
+             subentry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC_OID ) )
+        {
+            isValid &= directoryService.getCollectiveAttributeAPCache().hasElement( apDn );
+        }
+
+        // Check that the TEAP exists if the TE subentry OC is present in the subentry
+        if ( subentry.hasObjectClass( SchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) ||
+             subentry.hasObjectClass( SchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC_OID ) )
+        {
+            isValid &= directoryService.getTriggerExecutionAPCache().hasElement( apDn );
+        }
+        
+
+        // Check that the SSAP exists if the SS subentry OC is present in the subentry
+        if ( subentry.hasObjectClass( SchemaConstants.SUBSCHEMA_OC ) ||
+             subentry.hasObjectClass( SchemaConstants.SUBSCHEMA_OC_OID ) )
+        {
+            isValid &= directoryService.getSubschemaAPCache().hasElement( apDn );
+        }
+        
+        return isValid;
+    }
+    
+    
+    /**
+     * Inject a new seqNumber in an AP
+     */
+    private void updateSeqNumber( DN apDn ) throws LdapException
+    {
+        long seqNumber = directoryService.getNewApSeqNumber();
+        
+        EntryAttribute newSeqNumber = new DefaultEntryAttribute( ApacheSchemaConstants.AP_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+        
+        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
+        List<Modification> modifications = new ArrayList<Modification>();
+        modifications.add( modification );
+        directoryService.getAdminSession().modify( apDn, modifications );
+    }
+
+
     //-------------------------------------------------------------------------------------------
     // Interceptor API methods
     //-------------------------------------------------------------------------------------------
     /**
-     * {@inheritDoc}
+     * Add a new entry into the DIT. We deal with the Administrative aspects.
+     * 
+     * @param next The next {@link Interceptor} in the chain
+     * @param addContext The {@link AddOperationContext} instance
+     * @throws LdapException If we had some error while processing the Add operation
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
+        LOG.debug( "Entering into the Subtree Interceptor, addRequest : {}", addContext );
+        
         DN dn = addContext.getDn();
-        ClonedServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
 
-        // Check if the added entry is a subentry
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getName().equals(
+            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+
+        // Check if we are adding an Administrative Point
+        EntryAttribute adminPointAT = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        // First, deal with an AP addition
+        if ( adminPointAT != null )
         {
-            // get the name of the administrative point and its administrativeRole attributes
-            // The AP must be the parent DN, but we also have to check that the given DN
-            // is not the rootDSE or a NamingContext
-            if ( dn.isRootDSE() || isNamingContext( dn ) )
+            // Only admin can add an AP
+            if ( !isAdmin )
             {
-                // Not allowed : we can't get a parent in those cases
-                throw new LdapOtherException( "Cannot find an AdministrativePoint for " + dn );
+                String message = "Cannot add the given AdministrativePoint, user is not an Admin";
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
             }
 
+            LOG.debug( "Addition of an administrative point at {} for the role {}", dn, adminPointAT );
+
+            try
+            {
+                // Protect the AP caches against concurrent access
+                lockWrite();
+
+                // This is an AP, do the initial check
+                checkIsValidAP( entry );
+                
+                // Ok, we are golden.
+                next.add( addContext );
+    
+                String apUuid = entry.get( ENTRY_UUID_AT ).getString();
+    
+                // Now, update the AdminPoint cache
+                createAdministrativePoints( adminPointAT, dn, apUuid, -1 );
+            }
+            finally
+            {
+                // Release the APCaches lock
+                unlock();
+            }
+            
+            LOG.debug( "Added an Administrative Point at {}", dn );
+        }
+        else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            // It's a subentry
+            if ( !isAdmin )
+            {
+                String message = "Cannot add the given Subentry, user is not an Admin";
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
+            }
+            
             // Get the administrativePoint role : we must have one immediately
             // upper
             DN apDn = dn.getParent();
-            checkAdministrativeRole( addContext, apDn );
+            
+            try
+            {
+                // Protect the AP caches while checking the subentry
+                lockRead();
+    
+                if ( !isValidSubentry( entry,  apDn ) )
+                {
+                    String message = "Cannot add the given Subentry, it does not have a parent AP";
+                    LOG.error( message );
+                    
+                    throw new LdapUnwillingToPerformException( message );
+                }
+                
+                // Now, get the AdministrativePoint
+                AdministrativePoint adminPoint = getAdministrativePoint( apDn );
+                
+                /* ----------------------------------------------------------------
+                 * Build the set of operational attributes to be injected into
+                 * entries that are contained within the subtree represented by this
+                 * new subentry.  In the process we make sure the proper roles are
+                 * supported by the administrative point to allow the addition of
+                 * this new subentry.
+                 * ----------------------------------------------------------------
+                 */
+                Subentry subentry = new Subentry();
+                subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
+                List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+    
+                /* ----------------------------------------------------------------
+                 * Parse the subtreeSpecification of the subentry and add it to the
+                 * SubtreeSpecification cache.  If the parse succeeds we continue
+                 * to add the entry to the DIT.  Thereafter we search out entries
+                 * to modify the subentry operational attributes of.
+                 * ----------------------------------------------------------------
+                 */
+                setSubtreeSpecification( subentry, entry );
+                subentryCache.addSubentry( dn, subentry );
 
-            /* ----------------------------------------------------------------
-             * Build the set of operational attributes to be injected into
-             * entries that are contained within the subtree represented by this
-             * new subentry.  In the process we make sure the proper roles are
-             * supported by the administrative point to allow the addition of
-             * this new subentry.
-             * ----------------------------------------------------------------
-             */
-            Subentry subentry = new Subentry();
-            subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
-            List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+                // Inject the subentry into its parent AP
+                adminPoint.addSubentry( subentry );
 
-            /* ----------------------------------------------------------------
-             * Parse the subtreeSpecification of the subentry and add it to the
-             * SubtreeSpecification cache.  If the parse succeeds we continue
-             * to add the entry to the DIT.  Thereafter we search out entries
-             * to modify the subentry operational attributes of.
-             * ----------------------------------------------------------------
-             */
-            setSubtreeSpecification( subentry, entry );
-            subentryCache.addSubentry( dn, subentry );
-
-            // Now inject the subentry into the backend
-            next.add( addContext );
-
-            /* ----------------------------------------------------------------
-             * Find the baseDn for the subentry and use that to search the tree
-             * while testing each entry returned for inclusion within the
-             * subtree of the subentry's subtreeSpecification.  All included
-             * entries will have their operational attributes merged with the
-             * operational attributes calculated above.
-             * ----------------------------------------------------------------
-             */
-            DN baseDn = apDn;
-            baseDn = baseDn.addAll( subentry.getSubtreeSpecification().getBase() );
-
-            updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(), baseDn, operationalAttributes );
-
-            // Store the newly modified entry into the context for later use in interceptor
-            // just in case
-            addContext.setEntry( entry );
+                // Update the seqNumber and update the parent AP
+                updateSeqNumber( apDn );
+    
+                // Now inject the subentry into the backend
+                next.add( addContext );
+            }
+            finally
+            {
+                // Release the APCaches lock
+                unlock();
+            }
+            
+            LOG.debug( "Added a subentry at {}", dn );
         }
         else
         {
-            // The added entry is not a Subentry.
+            // The added entry is a normal entry
             // Nevertheless, we have to check if the entry is added into an AdministrativePoint
             // and is associated with some SubtreeSpecification
             // We brutally check *all* the subentries, as we don't hold a hierarchy
             // of AP
-            // TODO : add a hierarchy of subentries
             for ( DN subentryDn : subentryCache )
             {
                 DN apDn = subentryDn.getParent();
@@ -960,14 +1703,10 @@ public class SubentryInterceptor extends BaseInterceptor
                         }
                     }
                 }
+
+                // Propagate the addition down to the backend.
+                next.add( addContext );
             }
-
-            // Now that the entry has been updated with the operational attributes,
-            // we can update it into the add context
-            addContext.setEntry( entry );
-
-            // Propagate the addition down to the backend.
-            next.add( addContext );
         }
     }
 
@@ -1218,7 +1957,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // If we move it, we have to check that
             // the new parent is an AP
-            checkAdministrativeRole( moveContext, newSuperiorDn );
+            //checkAdministrativeRole( moveContext, newSuperiorDn );
 
             Subentry subentry = subentryCache.removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
