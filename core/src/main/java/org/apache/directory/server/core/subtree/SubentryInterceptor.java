@@ -940,34 +940,61 @@ public class SubentryInterceptor extends BaseInterceptor
         }
 
         // If we are trying to add an AAP, we have to check that 
-        // all the SAP roles are present 
+        // all the SAP roles are present. If nit, we add them.
+        int nbRoles = adminPoint.size();
+        
         if ( isAutonomousAreaRole( roleStr ) )
         {
-            if ( hasAccessControlSpecificRole( adminPoint ) && hasCollectiveAttributeSpecificRole( adminPoint )
-                && hasTriggerExecutionSpecificRole( adminPoint ) && hasSubSchemaSpecificRole( adminPoint ) )
+            nbRoles--;
+            
+            if ( !hasAccessControlSpecificRole( adminPoint ) )
             {
-                // Check thet we don't have any other role : we should have only 5 roles
-                if ( adminPoint.size() != 5 )
-                {
-                    String message = "Cannot add an Autonomous Administrative Point if we have some IAP roles : "
-                        + adminPoint;
-                    LOG.error( message );
-                    
-                    throw new LdapUnwillingToPerformException( message );
-                }
-                
-                // Fine, we have an AAP and the 4 SAPs
-                return;
+                adminPoint.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA );
             }
             else
             {
-                // We have some missing SAP : this is not allowed
-                String message = "Cannot add an Autonomous Administrative Point if the other SAP are not present"
+                nbRoles--;
+            }
+            
+            if ( !hasCollectiveAttributeSpecificRole( adminPoint ) )
+            {
+                adminPoint.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA );
+            }
+            else
+            {
+                nbRoles--;
+            }
+            
+            if ( !hasTriggerExecutionSpecificRole( adminPoint ) )
+            {
+                adminPoint.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA );
+            }
+            else
+            {
+                nbRoles--;
+            }
+            
+            if ( !hasSubSchemaSpecificRole( adminPoint ) )
+            {
+                adminPoint.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA );
+            }
+            else
+            {
+                nbRoles--;
+            }
+            
+            if ( nbRoles != 0 )
+            {
+                // Check that we don't have any other role : we should have only 5 roles max
+                String message = "Cannot add an Autonomous Administrative Point if we have some IAP roles : "
                     + adminPoint;
                 LOG.error( message );
                 
                 throw new LdapUnwillingToPerformException( message );
             }
+                
+            // Fine, we have an AAP and the 4 SAPs
+            return;
         }
         
         // check that we can't mix Inner and Specific areas
@@ -1534,6 +1561,12 @@ public class SubentryInterceptor extends BaseInterceptor
     //-------------------------------------------------------------------------------------------
     /**
      * Add a new entry into the DIT. We deal with the Administrative aspects.
+     * We have to manage the three kind of added element :
+     * <ul>
+     * <li>APs</li>
+     * <li>SubEntries</li>
+     * <li>Entries</li>
+     * </ul>
      * 
      * @param next The next {@link Interceptor} in the chain
      * @param addContext The {@link AddOperationContext} instance
@@ -1564,7 +1597,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapUnwillingToPerformException( message );
             }
 
-            LOG.debug( "Addition of an administrative point at {} for the role {}", dn, adminPointAT );
+            LOG.debug( "Addition of an administrative point at {} for the roles {}", dn, adminPointAT );
 
             try
             {
