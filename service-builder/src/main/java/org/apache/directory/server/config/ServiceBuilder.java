@@ -994,12 +994,12 @@ public class ServiceBuilder
         
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
-            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ) );
+            index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ).toURI() );
         }
         else
         {
             // Set the Partition working dir as a default
-            index.setWkDirPath( new File( partition.getPartitionPath() ) );
+            index.setWkDirPath( partition.getPartitionPath() );
         }
                 
         return index;
