@@ -22,8 +22,8 @@ package org.apache.directory.server.core.admin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,7 +53,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "AdministrativePointServiceIT")
-@Ignore
 public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 {
     // The shared LDAP connection
@@ -89,6 +87,26 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     // Test the Add operation
     // -------------------------------------------------------------------
     /**
+     * Test the addition of an autonomous area in the rootDN
+     */
+    @Test
+    public void testAddAutonomousAreaRootDN() throws Exception
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: autonomousArea", 
+            "administrativeRole: autonomousArea" );
+
+        // It should succeed
+        AddResponse response = connection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, response.getLdapResult().getResultCode() );
+    }
+
+
+    /**
      * Test the addition of an autonomous area
      * @throws Exception
      */
@@ -111,10 +129,10 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         Entry entry = getAdminRole( "ou=autonomousArea, ou=system" );
 
         assertTrue( entry.contains( "administrativeRole", "autonomousArea" ) );
-        assertFalse( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
-        assertFalse( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
-        assertFalse( entry.contains( "administrativeRole", "2.5.23.4" ) );
-        assertFalse( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "subschemaSpecificArea" ) );
+        assertTrue( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
         autonomousArea = LdifUtils.createEntry( 
             "ou=autonomousArea2, ou=system", 
@@ -124,7 +142,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "administrativeRole: autonomousArea",
             "administrativeRole: accessControlSpecificArea", 
             "administrativeRole: collectiveAttributeInnerArea",
-            "administrativeRole: 2.5.23.4", // This is the subSchemaSpecificArea OID
+            "administrativeRole: subschemaSpecificArea", 
             "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA" );
 
         // It should fail, as an autonomous area is already defining the specific areas

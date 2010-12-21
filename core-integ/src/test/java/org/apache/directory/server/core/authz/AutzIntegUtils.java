@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
@@ -249,11 +250,13 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultEntry( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
-        subEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC,
-            SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
-        subEntry.add( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtree );
-        subEntry.add( SchemaConstants.PRESCRIPTIVE_ACI_AT, aciItem );
+        Entry subEntry = LdifUtils.createEntry( 
+            new DN( "cn=" + cn + ",ou=system" ),
+            "objectClass: top",
+            "objectClass: subentry",
+            "objectClass: accessControlSubentry",
+            "subtreeSpecification: ", subtree,
+            "prescriptiveACI:", aciItem );
 
         AddResponse addResp = connection.add( subEntry );
 

@@ -394,7 +394,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     private void addRdnAttributesToEntry( DN dn, Entry entry ) throws LdapException
     {
-        if ( dn == null || entry == null )
+        if ( DN.isNullOrEmpty( dn ) || entry == null )
         {
             return;
         }
