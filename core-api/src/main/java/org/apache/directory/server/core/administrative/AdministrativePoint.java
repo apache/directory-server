@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.administrative;
 
+import java.util.Set;
+
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
@@ -96,4 +98,28 @@ public interface AdministrativePoint
      * @return The administrativeRole
      */
     AdministrativeRole getRole();
+    
+    
+    /**
+     * Associate a new SubEntry to this AdministrationPoint
+     * 
+     * @param subentry The added SubEntry
+     */
+    void addSubentry( Subentry subentry );
+    
+    
+    /**
+     * Get the set of subentries associated with a role 
+     * @param role The role we are looking the subentries for
+     * @return The Set of subentries found
+     */
+    Set<Subentry> getSubentries( AdministrativeRole role );
+    
+    
+    /**
+     * Get the set of subentries associated with the AdministrativePoint
+     * @param role The role we are looking the subentries for
+     * @return The Set of subentries found
+     */
+    Set<Subentry> getSubentries();
 }

@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.administrative;
 
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.shared.ldap.name.DN;
@@ -51,6 +53,9 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
 
     /** The children AdministrativePoints */
     protected Map<String, AdministrativePoint> children;
+    
+    /** The associated subentries */
+    private Set<Subentry> subentries; 
 
 
     /**
@@ -63,6 +68,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
         this.role = role;
         this.children = new ConcurrentHashMap<String, AdministrativePoint>();
         this.seqNumber = seqNumber;
+        subentries = new HashSet<Subentry>();
     }
 
 
@@ -149,8 +155,54 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     {
         this.seqNumber = seqNumber;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void addSubentry( Subentry subentry )
+    {
+        synchronized( subentries )
+        {
+            subentries.add( subentry );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Subentry> getSubentries( AdministrativeRole role )
+    {
+        synchronized( subentries )
+        {
+            Set<Subentry> subentries = new HashSet<Subentry>();
+            
+            for ( Subentry subentry : this.subentries )
+            {
+                if ( subentry.getAdministrativeRoles().contains( role ) )
+                {
+                    subentries.add( subentry );
+                }
+            }
+            
+            return subentries;
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Subentry> getSubentries()
+    {
+        synchronized( subentries )
+        {
+            return subentries;
+        }
+    }
 
-
+    
     /**
      * {@inheritDoc}
      */
