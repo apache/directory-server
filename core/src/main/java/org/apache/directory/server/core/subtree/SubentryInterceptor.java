@@ -1697,9 +1697,29 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             // The added entry is a normal entry
             // Nevertheless, we have to check if the entry is added into an AdministrativePoint
-            // and is associated with some SubtreeSpecification
-            // We brutally check *all* the subentries, as we don't hold a hierarchy
-            // of AP
+            // and is associated with some SubtreeSpecification. The best is to check the AP cache
+            if ( directoryService.getAccessControlAPCache().hasParent( dn ) )
+            {
+                // This entry has a AccessControl AP parent.
+            }
+            
+            if ( directoryService.getCollectiveAttributeAPCache().hasParent( dn ) )
+            {
+                // This entry has a CollectiveAttribute AP parent.
+            }
+            
+            if ( directoryService.getTriggerExecutionAPCache().hasParent( dn ) )
+            {
+                // This entry has a TriggerExecution AP parent.
+            }
+            
+            if ( directoryService.getSubschemaAPCache().hasParent( dn ) )
+            {
+                // This entry has a Subschema AP parent.
+            }
+            
+            
+            /*
             for ( DN subentryDn : subentryCache )
             {
                 DN apDn = subentryDn.getParent();
@@ -1737,9 +1757,11 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
                 }
 
-                // Propagate the addition down to the backend.
-                next.add( addContext );
             }
+            */
+
+            // Propagate the addition down to the backend.
+            next.add( addContext );
         }
     }
 
