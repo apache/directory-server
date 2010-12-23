@@ -21,6 +21,8 @@ package org.apache.directory.server.core.subtree;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,11 +38,13 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.administrative.AccessControlAAP;
 import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.administrative.AccessControlIAP;
 import org.apache.directory.server.core.administrative.AccessControlSAP;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.AdministrativeRoleEnum;
 import org.apache.directory.server.core.administrative.CollectiveAttributeAAP;
 import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.administrative.CollectiveAttributeIAP;
@@ -53,7 +57,13 @@ import org.apache.directory.server.core.administrative.TriggerExecutionAAP;
 import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.administrative.TriggerExecutionIAP;
 import org.apache.directory.server.core.administrative.TriggerExecutionSAP;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -69,7 +79,11 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -166,6 +180,9 @@ public class SubentryInterceptor extends BaseInterceptor
     
     /** A reference to the TriggerExecutionSubentries AT */
     private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+    
+    /** A reference to the SeqNumber AT */
+    private static AttributeType AP_SEQ_NUMBER_AT;
 
     /** An enum used for the entries update */
     private enum OperationEnum
@@ -253,6 +270,29 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A lock to guarantee the AP cache consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
+    /**
+     * the set of interceptors we should *not* go through updating some operational attributes
+     */
+    private static final Collection<String> BYPASS_INTERCEPTORS;
+
+    static
+    {
+        Set<String> c = new HashSet<String>();
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( AdministrativePointInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( ExceptionInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+        c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+        c.add( TriggerInterceptor.class.getName() );
+        BYPASS_INTERCEPTORS = Collections.unmodifiableCollection( c );
+    }
+    
     //-------------------------------------------------------------------------------------------
     // Search filter methods
     //-------------------------------------------------------------------------------------------
@@ -320,6 +360,7 @@ public class SubentryInterceptor extends BaseInterceptor
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        AP_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.AP_SEQ_NUMBER_AT );
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {
@@ -1170,8 +1211,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isTriggersAdminRole() )
         {
-            EntryAttribute tiggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
-            attributes.add( tiggerExecutionSubentries );
+            EntryAttribute triggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
+            attributes.add( triggerExecutionSubentries );
         }
 
         return attributes;
@@ -1547,12 +1588,142 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         long seqNumber = directoryService.getNewApSeqNumber();
         
-        EntryAttribute newSeqNumber = new DefaultEntryAttribute( ApacheSchemaConstants.AP_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+        EntryAttribute newSeqNumber = new DefaultEntryAttribute( AP_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
         
         Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
         List<Modification> modifications = new ArrayList<Modification>();
         modifications.add( modification );
-        directoryService.getAdminSession().modify( apDn, modifications );
+        
+        ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
+        modCtx.setByPassed( BYPASS_INTERCEPTORS );
+        modCtx.setDn( apDn );
+        modCtx.setModItems( modifications );
+        
+        directoryService.getOperationManager().modify( modCtx );
+    }
+    
+    
+    private void processAddEntry( AdministrativeRoleEnum role, Entry entry ) throws LdapException
+    {
+        DN dn = entry.getDn();
+        
+        // first get the parent AP for this entry
+        switch ( role )
+        {
+            case AccessControl :
+                AdministrativePoint parentAP = directoryService.getAccessControlAPCache().getParentWithElement( dn );
+
+                if ( parentAP != null )
+                {
+                    // Update the entry seqNumber for AC
+                    entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                    
+                    // This entry has a AccessControl AP parent.
+                    Set<Subentry> subentries = parentAP.getSubentries();
+
+                    if ( subentries != null )
+                    {
+                        for ( Subentry subentry : subentries )
+                        {
+                            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+    
+                            // Now, evaluate the entry wrt the subentry ss
+                            // and inject a ref to the subentry if it evaluates to true
+                            if ( evaluator.evaluate( ss, parentAP.getDn(), dn, entry ) )
+                            {
+                                // Point to the subentry UUID
+                                entry.add( ApacheSchemaConstants.ACCESS_CONTROL_SUBENTRIES_UUID_AT, subentry.getUuid() );
+                            }
+                        }
+                    }
+                }
+
+            case CollectiveAttribute :
+                parentAP = directoryService.getCollectiveAttributeAPCache().getParentWithElement( dn );
+
+                if ( parentAP != null )
+                {
+                    // Update the entry seqNumber for CA
+                    entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                    
+                    // This entry has a CollectiveAttribute AP parent.
+                    Set<Subentry> subentries = parentAP.getSubentries();
+
+                    if ( subentries != null )
+                    {
+                        for ( Subentry subentry : subentries )
+                        {
+                            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+    
+                            // Now, evaluate the entry wrt the subentry ss
+                            // and inject a ref to the subentry if it evaluates to true
+                            if ( evaluator.evaluate( ss, parentAP.getDn(), dn, entry ) )
+                            {
+                                // Point to the subentry UUID
+                                entry.add( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT, subentry.getUuid() );
+                            }
+                        }
+                    }
+                }
+
+            case SubSchema :
+                parentAP = directoryService.getSubschemaAPCache().getParentWithElement( dn );
+
+                if ( parentAP != null )
+                {
+                    // This entry has a Subschema AP parent.
+                    // Update the entry seqNumber for CA
+                    entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                    
+                    // This entry has a CollectiveAttribute AP parent.
+                    Set<Subentry> subentries = parentAP.getSubentries();
+
+                    if ( subentries != null )
+                    {
+                        for ( Subentry subentry : subentries )
+                        {
+                            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+    
+                            // Now, evaluate the entry wrt the subentry ss
+                            // and inject a ref to the subentry if it evaluates to true
+                            if ( evaluator.evaluate( ss, parentAP.getDn(), dn, entry ) )
+                            {
+                                // Point to the subentry UUID
+                                entry.add( ApacheSchemaConstants.SUB_SCHEMA_SUBENTRY_UUID_AT, subentry.getUuid() );
+                            }
+                        }
+                    }
+                }
+
+            case TriggerExecution :
+                parentAP = directoryService.getTriggerExecutionAPCache().getParentWithElement( dn );
+
+                if ( parentAP != null )
+                {
+                    // Update the entry seqNumber for TE
+                    entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                    
+                    // This entry has a TriggerExecution AP parent.
+                    Set<Subentry> subentries = parentAP.getSubentries();
+
+                    if ( subentries != null )
+                    {
+                        for ( Subentry subentry : subentries )
+                        {
+                            SubtreeSpecification ss = subentry.getSubtreeSpecification();
+    
+                            // Now, evaluate the entry wrt the subentry ss
+                            // and inject a ref to the subentry if it evaluates to true
+                            if ( evaluator.evaluate( ss, parentAP.getDn(), dn, entry ) )
+                            {
+                                // Point to the subentry UUID
+                                entry.add( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_UUID_AT, subentry.getUuid() );
+                            }
+                        }
+                    }
+                }
+            
+        }
     }
 
 
@@ -1605,7 +1776,12 @@ public class SubentryInterceptor extends BaseInterceptor
                 lockWrite();
 
                 // This is an AP, do the initial check
-                checkIsValidAP( entry );
+                if ( !checkIsValidAP( entry ) )
+                {
+                    String message = "Cannot add the given AP, it's not a valid one :" + entry;
+                    LOG.error( message );
+                    throw new LdapUnwillingToPerformException( message );
+                }
                 
                 // Ok, we are golden.
                 next.add( addContext );
@@ -1684,6 +1860,10 @@ public class SubentryInterceptor extends BaseInterceptor
     
                 // Now inject the subentry into the backend
                 next.add( addContext );
+                
+                // Get back the entryUUID and store it in the subentry
+                String subentryUuid = addContext.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString();
+                subentry.setUuid( subentryUuid );
             }
             finally
             {
@@ -1696,6 +1876,12 @@ public class SubentryInterceptor extends BaseInterceptor
         else
         {
             // The added entry is a normal entry
+            // We have to check each role
+            processAddEntry( AdministrativeRoleEnum.AccessControl, entry );
+            processAddEntry( AdministrativeRoleEnum.CollectiveAttribute, entry );
+            processAddEntry( AdministrativeRoleEnum.TriggerExecution, entry );
+            processAddEntry( AdministrativeRoleEnum.SubSchema, entry );
+
             // Nevertheless, we have to check if the entry is added into an AdministrativePoint
             // and is associated with some SubtreeSpecification. The best is to check the AP cache
             if ( directoryService.getAccessControlAPCache().hasParent( dn ) )
