@@ -34,6 +34,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -171,7 +172,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddIAPWithNoSAP() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
+        Entry iap = LdifUtils.createEntry( 
             "ou=IAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
@@ -179,9 +180,29 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "administrativeRole: accessControlInnerArea" );
 
         // It should fail
-        AddResponse response = adminConnection.add( autonomousArea );
+        AddResponse response = adminConnection.add( iap );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Test the addition of an AAP with no role
+     */
+    @Test
+    public void testAddAAPWithNoRole() throws Exception
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: AAP", 
+            "administrativeRole: " );
+
+        // It should fail
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, response.getLdapResult().getResultCode() );
     }
     
     
@@ -189,9 +210,50 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
      * Test the addition of an AP directly under a subentry
      */
     @Test
-    @Ignore
     public void testAddAPUnderSubentry() throws Exception
     {
+        // First add an AAP
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP", 
+            "administrativeRole: autonomousArea" );
+
+        AddResponse response = adminConnection.add( autonomousArea );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        Entry subentryEntry = adminConnection.lookup( "cn=test,ou=SAP,ou=system", "+", "*" );
+        assertNotNull( subentryEntry );
+
+        Entry ap = adminConnection.lookup( "ou=SAP,ou=system", "+", "*" );
+        assertNotNull( ap );
+        assertEquals( "0", ap.get( "APSeqNumber" ).getString() );
+        
+        // Now, try to inject an AP under the subentry
+        // First add an AAP
+        Entry badAP = LdifUtils.createEntry( 
+            "ou=BADAP,cn=test,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: BADAP", 
+            "administrativeRole: autonomousArea" );
+
+        response = adminConnection.add( badAP );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
     
     
@@ -201,7 +263,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddSAPWithNonAdmin() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
+        Entry sap = LdifUtils.createEntry( 
             "ou=IAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
@@ -209,7 +271,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
             "administrativeRole: accessControlSpecificArea" );
 
         // It should fail
-        AddResponse response = userConnection.add( autonomousArea );
+        AddResponse response = userConnection.add( sap );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -220,7 +282,36 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
-    
+    /**
+     * Test the addition of an AAP with SAPs
+     */
+    @Test
+    public void testAddAAPWithSAPs() throws Exception
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: AAP", 
+            "administrativeRole: accessControlSpecificArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        // It should fail
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        Entry adminPoint = adminConnection.lookup( "ou=AAP,ou=system", "+", "*" );
+        
+        EntryAttribute roles = adminPoint.get( "administrativeRole" );
+        
+        assertNotNull( roles );
+        assertEquals( 5, roles.size() );
+        assertTrue( roles.contains( "autonomousArea", "accessControlSpecificArea", "collectiveAttributeSpecificArea", 
+            "triggerExecutionSpecificArea", "subSchemaSpecificArea" ) );
+    }
+
     
     
     
