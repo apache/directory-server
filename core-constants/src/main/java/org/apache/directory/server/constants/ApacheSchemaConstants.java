@@ -187,17 +187,17 @@ public final class ApacheSchemaConstants
     
     // CollectiveAttributeSubentriesUUID
     public final static String COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT      = "CollectiveAttributeSubentriesUUID";
-    public final static String COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT_OID  = "1.3.6.1.4.1.18060.0.4.1.2.62";
+    public final static String COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT_OID  = "1.3.6.1.4.1.18060.0.4.1.2.56";
     
     // AccessControlSubentriesUUID
     public final static String ACCESS_CONTROL_SUBENTRIES_UUID_AT            = "AccessControlSubentriesUUID";
-    public final static String ACCESS_CONTROL_SUBENTRIES_UUID_AT_OID        = "1.3.6.1.4.1.18060.0.4.1.2.63";
+    public final static String ACCESS_CONTROL_SUBENTRIES_UUID_AT_OID        = "1.3.6.1.4.1.18060.0.4.1.2.57";
     
     // TriggerExecutionSubentriesUUID
     public final static String TRIGGER_EXECUTION_SUBENTRIES_UUID_AT         = "TriggerExecutionSubentriesUUID";
-    public final static String TRIGGER_EXECUTION_SUBENTRIES_UUID_AT_OID     = "1.3.6.1.4.1.18060.0.4.1.2.64";
+    public final static String TRIGGER_EXECUTION_SUBENTRIES_UUID_AT_OID     = "1.3.6.1.4.1.18060.0.4.1.2.58";
     
-    // SubschemaSubentriesUUID
-    public final static String SUB_SCHEMA_SUBENTRIES_UUID_AT                = "SubschemaSubentriesUUID";
-    public final static String SUB_SCHEMA_SUBENTRIES_UUID_AT_OID            = "1.3.6.1.4.1.18060.0.4.1.2.65";
+    // SubschemaSubentryUUID
+    public final static String SUB_SCHEMA_SUBENTRY_UUID_AT                  = "SubschemaSubentryUUID";
+    public final static String SUB_SCHEMA_SUBENTRY_UUID_AT_OID              = "1.3.6.1.4.1.18060.0.4.1.2.59";
 }
