@@ -1783,6 +1783,9 @@ public class SubentryInterceptor extends BaseInterceptor
                     throw new LdapUnwillingToPerformException( message );
                 }
                 
+                // Add a negative seqNumber 
+                entry.add( AP_SEQ_NUMBER_AT, Long.toString( -1L ) );
+                
                 // Ok, we are golden.
                 next.add( addContext );
     
@@ -1876,75 +1879,11 @@ public class SubentryInterceptor extends BaseInterceptor
         else
         {
             // The added entry is a normal entry
-            // We have to check each role
+            // We have to process the addition for each role
             processAddEntry( AdministrativeRoleEnum.AccessControl, entry );
             processAddEntry( AdministrativeRoleEnum.CollectiveAttribute, entry );
             processAddEntry( AdministrativeRoleEnum.TriggerExecution, entry );
             processAddEntry( AdministrativeRoleEnum.SubSchema, entry );
-
-            // Nevertheless, we have to check if the entry is added into an AdministrativePoint
-            // and is associated with some SubtreeSpecification. The best is to check the AP cache
-            if ( directoryService.getAccessControlAPCache().hasParent( dn ) )
-            {
-                // This entry has a AccessControl AP parent.
-            }
-            
-            if ( directoryService.getCollectiveAttributeAPCache().hasParent( dn ) )
-            {
-                // This entry has a CollectiveAttribute AP parent.
-            }
-            
-            if ( directoryService.getTriggerExecutionAPCache().hasParent( dn ) )
-            {
-                // This entry has a TriggerExecution AP parent.
-            }
-            
-            if ( directoryService.getSubschemaAPCache().hasParent( dn ) )
-            {
-                // This entry has a Subschema AP parent.
-            }
-            
-            
-            /*
-            for ( DN subentryDn : subentryCache )
-            {
-                DN apDn = subentryDn.getParent();
-
-                // No need to evaluate the entry if it's not below an AP.
-                if ( dn.isChildOf( apDn ) )
-                {
-                    Subentry subentry = subentryCache.getSubentry( subentryDn );
-                    SubtreeSpecification ss = subentry.getSubtreeSpecification();
-
-                    // Now, evaluate the entry wrt the subentry ss
-                    // and inject a ref to the subentry if it evaluates to true
-                    if ( evaluator.evaluate( ss, apDn, dn, entry ) )
-                    {
-
-                        if ( subentry.isAccessControlAdminRole() )
-                        {
-                            setOperationalAttribute( entry, subentryDn, ACCESS_CONTROL_SUBENTRIES_AT );
-                        }
-
-                        if ( subentry.isSchemaAdminRole() )
-                        {
-                            setOperationalAttribute( entry, subentryDn, SUBSCHEMA_SUBENTRY_AT );
-                        }
-
-                        if ( subentry.isCollectiveAdminRole() )
-                        {
-                            setOperationalAttribute( entry, subentryDn, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-                        }
-
-                        if ( subentry.isTriggersAdminRole() )
-                        {
-                            setOperationalAttribute( entry, subentryDn, TRIGGER_EXECUTION_SUBENTRIES_AT );
-                        }
-                    }
-                }
-
-            }
-            */
 
             // Propagate the addition down to the backend.
             next.add( addContext );
@@ -1960,10 +1899,32 @@ public class SubentryInterceptor extends BaseInterceptor
         DN dn = deleteContext.getDn();
         Entry entry = deleteContext.getEntry();
 
-        // If the entry has a "subentry" Objectclass, we can process the entry.
-        // We first remove the re
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        // Check if we are deleting an Administrative Point
+        EntryAttribute adminPointAT = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        boolean isAdmin = deleteContext.getSession().getAuthenticatedPrincipal().getName().equals(
+            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+
+        // First, deal with an AP deletion
+        if ( adminPointAT != null )
         {
+            // It's an AP : we can delete the entry, and if done successfully,
+            // we can update the APCache for each role
+            next.delete( deleteContext );
+            
+            // Now, update the AP cache
+        }
+        else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            // It's a subentry
+            if ( !isAdmin )
+            {
+                String message = "Cannot add the given Subentry, user is not an Admin";
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
+            }
+            
             Subentry removedSubentry = subentryCache.getSubentry( dn );
 
             /* ----------------------------------------------------------------
@@ -1989,7 +1950,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            // TODO : deal with AP removal.
+            // This is a normal entry : propagate the deletion down to the backend
             next.delete( deleteContext );
         }
     }
