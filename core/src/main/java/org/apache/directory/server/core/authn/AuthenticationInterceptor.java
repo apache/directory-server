@@ -172,7 +172,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( AdministrativePointInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
-        c.add( AdministrativePointInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
