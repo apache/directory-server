@@ -42,6 +42,9 @@ public class Subentry
     /** The administratives roles */
     private Set<AdministrativeRole> administrativeRoles;
     
+    /** The subentry UUID */
+    private String uuid;
+    
     /**
      * Stores the subtreeSpecification
      *
@@ -122,12 +125,30 @@ public class Subentry
 
 
     /**
+     * @return the uuid
+     */
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+
+    /**
+     * @param uuid the uuid to set
+     */
+    public void setUuid( String uuid )
+    {
+        this.uuid = uuid;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Subentry[" );
+        sb.append( "Subentry-" ).append( uuid ).append( "[" );
         
         boolean isFirst = true;
         
