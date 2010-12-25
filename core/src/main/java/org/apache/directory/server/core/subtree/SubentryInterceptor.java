@@ -1503,6 +1503,88 @@ public class SubentryInterceptor extends BaseInterceptor
     
     
     /**
+     * Delete the list of AP for a given entry. We can update the cache for each role,
+     * as if the AP doe snot have such a role, it won't do anythig anyway
+     */
+    private void deleteAdministrativePoints( EntryAttribute adminPoint, DN dn ) throws LdapException
+    {
+        // The AC SAP
+        directoryService.getAccessControlAPCache().remove( dn );
+
+        // The CA SAP
+        directoryService.getCollectiveAttributeAPCache().remove( dn );
+
+        // The TE SAP
+        directoryService.getTriggerExecutionAPCache().remove( dn );
+
+        // The SS SAP
+        directoryService.getSubschemaAPCache().remove( dn );
+        // If it's an AAP, we can get out immediately
+        return;
+
+        /*
+        if ( isAAP( adminPoint ) )
+        {
+            // The AC AAP
+            directoryService.getAccessControlAPCache().remove( dn );
+
+            // The CA AAP
+            directoryService.getCollectiveAttributeAPCache().remove( dn );
+
+            // The TE AAP
+            directoryService.getTriggerExecutionAPCache().remove( dn );
+
+            // The SS AAP
+            directoryService.getSubschemaAPCache().remove( dn );
+
+            // If it's an AAP, we can get out immediately
+            return;
+        }
+
+        // Not an AAP
+        for ( Value<?> value : adminPoint )
+        {
+            String role = value.getString();
+
+            // Deal with AccessControl AP
+            if ( isAccessControlSpecificRole( role ) || isAccessControlInnerRole( role ) )
+            {
+                directoryService.getAccessControlAPCache().remove( dn );
+
+                continue;
+            }
+
+            // Deal with CollectiveAttribute AP
+            if ( isCollectiveAttributeSpecificRole( role ) || isCollectiveAttributeInnerRole( role ) )
+            {
+                directoryService.getCollectiveAttributeAPCache().remove( dn );
+
+                continue;
+            }
+
+            // Deal with SubSchema AP
+            if ( isSubschemaSpecficRole( role ) )
+            {
+                directoryService.getSubschemaAPCache().remove( dn );
+
+                continue;
+            }
+
+            // Deal with TriggerExecution AP
+            if ( isTriggerExecutionSpecificRole( role ) || isTriggerExecutionInnerRole( role ) )
+            {
+                directoryService.getTriggerExecutionAPCache().remove( dn );
+
+                continue;
+            }
+        }
+
+        return;
+        */
+    }
+    
+    
+    /**
      * Get the AdministrativePoint associated with a subentry
      * @param apDn
      * @return
@@ -1908,18 +1990,27 @@ public class SubentryInterceptor extends BaseInterceptor
         // First, deal with an AP deletion
         if ( adminPointAT != null )
         {
+            if ( !isAdmin )
+            {
+                String message = "Cannot delete the given AdministrativePoint, user is not an Admin";
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
+            }
+            
             // It's an AP : we can delete the entry, and if done successfully,
             // we can update the APCache for each role
             next.delete( deleteContext );
             
             // Now, update the AP cache
+            deleteAdministrativePoints( adminPointAT, dn );
         }
         else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // It's a subentry
             if ( !isAdmin )
             {
-                String message = "Cannot add the given Subentry, user is not an Admin";
+                String message = "Cannot delete the given Subentry, user is not an Admin";
                 LOG.error( message );
                 
                 throw new LdapUnwillingToPerformException( message );

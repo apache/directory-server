@@ -43,7 +43,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test cases for the AdministrativePoint interceptor.
+ * Test cases for the AdministrativePoint interceptor Add operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
