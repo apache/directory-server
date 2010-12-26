@@ -604,14 +604,220 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
     
     
     // ===================================================================
-    // Test the Add operation for Subentrys
+    // Test the Add operation for Subentries
     // -------------------------------------------------------------------
     // Failure expected
     // -------------------------------------------------------------------
+    /**
+     * Test the addition of a subentry with a different role than it's parent AP
+     */
+    @Test
+    public void testAddSubentryDifferentRole() throws Exception
+    {
+        // First add an SAP
+        Entry sap1 = LdifUtils.createEntry( 
+            "ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP1", 
+            "administrativeRole: accessControlSpecificArea" );
 
+        AddResponse response = adminConnection.add( sap1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now with a different role
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Test the addition of a subentry with no parent AP
+     */
+    @Test
+    public void testAddSubentryNoParentAP() throws Exception
+    {
+        // Add a subentry now with no AP
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test1",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        AddResponse response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+    }
+    
+    
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
+    /**
+     * Test the addition of a subentry under an AAP
+     */
+    @Test
+    public void testAddSubentryUnderAAP() throws Exception
+    {
+        // First add an AAP
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: AAP", 
+            "administrativeRole: autonomousArea" );
+
+        AddResponse response = adminConnection.add( autonomousArea );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Test the addition of a subentry under a SAP
+     */
+    @Test
+    public void testAddSubentryUnderSAP() throws Exception
+    {
+        // First add an SAP
+        Entry sap = LdifUtils.createEntry( 
+            "ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP1", 
+            "administrativeRole: collectiveAttributeSpecificArea" );
+
+        AddResponse response = adminConnection.add( sap );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Test the addition of a subentry under an IAP
+     */
+    @Test
+    public void testAddSubentryUnderIAP() throws Exception
+    {
+        // First add an SAP
+        Entry sap = LdifUtils.createEntry( 
+            "ou=SAP2,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP2", 
+            "administrativeRole: collectiveAttributeSpecificArea" );
+
+        AddResponse response = adminConnection.add( sap );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a IAP now
+        Entry iap = LdifUtils.createEntry( 
+            "ou=IAP2,ou=SAP2,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: IAP2",
+            "administrativeRole: collectiveAttributeInnerArea" );
+
+        response = adminConnection.add( iap );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP2,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Test the addition of a subentry with 2 roles under an AAP
+     */
+    @Test
+    public void testAddSubentryWith2Roles() throws Exception
+    {
+        // First add an AAP
+        Entry aap = LdifUtils.createEntry( 
+            "ou=AAP2,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: AAP2", 
+            "administrativeRole: autonomousArea" );
+
+        AddResponse response = adminConnection.add( aap );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=AAP2,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "ObjectClass: accessControlSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org",
+            "prescriptiveACI: { " 
+            + "  identificationTag \"addAci\", "
+            + "  precedence 14, " 
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," 
+            + "    userPermissions "
+            + "    { " 
+            + "      { " 
+            + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " 
+            + "      } " 
+            + "    } " 
+            + "  } "
+            + "}" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
     
     
     // ===================================================================
