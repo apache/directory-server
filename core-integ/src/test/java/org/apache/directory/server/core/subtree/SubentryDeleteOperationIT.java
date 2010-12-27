@@ -84,7 +84,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
 
 
     // ===================================================================
-    // Test the Delete operation
+    // Test the Delete operation on APs
     // -------------------------------------------------------------------
     // Failure expected
     // -------------------------------------------------------------------
@@ -133,6 +133,9 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
     }
     
     
+    /**
+     * Delete a SAP with a non admin user
+     */
     @Test
     public void testDeleteSAPNonAdmin() throws Exception
     {
@@ -163,6 +166,9 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
+    /**
+     * Delete an AAP
+     */
     @Test
     public void testDeleteAAP() throws Exception
     {
@@ -190,6 +196,9 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
     }
     
     
+    /**
+     * Delete a SAP
+     */
     @Test
     public void testDeleteSAP() throws Exception
     {
@@ -215,10 +224,11 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         
         assertNull( aap );
     }
-
-
     
     
+    /** 
+     * Delete an IAP
+     */
     @Test
     public void testDeleteIAP() throws Exception
     {
@@ -271,5 +281,50 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         Entry sapDel = adminConnection.lookup( "ou=SAP1,ou=system" );
         
         assertNull( sapDel );
+    }
+    
+    
+    // ===================================================================
+    // Test the Delete operation on subentries
+    // -------------------------------------------------------------------
+    // Failure expected
+    // -------------------------------------------------------------------
+    
+    // -------------------------------------------------------------------
+    // Success expected
+    // -------------------------------------------------------------------
+    /**
+     * Test the deletion of a subentry under an AAP
+     */
+    @Test
+    public void testDeleteSubentryUnderAAP() throws Exception
+    {
+        // First add an AAP
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=AAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: AAP1", 
+            "administrativeRole: autonomousArea" );
+
+        AddResponse response = adminConnection.add( autonomousArea );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=AAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Now delete it
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=AAP1,ou=system" );
+        assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
     }
 }
