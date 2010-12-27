@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -36,6 +38,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -817,6 +820,32 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
 
         response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        DN subentryDN = new DN( "cn=test, ou=AAP2,ou=system" );
+        
+        // Get back the subentry
+        Entry addedSE = adminConnection.lookup( subentryDN, "+" );
+        String subentryUUID = addedSE.get( "entryUUID" ).getString();
+        
+        DN apDn = new DN( "ou=AAP2,ou=system" );
+        apDn.normalize( service.getSchemaManager() );
+        
+        // Check that we have a ref to the added subentry in the two APs (AC and CA)
+        AdministrativePoint apAC = service.getAccessControlAPCache().getElement( apDn );
+        
+        assertNotNull( apAC.getSubentries() );
+        assertEquals( 1, apAC.getSubentries().size() );
+        Subentry subentryAC = (Subentry)(apAC.getSubentries().toArray()[0]);
+        
+        assertEquals( subentryAC.getUuid(), subentryUUID );
+
+        AdministrativePoint apCA = service.getCollectiveAttributeAPCache().getElement( apDn );
+        
+        assertNotNull( apCA.getSubentries() );
+        assertEquals( 1, apCA.getSubentries().size() );
+        Subentry subentryCA = (Subentry)(apCA.getSubentries().toArray()[0]);
+        
+        assertEquals( subentryCA.getUuid(), subentryUUID );
     }
     
     
