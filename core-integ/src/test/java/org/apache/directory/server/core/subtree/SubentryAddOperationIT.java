@@ -452,7 +452,7 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
             "administrativeRole: autonomousArea"
             );
 
-        // It should fail
+        // It should succeed
         AddResponse response = adminConnection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -556,19 +556,34 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
     public void testAddInnerAreas() throws Exception
     {
         Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=autonomousArea, ou=system", 
+            "ou=AAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ou: autonomousArea", 
+            "ou: AAP", 
+            "administrativeRole: accessControlSpecificArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Now add the IAPs
+        Entry innerAreas = LdifUtils.createEntry( 
+            "ou=innerAreas, ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: innerAreas", 
             "administrativeRole: accessControlINNERArea",
             "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
-        AddResponse response = adminConnection.add( autonomousArea );
+        response = adminConnection.add( innerAreas );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Check that the entry is containing all the roles
-        Entry entry = getAdminRole( "ou=autonomousArea, ou=system" );
+        Entry entry = getAdminRole( "ou=innerAreas, ou=AAP,ou=system" );
 
         assertFalse( entry.contains( "administrativeRole", "autonomousArea" ) );
         assertTrue( entry.contains( "administrativeRole", "accessControlInnerArea" ) );
