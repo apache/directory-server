@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,12 +33,12 @@ public class TriggerExecutionIAP extends TriggerExecutionAdministrativePoint
     /**
      * Create an instance of TriggerExecution IAP
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
+     * @param seqNumber the associated Sequence Number
      */
-    public TriggerExecutionIAP( DN dn, String uuid, long seqNumber )
+    public TriggerExecutionIAP( String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.TriggerExecutionInnerArea, seqNumber );
+        super( uuid, AdministrativeRole.TriggerExecutionInnerArea, seqNumber );
     }
 
 

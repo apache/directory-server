@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,12 +33,12 @@ public class AccessControlIAP extends AccessControlAdministrativePoint
     /**
      * Create an instance of AccessControl IAP
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
+     * @param seqNumber the associated Sequence Number
      */
-    public AccessControlIAP( DN dn, String uuid, long seqNumber )
+    public AccessControlIAP( String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.AccessControlInnerArea, seqNumber );
+        super( uuid, AdministrativeRole.AccessControlInnerArea, seqNumber );
     }
 
 

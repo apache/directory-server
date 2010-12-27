@@ -36,22 +36,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.administrative.AccessControlAAP;
-import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
-import org.apache.directory.server.core.administrative.AccessControlIAP;
-import org.apache.directory.server.core.administrative.AccessControlSAP;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAAP;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeIAP;
-import org.apache.directory.server.core.administrative.CollectiveAttributeSAP;
-import org.apache.directory.server.core.administrative.SubschemaAAP;
-import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
-import org.apache.directory.server.core.administrative.SubschemaSAP;
-import org.apache.directory.server.core.administrative.TriggerExecutionAAP;
-import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
-import org.apache.directory.server.core.administrative.TriggerExecutionIAP;
-import org.apache.directory.server.core.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -243,211 +228,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
-     * Create the list of AP for a given entry
-     */
-    private void createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid, long seqNumber ) throws LdapException
-    {
-        if ( isAAP( adminPoint ) )
-        {
-            // The AC AAP
-            AccessControlAdministrativePoint acAap = new AccessControlAAP( dn, uuid, seqNumber );
-            directoryService.getAccessControlAPCache().add( dn, acAap );
-
-            // The CA AAP
-            CollectiveAttributeAdministrativePoint caAap = new CollectiveAttributeAAP( dn, uuid, seqNumber );
-            directoryService.getCollectiveAttributeAPCache().add( dn, caAap );
-
-            // The TE AAP
-            TriggerExecutionAdministrativePoint teAap = new TriggerExecutionAAP( dn, uuid, seqNumber );
-            directoryService.getTriggerExecutionAPCache().add( dn, teAap );
-
-            // The SS AAP
-            SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid, seqNumber );
-            directoryService.getSubschemaAPCache().add( dn, ssAap );
-
-            // TODO : Here, we have to update the children, removing any 
-            // reference to any other underlying AP
-
-            // If it's an AAP, we can get out immediately
-            return;
-        }
-
-        for ( Value<?> value : adminPoint )
-        {
-            String role = value.getString();
-
-            // Deal with AccessControl AP
-            if ( isAccessControlSpecificRole( role ) )
-            {
-                AccessControlAdministrativePoint sap = new AccessControlSAP( dn, uuid, seqNumber );
-                directoryService.getAccessControlAPCache().add( dn, sap );
-
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying AccessControl IAP or SAP 
-
-                continue;
-            }
-
-            if ( isAccessControlInnerRole( role ) )
-            {
-                AccessControlAdministrativePoint iap = new AccessControlIAP( dn, uuid, seqNumber );
-                directoryService.getAccessControlAPCache().add( dn, iap );
-
-                continue;
-            }
-
-            // Deal with CollectiveAttribute AP
-            if ( isCollectiveAttributeSpecificRole( role ) )
-            {
-                CollectiveAttributeAdministrativePoint sap = new CollectiveAttributeSAP( dn, uuid, seqNumber );
-                directoryService.getCollectiveAttributeAPCache().add( dn, sap );
-
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying CollectiveAttribute IAP or SAP 
-                
-                continue;
-            }
-
-            if ( isCollectiveAttributeInnerRole( role ) )
-            {
-                CollectiveAttributeAdministrativePoint iap = new CollectiveAttributeIAP( dn, uuid, seqNumber );
-                directoryService.getCollectiveAttributeAPCache().add( dn, iap );
-
-                continue;
-            }
-
-            // Deal with SubSchema AP
-            if ( isSubschemaSpecficRole( role ) )
-            {
-                SubschemaAdministrativePoint sap = new SubschemaSAP( dn, uuid, seqNumber );
-                directoryService.getSubschemaAPCache().add( dn, sap );
-
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying Subschema IAP or SAP 
-
-                continue;
-            }
-
-            // Deal with TriggerExecution AP
-            if ( isTriggerExecutionSpecificRole( role ) )
-            {
-                TriggerExecutionAdministrativePoint sap = new TriggerExecutionSAP( dn, uuid, seqNumber );
-                directoryService.getTriggerExecutionAPCache().add( dn, sap );
-
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying TriggerExecution IAP or SAP
-                
-                continue;
-            }
-
-            if ( isTriggerExecutionInnerRole( role ) )
-            {
-                TriggerExecutionAdministrativePoint iap = new TriggerExecutionIAP( dn, uuid, seqNumber );
-                directoryService.getTriggerExecutionAPCache().add( dn, iap );
-
-                continue;
-            }
-        }
-
-        return;
-    }
-
-
-    /**
-     * Update the cache clones with the added roles
-     */
-    private void addRole( String role, DN dn, String uuid, DnNode<AdministrativePoint> acapCache,
-        DnNode<AdministrativePoint> caapCache, DnNode<AdministrativePoint> teapCache,
-        DnNode<AdministrativePoint> ssapCache, long seqNumber ) throws LdapException
-    {
-        // Deal with Autonomous AP : create the 4 associated SAP/AAP
-        if ( isAutonomousAreaRole( role ) )
-        {
-            // The AC AAP
-            AccessControlAdministrativePoint acAap = new AccessControlAAP( dn, uuid, seqNumber );
-            acapCache.add( dn, acAap );
-
-            // The CA AAP
-            CollectiveAttributeAdministrativePoint caAap = new CollectiveAttributeAAP( dn, uuid, seqNumber );
-            caapCache.add( dn, caAap );
-
-            // The TE AAP
-            TriggerExecutionAdministrativePoint teAap = new TriggerExecutionAAP( dn, uuid, seqNumber );
-            teapCache.add( dn, teAap );
-
-            // The SS AAP
-            SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid, seqNumber );
-            ssapCache.add( dn, ssAap );
-            
-            // If it's an AAP, we can get out immediately
-            return;
-        }
-
-        // Deal with AccessControl AP
-        if ( isAccessControlSpecificRole( role ) )
-        {
-            AccessControlAdministrativePoint sap = new AccessControlSAP( dn, uuid, seqNumber );
-            acapCache.add( dn, sap );
-
-            return;
-        }
-
-        if ( isAccessControlInnerRole( role ) )
-        {
-            AccessControlAdministrativePoint iap = new AccessControlIAP( dn, uuid, seqNumber );
-            acapCache.add( dn, iap );
-
-            return;
-        }
-
-        // Deal with CollectiveAttribute AP
-        if ( isCollectiveAttributeSpecificRole( role ) )
-        {
-            CollectiveAttributeAdministrativePoint sap = new CollectiveAttributeSAP( dn, uuid, seqNumber );
-            caapCache.add( dn, sap );
-
-            return;
-        }
-
-        if ( isCollectiveAttributeInnerRole( role ) )
-        {
-            CollectiveAttributeAdministrativePoint iap = new CollectiveAttributeIAP( dn, uuid, seqNumber );
-            caapCache.add( dn, iap );
-
-            return;
-        }
-
-        // Deal with SubSchema AP
-        if ( isSubschemaSpecficRole( role ) )
-        {
-            SubschemaAdministrativePoint sap = new SubschemaSAP( dn, uuid, seqNumber );
-            ssapCache.add( dn, sap );
-
-            return;
-        }
-
-        // Deal with TriggerExecution AP
-        if ( isTriggerExecutionSpecificRole( role ) )
-        {
-            TriggerExecutionAdministrativePoint sap = new TriggerExecutionSAP( dn, uuid, seqNumber );
-            teapCache.add( dn, sap );
-
-            return;
-        }
-
-        if ( isTriggerExecutionInnerRole( role ) )
-        {
-            TriggerExecutionAdministrativePoint iap = new TriggerExecutionIAP( dn, uuid, seqNumber );
-            teapCache.add( dn, iap );
-
-            return;
-        }
-    }
-
-
-
-
-    /**
      * Update the cache clones with the added roles
      */
     private void delRole( String role, DN dn, String uuid, DnNode<AdministrativePoint> acapCache,
@@ -636,94 +416,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     
 
     /**
-     * Check if we can safely delete a role
-     */
-    private void checkDelRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
-    {
-        String roleStr = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
-
-        // Check that the removed AdministrativeRole is valid
-        if ( !ROLES.contains( roleStr ) )
-        {
-            String message = "Cannot delete the given role, it's not a valid one :" + role;
-            LOG.error( message );
-            throw new LdapUnwillingToPerformException( message );
-        }
-
-        // Now we are trying to delete an Administrative point. We have to check that 
-        // we only have one role if the deleted role is an AAP
-        if ( isAutonomousAreaRole( roleStr ) )
-        {
-            // We know have to check that removing the AAP, we will not 
-            // left any pending IAP. We should check for the 3 potential IAPs :
-            // AccessControl, CollectiveAttribute and TriggerExecution.
-            // If the removed AP has a parent, no need to go any further :
-            // the children IAPs will depend on this parent.
-            
-            // Process the ACs
-            DnNode<AdministrativePoint> acAps = directoryService.getAccessControlAPCache();
-            
-            if ( !acAps.hasParent( dn ) )
-            {
-                // No parent, check for any IAP
-                List<AdministrativePoint> children = acAps.getDescendantElements( dn );
-                
-                for ( AdministrativePoint child : children )
-                {
-                    if ( child.isInner() )
-                    {
-                        // Ok, we are dead : the IAP will remain with no parent.
-                        String message = "Cannot delete the given role, the " + child.getDn() + " AccessControl IAP will remain orphan";
-                        LOG.error( message );
-                        throw new LdapUnwillingToPerformException( message );
-                    }
-                }
-            }
-            
-            // Process the CAs
-            DnNode<AdministrativePoint> caAps = directoryService.getCollectiveAttributeAPCache();
-            
-            if ( !acAps.hasParent( dn ) )
-            {
-                // No parent, check for any IAP
-                List<AdministrativePoint> children = caAps.getDescendantElements( dn );
-                
-                for ( AdministrativePoint child : children )
-                {
-                    if ( child.isInner() )
-                    {
-                        // Ok, we are dead : the IAP will remain with no parent.
-                        String message = "Cannot delete the given role, the " + child.getDn() + " CollectiveAttribute IAP will remain orphan";
-                        LOG.error( message );
-                        throw new LdapUnwillingToPerformException( message );
-                    }
-                }
-            }
-            
-            // Process the TEs
-            DnNode<AdministrativePoint> teAps = directoryService.getTriggerExecutionAPCache();
-            
-            if ( !acAps.hasParent( dn ) )
-            {
-                // No parent, check for any IAP
-                List<AdministrativePoint> children = teAps.getDescendantElements( dn );
-                
-                for ( AdministrativePoint child : children )
-                {
-                    if ( child.isInner() )
-                    {
-                        // Ok, we are dead : the IAP will remain with no parent.
-                        String message = "Cannot delete the given role, the " + child.getDn() + " TriggerExecution IAP will remain orphan";
-                        LOG.error( message );
-                        throw new LdapUnwillingToPerformException( message );
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
      * Creates an Administrative service interceptor.
      */
     public AdministrativePointInterceptor()
@@ -802,7 +494,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             EntryAttribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
             long seqNumber = Long.parseLong( adminPointEntry.get( ApacheSchemaConstants.AP_SEQ_NUMBER_AT ).getString() );
 
-            createAdministrativePoints( adminPoint, dn, uuid , seqNumber);
+            //createAdministrativePoints( adminPoint, dn, uuid , seqNumber);
         }
     }
 
@@ -1279,7 +971,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * <li> If we remove a SAP, no descendant IAP should remain orphan</li>
      * </ul> 
      * {@inheritDoc}
-     */
+     *
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
 System.out.println( "addContext : " + deleteContext );
@@ -1402,7 +1094,7 @@ System.out.println( "addContext : " + modifyContext );
 
                         for ( Value<?> role : attribute )
                         {
-                            addRole( role.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy, ssapCacheCopy, seqNumber );
+                            //addRole( role.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy, ssapCacheCopy, seqNumber );
 
                             // Add the role to the modified attribute
                             modifiedAdminRole.add( role );

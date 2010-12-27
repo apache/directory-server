@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,12 +33,12 @@ public class SubschemaAAP extends SubschemaAdministrativePoint
     /**
      * Create an instance of Subschema AAP
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
+     * @param seqNumber the associated Sequence Number
      */
-    public SubschemaAAP( DN dn, String uuid, long seqNumber )
+    public SubschemaAAP( String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.SubSchemaSpecificArea, seqNumber );
+        super( uuid, AdministrativeRole.SubSchemaSpecificArea, seqNumber );
     }
 
 

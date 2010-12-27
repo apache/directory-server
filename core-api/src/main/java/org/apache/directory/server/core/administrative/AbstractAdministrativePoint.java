@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -36,9 +35,6 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  */
 public abstract class AbstractAdministrativePoint implements AdministrativePoint
 {
-    /** The AP's DN */
-    protected DN dn;
-
     /** The AP's UUID */
     protected String uuid;
     
@@ -60,10 +56,13 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
 
     /**
      * Creates a new instance of AbstractAdministrativePoint.
+     * 
+     * @param uuid the AdministrativePoint UUID
+     * @param role the AdministrativePoint role
+     * @param seqNumber the associated Sequence Number
      */
-    protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
+    protected AbstractAdministrativePoint( String uuid, AdministrativeRole role, long seqNumber )
     {
-        this.dn = dn;
         this.uuid = uuid;
         this.role = role;
         this.children = new ConcurrentHashMap<String, AdministrativePoint>();
@@ -78,15 +77,6 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     public AdministrativeRole getRole()
     {
         return role;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getDn()
-    {
-        return dn;
     }
 
 
@@ -172,6 +162,18 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * {@inheritDoc}
      */
+    public void deleteSubentry( Subentry subentry )
+    {
+        synchronized( subentries )
+        {
+            subentries.remove( subentry );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
     public Set<Subentry> getSubentries( AdministrativeRole role )
     {
         synchronized( subentries )
@@ -211,7 +213,6 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
         StringBuilder sb = new StringBuilder();
 
         sb.append( "Role: '" ).append( role ).append( "', " );
-        sb.append( "DN: '" ).append( dn ).append( "', " );
         sb.append( "UUID: " ).append( uuid ).append( ", " );
         sb.append( "SeqNumber: " ).append( seqNumber ).append( '\n' );
 

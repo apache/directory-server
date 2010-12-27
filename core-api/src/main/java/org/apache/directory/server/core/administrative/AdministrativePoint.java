@@ -21,7 +21,6 @@ package org.apache.directory.server.core.administrative;
 
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -29,7 +28,6 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  * An interface used to describe an AdministrativePoint. An AdministratuvePoint 
  * holds some elements useful to navigate through the administrative model :
  * <li>
- * <ul>The DN : the AP position in the DIT</ul>
  * <ul>The UUID : The AP unique identifier used when an entry point to the AP it depends on</ul>
  * <ul>The role : the AP role</ul>
  * <ul>The parent : the AP this AP is the direct descendant of</ul>
@@ -38,12 +36,6 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  */
 public interface AdministrativePoint
 {
-    /**
-     * @return The AdministrativePoint DN
-     */
-    DN getDn();
-
-
     /**
      * @return The AdministrativePoint UUID
      */
@@ -54,6 +46,12 @@ public interface AdministrativePoint
      * @return The AdministrativePoint sequence number
      */
     long getSeqNumber();
+
+
+    /**
+     * @param seqNumber The AdministrativePoint sequence number
+     */
+    void setSeqNumber( long seqNumber );
 
 
     /**
@@ -106,6 +104,13 @@ public interface AdministrativePoint
      * @param subentry The added SubEntry
      */
     void addSubentry( Subentry subentry );
+    
+    
+    /**
+     * Remove a subentry from the AdminstrativePoint
+     * @param subentry The subentry to remove
+     */
+    void deleteSubentry( Subentry subentry );
     
     
     /**

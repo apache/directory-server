@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,12 +33,12 @@ public class CollectiveAttributeIAP extends CollectiveAttributeAdministrativePoi
     /**
      * Create an instance of CollectiveAttribute IAP
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
+     * @param seqNumber the associated Sequence Number
      */
-    public CollectiveAttributeIAP( DN dn, String uuid, long seqNumber )
+    public CollectiveAttributeIAP( String uuid, long seqNumber )
     {
-        super( dn, uuid, AdministrativeRole.CollectiveAttributeInnerArea, seqNumber );
+        super( uuid, AdministrativeRole.CollectiveAttributeInnerArea, seqNumber );
     }
 
 

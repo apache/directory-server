@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -35,12 +34,12 @@ public abstract class TriggerExecutionAdministrativePoint extends AbstractAdmini
     /**
      * Create an instance of TriggerExecutionAdministrativePoint
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
+     * @param seqNumber the associated Sequence Number
      */
-    protected TriggerExecutionAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
+    protected TriggerExecutionAdministrativePoint( String uuid, AdministrativeRole role, long seqNumber )
     {
-        super( dn, uuid, role, seqNumber );
+        super( uuid, role, seqNumber );
     }
 }

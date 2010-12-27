@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -35,12 +34,12 @@ public abstract class CollectiveAttributeAdministrativePoint extends AbstractAdm
     /**
      * Create an instance of CollectiveAttributeAdministrativePoint
      *
-     * @param dn The AdministrativePoint DN
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
+     * @param seqNumber the associated Sequence Number
      */
-    protected CollectiveAttributeAdministrativePoint( DN dn, String uuid, AdministrativeRole role, long seqNumber )
+    protected CollectiveAttributeAdministrativePoint( String uuid, AdministrativeRole role, long seqNumber )
     {
-        super( dn, uuid, role, seqNumber );
+        super( uuid, role, seqNumber );
     }
 }
