@@ -124,7 +124,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
 
         Entry ap = adminConnection.lookup( "ou=AAP,ou=system", "+", "*" );
         assertNotNull( ap );
-        assertEquals( "0", ap.get( "APSeqNumber" ).getString() );
+        assertEquals( "0", ap.get( "collectiveAttributeSeqNumber" ).getString() );
         
         // Now try to delete the AP
         DeleteResponse delResponse = adminConnection.delete( "ou=AAP,ou=system" );

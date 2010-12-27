@@ -117,9 +117,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The schemaManager */
     private SchemaManager schemaManager;
 
-    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
-    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
+    private static AttributeType MODIFIERS_NAME_AT;
+    private static AttributeType MODIFY_TIMESTAMP_AT;
+    private static AttributeType ENTRY_CSN_AT;
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -143,9 +143,22 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         adminDn = service.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         // Init the At we use locally
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        
+        // Init the ApSeqNuber ATs
+        AttributeType seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+
+        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+        
+        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+
+        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
     }
 
 
@@ -208,6 +221,27 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.add( addContext );
     }
 
+    
+    private boolean checkCanModify( boolean isAdmin, Modification modification, AttributeType attributeType ) throws LdapException
+    {
+        AttributeType modifiedAT = modification.getAttribute().getAttributeType();
+
+        if ( attributeType.equals( modifiedAT ) )
+        {
+            if ( !isAdmin )
+            {
+                String message = I18n.err( I18n.ERR_31 );
+                LOG.error( message );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+            }
+            else
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * {@inheritDoc}
@@ -229,51 +263,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         for ( Modification modification : mods )
         {
-            AttributeType attributeType = modification.getAttribute().getAttributeType();
-
-            if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
+            modifierAtPresent = checkCanModify( isAdmin, modification, MODIFIERS_NAME_AT );
+            modifiedTimeAtPresent = checkCanModify( isAdmin, modification, MODIFY_TIMESTAMP_AT );
+            entryCsnAtPresent = checkCanModify( isAdmin, modification, ENTRY_CSN_AT );
+            
+            if ( AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.contains( modification.getAttribute().getAttributeType() ) && !isAdmin )
             {
-                if ( !isAdmin )
-                {
-                    String message = I18n.err( I18n.ERR_31 );
-                    LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
-                }
-                else
-                {
-                    modifierAtPresent = true;
-                }
+                String message = I18n.err( I18n.ERR_32 );
+                LOG.error( message );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
             }
 
-            if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
-            {
-                if ( !isAdmin )
-                {
-                    String message = I18n.err( I18n.ERR_32 );
-                    LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
-                }
-                else
-                {
-                    modifiedTimeAtPresent = true;
-                }
-            }
-
-            if ( attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
-            {
-                if ( !isAdmin )
-                {
-                    String message = I18n.err( I18n.ERR_32 );
-                    LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
-                }
-                else
-                {
-                    entryCsnAtPresent = true;
-                }
-            }
-
-            if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
+            if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( modification.getAttribute().getAttributeType() ) && !isAdmin )
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
@@ -284,7 +285,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifierAtPresent )
         {
             // Inject the ModifiersName AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_ATTRIBUTE_TYPE, getPrincipal()
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_AT, getPrincipal()
                 .getName() );
 
             Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -295,7 +296,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifiedTimeAtPresent )
         {
             // Inject the ModifyTimestamp AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE, DateUtils
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_AT, DateUtils
                 .getGeneralizedTime() );
 
             Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -306,7 +307,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !entryCsnAtPresent )
         {
             String csn = service.getCSN().toString();
-            EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
+            EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_AT, csn );
             Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
             mods.add( updatedCsn );
         }

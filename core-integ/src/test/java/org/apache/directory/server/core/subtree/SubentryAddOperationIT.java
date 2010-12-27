@@ -325,7 +325,7 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
 
         Entry ap = adminConnection.lookup( "ou=SAP,ou=system", "+", "*" );
         assertNotNull( ap );
-        assertEquals( "0", ap.get( "APSeqNumber" ).getString() );
+        assertEquals( "0", ap.get( "CollectiveAttributeSeqNumber" ).getString() );
         
         // Now, try to inject an AP under the subentry
         // First add an AAP
@@ -489,7 +489,10 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
         
         Entry adminPoint = adminConnection.lookup( "ou=autonomousArea, ou=system", "+" );
         assertNotNull( adminPoint );
-        assertEquals( -1, Long.parseLong( adminPoint.get( "APSeqNumber" ).getString() ) );
+        assertEquals( -1, Long.parseLong( adminPoint.get( "AccessControlSeqNumber" ).getString() ) );
+        assertEquals( -1, Long.parseLong( adminPoint.get( "CollectiveAttributeSeqNumber" ).getString() ) );
+        assertEquals( -1, Long.parseLong( adminPoint.get( "SubSchemaSeqNumber" ).getString() ) );
+        assertEquals( -1, Long.parseLong( adminPoint.get( "TriggerExecutionSeqNumber" ).getString() ) );
 
         // Check that the entry is containing all the roles
         Entry entry = getAdminRole( "ou=autonomousArea, ou=system" );

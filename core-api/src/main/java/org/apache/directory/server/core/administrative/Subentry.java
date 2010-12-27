@@ -22,7 +22,6 @@ package org.apache.directory.server.core.administrative;
 
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -40,7 +39,7 @@ public class Subentry
     private SubtreeSpecification ss;
 
     /** The administratives roles */
-    private Set<AdministrativeRole> administrativeRoles;
+    private Set<AdministrativeRoleEnum> administrativeRoles;
     
     /** The subentry UUID */
     private String uuid;
@@ -73,7 +72,7 @@ public class Subentry
      *
      * @param administrativeRoles The roles to be added
      */
-    public void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
+    public void setAdministrativeRoles( Set<AdministrativeRoleEnum> administrativeRoles )
     {
         this.administrativeRoles = administrativeRoles;
     }
@@ -82,7 +81,7 @@ public class Subentry
     /**
      * @return The list of roles for this subentry
      */
-    public Set<AdministrativeRole> getAdministrativeRoles()
+    public Set<AdministrativeRoleEnum> getAdministrativeRoles()
     {
         return administrativeRoles;
     }
@@ -93,8 +92,7 @@ public class Subentry
      */
     public boolean isCollectiveAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.CollectiveAttributeInnerArea ) ||
-        administrativeRoles.contains( AdministrativeRole.CollectiveAttributeSpecificArea );
+        return administrativeRoles.contains( AdministrativeRoleEnum.CollectiveAttribute );
     }
 
 
@@ -103,7 +101,7 @@ public class Subentry
      */
     public boolean isSchemaAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.SubSchemaSpecificArea );
+        return administrativeRoles.contains( AdministrativeRoleEnum.SubSchema );
     }
 
 
@@ -112,8 +110,7 @@ public class Subentry
      */
     public boolean isAccessControlAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.AccessControlSpecificArea ) ||
-               administrativeRoles.contains( AdministrativeRole.AccessControlInnerArea );
+        return administrativeRoles.contains( AdministrativeRoleEnum.AccessControl );
     }
 
 
@@ -122,8 +119,7 @@ public class Subentry
      */
     public boolean isTriggersAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRole.TriggerExecutionSpecificArea ) ||
-               administrativeRoles.contains( AdministrativeRole.TriggerExecutionInnerArea );
+        return administrativeRoles.contains( AdministrativeRoleEnum.TriggerExecution );
     }
 
 
@@ -173,7 +169,7 @@ public class Subentry
         
         boolean isFirst = true;
         
-        for ( AdministrativeRole role : administrativeRoles )
+        for ( AdministrativeRoleEnum role : administrativeRoles )
         {
             if ( isFirst )
             {

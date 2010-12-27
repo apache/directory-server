@@ -181,8 +181,17 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the TriggerExecutionSubentries AT */
     private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
     
-    /** A reference to the SeqNumber AT */
-    private static AttributeType AP_SEQ_NUMBER_AT;
+    /** A reference to the AccessControl SeqNumber AT */
+    private static AttributeType ACCESS_CONTROL_SEQ_NUMBER_AT;
+
+    /** A reference to the CollectiveAttribute SeqNumber AT */
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT;
+
+    /** A reference to the SubSchema SeqNumber AT */
+    private static AttributeType SUB_SCHEMA_SEQ_NUMBER_AT;
+
+    /** A reference to the TriggerExecution SeqNumber AT */
+    private static AttributeType TRIGGER_EXECUTION_SEQ_NUMBER_AT;
 
     /** An enum used for the entries update */
     private enum OperationEnum
@@ -360,7 +369,10 @@ public class SubentryInterceptor extends BaseInterceptor
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
-        AP_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.AP_SEQ_NUMBER_AT );
+        ACCESS_CONTROL_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        SUB_SCHEMA_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
+        TRIGGER_EXECUTION_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {
@@ -443,30 +455,30 @@ public class SubentryInterceptor extends BaseInterceptor
     // Helper methods
     //-------------------------------------------------------------------------------------------
     /**
-     * Return the list of AdministrativeRole for a subentry. We only use Specific Area roles.
+     * Return the list of AdministrativeRole for a subentry
      */
-    private Set<AdministrativeRole> getSubentryAdminRoles( Entry subentry ) throws LdapException
+    private Set<AdministrativeRoleEnum> getSubentryAdminRoles( Entry subentry ) throws LdapException
     {
-        Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
+        Set<AdministrativeRoleEnum> adminRoles = new HashSet<AdministrativeRoleEnum>();
 
         if ( subentry.hasObjectClass( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
         {
-            adminRoles.add( AdministrativeRole.AccessControlSpecificArea );
+            adminRoles.add( AdministrativeRoleEnum.AccessControl );
         }
 
         if ( subentry.hasObjectClass( SchemaConstants.SUBSCHEMA_OC ) )
         {
-            adminRoles.add( AdministrativeRole.SubSchemaSpecificArea );
+            adminRoles.add( AdministrativeRoleEnum.SubSchema );
         }
 
         if ( subentry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
-            adminRoles.add( AdministrativeRole.CollectiveAttributeSpecificArea );
+            adminRoles.add( AdministrativeRoleEnum.CollectiveAttribute );
         }
 
         if ( subentry.hasObjectClass( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
         {
-            adminRoles.add( AdministrativeRole.TriggerExecutionSpecificArea );
+            adminRoles.add( AdministrativeRoleEnum.TriggerExecution );
         }
 
         return adminRoles;
@@ -1098,7 +1110,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing with subentry modification
     // -----------------------------------------------------------------------
 
-    private Set<AdministrativeRole> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
+    private Set<AdministrativeRoleEnum> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
         EntryAttribute ocFinalState = entry.get( OBJECT_CLASS_AT ).clone();
 
@@ -1667,21 +1679,45 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Inject a new seqNumber in an AP
      */
-    private long updateSeqNumber( DN apDn ) throws LdapException
+    private long updateSeqNumber( DN apDn, Set<AdministrativeRoleEnum> subentryRoles ) throws LdapException
     {
         long seqNumber = directoryService.getNewApSeqNumber();
-        
-        EntryAttribute newSeqNumber = new DefaultEntryAttribute( AP_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
-        
-        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
         List<Modification> modifications = new ArrayList<Modification>();
-        modifications.add( modification );
+
+        for ( AdministrativeRoleEnum role : subentryRoles )
+        {
+            EntryAttribute newSeqNumber = null;
+            
+            switch ( role )
+            {
+                case AccessControl :
+                    newSeqNumber = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    break;
+
+                case CollectiveAttribute :
+                    newSeqNumber = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    break;
+
+                case SubSchema :
+                    newSeqNumber = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    break;
+
+                case TriggerExecution :
+                    newSeqNumber = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    break;
+
+            }
+            
+            Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
+            modifications.add( modification );
+            
+        }
         
         ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
         modCtx.setByPassed( BYPASS_INTERCEPTORS );
         modCtx.setDn( apDn );
         modCtx.setModItems( modifications );
-        
+
         directoryService.getOperationManager().modify( modCtx );
         
         return seqNumber;
@@ -1840,29 +1876,29 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private void addSubentry( DN apDn, Entry entry, Subentry subentry, long seqNumber ) throws LdapException
     {
-        for ( AdministrativeRole role : getSubentryAdminRoles( entry ) )
+        for ( AdministrativeRoleEnum role : getSubentryAdminRoles( entry ) )
         {
             switch ( role )
             {
-                case AccessControlSpecificArea :
+                case AccessControl :
                      AdministrativePoint apAC = directoryService.getAccessControlAPCache().getElement( apDn );
                      apAC.addSubentry( subentry );
                      apAC.setSeqNumber( seqNumber );
                      break;
                      
-                case CollectiveAttributeSpecificArea :
+                case CollectiveAttribute :
                     AdministrativePoint apCA = directoryService.getCollectiveAttributeAPCache().getElement( apDn );
                     apCA.addSubentry( subentry );
                     apCA.setSeqNumber( seqNumber );
                     break;
                     
-                case SubSchemaSpecificArea :
+                case SubSchema :
                     AdministrativePoint apSS = directoryService.getSubschemaAPCache().getElement( apDn );
                     apSS.addSubentry( subentry );
                     apSS.setSeqNumber( seqNumber );
                     break;
                     
-                case TriggerExecutionSpecificArea :
+                case TriggerExecution :
                     AdministrativePoint apTE = directoryService.getTriggerExecutionAPCache().getElement( apDn );
                     apTE.addSubentry( subentry );
                     apTE.setSeqNumber( seqNumber );
@@ -1878,27 +1914,66 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private void deleteSubentry( DN apDn, Entry entry, Subentry subentry ) throws LdapException
     {
-        for ( AdministrativeRole role : getSubentryAdminRoles( entry ) )
+        for ( AdministrativeRoleEnum role : getSubentryAdminRoles( entry ) )
         {
             switch ( role )
             {
-                case AccessControlSpecificArea :
+                case AccessControl :
                      directoryService.getAccessControlAPCache().getElement( apDn ).deleteSubentry( subentry );
                      break;
                      
-                case CollectiveAttributeSpecificArea :
+                case CollectiveAttribute :
                     directoryService.getCollectiveAttributeAPCache().getElement( apDn ).deleteSubentry( subentry );
                     break;
                     
-                case SubSchemaSpecificArea :
+                case SubSchema :
                     directoryService.getSubschemaAPCache().getElement( apDn ).deleteSubentry( subentry );
                     break;
                     
-                case TriggerExecutionSpecificArea :
+                case TriggerExecution :
                     directoryService.getTriggerExecutionAPCache().getElement( apDn ).deleteSubentry( subentry );
                     break;
                     
             }
+        }
+    }
+    
+    
+    private void initSeqNumber( Entry entry, EntryAttribute adminPoint ) throws LdapException
+    {
+        String initSeqNumber = Long.toString( -1L );
+        
+        if ( adminPoint.contains( AdministrativeRole.AutonomousArea.getRole() ) )
+        {
+            entry.add( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, initSeqNumber);
+            entry.add( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, initSeqNumber);
+            entry.add( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT, initSeqNumber);
+            entry.add( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT, initSeqNumber);
+            
+            return;
+        }
+        
+        if ( adminPoint.contains( AdministrativeRole.AccessControlSpecificArea.getRole() ) || 
+             adminPoint.contains( AdministrativeRole.AccessControlInnerArea.getRole() ) )
+        {
+            entry.add( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, initSeqNumber);
+        }
+        
+        if ( adminPoint.contains( AdministrativeRole.CollectiveAttributeSpecificArea.getRole() ) || 
+             adminPoint.contains( AdministrativeRole.CollectiveAttributeInnerArea.getRole() ) )
+        {
+            entry.add( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, initSeqNumber);
+        }
+        
+        if ( adminPoint.contains( AdministrativeRole.SubSchemaSpecificArea.getRole() )  )
+        {
+            entry.add( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT, initSeqNumber);
+        }
+        
+        if ( adminPoint.contains( AdministrativeRole.TriggerExecutionSpecificArea.getRole() ) ||
+             adminPoint.contains( AdministrativeRole.TriggerExecutionInnerArea.getRole() ))
+        {
+            entry.add( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT, initSeqNumber);
         }
     }
 
@@ -1959,8 +2034,8 @@ public class SubentryInterceptor extends BaseInterceptor
                     throw new LdapUnwillingToPerformException( message );
                 }
                 
-                // Add a negative seqNumber 
-                entry.add( AP_SEQ_NUMBER_AT, Long.toString( -1L ) );
+                // Add a negative seqNumber for each role this AP manage
+                initSeqNumber( entry, adminPointAT );
                 
                 // Ok, we are golden.
                 next.add( addContext );
@@ -2010,13 +2085,14 @@ public class SubentryInterceptor extends BaseInterceptor
                 Subentry subentry = new Subentry();
 
                 subentry.setCn( entry.get( SchemaConstants.CN_AT ).getString() );
-                subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
+                Set<AdministrativeRoleEnum> subentryRoles = getSubentryAdminRoles( entry ) ;
+                subentry.setAdministrativeRoles( subentryRoles );
                 setSubtreeSpecification( subentry, entry );
                 
                 subentryCache.addSubentry( dn, subentry );
 
                 // Update the seqNumber and update the parent AP
-                long seqNumber = updateSeqNumber( apDn );
+                long seqNumber = updateSeqNumber( apDn, subentryRoles );
     
                 // Now inject the subentry into the backend
                 next.add( addContext );

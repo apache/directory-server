@@ -1048,7 +1048,8 @@ public class SchemaInterceptor extends BaseInterceptor
                 && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE )
                 && ( !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
                 && ( !attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
-                && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
+                && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) )
+                && ( !AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
                 LOG.error( msg );
