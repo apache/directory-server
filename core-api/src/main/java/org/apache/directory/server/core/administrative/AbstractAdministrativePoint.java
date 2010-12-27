@@ -215,6 +215,26 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
         sb.append( "Role: '" ).append( role ).append( "', " );
         sb.append( "UUID: " ).append( uuid ).append( ", " );
         sb.append( "SeqNumber: " ).append( seqNumber ).append( '\n' );
+        
+        if ( subentries.size() > 0 )
+        {
+            sb.append( "Subentries: " );
+            boolean isFirst = true;
+            
+            for ( Subentry subentry : subentries )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+                
+                sb.append( '\'' ).append( subentry.getCn() ).append( '\'' );
+            }
+        }
 
         return sb.toString();
     }

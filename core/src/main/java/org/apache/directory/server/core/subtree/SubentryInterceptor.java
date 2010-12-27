@@ -424,6 +424,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     newSubentry.setAdministrativeRoles( getSubentryAdminRoles( subentry ) );
                     newSubentry.setSubtreeSpecification( ss );
+                    newSubentry.setCn( subentry.get( SchemaConstants.CN_AT ).getString() );
 
                     subentryCache.addSubentry( subentryDn, newSubentry );
                 }
@@ -2005,26 +2006,13 @@ public class SubentryInterceptor extends BaseInterceptor
                     throw new LdapUnwillingToPerformException( message );
                 }
                 
-                /* ----------------------------------------------------------------
-                 * Build the set of operational attributes to be injected into
-                 * entries that are contained within the subtree represented by this
-                 * new subentry.  In the process we make sure the proper roles are
-                 * supported by the administrative point to allow the addition of
-                 * this new subentry.
-                 * ----------------------------------------------------------------
-                 */
+                // Create the Subentry
                 Subentry subentry = new Subentry();
+
+                subentry.setCn( entry.get( SchemaConstants.CN_AT ).getString() );
                 subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
-                //List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
-    
-                /* ----------------------------------------------------------------
-                 * Parse the subtreeSpecification of the subentry and add it to the
-                 * SubtreeSpecification cache.  If the parse succeeds we continue
-                 * to add the entry to the DIT.  Thereafter we search out entries
-                 * to modify the subentry operational attributes of.
-                 * ----------------------------------------------------------------
-                 */
                 setSubtreeSpecification( subentry, entry );
+                
                 subentryCache.addSubentry( dn, subentry );
 
                 // Update the seqNumber and update the parent AP
@@ -2033,7 +2021,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 // Now inject the subentry into the backend
                 next.add( addContext );
                 
-                // Get back the entryUUID and store it in the subentry
+                // Get back the subentry entryUUID and store it in the subentry
                 String subentryUuid = addContext.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString();
                 subentry.setUuid( subentryUuid );
 

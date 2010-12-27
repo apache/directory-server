@@ -45,6 +45,9 @@ public class Subentry
     /** The subentry UUID */
     private String uuid;
     
+    /** The subentry CN */
+    private String cn;
+    
     /**
      * Stores the subtreeSpecification
      *
@@ -143,12 +146,30 @@ public class Subentry
 
 
     /**
+     * @return the cn
+     */
+    public String getCn()
+    {
+        return cn;
+    }
+
+
+    /**
+     * @param cn the cn to set
+     */
+    public void setCn( String cn )
+    {
+        this.cn = cn;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Subentry-" ).append( uuid ).append( "[" );
+        sb.append( "Subentry: " ).append( cn).append( '-').append( uuid ).append( "[" );
         
         boolean isFirst = true;
         
