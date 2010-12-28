@@ -326,6 +326,8 @@ public class Authenticator extends KerberosMessage
     @Override
     public int computeLength()
     {
+    	reset();
+    	
         // Compute the Authenticator version length.
         authenticatorVnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
         authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
@@ -530,7 +532,26 @@ public class Authenticator extends KerberosMessage
     }
 
 
-
+    /**
+     * reset the transient fields used while computing length
+     */
+    private void reset()
+    {
+    	authenticatorVnoLength = 0;
+        crealmLength = 0;
+        crealmBytes = null;
+        cnameLength = 0;
+        cksumLength = 0;
+        cusecLength = 0;
+        ctimeLength = 0;
+        subkeyLength = 0;
+        seqNumberLength = 0;
+        authorizationDataLength = 0;
+        authenticatorSeqLength = 0;
+        authenticatorLength = 0;	
+    }
+    
+    
     /**
      * @see Object#toString()
      */

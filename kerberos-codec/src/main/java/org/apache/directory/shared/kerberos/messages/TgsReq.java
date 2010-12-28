@@ -27,6 +27,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -64,6 +65,9 @@ public class TgsReq extends KdcReq
      */
     public int computeLength()
     {
+    	kdcReqLength = 0;
+    	tgsReqLength = 0;
+    	
         kdcReqLength = super.computeLength();
         tgsReqLength = 1 + TLV.getNbBytes( kdcReqLength ) + kdcReqLength;
         
@@ -87,7 +91,7 @@ public class TgsReq extends KdcReq
         
         // The TGS-REQ SEQ Tag
         buffer.put( (byte)KerberosConstants.TGS_REQ_TAG );
-        buffer.put( TLV.getBytes( tgsReqLength ) );
+        buffer.put( TLV.getBytes( kdcReqLength ) );
         
         // The KDC-REQ --------------------------------------------------------
         super.encode( buffer );

@@ -464,6 +464,8 @@ public class KdcReqBody extends AbstractAsn1Object
      */
     public int computeLength()
     {
+    	reset();
+    	
         // The KdcOptions length
         kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
         kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength; 
@@ -723,6 +725,33 @@ public class KdcReqBody extends AbstractAsn1Object
         return buffer;
     }
 
+    
+    /**
+     * reset the transient fields used while computing length
+     */
+    private void reset()
+    {
+        kdcOptionsLength = 0;
+        cNameLength = 0;
+        realmLength = 0;
+        realmBytes = null;
+        sNameLength = 0;
+        fromLength = 0;
+        tillLength = 0;
+        rtimeLength = 0;
+        nonceLength = 0;
+        eTypeLength = 0;
+        eTypeSeqLength = 0;
+        eTypeLengths = null;
+        addressesLength = 0;
+        encAuthzDataLength = 0;
+        additionalTicketLength = 0;
+        additionalTicketSeqLength = 0;
+        additionalTicketsLengths = null;
+        kdcReqBodySeqLength = 0;
+        kdcReqBodyLength = 0;
+    }
+    
     
     /**
      * @see Object#toString()

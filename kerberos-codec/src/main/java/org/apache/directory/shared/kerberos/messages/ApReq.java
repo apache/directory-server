@@ -216,6 +216,8 @@ public class ApReq extends KerberosMessage
      */
     public int computeLength()
     {
+    	reset();
+    	
         // Compute the PVNO length.
         pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
@@ -326,6 +328,21 @@ public class ApReq extends KerberosMessage
     }
 
 
+    /**
+     * reset the transient fields used while computing length
+     */
+    private void reset()
+    {
+    	pvnoLength = 0;
+        msgTypeLength = 0;
+        apOptionsLength = 0;
+        ticketLength = 0;
+        authenticatorLength = 0;
+        apReqLength = 0;
+        apReqSeqLength = 0;	
+    }
+    
+    
     /**
      * @see Object#toString()
      */
