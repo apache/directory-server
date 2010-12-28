@@ -25,12 +25,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
@@ -287,8 +290,35 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
     // ===================================================================
     // Test the Delete operation on subentries
     // -------------------------------------------------------------------
-    // Failure expected
-    // -------------------------------------------------------------------
+    private long getACSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+
+    
+    private long getCASeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+    
     
     // -------------------------------------------------------------------
     // Success expected
@@ -310,6 +340,9 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         AddResponse response = adminConnection.add( autonomousArea );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
+        assertEquals( -1L, getACSeqNumber( "ou=AAP1,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=AAP1,ou=system" ) );
+        
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
             "cn=test,ou=AAP1,ou=system", 
@@ -322,9 +355,15 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
 
         response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        long seqNumber = getCASeqNumber( "ou=AAP1,ou=system" );
+        assertEquals( -1L, getACSeqNumber( "ou=AAP1,ou=system" ) );
         
         // Now delete it
         DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=AAP1,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
+        
+        // Check the CASeqNumber, it must be 1 now
+        assertEquals( seqNumber + 1, getCASeqNumber( "ou=AAP1,ou=system" ) );
     }
 }
