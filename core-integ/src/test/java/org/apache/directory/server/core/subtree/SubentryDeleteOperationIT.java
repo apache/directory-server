@@ -22,7 +22,7 @@ package org.apache.directory.server.core.subtree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -86,6 +86,52 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
     }
 
 
+    private long getACSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+
+    
+    private long getCASeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+    
+
+    private boolean checkIsAbsent( String dn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( dn );
+        
+        return entry == null;
+    }
+
+    
+    private boolean checkIsPresent( String dn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( dn );
+        
+        return entry != null;
+    }
+
+    
     // ===================================================================
     // Test the Delete operation on APs
     // -------------------------------------------------------------------
@@ -122,8 +168,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        Entry subentryEntry = adminConnection.lookup( "cn=test,ou=AAP,ou=system", "+", "*" );
-        assertNotNull( subentryEntry );
+        assertTrue( checkIsPresent( "cn=test,ou=AAP,ou=system" ) );
 
         Entry ap = adminConnection.lookup( "ou=AAP,ou=system", "+", "*" );
         assertNotNull( ap );
@@ -160,9 +205,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, delResponse.getLdapResult().getResultCode() );
         
         // Check that the SAP is still present
-        Entry entry = adminConnection.lookup( "ou=SAP,ou=system" );
-        
-        assertNotNull( entry );
+        assertTrue( checkIsPresent( "ou=SAP,ou=system" ) );
     }
 
     
@@ -193,9 +236,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the AAP is not anymore present
-        Entry aap = adminConnection.lookup( "ou=AAP2,ou=system" );
-        
-        assertNull( aap );
+        assertTrue( checkIsAbsent( "ou=AAP2,ou=system" ) );
     }
     
     
@@ -223,9 +264,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the SAP is not anymore present
-        Entry aap = adminConnection.lookup( "ou=SAP,ou=system" );
-        
-        assertNull( aap );
+        assertTrue( checkIsAbsent( "ou=SAP,ou=system" ) );
     }
     
     
@@ -271,9 +310,7 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the IAP is not anymore present
-        Entry iapDel = adminConnection.lookup( "ou=IA1P,ou=SAP1,ou=system" );
-        
-        assertNull( iapDel );
+        assertTrue( checkIsAbsent( "ou=IA1P,ou=SAP1,ou=system" ) );
         
         // Remove the SAP
         delResponse = adminConnection.delete( "ou=SAP1,ou=system" );
@@ -281,45 +318,13 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the SAP is not anymore present
-        Entry sapDel = adminConnection.lookup( "ou=SAP1,ou=system" );
-        
-        assertNull( sapDel );
+        assertTrue( checkIsAbsent( "ou=SAP1,ou=system" ) );
     }
     
     
     // ===================================================================
     // Test the Delete operation on subentries
     // -------------------------------------------------------------------
-    private long getACSeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-
-    
-    private long getCASeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-    
-    
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
@@ -365,5 +370,115 @@ public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
         
         // Check the CASeqNumber, it must be 1 now
         assertEquals( seqNumber + 1, getCASeqNumber( "ou=AAP1,ou=system" ) );
+    }
+    
+    
+    /**
+     * Test the deletion of a subentry under a SAP
+     */
+    @Test
+    public void testDeleteSubentryUnderSAP() throws Exception
+    {
+        // First add an AAP
+        Entry autonomousArea = LdifUtils.createEntry( 
+            "ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP1", 
+            "administrativeRole: CollectiveAttributeSpecificArea" );
+
+        AddResponse response = adminConnection.add( autonomousArea );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP1,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        long seqNumber = getCASeqNumber( "ou=SAP1,ou=system" );
+        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP1,ou=system" ) );
+        
+        // Now delete it
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP1,ou=system" );
+        assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
+        
+        // Check the CASeqNumber, it must be 1 now
+        assertEquals( seqNumber + 1, getCASeqNumber( "ou=SAP1,ou=system" ) );
+    }
+    
+    
+    /**
+     * Test the deletion of a subentry under an IAP
+     */
+    @Test
+    public void testDeleteSubentryUnderIAP() throws Exception
+    {
+        Entry sap = LdifUtils.createEntry( 
+            "ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP1", 
+            "administrativeRole: collectiveAttributeSpecificArea" );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( sap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Add the IAP
+        Entry iap = LdifUtils.createEntry( 
+            "ou=IAP1,ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: IAP1", 
+            "administrativeRole: collectiveAttributeInnerArea" );
+
+        // It should succeed
+        response = adminConnection.add( iap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" ) );
+        
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=IAP1,ou=SAP1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        long seqNumberSAP = getCASeqNumber( "ou=SAP1,ou=system" );
+        assertEquals( -1L, seqNumberSAP );
+        
+        long seqNumberIAP = getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" );
+        assertTrue( seqNumberIAP > -1L );
+
+        // Now delete it
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=IAP1,ou=SAP1,ou=system" );
+        assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
+        
+        // Check the CASeqNumbers, it must be 1 now
+        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
+        assertEquals( seqNumberIAP + 1, getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" ) );
+        
+        assertTrue( checkIsAbsent( "cn=test,ou=IAP1,ou=SAP1,ou=system" ) );
     }
 }
