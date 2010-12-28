@@ -1682,6 +1682,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private long updateSeqNumber( DN apDn, Set<AdministrativeRoleEnum> subentryRoles ) throws LdapException
     {
         long seqNumber = directoryService.getNewApSeqNumber();
+        String seqNumberStr = Long.toString( seqNumber );
         List<Modification> modifications = new ArrayList<Modification>();
 
         for ( AdministrativeRoleEnum role : subentryRoles )
@@ -1691,19 +1692,19 @@ public class SubentryInterceptor extends BaseInterceptor
             switch ( role )
             {
                 case AccessControl :
-                    newSeqNumber = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    newSeqNumber = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, seqNumberStr );
                     break;
 
                 case CollectiveAttribute :
-                    newSeqNumber = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    newSeqNumber = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, seqNumberStr );
                     break;
 
                 case SubSchema :
-                    newSeqNumber = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    newSeqNumber = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, seqNumberStr );
                     break;
 
                 case TriggerExecution :
-                    newSeqNumber = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( seqNumber ) );
+                    newSeqNumber = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, seqNumberStr );
                     break;
 
             }
@@ -1766,6 +1767,8 @@ public class SubentryInterceptor extends BaseInterceptor
                         }
                     }
                 }
+                
+                break;
 
             case CollectiveAttribute :
                 nodeAP = directoryService.getCollectiveAttributeAPCache().getParentWithElement( dn );
@@ -1777,7 +1780,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( parentAP != null )
                     {
                         // Update the entry seqNumber for CA
-                        entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                        entry.put( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
                         
                         // This entry has a CollectiveAttribute AP parent.
                         Set<Subentry> subentries = parentAP.getSubentries();
@@ -1799,6 +1802,8 @@ public class SubentryInterceptor extends BaseInterceptor
                         }
                     }
                 }
+                
+                break;
 
             case SubSchema :
                 nodeAP = directoryService.getSubschemaAPCache().getParentWithElement( dn );
@@ -1811,7 +1816,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     {
                         // This entry has a Subschema AP parent.
                         // Update the entry seqNumber for CA
-                        entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                        entry.put( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
                         
                         // This entry has a CollectiveAttribute AP parent.
                         Set<Subentry> subentries = parentAP.getSubentries();
@@ -1833,6 +1838,8 @@ public class SubentryInterceptor extends BaseInterceptor
                         }
                     }
                 }
+                
+                break;
 
             case TriggerExecution :
                 nodeAP = directoryService.getTriggerExecutionAPCache().getParentWithElement( dn );
@@ -1844,7 +1851,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( parentAP != null )
                     {
                         // Update the entry seqNumber for TE
-                        entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
+                        entry.put( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
                         
                         // This entry has a TriggerExecution AP parent.
                         Set<Subentry> subentries = parentAP.getSubentries();
@@ -1866,6 +1873,8 @@ public class SubentryInterceptor extends BaseInterceptor
                         }
                     }
                 }
+                
+                break;
         }
     }
     
@@ -2184,7 +2193,9 @@ public class SubentryInterceptor extends BaseInterceptor
             AdministrativePoint adminPoint = getAdministrativePoint( apDn );
             adminPoint.deleteSubentry( removedSubentry );
             
-            // And finally, update the parent AP SeqNumber
+            // And finally, update the parent AP SeqNumber for each role the subentry manage
+            Set<AdministrativeRoleEnum> subentryRoles = removedSubentry.getAdministrativeRoles();
+            updateSeqNumber( apDn, subentryRoles );
         }
         else
         {
