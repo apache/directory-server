@@ -25,22 +25,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,41 +57,8 @@ import org.junit.runner.RunWith;
         "sn: test",
         "userpassword: test"
     })
-public class SubentryAddOperationIT extends AbstractLdapTestUnit
+public class SubentryAddOperationIT extends AbstractSubentryUnitTest
 {
-    // The shared LDAP admin connection
-    private static LdapConnection adminConnection;
-
-    // The shared LDAP user connection
-    private static LdapConnection userConnection;
-
-
-    @Before
-    public void init() throws Exception
-    {
-        adminConnection = IntegrationUtils.getAdminConnection( service );
-        userConnection = IntegrationUtils.getConnectionAs( service, "cn=test,ou=system", "test" );
-    }
-
-
-    @After
-    public void shutdown() throws Exception
-    {
-        adminConnection.close();
-        userConnection.close();
-    }
-
-
-    private Entry getAdminRole( String dn ) throws Exception
-    {
-        Entry lookup = adminConnection.lookup( dn, "administrativeRole" );
-
-        assertNotNull( lookup );
-
-        return lookup;
-    }
-
-
     // ===================================================================
     // Test the Add operation for APs
     // -------------------------------------------------------------------
@@ -876,4 +838,81 @@ public class SubentryAddOperationIT extends AbstractLdapTestUnit
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
+    /**
+     * Test the addition of a SAP, SE and 2 entries
+     */
+    @Test
+    public void testAdd2Entries() throws Exception
+    {
+        // First add an SAP
+        Entry sap = LdifUtils.createEntry( 
+            "ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: SAP", 
+            "administrativeRole: collectiveAttributeSpecificArea" );
+
+        AddResponse response = adminConnection.add( sap );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
+        
+        // Create a first entry
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        response = adminConnection.add( e1 );
+
+        assertEquals( -1L, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        
+        // Create a second entry
+        Entry e2 = LdifUtils.createEntry( 
+            "cn=e2,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e2", 
+            "sn: entry 2" );
+
+        response = adminConnection.add( e2 );
+
+        assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+
+        // Add a subentry now
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Get back the CA SeqNumber
+        long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
+        
+        assertTrue( caSeqNumber > -1L );
+        
+        // Create a third entry
+        Entry e3 = LdifUtils.createEntry( 
+            "cn=e3,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e3", 
+            "sn: entry 3" );
+
+        response = adminConnection.add( e3 );
+
+        // The CASeqNumber for this entry must be the same than it's AP
+        assertEquals( caSeqNumber, getCASeqNumber( "cn=e3,ou=SAP,ou=system" ) );
+
+        // Now, check that when we read the other entries, their CA seqNumber is also updated
+        assertEquals( caSeqNumber, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertEquals( caSeqNumber, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+    }
 }

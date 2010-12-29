@@ -24,22 +24,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,77 +53,8 @@ import org.junit.runner.RunWith;
         "sn: test",
         "userpassword: test"
     })
-public class SubentryDeleteOperationIT extends AbstractLdapTestUnit
+public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
 {
-    // The shared LDAP admin connection
-    private static LdapConnection adminConnection;
-
-    // The shared LDAP user connection
-    private static LdapConnection userConnection;
-
-
-    @Before
-    public void init() throws Exception
-    {
-        adminConnection = IntegrationUtils.getAdminConnection( service );
-        userConnection = IntegrationUtils.getConnectionAs( service, "cn=test,ou=system", "test" );
-    }
-
-
-    @After
-    public void shutdown() throws Exception
-    {
-        adminConnection.close();
-        userConnection.close();
-    }
-
-
-    private long getACSeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-
-    
-    private long getCASeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-    
-
-    private boolean checkIsAbsent( String dn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( dn );
-        
-        return entry == null;
-    }
-
-    
-    private boolean checkIsPresent( String dn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( dn );
-        
-        return entry != null;
-    }
-
-    
     // ===================================================================
     // Test the Delete operation on APs
     // -------------------------------------------------------------------
