@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.subtree;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -28,6 +29,9 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
 
@@ -49,7 +53,7 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     public void init() throws Exception
     {
         adminConnection = IntegrationUtils.getAdminConnection( service );
-        userConnection = IntegrationUtils.getConnectionAs( service, "cn=test,ou=system", "test" );
+        userConnection = IntegrationUtils.getConnectionAs( service, "cn=testUser,ou=system", "test" );
     }
 
 
@@ -74,6 +78,9 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     }
     
     
+    /**
+     * Gets the AccessControl seqNumber of a given AP
+     */
     protected long getACSeqNumber( String apDn ) throws LdapException
     {
         Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
@@ -88,7 +95,10 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         return Long.parseLong( attribute.getString() );
     }
 
-    
+
+    /**
+     * Gets the CollectiveAttribute seqNumber of a given AP
+     */
     protected long getCASeqNumber( String apDn ) throws LdapException
     {
         Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
@@ -104,6 +114,9 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     }
     
 
+    /**
+     * Checks that an entry is absent from the DIT
+     */
     protected boolean checkIsAbsent( String dn ) throws LdapException
     {
         Entry entry = adminConnection.lookup( dn );
@@ -112,10 +125,51 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     }
 
     
+    /**
+     * Checks that an entry is present in the DIT
+     */
     protected boolean checkIsPresent( String dn ) throws LdapException
     {
         Entry entry = adminConnection.lookup( dn );
         
         return entry != null;
+    }
+    
+    
+    /**
+     * Creates an AAP 
+     */
+    protected void createAAP( String dn ) throws LdapException
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: accessControlSpecificArea",
+            "administrativeRole: autonomousArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Creates a CollectiveAttribute subentry
+     */
+    protected void createCASubentry( String dn ) throws LdapException
+    {
+        Entry subentry = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org" );
+
+        AddResponse response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
 }

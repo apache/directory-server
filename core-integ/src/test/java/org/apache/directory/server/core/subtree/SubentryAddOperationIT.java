@@ -49,12 +49,12 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "AdministrativePointServiceIT")
 @ApplyLdifs(
     {
-        // A test branch
-        "dn: cn=test,ou=system",
+        // An entry used to create a User session
+        "dn: cn=testUser,ou=system",
         "objectClass: top",
         "objectClass: person",
-        "cn: test",
-        "sn: test",
+        "cn: testUser",
+        "sn: test User",
         "userpassword: test"
     })
 public class SubentryAddOperationIT extends AbstractSubentryUnitTest

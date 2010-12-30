@@ -19,8 +19,15 @@
  */
 package org.apache.directory.server.core.subtree;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,7 +38,17 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "AdministrativePointServiceIT")
-public class SubentryLookupOperationIT
+@ApplyLdifs(
+    {
+        // An entry used to create a User session
+        "dn: cn=testUser,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: testUser",
+        "sn: test User",
+        "userpassword: test"
+    })
+public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
 {
     // ===================================================================
     // Test the Lookup operation on APs
@@ -42,7 +59,33 @@ public class SubentryLookupOperationIT
     @Test
     public void testLookupAP() throws Exception
     {
-        // TODO
+        createAAP( "ou=AAP, ou=system" );
+        
+        Entry aap = adminConnection.lookup( "ou=AAP, ou=system", "+" );
+        
+        assertNotNull( aap );
+        assertEquals ( "-1", aap.get( "AccessControlSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "CollectiveAttributeSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "SubSchemaSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "TriggerExecutionSeqNumber" ).getString() );
+    }
+
+    
+    /**
+     * Test the lookup of an AP. All APs are searcheable by default
+     */
+    @Test
+    public void testLookupAPNotAdmin() throws Exception
+    {
+        createAAP( "ou=AAP, ou=system" );
+        
+        Entry aap = userConnection.lookup( "ou=AAP, ou=system", "+" );
+        
+        assertNotNull( aap );
+        assertEquals ( "-1", aap.get( "AccessControlSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "CollectiveAttributeSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "SubSchemaSeqNumber" ).getString() );
+        assertEquals ( "-1", aap.get( "TriggerExecutionSeqNumber" ).getString() );
     }
 
     
@@ -56,7 +99,60 @@ public class SubentryLookupOperationIT
     @Test
     public void testLookupSubentry() throws Exception
     {
-        // TODO
+        createAAP( "ou=AAP, ou=system" );
+        createCASubentry( "cn=test, ou=AAP, ou=system" );
+        
+        Entry aap = adminConnection.lookup( "ou=AAP, ou=system", "+" );
+        
+        assertNotNull( aap );
+        long acSN = Long.parseLong( aap.get( "AccessControlSeqNumber" ).getString() );
+        long caSN = Long.parseLong( aap.get( "CollectiveAttributeSeqNumber" ).getString() );
+        long ssSN = Long.parseLong( aap.get( "SubSchemaSeqNumber" ).getString() );
+        long teSN = Long.parseLong( aap.get( "TriggerExecutionSeqNumber" ).getString() );
+        
+        assertEquals( -1L, acSN );
+        assertNotSame( -1L, caSN );
+        assertEquals( -1L, ssSN );
+        assertEquals( -1L, teSN );
+        
+        Entry subentry = adminConnection.lookup( "cn=test, ou=AAP, ou=system", "+" );
+        assertNotNull( subentry );
+        assertNull( subentry.get( "AccessControlSeqNumber" ) );
+        assertNull( subentry.get( "CollectiveAttributeSeqNumber" ) );
+        assertNull( subentry.get( "SubSchemaSeqNumber" ) );
+        assertNull( subentry.get( "TriggerExecutionSeqNumber" ) );
+    }
+
+
+    /**
+     * Test the lookup of a subentry. Subentries can be read directly as it's 
+     * a OBJECT search. We don't use the admin in this test
+     */
+    @Test
+    public void testLookupSubentryNotAdmin() throws Exception
+    {
+        createAAP( "ou=AAP, ou=system" );
+        createCASubentry( "cn=test, ou=AAP, ou=system" );
+        
+        Entry aap = userConnection.lookup( "ou=AAP, ou=system", "+" );
+        
+        assertNotNull( aap );
+        long acSN = Long.parseLong( aap.get( "AccessControlSeqNumber" ).getString() );
+        long caSN = Long.parseLong( aap.get( "CollectiveAttributeSeqNumber" ).getString() );
+        long ssSN = Long.parseLong( aap.get( "SubSchemaSeqNumber" ).getString() );
+        long teSN = Long.parseLong( aap.get( "TriggerExecutionSeqNumber" ).getString() );
+        
+        assertEquals( -1L, acSN );
+        assertNotSame( -1L, caSN );
+        assertEquals( -1L, ssSN );
+        assertEquals( -1L, teSN );
+        
+        Entry subentry = userConnection.lookup( "cn=test, ou=AAP, ou=system", "+" );
+        assertNotNull( subentry );
+        assertNull( subentry.get( "AccessControlSeqNumber" ) );
+        assertNull( subentry.get( "CollectiveAttributeSeqNumber" ) );
+        assertNull( subentry.get( "SubSchemaSeqNumber" ) );
+        assertNull( subentry.get( "TriggerExecutionSeqNumber" ) );
     }
 
 
