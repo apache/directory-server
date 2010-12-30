@@ -41,14 +41,12 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
@@ -60,7 +58,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -485,85 +482,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void addAdminPointCache( List<Entry> adminPointEntries ) throws LdapException
     {
-        for ( Entry adminPointEntry : adminPointEntries )
-        {
-            // update the cache
-            DN dn = adminPointEntry.getDn();
-
-            String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
-            EntryAttribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
-            long seqNumber = Long.parseLong( adminPointEntry.get( ApacheSchemaConstants.AP_SEQ_NUMBER_AT ).getString() );
-
-            //createAdministrativePoints( adminPoint, dn, uuid , seqNumber);
-        }
-    }
-
-
-    /**
-     * Update The Administrative Points cache, removing the given AdminPoint
-     */
-    private void deleteAdminPointCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext )
-        throws LdapException
-    {
-        DN dn = deleteContext.getDn();
-        
-        // Remove the APs in the AP cache
-        for ( Value<?> value : adminPoint )
-        {
-            String role = value.getString();
-
-            // Deal with Autonomous AP : delete the 4 associated SAP/AAP
-            if ( isAutonomousAreaRole( role ) )
-            {
-                // The AC AAP
-                directoryService.getAccessControlAPCache().remove( dn );
-
-                // The CA AAP
-                directoryService.getCollectiveAttributeAPCache().remove( dn );
-
-                // The TE AAP
-                directoryService.getTriggerExecutionAPCache().remove( dn );
-
-                // The SS AAP
-                directoryService.getSubschemaAPCache().remove( dn );
-
-                // If it's an AAP, we can get out immediately
-                return;
-            }
-
-            // Deal with AccessControl AP
-            if ( isAccessControlSpecificRole( role ) || isAccessControlInnerRole( role ) )
-            {
-                directoryService.getAccessControlAPCache().remove( dn );
-
-                continue;
-            }
-
-            // Deal with CollectveAttribute AP
-            if ( isCollectiveAttributeSpecificRole( role ) || isCollectiveAttributeInnerRole( role ) )
-            {
-                directoryService.getCollectiveAttributeAPCache().remove( dn );
-
-                continue;
-            }
-
-
-            // Deal with SubSchema AP
-            if ( isSubschemaSpecficRole( role ) )
-            {
-                directoryService.getSubschemaAPCache().remove( dn );
-
-                continue;
-            }
-
-            // Deal with TriggerExecution AP
-            if ( isTriggerExecutionSpecificRole( role ) || isTriggerExecutionInnerRole( role ))
-            {
-                directoryService.getTriggerExecutionAPCache().remove( dn );
-
-                continue;
-            }
-        }
     }
 
 
@@ -644,218 +562,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         return role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
                role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
-    }
-
-
-    /**
-     * Tells if the Administrative Point role is an AAP
-     */
-    private boolean isAAP( EntryAttribute adminPoint )
-    {
-        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
-            .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
-    }
-
-
-    /**
-     * Check that the AT contains the AccessControl SAP role
-     */
-    private boolean hasAccessControlSpecificRole( EntryAttribute adminPoint )
-    {
-        return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
-    }
-
-
-    private boolean isIAP( String role )
-    {
-        return INNER_AREA_ROLES.contains( role );
-    }
-
-
-    /**
-     * Check that the AT contains the CollectiveAttribute SAP role
-     */
-    private boolean hasCollectiveAttributeSpecificRole( EntryAttribute adminPoint )
-    {
-        return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
-    }
-
-
-    /**
-     * Check that the AT contains the TriggerExecution SAP role
-     */
-    private boolean hasTriggerExecutionSpecificRole( EntryAttribute adminPoint )
-    {
-        return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
-    }
-
-
-    /**
-     * Check that the AT contains the SubSchema SAP role
-     */
-    private boolean hasSubSchemaSpecificRole( EntryAttribute adminPoint )
-    {
-        return adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
-    }
-
-
-    /**
-     * Check that we don't have an IAP and a SAP with the same family
-     */
-    private void checkInnerSpecificMix( String role, EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
-    {
-        if ( isAccessControlInnerRole( role ) )
-        {
-            if ( hasAccessControlSpecificRole( adminPoint ) )
-            {
-                // This is inconsistent
-                String message = "Cannot add a specific Administrative Point and the same"
-                    + " inner Administrative point at the same time : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        if ( isCollectiveAttributeInnerRole( role ) )
-        {
-            if ( hasCollectiveAttributeSpecificRole( adminPoint ) )
-            {
-                // This is inconsistent
-                String message = "Cannot add a specific Administrative Point and the same"
-                    + " inner Administrative point at the same time : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        if ( isTriggerExecutionInnerRole( role ) )
-        {
-            if ( hasTriggerExecutionSpecificRole( adminPoint ) )
-            {
-                // This is inconsistent
-                String message = "Cannot add a specific Administrative Point and the same"
-                    + " inner Administrative point at the same time : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-            else
-            {
-                return;
-            }
-        }
-    }
-
-
-    /**
-     * Check that the IAPs (if any) have a parent. We will check for each kind or role :
-     * AC, CA and TE.
-     */
-    private void checkIAPHasParent( String role, EntryAttribute adminPoint, DN dn )
-        throws LdapUnwillingToPerformException
-    {
-        // Check for the AC role
-        if ( isAccessControlInnerRole( role ) )
-        {
-            DnNode<AdministrativePoint> acCache = directoryService.getAccessControlAPCache();
-            
-            DnNode<AdministrativePoint> parent =  acCache.getNode( dn );
-            
-            if ( parent == null )
-            {
-                // We don't have any AC administrativePoint in the tree, this is an error
-                String message = "Cannot add an IAP with no parent : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-        }
-        else if ( isCollectiveAttributeInnerRole( role ) )
-        {
-            DnNode<AdministrativePoint> caCache = directoryService.getCollectiveAttributeAPCache();
-            
-            boolean hasAP = caCache.hasParentElement( dn );
-            
-            if ( !hasAP )
-            {
-                // We don't have any AC administrativePoint in the tree, this is an error
-                String message = "Cannot add an IAP with no parent : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-        }
-        else if ( isTriggerExecutionInnerRole( role ) )
-        {
-            DnNode<AdministrativePoint> caCache = directoryService.getTriggerExecutionAPCache();
-            
-            DnNode<AdministrativePoint> parent =  caCache.getNode( dn );
-            
-            if ( parent == null )
-            {
-                // We don't have any AC administrativePoint in the tree, this is an error
-                String message = "Cannot add an IAP with no parent : " + adminPoint;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-        }
-        else
-        {
-            // Wtf ? We *must* have an IAP here...
-            String message = "This is not an IAP : " + role;
-            LOG.error( message );
-            throw new LdapUnwillingToPerformException( message );
-        }
-    }
-    
-    
-    //-------------------------------------------------------------------------------------------
-    // Helper methods
-    //-------------------------------------------------------------------------------------------
-    /**
-     * Return the list of AdministrativeRole for a subentry
-     */
-    private Set<AdministrativeRole> getSubentryAdminRoles( Entry subentry ) throws LdapException
-    {
-        Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
-
-        EntryAttribute oc = subentry.get( OBJECT_CLASS_AT );
-
-        if ( oc == null )
-        {
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_305 ) );
-        }
-
-        if ( oc.contains( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
-        {
-            adminRoles.add( AdministrativeRole.AccessControlInnerArea );
-        }
-
-        if ( oc.contains( SchemaConstants.SUBSCHEMA_OC ) )
-        {
-            adminRoles.add( AdministrativeRole.SubSchemaSpecificArea );
-        }
-
-        if ( oc.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
-        {
-            adminRoles.add( AdministrativeRole.CollectiveAttributeSpecificArea );
-        }
-
-        if ( oc.contains( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
-        {
-            adminRoles.add( AdministrativeRole.TriggerExecutionInnerArea );
-        }
-
-        return adminRoles;
     }
 
 
@@ -945,85 +651,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     
     
     /**
-     * Tells if an entry is a subEntry. We check that the entry has the SubEntry ObjectClass
-     */
-    private boolean isSubentry( Entry entry )
-    {
-        return entry.hasObjectClass( SchemaConstants.SUBENTRY_OC );
-    }
-    
-    
-    /**
-     * Checks if the given DN is a namingContext
-     */
-    private boolean isNamingContext( DN dn ) throws LdapException
-    {
-        DN namingContext = nexus.findSuffix( dn );
-
-        return dn.equals( namingContext );
-    }
-
-    
-    /**
-     * We have to check that we can remove the associated AdministrativePoint : <br/> 
-     * <ul>
-     * <li> if we remove an AAP, no descendant IAP should remain orphan</li>
-     * <li> If we remove a SAP, no descendant IAP should remain orphan</li>
-     * </ul> 
-     * {@inheritDoc}
-     *
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
-    {
-System.out.println( "addContext : " + deleteContext );
-        Entry entry = deleteContext.getEntry();
-        DN dn = entry.getDn();
-
-        // Check if we are deleting an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
-
-        if ( adminPoint == null )
-        {
-            // Nope, go on.
-            next.delete( deleteContext );
-
-            LOG.debug( "Exit from Administrative Interceptor" );
-
-            return;
-        }
-
-        LOG.debug( "Deletion of an administrative point at {} for the role {}", dn, adminPoint );
-        
-        // Protect the AP caches against concurrent access
-        lockWrite();
-        
-        // Check that the removed AdministrativeRoles are valid. We don't have to do
-        // any other check, as the deleted entry has no children.
-        for ( Value<?> role : adminPoint )
-        {
-            if ( !isValidRole( role.getString() ) )
-            {
-                String message = "Cannot remove the given role, it's not a valid one :" + role;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
-            }
-        }
-
-        // Ok, we can remove the AP
-        next.delete( deleteContext );
-
-        // Now, update the AdminPoint cache
-        deleteAdminPointCache( adminPoint, deleteContext );
-
-        // Release the APCaches lock
-        unlock();
-        
-        LOG.debug( "Deleted an Administrative Point at {}", dn );
-
-        return;
-    }
-
-
-    /**
      * Only the add and remove modifications are fully supported. We have to check that the
      * underlying APs are still consistent.
      * We first have to compute the final AdministrativeRole, then do a diff with the
@@ -1036,7 +663,6 @@ System.out.println( "addContext : " + deleteContext );
      */
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-System.out.println( "addContext : " + modifyContext );
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
         DN dn = modifyContext.getDn();
