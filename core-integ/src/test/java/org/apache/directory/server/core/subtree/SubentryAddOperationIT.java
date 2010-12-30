@@ -287,7 +287,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
 
         Entry ap = adminConnection.lookup( "ou=SAP,ou=system", "+", "*" );
         assertNotNull( ap );
-        assertEquals( "0", ap.get( "CollectiveAttributeSeqNumber" ).getString() );
+        assertEquals( "1", ap.get( "CollectiveAttributeSeqNumber" ).getString() );
         
         // Now, try to inject an AP under the subentry
         // First add an AAP

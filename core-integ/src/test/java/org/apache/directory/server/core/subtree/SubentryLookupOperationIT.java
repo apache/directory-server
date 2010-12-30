@@ -143,7 +143,7 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
         long teSN = Long.parseLong( aap.get( "TriggerExecutionSeqNumber" ).getString() );
         
         assertEquals( -1L, acSN );
-        assertNotSame( -1L, caSN );
+        assertEquals( service.getApSeqNumber(), caSN );
         assertEquals( -1L, ssSN );
         assertEquals( -1L, teSN );
         
@@ -153,16 +153,6 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
         assertNull( subentry.get( "CollectiveAttributeSeqNumber" ) );
         assertNull( subentry.get( "SubSchemaSeqNumber" ) );
         assertNull( subentry.get( "TriggerExecutionSeqNumber" ) );
-    }
-
-
-    /**
-     * Test the lookup of a subentry with the subentries control.
-     */
-    @Test
-    public void testLookupSubentryWithControl() throws Exception
-    {
-        // TODO
     }
     
     

@@ -1975,7 +1975,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public long getNewApSeqNumber()
     {
-        return apSeqNumber.getAndIncrement();
+        return apSeqNumber.incrementAndGet();
     }
 
 
