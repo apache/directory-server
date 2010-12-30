@@ -136,7 +136,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus().getRootDSE( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+            SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = service.getDNFactory().create( subschemaSubentry.getString() );
 
         // Create the Admin DN 

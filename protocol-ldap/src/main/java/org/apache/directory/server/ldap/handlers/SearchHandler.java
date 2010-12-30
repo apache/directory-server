@@ -1340,7 +1340,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
-        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ).get();
         DN subschemaSubentryDn = new DN( subschemaSubentry.getString(), ds.getSchemaManager() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 

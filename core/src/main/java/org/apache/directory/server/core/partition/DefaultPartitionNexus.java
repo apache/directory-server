@@ -164,7 +164,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         this.rootDSE = rootDSE;
 
         // Add the basic informations
-        rootDSE.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
+        rootDSE.put( SchemaConstants.SUB_SCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
         rootDSE.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
         rootDSE.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );

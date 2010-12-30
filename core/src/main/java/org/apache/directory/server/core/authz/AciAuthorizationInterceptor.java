@@ -212,7 +212,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+            SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ).get();
         DN subschemaSubentryDnName = directoryService.getDNFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
     }

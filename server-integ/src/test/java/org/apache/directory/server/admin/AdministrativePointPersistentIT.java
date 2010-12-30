@@ -81,19 +81,19 @@ import org.junit.runner.RunWith;
         "ObjectClass: organizationalUnit",
         "ou: noAP1",
         "",
-        // Entry # 2
-        "dn: ou=AAP1,ou=noAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: AAP1",
-        "administrativeRole: autonomousArea",
-        "",
-        // Entry # 3
-        "dn: ou=noAP2,ou=AAP1,ou=noAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: noAP2",
-        "",
+            // Entry # 2
+            "dn: ou=AAP1,ou=noAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: AAP1",
+            "administrativeRole: autonomousArea",
+            "",
+                // Entry # 3
+                "dn: ou=noAP2,ou=AAP1,ou=noAP1,ou=system",
+                "ObjectClass: top",
+                "ObjectClass: organizationalUnit",
+                "ou: noAP2",
+                "",
         // Entry # 4
         "dn: ou=AAP2,ou=system",
         "ObjectClass: top",
@@ -101,25 +101,25 @@ import org.junit.runner.RunWith;
         "ou: AAP2",
         "administrativeRole: autonomousArea",
         "",
-        // Entry # 5
-        "dn: ou=noAP3,ou=AAP2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: noAP3",
-        "",
-        // Entry # 6
-        "dn: ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: subAAP1",
-        "administrativeRole: autonomousArea",
-        "",
-        // Entry # 7
-        "dn: ou=noAP4,ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: noAP4",
-        ""
+            // Entry # 5
+            "dn: ou=noAP3,ou=AAP2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: noAP3",
+            "",
+                // Entry # 6
+                "dn: ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+                "ObjectClass: top",
+                "ObjectClass: organizationalUnit",
+                "ou: subAAP1",
+                "administrativeRole: autonomousArea",
+                "",
+                    // Entry # 7
+                    "dn: ou=noAP4,ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+                    "ObjectClass: top",
+                    "ObjectClass: organizationalUnit",
+                    "ou: noAP4",
+                    ""
     })
 public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
 {
@@ -165,6 +165,8 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     {
         assertTrue( ldapServer.isStarted() );
 
+        assertEquals( 3, ldapServer.getDirectoryService().getApSeqNumber() );
+        
         // Stop the server now, we will restart it immediately 
         ldapServer.stop();
         assertFalse( ldapServer.isStarted() );
@@ -180,6 +182,7 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
 
         assertTrue( service.isStarted() );
         assertTrue( ldapServer.getDirectoryService().isStarted() );
+        assertEquals( 3, ldapServer.getDirectoryService().getApSeqNumber() );
         
         // Check that the roles are present
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );

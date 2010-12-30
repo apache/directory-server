@@ -196,7 +196,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();

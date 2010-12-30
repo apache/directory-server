@@ -113,7 +113,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws LdapException
     {
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = directoryService.getDNFactory().create( attr.getString() );
         schemaManager = directoryService.getSchemaManager();
 
