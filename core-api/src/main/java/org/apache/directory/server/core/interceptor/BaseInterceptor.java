@@ -64,6 +64,9 @@ public abstract class BaseInterceptor implements Interceptor
     /** Set of operational attribute types used to manage the AdmnistrativePoint SequenceNumbers  */
     protected static final Set<AttributeType> AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
 
+    /** Set of operational attribute types used to manage the subentry references in entries */
+    protected static final Set<AttributeType> SUBENTRIES_UUID_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+
     /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
      * instances differently

@@ -259,19 +259,11 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddAPUnderSubentry() throws Exception
     {
         // First add an AAP
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: autonomousArea" );
-
-        AddResponse response = adminConnection.add( autonomousArea );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP,ou=system", 
+            "cn=test,ou=AAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -279,20 +271,20 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        Entry subentryEntry = adminConnection.lookup( "cn=test,ou=SAP,ou=system", "+", "*" );
+        Entry subentryEntry = adminConnection.lookup( "cn=test,ou=AAP,ou=system", "+", "*" );
         assertNotNull( subentryEntry );
 
-        Entry ap = adminConnection.lookup( "ou=SAP,ou=system", "+", "*" );
+        Entry ap = adminConnection.lookup( "ou=AAP,ou=system", "+", "*" );
         assertNotNull( ap );
         assertEquals( "1", ap.get( "CollectiveAttributeSeqNumber" ).getString() );
         
         // Now, try to inject an AP under the subentry
         // First add an AAP
         Entry badAP = LdifUtils.createEntry( 
-            "ou=BADAP,cn=test,ou=SAP,ou=system", 
+            "ou=BADAP,cn=test,ou=AAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
             "ou: BADAP", 
@@ -310,10 +302,10 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSAPWithNonAdmin() throws Exception
     {
         Entry sap = LdifUtils.createEntry( 
-            "ou=IAP,ou=system", 
+            "ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ou: IAP", 
+            "ou: SAP", 
             "administrativeRole: accessControlSpecificArea" );
 
         // It should fail
@@ -373,25 +365,17 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddIAPUnderSAPDifferentRole() throws Exception
     {
         // First add an SAP
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: accessControlSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAcSAP( "ou=SAP,ou=system" ); 
         
         // Add a IAP now
         Entry iap = LdifUtils.createEntry( 
-            "ou=IAP,ou=SAP1,ou=system", 
+            "ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
             "ou: IAP",
             "administrativeRole: collectiveATtributeInnerArea" );
 
-        response = adminConnection.add( iap );
+        AddResponse response = adminConnection.add( iap );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
     
@@ -437,17 +421,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testAddAutonomousArea() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=autonomousArea, ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: autonomousArea", 
-            "administrativeRole: autonomousArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=autonomousArea, ou=system" );
         
         Entry adminPoint = adminConnection.lookup( "ou=autonomousArea, ou=system", "+" );
         assertNotNull( adminPoint );
@@ -465,7 +439,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         assertTrue( entry.contains( "administrativeRole", "subschemaSpecificArea" ) );
         assertTrue( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
-        autonomousArea = LdifUtils.createEntry( 
+        Entry autonomousArea = LdifUtils.createEntry( 
             "ou=autonomousArea2, ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
@@ -477,7 +451,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "administrativeRole: TRIGGEREXECUTIONSPECIFICAREA" );
 
         // It should fail, as an autonomous area is already defining the specific areas
-        response = adminConnection.add( autonomousArea );
+        AddResponse response = adminConnection.add( autonomousArea );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
@@ -520,19 +494,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testAddInnerAreas() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP", 
-            "administrativeRole: accessControlSpecificArea",
-            "administrativeRole: autonomousArea"
-            );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
         
         // Now add the IAPs
         Entry innerAreas = LdifUtils.createEntry( 
@@ -543,7 +505,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "administrativeRole: accessControlINNERArea",
             "administrativeRole: TRIGGEREXECUTIONINNERAREA" );
 
-        response = adminConnection.add( innerAreas );
+        AddResponse response = adminConnection.add( innerAreas );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
@@ -563,25 +525,17 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddIAPUnderSAP() throws Exception
     {
         // First add an SAP
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: accessControlSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAcSAP( "ou=SAP,ou=system" );
         
         // Add a IAP now
         Entry iap = LdifUtils.createEntry( 
-            "ou=IAP,ou=SAP1,ou=system", 
+            "ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
             "ou: IAP",
             "administrativeRole: accessControlInnerArea" );
 
-        response = adminConnection.add( iap );
+        AddResponse response = adminConnection.add( iap );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
@@ -598,19 +552,11 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSubentryDifferentRole() throws Exception
     {
         // First add an SAP
-        Entry sap1 = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP1", 
-            "administrativeRole: accessControlSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap1 );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAcSAP( "ou=SAP,ou=system" ); 
         
         // Add a subentry now with a different role
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP1,ou=system", 
+            "cn=test,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -618,7 +564,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
     
@@ -654,15 +600,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSubentryUnderAAP() throws Exception
     {
         // First add an AAP
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP", 
-            "administrativeRole: autonomousArea" );
-
-        AddResponse response = adminConnection.add( autonomousArea );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
@@ -674,7 +612,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
@@ -686,19 +624,11 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSubentryUnderSAP() throws Exception
     {
         // First add an SAP
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP1", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" ); 
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP1,ou=system", 
+            "cn=test,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -706,7 +636,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
@@ -718,30 +648,22 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSubentryUnderIAP() throws Exception
     {
         // First add an SAP
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP2,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP2", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" ); 
         
         // Add a IAP now
         Entry iap = LdifUtils.createEntry( 
-            "ou=IAP2,ou=SAP2,ou=system", 
+            "ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ou: IAP2",
+            "ou: IAP",
             "administrativeRole: collectiveAttributeInnerArea" );
 
-        response = adminConnection.add( iap );
+        AddResponse response = adminConnection.add( iap );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP2,ou=system", 
+            "cn=test,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -761,19 +683,11 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAddSubentryWith2Roles() throws Exception
     {
         // First add an AAP
-        Entry aap = LdifUtils.createEntry( 
-            "ou=AAP2,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP2", 
-            "administrativeRole: autonomousArea" );
-
-        AddResponse response = adminConnection.add( aap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" ); 
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=AAP2,ou=system", 
+            "cn=test,ou=AAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -798,16 +712,16 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             + "  } "
             + "}" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        DN subentryDN = new DN( "cn=test, ou=AAP2,ou=system" );
+        DN subentryDN = new DN( "cn=test, ou=AAP,ou=system" );
         
         // Get back the subentry
         Entry addedSE = adminConnection.lookup( subentryDN, "+" );
         String subentryUUID = addedSE.get( "entryUUID" ).getString();
         
-        DN apDn = new DN( "ou=AAP2,ou=system" );
+        DN apDn = new DN( "ou=AAP,ou=system" );
         apDn.normalize( service.getSchemaManager() );
         
         // Check that we have a ref to the added subentry in the two APs (AC and CA)
@@ -845,15 +759,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     public void testAdd2Entries() throws Exception
     {
         // First add an SAP
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        AddResponse response = adminConnection.add( sap );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
         assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
         
         // Create a first entry
@@ -864,7 +770,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "cn: e1", 
             "sn: entry 1" );
         
-        response = adminConnection.add( e1 );
+        AddResponse response = adminConnection.add( e1 );
 
         assertEquals( -1L, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
         

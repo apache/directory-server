@@ -147,18 +147,26 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         
-        // Init the ApSeqNuber ATs
-        AttributeType seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
-        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+        // Init the ApSeqNuber ATs and SubentriesUUID AT
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( attributeType );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.ACCESS_CONTROL_SUBENTRIES_UUID_AT );
+        SUBENTRIES_UUID_ATTRIBUTE_TYPES.add( attributeType );
 
-        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
-        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( attributeType );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
+        SUBENTRIES_UUID_ATTRIBUTE_TYPES.add( attributeType );
         
-        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
-        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( attributeType );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SUB_SCHEMA_SUBENTRY_UUID_AT );
+        SUBENTRIES_UUID_ATTRIBUTE_TYPES.add( attributeType );
 
-        seqNumberAT = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
-        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( seqNumberAT );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
+        AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.add( attributeType );
+        attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
+        SUBENTRIES_UUID_ATTRIBUTE_TYPES.add( attributeType );
     }
 
 
@@ -268,6 +276,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             entryCsnAtPresent = checkCanModify( isAdmin, modification, ENTRY_CSN_AT );
             
             if ( AP_SEQUENCE_NUMBER_ATTRIBUTE_TYPES.contains( modification.getAttribute().getAttributeType() ) && !isAdmin )
+            {
+                String message = I18n.err( I18n.ERR_32 );
+                LOG.error( message );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+            }
+
+            if ( SUBENTRIES_UUID_ATTRIBUTE_TYPES.contains( modification.getAttribute().getAttributeType() ) && !isAdmin )
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );

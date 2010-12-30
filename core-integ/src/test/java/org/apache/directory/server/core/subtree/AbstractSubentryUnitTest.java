@@ -145,8 +145,45 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
             dn, 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "administrativeRole: accessControlSpecificArea",
             "administrativeRole: autonomousArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Creates a CA SAP 
+     */
+    protected void createCaSAP( String dn ) throws LdapException
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( autonomousArea );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Creates an AC SAP 
+     */
+    protected void createAcSAP( String dn ) throws LdapException
+    {
+        Entry autonomousArea = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: accessControlSpecificArea"
             );
 
         // It should succeed

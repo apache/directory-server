@@ -102,7 +102,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -160,6 +159,9 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the ObjectClass AT */
     private static AttributeType OBJECT_CLASS_AT;
+    
+    /** A reference to the EntryUUID AT */
+    private static AttributeType ENTRY_UUID_AT;
 
     /** A reference to the AdministrativeRole AT */
     private static AttributeType ADMINISTRATIVE_ROLE_AT;
@@ -167,32 +169,25 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the SubtreeSpecification AT */
     private static AttributeType SUBTREE_SPECIFICATION_AT;
 
-    /** A reference to the AccessControlSubentries AT */
+    /** A reference to the AccessControl dedicated AT */
     private static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
-
-    /** A reference to the AccessControlSubentries AT */
-    private static AttributeType SUBSCHEMA_SUBENTRY_AT;
-
-    /** A reference to the CollectiveAttributeSubentries AT */
-    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-
-    /** A reference to the EntryUUID AT */
-    private static AttributeType ENTRY_UUID_AT;
-    
-    /** A reference to the TriggerExecutionSubentries AT */
-    private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
-    
-    /** A reference to the AccessControl SeqNumber AT */
     private static AttributeType ACCESS_CONTROL_SEQ_NUMBER_AT;
+    private static AttributeType ACCESS_CONTROL_SUBENTRIES_UUID_AT;
 
-    /** A reference to the CollectiveAttribute SeqNumber AT */
+    /** A reference to the CollectiveAttribute dedicated AT */
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
     private static AttributeType COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT;
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT;
 
-    /** A reference to the SubSchema SeqNumber AT */
+    /** A reference to the Subschema dedicated AT */
+    private static AttributeType SUBSCHEMA_SUBENTRY_AT;
+    private static AttributeType SUBSCHEMA_SUBENTRY_UUID_AT;
     private static AttributeType SUB_SCHEMA_SEQ_NUMBER_AT;
 
-    /** A reference to the TriggerExecution SeqNumber AT */
+    /** A reference to the TriggerExecution dedicated AT */
+    private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
     private static AttributeType TRIGGER_EXECUTION_SEQ_NUMBER_AT;
+    private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_UUID_AT;
 
     /** An enum used for the entries update */
     private enum OperationEnum
@@ -343,7 +338,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
-            updateSeqNumber( entry );
+            updateEntry( entry );
 
             return true;
         }
@@ -369,15 +364,23 @@ public class SubentryInterceptor extends BaseInterceptor
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
-        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        
         ACCESS_CONTROL_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        ACCESS_CONTROL_SUBENTRIES_UUID_AT = schemaManager.getAttributeType( ApacheSchemaConstants.ACCESS_CONTROL_SUBENTRIES_UUID_AT );
+
         COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT = schemaManager.getAttributeType( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
+        
         SUB_SCHEMA_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
+        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUB_SCHEMA_SUBENTRY_AT );
+        SUBSCHEMA_SUBENTRY_UUID_AT = schemaManager.getAttributeType( ApacheSchemaConstants.SUB_SCHEMA_SUBENTRY_UUID_AT );
+        
         TRIGGER_EXECUTION_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
+        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        TRIGGER_EXECUTION_SUBENTRIES_UUID_AT = schemaManager.getAttributeType( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {
@@ -521,35 +524,35 @@ public class SubentryInterceptor extends BaseInterceptor
      * Update the seqNumber for each kind of role. The entry will be updated in the backend only
      * if its seqNumbers are not up to date.
      */
-    private boolean updateSeqNumber( Entry entry ) throws LdapException
+    private boolean updateEntry( Entry entry ) throws LdapException
     {
-        Modification modificationAc = updateACSeqNumber( entry );
-        Modification modificationCa = updateCASeqNumber( entry );
-        Modification modificationSs = updateSSSeqNumber( entry );
-        Modification modificationTe = updateTESeqNumber( entry );
+        List<Modification> modificationAcs = updateEntry( entry, directoryService.getAccessControlAPCache(), ACCESS_CONTROL_SEQ_NUMBER_AT, ACCESS_CONTROL_SUBENTRIES_UUID_AT );
+        List<Modification> modificationCas = updateEntry( entry, directoryService.getCollectiveAttributeAPCache(), COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
+        List<Modification> modificationSss = updateEntry( entry, directoryService.getSubschemaAPCache(), SUB_SCHEMA_SEQ_NUMBER_AT, SUBSCHEMA_SUBENTRY_UUID_AT );
+        List<Modification> modificationTes = updateEntry( entry, directoryService.getTriggerExecutionAPCache(), TRIGGER_EXECUTION_SEQ_NUMBER_AT, TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
         
-        if ( ( modificationAc != null ) || ( modificationCa != null ) || ( modificationSs != null ) || (modificationTe != null ) )
+        if ( ( modificationAcs != null ) || ( modificationCas != null ) || ( modificationSss != null ) || (modificationTes != null ) )
         {
             List<Modification> modifications = new ArrayList<Modification>();
             
-            if ( modificationAc != null )
+            if ( modificationAcs != null )
             {
-                modifications.add( modificationAc );
+                modifications.addAll( modificationAcs );
             }
             
-            if ( modificationCa != null )
+            if ( modificationCas != null )
             {
-                modifications.add( modificationCa );
+                modifications.addAll( modificationCas );
             }
             
-            if ( modificationSs != null )
+            if ( modificationSss != null )
             {
-                modifications.add( modificationSs );
+                modifications.addAll( modificationSss );
             }
             
-            if ( modificationTe != null )
+            if ( modificationTes != null )
             {
-                modifications.add( modificationTe );
+                modifications.addAll( modificationTes );
             }
             
             ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
@@ -568,384 +571,93 @@ public class SubentryInterceptor extends BaseInterceptor
 
     
     /**
-     * Update the AccessControl seqNumber for each kind of role. The entry will be updated in the backend only
-     * if its seqNumbers are not up to date.
-     */
-    private Modification updateACSeqNumber( Entry entry ) throws LdapException
-    {
-        DN entryDn = entry.getDn();
-        EntryAttribute newAcSeqNumberAT = null;
-        Modification modificationAc = null;
-
-        DnNode<AdministrativePoint> apNode = directoryService.getAccessControlAPCache().getParentWithElement( entryDn );
-        
-        if ( apNode != null )
-        {
-            AdministrativePoint adminPoint = apNode.getElement();
-            EntryAttribute acSeqNumberAT = entry.get( ACCESS_CONTROL_SEQ_NUMBER_AT );
-
-            if ( adminPoint.isSpecific() )
-            {
-                long apSeqNumber = adminPoint.getSeqNumber();
-                
-                if ( acSeqNumberAT != null )
-                {
-                    if ( apSeqNumber != Long.parseLong( acSeqNumberAT.getString() ) )
-                    {
-                        // The seqNumber is not up to date, we have to update it
-                        newAcSeqNumberAT = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                        modificationAc = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newAcSeqNumberAT );
-                    }
-                }
-                else
-                {
-                    // We have to add a seqNumber in the entry
-                    newAcSeqNumberAT = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                    modificationAc = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newAcSeqNumberAT );
-                }
-            }
-            else
-            {
-                // We have to recurse : starting from the IAP, we go up the AP tree
-                // until we find the SAP. For each AP we find, we compare the AP's seqNumber
-                // and if it's above the current SeqNumber (initialized to the entry value),
-                // we select this SeqNumber. When we are done, if the selected SeqNumber is
-                // greater than the initial entry seqNumber, then we update the entry
-                
-                // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
-                long entrySeqNumber = -1L;
-                
-                if ( acSeqNumberAT != null )
-                {
-                    entrySeqNumber = Long.parseLong( acSeqNumberAT.getString() );
-                }
-                
-                boolean sapFound = false;
-                boolean seqNumberUpdated = false;
-
-                do
-                {
-                    if ( adminPoint.isSpecific() )
-                    {
-                        sapFound = true;
-                    }
-                    
-                    if ( entrySeqNumber < adminPoint.getSeqNumber() )
-                    {
-                        // Evaluate the current AP on the entry for each subentry
-                        for ( Subentry subentry : adminPoint.getSubentries() )
-                        {
-                            if ( evaluator.evaluate( subentry.getSubtreeSpecification(), apNode.getDn(), entryDn, entry ) )
-                            {
-                                entrySeqNumber = adminPoint.getSeqNumber();
-                                seqNumberUpdated = true;
-                                
-                                // No need to evaluate another subentry
-                                break;
-                            }
-                        }
-                    }
-                    
-                    // Go down one level
-                    apNode = apNode.getParentWithElement( apNode.getDn() );
-                } while ( !sapFound );
-                
-                if ( seqNumberUpdated )
-                {
-                    newAcSeqNumberAT = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( entrySeqNumber ) );
-                    modificationAc = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newAcSeqNumberAT );
-                }
-            }
-        }
-        
-        return modificationAc;
-    }
-    
-
-    
-    /**
      * Update the CollectiveAttribute seqNumber for each kind of role. The entry will be updated in the backend only
      * if its seqNumbers are not up to date.
      */
-    private Modification updateCASeqNumber( Entry entry ) throws LdapException
+    private List<Modification> updateEntry( Entry entry, DnNode<AdministrativePoint> apCache, AttributeType seqNumberAT,
+                AttributeType subentryUuidAT ) throws LdapException
     {
         DN entryDn = entry.getDn();
-        EntryAttribute newCaSeqNumberAT = null;
-        Modification modificationCa = null;
+        List<Modification> modifications = null;
         
-        DnNode<AdministrativePoint> apNode = directoryService.getCollectiveAttributeAPCache().getParentWithElement( entryDn );
+        
+        DnNode<AdministrativePoint> apNode = apCache.getParentWithElement( entryDn );
         
         if ( apNode != null )
         {
+            // We have an AdministrativePoint for this entry, get its SeqNumber
             AdministrativePoint adminPoint = apNode.getElement();
-            EntryAttribute caSeqNumberAT = entry.get( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+            EntryAttribute seqNumberAttribute = entry.get( seqNumberAT );
 
-            if ( adminPoint.isSpecific() )
-            {
-                long apSeqNumber = adminPoint.getSeqNumber();
-                
-                if ( caSeqNumberAT != null )
-                {
-                    if ( apSeqNumber != Long.parseLong( caSeqNumberAT.getString() ) )
-                    {
-                        // The seqNumber is not up to date, we have to update it
-                        newCaSeqNumberAT = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                        modificationCa = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newCaSeqNumberAT );
-                    }
-                }
-                else
-                {
-                    // We have to add a seqNumber in the entry
-                    newCaSeqNumberAT = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                    modificationCa = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newCaSeqNumberAT );
-                }
-            }
-            else
-            {
-                // We have to recurse : starting from the IAP, we go up the AP tree
-                // until we find the SAP. For each AP we find, we compare the AP's seqNumber
-                // and if it's above the current SeqNumber (initialized to the entry value),
-                // we select this SeqNumber. When we are done, if the selected SeqNumber is
-                // greater than the initial entry seqNumber, then we update the entry
-                
-                // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
-                long entrySeqNumber = -1L;
-                
-                if ( caSeqNumberAT != null )
-                {
-                    entrySeqNumber = Long.parseLong( caSeqNumberAT.getString() );
-                }
-                
-                boolean sapFound = false;
-                boolean seqNumberUpdated = false;
-
-                do
-                {
-                    if ( adminPoint.isSpecific() )
-                    {
-                        sapFound = true;
-                    }
-                    
-                    if ( entrySeqNumber < adminPoint.getSeqNumber() )
-                    {
-                        // Evaluate the current AP on the entry for each subentry
-                        for ( Subentry subentry : adminPoint.getSubentries() )
-                        {
-                            if ( evaluator.evaluate( subentry.getSubtreeSpecification(), apNode.getDn(), entryDn, entry ) )
-                            {
-                                entrySeqNumber = adminPoint.getSeqNumber();
-                                seqNumberUpdated = true;
-                                
-                                // No need to evaluate another subentry
-                                break;
-                            }
-                        }
-                    }
-                    
-                    // Go down one level
-                    apNode = apNode.getParentWithElement( apNode.getDn() );
-                } while ( !sapFound );
-                
-                if ( seqNumberUpdated )
-                {
-                    newCaSeqNumberAT = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( entrySeqNumber ) );
-                    modificationCa = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newCaSeqNumberAT );
-                }
-            }
-        }
-
-        return modificationCa;
-    }
-
-    
-    /**
-     * Update the SubSchema seqNumber for each kind of role. The entry will be updated in the backend only
-     * if its seqNumbers are not up to date.
-     */
-    private Modification updateSSSeqNumber( Entry entry ) throws LdapException
-    {
-        DN entryDn = entry.getDn();
-        EntryAttribute newSsSeqNumberAT = null;
-        Modification modificationSs = null;
-        
-        DnNode<AdministrativePoint> apNode = directoryService.getSubschemaAPCache().getParentWithElement( entryDn );
-        
-        if ( apNode != null )
-        {
-            AdministrativePoint adminPoint = apNode.getElement();
-            EntryAttribute ssSeqNumberAT = entry.get( SUB_SCHEMA_SEQ_NUMBER_AT );
-
-            long apSeqNumber = adminPoint.getSeqNumber();
+            // We have to recurse : starting from the IAP, we go up the AP tree
+            // until we find the SAP. For each AP we find, we compare the AP's seqNumber
+            // and if it's above the current SeqNumber (initialized to the entry value),
+            // we select this SeqNumber. When we are done, if the selected SeqNumber is
+            // greater than the initial entry seqNumber, then we update the entry
             
-            if ( ssSeqNumberAT != null )
+            // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
+            long entrySeqNumber = Long.MIN_VALUE;
+            
+            if ( seqNumberAttribute != null )
             {
-                if ( apSeqNumber != Long.parseLong( ssSeqNumberAT.getString() ) )
-                {
-                    // The seqNumber is not up to date, we have to update it
-                    newSsSeqNumberAT = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                    modificationSs = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSsSeqNumberAT );
-                }
+                entrySeqNumber = Long.parseLong( seqNumberAttribute.getString() );
             }
-            else
-            {
-                // We have to add a seqNumber in the entry
-                newSsSeqNumberAT = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                modificationSs = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newSsSeqNumberAT );
-            }
-        }
+            
+            boolean sapFound = false;
+            boolean seqNumberUpdated = false;
+            List<String> subentryUuids = null;
 
-        return modificationSs;
-    }
-
-    
-    /**
-     * Update the TriggerExecution seqNumber for each kind of role. The entry will be updated in the backend only
-     * if its seqNumbers are not up to date.
-     */
-    private Modification updateTESeqNumber( Entry entry ) throws LdapException
-    {
-        DN entryDn = entry.getDn();
-        EntryAttribute newTeSeqNumberAT = null;
-        Modification modificationTe = null;
-        
-        DnNode<AdministrativePoint> apNode = directoryService.getTriggerExecutionAPCache().getParentWithElement( entryDn );
-        
-        if ( apNode != null )
-        {
-            AdministrativePoint adminPoint = apNode.getElement();
-            EntryAttribute teSeqNumberAT = entry.get( TRIGGER_EXECUTION_SEQ_NUMBER_AT );
-
-            if ( adminPoint.isSpecific() )
+            do
             {
-                long apSeqNumber = adminPoint.getSeqNumber();
-                
-                if ( teSeqNumberAT != null )
+                if ( adminPoint.isSpecific() )
                 {
-                    if ( apSeqNumber != Long.parseLong( teSeqNumberAT.getString() ) )
-                    {
-                        // The seqNumber is not up to date, we have to update it
-                        newTeSeqNumberAT = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                        modificationTe = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newTeSeqNumberAT );
-                    }
-                }
-                else
-                {
-                    // We have to add a seqNumber in the entry
-                    newTeSeqNumberAT = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( apSeqNumber ) );
-                    modificationTe = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newTeSeqNumberAT );
-                }
-            }
-            else
-            {
-                // We have to recurse : starting from the IAP, we go up the AP tree
-                // until we find the SAP. For each AP we find, we compare the AP's seqNumber
-                // and if it's above the current SeqNumber (initialized to the entry value),
-                // we select this SeqNumber. When we are done, if the selected SeqNumber is
-                // greater than the initial entry seqNumber, then we update the entry
-                
-                // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
-                long entrySeqNumber = -1L;
-                
-                if ( teSeqNumberAT != null )
-                {
-                    entrySeqNumber = Long.parseLong( teSeqNumberAT.getString() );
+                    sapFound = true;
                 }
                 
-                boolean sapFound = false;
-                boolean seqNumberUpdated = false;
-
-                do
+                if ( entrySeqNumber < adminPoint.getSeqNumber() )
                 {
-                    if ( adminPoint.isSpecific() )
+                    seqNumberUpdated = true;
+                    subentryUuids = new ArrayList<String>();
+                    entrySeqNumber = adminPoint.getSeqNumber();
+
+                    // Evaluate the current AP on the entry for each subentry
+                    for ( Subentry subentry : adminPoint.getSubentries() )
                     {
-                        sapFound = true;
-                    }
-                    
-                    if ( entrySeqNumber < adminPoint.getSeqNumber() )
-                    {
-                        // Evaluate the current AP on the entry for each subentry
-                        for ( Subentry subentry : adminPoint.getSubentries() )
+                        if ( evaluator.evaluate( subentry.getSubtreeSpecification(), apNode.getDn(), entryDn, entry ) )
                         {
-                            if ( evaluator.evaluate( subentry.getSubtreeSpecification(), apNode.getDn(), entryDn, entry ) )
-                            {
-                                entrySeqNumber = adminPoint.getSeqNumber();
-                                seqNumberUpdated = true;
-                                
-                                // No need to evaluate another subentry
-                                break;
-                            }
+                            subentryUuids.add( subentry.getUuid() ); 
                         }
                     }
-                    
-                    // Go down one level
-                    apNode = apNode.getParentWithElement( apNode.getDn() );
-                } while ( !sapFound );
+                }
                 
-                if ( seqNumberUpdated )
-                {
-                    newTeSeqNumberAT = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( entrySeqNumber ) );
-                    modificationTe = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, newTeSeqNumberAT );
-                }
-            }
-        }
-
-        return modificationTe;
-    }
-
-    /**
-     * Update all the entries under an AP adding the
-     */
-    private void updateEntries( OperationEnum operation, CoreSession session, DN subentryDn, DN apDn, SubtreeSpecification ss, DN baseDn, List<EntryAttribute> operationalAttributes  ) throws LdapException
-    {
-        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-
-        SearchOperationContext searchOperationContext = new SearchOperationContext( session,
-            baseDn, filter, controls );
-        searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-        EntryFilteringCursor subentries = nexus.search( searchOperationContext );
-
-        try
-        {
-            while ( subentries.next() )
+                // Go down one level
+                apNode = apNode.getParentWithElement( apNode.getDn() );
+            } while ( !sapFound );
+            
+            // If we have updated the entry, create the list of modifications to apply
+            if ( seqNumberUpdated )
             {
-                Entry candidate = subentries.get();
-                DN candidateDn = candidate.getDn();
-
-                if ( evaluator.evaluate( ss, apDn, candidateDn, candidate ) )
+                // Create the list of modifications : we will inject REPLACE operations. 
+                modifications = new ArrayList<Modification>();
+                
+                // The seqNubmer
+                EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( seqNumberAT, Long.toString( entrySeqNumber ) );
+                Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
+                
+                modifications.add( seqNumberModification );
+                
+                // The subentry UUID, if any
+                if ( ( subentryUuids != null ) && ( subentryUuids.size() != 0 ) )
                 {
-                    List<Modification> modifications = null;
+                    EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT, subentryUuids.toArray( new String[]{} ) );
+                    Modification subentryUuiMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSubentryUuidAT );
 
-                    switch ( operation )
-                    {
-                        case ADD :
-                            modifications = getOperationalModsForAdd( candidate, operationalAttributes );
-                            break;
-
-                        case REMOVE :
-                            modifications = getOperationalModsForRemove( subentryDn, candidate );
-                            break;
-
-                            /*
-                        case REPLACE :
-                            modifications = getOperationalModsForReplace( subentryDn, candidate );
-                            break;
-                            */
-                    }
-
-                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
-                    nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
+                    modifications.add( subentryUuiMod );
                 }
             }
         }
-        catch ( Exception e )
-        {
-            throw new LdapOtherException( e.getMessage() );
-        }
+
+        return modifications;
     }
 
 
@@ -957,23 +669,6 @@ public class SubentryInterceptor extends BaseInterceptor
         DN namingContext = nexus.findSuffix( dn );
 
         return dn.equals( namingContext );
-    }
-
-
-    /**
-     * Check that a subentry has the same role than it's parent AP
-     *
-    private void checkAdministrativeRole( Entry entry, DN apDn ) throws LdapException
-    {
-        // The administrativeRole AT must exist and not be null
-        EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
-
-        // check that administrativeRole has something valid in it for us
-        if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
-        {
-            LOG.error( "The entry on {} is not an AdministrativePoint", apDn );
-            throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apDn ) );
-        }
     }
 
 
@@ -1743,23 +1438,6 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     /**
-     * Update the Operational Attribute with the reference to the subentry
-     */
-    private void setOperationalAttribute( Entry entry, DN subentryDn, AttributeType opAttr) throws LdapException
-    {
-        EntryAttribute operational = entry.get( opAttr );
-
-        if ( operational == null )
-        {
-            operational = new DefaultEntryAttribute( opAttr );
-            entry.put( operational );
-        }
-
-        operational.add( subentryDn.getNormName() );
-    }
-
-
-    /**
      * Get a read-lock on the AP cache.
      * No read operation can be done on the AP cache if this
      * method is not called before.
@@ -1915,66 +1593,6 @@ public class SubentryInterceptor extends BaseInterceptor
         directoryService.getSubschemaAPCache().remove( dn );
         // If it's an AAP, we can get out immediately
         return;
-
-        /*
-        if ( isAAP( adminPoint ) )
-        {
-            // The AC AAP
-            directoryService.getAccessControlAPCache().remove( dn );
-
-            // The CA AAP
-            directoryService.getCollectiveAttributeAPCache().remove( dn );
-
-            // The TE AAP
-            directoryService.getTriggerExecutionAPCache().remove( dn );
-
-            // The SS AAP
-            directoryService.getSubschemaAPCache().remove( dn );
-
-            // If it's an AAP, we can get out immediately
-            return;
-        }
-
-        // Not an AAP
-        for ( Value<?> value : adminPoint )
-        {
-            String role = value.getString();
-
-            // Deal with AccessControl AP
-            if ( isAccessControlSpecificRole( role ) || isAccessControlInnerRole( role ) )
-            {
-                directoryService.getAccessControlAPCache().remove( dn );
-
-                continue;
-            }
-
-            // Deal with CollectiveAttribute AP
-            if ( isCollectiveAttributeSpecificRole( role ) || isCollectiveAttributeInnerRole( role ) )
-            {
-                directoryService.getCollectiveAttributeAPCache().remove( dn );
-
-                continue;
-            }
-
-            // Deal with SubSchema AP
-            if ( isSubschemaSpecficRole( role ) )
-            {
-                directoryService.getSubschemaAPCache().remove( dn );
-
-                continue;
-            }
-
-            // Deal with TriggerExecution AP
-            if ( isTriggerExecutionSpecificRole( role ) || isTriggerExecutionInnerRole( role ) )
-            {
-                directoryService.getTriggerExecutionAPCache().remove( dn );
-
-                continue;
-            }
-        }
-
-        return;
-        */
     }
     
     
@@ -2058,9 +1676,9 @@ public class SubentryInterceptor extends BaseInterceptor
     
     
     /**
-     * Inject a new seqNumber in an AP
+     * Inject the seqNumbers in an AP
      */
-    private long updateSeqNumber( DN apDn, Set<AdministrativeRoleEnum> subentryRoles ) throws LdapException
+    private long updateAPSeqNumbers( DN apDn, Set<AdministrativeRoleEnum> subentryRoles ) throws LdapException
     {
         long seqNumber = directoryService.getNewApSeqNumber();
         String seqNumberStr = Long.toString( seqNumber );
@@ -2092,7 +1710,6 @@ public class SubentryInterceptor extends BaseInterceptor
             
             Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
             modifications.add( modification );
-            
         }
         
         ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
@@ -2107,155 +1724,44 @@ public class SubentryInterceptor extends BaseInterceptor
     
     
     /**
-     * Process the addition of a standard entry
+     * Process the addition of a standard entry, adding the SeqNumber and references
+     * to the subentries.
      */
-    private void processAddEntry( AdministrativeRoleEnum role, Entry entry ) throws LdapException
+    private void processAddEntry( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
+        List<Modification> modificationAcs = updateEntry( entry, directoryService.getAccessControlAPCache(), ACCESS_CONTROL_SEQ_NUMBER_AT, ACCESS_CONTROL_SUBENTRIES_UUID_AT );
+        List<Modification> modificationCas = updateEntry( entry, directoryService.getCollectiveAttributeAPCache(), COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
+        List<Modification> modificationSss = updateEntry( entry, directoryService.getSubschemaAPCache(), SUB_SCHEMA_SEQ_NUMBER_AT, SUBSCHEMA_SUBENTRY_UUID_AT );
+        List<Modification> modificationTes = updateEntry( entry, directoryService.getTriggerExecutionAPCache(), TRIGGER_EXECUTION_SEQ_NUMBER_AT, TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
         
-        // first get the parent AP for this entry
-        switch ( role )
+        if ( ( modificationAcs != null ) || ( modificationCas != null ) || ( modificationSss != null ) || (modificationTes != null ) )
         {
-            case AccessControl :
-                DnNode<AdministrativePoint> nodeAP = directoryService.getAccessControlAPCache().getParentWithElement( dn );
-                
-                if ( nodeAP != null )
-                {
-                    AdministrativePoint parentAP = nodeAP.getElement();
-    
-                    if ( parentAP != null )
-                    {
-                        // Update the entry seqNumber for AC
-                        entry.put( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
-                        
-                        // This entry has a AccessControl AP parent.
-                        Set<Subentry> subentries = parentAP.getSubentries();
-    
-                        if ( subentries != null )
-                        {
-                            for ( Subentry subentry : subentries )
-                            {
-                                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-        
-                                // Now, evaluate the entry wrt the subentry ss
-                                // and inject a ref to the subentry if it evaluates to true
-                                if ( evaluator.evaluate( ss, nodeAP.getDn(), dn, entry ) )
-                                {
-                                    // Point to the subentry UUID
-                                    entry.add( ApacheSchemaConstants.ACCESS_CONTROL_SUBENTRIES_UUID_AT, subentry.getUuid() );
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                break;
-
-            case CollectiveAttribute :
-                nodeAP = directoryService.getCollectiveAttributeAPCache().getParentWithElement( dn );
-
-                if ( nodeAP != null )
-                {
-                    AdministrativePoint parentAP = nodeAP.getElement();
-    
-                    if ( parentAP != null )
-                    {
-                        // Update the entry seqNumber for CA
-                        entry.put( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
-                        
-                        // This entry has a CollectiveAttribute AP parent.
-                        Set<Subentry> subentries = parentAP.getSubentries();
-    
-                        if ( subentries != null )
-                        {
-                            for ( Subentry subentry : subentries )
-                            {
-                                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-        
-                                // Now, evaluate the entry wrt the subentry ss
-                                // and inject a ref to the subentry if it evaluates to true
-                                if ( evaluator.evaluate( ss, nodeAP.getDn(), dn, entry ) )
-                                {
-                                    // Point to the subentry UUID
-                                    entry.add( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT, subentry.getUuid() );
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                break;
-
-            case SubSchema :
-                nodeAP = directoryService.getSubschemaAPCache().getParentWithElement( dn );
-
-                if ( nodeAP != null )
-                {
-                    AdministrativePoint parentAP = nodeAP.getElement();
-    
-                    if ( parentAP != null )
-                    {
-                        // This entry has a Subschema AP parent.
-                        // Update the entry seqNumber for CA
-                        entry.put( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
-                        
-                        // This entry has a CollectiveAttribute AP parent.
-                        Set<Subentry> subentries = parentAP.getSubentries();
-    
-                        if ( subentries != null )
-                        {
-                            for ( Subentry subentry : subentries )
-                            {
-                                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-        
-                                // Now, evaluate the entry wrt the subentry ss
-                                // and inject a ref to the subentry if it evaluates to true
-                                if ( evaluator.evaluate( ss, nodeAP.getDn(), dn, entry ) )
-                                {
-                                    // Point to the subentry UUID
-                                    entry.add( ApacheSchemaConstants.SUB_SCHEMA_SUBENTRY_UUID_AT, subentry.getUuid() );
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                break;
-
-            case TriggerExecution :
-                nodeAP = directoryService.getTriggerExecutionAPCache().getParentWithElement( dn );
-
-                if ( nodeAP != null )
-                {
-                    AdministrativePoint parentAP = nodeAP.getElement();
-    
-                    if ( parentAP != null )
-                    {
-                        // Update the entry seqNumber for TE
-                        entry.put( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT, Long.toString( parentAP.getSeqNumber() ) );
-                        
-                        // This entry has a TriggerExecution AP parent.
-                        Set<Subentry> subentries = parentAP.getSubentries();
-    
-                        if ( subentries != null )
-                        {
-                            for ( Subentry subentry : subentries )
-                            {
-                                SubtreeSpecification ss = subentry.getSubtreeSpecification();
-        
-                                // Now, evaluate the entry wrt the subentry ss
-                                // and inject a ref to the subentry if it evaluates to true
-                                if ( evaluator.evaluate( ss, nodeAP.getDn(), dn, entry ) )
-                                {
-                                    // Point to the subentry UUID
-                                    entry.add( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_UUID_AT, subentry.getUuid() );
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                break;
+            List<Modification> modifications = new ArrayList<Modification>();
+            
+            if ( modificationAcs != null )
+            {
+                modifications.addAll( modificationAcs );
+            }
+            
+            if ( modificationCas != null )
+            {
+                modifications.addAll( modificationCas );
+            }
+            
+            if ( modificationSss != null )
+            {
+                modifications.addAll( modificationSss );
+            }
+            
+            if ( modificationTes != null )
+            {
+                modifications.addAll( modificationTes );
+            }
+            
+            for ( Modification modification : modifications )
+            {
+                entry.add( modification.getAttribute() );
+            }
         }
     }
     
@@ -2482,7 +1988,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 subentryCache.addSubentry( dn, subentry );
 
                 // Update the seqNumber and update the parent AP
-                long seqNumber = updateSeqNumber( apDn, subentryRoles );
+                long seqNumber = updateAPSeqNumbers( apDn, subentryRoles );
     
                 // Now inject the subentry into the backend
                 next.add( addContext );
@@ -2506,10 +2012,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             // The added entry is a normal entry
             // We have to process the addition for each role
-            processAddEntry( AdministrativeRoleEnum.AccessControl, entry );
-            processAddEntry( AdministrativeRoleEnum.CollectiveAttribute, entry );
-            processAddEntry( AdministrativeRoleEnum.TriggerExecution, entry );
-            processAddEntry( AdministrativeRoleEnum.SubSchema, entry );
+            processAddEntry( entry );
 
             // Propagate the addition down to the backend.
             next.add( addContext );
@@ -2576,7 +2079,7 @@ public class SubentryInterceptor extends BaseInterceptor
             
             // And finally, update the parent AP SeqNumber for each role the subentry manage
             Set<AdministrativeRoleEnum> subentryRoles = removedSubentry.getAdministrativeRoles();
-            updateSeqNumber( apDn, subentryRoles );
+            updateAPSeqNumbers( apDn, subentryRoles );
         }
         else
         {
@@ -2606,7 +2109,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         
         // This is a normal entry, update its seqNumbers if neede
-        if ( updateSeqNumber( entry ) )
+        if ( updateEntry( entry ) )
         {
             // Get the entry back again
             entry = nextInterceptor.lookup( lookupContext );

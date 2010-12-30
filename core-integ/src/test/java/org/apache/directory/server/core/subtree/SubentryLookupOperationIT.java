@@ -28,6 +28,9 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -166,7 +169,18 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testLookupEntryNoAp() throws Exception
     {
-        // TODO
+        // Create a first entry
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        AddResponse response = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        assertEquals( Long.MIN_VALUE, getCASeqNumber( "cn=e1,ou=system" ) );
     }
 
 
@@ -177,7 +191,21 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testLookupEntryUnderApNoSubentry() throws Exception
     {
-        // TODO
+        // Create an AP
+        createAAP( "ou=AAP,ou=system" );
+        
+        // Create a first entry
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        AddResponse response = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        assertEquals( -1L, getCASeqNumber( "cn=e1,ou=AAP,ou=system" ) );
     }
 
 
