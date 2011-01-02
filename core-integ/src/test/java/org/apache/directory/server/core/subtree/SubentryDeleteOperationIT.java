@@ -66,17 +66,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteAPWithChildren() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP", 
-            "administrativeRole: autonomousArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
 
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
@@ -88,7 +78,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
         assertTrue( checkIsPresent( "cn=test,ou=AAP,ou=system" ) );
@@ -110,17 +100,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteSAPNonAdmin() throws Exception
     {
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( sap );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
 
         // Now try to delete the AP with another user
         DeleteResponse delResponse = userConnection.delete( "ou=SAP,ou=system" );
@@ -141,25 +121,15 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteAAP() throws Exception
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=AAP2,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP", 
-            "administrativeRole: autonomousArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
 
         // Now try to delete the AP
-        DeleteResponse delResponse = adminConnection.delete( "ou=AAP2,ou=system" );
+        DeleteResponse delResponse = adminConnection.delete( "ou=AAP,ou=system" );
         
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the AAP is not anymore present
-        assertTrue( checkIsAbsent( "ou=AAP2,ou=system" ) );
+        assertTrue( checkIsAbsent( "ou=AAP,ou=system" ) );
     }
     
     
@@ -169,17 +139,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteSAP() throws Exception
     {
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( sap );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
 
         // Now try to delete the AP
         DeleteResponse delResponse = adminConnection.delete( "ou=SAP,ou=system" );
@@ -197,51 +157,41 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteIAP() throws Exception
     {
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP1", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( sap );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
         
         // Add the IAP
         Entry iap = LdifUtils.createEntry( 
-            "ou=IAP1,ou=SAP1,ou=system", 
+            "ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ou: IAP1", 
+            "ou: IAP", 
             "administrativeRole: collectiveAttributeInnerArea" );
 
         // It should succeed
-        response = adminConnection.add( iap );
+        AddResponse response = adminConnection.add( iap );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Now try to delete the SAP (it should fail)
-        DeleteResponse delResponse = adminConnection.delete( "ou=SAP1,ou=system" );
+        DeleteResponse delResponse = adminConnection.delete( "ou=SAP,ou=system" );
         
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, delResponse.getLdapResult().getResultCode() );
         
         // Remove the IAP first
-        delResponse = adminConnection.delete( "ou=IAP1,ou=SAP1,ou=system" );
+        delResponse = adminConnection.delete( "ou=IAP,ou=SAP,ou=system" );
         
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the IAP is not anymore present
-        assertTrue( checkIsAbsent( "ou=IA1P,ou=SAP1,ou=system" ) );
+        assertTrue( checkIsAbsent( "ou=IAP,ou=SAP,ou=system" ) );
         
         // Remove the SAP
-        delResponse = adminConnection.delete( "ou=SAP1,ou=system" );
+        delResponse = adminConnection.delete( "ou=SAP,ou=system" );
         
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check that the SAP is not anymore present
-        assertTrue( checkIsAbsent( "ou=SAP1,ou=system" ) );
+        assertTrue( checkIsAbsent( "ou=SAP,ou=system" ) );
     }
     
     
@@ -258,22 +208,14 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     public void testDeleteSubentryUnderAAP() throws Exception
     {
         // First add an AAP
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=AAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: AAP1", 
-            "administrativeRole: autonomousArea" );
-
-        AddResponse response = adminConnection.add( autonomousArea );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createAAP( "ou=AAP,ou=system" );
         
-        assertEquals( -1L, getACSeqNumber( "ou=AAP1,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=AAP1,ou=system" ) );
+        assertEquals( -1L, getACSeqNumber( "ou=AAP,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=AAP,ou=system" ) );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=AAP1,ou=system", 
+            "cn=test,ou=AAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -281,18 +223,18 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        long seqNumber = getCASeqNumber( "ou=AAP1,ou=system" );
-        assertEquals( -1L, getACSeqNumber( "ou=AAP1,ou=system" ) );
+        long seqNumber = getCASeqNumber( "ou=AAP,ou=system" );
+        assertEquals( -1L, getACSeqNumber( "ou=AAP,ou=system" ) );
         
         // Now delete it
-        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=AAP1,ou=system" );
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=AAP,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumber, it must be 1 now
-        assertEquals( seqNumber + 1, getCASeqNumber( "ou=AAP1,ou=system" ) );
+        assertEquals( seqNumber + 1, getCASeqNumber( "ou=AAP,ou=system" ) );
     }
     
     
@@ -302,23 +244,14 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteSubentryUnderSAP() throws Exception
     {
-        // First add an AAP
-        Entry autonomousArea = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP1", 
-            "administrativeRole: CollectiveAttributeSpecificArea" );
-
-        AddResponse response = adminConnection.add( autonomousArea );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
         
-        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP1,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
+        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP1,ou=system", 
+            "cn=test,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -326,18 +259,18 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
             "subtreeSpecification: {}", 
             "c-o: Test Org" );
 
-        response = adminConnection.add( subentry );
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        long seqNumber = getCASeqNumber( "ou=SAP1,ou=system" );
-        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP1,ou=system" ) );
+        long seqNumber = getCASeqNumber( "ou=SAP,ou=system" );
+        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP,ou=system" ) );
         
         // Now delete it
-        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP1,ou=system" );
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumber, it must be 1 now
-        assertEquals( seqNumber + 1, getCASeqNumber( "ou=SAP1,ou=system" ) );
+        assertEquals( seqNumber + 1, getCASeqNumber( "ou=SAP,ou=system" ) );
     }
     
     
@@ -347,37 +280,27 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testDeleteSubentryUnderIAP() throws Exception
     {
-        Entry sap = LdifUtils.createEntry( 
-            "ou=SAP1,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: SAP1", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( sap );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCaSAP( "ou=SAP,ou=system" );
         
         // Add the IAP
         Entry iap = LdifUtils.createEntry( 
-            "ou=IAP1,ou=SAP1,ou=system", 
+            "ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ou: IAP1", 
+            "ou: IAP", 
             "administrativeRole: collectiveAttributeInnerArea" );
 
         // It should succeed
-        response = adminConnection.add( iap );
+        AddResponse response = adminConnection.add( iap );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
         
         // Add a subentry now
         Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=IAP1,ou=SAP1,ou=system", 
+            "cn=test,ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
@@ -388,20 +311,20 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        long seqNumberSAP = getCASeqNumber( "ou=SAP1,ou=system" );
+        long seqNumberSAP = getCASeqNumber( "ou=SAP,ou=system" );
         assertEquals( -1L, seqNumberSAP );
         
-        long seqNumberIAP = getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" );
+        long seqNumberIAP = getCASeqNumber( "ou=IAP,ou=SAP,ou=system" );
         assertTrue( seqNumberIAP > -1L );
 
         // Now delete it
-        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=IAP1,ou=SAP1,ou=system" );
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=IAP,ou=SAP,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumbers, it must be 1 now
-        assertEquals( -1L, getCASeqNumber( "ou=SAP1,ou=system" ) );
-        assertEquals( seqNumberIAP + 1, getCASeqNumber( "ou=IAP1,ou=SAP1,ou=system" ) );
+        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( seqNumberIAP + 1, getCASeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
         
-        assertTrue( checkIsAbsent( "cn=test,ou=IAP1,ou=SAP1,ou=system" ) );
+        assertTrue( checkIsAbsent( "cn=test,ou=IAP,ou=SAP,ou=system" ) );
     }
 }

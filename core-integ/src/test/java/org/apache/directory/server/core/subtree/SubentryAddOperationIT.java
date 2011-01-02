@@ -746,9 +746,6 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     // ===================================================================
     // Test the Add operation for Entries
     // -------------------------------------------------------------------
-    // Failure expected
-    // -------------------------------------------------------------------
-
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
@@ -820,5 +817,73 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         // Now, check that when we read the other entries, their CA seqNumber is also updated
         assertEquals( caSeqNumber, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
         assertEquals( caSeqNumber, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+    }
+    
+    
+    /**
+     * Test an addition of AP, SE and entries with a selection
+     */
+    @Test
+    public void testAddComplex() throws Exception
+    {
+        // First add an SAP
+        createCaSAP( "ou=SAP,ou=system" );
+        
+        
+        // Create a first entry
+        Entry e1 = LdifUtils.createEntry( 
+            "ou=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e1" );
+        
+        AddResponse response = adminConnection.add( e1 );
+        assertEquals( -1L, getCASeqNumber( "ou=e1,ou=SAP,ou=system" ) );
+        
+        // Create a second entry
+        Entry e2 = LdifUtils.createEntry( 
+            "cn=e2,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e2", 
+            "sn: entry 2" );
+
+        response = adminConnection.add( e2 );
+        assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+
+        // Add a subentry now, selecting only entries with a person AT
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=test,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "cn: test",
+            "subtreeSpecification: { specificationFilter item:person }", 
+            "c-o: Test Org" );
+
+        response = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Get back the CA SeqNumber
+        long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
+        
+        assertTrue( caSeqNumber > -1L );
+        
+        // Create a third entry under e1
+        Entry e3 = LdifUtils.createEntry( 
+            "cn=e3,ou=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e3", 
+            "sn: entry 3" );
+
+        response = adminConnection.add( e3 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        System.out.println( adminConnection.lookup( "ou=SAP,ou=system", "+" ) );
+        System.out.println( adminConnection.lookup( "ou=e1,ou=SAP,ou=system", "+" ) );
+        System.out.println( adminConnection.lookup( "cn=e2,ou=SAP,ou=system", "+" ) );
+        System.out.println( adminConnection.lookup( "cn=test,ou=SAP,ou=system", "+" ) );
+        System.out.println( adminConnection.lookup( "cn=e3,ou=e1,ou=SAP,ou=system", "+" ) );
     }
 }
