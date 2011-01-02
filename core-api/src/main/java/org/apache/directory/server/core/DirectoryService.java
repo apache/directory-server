@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.server.core.administrative.SubentryCache;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
@@ -551,9 +552,15 @@ public interface DirectoryService extends ServerEntryFactory
     DnNode<AdministrativePoint> getTriggerExecutionAPCache();
     
     /**
-     * @return The subentry cache
+     * @return The subentry UUID cache
      */
-    SubentryCache getSubentryCache();
+    SubentryCache getSubentryUuidCache();
+    
+    
+    /**
+     * @return The subentry DN cache
+     */
+    DnNode<Subentry> getSubentryDnCache();
     
     
     /**
