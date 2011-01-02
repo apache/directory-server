@@ -41,6 +41,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.SubentryCache;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -258,6 +259,9 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The TriggerExecution AdministrativePoint cache */
     private DnNode<AdministrativePoint> triggerExecutionAPCache;
+
+    /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
+    private final SubentryCache subentryCache = new SubentryCache();
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
@@ -1913,6 +1917,16 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return triggerExecutionAPCache;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public SubentryCache getSubentryCache()
+    {
+        return subentryCache;
+    }
+
     
     
     /**

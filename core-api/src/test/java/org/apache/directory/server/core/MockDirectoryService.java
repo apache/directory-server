@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.administrative.AdministrativePoint;
+import org.apache.directory.server.core.administrative.SubentryCache;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -517,6 +518,15 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public SubentryCache getSubentryCache()
+    {
+        return null;
+    }
+
+    
     public InstanceLayout getInstanceLayout()
     {
         return null;
