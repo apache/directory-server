@@ -41,7 +41,6 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
-import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.server.core.administrative.SubentryCache;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -263,9 +262,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the hash mapping the UUID of a subentry to its SubtreeSpecification/types */
     private final SubentryCache subentryCache = new SubentryCache();
-
-    /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
-    private final DnNode<Subentry> subentryDnCache = new DnNode<Subentry>();
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
@@ -1926,18 +1922,9 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public SubentryCache getSubentryUuidCache()
+    public SubentryCache getSubentryCache()
     {
         return subentryCache;
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public DnNode<Subentry> getSubentryDnCache()
-    {
-        return subentryDnCache;
     }
     
     
