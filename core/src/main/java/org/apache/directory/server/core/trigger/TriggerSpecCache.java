@@ -74,9 +74,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TriggerSpecCache
 {
-    /** the attribute id for prescriptive trigger: prescriptiveTrigger */
-    private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
-
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TriggerSpecCache.class );
 
@@ -145,11 +142,11 @@ public class TriggerSpecCache
                 {
                     ClonedServerEntry resultEntry = results.get();
                     DN subentryDn = resultEntry.getDn();
-                    EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+                    EntryAttribute triggerSpec = resultEntry.get( SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
 
                     if ( triggerSpec == null )
                     {
-                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
+                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
                         continue;
                     }
 
@@ -170,7 +167,7 @@ public class TriggerSpecCache
     private boolean hasPrescriptiveTrigger( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
-        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        EntryAttribute triggerSpec = entry.get( SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
 
         return triggerSpec != null;
     }
@@ -179,7 +176,7 @@ public class TriggerSpecCache
     public void subentryAdded( DN normName, Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
-        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        EntryAttribute triggerSpec = entry.get( SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
 
         if ( triggerSpec == null )
         {
@@ -234,7 +231,7 @@ public class TriggerSpecCache
 
         for ( Modification mod : mods )
         {
-            isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
+            isTriggerSpecModified |= mod.getAttribute().contains( SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
         }
 
         if ( isTriggerSpecModified )
