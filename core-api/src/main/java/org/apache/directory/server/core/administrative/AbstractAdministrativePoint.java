@@ -174,7 +174,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * {@inheritDoc}
      */
-    public Set<Subentry> getSubentries( AdministrativeRole role )
+    public Set<Subentry> getSubentries( AdministrativeRoleEnum role )
     {
         synchronized( subentries )
         {
@@ -182,7 +182,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
             
             for ( Subentry subentry : this.subentries )
             {
-                if ( subentry.getAdministrativeRoles().contains( role ) )
+                if ( subentry.getAdministrativeRole() == role )
                 {
                     subentries.add( subentry );
                 }

@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.administrative;
 
 
-import java.util.Set;
-
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -33,19 +31,35 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class Subentry
+public abstract class Subentry
 {
     /** The Subtree Specification associated with this subentry */
     private SubtreeSpecification ss;
 
-    /** The administratives roles */
-    private Set<AdministrativeRoleEnum> administrativeRoles;
-    
     /** The subentry UUID */
     private String uuid;
     
     /** The subentry CN */
     private String cn;
+    
+    /**
+     * Creates a new instance of a Subentry
+     */
+    protected Subentry()
+    {
+    }
+    
+    
+    /**
+     * Creates a new instance of a Subentry
+     */
+    protected Subentry( String cn, SubtreeSpecification ss, String uuid )
+    {
+        this.cn = cn;
+        this.ss = ss;
+        this.uuid = uuid;
+    }
+    
     
     /**
      * Stores the subtreeSpecification
@@ -68,31 +82,11 @@ public class Subentry
 
 
     /**
-     * Stores the set of roles for this subentry
-     *
-     * @param administrativeRoles The roles to be added
-     */
-    public void setAdministrativeRoles( Set<AdministrativeRoleEnum> administrativeRoles )
-    {
-        this.administrativeRoles = administrativeRoles;
-    }
-
-
-    /**
-     * @return The list of roles for this subentry
-     */
-    public Set<AdministrativeRoleEnum> getAdministrativeRoles()
-    {
-        return administrativeRoles;
-    }
-
-
-    /**
      * Tells if the type contains the Collective attribute Administrative Role
      */
     public boolean isCollectiveAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRoleEnum.CollectiveAttribute );
+        return false;
     }
 
 
@@ -101,7 +95,7 @@ public class Subentry
      */
     public boolean isSchemaAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRoleEnum.SubSchema );
+        return false;
     }
 
 
@@ -110,7 +104,7 @@ public class Subentry
      */
     public boolean isAccessControlAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRoleEnum.AccessControl );
+        return false;
     }
 
 
@@ -119,8 +113,14 @@ public class Subentry
      */
     public boolean isTriggersAdminRole()
     {
-        return administrativeRoles.contains( AdministrativeRoleEnum.TriggerExecution );
+        return false;
     }
+    
+    
+    /**
+     * @return the subentry administrativeRole
+     */
+    public abstract AdministrativeRoleEnum getAdministrativeRole();
 
 
     /**
@@ -165,24 +165,8 @@ public class Subentry
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Subentry: " ).append( cn).append( '-').append( uuid ).append( "[" );
-        
-        boolean isFirst = true;
-        
-        for ( AdministrativeRoleEnum role : administrativeRoles )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                sb.append( ", " );
-            }
-            
-            sb.append( role );
-        }
-        sb.append( "]" );
+        sb.append( "Subentry name : " ).append( cn ).append( '\n' );
+        sb.append( "UUID          : " ).append( uuid ).append( '\n' );
         
         return sb.toString();
     }

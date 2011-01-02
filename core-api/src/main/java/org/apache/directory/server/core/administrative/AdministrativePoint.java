@@ -118,7 +118,7 @@ public interface AdministrativePoint
      * @param role The role we are looking the subentries for
      * @return The Set of subentries found
      */
-    Set<Subentry> getSubentries( AdministrativeRole role );
+    Set<Subentry> getSubentries( AdministrativeRoleEnum role );
     
     
     /**
