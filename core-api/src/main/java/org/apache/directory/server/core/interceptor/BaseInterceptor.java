@@ -66,6 +66,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** Set of operational attribute types used to manage the subentry references in entries */
     protected static final Set<AttributeType> SUBENTRIES_UUID_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+    
+    /** The reference to the directoryService */
+    protected DirectoryService directoryService;
 
     /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
@@ -114,6 +117,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        this.directoryService = directoryService;
     }
 
 
