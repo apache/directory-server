@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.subtree;
 
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,13 +44,17 @@ import org.apache.directory.server.core.administrative.AccessControlAAP;
 import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.administrative.AccessControlIAP;
 import org.apache.directory.server.core.administrative.AccessControlSAP;
+import org.apache.directory.server.core.administrative.AccessControlSubentry;
 import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.administrative.AdministrativeRoleEnum;
 import org.apache.directory.server.core.administrative.CollectiveAttributeAAP;
 import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.administrative.CollectiveAttributeIAP;
 import org.apache.directory.server.core.administrative.CollectiveAttributeSAP;
+import org.apache.directory.server.core.administrative.CollectiveAttributeSubentry;
+import org.apache.directory.server.core.administrative.SubSchemaSubentry;
 import org.apache.directory.server.core.administrative.Subentry;
+import org.apache.directory.server.core.administrative.SubentryCache;
 import org.apache.directory.server.core.administrative.SubschemaAAP;
 import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
 import org.apache.directory.server.core.administrative.SubschemaSAP;
@@ -57,6 +62,7 @@ import org.apache.directory.server.core.administrative.TriggerExecutionAAP;
 import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.administrative.TriggerExecutionIAP;
 import org.apache.directory.server.core.administrative.TriggerExecutionSAP;
+import org.apache.directory.server.core.administrative.TriggerExecutionSubentry;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -74,10 +80,7 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -86,6 +89,8 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.aci.ACIItem;
+import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -100,9 +105,7 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -112,10 +115,15 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
@@ -148,11 +156,14 @@ public class SubentryInterceptor extends BaseInterceptor
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
 
+    /** a normalizing Trigger Specification parser */
+    private TriggerSpecificationParser triggerParser;
+
+    /** a normalizing ACIItem parser */
+    private ACIItemParser aciParser;
+
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-
-    /** A reference to the DirectoryService instance */
-    private DirectoryService directoryService;
 
     /** The SchemManager instance */
     private SchemaManager schemaManager;
@@ -343,6 +354,117 @@ public class SubentryInterceptor extends BaseInterceptor
             return true;
         }
     }
+    
+    
+    /**
+     * Creates a specific Subentry instances using the Auxiliary ObjectClasses stored into 
+     * the Subentry Entry. We may have more than one instance created, if the entry is managing
+     * more than one role.
+     */
+    private Subentry[] createSubentry( Entry subentry ) throws LdapException
+    {
+        DN subentryDn = subentry.getDn();
+
+        String subtree = subentry.get( SUBTREE_SPECIFICATION_AT ).getString();
+        
+        EntryAttribute cn = subentry.get( SchemaConstants.CN_AT );
+        String uuid = subentry.get( SchemaConstants.ENTRY_UUID_AT).getString();
+        SubtreeSpecification ss;
+
+        // Process the SubtreeSpecification
+        try
+        {
+            ss = ssParser.parse( subtree );
+        }
+        catch ( Exception e )
+        {
+            String message = "Failed while parsing subtreeSpecification for " + subentryDn;
+            LOG.error( message );
+            
+            throw new LdapUnwillingToPerformException( message );
+        }
+
+        // Now, creates all the subentries
+        List<Subentry> subentries = new ArrayList<Subentry>();
+        
+        // CollectiveAttribute Subentry
+        if ( subentry.contains( OBJECT_CLASS_AT, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        {
+            // It's a CA subentry. Collect the list of COLLECTIVE attributes
+            List<EntryAttribute> collectiveAttributes = new ArrayList<EntryAttribute>();
+            
+            for ( EntryAttribute attribute : subentry )
+            {
+                if ( attribute.getAttributeType().isCollective() )
+                {
+                    collectiveAttributes.add( attribute );
+                }
+            }
+            
+            Subentry newSubentry = new CollectiveAttributeSubentry( cn, ss, uuid, collectiveAttributes );
+            
+            subentries.add( newSubentry );
+        }
+
+        // AccessControl Subentry
+        if ( subentry.contains( OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
+        {
+            // It's a AC subentry. Collect the list of ACIItem attributes
+            EntryAttribute prescriptiveACI = subentry.get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+            
+            AccessControlSubentry newSubentry = new AccessControlSubentry( cn, ss, uuid );
+
+            for ( Value<?> value:prescriptiveACI )
+            {
+                ACIItem aciItem = null;
+                String aciItemStr = value.getString();
+
+                try
+                {
+                    aciItem = aciParser.parse( aciItemStr );
+                    newSubentry.addAciItem( aciItem );
+                }
+                catch ( ParseException e )
+                {
+                    String msg = I18n.err( I18n.ERR_73, aciItemStr );
+                    LOG.error( msg, e );
+                }
+
+            }
+            
+            subentries.add( newSubentry );
+        }
+
+        // SubSchema Subentry
+        if ( subentry.contains( OBJECT_CLASS_AT, SchemaConstants.SUB_SCHEMA_SUBENTRY_AT ) )
+        {
+            SubSchemaSubentry newSubentry = new SubSchemaSubentry( cn, ss, uuid );
+            subentries.add( newSubentry );
+        }
+
+        // TrggerExecution Subentry
+        if ( subentry.contains( OBJECT_CLASS_AT, SchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
+        {
+            EntryAttribute triggerSpecificationAttr = subentry.get( SchemaConstants.PRESCRIPTIVE_TRIGGER_SPECIFICATION );
+            TriggerExecutionSubentry newSubentry = new TriggerExecutionSubentry( cn, ss, uuid );
+
+            for ( Value<?> value:triggerSpecificationAttr )
+            {
+                try
+                {
+                    TriggerSpecification triggerSpecification = triggerParser.parse( value.getString() );
+                    newSubentry.addTriggerSpecification( triggerSpecification );
+                }
+                catch ( ParseException e )
+                {
+                    String msg = I18n.err( I18n.ERR_73, value );
+                    LOG.error( msg, e );
+                }
+            }
+        }
+        
+        return subentries.toArray( new Subentry[]{});
+    }
 
     //-------------------------------------------------------------------------------------------
     // Interceptor initialization
@@ -390,8 +512,19 @@ public class SubentryInterceptor extends BaseInterceptor
                 TRIGGER_EXECUTION_SUBENTRIES_AT
             };
 
+        // Initialize the various parsers we use for SubtreeSpecification, ACIItem and TriggerSpecification
         ssParser = new SubtreeSpecificationParser( schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager );
+
+        triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
+        {
+            public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
+            {
+                return schemaManager.getNormalizerMapping();
+            }
+        } );
+
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
@@ -419,34 +552,19 @@ public class SubentryInterceptor extends BaseInterceptor
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             // Loop on all the found Subentries, parse the SubtreeSpecification
-            // and store the subentry in the subrentry cache
+            // and store the subentry in the subrentry caches (UUID and DN)
             try
             {
                 while ( subentries.next() )
                 {
                     Entry subentry = subentries.get();
-                    DN subentryDn = subentry.getDn();
 
-                    String subtree = subentry.get( SUBTREE_SPECIFICATION_AT ).getString();
-                    SubtreeSpecification ss;
-
-                    try
+                    Subentry[] subentryInstances = createSubentry( subentry );
+                    
+                    for ( Subentry newSubentry : subentryInstances )
                     {
-                        ss = ssParser.parse( subtree );
+                        directoryService.getSubentryCache().addSubentry( subentry.getDn(), newSubentry );
                     }
-                    catch ( Exception e )
-                    {
-                        LOG.warn( "Failed while parsing subtreeSpecification for " + subentryDn );
-                        continue;
-                    }
-
-                    Subentry newSubentry = new Subentry();
-
-                    newSubentry.setAdministrativeRoles( getSubentryAdminRoles( subentry ) );
-                    newSubentry.setSubtreeSpecification( ss );
-                    newSubentry.setCn( subentry.get( SchemaConstants.CN_AT ).getString() );
-
-                    subentryCache.addSubentry( subentryDn, newSubentry );
                 }
 
                 subentries.close();
@@ -734,27 +852,31 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, Entry entry ) throws LdapException
     {
         List<Modification> modifications = new ArrayList<Modification>();
 
-        /*
-         * There are two different situations warranting action.  First if
-         * an ss evalutating to true with the old name no longer evalutates
-         * to true with the new name.  This would be caused by specific chop
-         * exclusions that effect the new name but did not effect the old
-         * name. In this case we must remove subentry operational attribute
-         * values associated with the dn of that subentry.
-         *
-         * In the second case an ss selects the entry with the new name when
-         * it did not previously with the old name. Again this situation
-         * would be caused by chop exclusions. In this case we must add subentry
-         * operational attribute values with the dn of this subentry.
-         */
-        for ( DN subentryDn : subentryCache )
+        // There are two different situations warranting action.  First if
+        // an ss evalutating to true with the old name no longer evalutates
+        // to true with the new name.  This would be caused by specific chop
+        // exclusions that effect the new name but did not effect the old
+        // name. In this case we must remove subentry operational attribute
+        // values associated with the dn of that subentry.
+        //
+        // In the second case an ss selects the entry with the new name when
+        // it did not previously with the old name. Again this situation
+        // would be caused by chop exclusions. In this case we must add subentry
+        // operational attribute values with the dn of this subentry.
+        //
+        for ( String uuid : subentryCache )
         {
-            DN apDn = subentryDn.getParent();
-            SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
+            DN apDn = null; //subentryDn.getParent();
+            DN subentryDn = null;
+            
+            SubtreeSpecification ss = directoryService.getSubentryCache().getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, entry );
             boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, entry );
 
@@ -1162,10 +1284,8 @@ public class SubentryInterceptor extends BaseInterceptor
             return false;
         }
         
-        DN parentDN = dn.getParent();
-        
-        // The parent is not a subentry
-        if ( subentryCache.getSubentry( parentDN ) != null )
+        // Not under a subentry
+        if ( directoryService.getSubentryCache().hasSubentry( dn.getParent() ) )
         {
             return false;
         }
@@ -1381,15 +1501,17 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /**
      * Get the list of modification to apply to all the entries
-     */
+     *
     private List<Modification> getModsOnEntryModification( DN name, Entry oldEntry, Entry newEntry ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
 
-        for ( DN subentryDn : subentryCache )
+        for ( String uuid : subentryCache )
         {
-            DN apDn = subentryDn.getParent();
-            SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
+            DN apDn = null; //subentryDn.getParent();
+            DN subentryDn = null;
+            
+            SubtreeSpecification ss = directoryService.getSubentryCache().getSubentry( uuid ).getSubtreeSpecification();
             boolean isOldEntrySelected = evaluator.evaluate( ss, apDn, name, oldEntry );
             boolean isNewEntrySelected = evaluator.evaluate( ss, apDn, name, newEntry );
 
@@ -1601,37 +1723,39 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param apDn
      * @return
      */
-    private AdministrativePoint getAdministrativePoint( DN apDn )
+    private List<AdministrativePoint> getAdministrativePoints( DN apDn )
     {
+        List<AdministrativePoint> administrativePoints = new ArrayList<AdministrativePoint>();
+        
         AdministrativePoint administrativePoint = directoryService.getAccessControlAPCache().getElement( apDn );
         
         if ( administrativePoint != null )
         {
-            return administrativePoint;
+            administrativePoints.add( administrativePoint );
         }
         
         administrativePoint = directoryService.getCollectiveAttributeAPCache().getElement( apDn );
 
         if ( administrativePoint != null )
         {
-            return administrativePoint;
+            administrativePoints.add( administrativePoint );
         }
         
         administrativePoint = directoryService.getTriggerExecutionAPCache().getElement( apDn );
 
         if ( administrativePoint != null )
         {
-            return administrativePoint;
+            administrativePoints.add( administrativePoint );
         }
         
         administrativePoint = directoryService.getSubschemaAPCache().getElement( apDn );
 
         if ( administrativePoint != null )
         {
-            return administrativePoint;
+            administrativePoints.add( administrativePoint );
         }
         
-        return null;
+        return administrativePoints;
     }
     
     
@@ -1678,40 +1802,50 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Inject the seqNumbers in an AP
      */
-    private long updateAPSeqNumbers( DN apDn, Set<AdministrativeRoleEnum> subentryRoles ) throws LdapException
+    private long updateAPSeqNumbers( DN apDn, Entry entry, Subentry[] subentries ) throws LdapException
     {
         long seqNumber = directoryService.getNewApSeqNumber();
         String seqNumberStr = Long.toString( seqNumber );
         List<Modification> modifications = new ArrayList<Modification>();
 
-        for ( AdministrativeRoleEnum role : subentryRoles )
+        EntryAttribute newSeqNumber = null;
+        
+        for ( Subentry subentry : subentries )
         {
-            EntryAttribute newSeqNumber = null;
+            if ( subentry == null )
+            {
+                continue;
+            }
             
-            switch ( role )
+            switch ( subentry.getAdministrativeRole() )
             {
                 case AccessControl :
                     newSeqNumber = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, seqNumberStr );
                     break;
-
+    
                 case CollectiveAttribute :
                     newSeqNumber = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, seqNumberStr );
                     break;
-
+    
                 case SubSchema :
                     newSeqNumber = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, seqNumberStr );
                     break;
-
+    
                 case TriggerExecution :
                     newSeqNumber = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, seqNumberStr );
                     break;
-
+    
             }
             
             Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
             modifications.add( modification );
+
+            // Get back the subentry entryUUID and store it in the subentry
+            String subentryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+            subentry.setUuid( subentryUuid );
         }
         
+        // Inject the seqNumbers into the parent AP
         ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
         modCtx.setByPassed( BYPASS_INTERCEPTORS );
         modCtx.setDn( apDn );
@@ -1978,27 +2112,22 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 
                 // Create the Subentry
-                Subentry subentry = new Subentry();
+                Subentry[] subentries = createSubentry( entry );
 
-                subentry.setCn( entry.get( SchemaConstants.CN_AT ).getString() );
-                Set<AdministrativeRoleEnum> subentryRoles = getSubentryAdminRoles( entry ) ;
-                subentry.setAdministrativeRoles( subentryRoles );
-                setSubtreeSpecification( subentry, entry );
-                
-                subentryCache.addSubentry( dn, subentry );
-
-                // Update the seqNumber and update the parent AP
-                long seqNumber = updateAPSeqNumbers( apDn, subentryRoles );
-    
                 // Now inject the subentry into the backend
                 next.add( addContext );
+                    
+                // Update the seqNumber and update the parent AP
+                updateAPSeqNumbers( apDn, entry, subentries );
                 
-                // Get back the subentry entryUUID and store it in the subentry
-                String subentryUuid = addContext.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString();
-                subentry.setUuid( subentryUuid );
-
-                // Inject the subentry into its parent APs cache
-                addSubentry( apDn, entry, subentry, seqNumber );
+                // Update the subentry cache
+                for ( Subentry subentry : subentries )
+                {
+                    if ( subentry != null )
+                    {
+                        directoryService.getSubentryCache().addSubentry( dn, subentry );
+                    }
+                }
             }
             finally
             {
@@ -2016,6 +2145,23 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // Propagate the addition down to the backend.
             next.add( addContext );
+        }
+    }
+    
+    
+    private void deleteAPSubentry(DnNode<AdministrativePoint> cache, DN apDn, Subentry subentry )
+    {
+        AdministrativePoint adminPoint = cache.getElement( apDn );
+
+        Set<Subentry> apSubentries = adminPoint.getSubentries( subentry.getAdministrativeRole() );
+        
+        for ( Subentry apSubentry : apSubentries )
+        {
+            if ( apSubentry.equals( subentry ) )
+            {
+                adminPoint.deleteSubentry( subentry );
+                break;
+            }
         }
     }
 
@@ -2054,7 +2200,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            // It's a subentry. We ust be admin t remove it
+            // It's a subentry. We must be admin to remove it
             if ( !isAdmin )
             {
                 String message = "Cannot delete the given Subentry, user is not an Admin";
@@ -2066,20 +2212,48 @@ public class SubentryInterceptor extends BaseInterceptor
             // Now delete the subentry itself
             next.delete( deleteContext );
 
-            // Update the subentry cache
-            Subentry removedSubentry = subentryCache.removeSubentry( dn );
-
             // Get the administrativePoint role : we must have one immediately
             // upper
             DN apDn = dn.getParent();
 
-            // Update the parent AP seqNumber for the roles the subentry was handling
-            AdministrativePoint adminPoint = getAdministrativePoint( apDn );
-            adminPoint.deleteSubentry( removedSubentry );
+            // As the deleted entry subentry can handle more than one role, we have to get all
+            // the subentries and delete their associated AP (those with the same role)
+            Subentry[] subentries = directoryService.getSubentryCache().getSubentries( dn );
+            
+            for ( Subentry subentry : subentries )
+            {
+                if ( subentry == null )
+                {
+                    continue;
+                }
+                
+                switch ( subentry.getAdministrativeRole() )
+                {
+                    case AccessControl :
+                        deleteAPSubentry( directoryService.getAccessControlAPCache(), apDn, subentry );
+                        break;
+                        
+                    case CollectiveAttribute :
+                        deleteAPSubentry( directoryService.getCollectiveAttributeAPCache(), apDn, subentry );
+                        break;
+                        
+                    case SubSchema :
+                        deleteAPSubentry( directoryService.getSubschemaAPCache(), apDn, subentry );
+                        break;
+                        
+                    case TriggerExecution :
+                        deleteAPSubentry( directoryService.getTriggerExecutionAPCache(), apDn, subentry );
+                        break;
+                        
+                }
+
+                // And cleanup the subentry cache
+                directoryService.getSubentryCache().removeSubentry( dn );
+            }
             
             // And finally, update the parent AP SeqNumber for each role the subentry manage
-            Set<AdministrativeRoleEnum> subentryRoles = removedSubentry.getAdministrativeRoles();
-            updateAPSeqNumbers( apDn, subentryRoles );
+            //Set<AdministrativeRoleEnum> subentryRoles = subentry.getAdministrativeRoles();
+            updateAPSeqNumbers( apDn, entry, subentries );
         }
         else
         {
@@ -2139,7 +2313,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /**
      * {@inheritDoc}
-     */
+     *
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         DN dn = modifyContext.getDn();
@@ -2173,8 +2347,8 @@ public class SubentryInterceptor extends BaseInterceptor
         // Check if we have a modified subentry attribute in a Subentry entry
         if ( containsSubentryOC && isSubtreeSpecificationModification )
         {
-            Subentry subentry = subentryCache.removeSubentry( dn );
-            SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
+            Subentry[] subentry = directoryService.getSubentryCache().removeSubentry( dn );
+            SubtreeSpecification ssOld = null; //subentry.getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -2188,9 +2362,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
-            subentry.setSubtreeSpecification( ssNew );
-            subentry.setAdministrativeRoles( getSubentryTypes( entry, modifications ) );
-            subentryCache.addSubentry( dn, subentry );
+            subentry[0].setSubtreeSpecification( ssNew );
+            directoryService.getSubentryCache().addSubentry( dn, subentry[0]);
 
             next.modify( modifyContext );
 
@@ -2231,7 +2404,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // search for all selected entries by the new SS and add references to subentry
-            subentry = subentryCache.getSubentry( dn );
+            subentry = directoryService.getSubentryUuidCache().getSubentry( dn.toString() );
             List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
             DN newBaseDn = apName;
             newBaseDn = newBaseDn.addAll( ssNew.getBase() );
@@ -2306,7 +2479,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param next The next interceptor in the chain
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
-     */
+     *
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         DN oldDn = moveContext.getDn();
@@ -2325,7 +2498,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // the new parent is an AP
             //checkAdministrativeRole( moveContext, newSuperiorDn );
 
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryUuidCache().removeSubentry( oldDn.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = apName;
@@ -2334,11 +2507,11 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( oldDn.getRdn() );
             newName.normalize( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryUuidCache().addSubentry( subentry );
 
             next.move( moveContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = directoryService.getSubentryUuidCache().getSubentry( newName.toString() );
 
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
@@ -2407,6 +2580,9 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         DN oldDn = moveAndRenameContext.getDn();
@@ -2416,7 +2592,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryUuidCache().removeSubentry( oldDn.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = apName;
@@ -2426,11 +2602,11 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( moveAndRenameContext.getNewRdn() );
             newName.normalize( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryUuidCache().addSubentry( subentry );
 
             next.moveAndRename( moveAndRenameContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = subentryCache.getSubentry( newName.toString() );
 
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
@@ -2490,6 +2666,9 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         DN oldDn = renameContext.getDn();
@@ -2499,7 +2678,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryUuidCache().removeSubentry( oldDn.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
             DN baseDn = apName;
@@ -2509,10 +2688,10 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( renameContext.getNewRdn() );
             newName.normalize( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryUuidCache().addSubentry( subentry );
             next.rename( renameContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = directoryService.getSubentryUuidCache().getSubentry( newName.toString() );
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -2621,10 +2800,11 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
 
-        for ( DN subentryDn : subentryCache )
+        for ( String subentryUuid : subentryCache )
         {
-            DN apDn = subentryDn.getParent();
-            Subentry subentry = subentryCache.getSubentry( subentryDn );
+            DN subentryDn = null;
+            DN apDn = null; //subentryDn.getParent();
+            Subentry subentry = null; //subentryCache.getSubentry( subentryDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
             if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
