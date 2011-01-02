@@ -46,7 +46,7 @@ public class CollectiveAttributeSubentry extends Subentry
     /**
      * Create an instance of the CollectiveAttributeSubentry class
      */
-    public CollectiveAttributeSubentry( String cn, SubtreeSpecification ss, String uuid, List<EntryAttribute> collectiveAttributes )
+    public CollectiveAttributeSubentry( EntryAttribute cn, SubtreeSpecification ss, String uuid, List<EntryAttribute> collectiveAttributes )
     {
         super( cn, ss, uuid );
         this.collectiveAttributes = collectiveAttributes;

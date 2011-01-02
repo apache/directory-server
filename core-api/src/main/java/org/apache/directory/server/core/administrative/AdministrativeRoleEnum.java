@@ -26,8 +26,28 @@ package org.apache.directory.server.core.administrative;
  */
 public enum AdministrativeRoleEnum
 {
-    AccessControl,
-    CollectiveAttribute,
-    TriggerExecution,
-    SubSchema
+    AccessControl(0),
+    CollectiveAttribute(1),
+    TriggerExecution(2),
+    SubSchema(3);
+    
+    /** The integer value */
+    private int value;
+    
+    /**
+     * A private constructor to associate a value to each element
+     */
+    private AdministrativeRoleEnum( int value )
+    {
+        this.value = value;
+    }
+    
+    
+    /**
+     * @return The internal value
+     */
+    public int getValue()
+    {
+        return value;
+    }
 }

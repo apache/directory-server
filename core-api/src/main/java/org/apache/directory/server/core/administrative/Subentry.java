@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.administrative;
 
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -39,8 +40,8 @@ public abstract class Subentry
     /** The subentry UUID */
     private String uuid;
     
-    /** The subentry CN */
-    private String cn;
+    /** The subentry CN (normalized) */
+    private EntryAttribute cn;
     
     /**
      * Creates a new instance of a Subentry
@@ -53,7 +54,7 @@ public abstract class Subentry
     /**
      * Creates a new instance of a Subentry
      */
-    protected Subentry( String cn, SubtreeSpecification ss, String uuid )
+    protected Subentry( EntryAttribute cn, SubtreeSpecification ss, String uuid )
     {
         this.cn = cn;
         this.ss = ss;
@@ -144,7 +145,7 @@ public abstract class Subentry
     /**
      * @return the cn
      */
-    public String getCn()
+    public  EntryAttribute getCn()
     {
         return cn;
     }
@@ -153,9 +154,35 @@ public abstract class Subentry
     /**
      * @param cn the cn to set
      */
-    public void setCn( String cn )
+    public void setCn( EntryAttribute cn )
     {
         this.cn = cn;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals( Object o )
+    {
+        if ( o == null )
+        {
+            return false;
+        }
+        
+        if ( !(o instanceof Subentry ) )
+        {
+            return false;
+        }
+        
+        Subentry that = (Subentry)o;
+        
+        if ( cn == null )
+        {
+            return that.cn == null;
+        }
+        
+        return ( cn.equals( that.cn ) );
     }
 
 
@@ -165,8 +192,8 @@ public abstract class Subentry
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Subentry name : " ).append( cn ).append( '\n' );
-        sb.append( "UUID          : " ).append( uuid ).append( '\n' );
+        sb.append( cn );
+        sb.append( "    UUID : " ).append( uuid ).append( '\n' );
         
         return sb.toString();
     }

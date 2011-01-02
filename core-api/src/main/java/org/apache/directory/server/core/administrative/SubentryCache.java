@@ -20,61 +20,126 @@
 package org.apache.directory.server.core.administrative;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
 /**
- * A cache for subtree specifications. It associates a Subentry with its entryUUID<br>
+ * A cache for subentries. It associates a set of Subentry with its entryUUID or
+ * with its DN<br>
+ * This cache is thread safe.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SubentryCache implements Iterable<String>
 {
-    /** The Subentry cache */
-    private final Map<String, Subentry> cache;
+    /** The Subentry UUID cache */
+    private final Map<String, Subentry[]> uuidCache;
+    
+    /** The Subentry DN cache */
+    private final DnNode<Subentry[]> dnCache;
     
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
     public SubentryCache()
     {
-        cache = new ConcurrentHashMap<String, Subentry>();
+        uuidCache = new HashMap<String, Subentry[]>();
+        dnCache = new DnNode<Subentry[]>();
     }
     
     
     /**
-     * Creates a new instance of SubentryCache with a specific maximum size.
-     */
-    public SubentryCache( int maxSize )
-    {
-        cache = new ConcurrentHashMap<String, Subentry>();
-    }
-    
-    
-    /**
-     * Retrieve a Subentry given an UUID. If there is none, null will be returned.
+     * Retrieve a Subentry given an UUID and its role. If there is none, null will be returned.
      *
      * @param uuid The UUID we want to get the Subentry for 
+     * @param role The subentry Role
      * @return The found Subentry, or null
      */
-    public final Subentry getSubentry( String uuid )
+    public final Subentry getSubentry( String uuid, AdministrativeRoleEnum role )
     {
-        return cache.get( uuid );
+        Subentry[] subentries = uuidCache.get( uuid );
+        Subentry subentry = subentries[role.getValue()];
+        
+        return subentry;
     }
     
     
     /**
-     * Remove a Subentry for a given UUID 
+     * Retrieve the Subentries for given an UUID
+     *
+     * @param uuid The UUID we want to get the Subentries for 
+     * @return The found Subentries, or null
+     */
+    public final Subentry[] getSubentries( String uuid )
+    {
+        Subentry[] subentries = uuidCache.get( uuid );
+        
+        return subentries;
+    }
+    
+    
+    /**
+     * Retrieve a Subentry given an DN and its role. If there is none, null will be returned.
+     *
+     * @param dn The DN we want to get the Subentry for 
+     * @param role The subentry Role
+     * @return The found Subentry, or null
+     */
+    public final Subentry getSubentry( DN dn, AdministrativeRoleEnum role )
+    {
+        Subentry[] subentries = dnCache.getElement( dn );
+        Subentry subentry = subentries[role.getValue()];
+        
+        return subentry;
+    }
+    
+    
+    /**
+     * Retrieve the Subentries for given a DN
+     *
+     * @param dn The DN we want to get the Subentries for 
+     * @return The found Subentries, or null
+     */
+    public final Subentry[] getSubentries( DN dn )
+    {
+        Subentry[] subentries = dnCache.getElement( dn );
+        
+        return subentries;
+    }
+    
+    
+    /**
+     * Remove the Subentries for a given UUID and role
      *
      * @param uuid The UUID for which we want to remove the 
-     * associated Subentry
-     * @return The removed Subentry, if any
+     * associated Subentries
+     * @return The removed Subentries, if any
      */
-    public final Subentry removeSubentry( String uuid )
+    public final Subentry[] removeSubentry( String uuid )
     {
-        Subentry oldSubentry = cache.remove( uuid );
+        Subentry[] oldSubentry = uuidCache.remove( uuid );
+        
+        return oldSubentry;
+    }
+    
+    
+    /**
+     * Remove the Subentries for a given UUID and role
+     *
+     * @param uuid The DN for which we want to remove the 
+     * associated Subentries
+     * @return The removed Subentries, if any
+     */
+    public final Subentry[] removeSubentry( DN dn ) throws LdapException
+    {
+        Subentry[] oldSubentry = dnCache.getElement( dn );
+        dnCache.remove( dn );
         
         return oldSubentry;
     }
@@ -83,12 +148,22 @@ public class SubentryCache implements Iterable<String>
     /**
      * Stores a new Subentry into the cache, associated with a DN
      *
+     * @param dn, the subentry DN
      * @param subentry The Subentry
-     * @return The old Subentry, if any
+     * @return The old Subentries, if any
      */
-    public Subentry addSubentry( Subentry subentry )
+    public Subentry[] addSubentry( DN dn, Subentry subentry ) throws LdapException
     {
-        Subentry oldSubentry = cache.put( subentry.getUuid(), subentry );
+        Subentry[] subentries = uuidCache.get( subentry.getUuid() );
+        
+        if ( subentries == null )
+        {
+            subentries = new Subentry[4];
+        }
+        
+        subentries[subentry.getAdministrativeRole().getValue()] = subentry;
+        Subentry[] oldSubentry = uuidCache.put( subentry.getUuid(), subentries );
+        dnCache.add( dn, subentries );
         
         return oldSubentry;
     }
@@ -101,7 +176,61 @@ public class SubentryCache implements Iterable<String>
      */
     public boolean hasSubentry( String uuid )
     {
-        return cache.containsKey( uuid );
+        return uuidCache.containsKey( uuid );
+    }
+    
+    
+    /**
+     * Tells if there is a Subentry associated with a DN
+     * @param dn The DN
+     * @return True if a Subentry is found
+     */
+    public boolean hasSubentry( DN dn )
+    {
+        return dnCache.hasElement( dn );
+    }
+    
+    
+    /**
+     * Tells if there is a Subentry associated with an UUID and a role
+     * 
+     * @param uuid The UUID
+     * @param role The role
+     * @return True if a Subentry is found
+     */
+    public boolean hasSubentry( String uuid, AdministrativeRoleEnum role )
+    {
+        Subentry[] subentries = uuidCache.get( uuid );
+        
+        if ( subentries == null )
+        {
+            return false;
+        }
+        else
+        {
+            return subentries[ role.getValue() ] != null;
+        }
+    }
+    
+    
+    /**
+     * Tells if there is a Subentry associated with a DN and a role
+     * @param dn The DN
+     * @param role The role
+     * @return True if a Subentry is found
+     */
+    public boolean hasSubentry( DN dn, AdministrativeRoleEnum role )
+    {
+        Subentry[] subentries = dnCache.getElement( dn );
+        
+        if ( subentries == null )
+        {
+            return false;
+        }
+        else
+        {
+            return subentries[ role.getValue() ] != null;
+        }
     }
     
     
@@ -110,6 +239,6 @@ public class SubentryCache implements Iterable<String>
      */
     public Iterator<String> iterator()
     {
-        return cache.keySet().iterator();
+        return uuidCache.keySet().iterator();
     }
 }

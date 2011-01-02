@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.administrative;
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -32,7 +33,7 @@ public class SubSchemaSubentry extends Subentry
     /**
      * Create an instance of the SubSchemaSubentry class
      */
-    public SubSchemaSubentry( String cn, SubtreeSpecification ss, String uuid )
+    public SubSchemaSubentry( EntryAttribute cn, SubtreeSpecification ss, String uuid )
     {
         super( cn, ss, uuid );
     }

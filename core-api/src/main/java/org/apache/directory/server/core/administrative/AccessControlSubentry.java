@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.shared.ldap.aci.ACIItem;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -39,7 +40,7 @@ public class AccessControlSubentry extends Subentry
     /**
      * Create an instance of the AccessControlSubentry class
      */
-    public AccessControlSubentry( String cn, SubtreeSpecification ss, String uuid )
+    public AccessControlSubentry( EntryAttribute cn, SubtreeSpecification ss, String uuid )
     {
         super( cn, ss, uuid );
         aciItems = new ArrayList<ACIItem>();

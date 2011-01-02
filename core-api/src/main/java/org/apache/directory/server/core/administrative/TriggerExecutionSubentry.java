@@ -22,6 +22,7 @@ package org.apache.directory.server.core.administrative;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 
@@ -39,7 +40,7 @@ public class TriggerExecutionSubentry extends Subentry
     /**
      * Create an instance of the TriggerExecutionSubentry class
      */
-    public TriggerExecutionSubentry( String cn, SubtreeSpecification ss, String uuid )
+    public TriggerExecutionSubentry( EntryAttribute cn, SubtreeSpecification ss, String uuid )
     {
         super( cn, ss, uuid );
         triggerSpecifications = new ArrayList<TriggerSpecification>();
