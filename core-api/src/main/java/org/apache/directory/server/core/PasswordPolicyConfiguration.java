@@ -49,7 +49,7 @@ public class PasswordPolicyConfiguration
      *  Default value is 0, does not expire.  If not 0, the value must be greater than or equal
      *  to the value of the pwdMinAge.
      */
-    private int pwdMaxAge;
+    private int pwdMaxAge = 0;
 
     /**
      *  specifies the maximum number of used passwords stored in the pwdHistory attribute.
@@ -97,7 +97,7 @@ public class PasswordPolicyConfiguration
      * consecutive failed bind attempts. The maximum number of consecutive
      * failed bind attempts is specified in {@link #pwdMaxFailure}
      */
-    private boolean pwdLockout;
+    private boolean pwdLockout = false;
 
     /**
      * the number of seconds that the password cannot be used to authenticate due to 
@@ -111,13 +111,13 @@ public class PasswordPolicyConfiguration
      * be used to authenticate.
      * Default value is 0, no limit on the number of authentication failures
      */
-    private int pwdMaxFailure;
+    private int pwdMaxFailure = 0;
 
     /**
      * the number of seconds after which the password failures are purged from the failure counter.
      * Default value is 0, reset all pwdFailureTimes after a successful authentication.
      */
-    private int pwdFailureCountInterval;
+    private int pwdFailureCountInterval = 0;
 
     /** 
      * flag to indicate if the password must be changed by the user after they bind to the 
@@ -143,13 +143,13 @@ public class PasswordPolicyConfiguration
     private int pwdMinDelay = 0;
 
     /** the maximum number of seconds to delay when responding to a failed authentication attempt.*/
-    private int pwdMaxDelay;
+    private int pwdMaxDelay = 0;
 
     /** 
      * the number of seconds an account may remain unused before it becomes locked
      * Default value is 0, no check for idle time.
      */
-    private int pwdMaxIdle;
+    private int pwdMaxIdle = 0;
 
 
     public String getPwdAttribute()
@@ -473,7 +473,7 @@ public class PasswordPolicyConfiguration
             sb.append( ++errCount ).append( ". password failure count interval time cannot be negative\n" );
         }
 
-        if ( ( ( pwdMinDelay > 0 ) && ( pwdMaxDelay <= 0 ) ) 
+        if ( ( ( pwdMinDelay > 0 ) && ( pwdMaxDelay <= 0 ) )
             || ( ( pwdMaxDelay > 0 ) && ( pwdMinDelay <= 0 ) ) )
         {
             sb
