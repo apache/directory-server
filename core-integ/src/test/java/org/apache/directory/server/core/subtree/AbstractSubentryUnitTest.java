@@ -79,88 +79,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     
     
     /**
-     * Gets the AccessControl seqNumber of a given AP
-     */
-    protected long getACSeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-
-
-    /**
-     * Gets the CollectiveAttribute seqNumber of a given AP
-     */
-    protected long getCASeqNumber( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
-        
-        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
-        
-        if ( attribute == null )
-        {
-            return Long.MIN_VALUE;
-        }
-        
-        return Long.parseLong( attribute.getString() );
-    }
-    
-    
-    /**
-     * Gets the AccessControl UUIDref
-     */
-    protected String getACUuidRef( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "AccessControlSubentryUuid" );
-        
-        if ( entry == null )
-        {
-            return null;
-        }
-        
-        EntryAttribute attribute = entry.get( "AccessControlSubentryUuid");
-        
-        if ( attribute == null )
-        {
-            return null;
-        }
-        
-        return attribute.getString();
-    }
-
-
-    /**
-     * Gets the CollectiveAttribute UUID ref
-     */
-    protected String getCAUuidRef( String apDn ) throws LdapException
-    {
-        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSubentryUuid" );
-        
-        if ( entry == null )
-        {
-            return null;
-        }
-        
-        EntryAttribute attribute = entry.get( "CollectiveAttributeSubentryUuid" );
-        
-        if ( attribute == null )
-        {
-            return null;
-        }
-        
-        return attribute.getString();
-    }
-    
-
-    /**
      * Checks that an entry is absent from the DIT
      */
     protected boolean checkIsAbsent( String dn ) throws LdapException
@@ -183,6 +101,30 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     
     
     /**
+     * Gets the UUIDref
+     */
+    private String getUuidRef( String apDn, String attributeType ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, attributeType );
+        
+        if ( entry == null )
+        {
+            return null;
+        }
+        
+        EntryAttribute attribute = entry.get( attributeType);
+        
+        if ( attribute == null )
+        {
+            return null;
+        }
+        
+        return attribute.getString();
+    }
+
+    
+    
+    /**
      * Creates an AAP 
      */
     protected void createAAP( String dn ) throws LdapException
@@ -201,31 +143,14 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     }
     
     
-    /**
-     * Creates a CA SAP 
-     */
-    protected void createCaSAP( String dn ) throws LdapException
-    {
-        Entry autonomousArea = LdifUtils.createEntry( 
-            dn, 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "administrativeRole: collectiveAttributeSpecificArea"
-            );
-
-        // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
-
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-    }
-    
+    // ---- AC methods -------------------------------------------------------------------
     
     /**
      * Creates an AC SAP 
      */
     protected void createAcSAP( String dn ) throws LdapException
     {
-        Entry autonomousArea = LdifUtils.createEntry( 
+        Entry sap = LdifUtils.createEntry( 
             dn, 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
@@ -233,16 +158,129 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
             );
 
         // It should succeed
-        AddResponse response = adminConnection.add( autonomousArea );
+        AddResponse response = adminConnection.add( sap );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
     
     /**
+     * Creates an AC IAP 
+     */
+    protected void createAcIAP( String dn ) throws LdapException
+    {
+        Entry iap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: accessControlInnerArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( iap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Gets the AccessControl seqNumber of a given AP
+     */
+    protected long getAcSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "AccessControlSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+
+
+    /**
+     * Gets the AccessControl UUIDref
+     */
+    protected String getAcUuidRef( String apDn ) throws LdapException
+    {
+        return getUuidRef( apDn, "AccessControlSubentryUuid" );
+    }
+
+
+    // ---- CA methods -------------------------------------------------------------------
+
+    /**
+     * Creates a CA SAP 
+     */
+    protected void createCaSAP( String dn ) throws LdapException
+    {
+        Entry sap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( sap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Creates a CA IAP 
+     */
+    protected void createCaIAP( String dn ) throws LdapException
+    {
+        Entry iap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( iap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Gets the CollectiveAttribute seqNumber of a given AP
+     */
+    protected long getCaSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+    
+    
+    /**
+     * Gets the CollectiveAttribute UUID ref
+     */
+    protected String getCaUuidRef( String apDn ) throws LdapException
+    {
+        return getUuidRef( apDn, "CollectiveAttributeSubentryUuid" );
+    }
+    
+
+    /**
      * Creates a CollectiveAttribute subentry
      */
-    protected void createCASubentry( String dn, String subtree ) throws LdapException
+    protected void createCaSubentry( String dn, String subtree ) throws LdapException
     {
         Entry subentry = LdifUtils.createEntry( 
             dn, 
@@ -254,5 +292,120 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
 
         AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+
+    
+    // ---- SS methods -------------------------------------------------------------------
+
+    /**
+     * Creates a SS SAP 
+     */
+    protected void createSsSAP( String dn ) throws LdapException
+    {
+        Entry sap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: subschemaSpecificArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( sap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Gets the SubSchema UUID ref
+     */
+    protected String getSsUuidRef( String apDn ) throws LdapException
+    {
+        return getUuidRef( apDn, "SubSchemaSubentryUuid" );
+    }
+
+    
+    /**
+     * Gets the SubSchema seqNumber of a given AP
+     */
+    protected long getSsSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "SubSchemaSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.SUB_SCHEMA_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
+    }
+    
+    
+    // ---- TE methods -------------------------------------------------------------------
+
+    /**
+     * Creates a TE SAP 
+     */
+    protected void createTeSAP( String dn ) throws LdapException
+    {
+        Entry sap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: TriggerExecutionSpecificArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( sap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Creates a TE IAP 
+     */
+    protected void createTeIAP( String dn ) throws LdapException
+    {
+        Entry iap = LdifUtils.createEntry( 
+            dn, 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "administrativeRole: TriggerExecutionInnerArea"
+            );
+
+        // It should succeed
+        AddResponse response = adminConnection.add( iap );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
+    
+    /**
+     * Gets the TriggerExecution UUID ref
+     */
+    protected String getTeUuidRef( String apDn ) throws LdapException
+    {
+        return getUuidRef( apDn, "TriggerExecutionSubentryUuid" );
+    }
+
+    
+    /**
+     * Gets the TriggerExecution seqNumber of a given AP
+     */
+    protected long getTeSeqNumber( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "TriggerExecutionSeqNumber" );
+        
+        EntryAttribute attribute = entry.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SEQ_NUMBER_AT );
+        
+        if ( attribute == null )
+        {
+            return Long.MIN_VALUE;
+        }
+        
+        return Long.parseLong( attribute.getString() );
     }
 }

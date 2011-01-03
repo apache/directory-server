@@ -262,7 +262,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         createAAP( "ou=AAP,ou=system" );
         
         // Add a subentry now
-        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=AAP,ou=system", "{}" );
         
         Entry subentryEntry = adminConnection.lookup( "cn=test,ou=AAP,ou=system", "+", "*" );
         assertNotNull( subentryEntry );
@@ -652,7 +652,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
         // Add a subentry now
-        createCASubentry( "cn=test,ou=SAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{}" );
     }
     
     
@@ -737,7 +737,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
     {
         // First add an SAP
         createCaSAP( "ou=SAP,ou=system" );
-        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=SAP,ou=system" ) );
         
         // Create a first entry
         Entry e1 = LdifUtils.createEntry( 
@@ -750,7 +750,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         AddResponse response = adminConnection.add( e1 );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        assertEquals( -1L, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
         
         // Create a second entry
         Entry e2 = LdifUtils.createEntry( 
@@ -763,13 +763,13 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         response = adminConnection.add( e2 );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "cn=e2,ou=SAP,ou=system" ) );
 
         // Add a subentry now
-        createCASubentry( "cn=test,ou=SAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{}" );
         
         // Get back the CA SeqNumber
-        long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
+        long caSeqNumber = getCaSeqNumber( "ou=SAP,ou=system" );
         
         assertTrue( caSeqNumber > -1L );
         
@@ -785,11 +785,11 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // The CASeqNumber for this entry must be the same than it's AP
-        assertEquals( caSeqNumber, getCASeqNumber( "cn=e3,ou=SAP,ou=system" ) );
+        assertEquals( caSeqNumber, getCaSeqNumber( "cn=e3,ou=SAP,ou=system" ) );
 
         // Now, check that when we read the other entries, their CA seqNumber is also updated
-        assertEquals( caSeqNumber, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
-        assertEquals( caSeqNumber, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+        assertEquals( caSeqNumber, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertEquals( caSeqNumber, getCaSeqNumber( "cn=e2,ou=SAP,ou=system" ) );
     }
     
     
@@ -811,7 +811,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "ou: e1" );
         
         AddResponse response = adminConnection.add( e1 );
-        assertEquals( -1L, getCASeqNumber( "ou=e1,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=e1,ou=SAP,ou=system" ) );
         
         // Create a second entry
         Entry e2 = LdifUtils.createEntry( 
@@ -822,13 +822,13 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "sn: entry 2" );
 
         response = adminConnection.add( e2 );
-        assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "cn=e2,ou=SAP,ou=system" ) );
 
         // Add a subentry now, selecting only entries with a person AT
-        createCASubentry( "cn=test,ou=SAP,ou=system", "{ specificationFilter item:person }" );
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{ specificationFilter item:person }" );
         
         // Get back the CA SeqNumber
-        long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
+        long caSeqNumber = getCaSeqNumber( "ou=SAP,ou=system" );
         
         assertTrue( caSeqNumber > -1L );
         

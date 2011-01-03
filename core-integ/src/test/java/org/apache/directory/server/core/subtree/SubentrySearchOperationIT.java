@@ -28,16 +28,19 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test cases for the AdministrativePoint interceptor lookup operation.
+ * Test cases for the AdministrativePoint interceptor Search operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -53,45 +56,119 @@ import org.junit.runner.RunWith;
         "sn: test User",
         "userpassword: test"
     })
-public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
+public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
 {
     // ===================================================================
-    // Test the Lookup operation on APs
+    // Test the Search operation on APs
     // -------------------------------------------------------------------
     /**
-     * Test the lookup of an AP. All APs are searcheable by default
+     * Test the Search of an AP. All APs are searcheable by default.
      */
     @Test
-    public void testLookupAP() throws Exception
+    public void testSearchAP() throws Exception
     {
         createAAP( "ou=AAP, ou=system" );
         
-        Entry aap = adminConnection.lookup( "ou=AAP, ou=system", "+" );
+        SearchCursor results = adminConnection.search( "ou=system", "(administrativeRole=*)", SearchScope.SUBTREE, "+" );
         
-        assertNotNull( aap );
-        assertEquals ( "-1", aap.get( "AccessControlSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "CollectiveAttributeSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "SubSchemaSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "TriggerExecutionSeqNumber" ).getString() );
+        assertNotNull( results );
+        int nbEntry = 0;
+        
+        while ( results.next() )
+        {
+            Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
+            assertEquals ( "-1", entry.get( "AccessControlSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "CollectiveAttributeSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "SubSchemaSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "TriggerExecutionSeqNumber" ).getString() );
+            
+            nbEntry++;
+        }
+        
+        assertEquals( 1, nbEntry );
+        results.close();
     }
 
     
     /**
-     * Test the lookup of an AP. All APs are searcheable by default
+     * Test the search of an AP. All APs are searcheable by default. We should get the
+     * AP even if we use a non admin user.
      */
     @Test
-    public void testLookupAPNotAdmin() throws Exception
+    public void testSearchAPNotAdmin() throws Exception
     {
         createAAP( "ou=AAP, ou=system" );
         
-        Entry aap = userConnection.lookup( "ou=AAP, ou=system", "+" );
+        SearchCursor results = adminConnection.search( "ou=system", "(administrativeRole=*)", SearchScope.SUBTREE, "+" );
         
-        assertNotNull( aap );
-        assertEquals ( "-1", aap.get( "AccessControlSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "CollectiveAttributeSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "SubSchemaSeqNumber" ).getString() );
-        assertEquals ( "-1", aap.get( "TriggerExecutionSeqNumber" ).getString() );
+        assertNotNull( results );
+        int nbEntry = 0;
+        
+        while ( results.next() )
+        {
+            Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
+            assertEquals ( "-1", entry.get( "AccessControlSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "CollectiveAttributeSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "SubSchemaSeqNumber" ).getString() );
+            assertEquals ( "-1", entry.get( "TriggerExecutionSeqNumber" ).getString() );
+            
+            nbEntry++;
+        }
+        
+        assertEquals( 1, nbEntry );
+        results.close();
     }
+    
+    
+    /**
+     * Test the Search of many APs. All APs are searcheable by default.
+     */
+    @Test
+    public void testSearchAPs() throws Exception
+    {
+        createAAP( "ou=AAP, ou=system" );
+        createCaIAP( "ou=IAP, ou=AAP, ou=system" );
+        createCaSAP( "ou=SAP, ou=system" );
+        
+        SearchCursor results = adminConnection.search( "ou=system", "(administrativeRole=*)", SearchScope.SUBTREE, "+" );
+        
+        assertNotNull( results );
+        int nbEntry = 0;
+        
+        while ( results.next() )
+        {
+            Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
+            
+            if ( entry.getDn().equals( "ou=AAP, ou=system" ) )
+            { 
+                assertEquals( "-1", entry.get( "AccessControlSeqNumber" ).getString() );
+                assertEquals( "-1", entry.get( "CollectiveAttributeSeqNumber" ).getString() );
+                assertEquals( "-1", entry.get( "SubSchemaSeqNumber" ).getString() );
+                assertEquals( "-1", entry.get( "TriggerExecutionSeqNumber" ).getString() );
+            }
+            else if ( entry.getDn().equals( "ou=IAP, ou=AAP, ou=system" ) )
+            {
+                assertNull( entry.get( "AccessControlSeqNumber" ) );
+                assertEquals( "-1", entry.get( "CollectiveAttributeSeqNumber" ).getString() );
+                assertNull( entry.get( "SubSchemaSeqNumber" ) );
+                assertNull( entry.get( "TriggerExecutionSeqNumber" ) );
+            }
+            else if ( entry.getDn().equals( "ou=SAP, ou=system" ) )
+            {
+                assertNull( entry.get( "AccessControlSeqNumber" ) );
+                assertEquals( "-1", entry.get( "CollectiveAttributeSeqNumber" ).getString() );
+                assertNull( entry.get( "SubSchemaSeqNumber" ) );
+                assertNull( entry.get( "TriggerExecutionSeqNumber" ) );
+            }
+            
+            nbEntry++;
+        }
+        
+        assertEquals( 3, nbEntry );
+        results.close();
+    }
+
+    
 
     
     // ===================================================================

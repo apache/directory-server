@@ -69,7 +69,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         createAAP( "ou=AAP,ou=system" );
 
         // Add a subentry now
-        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=AAP,ou=system", "{}" );
         
         assertTrue( checkIsPresent( "cn=test,ou=AAP,ou=system" ) );
 
@@ -200,21 +200,21 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         // First add an AAP
         createAAP( "ou=AAP,ou=system" );
         
-        assertEquals( -1L, getACSeqNumber( "ou=AAP,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=AAP,ou=system" ) );
+        assertEquals( -1L, getAcSeqNumber( "ou=AAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=AAP,ou=system" ) );
         
         // Add a subentry now
-        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=AAP,ou=system", "{}" );
 
-        long seqNumber = getCASeqNumber( "ou=AAP,ou=system" );
-        assertEquals( -1L, getACSeqNumber( "ou=AAP,ou=system" ) );
+        long seqNumber = getCaSeqNumber( "ou=AAP,ou=system" );
+        assertEquals( -1L, getAcSeqNumber( "ou=AAP,ou=system" ) );
         
         // Now delete it
         DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=AAP,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumber, it must be 1 now
-        assertEquals( seqNumber + 1, getCASeqNumber( "ou=AAP,ou=system" ) );
+        assertEquals( seqNumber + 1, getCaSeqNumber( "ou=AAP,ou=system" ) );
     }
     
     
@@ -226,21 +226,21 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
     {
         createCaSAP( "ou=SAP,ou=system" );
         
-        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( Long.MIN_VALUE, getAcSeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=SAP,ou=system" ) );
         
         // Add a subentry now
-        createCASubentry( "cn=test,ou=SAP,ou=system", "{}"); 
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{}"); 
 
-        long seqNumber = getCASeqNumber( "ou=SAP,ou=system" );
-        assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP,ou=system" ) );
+        long seqNumber = getCaSeqNumber( "ou=SAP,ou=system" );
+        assertEquals( Long.MIN_VALUE, getAcSeqNumber( "ou=SAP,ou=system" ) );
         
         // Now delete it
         DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP,ou=system" );
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumber, it must be 1 now
-        assertEquals( seqNumber + 1, getCASeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( seqNumber + 1, getCaSeqNumber( "ou=SAP,ou=system" ) );
     }
     
     
@@ -265,16 +265,16 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
-        assertEquals( -1L, getCASeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
         
         // Add a subentry now
-        createCASubentry( "cn=test,ou=IAP,ou=SAP,ou=system", "{}" );
+        createCaSubentry( "cn=test,ou=IAP,ou=SAP,ou=system", "{}" );
 
-        long seqNumberSAP = getCASeqNumber( "ou=SAP,ou=system" );
+        long seqNumberSAP = getCaSeqNumber( "ou=SAP,ou=system" );
         assertEquals( -1L, seqNumberSAP );
         
-        long seqNumberIAP = getCASeqNumber( "ou=IAP,ou=SAP,ou=system" );
+        long seqNumberIAP = getCaSeqNumber( "ou=IAP,ou=SAP,ou=system" );
         assertTrue( seqNumberIAP > -1L );
 
         // Now delete it
@@ -282,8 +282,8 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
         
         // Check the CASeqNumbers, it must be 1 now
-        assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
-        assertEquals( seqNumberIAP + 1, getCASeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
+        assertEquals( -1L, getCaSeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( seqNumberIAP + 1, getCaSeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
         
         assertTrue( checkIsAbsent( "cn=test,ou=IAP,ou=SAP,ou=system" ) );
     }
