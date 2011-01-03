@@ -113,6 +113,52 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         return Long.parseLong( attribute.getString() );
     }
     
+    
+    /**
+     * Gets the AccessControl UUIDref
+     */
+    protected String getACUuidRef( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "AccessControlSubentryUuid" );
+        
+        if ( entry == null )
+        {
+            return null;
+        }
+        
+        EntryAttribute attribute = entry.get( "AccessControlSubentryUuid");
+        
+        if ( attribute == null )
+        {
+            return null;
+        }
+        
+        return attribute.getString();
+    }
+
+
+    /**
+     * Gets the CollectiveAttribute UUID ref
+     */
+    protected String getCAUuidRef( String apDn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( apDn, "CollectiveAttributeSubentryUuid" );
+        
+        if ( entry == null )
+        {
+            return null;
+        }
+        
+        EntryAttribute attribute = entry.get( "CollectiveAttributeSubentryUuid" );
+        
+        if ( attribute == null )
+        {
+            return null;
+        }
+        
+        return attribute.getString();
+    }
+    
 
     /**
      * Checks that an entry is absent from the DIT
@@ -196,14 +242,14 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     /**
      * Creates a CollectiveAttribute subentry
      */
-    protected void createCASubentry( String dn ) throws LdapException
+    protected void createCASubentry( String dn, String subtree ) throws LdapException
     {
         Entry subentry = LdifUtils.createEntry( 
             dn, 
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
-            "subtreeSpecification: {}", 
+            "subtreeSpecification", subtree,
             "c-o: Test Org" );
 
         AddResponse response = adminConnection.add( subentry );

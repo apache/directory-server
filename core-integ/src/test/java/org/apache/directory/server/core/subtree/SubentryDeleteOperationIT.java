@@ -69,17 +69,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         createAAP( "ou=AAP,ou=system" );
 
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        AddResponse response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
         
         assertTrue( checkIsPresent( "cn=test,ou=AAP,ou=system" ) );
 
@@ -214,17 +204,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         assertEquals( -1L, getCASeqNumber( "ou=AAP,ou=system" ) );
         
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        AddResponse response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
 
         long seqNumber = getCASeqNumber( "ou=AAP,ou=system" );
         assertEquals( -1L, getACSeqNumber( "ou=AAP,ou=system" ) );
@@ -250,17 +230,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         assertEquals( -1L, getCASeqNumber( "ou=SAP,ou=system" ) );
         
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        AddResponse response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=SAP,ou=system", "{}"); 
 
         long seqNumber = getCASeqNumber( "ou=SAP,ou=system" );
         assertEquals( Long.MIN_VALUE, getACSeqNumber( "ou=SAP,ou=system" ) );
@@ -299,17 +269,7 @@ public class SubentryDeleteOperationIT extends AbstractSubentryUnitTest
         assertEquals( -1L, getCASeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
         
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=IAP,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=IAP,ou=SAP,ou=system", "{}" );
 
         long seqNumberSAP = getCASeqNumber( "ou=SAP,ou=system" );
         assertEquals( -1L, seqNumberSAP );

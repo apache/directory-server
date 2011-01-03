@@ -103,7 +103,7 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
     public void testLookupSubentry() throws Exception
     {
         createAAP( "ou=AAP, ou=system" );
-        createCASubentry( "cn=test, ou=AAP, ou=system" );
+        createCASubentry( "cn=test, ou=AAP, ou=system", "{}" );
         
         Entry aap = adminConnection.lookup( "ou=AAP, ou=system", "+" );
         
@@ -135,7 +135,7 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
     public void testLookupSubentryNotAdmin() throws Exception
     {
         createAAP( "ou=AAP, ou=system" );
-        createCASubentry( "cn=test, ou=AAP, ou=system" );
+        createCASubentry( "cn=test, ou=AAP, ou=system", "{}" );
         
         Entry aap = userConnection.lookup( "ou=AAP, ou=system", "+" );
         
@@ -206,17 +206,7 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         assertEquals( -1L, getCASeqNumber( "cn=e1,ou=AAP,ou=system" ) );
-    }
-
-
-    /**
-     * Test the lookup of a entry when an AP with no subentry has been added. All
-     * the entry SN must be set to -1, and not have any subentries reference
-     */
-    @Test
-    public void testLookupEntryAfterApAdditionNoSubentry() throws Exception
-    {
-        // TODO
+        assertNull( getCAUuidRef( "cn=e1,ou=AAP,ou=system" ) );
     }
 
 
@@ -228,7 +218,26 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testLookupEntryUnderApWithSubentrySelected() throws Exception
     {
-        // TODO
+        // Create a CA SAP and a subentry
+        createCaSAP( "ou=SAP,ou=System" );
+        createCASubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: person}" );
+        
+        // Now, created a selected entry 
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        AddResponse response = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        long seqNumber = getCASeqNumber( "ou=SAP,ou=System" );
+        
+        // Check that the added entry has its AP seqNumber and its subentry UUID 
+        assertEquals( seqNumber, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertEquals( getCAUuidRef( "cn=test,ou=SAP,ou=System" ), getCAUuidRef( "cn=e1,ou=AAP,ou=system" ) );
     }
 
 

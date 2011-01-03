@@ -262,17 +262,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         createAAP( "ou=AAP,ou=system" );
         
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        AddResponse response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=AAP,ou=system", "{}" );
         
         Entry subentryEntry = adminConnection.lookup( "cn=test,ou=AAP,ou=system", "+", "*" );
         assertNotNull( subentryEntry );
@@ -290,7 +280,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "ou: BADAP", 
             "administrativeRole: autonomousArea" );
 
-        response = adminConnection.add( badAP );
+        AddResponse response = adminConnection.add( badAP );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
     }
     
@@ -662,17 +652,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=SAP,ou=system", "{}" );
     }
     
     
@@ -768,6 +748,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "sn: entry 1" );
         
         AddResponse response = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         assertEquals( -1L, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
         
@@ -780,21 +761,12 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "sn: entry 2" );
 
         response = adminConnection.add( e2 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
 
         // Add a subentry now
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: {}", 
-            "c-o: Test Org" );
-
-        response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=SAP,ou=system", "{}" );
         
         // Get back the CA SeqNumber
         long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
@@ -810,6 +782,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
             "sn: entry 3" );
 
         response = adminConnection.add( e3 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // The CASeqNumber for this entry must be the same than it's AP
         assertEquals( caSeqNumber, getCASeqNumber( "cn=e3,ou=SAP,ou=system" ) );
@@ -852,17 +825,7 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         assertEquals( -1L, getCASeqNumber( "cn=e2,ou=SAP,ou=system" ) );
 
         // Add a subentry now, selecting only entries with a person AT
-        Entry subentry = LdifUtils.createEntry( 
-            "cn=test,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: subentry", 
-            "ObjectClass: collectiveAttributeSubentry",
-            "cn: test",
-            "subtreeSpecification: { specificationFilter item:person }", 
-            "c-o: Test Org" );
-
-        response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        createCASubentry( "cn=test,ou=SAP,ou=system", "{ specificationFilter item:person }" );
         
         // Get back the CA SeqNumber
         long caSeqNumber = getCASeqNumber( "ou=SAP,ou=system" );
