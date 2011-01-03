@@ -1817,22 +1817,28 @@ public class SubentryInterceptor extends BaseInterceptor
                 continue;
             }
             
+            AdministrativePoint adminPoint = null;
+            
             switch ( subentry.getAdministrativeRole() )
             {
                 case AccessControl :
                     newSeqNumber = new DefaultEntryAttribute( ACCESS_CONTROL_SEQ_NUMBER_AT, seqNumberStr );
+                    adminPoint = directoryService.getAccessControlAPCache().getElement( apDn );
                     break;
     
                 case CollectiveAttribute :
                     newSeqNumber = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, seqNumberStr );
+                    adminPoint = directoryService.getCollectiveAttributeAPCache().getElement( apDn );
                     break;
     
                 case SubSchema :
                     newSeqNumber = new DefaultEntryAttribute( SUB_SCHEMA_SEQ_NUMBER_AT, seqNumberStr );
+                    adminPoint = directoryService.getSubschemaAPCache().getElement( apDn );
                     break;
     
                 case TriggerExecution :
                     newSeqNumber = new DefaultEntryAttribute( TRIGGER_EXECUTION_SEQ_NUMBER_AT, seqNumberStr );
+                    adminPoint = directoryService.getTriggerExecutionAPCache().getElement( apDn );
                     break;
     
             }
@@ -1843,6 +1849,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // Get back the subentry entryUUID and store it in the subentry
             String subentryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
             subentry.setUuid( subentryUuid );
+            adminPoint.addSubentry( subentry );
         }
         
         // Inject the seqNumbers into the parent AP
