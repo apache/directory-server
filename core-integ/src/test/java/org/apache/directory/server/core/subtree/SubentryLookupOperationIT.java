@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -30,6 +31,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -243,24 +245,75 @@ public class SubentryLookupOperationIT extends AbstractSubentryUnitTest
 
     /**
      * Test the lookup of a entry when an AP with a subentry is added. 
-     * The entry is part of the subtreeSpecification.
-     * All the entry SN must be set to the AP SN, and have any subentries reference
+     * The entry is not part of the subtreeSpecification.
+     * All the entry SN must be set to the AP SN, and have no subentries reference
      */
     @Test
     public void testLookupEntryAfterApAdditionWithSubentrySelected() throws Exception
     {
-        // TODO
+        // Create a CA SAP and a subentry
+        createCaSAP( "ou=SAP,ou=System" );
+        createCASubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: organization}" );
+        
+        // Now, created a selected entry 
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        AddResponse response = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        long seqNumber = getCASeqNumber( "ou=SAP,ou=System" );
+        
+        // Check that the added entry has its AP seqNumber and no ref to the subentry 
+        assertEquals( seqNumber, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertNull( getCAUuidRef( "cn=e1,ou=AAP,ou=system" ) );
     }
 
 
     /**
      * Test the lookup of a entry when the subentry it referes has been 
      * removed. The entry's reference to the subentry must be removed, the 
-     * SN must be the AP SN
+     * SN must be the new AP SN
      */
     @Test
     public void testLookupEntryAfterSubentryDeletion() throws Exception
     {
-        // TODO
+        // Create a CA SAP and a subentry
+        createCaSAP( "ou=SAP,ou=System" );
+        createCASubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: person}" );
+        
+        // Now, created a selected entry 
+        Entry e1 = LdifUtils.createEntry( 
+            "cn=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e1", 
+            "sn: entry 1" );
+        
+        AddResponse addResponse = adminConnection.add( e1 );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
+
+        long seqNumber1 = getCASeqNumber( "ou=SAP,ou=System" );
+        
+        // Check that the added entry has its AP seqNumber and its subentry UUID 
+        assertEquals( seqNumber1, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertEquals( getCAUuidRef( "cn=test,ou=SAP,ou=System" ), getCAUuidRef( "cn=e1,ou=AAP,ou=system" ) );
+        
+        // Now, remove the subentry
+        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP,ou=System" );
+        assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
+
+        // The AP seqNumber must have been incremented
+        long seqNumber2 = getCASeqNumber( "ou=SAP,ou=System" );
+        
+        assertTrue( seqNumber1 < seqNumber2 );
+
+        // Now, check the entry 
+        assertEquals( seqNumber2, getCASeqNumber( "cn=e1,ou=SAP,ou=system" ) );
+        assertNull( getCAUuidRef( "cn=e1,ou=AAP,ou=system" ) );
     }
 }
