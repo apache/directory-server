@@ -163,7 +163,17 @@ public class SubentryCache implements Iterable<String>
         
         subentries[subentry.getAdministrativeRole().getValue()] = subentry;
         Subentry[] oldSubentry = uuidCache.put( subentry.getUuid(), subentries );
-        dnCache.add( dn, subentries );
+        
+        Subentry[] dnSubentries = dnCache.getElement( dn );
+        
+        if ( dnSubentries != null )
+        {
+            dnSubentries[subentry.getAdministrativeRole().getValue()] = subentry;
+        }
+        else
+        {
+            dnCache.add( dn, subentries );
+        }
         
         return oldSubentry;
     }
