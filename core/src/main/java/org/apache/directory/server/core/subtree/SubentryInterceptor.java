@@ -1850,6 +1850,7 @@ public class SubentryInterceptor extends BaseInterceptor
             String subentryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
             subentry.setUuid( subentryUuid );
             adminPoint.addSubentry( subentry );
+            adminPoint.setSeqNumber( seqNumber );
         }
         
         // Inject the seqNumbers into the parent AP
