@@ -31,6 +31,9 @@ import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentr
 import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
@@ -211,7 +214,8 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
 
     /**
      * Test the search of a subentry with a admin user, and a SUBTREE scope.
-     * It should succeed if we use the subentries control
+     * It should succeed if we use the subentries control, and we should not have
+     * anything but subentries in the returned set of entries
      */
     @Test
     public void testSearchSubentryScopeSubtreeWithControl() throws Exception
@@ -221,7 +225,7 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         
         SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( new DN( "ou=system" ) );
-        searchRequest.setFilter( "(ObjectClass=subentry)" );
+        searchRequest.setFilter( "(ObjectClass=*)" );
         searchRequest.setScope( SearchScope.SUBTREE );
         searchRequest.addAttributes( "+" );
         SubentriesControl control = new SubentriesControl();
@@ -246,191 +250,139 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
     }
 
 
-    /**
-     * Test the lookup of a subentry. Subentries can be read directly as it's 
-     * a OBJECT search. We don't use the admin in this test
-     *
-    @Test
-    public void testLookupSubentryNotAdmin() throws Exception
-    {
-        createAAP( "ou=AAP, ou=system" );
-        createCaSubentry( "cn=test, ou=AAP, ou=system", "{}" );
-        
-        Entry aap = userConnection.lookup( "ou=AAP, ou=system", "+" );
-        
-        assertNotNull( aap );
-        long acSN = Long.parseLong( aap.get( "AccessControlSeqNumber" ).getString() );
-        long caSN = Long.parseLong( aap.get( "CollectiveAttributeSeqNumber" ).getString() );
-        long ssSN = Long.parseLong( aap.get( "SubSchemaSeqNumber" ).getString() );
-        long teSN = Long.parseLong( aap.get( "TriggerExecutionSeqNumber" ).getString() );
-        
-        assertEquals( -1L, acSN );
-        assertEquals( service.getApSeqNumber(), caSN );
-        assertEquals( -1L, ssSN );
-        assertEquals( -1L, teSN );
-        
-        Entry subentry = userConnection.lookup( "cn=test, ou=AAP, ou=system", "+" );
-        assertNotNull( subentry );
-        assertNull( subentry.get( "AccessControlSeqNumber" ) );
-        assertNull( subentry.get( "CollectiveAttributeSeqNumber" ) );
-        assertNull( subentry.get( "SubSchemaSeqNumber" ) );
-        assertNull( subentry.get( "TriggerExecutionSeqNumber" ) );
-    }
-    
-    
     // ===================================================================
-    // Test the Search operation on Entries
+    // Test the Search operation on normal entries
     // -------------------------------------------------------------------
     /**
-     * Test the lookup of a entry with no APs. The entry should not have
-     * any SN
-     *
+     * Test the search of normal entries
+     * The structure we will use is the following :
+     * 
+     * <pre>
+     * [ou=system]
+     *   |
+     *   +-- (cn=e5)
+     *   |
+     *   +-- [ou=SAP] ... <cn=SECA>
+     *   |     |
+     *   |     +-- [ou=IAP] ... <cn=SECA>
+     *   |     |     |
+     *   |     |     +-- (ou=e3)
+     *   |     |           |
+     *   |     |           +-- (cn=e6)
+     *   |     |
+     *   |     +-- (ou=e1)
+     *   |          |
+     *   |          +-- (cn=e2)
+     *   |
+     *   +-- [ou=AAP] ... <cn=SEAA>
+     *         |
+     *         +-- (cn=e4)
+     * </pre>
+     * (xxx) are normal entries</br>
+     * [xxx] are AdministrativePoints</br>
+     * &lt;xxx&gt; are subentries
+     */
     @Test
-    public void testLookupEntryNoAp() throws Exception
+    public void testSearchEntries() throws Exception
     {
-        // Create a first entry
-        Entry e1 = LdifUtils.createEntry( 
-            "cn=e1,ou=system", 
+        // First, create the APs
+        createCaSAP( "ou=SAP, ou=system" );
+        createCaIAP( "ou=IAP,ou=SAP, ou=system" );
+        createAAP( "ou=AAP, ou=system" );
+        
+        // Now, create the entries
+        createEntryAdmin( LdifUtils.createEntry( 
+            "ou=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e1" ) );
+        
+        createEntryAdmin( LdifUtils.createEntry( 
+            "cn=e2,ou=e1,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: person", 
-            "cn: e1", 
-            "sn: entry 1" );
+            "ObjectClass: extensibleObject",
+            "cn: e2",
+            "sn: entry 2" ) );
         
-        AddResponse response = adminConnection.add( e1 );
+        createEntryAdmin( LdifUtils.createEntry( 
+            "ou=e3,ou=IAP,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e3" ) );
+        
+        createEntryAdmin( LdifUtils.createEntry( 
+            "cn=e4,ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e4",
+            "sn: entry 4" ) );
+        
+        createEntryAdmin( LdifUtils.createEntry( 
+            "cn=e5,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person", 
+            "cn: e5",
+            "sn: entry 5" ) );
+        
+        createEntryAdmin( LdifUtils.createEntry( 
+            "cn=e6,ou=e3,ou=IAP,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: extensibleObject",
+            "cn: e6",
+            "sn: entry 6" ) );
+        
+        // Now, inject the subentries
+        // The CA subentry associated with the SAP select all entries having the 'person' or 'extensibleObject'
+        // ObjectClasses.
+        createCaSubentry( "cn=SESAP, ou=SAP, ou=system", "{ specificationFilter or: { item:person, item:extensibleObject } }" );
+        
+        // The CA subentry associated with the IAP select all entries having the 'organizationalUnit' ObjectClass 
+        createCaSubentry( "cn=SEIAP, ou=IAP, ou=SAP, ou=system", "{ specificationFilter item:organizationalUnit }" );
+
+        // The AC/CA subentry associated with the AAP manage 2 roles, and select of the underlying entries
+        Entry subentry = LdifUtils.createEntry( 
+            "cn=SEAA,ou=AAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: subentry", 
+            "ObjectClass: collectiveAttributeSubentry",
+            "ObjectClass: accessControlSubentry",
+            "cn: test",
+            "subtreeSpecification: {}", 
+            "c-o: Test Org",
+            "prescriptiveACI: { " 
+            + "  identificationTag \"addAci\", "
+            + "  precedence 14, " 
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," 
+            + "    userPermissions "
+            + "    { " 
+            + "      { " 
+            + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " 
+            + "      } " 
+            + "    } " 
+            + "  } "
+            + "}" );
+
+        AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Now, let's read all the entries.
+        SearchCursor results = adminConnection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
+        
+        assertNotNull( results );
+        int nbEntry = 0;
+        
+        while ( results.next() )
+        {
+            Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
 
-        assertEquals( Long.MIN_VALUE, getCaSeqNumber( "cn=e1,ou=system" ) );
+            System.out.println( entry );
+            nbEntry++;
+        }
     }
-
-
-    /**
-     * Test the lookup of a entry added under an AP with no subentry. All
-     * the entry SN must be set to -1, and not have any subentries reference
-     *
-    @Test
-    public void testLookupEntryUnderApNoSubentry() throws Exception
-    {
-        // Create an AP
-        createAAP( "ou=AAP,ou=system" );
-        
-        // Create a first entry
-        Entry e1 = LdifUtils.createEntry( 
-            "cn=e1,ou=AAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: person", 
-            "cn: e1", 
-            "sn: entry 1" );
-        
-        AddResponse response = adminConnection.add( e1 );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-
-        assertEquals( -1L, getCaSeqNumber( "cn=e1,ou=AAP,ou=system" ) );
-        assertNull( getCaUuidRef( "cn=e1,ou=AAP,ou=system" ) );
-    }
-
-
-    /**
-     * Test the lookup of a entry added under an AP with a subentry. 
-     * The entry is part of the subtreeSpecification.
-     * All the entry SN must be set to the AP SN, and have any subentries reference
-     *
-    @Test
-    public void testLookupEntryUnderApWithSubentrySelected() throws Exception
-    {
-        // Create a CA SAP and a subentry
-        createCaSAP( "ou=SAP,ou=System" );
-        createCaSubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: person}" );
-        
-        // Now, created a selected entry 
-        Entry e1 = LdifUtils.createEntry( 
-            "cn=e1,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: person", 
-            "cn: e1", 
-            "sn: entry 1" );
-        
-        AddResponse response = adminConnection.add( e1 );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-
-        long seqNumber = getCaSeqNumber( "ou=SAP,ou=System" );
-        
-        // Check that the added entry has its AP seqNumber and its subentry UUID 
-        assertEquals( seqNumber, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
-        assertEquals( getCaUuidRef( "cn=test,ou=SAP,ou=System" ), getCaUuidRef( "cn=e1,ou=AAP,ou=system" ) );
-    }
-
-
-    /**
-     * Test the lookup of a entry when an AP with a subentry is added. 
-     * The entry is not part of the subtreeSpecification.
-     * All the entry SN must be set to the AP SN, and have no subentries reference
-     *
-    @Test
-    public void testLookupEntryAfterApAdditionWithSubentrySelected() throws Exception
-    {
-        // Create a CA SAP and a subentry
-        createCaSAP( "ou=SAP,ou=System" );
-        createCaSubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: organization}" );
-        
-        // Now, created a selected entry 
-        Entry e1 = LdifUtils.createEntry( 
-            "cn=e1,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: person", 
-            "cn: e1", 
-            "sn: entry 1" );
-        
-        AddResponse response = adminConnection.add( e1 );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-
-        long seqNumber = getCaSeqNumber( "ou=SAP,ou=System" );
-        
-        // Check that the added entry has its AP seqNumber and no ref to the subentry 
-        assertEquals( seqNumber, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
-        assertNull( getCaUuidRef( "cn=e1,ou=AAP,ou=system" ) );
-    }
-
-
-    /**
-     * Test the lookup of a entry when the subentry it referes has been 
-     * removed. The entry's reference to the subentry must be removed, the 
-     * SN must be the new AP SN
-     *
-    @Test
-    public void testLookupEntryAfterSubentryDeletion() throws Exception
-    {
-        // Create a CA SAP and a subentry
-        createCaSAP( "ou=SAP,ou=System" );
-        createCaSubentry( "cn=test,ou=SAP,ou=System", "{specificationFilter item: person}" );
-        
-        // Now, created a selected entry 
-        Entry e1 = LdifUtils.createEntry( 
-            "cn=e1,ou=SAP,ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: person", 
-            "cn: e1", 
-            "sn: entry 1" );
-        
-        AddResponse addResponse = adminConnection.add( e1 );
-        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
-
-        long seqNumber1 = getCaSeqNumber( "ou=SAP,ou=System" );
-        
-        // Check that the added entry has its AP seqNumber and its subentry UUID 
-        assertEquals( seqNumber1, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
-        assertEquals( getCaUuidRef( "cn=test,ou=SAP,ou=System" ), getCaUuidRef( "cn=e1,ou=AAP,ou=system" ) );
-        
-        // Now, remove the subentry
-        DeleteResponse delResponse = adminConnection.delete( "cn=test,ou=SAP,ou=System" );
-        assertEquals( ResultCodeEnum.SUCCESS, delResponse.getLdapResult().getResultCode() );
-
-        // The AP seqNumber must have been incremented
-        long seqNumber2 = getCaSeqNumber( "ou=SAP,ou=System" );
-        
-        assertTrue( seqNumber1 < seqNumber2 );
-
-        // Now, check the entry 
-        assertEquals( seqNumber2, getCaSeqNumber( "cn=e1,ou=SAP,ou=system" ) );
-        assertNull( getCaUuidRef( "cn=e1,ou=AAP,ou=system" ) );
-    } */
 }
