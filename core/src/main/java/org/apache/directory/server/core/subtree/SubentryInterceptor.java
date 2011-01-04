@@ -749,7 +749,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 
                 // Go down one level
-                apNode = apNode.getParentWithElement( apNode.getDn() );
+                apNode = apNode.getParentWithElement();
+                adminPoint = apNode.getElement();
             } while ( !sapFound );
             
             // If we have updated the entry, create the list of modifications to apply

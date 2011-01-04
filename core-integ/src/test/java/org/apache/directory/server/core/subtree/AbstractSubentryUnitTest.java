@@ -142,6 +142,17 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
+
+    /**
+     * Create an entry using the admin connection
+     */
+    protected void createEntryAdmin( Entry entry ) throws LdapException
+    {
+        AddResponse response = adminConnection.add( entry );
+
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+    
     
     // ---- AC methods -------------------------------------------------------------------
     
