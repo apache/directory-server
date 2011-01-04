@@ -23,6 +23,7 @@ package org.apache.directory.server.core.subtree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.administrative.AdministrativePoint;
@@ -802,7 +803,6 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         // First add an SAP
         createCaSAP( "ou=SAP,ou=system" );
         
-        
         // Create a first entry
         Entry e1 = LdifUtils.createEntry( 
             "ou=e1,ou=SAP,ou=system", 
@@ -843,10 +843,26 @@ public class SubentryAddOperationIT extends AbstractSubentryUnitTest
         response = adminConnection.add( e3 );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
-        System.out.println( adminConnection.lookup( "ou=SAP,ou=system", "+" ) );
-        System.out.println( adminConnection.lookup( "ou=e1,ou=SAP,ou=system", "+" ) );
-        System.out.println( adminConnection.lookup( "cn=e2,ou=SAP,ou=system", "+" ) );
-        System.out.println( adminConnection.lookup( "cn=test,ou=SAP,ou=system", "+" ) );
-        System.out.println( adminConnection.lookup( "cn=e3,ou=e1,ou=SAP,ou=system", "+" ) );
+        // Check the entries now: get the SAP SN and the Subentry UUID
+        long sapSN = getCaSeqNumber( "ou=SAP,ou=system" );
+        String uuid = adminConnection.lookup( "cn=test,ou=SAP,ou=system", "entryUUID" ).get( "entryUUID" ).getString();
+
+        // E1
+        e1 = adminConnection.lookup( "ou=e1,ou=SAP,ou=system", "+" );
+        
+        assertNull( e1.get( "CollectiveAttributeSubentriesUUID" ) );
+        assertEquals( sapSN, Long.parseLong( e1.get( "CollectiveAttributeSeqNumber" ).getString() ) );
+        
+        // E2
+        e2 = adminConnection.lookup( "cn=e2,ou=SAP,ou=system", "+" );
+        
+        assertEquals( uuid, e2.get( "CollectiveAttributeSubentriesUUID" ).getString() );
+        assertEquals( sapSN, Long.parseLong( e2.get( "CollectiveAttributeSeqNumber" ).getString() ) );
+
+        // E3
+        e3 = adminConnection.lookup( "cn=e3,ou=e1,ou=SAP,ou=system", "+" );
+        
+        assertEquals( uuid, e3.get( "CollectiveAttributeSubentriesUUID" ).getString() );
+        assertEquals( sapSN, Long.parseLong( e3.get( "CollectiveAttributeSeqNumber" ).getString() ) );
     }
 }
