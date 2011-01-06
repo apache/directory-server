@@ -21,17 +21,29 @@ package org.apache.directory.server.core.subtree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
 
@@ -47,6 +59,37 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
 
     // The shared LDAP user connection
     protected static LdapConnection userConnection;
+    
+    // A inner class used to assert elements back from the server 
+    protected class ExpectedAttribute
+    {
+        // tell if the AttributeTye is be present, or not
+        protected boolean present;
+
+        // The attributeType ID we will check
+        protected String attrId;
+        
+        // The set of expected values
+        protected Set<String> values;
+        
+        // A default constructor
+        protected ExpectedAttribute( boolean present, String attrId, String... vals )
+        {
+            this.present = present;
+            this.attrId = attrId;
+            
+            if ( vals != null )
+            {
+                this.values = new HashSet<String>();
+
+                for ( String value : vals )
+                {
+                    String str = value.toLowerCase();
+                    this.values.add( str );
+                }
+            }
+        }
+    }
 
 
     @Before
@@ -101,6 +144,19 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
     
     
     /**
+     * Gets the EntryUUID AttributeType
+     */
+    protected String getEntryUuid( String dn ) throws LdapException
+    {
+        Entry entry = adminConnection.lookup( dn, "EntryUuid" );
+        
+        EntryAttribute attribute = entry.get( "EntryUuid" );
+        
+        return attribute.getString();
+    }
+
+
+    /**
      * Gets the UUIDref
      */
     private String getUuidRef( String apDn, String attributeType ) throws LdapException
@@ -121,7 +177,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         
         return attribute.getString();
     }
-
     
     
     /**
@@ -153,6 +208,74 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
     
+    
+    /**
+     * Check that an entry contains the expected attributes
+     * @param entry
+     * @param expectedResults
+     */
+    protected void checkEntry( Entry entry, Map<String, ExpectedAttribute[]> expectedResults )
+    {
+        ExpectedAttribute[] expectedAttributes = expectedResults.get( entry.getDn().toString() );
+        
+        if ( expectedAttributes == null )
+        {
+            return;
+        }
+        
+        //assertNotNull( expectedAttributes );
+        
+        for ( ExpectedAttribute expectedAttribute : expectedAttributes )
+        {
+            EntryAttribute attribute = entry.get( expectedAttribute.attrId );
+            
+            if ( expectedAttribute.present == true )
+            {
+                assertNotNull( attribute );
+                
+                for ( Value<?> value : attribute )
+                {
+                    String str = value.getString().toLowerCase();
+                    boolean res = expectedAttribute.values.contains( str );
+                    
+                    if ( !res )
+                    {
+                        System.out.println( "BAD !" + entry.getDn() + "/" + expectedAttribute.attrId + " : " + expectedAttribute.values + "/" + str );
+                    }
+                    
+                    assertTrue( res );
+                }
+            }
+            else
+            {
+                assertNull( attribute );
+            }
+            
+        }
+    }
+    
+    
+    /**
+     * Creates a SearchRequest with a Subentries control
+     */
+    protected SearchRequest createSRWithControl( String dn, String filter, SearchScope scope, String... attributes ) throws LdapException
+    {
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new DN( dn ) );
+        searchRequest.setFilter( filter );
+        searchRequest.setScope( scope );
+        
+        for ( String attribute : attributes )
+        {
+            searchRequest.addAttributes( attribute );
+        }
+        
+        SubentriesControl control = new SubentriesControl();
+        control.setVisibility( true );
+        searchRequest.addControl( control );
+
+        return searchRequest;
+    }
     
     // ---- AC methods -------------------------------------------------------------------
     
@@ -217,7 +340,7 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
      */
     protected String getAcUuidRef( String apDn ) throws LdapException
     {
-        return getUuidRef( apDn, "AccessControlSubentryUuid" );
+        return getUuidRef( apDn, "AccessControlSubentriesUuid" );
     }
 
 
@@ -284,7 +407,7 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
      */
     protected String getCaUuidRef( String apDn ) throws LdapException
     {
-        return getUuidRef( apDn, "CollectiveAttributeSubentryUuid" );
+        return getUuidRef( apDn, "CollectiveAttributeSubentriesUuid" );
     }
     
 
@@ -399,7 +522,7 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
      */
     protected String getTeUuidRef( String apDn ) throws LdapException
     {
-        return getUuidRef( apDn, "TriggerExecutionSubentryUuid" );
+        return getUuidRef( apDn, "TriggerExecutionSubentriesUuid" );
     }
 
     
