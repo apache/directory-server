@@ -24,10 +24,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -35,9 +37,7 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -223,14 +223,7 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         createAAP( "ou=AAP, ou=system" );
         createCaSubentry( "cn=test, ou=AAP, ou=system", "{}" );
         
-        SearchRequest searchRequest = new SearchRequestImpl();
-        searchRequest.setBase( new DN( "ou=system" ) );
-        searchRequest.setFilter( "(ObjectClass=*)" );
-        searchRequest.setScope( SearchScope.SUBTREE );
-        searchRequest.addAttributes( "+" );
-        SubentriesControl control = new SubentriesControl();
-        control.setVisibility( true );
-        searchRequest.addControl( control );
+        SearchRequest searchRequest = createSRWithControl( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
         SearchCursor results = adminConnection.search( searchRequest );
         
         assertNotNull( results );
@@ -285,6 +278,8 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testSearchEntries() throws Exception
     {
+        long baseApSN = service.getApSeqNumber();
+        
         // First, create the APs
         createCaSAP( "ou=SAP, ou=system" );
         createCaIAP( "ou=IAP,ou=SAP, ou=system" );
@@ -309,6 +304,7 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
             "ou=e3,ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
+            "ObjectClass: extensibleObject",
             "ou: e3" ) );
         
         createEntryAdmin( LdifUtils.createEntry( 
@@ -338,8 +334,8 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         // ObjectClasses.
         createCaSubentry( "cn=SESAP, ou=SAP, ou=system", "{ specificationFilter or: { item:person, item:extensibleObject } }" );
         
-        // The CA subentry associated with the IAP select all entries having the 'organizationalUnit' ObjectClass 
-        createCaSubentry( "cn=SEIAP, ou=IAP, ou=SAP, ou=system", "{ specificationFilter item:organizationalUnit }" );
+        // The CA subentry associated with the AAP select all entries having the 'organizationalUnit' ObjectClass 
+        createCaSubentry( "cn=SEIAP, ou=IAP, ou=SAP, ou=system", "{ specificationFilter item:person }" );
 
         // The AC/CA subentry associated with the AAP manage 2 roles, and select of the underlying entries
         Entry subentry = LdifUtils.createEntry( 
@@ -367,10 +363,84 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
             + "    } " 
             + "  } "
             + "}" );
-
+        
         AddResponse response = adminConnection.add( subentry );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        // Get the subentries UUID
+        String seCaSapUUID = getEntryUuid( "cn=SESAP, ou=SAP, ou=system" );
+        String seCaIapUUID = getEntryUuid( "cn=SEIAP, ou=IAP, ou=SAP, ou=system" );
+        String seCaAapUUID = getEntryUuid( "cn=SEAA,ou=AAP,ou=system" );
+        String seAcAapUUID = getEntryUuid( "cn=SEAA,ou=AAP,ou=system" );
         
+        Map<String, ExpectedAttribute[]> expectedResults = new HashMap<String, ExpectedAttribute[]>();
+
+        ExpectedAttribute[] expectedResultSap = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 1 ) ),
+                new ExpectedAttribute( true, "administrativeRole", "CollectiveAttributeSpecificArea" ),
+            };
+        
+        ExpectedAttribute[] expectedResultAap = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 3 ) ),
+                new ExpectedAttribute( false, "CollectiveAttributeSubentriesUUID" ),
+                new ExpectedAttribute( true, "TriggerExecutionSeqNumber", "-1" ),
+                new ExpectedAttribute( false, "TriggerExecutionSubentriesUUID" ),
+                new ExpectedAttribute( true, "AccessControlSeqNumber", Long.toString( baseApSN + 3 ) ),
+                new ExpectedAttribute( false, "AccessControlSubentriesUUID" ),
+                new ExpectedAttribute( true, "SubSchemaSeqNumber", "-1" ),
+                new ExpectedAttribute( false, "SubSchemaSubentriesUUID" ),
+                new ExpectedAttribute( true, "administrativeRole", "autonomousArea", "accessControlSpecificArea", "collectiveAttributeSpecificArea",
+                    "triggerExecutionSpecificArea", "subSchemaSpecificArea" ),
+            };
+        
+        ExpectedAttribute[] expectedResultIap = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 2 ) ),
+                new ExpectedAttribute( true, "administrativeRole", "collectiveAttributeSpecificArea" )
+            };
+        
+        ExpectedAttribute[] expectedResultE1 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 1 ) ),
+                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaSapUUID ),
+            };
+
+        ExpectedAttribute[] expectedResultE5 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( false, "CollectiveAttributeSeqNumber" ),
+                new ExpectedAttribute( false, "CollectiveAttributeSubentriesUUID" ),
+                new ExpectedAttribute( false, "TriggerExecutionSeqNumber" ),
+                new ExpectedAttribute( false, "TriggerExecutionSubentriesUUID" ),
+                new ExpectedAttribute( false, "AccessControlSeqNumber" ),
+                new ExpectedAttribute( false, "AccessControlSubentriesUUID" ),
+                new ExpectedAttribute( false, "SubSchemaSeqNumber" ),
+                new ExpectedAttribute( false, "SubSchemaSubentriesUUID" ),
+            };
+        
+        // The APs
+        expectedResults.put( "ou=SAP,ou=system", expectedResultSap );
+        expectedResults.put( "ou=AAP,ou=system", expectedResultAap );
+        expectedResults.put( "ou=IAP,ou=system", expectedResultIap );
+        
+        // The entries
+        expectedResults.put( "ou=e1,ou=SAP,ou=system", expectedResultE1 );
+        //expectedResults.put( "cn=e2,ou=e1,ou=SAP,ou=system", expectedResultE2 );
+        //expectedResults.put( "ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE3 );
+        //expectedResults.put( "cn=e4,ou=AAP,ou=system", expectedResultE4 );
+        expectedResults.put( "cn=e5,ou=system", expectedResultE5 );
+        //expectedResults.put( "cn=e6,ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE6 );
+
+        // Dump the subentries
+        SearchRequest searchRequest = createSRWithControl( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
+        SearchCursor subentries = adminConnection.search( searchRequest );
+        
+        while ( subentries.next() )
+        {
+            System.out.println( ( ( SearchResultEntry ) subentries.get() ).getEntry() );
+        }
+
         // Now, let's read all the entries.
         SearchCursor results = adminConnection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
         
@@ -380,6 +450,8 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         while ( results.next() )
         {
             Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
+
+            //checkEntry( entry, expectedResults );
 
             System.out.println( entry );
             nbEntry++;
