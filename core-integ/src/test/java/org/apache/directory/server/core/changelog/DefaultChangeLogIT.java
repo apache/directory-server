@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Test;
@@ -289,7 +289,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertPresent( sysRoot, "ou=test5,ou=system" );
 
         // modify the test entry to add description and test new attr appears
-        ModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( entry.getDn() );
         modReq.add( "description", "a desc value" );
         sysRoot.modify( modReq );
@@ -311,7 +311,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // add the attribute again and make sure it is old value
-        modReq = new ModifyRequestImpl();
+        modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( resusitated.getDn() );
         modReq.add( "description", "old value" );
         sysRoot.modify( modReq );
@@ -323,7 +323,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // now tag then replace the value to "new value" and confirm
         Tag t1 = service.getChangeLog().tag();
-        modReq = new ModifyRequestImpl();
+        modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( resusitated.getDn() );
         modReq.replace( "description", "new value" );
         sysRoot.modify( modReq );
@@ -370,14 +370,14 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // add a userPassword attribute so we can test replacing it
-        modReq = new ModifyRequestImpl();
+        modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( resusitated.getDn() );
         modReq.add( "userPassword", "to be replaced" );
         sysRoot.modify( modReq );
         resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertPassword( resusitated, "to be replaced" );
 
-        modReq = new ModifyRequestImpl();
+        modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( resusitated.getDn() );
         modReq.remove( "description", "old value" );
         modReq.add( "seeAlso", "ou=added" );

@@ -25,7 +25,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -84,7 +83,7 @@ public class HttpDirectoryService
         }
         catch ( Exception e )
         {
-            resp = new BindResponseImpl();
+            resp = new org.apache.directory.shared.ldap.codec.message.BindResponseImpl();
 
             LdapResult result = resp.getLdapResult();
             result.setErrorMessage( e.getMessage() );

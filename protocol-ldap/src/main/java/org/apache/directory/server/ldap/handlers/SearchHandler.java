@@ -59,16 +59,16 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Referral;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.codec.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResultReference;
-import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
+import org.apache.directory.shared.ldap.codec.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -836,7 +836,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // The entry is a referral.
             SearchResultReference respRef;
             respRef = new SearchResultReferenceImpl( req.getMessageId() );
-            respRef.setReferral( new ReferralImpl() );
+            respRef.setReferral( new org.apache.directory.shared.ldap.codec.message.ReferralImpl() );
 
             for ( Value<?> val : ref )
             {
@@ -1229,7 +1229,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         throws Exception
     {
         LdapResult result = req.getResultResponse().getLdapResult();
-        ReferralImpl referral = new ReferralImpl();
+        org.apache.directory.shared.ldap.codec.message.ReferralImpl referral = new org.apache.directory.shared.ldap.codec.message.ReferralImpl();
         result.setReferral( referral );
         result.setResultCode( ResultCodeEnum.REFERRAL );
         result.setErrorMessage( "Encountered referral attempting to handle request." );
@@ -1362,7 +1362,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         LOG.debug( "Inside getReferralOnAncestor()" );
 
         EntryAttribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
-        Referral referral = new ReferralImpl();
+        Referral referral = new org.apache.directory.shared.ldap.codec.message.ReferralImpl();
 
         for ( Value<?> value : refAttr )
         {

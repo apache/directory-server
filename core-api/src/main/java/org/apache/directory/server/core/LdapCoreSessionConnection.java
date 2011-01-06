@@ -47,38 +47,32 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponse;
-import org.apache.directory.shared.ldap.message.AddResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponse;
-import org.apache.directory.shared.ldap.message.CompareResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.CompareResponseImpl;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
-import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
-import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
-import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -257,7 +251,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, byte[] value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new org.apache.directory.shared.ldap.codec.message.CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
         compareRequest.setAssertionValue( value );
@@ -271,7 +265,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, String value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new org.apache.directory.shared.ldap.codec.message.CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
         compareRequest.setAssertionValue( value );
@@ -303,7 +297,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( DN dn, String attributeName, Value<?> value ) throws LdapException
     {
-        CompareRequest compareRequest = new CompareRequestImpl();
+        CompareRequest compareRequest = new org.apache.directory.shared.ldap.codec.message.CompareRequestImpl();
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
 
@@ -343,7 +337,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         int newId = messageId.incrementAndGet();
 
-        DeleteResponse resp = new DeleteResponseImpl( newId );
+        DeleteResponse resp = new org.apache.directory.shared.ldap.codec.message.DeleteResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
         try
@@ -566,10 +560,10 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         int newId = messageId.incrementAndGet();
 
-        ModifyResponse resp = new ModifyResponseImpl( newId );
+        ModifyResponse resp = new org.apache.directory.shared.ldap.codec.message.ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl( newId );
 
         try
         {
@@ -616,10 +610,10 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         int newId = messageId.incrementAndGet();
-        ModifyResponse resp = new ModifyResponseImpl( newId );
+        ModifyResponse resp = new org.apache.directory.shared.ldap.codec.message.ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl( newId );
 
         try
         {
@@ -778,7 +772,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
+        ModifyDnRequest iModDnReq = new org.apache.directory.shared.ldap.codec.message.ModifyDnRequestImpl();
         iModDnReq.setName( entryDn );
         iModDnReq.setNewSuperior( newSuperiorDn );
 
@@ -828,7 +822,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
+        ModifyDnRequest iModDnReq = new org.apache.directory.shared.ldap.codec.message.ModifyDnRequestImpl();
         iModDnReq.setName( entryDn );
         iModDnReq.setNewRdn( newRdn );
         iModDnReq.setDeleteOldRdn( deleteOldRdn );
@@ -933,7 +927,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyDnResponse resp = new ModifyDnResponseImpl();
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
+        ModifyDnRequest iModDnReq = new org.apache.directory.shared.ldap.codec.message.ModifyDnRequestImpl();
 
         iModDnReq.setName( entryDn );
         iModDnReq.setNewRdn( newDn.getRdn() );
@@ -1126,7 +1120,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind() throws LdapException, IOException
     {
-        BindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl();
         bindReq.setName( DN.EMPTY_DN );
         bindReq.setCredentials( ( byte[] ) null );
 
@@ -1154,7 +1148,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         OperationManager operationManager = directoryService.getOperationManager();
 
-        BindResponse bindResp = new BindResponseImpl( newId );
+        BindResponse bindResp = new org.apache.directory.shared.ldap.codec.message.BindResponseImpl( newId );
         bindResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
         try
@@ -1188,7 +1182,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         byte[] credBytes = ( credentials == null ? CharConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
 
-        BindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl();
         bindReq.setName( name );
         bindReq.setCredentials( credBytes );
 

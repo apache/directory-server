@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +134,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
-        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( addContext.getDn() );
         respEntry.setEntry( addContext.getEntry() );
         setECResponseControl( respEntry, addContext, ChangeType.ADD );
@@ -164,7 +164,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
-        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
         respEntry.setEntry( modifyContext.getAlteredEntry() );
         setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
@@ -179,7 +179,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
-        SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+        SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( moveContext.getDn() );
         respEntry.setEntry( moveContext.getEntry() );
         setECResponseControl( respEntry, moveContext, ChangeType.MODDN );

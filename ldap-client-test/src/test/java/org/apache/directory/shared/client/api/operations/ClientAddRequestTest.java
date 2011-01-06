@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;

@@ -30,13 +30,12 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Referral;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.codec.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
@@ -145,7 +144,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
                 || ldapSession.isSimpleAuthPending() )
             {
                 LOG.error( I18n.err( I18n.ERR_732 ) );
-                BindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
+                BindResponse bindResponse = new org.apache.directory.shared.ldap.codec.message.BindResponseImpl( message.getMessageId() );
                 LdapResult bindResult = bindResponse.getLdapResult();
                 bindResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
                 bindResult.setErrorMessage( I18n.err( I18n.ERR_732 ) );

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -120,7 +120,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        ModifyRequest modRequest = new ModifyRequestImpl();
+        ModifyRequest modRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modRequest.setName( dn );
         modRequest.replace( SchemaConstants.SN_AT, expected );
 
@@ -194,7 +194,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         DN dn = new DN( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.SN_AT, expected );
 
@@ -239,7 +239,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         ModifyResponse modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
 
-        modifyRequest = new ModifyRequestImpl();
+        modifyRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
 
@@ -271,7 +271,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         String modifierName = "uid=x,ou=system";
         String modifiedTime = DateUtils.getGeneralizedTime();
 
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modifyRequest.setName( dn );
         modifyRequest.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
         modifyRequest.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );

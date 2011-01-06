@@ -70,17 +70,14 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.IntermediateResponse;
-import org.apache.directory.shared.ldap.message.IntermediateResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResultReference;
-import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
@@ -325,7 +322,7 @@ public class SyncReplProvider implements ReplicationProvider
 
         if ( refreshNPersist )
         {
-            IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
+            IntermediateResponse intermResp = new org.apache.directory.shared.ldap.codec.message.IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );
 
             SyncInfoValueControl syncInfo = new SyncInfoValueControl( SynchronizationInfoEnum.NEW_COOKIE );
@@ -607,8 +604,8 @@ public class SyncReplProvider implements ReplicationProvider
         {
             // The entry is a referral.
             SearchResultReference respRef;
-            respRef = new SearchResultReferenceImpl( req.getMessageId() );
-            respRef.setReferral( new ReferralImpl() );
+            respRef = new org.apache.directory.shared.ldap.codec.message.SearchResultReferenceImpl( req.getMessageId() );
+            respRef.setReferral( new org.apache.directory.shared.ldap.codec.message.ReferralImpl() );
 
             for ( Value<?> val : ref )
             {
@@ -653,7 +650,7 @@ public class SyncReplProvider implements ReplicationProvider
         {
             // The entry is not a referral, or the ManageDsaIt control is set
             SearchResultEntry respEntry;
-            respEntry = new SearchResultEntryImpl( req.getMessageId() );
+            respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
 

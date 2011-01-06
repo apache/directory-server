@@ -72,7 +72,6 @@ import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultReference;
@@ -261,7 +260,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         String baseDn = config.getBaseDn();
 
-        searchRequest = new SearchRequestImpl();
+        searchRequest = new org.apache.directory.shared.ldap.codec.message.SearchRequestImpl();
 
         searchRequest.setBase( new DN( baseDn ) );
         searchRequest.setFilter( config.getFilter() );

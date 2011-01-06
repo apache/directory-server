@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;

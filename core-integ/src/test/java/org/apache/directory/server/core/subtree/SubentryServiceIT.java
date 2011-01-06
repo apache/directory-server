@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
@@ -230,7 +229,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( LdapConnection connection, String dn, String role ) throws Exception
     {
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modifyRequest.setName( new DN( dn ) );
         modifyRequest.add( "administrativeRole", role );
         connection.modify( modifyRequest );

@@ -40,7 +40,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;

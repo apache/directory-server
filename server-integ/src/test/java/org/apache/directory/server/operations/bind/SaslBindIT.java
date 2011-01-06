@@ -67,11 +67,9 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.LdapEncoder;
+import org.apache.directory.shared.ldap.codec.message.LdapEncoder;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
@@ -185,7 +183,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
         ldapServer.setSaslPrincipal( servicePrincipal );
 
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        ModifyRequest modifyRequest = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modifyRequest.setName( new DN( "uid=ldap,ou=users,dc=example,dc=com" ) );
         modifyRequest.replace( "userPassword", "randall" );
         modifyRequest.replace( "krb5PrincipalName", servicePrincipal );
@@ -230,7 +228,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        BindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl();
         bindReq.setCredentials( "secret".getBytes() );
         bindReq.setName( userDn );
         bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
@@ -254,7 +252,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        BindRequest bindReq = new BindRequestImpl();
+        BindRequest bindReq = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl();
         bindReq.setCredentials( "secret".getBytes() );
         bindReq.setName( userDn );
         bindReq.setSaslMechanism( "" ); // invalid mechanism
@@ -514,7 +512,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Setup the bind request
-            BindRequestImpl request = new BindRequestImpl( 1 );
+            org.apache.directory.shared.ldap.codec.message.BindRequestImpl request = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl( 1 );
             request.setName( new DN( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type1response );
@@ -525,7 +523,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder();
+            org.apache.directory.shared.ldap.codec.message.LdapEncoder encoder = new LdapEncoder();
             ByteBuffer bb = encoder.encodeMessage( request );
 
             bb.flip();
@@ -553,7 +551,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Setup the bind request
-            BindRequestImpl request = new BindRequestImpl( 2 );
+            org.apache.directory.shared.ldap.codec.message.BindRequestImpl request = new org.apache.directory.shared.ldap.codec.message.BindRequestImpl( 2 );
             request.setName( new DN( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type3response );
@@ -564,7 +562,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder();
+            LdapEncoder encoder = new org.apache.directory.shared.ldap.codec.message.LdapEncoder();
             ByteBuffer bb = encoder.encodeMessage( request );
             bb.flip();
 

@@ -63,7 +63,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.JndiUtils;

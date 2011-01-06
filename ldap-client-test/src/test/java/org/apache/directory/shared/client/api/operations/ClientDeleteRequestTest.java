@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -44,7 +43,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -235,7 +233,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        DeleteRequest deleteRequest = new DeleteRequestImpl();
+        DeleteRequest deleteRequest = new org.apache.directory.shared.ldap.codec.message.DeleteRequestImpl();
         deleteRequest.setName( dn );
 
         DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );

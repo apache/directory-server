@@ -31,9 +31,7 @@ import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
-import org.apache.directory.shared.ldap.message.SearchResultDoneImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 
 
 /**
@@ -119,7 +117,7 @@ public class EntryToResponseCursor implements SearchCursor
     public Response get() throws Exception
     {
         ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
-        SearchResultEntry se = new SearchResultEntryImpl( messageId );
+        SearchResultEntry se = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( messageId );
         se.setEntry( entry );
 
         return se;
@@ -161,7 +159,7 @@ public class EntryToResponseCursor implements SearchCursor
 
         if ( !done )
         {
-            searchDoneResp = new SearchResultDoneImpl( messageId );
+            searchDoneResp = new org.apache.directory.shared.ldap.codec.message.SearchResultDoneImpl( messageId );
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         }
 

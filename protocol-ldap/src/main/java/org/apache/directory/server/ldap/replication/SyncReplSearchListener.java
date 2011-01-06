@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -142,7 +141,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             if ( pushInRealTime )
             {
 
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
@@ -183,7 +182,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( pushInRealTime )
             {
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
@@ -222,7 +221,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             if ( pushInRealTime )
             {
 
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( modifyContext.getDn() );
                 respEntry.setEntry( alteredEntry );
 
@@ -270,7 +269,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             if ( pushInRealTime )
             {
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( moveContext.getDn() );
                 respEntry.setEntry( entry );
 
@@ -321,7 +320,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             {
                 Entry alteredEntry = moveAndRenameContext.getModifiedEntry();
 
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
@@ -365,7 +364,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             if ( pushInRealTime )
             {
-                SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
+                SearchResultEntry respEntry = new org.apache.directory.shared.ldap.codec.message.SearchResultEntryImpl( req.getMessageId() );
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 

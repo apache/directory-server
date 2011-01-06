@@ -42,7 +42,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
+import org.apache.directory.shared.ldap.codec.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.mina.core.filterchain.IoFilterChain;

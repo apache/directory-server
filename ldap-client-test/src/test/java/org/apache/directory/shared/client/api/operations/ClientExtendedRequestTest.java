@@ -40,7 +40,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -108,7 +107,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     @Test
     public void testExtendedAsync() throws Exception
     {
-        ExtendedRequest extendedRequest = new ExtendedRequestImpl();
+        ExtendedRequest extendedRequest = new org.apache.directory.shared.ldap.codec.message.ExtendedRequestImpl();
         extendedRequest.setRequestName( StartTlsRequest.OID );
 
         ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );

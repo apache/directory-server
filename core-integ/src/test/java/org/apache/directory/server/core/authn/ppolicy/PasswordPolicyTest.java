@@ -53,10 +53,9 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.codec.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -208,7 +207,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
             "sn: userMinAge_sn", "userPassword: 12345" );
 
-        AddRequest addRequest = new AddRequestImpl();
+        AddRequest addRequest = new org.apache.directory.shared.ldap.codec.message.AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
@@ -218,7 +217,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        ModifyRequest modReq = new ModifyRequestImpl();
+        ModifyRequest modReq = new org.apache.directory.shared.ldap.codec.message.ModifyRequestImpl();
         modReq.setName( userDn );
         modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
