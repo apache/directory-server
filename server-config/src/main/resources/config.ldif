@@ -112,7 +112,7 @@ dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directo
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 12
+ads-interceptororder: 11
 ads-interceptorclassname: org.apache.directory.server.core.collective.CollectiveAttributeInterceptor
 ads-interceptorid: collectiveAttributeInterceptor
 ads-enabled: TRUE
@@ -202,7 +202,7 @@ dn: ads-interceptorId=subentryInterceptor,ou=interceptors,ads-directoryServiceId
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 11
+ads-interceptororder: 12
 ads-interceptorclassname: org.apache.directory.server.core.subtree.SubentryInterceptor
 ads-interceptorid: subentryInterceptor
 ads-enabled: TRUE
