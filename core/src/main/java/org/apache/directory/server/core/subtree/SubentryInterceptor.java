@@ -766,6 +766,7 @@ public class SubentryInterceptor extends BaseInterceptor
             boolean sapFound = false;
             boolean seqNumberUpdated = false;
             List<String> subentryUuids = null;
+            long initialSeqNumber = entrySeqNumber;
 
             do
             {
@@ -774,12 +775,17 @@ public class SubentryInterceptor extends BaseInterceptor
                     sapFound = true;
                 }
                 
+                // We update the seqNumber only if it's below the AdminPoint seqNumber
+                // We update the UUID ref only if the initial seqNumber is below the AdminPoint
                 if ( entrySeqNumber < adminPoint.getSeqNumber() )
                 {
                     seqNumberUpdated = true;
                     subentryUuids = new ArrayList<String>();
                     entrySeqNumber = adminPoint.getSeqNumber();
+                }
 
+                if ( initialSeqNumber < adminPoint.getSeqNumber() )
+                {
                     // Evaluate the current AP on the entry for each subentry
                     for ( Subentry subentry : adminPoint.getSubentries() )
                     {
