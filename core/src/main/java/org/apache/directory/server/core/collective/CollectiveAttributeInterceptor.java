@@ -24,7 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.administrative.AdministrativeRoleEnum;
+import org.apache.directory.server.core.administrative.CollectiveAttributeSubentry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -37,7 +40,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
@@ -79,7 +81,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private static AttributeType OBJECT_CLASS_AT;
 
     /** The CollectiveAttributeSubentries AttributeType */
-    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT;
     
     /** The CollectiveExclusions AttributeType */
     private static AttributeType COLLECTIVE_EXCLUSIONS_AT;
@@ -109,7 +111,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
         
         // Load some AttributeType
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT = schemaManager.getAttributeType( ApacheSchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
         COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -338,7 +340,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
         EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
 
         /*
          * If there are no collective attribute subentries referenced then we 
@@ -415,23 +417,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         for ( Value<?> value : collectiveAttributeSubentries )
         {
-            String subentryDnStr = value.getString();
-            DN subentryDn = opContext.getSession().getDirectoryService().getDNFactory().create( subentryDnStr );
+            String subentryUuid = value.getString();
+            
+            CollectiveAttributeSubentry subentry = (CollectiveAttributeSubentry)directoryService.getSubentryCache().getSubentry( subentryUuid, AdministrativeRoleEnum.CollectiveAttribute );
 
-            /*
-             * TODO - Instead of hitting disk here can't we leverage the 
-             * SubentryService to get us cached sub-entries so we're not
-             * wasting time with a lookup here? It is ridiculous to waste
-             * time looking up this sub-entry. 
-             */
-
-            Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
-
-            for ( AttributeType attributeType : subentry.getAttributeTypes() )
+            for ( EntryAttribute attribute : subentry.getCollectiveAttributes() )
             {
-                String attrId = attributeType.getName();
+                String attrId = attribute.getId();
 
-                if ( !attributeType.isCollective() )
+                if ( !attribute.getAttributeType().isCollective() )
                 {
                     continue;
                 }
@@ -440,12 +434,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * Skip the addition of this collective attribute if it is excluded
                  * in the 'collectiveAttributes' attribute.
                  */
-                if ( exclusions.contains( attributeType.getOid() ) )
+                if ( exclusions.contains( attribute.getAttributeType().getOid() ) )
                 {
                     continue;
                 }
 
-                Set<AttributeType> allSuperTypes = getAllSuperTypes( attributeType );
+                Set<AttributeType> allSuperTypes = getAllSuperTypes( attribute.getAttributeType() );
 
                 for ( String retId : retIdsSet )
                 {
@@ -474,7 +468,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                EntryAttribute subentryColAttr = subentry.get( attrId );
+                List<EntryAttribute> subentryColAttr = subentry.getCollectiveAttributes();
                 EntryAttribute entryColAttr = entry.get( attrId );
 
                 /*
@@ -491,9 +485,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  *  Add all the collective attribute values in the subentry
                  *  to the currently processed collective attribute in the entry.
                  */
-                for ( Value<?> subentryColVal : subentryColAttr )
+                for ( EntryAttribute subentryAT : subentry.getCollectiveAttributes() )
                 {
-                    entryColAttr.add( subentryColVal.getString() );
+                    if ( subentryAT.getId().equals( attrId) )
+                    {   
+                        for ( Value<?> subentryColVal : subentryAT )
+                        {
+                            entryColAttr.add( subentryColVal.getString() );
+                        }
+                    }
                 }
             }
         }
