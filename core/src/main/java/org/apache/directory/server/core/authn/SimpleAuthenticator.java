@@ -115,8 +115,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
         c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
         c.add( TriggerInterceptor.class.getName() );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
