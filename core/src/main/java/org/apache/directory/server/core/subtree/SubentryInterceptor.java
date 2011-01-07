@@ -302,8 +302,8 @@ public class SubentryInterceptor extends BaseInterceptor
         c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
         c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
         c.add( TriggerInterceptor.class.getName() );
         BYPASS_INTERCEPTORS = Collections.unmodifiableCollection( c );
@@ -349,9 +349,52 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
-            updateEntry( entry );
+            if ( entry.getOriginalEntry().containsAttribute( ADMINISTRATIVE_ROLE_AT ) ||
+                entry.getOriginalEntry().contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+            {
+                // No need to update anything
+                return true;
+            }
+
+            List<Modification> modifications = updateEntry( entry );
+            
+            if ( modifications != null )
+            {
+                // The entry has been updated, we have to apply the modifications in the entry
+                applyModifications( entry, modifications );
+            }
 
             return true;
+        }
+    }
+    
+    
+    /**
+     * Apply the modifications done on an entry. We should just have REPLACE operations
+     * @param entry
+     * @param modifications
+     * @throws LdapException
+     */
+    private void applyModifications( Entry entry, List<Modification> modifications ) throws LdapException
+    {
+        for ( Modification modification : modifications )
+        {
+            switch ( modification.getOperation() )
+            {
+                case ADD_ATTRIBUTE :
+                    entry.add( modification.getAttribute() );
+                    break;
+                    
+                case REMOVE_ATTRIBUTE :
+                    entry.remove( modification.getAttribute() );
+                    break;
+                    
+                case REPLACE_ATTRIBUTE :
+                    entry.remove( modification.getAttribute() );
+                    entry.add( modification.getAttribute() );
+                    
+                    break;
+            }
         }
     }
     
@@ -642,16 +685,17 @@ public class SubentryInterceptor extends BaseInterceptor
      * Update the seqNumber for each kind of role. The entry will be updated in the backend only
      * if its seqNumbers are not up to date.
      */
-    private boolean updateEntry( Entry entry ) throws LdapException
+    private List<Modification> updateEntry( Entry entry ) throws LdapException
     {
         List<Modification> modificationAcs = updateEntry( entry, directoryService.getAccessControlAPCache(), ACCESS_CONTROL_SEQ_NUMBER_AT, ACCESS_CONTROL_SUBENTRIES_UUID_AT );
         List<Modification> modificationCas = updateEntry( entry, directoryService.getCollectiveAttributeAPCache(), COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
         List<Modification> modificationSss = updateEntry( entry, directoryService.getSubschemaAPCache(), SUB_SCHEMA_SEQ_NUMBER_AT, SUBSCHEMA_SUBENTRY_UUID_AT );
         List<Modification> modificationTes = updateEntry( entry, directoryService.getTriggerExecutionAPCache(), TRIGGER_EXECUTION_SEQ_NUMBER_AT, TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
+        List<Modification> modifications = null;
         
         if ( ( modificationAcs != null ) || ( modificationCas != null ) || ( modificationSss != null ) || (modificationTes != null ) )
         {
-            List<Modification> modifications = new ArrayList<Modification>();
+            modifications = new ArrayList<Modification>();
             
             if ( modificationAcs != null )
             {
@@ -680,11 +724,9 @@ public class SubentryInterceptor extends BaseInterceptor
             modCtx.setEntry( (ClonedServerEntry)entry );
 
             directoryService.getOperationManager().modify( modCtx );
-            
-            return true;
         }
         
-        return false;
+        return modifications;
     }
 
     
@@ -2291,11 +2333,13 @@ public class SubentryInterceptor extends BaseInterceptor
             return entry;
         }
         
-        // This is a normal entry, update its seqNumbers if neede
-        if ( updateEntry( entry ) )
+        // This is a normal entry, update its seqNumbers if needed
+        List<Modification> modifications = updateEntry( entry );
+        
+        if ( modifications != null )
         {
-            // Get the entry back again
-            entry = nextInterceptor.lookup( lookupContext );
+            // update the entry
+            applyModifications( entry, modifications );
         }
 
         return entry;
