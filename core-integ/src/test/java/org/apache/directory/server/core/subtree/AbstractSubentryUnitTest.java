@@ -223,8 +223,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
             return;
         }
         
-        //assertNotNull( expectedAttributes );
-        
         for ( ExpectedAttribute expectedAttribute : expectedAttributes )
         {
             EntryAttribute attribute = entry.get( expectedAttribute.attrId );
@@ -238,11 +236,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
                     String str = value.getString().toLowerCase();
                     boolean res = expectedAttribute.values.contains( str );
                     
-                    if ( !res )
-                    {
-                        System.out.println( "BAD !" + entry.getDn() + "/" + expectedAttribute.attrId + " : " + expectedAttribute.values + "/" + str );
-                    }
-                    
                     assertTrue( res );
                 }
             }
@@ -250,7 +243,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
             {
                 assertNull( attribute );
             }
-            
         }
     }
     

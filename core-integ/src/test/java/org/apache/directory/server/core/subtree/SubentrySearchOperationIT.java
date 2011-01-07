@@ -296,7 +296,6 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
             "cn=e2,ou=e1,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: person", 
-            "ObjectClass: extensibleObject",
             "cn: e2",
             "sn: entry 2" ) );
         
@@ -304,7 +303,6 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
             "ou=e3,ou=IAP,ou=SAP,ou=system", 
             "ObjectClass: top",
             "ObjectClass: organizationalUnit", 
-            "ObjectClass: extensibleObject",
             "ou: e3" ) );
         
         createEntryAdmin( LdifUtils.createEntry( 
@@ -332,7 +330,7 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         // Now, inject the subentries
         // The CA subentry associated with the SAP select all entries having the 'person' or 'extensibleObject'
         // ObjectClasses.
-        createCaSubentry( "cn=SESAP, ou=SAP, ou=system", "{ specificationFilter or: { item:person, item:extensibleObject } }" );
+        createCaSubentry( "cn=SESAP, ou=SAP, ou=system", "{ specificationFilter or: { item:organizationalUnit, item:extensibleObject } }" );
         
         // The CA subentry associated with the AAP select all entries having the 'organizationalUnit' ObjectClass 
         createCaSubentry( "cn=SEIAP, ou=IAP, ou=SAP, ou=system", "{ specificationFilter item:person }" );
@@ -346,7 +344,7 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
             "ObjectClass: accessControlSubentry",
             "cn: test",
             "subtreeSpecification: {}", 
-            "c-o: Test Org",
+            "c-l: Org place",
             "prescriptiveACI: { " 
             + "  identificationTag \"addAci\", "
             + "  precedence 14, " 
@@ -404,7 +402,31 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         ExpectedAttribute[] expectedResultE1 = new ExpectedAttribute[]
             { 
                 new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 1 ) ),
-                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaSapUUID ),
+                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaSapUUID )
+            };
+
+        ExpectedAttribute[] expectedResultE2 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 1 ) ),
+                new ExpectedAttribute( false, "CollectiveAttributeSubentriesUUID" )
+            };
+
+        ExpectedAttribute[] expectedResultE3 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 2 ) ),
+                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaSapUUID )
+            };
+
+        ExpectedAttribute[] expectedResultE4 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 3 ) ),
+                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaAapUUID ),
+                new ExpectedAttribute( true, "TriggerExecutionSeqNumber", "-1" ),
+                new ExpectedAttribute( false, "TriggerExecutionSubentriesUUID" ),
+                new ExpectedAttribute( true, "AccessControlSeqNumber", Long.toString( baseApSN + 3 ) ),
+                new ExpectedAttribute( true, "AccessControlSubentriesUUID", seAcAapUUID ),
+                new ExpectedAttribute( true, "SubSchemaSeqNumber", "-1" ),
+                new ExpectedAttribute( false, "SubSchemaSubentriesUUID" )
             };
 
         ExpectedAttribute[] expectedResultE5 = new ExpectedAttribute[]
@@ -416,9 +438,15 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
                 new ExpectedAttribute( false, "AccessControlSeqNumber" ),
                 new ExpectedAttribute( false, "AccessControlSubentriesUUID" ),
                 new ExpectedAttribute( false, "SubSchemaSeqNumber" ),
-                new ExpectedAttribute( false, "SubSchemaSubentriesUUID" ),
+                new ExpectedAttribute( false, "SubSchemaSubentriesUUID" )
             };
-        
+
+        ExpectedAttribute[] expectedResultE6 = new ExpectedAttribute[]
+            { 
+                new ExpectedAttribute( true, "CollectiveAttributeSeqNumber", Long.toString( baseApSN + 2 ) ),
+                new ExpectedAttribute( true, "CollectiveAttributeSubentriesUUID", seCaSapUUID, seCaIapUUID )
+            };
+
         // The APs
         expectedResults.put( "ou=SAP,ou=system", expectedResultSap );
         expectedResults.put( "ou=AAP,ou=system", expectedResultAap );
@@ -426,21 +454,16 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         
         // The entries
         expectedResults.put( "ou=e1,ou=SAP,ou=system", expectedResultE1 );
-        //expectedResults.put( "cn=e2,ou=e1,ou=SAP,ou=system", expectedResultE2 );
-        //expectedResults.put( "ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE3 );
-        //expectedResults.put( "cn=e4,ou=AAP,ou=system", expectedResultE4 );
+        expectedResults.put( "cn=e2,ou=e1,ou=SAP,ou=system", expectedResultE2 );
+        expectedResults.put( "ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE3 );
+        expectedResults.put( "cn=e4,ou=AAP,ou=system", expectedResultE4 );
         expectedResults.put( "cn=e5,ou=system", expectedResultE5 );
-        //expectedResults.put( "cn=e6,ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE6 );
+        expectedResults.put( "cn=e6,ou=e3,ou=IAP,ou=SAP,ou=system", expectedResultE6 );
 
         // Dump the subentries
         SearchRequest searchRequest = createSRWithControl( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
         SearchCursor subentries = adminConnection.search( searchRequest );
         
-        while ( subentries.next() )
-        {
-            System.out.println( ( ( SearchResultEntry ) subentries.get() ).getEntry() );
-        }
-
         // Now, let's read all the entries.
         SearchCursor results = adminConnection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
         
@@ -451,9 +474,8 @@ public class SubentrySearchOperationIT extends AbstractSubentryUnitTest
         {
             Entry entry = ( ( SearchResultEntry ) results.get() ).getEntry();
 
-            //checkEntry( entry, expectedResults );
+            checkEntry( entry, expectedResults );
 
-            System.out.println( entry );
             nbEntry++;
         }
     }
