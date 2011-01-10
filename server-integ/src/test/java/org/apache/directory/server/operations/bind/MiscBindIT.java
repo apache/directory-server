@@ -82,7 +82,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="SaslBindIT-class",
+@CreateDS( allowAnonAccess=true, name="MiscBindIT-class",
     partitions =
         {
             @CreatePartition(
