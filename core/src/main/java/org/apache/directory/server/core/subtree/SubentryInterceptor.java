@@ -81,6 +81,7 @@ import org.apache.directory.server.core.interceptor.context.ListOperationContext
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -114,6 +115,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -170,6 +172,9 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the ObjectClass AT */
     private static AttributeType OBJECT_CLASS_AT;
+    
+    /** A reference to the CN AT */
+    private static AttributeType CN_AT;
     
     /** A reference to the EntryUUID AT */
     private static AttributeType ENTRY_UUID_AT;
@@ -530,6 +535,7 @@ public class SubentryInterceptor extends BaseInterceptor
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
         
         ACCESS_CONTROL_SEQ_NUMBER_AT = schemaManager.getAttributeType( ApacheSchemaConstants.ACCESS_CONTROL_SEQ_NUMBER_AT );
         ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
@@ -1076,7 +1082,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Tells if the role is a SS SAP
      */
-    private boolean isSubschemaSpecficRole( String role )
+    private boolean isSubschemaSpecificRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
                role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
@@ -1100,6 +1106,20 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
             .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
+    }
+
+
+    /**
+     * Tells if the Administrative Point role is an IAP
+     */
+    private boolean isIAP( EntryAttribute adminPoint )
+    {
+        return ( adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) || 
+            adminPoint.contains( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID ) ||
+            adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
+            adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID ) ||
+            adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
+            adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID ) );
     }
 
 
@@ -1715,7 +1735,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // Deal with SubSchema AP
-            if ( isSubschemaSpecficRole( role ) )
+            if ( isSubschemaSpecificRole( role ) )
             {
                 SubschemaAdministrativePoint sap = new SubschemaSAP( uuid, seqNumber );
                 directoryService.getSubschemaAPCache().add( dn, sap );
@@ -2727,16 +2747,74 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /**
      * {@inheritDoc}
-     *
+     */
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
+        LOG.debug( "Entering into the Subtree Interceptor, renameRequest : {}", renameContext );
         DN oldDn = renameContext.getDn();
+        RDN oldRdn = oldDn.getRdn();
+        RDN newRdn = renameContext.getNewRdn();
+        DN newDn = oldDn.getParent().add( newRdn );
 
         Entry entry = renameContext.getEntry().getClonedEntry();
 
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        boolean isAdmin = renameContext.getSession().getAuthenticatedPrincipal().getName().equals(
+            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+
+        // Check if we are adding an Administrative Point
+        EntryAttribute adminPointAT = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+        // First, deal with an AP addition
+        if ( adminPointAT != null )
         {
-            // @Todo To be reviewed !!!
+            // This is an AP. If it's a SAP, we have nothing to do, as a rename does not modify 
+            // the subtree evaluations, nor does it impact any underlying entries.
+            // If the AP is an IAP, then as the underlying entries will be modified, then
+            // we have to update the IAP seqNumber : the underlying entries might be impacted
+            // as the parent's AP for the renamed IAP may have a base or some chopBefore/chopAfter
+            // specificExclusion that depend on the old name.
+            if ( isIAP( adminPointAT) )
+            {
+            }
+            else
+            {
+                next.rename( renameContext );
+            }
+        }
+        else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        {
+            // First check that the rename is legal : the new RDN must be a valid CN
+            AttributeType newAT = directoryService.getSchemaManager().getAttributeType( newRdn.getNormType() );
+            
+            if ( !CN_AT.equals( newAT ) )
+            {
+                String message = "Cannot rename a subentry using an AttributeType which is not CN : " + renameContext;
+                LOG.error( message );
+                throw new LdapUnwillingToPerformException( message );
+            }
+
+            // Get the new name
+            EntryAttribute newCn = new DefaultEntryAttribute( CN_AT, newRdn.getUpValue() );
+
+            // It's a subentry : we just have to update the subentryCache
+            next.rename( renameContext );
+            
+            // We can update the Subentry cache, removing the old subentry and
+            // adding the new subentry with the new CN
+            Subentry[] subentries = directoryService.getSubentryCache().removeSubentry( oldDn );
+
+            for ( Subentry subentry : subentries )
+            {
+                subentry.setCn( newCn );
+                directoryService.getSubentryCache().addSubentry( newDn, subentry );
+            }
+        }
+        else
+        {
+            // A normal entry
+            next.rename( renameContext );
+        }
+        /*
             Subentry subentry = directoryService.getSubentryUuidCache().removeSubentry( oldDn.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = oldDn.getParent();
@@ -2807,6 +2885,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 nexus.modify( new ModifyOperationContext( renameContext.getSession(), newName, mods ) );
             }
         }
+        */
     }
 
 
