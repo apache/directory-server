@@ -949,6 +949,9 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         DN oldDn = renameContext.getDn();
@@ -987,10 +990,17 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
+        // Check the RDN
         for ( AVA atav : newRdn )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
+            if ( !type.getSyntax().getSyntaxChecker().isValidSyntax( atav.getNormValue() ) )
+            {
+                String message = "Invalid syntax '" + atav.getNormValue() + "' for the attributeType " + type.getName();
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, message );
+            }
+            
             if ( !entry.contains( type, atav.getNormValue() ) )
             {
                 entry.add( new DefaultEntryAttribute( type, atav.getUpValue() ) );
