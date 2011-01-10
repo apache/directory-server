@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
 import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.administrative.Subentry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -621,12 +623,15 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
     // Success expected
     // -------------------------------------------------------------------
     /**
-     * Test the addition of a subentry under an AAP
+     * Test the rename of a subentry under an AAP, with 2 roles
      */
     @Test
-    @Ignore
-    public void testAddSubentryUnderAAP() throws Exception
+    public void testRenameSubentryUnderAAP() throws Exception
     {
+        DN aapDn = service.getDNFactory().create( "ou=AAP,ou=system" );
+        DN oldSubentryDn = service.getDNFactory().create( "cn=test,ou=AAP,ou=system" );
+        DN newSubentryDn = service.getDNFactory().create( "cn=test1,ou=AAP,ou=system" );
+        
         // First add an AAP
         createAAP( "ou=AAP,ou=system" );
         
@@ -636,12 +641,84 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
             "ObjectClass: top",
             "ObjectClass: subentry", 
             "ObjectClass: collectiveAttributeSubentry",
+            "ObjectClass: accessControlSubentry",
             "cn: test",
             "subtreeSpecification: {}", 
-            "c-o: Test Org" );
+            "c-o: Test Org",
+            "prescriptiveACI: { " 
+            + "  identificationTag \"addAci\", "
+            + "  precedence 14, " 
+            + "  authenticationLevel none, " 
+            + "  itemOrUserFirst userFirst: " 
+            + "  { "
+            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," 
+            + "    userPermissions "
+            + "    { " 
+            + "      { " 
+            + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
+            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " 
+            + "      } " 
+            + "    } " 
+            + "  } "
+            + "}" );
 
-        AddResponse response = adminConnection.add( subentry );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        AddResponse addResponse = adminConnection.add( subentry );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
+        
+        long acSeqNumber = getAcSeqNumber( "ou=AAP,ou=system" );
+        long caSeqNumber = getCaSeqNumber( "ou=AAP,ou=system" );
+
+        // Check the rename
+        ModifyDnResponse renameResponse = adminConnection.rename( "cn=test,ou=AAP,ou=system", "cn=test1" );
+        assertEquals( ResultCodeEnum.SUCCESS, renameResponse.getLdapResult().getResultCode() );
+        
+        // The SeqNumber should not have changed
+        assertEquals(acSeqNumber, getAcSeqNumber( "ou=AAP,ou=system" ) );
+        assertEquals(caSeqNumber, getCaSeqNumber( "ou=AAP,ou=system" ) );
+        
+        // The APCache should point to the new subentries
+        // First, AC
+        AdministrativePoint acAP = service.getAccessControlAPCache().getElement( aapDn );
+        
+        assertNotNull( acAP );
+        Set<Subentry> subentries = acAP.getSubentries();
+        
+        assertNotNull( subentries );
+        
+        for ( Subentry sub : subentries )
+        {
+            assertEquals( "test1", sub.getCn().getString() );
+        }
+        
+        // Then CA
+        AdministrativePoint caAP = service.getAccessControlAPCache().getElement( aapDn );
+        
+        assertNotNull( caAP );
+        subentries = caAP.getSubentries();
+        
+        assertNotNull( subentries );
+        
+        for ( Subentry sub : subentries )
+        {
+            assertEquals( "test1", sub.getCn().getString() );
+        }
+        
+        // Now ch"ck the UUID cache
+        Subentry[] subArray = service.getSubentryCache().getSubentries( oldSubentryDn );
+        
+        assertNull( subArray );
+        
+        subArray = service.getSubentryCache().getSubentries( newSubentryDn );
+        
+        assertNotNull( subArray );
+
+        for ( Subentry sub : subentries )
+        {
+            if ( sub != null )
+            {
+                assertEquals( "test1", sub.getCn().getString() );
+            }
+        }
     }
     
     

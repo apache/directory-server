@@ -141,6 +141,18 @@ public class SubentryCache implements Iterable<String>
         Subentry[] oldSubentry = dnCache.getElement( dn );
         dnCache.remove( dn );
         
+        // Update the UUID cache
+        if ( oldSubentry != null )
+        { 
+            for ( Subentry subentry : oldSubentry )
+            {
+                if ( subentry != null )
+                {
+                    uuidCache.remove( subentry.getUuid() );
+                }
+            }
+        }
+        
         return oldSubentry;
     }
     
