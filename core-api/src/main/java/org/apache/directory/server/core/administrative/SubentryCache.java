@@ -23,6 +23,7 @@ package org.apache.directory.server.core.administrative;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -44,6 +45,49 @@ public class SubentryCache implements Iterable<String>
     /** The Subentry DN cache */
     private final DnNode<Subentry[]> dnCache;
     
+    /** A lock to guarantee the Subentry cache consistency */
+    private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
+
+    /**
+     * Get a read-lock on the Subentry cache.
+     * No read operation can be done on the AP cache if this
+     * method is not called before.
+     */
+    public void lockRead()
+    {
+        mutex.readLock().lock();
+    }
+
+
+    /**
+     * Get a write-lock on the Subentry cache.
+     * No write operation can be done on the apCache if this
+     * method is not called before.
+     */
+    public void lockWrite()
+    {
+        mutex.writeLock().lock();
+    }
+
+
+    /**
+     * Release the read-write lock on the AP cache.
+     * This method must be called after having read or modified the
+     * AP cache
+     */
+    public void unlock()
+    {
+        if ( mutex.isWriteLockedByCurrentThread() )
+        {
+            mutex.writeLock().unlock();
+        }
+        else
+        {
+            mutex.readLock().unlock();
+        }
+    }
+
+    
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
@@ -63,10 +107,18 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry getSubentry( String uuid, AdministrativeRoleEnum role )
     {
-        Subentry[] subentries = uuidCache.get( uuid );
-        Subentry subentry = subentries[role.getValue()];
-        
-        return subentry;
+        try
+        {
+            lockRead();
+            Subentry[] subentries = uuidCache.get( uuid );
+            Subentry subentry = subentries[role.getValue()];
+            
+            return subentry;
+        }
+        finally 
+        {
+            unlock();
+        }
     }
     
     
@@ -78,9 +130,17 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry[] getSubentries( String uuid )
     {
-        Subentry[] subentries = uuidCache.get( uuid );
-        
-        return subentries;
+        try
+        {
+            lockRead();
+            Subentry[] subentries = uuidCache.get( uuid );
+            
+            return subentries;
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -93,10 +153,18 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry getSubentry( DN dn, AdministrativeRoleEnum role )
     {
-        Subentry[] subentries = dnCache.getElement( dn );
-        Subentry subentry = subentries[role.getValue()];
-        
-        return subentry;
+        try
+        {
+            lockRead();
+            Subentry[] subentries = dnCache.getElement( dn );
+            Subentry subentry = subentries[role.getValue()];
+            
+            return subentry;
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -108,9 +176,17 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry[] getSubentries( DN dn )
     {
-        Subentry[] subentries = dnCache.getElement( dn );
-        
-        return subentries;
+        try
+        {
+            lockRead();
+            Subentry[] subentries = dnCache.getElement( dn );
+            
+            return subentries;
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -123,9 +199,17 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry[] removeSubentry( String uuid )
     {
-        Subentry[] oldSubentry = uuidCache.remove( uuid );
-        
-        return oldSubentry;
+        try
+        {
+            lockWrite();
+            Subentry[] oldSubentry = uuidCache.remove( uuid );
+            
+            return oldSubentry;
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -138,22 +222,30 @@ public class SubentryCache implements Iterable<String>
      */
     public final Subentry[] removeSubentry( DN dn ) throws LdapException
     {
-        Subentry[] oldSubentry = dnCache.getElement( dn );
-        dnCache.remove( dn );
-        
-        // Update the UUID cache
-        if ( oldSubentry != null )
-        { 
-            for ( Subentry subentry : oldSubentry )
-            {
-                if ( subentry != null )
+        try
+        {
+            lockWrite();
+            Subentry[] oldSubentry = dnCache.getElement( dn );
+            dnCache.remove( dn );
+            
+            // Update the UUID cache
+            if ( oldSubentry != null )
+            { 
+                for ( Subentry subentry : oldSubentry )
                 {
-                    uuidCache.remove( subentry.getUuid() );
+                    if ( subentry != null )
+                    {
+                        uuidCache.remove( subentry.getUuid() );
+                    }
                 }
             }
+            
+            return oldSubentry;
         }
-        
-        return oldSubentry;
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -166,28 +258,36 @@ public class SubentryCache implements Iterable<String>
      */
     public Subentry[] addSubentry( DN dn, Subentry subentry ) throws LdapException
     {
-        Subentry[] subentries = uuidCache.get( subentry.getUuid() );
-        
-        if ( subentries == null )
+        try
         {
-            subentries = new Subentry[4];
+            lockWrite();
+            Subentry[] subentries = uuidCache.get( subentry.getUuid() );
+            
+            if ( subentries == null )
+            {
+                subentries = new Subentry[4];
+            }
+            
+            subentries[subentry.getAdministrativeRole().getValue()] = subentry;
+            Subentry[] oldSubentry = uuidCache.put( subentry.getUuid(), subentries );
+            
+            Subentry[] dnSubentries = dnCache.getElement( dn );
+            
+            if ( dnSubentries != null )
+            {
+                dnSubentries[subentry.getAdministrativeRole().getValue()] = subentry;
+            }
+            else
+            {
+                dnCache.add( dn, subentries );
+            }
+            
+            return oldSubentry;
         }
-        
-        subentries[subentry.getAdministrativeRole().getValue()] = subentry;
-        Subentry[] oldSubentry = uuidCache.put( subentry.getUuid(), subentries );
-        
-        Subentry[] dnSubentries = dnCache.getElement( dn );
-        
-        if ( dnSubentries != null )
+        finally
         {
-            dnSubentries[subentry.getAdministrativeRole().getValue()] = subentry;
+            unlock();
         }
-        else
-        {
-            dnCache.add( dn, subentries );
-        }
-        
-        return oldSubentry;
     }
     
     
@@ -198,7 +298,15 @@ public class SubentryCache implements Iterable<String>
      */
     public boolean hasSubentry( String uuid )
     {
-        return uuidCache.containsKey( uuid );
+        try
+        {
+            lockRead();
+            return uuidCache.containsKey( uuid );
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -209,7 +317,15 @@ public class SubentryCache implements Iterable<String>
      */
     public boolean hasSubentry( DN dn )
     {
-        return dnCache.hasElement( dn );
+        try
+        {
+            lockRead();
+            return dnCache.hasElement( dn );
+        }
+        finally
+        {
+            unlock();
+        }
     }
     
     
@@ -222,15 +338,23 @@ public class SubentryCache implements Iterable<String>
      */
     public boolean hasSubentry( String uuid, AdministrativeRoleEnum role )
     {
-        Subentry[] subentries = uuidCache.get( uuid );
-        
-        if ( subentries == null )
+        try
         {
-            return false;
+            lockRead();
+            Subentry[] subentries = uuidCache.get( uuid );
+            
+            if ( subentries == null )
+            {
+                return false;
+            }
+            else
+            {
+                return subentries[ role.getValue() ] != null;
+            }
         }
-        else
+        finally
         {
-            return subentries[ role.getValue() ] != null;
+            unlock();
         }
     }
     
@@ -243,15 +367,23 @@ public class SubentryCache implements Iterable<String>
      */
     public boolean hasSubentry( DN dn, AdministrativeRoleEnum role )
     {
-        Subentry[] subentries = dnCache.getElement( dn );
-        
-        if ( subentries == null )
+        try
         {
-            return false;
+            lockRead();
+            Subentry[] subentries = dnCache.getElement( dn );
+            
+            if ( subentries == null )
+            {
+                return false;
+            }
+            else
+            {
+                return subentries[ role.getValue() ] != null;
+            }
         }
-        else
+        finally
         {
-            return subentries[ role.getValue() ] != null;
+            unlock();
         }
     }
     
@@ -261,6 +393,14 @@ public class SubentryCache implements Iterable<String>
      */
     public Iterator<String> iterator()
     {
-        return uuidCache.keySet().iterator();
+        try
+        {
+            lockRead();
+            return uuidCache.keySet().iterator();
+        }
+        finally
+        {
+            unlock();
+        }
     }
 }
