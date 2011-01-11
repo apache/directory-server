@@ -23,6 +23,7 @@ package org.apache.directory.server.core.subtree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
@@ -268,6 +270,104 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
         // The CA APCache should point to the new subentries
         // Then CA
         AdministrativePoint caAP = service.getCollectiveAttributeAPCache().getElement( sapDn );
+        
+        assertNotNull( caAP );
+        Set<Subentry> subentries = caAP.getSubentries();
+        
+        assertNotNull( subentries );
+        
+        for ( Subentry sub : subentries )
+        {
+            assertEquals( "test1", sub.getCn().getString() );
+        }
+        
+        // Now check the UUID cache
+        Subentry[] subArray = service.getSubentryCache().getSubentries( oldSubentryDn );
+        
+        assertNull( subArray );
+        
+        subArray = service.getSubentryCache().getSubentries( newSubentryDn );
+        
+        assertNotNull( subArray );
+
+        for ( Subentry sub : subentries )
+        {
+            if ( sub != null )
+            {
+                assertEquals( "test1", sub.getCn().getString() );
+            }
+        }
+    }
+    
+    
+    /**
+     * Test the rename of a subentry under a IAP with no reference to a local name
+     */
+    @Test
+    public void testRenameSubentryUnderIAPNoLocalName() throws Exception
+    {
+        DN sapDn = service.getDNFactory().create( "ou=SAP,ou=system" );
+        DN iapDn = service.getDNFactory().create( "ou=IAP,ou=SAP,ou=system" );
+        DN oldSubentryDn = service.getDNFactory().create( "cn=test,ou=IAP,ou=SAP,ou=system" );
+        DN newSubentryDn = service.getDNFactory().create( "cn=test1,ou=IAP,ou=SAP,ou=system" );
+
+        // First add an SAP
+        createCaSAP( "ou=SAP,ou=system" ); 
+        
+        // Add a subentry now, with no localname
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{}" );
+        
+        long sapCaSeqNumber = getCaSeqNumber( "ou=SAP,ou=system" );
+        String sapCaSeUuid = getEntryUuid( "cn=test,ou=SAP,ou=system" );
+
+        // Add an IAP
+        createCaIAP( "ou=IAP,ou=SAP,ou=system" ); 
+
+        // Add the associated subentry
+        createCaSubentry( "cn=test,ou=IAP,ou=SAP,ou=system", "{}" );
+        
+        long iapCaSeqNumber = getCaSeqNumber( "ou=IAP,ou=SAP,ou=system" );
+        String iapCaSeUuid = getEntryUuid( "cn=test,ou=IAP,ou=SAP,ou=system" );
+        
+        // Add an entry under the SAP
+        Entry e1 = LdifUtils.createEntry( 
+            "ou=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e1" );
+        
+        createEntryAdmin( e1 );
+        
+        // Add an entry under the IAP
+        Entry e2 = LdifUtils.createEntry( 
+            "ou=e2,ou=IAP,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e2" );
+        
+        createEntryAdmin( e2 );
+
+        // Check that the first entry refers the first subentry
+        assertEquals( sapCaSeUuid, getCaUuidRef( "ou=e1,ou=SAP,ou=system" ) );
+        
+        // Check that the second entry refers both subentries
+        Entry result = adminConnection.lookup( "ou=e2,ou=IAP,ou=SAP,ou=system", "CollectiveAttributeSubentriesUuid" );
+        assertNotNull( result );
+        EntryAttribute attribute = result.get( "CollectiveAttributeSubentriesUuid" );
+        
+        assertEquals( 2, attribute.size() );
+        assertTrue( attribute.contains( sapCaSeUuid, iapCaSeUuid ) );
+        
+        // Rename the IAP subentry
+        ModifyDnResponse renameResponse = adminConnection.rename( "cn=test,ou=IAP,ou=SAP,ou=system", "cn=test1" );
+        assertEquals( ResultCodeEnum.SUCCESS, renameResponse.getLdapResult().getResultCode() );
+        
+        // The SeqNumber should not have changed
+        assertEquals( sapCaSeqNumber, getCaSeqNumber( "ou=SAP,ou=system" ) );
+        assertEquals( iapCaSeqNumber, getCaSeqNumber( "ou=IAP,ou=SAP,ou=system" ) );
+        
+        // The CA APCache should point to the new subentries
+        AdministrativePoint caAP = service.getCollectiveAttributeAPCache().getElement( iapDn );
         
         assertNotNull( caAP );
         Set<Subentry> subentries = caAP.getSubentries();
