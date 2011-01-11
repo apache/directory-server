@@ -80,10 +80,12 @@ public class ByPassConstants
     static
     {
         Collection<String> c = new HashSet<String>();
+        c.add( "org.apache.directory.server.core.normalization.AdministrativePointInterceptor" );
         c.add( "org.apache.directory.server.core.normalization.NormalizationInterceptor" );
         c.add( "org.apache.directory.server.core.authn.AuthenticationInterceptor" );
         c.add( "org.apache.directory.server.core.authz.AciAuthorizationInterceptor" );
         c.add( "org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor" );
+        c.add( "org.apache.directory.server.core.collective.CollectiveAttributeInterceptor" );
         c.add( "org.apache.directory.server.core.referral.ReferralInterceptor" );
         c.add( "org.apache.directory.server.core.changelog.ChangeLogInterceptor" );
         c.add( "org.apache.directory.server.core.operational.OperationalAttributeInterceptor" );
@@ -95,6 +97,7 @@ public class ByPassConstants
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
+        c.add( "org.apache.directory.server.core.normalization.AdministrativePointInterceptor" );
         c.add( "org.apache.directory.server.core.normalization.NormalizationInterceptor" );
         c.add( "org.apache.directory.server.core.authn.AuthenticationInterceptor" );
         c.add( "org.apache.directory.server.core.authz.AciAuthorizationInterceptor" );

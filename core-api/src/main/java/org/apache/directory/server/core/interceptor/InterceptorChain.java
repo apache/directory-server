@@ -571,9 +571,10 @@ public class InterceptorChain
             // We have to use the admin session here, otherwise we may have
             // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+            lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
 
-            Entry foundEntry = adminSession
-                .lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+            Entry foundEntry = directoryService.getOperationManager().lookup( lookupContext );
 
             if ( foundEntry != null )
             {
@@ -1114,6 +1115,7 @@ public class InterceptorChain
                     }
                     catch ( Throwable e )
                     {
+                        e.printStackTrace();
                         throwInterceptorException( interceptor, e );
                         throw new InternalError(); // Should be unreachable
                     }

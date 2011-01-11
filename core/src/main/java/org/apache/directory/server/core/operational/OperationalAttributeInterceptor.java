@@ -380,11 +380,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry result = nextInterceptor.lookup( lookupContext );
 
-        if ( result == null )
-        {
-            return null;
-        }
-
         if ( lookupContext.getAttrsId() == null )
         {
             filterOperationalAttributes( result );

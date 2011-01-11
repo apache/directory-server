@@ -621,7 +621,19 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( dn );
-        return backend.lookup( lookupContext );
+        Entry entry = backend.lookup( lookupContext );
+
+        if ( entry == null )
+        {
+            LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
+                + dn.getName() );
+
+            throw e;
+        }
+        else
+        {
+            return ( ClonedServerEntry ) entry;
+        }
     }
 
 

@@ -699,7 +699,7 @@ public class SubentryInterceptor extends BaseInterceptor
         List<Modification> modificationTes = updateEntry( entry, directoryService.getTriggerExecutionAPCache(), TRIGGER_EXECUTION_SEQ_NUMBER_AT, TRIGGER_EXECUTION_SUBENTRIES_UUID_AT );
         List<Modification> modifications = null;
         
-        if ( ( modificationAcs != null ) || ( modificationCas != null ) || ( modificationSss != null ) || (modificationTes != null ) )
+        if ( ( modificationAcs != null ) || ( modificationCas != null ) || ( modificationSss != null ) || ( modificationTes != null ) )
         {
             modifications = new ArrayList<Modification>();
             
@@ -745,7 +745,6 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         DN entryDn = entry.getDn();
         List<Modification> modifications = null;
-        
         
         DnNode<AdministrativePoint> apNode = apCache.getParentWithElement( entryDn );
         
@@ -826,6 +825,17 @@ public class SubentryInterceptor extends BaseInterceptor
                     Modification subentryUuiMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSubentryUuidAT );
 
                     modifications.add( subentryUuiMod );
+                }
+                else
+                {
+                    // We may have to remove UUID refs from the entry
+                    if ( entry.containsAttribute( subentryUuidAT ) )
+                    {
+                        EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT );
+                        Modification subentryUuiMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, newSubentryUuidAT );
+
+                        modifications.add( subentryUuiMod );
+                    }
                 }
             }
         }
@@ -1871,7 +1881,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Inject the seqNumbers in an AP
      */
-    private long updateAPSeqNumbers( DN apDn, Entry entry, Subentry[] subentries ) throws LdapException
+    private long updateAPSeqNumbers( OperationEnum operation, DN apDn, Entry entry, Subentry[] subentries ) throws LdapException
     {
         long seqNumber = directoryService.getNewApSeqNumber();
         String seqNumberStr = Long.toString( seqNumber );
@@ -1915,11 +1925,20 @@ public class SubentryInterceptor extends BaseInterceptor
             Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumber );
             modifications.add( modification );
 
-            // Get back the subentry entryUUID and store it in the subentry
-            String subentryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
-            subentry.setUuid( subentryUuid );
-            adminPoint.addSubentry( subentry );
-            adminPoint.setSeqNumber( seqNumber );
+            // Get back the subentry entryUUID and store it in the subentry if this is an addition
+            switch ( operation )
+            {
+                case ADD :
+                    String subentryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+                    subentry.setUuid( subentryUuid );
+                    adminPoint.addSubentry( subentry );
+                    adminPoint.setSeqNumber( seqNumber );
+                    break;
+                    
+                case REMOVE :
+                    adminPoint.setSeqNumber( seqNumber );
+                    break;
+            }
         }
         
         // Inject the seqNumbers into the parent AP
@@ -2195,7 +2214,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 next.add( addContext );
                     
                 // Update the seqNumber and update the parent AP
-                updateAPSeqNumbers( apDn, entry, subentries );
+                updateAPSeqNumbers( OperationEnum.ADD, apDn, entry, subentries );
                 
                 // Update the subentry cache
                 for ( Subentry subentry : subentries )
@@ -2226,6 +2245,9 @@ public class SubentryInterceptor extends BaseInterceptor
     }
     
     
+    /**
+     * Remove the subentry from the associated AP, and update the AP seqNumber
+     */
     private void deleteAPSubentry(DnNode<AdministrativePoint> cache, DN apDn, Subentry subentry )
     {
         AdministrativePoint adminPoint = cache.getElement( apDn );
@@ -2324,13 +2346,14 @@ public class SubentryInterceptor extends BaseInterceptor
                         
                 }
 
-                // And cleanup the subentry cache
+                // Cleanup the subentry cache
                 directoryService.getSubentryCache().removeSubentry( dn );
+                
             }
             
             // And finally, update the parent AP SeqNumber for each role the subentry manage
             //Set<AdministrativeRoleEnum> subentryRoles = subentry.getAdministrativeRoles();
-            updateAPSeqNumbers( apDn, entry, subentries );
+            updateAPSeqNumbers( OperationEnum.REMOVE, apDn, entry, subentries );
         }
         else
         {
@@ -2805,8 +2828,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
             for ( Subentry subentry : subentries )
             {
-                subentry.setCn( newCn );
-                directoryService.getSubentryCache().addSubentry( newDn, subentry );
+                if ( subentry != null )
+                {
+                    subentry.setCn( newCn );
+                    directoryService.getSubentryCache().addSubentry( newDn, subentry );
+                }
             }
         }
         else

@@ -47,7 +47,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         super( opContext );
         modifiedEntryName = opContext.getDn();
         modifications = opContext.getModItems();
-        this.oldEntry = getEntry( opContext );
+        this.oldEntry = opContext.getOriginalEntry();
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
         injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );

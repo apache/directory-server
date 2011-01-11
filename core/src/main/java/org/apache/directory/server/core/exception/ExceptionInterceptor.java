@@ -267,17 +267,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return nexus.getRootDSE( null );
         }
 
-        Entry result = nextInterceptor.lookup( lookupContext );
-
-        if ( result == null )
-        {
-            LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
-                + dn.getName() );
-
-            throw e;
-        }
-
-        return result;
+        return nextInterceptor.lookup( lookupContext );
     }
 
 

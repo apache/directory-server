@@ -154,11 +154,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         Entry result = nextInterceptor.lookup( lookupContext );
 
-        if ( result == null )
-        {
-            return null;
-        }
-
         // Adding the collective attributes if any
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
@@ -339,8 +334,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
-        EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
+        EntryAttribute collectiveAttributeSubentries = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_UUID_AT );
 
         /*
          * If there are no collective attribute subentries referenced then we 
