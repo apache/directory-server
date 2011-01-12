@@ -337,7 +337,6 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
 
 
     // ---- CA methods -------------------------------------------------------------------
-
     /**
      * Creates a CA SAP 
      */

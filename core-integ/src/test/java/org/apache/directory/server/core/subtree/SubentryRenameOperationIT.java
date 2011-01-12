@@ -306,7 +306,6 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
     @Test
     public void testRenameSubentryUnderIAPNoLocalName() throws Exception
     {
-        DN sapDn = service.getDNFactory().create( "ou=SAP,ou=system" );
         DN iapDn = service.getDNFactory().create( "ou=IAP,ou=SAP,ou=system" );
         DN oldSubentryDn = service.getDNFactory().create( "cn=test,ou=IAP,ou=SAP,ou=system" );
         DN newSubentryDn = service.getDNFactory().create( "cn=test1,ou=IAP,ou=SAP,ou=system" );
