@@ -305,4 +305,34 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     {
         return scopeCursor.isElementReused() || ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
     }
+
+
+    @Override
+    public void close() throws Exception
+    {
+        scopeCursor.close();
+        
+        if ( dereferencedCursor != null )
+        {
+            dereferencedCursor.close();
+        }
+        
+        super.close();
+    }
+
+
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        scopeCursor.close( cause );
+        
+        if ( dereferencedCursor != null )
+        {
+            dereferencedCursor.close( cause );
+        }
+        
+        super.close( cause );
+    }
+    
+    
 }
