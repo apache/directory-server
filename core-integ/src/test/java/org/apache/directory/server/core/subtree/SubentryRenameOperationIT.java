@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -72,6 +73,49 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
     // -------------------------------------------------------------------
     // Success expected
     // -------------------------------------------------------------------
+    /**
+     * 
+     */
+    @Test
+    public void testRenameSAP() throws Exception
+    {
+        DN sapDn = service.getDNFactory().create( "ou=SAP,ou=system" );
+        DN sapDnNew = service.getDNFactory().create( "ou=SAPnew,ou=system" );
+        
+        // First add an SAP
+        createCaSAP( "ou=SAP,ou=system" ); 
+        
+        // Add a subentry
+        createCaSubentry( "cn=test,ou=SAP,ou=system", "{}" );
+        
+        // Add an entry
+        Entry e1 = LdifUtils.createEntry( 
+            "ou=e1,ou=SAP,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: e1" );
+        
+        createEntryAdmin( e1 );
+
+        long sapCaSeqNumber = getCaSeqNumber( "ou=SAP,ou=system" );
+
+        // Now, try to rename the SAP
+        ModifyDnResponse response = adminConnection.rename( "ou=SAP,ou=system", "ou=SAPnew" );
+        
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        // Check that the seqNumber has not changed
+        assertNull( adminConnection.lookup( sapDn, "CollectiveAttributeSeqNumber" ) );
+        assertEquals( sapCaSeqNumber, getCaSeqNumber( "ou=SAPnew,ou=system" ) );
+        
+        // Check that the cache have been updated
+        DnNode<AdministrativePoint> caCache = service.getCollectiveAttributeAPCache();
+        
+        assertNull( caCache.getElement( sapDn ) );
+        assertNotNull( caCache.getElement( sapDnNew ) );
+    }
+    
+    
     
     
     // ===================================================================

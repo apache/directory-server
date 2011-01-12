@@ -846,31 +846,4 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         LOG.error( message );
         throw new LdapUnwillingToPerformException( message );
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        Entry entry = renameContext.getEntry();
-
-        // Check if we are renaming an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
-
-        if ( adminPoint == null )
-        {
-            // Nope, go on.
-            next.rename( renameContext );
-
-            LOG.debug( "Exit from Administrative Interceptor" );
-
-            return;
-        }
-
-        // Else throw an UnwillingToPerform exception ATM
-        String message = "Cannot rename an Administrative Point in the current version";
-        LOG.error( message );
-        throw new LdapUnwillingToPerformException( message );
-    }
 }

@@ -2791,7 +2791,8 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( adminPointAT != null )
         {
             // This is an AP. If it's a SAP, we have nothing to do, as a rename does not modify 
-            // the subtree evaluations, nor does it impact any underlying entries.
+            // the subtree evaluations, nor does it impact any underlying entries. We just have to 
+            // update the AP caches.
             // If the AP is an IAP, then as the underlying entries will be modified, then
             // we have to update the IAP seqNumber : the underlying entries might be impacted
             // as the parent's AP for the renamed IAP may have a base or some chopBefore/chopAfter
@@ -2802,6 +2803,34 @@ public class SubentryInterceptor extends BaseInterceptor
             else
             {
                 next.rename( renameContext );
+                
+                List<AdministrativePoint> adminpoints = getAdministrativePoints( oldDn );
+                
+                for ( AdministrativePoint adminPoint : adminpoints )
+                {
+                    switch ( adminPoint.getRole() )
+                    {
+                        case AccessControlSpecificArea :
+                            directoryService.getAccessControlAPCache().remove( oldDn );
+                            directoryService.getAccessControlAPCache().add( newDn, adminPoint );
+                            break;
+                            
+                        case CollectiveAttributeSpecificArea :
+                            directoryService.getCollectiveAttributeAPCache().remove( oldDn );
+                            directoryService.getCollectiveAttributeAPCache().add( newDn, adminPoint );
+                            break;
+                            
+                        case SubSchemaSpecificArea :
+                            directoryService.getSubschemaAPCache().remove( oldDn );
+                            directoryService.getSubschemaAPCache().add( newDn, adminPoint );
+                            break;
+                            
+                        case TriggerExecutionSpecificArea :
+                            directoryService.getTriggerExecutionAPCache().remove( oldDn );
+                            directoryService.getTriggerExecutionAPCache().add( newDn, adminPoint );
+                            break;
+                    }
+                }
             }
         }
         else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
