@@ -2765,8 +2765,75 @@ public class SubentryInterceptor extends BaseInterceptor
                 nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods ) );
             }
         }
+    } */
+    
+    
+    /**
+     * Update the AP caches when renaming an AP
+     */
+    private void applyRenameApCache( DN oldDn, DN newDn ) throws LdapException
+    {
+        List<AdministrativePoint> adminpoints = getAdministrativePoints( oldDn );
+        
+        for ( AdministrativePoint adminPoint : adminpoints )
+        {
+            switch ( adminPoint.getRole() )
+            {
+                case AccessControlSpecificArea :
+                    directoryService.getAccessControlAPCache().remove( oldDn );
+                    directoryService.getAccessControlAPCache().add( newDn, adminPoint );
+                    break;
+                    
+                case CollectiveAttributeSpecificArea :
+                    directoryService.getCollectiveAttributeAPCache().remove( oldDn );
+                    directoryService.getCollectiveAttributeAPCache().add( newDn, adminPoint );
+                    break;
+                    
+                case SubSchemaSpecificArea :
+                    directoryService.getSubschemaAPCache().remove( oldDn );
+                    directoryService.getSubschemaAPCache().add( newDn, adminPoint );
+                    break;
+                    
+                case TriggerExecutionSpecificArea :
+                    directoryService.getTriggerExecutionAPCache().remove( oldDn );
+                    directoryService.getTriggerExecutionAPCache().add( newDn, adminPoint );
+                    break;
+            }
+        }
     }
 
+    
+    /**
+     * Get the set of roles this AP is handling
+     */
+    private Set<AdministrativeRoleEnum> getRoles( EntryAttribute adminPointAT )
+    {
+        Set<AdministrativeRoleEnum> roles = new HashSet<AdministrativeRoleEnum>();
+        
+        for ( Value<?> attributeRole : adminPointAT )
+        {
+            String role = attributeRole.getString();
+            
+            if ( isAccessControlInnerRole( role ) || isAccessControlSpecificRole( role ) )
+            {
+                roles.add( AdministrativeRoleEnum.AccessControl );
+            }
+            else if ( isCollectiveAttributeInnerRole( role ) || isAccessControlSpecificRole( role ) )
+            {
+                roles.add( AdministrativeRoleEnum.CollectiveAttribute );
+            }
+            else if ( isSubschemaSpecificRole( role ) )
+            {
+                roles.add( AdministrativeRoleEnum.SubSchema );
+            }
+            else if ( isTriggerExecutionInnerRole( role ) || isTriggerExecutionSpecificRole( role ) )
+            {
+                roles.add( AdministrativeRoleEnum.TriggerExecution );
+            }
+        }
+        
+        return roles;
+    }
 
     /**
      * {@inheritDoc}
@@ -2799,38 +2866,137 @@ public class SubentryInterceptor extends BaseInterceptor
             // specificExclusion that depend on the old name.
             if ( isIAP( adminPointAT) )
             {
+                // First apply the rename
+                next.rename( renameContext );
+                
+                // Update the caches
+                applyRenameApCache( oldDn, newDn );
+                
+                // And check if we have to change the parent's AP seqNumbers
+                List<Modification> modifications = null;
+                
+                for ( AdministrativeRoleEnum role : getRoles( adminPointAT ) )
+                {
+                    switch ( role )
+                    {
+                        case AccessControl :
+                            break;
+                            
+                        case CollectiveAttribute :
+                            DnNode<AdministrativePoint> apCache = directoryService.getCollectiveAttributeAPCache();
+                            DnNode<AdministrativePoint> apNode = apCache.getParentWithElement( newDn );
+
+                            // We have an AdministrativePoint for this entry, get its SeqNumber
+                            AdministrativePoint adminPoint = apNode.getElement();
+                            EntryAttribute seqNumberAttribute = entry.get( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
+
+                            // We have to recurse : starting from the IAP, we go up the AP tree
+                            // until we find the SAP. For each AP we find, we check the Subentries
+                            // to see if any of them have a localname containing the oldDn. if so, we 
+                            // will update the AP seqNumber for this role.
+                            
+                            // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
+                            boolean sapFound = false;
+                            boolean updateSN = false;
+
+                            do
+                            {
+                                if ( adminPoint.isSpecific() )
+                                {
+                                    sapFound = true;
+                                }
+
+                                Set<Subentry> subentries = adminPoint.getSubentries();
+                                
+                                if ( ( subentries != null ) && ( subentries.size() != 0 ) )
+                                {
+                                    for ( Subentry subentry : subentries )
+                                    {
+                                        SubtreeSpecification ss = subentry.getSubtreeSpecification();
+                                        
+                                        Set<DN> dns = new HashSet<DN>();
+                                        
+                                        if ( ss.getBase() != null )
+                                        {
+                                            dns.add( ss.getBase() );
+                                        }
+                                        
+                                        dns.addAll( ss.getChopBeforeExclusions() );
+                                        dns.addAll( ss.getChopAfterExclusions() );
+                                        
+                                        for ( DN dn : dns )
+                                        {
+                                            DN fullDn = apNode.getDn().addAll( dn );
+                                            
+                                            if ( oldDn.isParentOf( fullDn ) )
+                                            {
+                                                // We have to update this AP's seqNumber
+                                                updateSN = true;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if ( updateSN )
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // Go down one level
+                                apNode = apNode.getParentWithElement();
+                                adminPoint = apNode.getElement();
+                            } while ( !sapFound && !updateSN );
+                            
+                            break;
+
+                        case SubSchema :
+                        case TriggerExecution :
+                    }
+
+                    // Now, update the seqNumber
+                    /*
+                    // If we have updated the entry, create the list of modifications to apply
+                    if ( updateSN )
+                    {
+                        // Create the list of modifications : we will inject REPLACE operations. 
+                        modifications = new ArrayList<Modification>();
+                        
+                        // The seqNubmer
+                        EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( seqNumberAT, Long.toString( entrySeqNumber ) );
+                        Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
+                        
+                        modifications.add( seqNumberModification );
+                        
+                        // The subentry UUID, if any
+                        if ( ( subentryUuids != null ) && ( subentryUuids.size() != 0 ) )
+                        {
+                            EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT, subentryUuids.toArray( new String[]{} ) );
+                            Modification subentryUuiMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSubentryUuidAT );
+
+                            modifications.add( subentryUuiMod );
+                        }
+                        else
+                        {
+                            // We may have to remove UUID refs from the entry
+                            if ( entry.containsAttribute( subentryUuidAT ) )
+                            {
+                                EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT );
+                                Modification subentryUuiMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, newSubentryUuidAT );
+
+                                modifications.add( subentryUuiMod );
+                            }
+                        }
+                    }
+                    */
+                }
             }
             else
             {
                 next.rename( renameContext );
                 
-                List<AdministrativePoint> adminpoints = getAdministrativePoints( oldDn );
-                
-                for ( AdministrativePoint adminPoint : adminpoints )
-                {
-                    switch ( adminPoint.getRole() )
-                    {
-                        case AccessControlSpecificArea :
-                            directoryService.getAccessControlAPCache().remove( oldDn );
-                            directoryService.getAccessControlAPCache().add( newDn, adminPoint );
-                            break;
-                            
-                        case CollectiveAttributeSpecificArea :
-                            directoryService.getCollectiveAttributeAPCache().remove( oldDn );
-                            directoryService.getCollectiveAttributeAPCache().add( newDn, adminPoint );
-                            break;
-                            
-                        case SubSchemaSpecificArea :
-                            directoryService.getSubschemaAPCache().remove( oldDn );
-                            directoryService.getSubschemaAPCache().add( newDn, adminPoint );
-                            break;
-                            
-                        case TriggerExecutionSpecificArea :
-                            directoryService.getTriggerExecutionAPCache().remove( oldDn );
-                            directoryService.getTriggerExecutionAPCache().add( newDn, adminPoint );
-                            break;
-                    }
-                }
+                // Now, update the caches by removing the old reference to AP and adding the new one
+                applyRenameApCache( oldDn, newDn );
             }
         }
         else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
