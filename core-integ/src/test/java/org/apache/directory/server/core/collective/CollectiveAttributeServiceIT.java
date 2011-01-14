@@ -34,6 +34,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -52,6 +53,8 @@ import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,7 +73,11 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: person", "cn", cn,
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
+            "objectClass: top", 
+            "objectClass: person", 
+            "cn", cn,
             "sn: testentry" );
 
         return subentry;
@@ -79,9 +86,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-ou: configuration",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry" );
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-ou: configuration",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry" );
 
         return subentry;
     }
@@ -89,9 +101,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-ou: configuration2",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry2" );
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-ou: configuration2",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry2" );
 
         return subentry;
     }
@@ -99,9 +116,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-st: FL",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry3" );
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-st: FL",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry3" );
 
         return subentry;
     }
@@ -179,22 +201,44 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         return resultMap;
     }
 
+    @BeforeClass
+    public static void init()
+    {
+        //System.out.println( "===============================================================" );
+    }
 
     @Before
-    public void init() throws Exception
+    public void setup() throws Exception
     {
+        //System.out.println( "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" );
         connection = IntegrationUtils.getAdminConnection( service );
     }
 
 
+    private void dumpBase() throws Exception
+    {
+        SearchCursor cursor = connection.search( "ou=system" , "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" );
+        
+        while ( cursor.next() )
+        {
+            Response entry = cursor.get();
+            
+            System.out.println( LdifUtils.convertEntryToLdif( ((SearchResultEntry)entry).getEntry() ) );
+        }
+    }
+    
+    
     @After
     public void shutdown() throws Exception
     {
+        //System.out.println( "----------------------------------------------------------------" );
+        //dumpBase();
         connection.close();
     }
 
 
     @Test
+    //@Ignore
     public void testLookup() throws Exception
     {
         // -------------------------------------------------------------------
@@ -478,6 +522,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
@@ -490,6 +535,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );

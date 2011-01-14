@@ -30,9 +30,11 @@ import java.util.Set;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.administrative.AdministrativePoint;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
+import org.apache.directory.shared.ldap.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -40,10 +42,13 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.After;
 import org.junit.Before;
 
@@ -532,5 +537,112 @@ public class AbstractSubentryUnitTest extends AbstractLdapTestUnit
         }
         
         return Long.parseLong( attribute.getString() );
+    }
+    
+    
+    protected void dumpBase( String base ) throws Exception
+    {
+        SearchRequest request = new SearchRequestImpl();
+        request.setBase( service.getDNFactory().create( base ) );
+        request.setFilter( "(ObjectClass=*)" );
+        request.setScope( SearchScope.SUBTREE );
+        request.addAttributes( "*", 
+            "CollectiveAttributeSubentriesUUID", "AccessControlSubentriesUUID", "SubSchemaSubentriesUuid", "TriggerExecutionSubentriesUUID",
+            "AccessControlSeqNumber", "CollectiveAttributeSeqNumber", "TriggerExecutionSeqNumber", "SubSchemaSeqNumber", 
+            "entryUUID" );
+        
+        SearchCursor cursor = adminConnection.search( request );
+        
+        System.out.println( "--- Dump base ----------------------------------------");
+        
+        while ( cursor.next() )
+        {
+            Response entry = cursor.get();
+            
+            System.out.println( LdifUtils.convertEntryToLdif( ((SearchResultEntry)entry).getEntry() ) );
+        }
+
+        System.out.println( "+++ Dump base ++++++++++++++++++++++++++++++++++++++++");
+    }
+    
+    
+    protected void dumpSubentries( String base ) throws Exception
+    {
+        SearchRequest request = new SearchRequestImpl();
+        request.setBase( service.getDNFactory().create( base ) );
+        request.setFilter( "(ObjectClass=*)" );
+        request.setScope( SearchScope.SUBTREE );
+        request.addAttributes( "*", 
+            "CollectiveAttributeSubentriesUUID", "AccessControlSubentriesUUID", "SubSchemaSubentriesUuid", "TriggerExecutionSubentriesUUID",
+            "AccessControlSeqNumber", "CollectiveAttributeSeqNumber", "TriggerExecutionSeqNumber", "SubSchemaSeqNumber", 
+            "entryUUID", "subtreeSpecification" );
+        SubentriesControl subentriesControl = new SubentriesControl();
+        subentriesControl.setCritical( true );
+        subentriesControl.setVisibility( true );
+        
+        request.addControl( subentriesControl );
+        
+        SearchCursor cursor = adminConnection.search( request );
+        
+        System.out.println( "--- Dump subentries ----------------------------------");
+        
+        while ( cursor.next() )
+        {
+            Response entry = cursor.get();
+            
+            System.out.println( LdifUtils.convertEntryToLdif( ((SearchResultEntry)entry).getEntry() ) );
+        }
+
+        System.out.println( "+++ Dump subentries ++++++++++++++++++++++++++++++++++");
+    }
+    
+    
+    protected void dumpApCache()
+    {
+        DnNode<AdministrativePoint> apAcCache = service.getAccessControlAPCache();
+
+        if ( !apAcCache.isLeaf() || ( apAcCache.getElement() != null ) )
+        {
+            System.out.println( "--- Dump AC AP cache ---------------------------------");
+            
+            System.out.println( apAcCache );
+        }
+        
+        DnNode<AdministrativePoint> apCaCache = service.getCollectiveAttributeAPCache();
+
+        if ( !apCaCache.isLeaf() || ( apCaCache.getElement() != null ) )
+        {
+            System.out.println( "--- Dump CA AP cache ---------------------------------");
+            
+            System.out.println( apCaCache );
+        }
+
+        DnNode<AdministrativePoint> apSsCache = service.getSubschemaAPCache();
+
+        if ( !apSsCache.isLeaf() || ( apSsCache.getElement() != null ) )
+        {
+            System.out.println( "--- Dump SS AP cache ---------------------------------");
+        
+            System.out.println( apSsCache );
+        }
+
+        DnNode<AdministrativePoint> apTeCache = service.getTriggerExecutionAPCache();
+
+        if ( !apTeCache.isLeaf() || ( apTeCache.getElement() != null ) )
+        {
+            System.out.println( "--- Dump TE AP cache ---------------------------------");
+        
+            System.out.println( apTeCache );
+        }
+
+        System.out.println( "+++ Dump APs cache +++++++++++++++++++++++++++++++++++");
+    }
+
+    
+    protected void dumpSubentryCache()
+    {
+        System.out.println( "--- Dump Subentry cache -----------------------------");
+        System.out.println( service.getSubentryCache() );
+        System.out.println( "+++ Dump Subentry cache ++++++++++++++++++++++++++++++");
     }
 }

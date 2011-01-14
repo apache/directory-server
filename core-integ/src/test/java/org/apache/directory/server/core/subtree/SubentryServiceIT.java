@@ -193,9 +193,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getSubentry( String dn ) throws Exception
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "subtreeSpecification: { base \"ou=configuration\" }",
-            "c-o: Test Org", "cn: testsubentry" );
+        Entry subentry = LdifUtils.createEntry( 
+            new DN( dn ), 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "c-o: Test Org", 
+            "cn: testsubentry" );
 
         return subentry;
     }
