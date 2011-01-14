@@ -2837,6 +2837,117 @@ public class SubentryInterceptor extends BaseInterceptor
         
         return roles;
     }
+    
+    
+    /**
+     * Propagate the IAP modification
+     */
+    private void updateIAP( AdministrativeRoleEnum role, DN oldDn, DN newDn, List<Modification> modifications ) throws LdapException
+    {
+        DnNode<AdministrativePoint> apCache = null;
+        AttributeType seqNumberAT = null;
+        
+        switch ( role )
+        {
+            case AccessControl :
+                apCache = directoryService.getAccessControlAPCache();
+                seqNumberAT = ACCESS_CONTROL_SEQ_NUMBER_AT;
+                break;
+                
+            case CollectiveAttribute :
+                apCache = directoryService.getCollectiveAttributeAPCache();
+                seqNumberAT = COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT;
+                break;
+
+            // It can't be a subSchema, there is no Inner AP for subschemas
+                
+            case TriggerExecution :
+                apCache = directoryService.getTriggerExecutionAPCache();
+                seqNumberAT = TRIGGER_EXECUTION_SEQ_NUMBER_AT;
+                break;
+        }
+
+        
+        DnNode<AdministrativePoint> apNode = apCache.getNode( newDn );
+
+        // We have an AdministrativePoint for this entry, get its SeqNumber
+        AdministrativePoint adminPoint = apNode.getElement();
+        AdministrativePoint currentAP = apNode.getElement();
+
+        // We have to recurse : starting from the IAP, we go up the AP tree
+        // until we find the SAP. For each AP we find, we check the Subentries
+        // to see if any of them have a localname containing the oldDn. if so, we 
+        // will update the AP seqNumber for this role.
+        
+        // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
+        boolean sapFound = false;
+        boolean updateSN = false;
+        long newSeqNumber = -1L;
+
+        do
+        {
+            if ( currentAP.isSpecific() )
+            {
+                sapFound = true;
+            }
+
+            Set<Subentry> subentries = currentAP.getSubentries();
+            
+            if ( ( subentries != null ) && ( subentries.size() != 0 ) )
+            {
+                for ( Subentry subentry : subentries )
+                {
+                    SubtreeSpecification ss = subentry.getSubtreeSpecification();
+                    
+                    Set<DN> dns = new HashSet<DN>();
+                    
+                    if ( ss.getBase() != null )
+                    {
+                        dns.add( ss.getBase() );
+                    }
+                    
+                    dns.addAll( ss.getChopBeforeExclusions() );
+                    dns.addAll( ss.getChopAfterExclusions() );
+                    
+                    for ( DN dn : dns )
+                    {
+                        DN fullDn = apNode.getDn().addAll( dn );
+                        
+                        if ( oldDn.isParentOf( fullDn ) )
+                        {
+                            // We have to update this AP's seqNumber
+                            updateSN = true;
+                            break;
+                        }
+                    }
+                    
+                    if ( updateSN )
+                    {
+                        break;
+                    }
+                }
+            }
+            
+            // Go down one level
+            apNode = apNode.getParentWithElement();
+            currentAP = apNode.getElement();
+        } while ( !sapFound && !updateSN );
+        
+        if ( updateSN )
+        {
+            if ( newSeqNumber == -1L )
+            {
+                newSeqNumber = directoryService.getNewApSeqNumber();
+
+                adminPoint.setSeqNumber( newSeqNumber );
+                
+                EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( seqNumberAT, Long.toString( newSeqNumber ) );
+                Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
+                
+                modifications.add( seqNumberModification );
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -2857,9 +2968,20 @@ public class SubentryInterceptor extends BaseInterceptor
         // Check if we are adding an Administrative Point
         EntryAttribute adminPointAT = entry.get( ADMINISTRATIVE_ROLE_AT );
 
-        // First, deal with an AP addition
+        // First, deal with an AP rename. We must be admin
         if ( adminPointAT != null )
         {
+            // Only admin can add an AP
+            if ( !isAdmin )
+            {
+                String message = "Cannot rename the given AdministrativePoint " + oldDn + ", user is not an Admin";
+                LOG.error( message );
+                
+                throw new LdapUnwillingToPerformException( message );
+            }
+
+            LOG.debug( "Renaming of an administrative point {} for the roles {}", oldDn, adminPointAT );
+
             // This is an AP. If it's a SAP, we have nothing to do, as a rename does not modify 
             // the subtree evaluations, nor does it impact any underlying entries. We just have to 
             // update the AP caches.
@@ -2877,104 +2999,10 @@ public class SubentryInterceptor extends BaseInterceptor
                 
                 // And check if we have to change the parent's AP seqNumbers
                 List<Modification> modifications = new ArrayList<Modification>();
-                long newSeqNumber = -1L;
                 
                 for ( AdministrativeRoleEnum role : getRoles( adminPointAT ) )
                 {
-                    switch ( role )
-                    {
-                        case AccessControl :
-                            break;
-                            
-                        case CollectiveAttribute :
-                            DnNode<AdministrativePoint> apCache = directoryService.getCollectiveAttributeAPCache();
-                            DnNode<AdministrativePoint> apNode = apCache.getNode( newDn );
-
-                            // We have an AdministrativePoint for this entry, get its SeqNumber
-                            AdministrativePoint adminPoint = apNode.getElement();
-                            AdministrativePoint currentAP = apNode.getElement();
-                            EntryAttribute seqNumberAttribute = entry.get( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
-
-                            // We have to recurse : starting from the IAP, we go up the AP tree
-                            // until we find the SAP. For each AP we find, we check the Subentries
-                            // to see if any of them have a localname containing the oldDn. if so, we 
-                            // will update the AP seqNumber for this role.
-                            
-                            // First, init the entry seqNumber. If we have no AT, then we initialize it to -1
-                            boolean sapFound = false;
-                            boolean updateSN = false;
-
-                            do
-                            {
-                                if ( currentAP.isSpecific() )
-                                {
-                                    sapFound = true;
-                                }
-
-                                Set<Subentry> subentries = currentAP.getSubentries();
-                                
-                                if ( ( subentries != null ) && ( subentries.size() != 0 ) )
-                                {
-                                    for ( Subentry subentry : subentries )
-                                    {
-                                        SubtreeSpecification ss = subentry.getSubtreeSpecification();
-                                        
-                                        Set<DN> dns = new HashSet<DN>();
-                                        
-                                        if ( ss.getBase() != null )
-                                        {
-                                            dns.add( ss.getBase() );
-                                        }
-                                        
-                                        dns.addAll( ss.getChopBeforeExclusions() );
-                                        dns.addAll( ss.getChopAfterExclusions() );
-                                        
-                                        for ( DN dn : dns )
-                                        {
-                                            DN fullDn = apNode.getDn().addAll( dn );
-                                            
-                                            if ( oldDn.isParentOf( fullDn ) )
-                                            {
-                                                // We have to update this AP's seqNumber
-                                                updateSN = true;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        if ( updateSN )
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                                
-                                // Go down one level
-                                apNode = apNode.getParentWithElement();
-                                currentAP = apNode.getElement();
-                            } while ( !sapFound && !updateSN );
-                            
-                            if ( updateSN )
-                            {
-                                if ( newSeqNumber == -1L )
-                                {
-                                    newSeqNumber = directoryService.getNewApSeqNumber();
-
-                                    adminPoint.setSeqNumber( newSeqNumber );
-                                    
-                                    EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( newSeqNumber ) );
-                                    Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
-                                    
-                                    modifications.add( seqNumberModification );
-                                }
-                            }
-                            break;
-
-                        case SubSchema :
-                        case TriggerExecution :
-                    }
-                    
-                    // Update the AdminPoint
-                    
+                    updateIAP( role, oldDn, newDn, modifications );
 
                     // Now, update the AP entry
                     // If we have updated the entry, create the list of modifications to apply

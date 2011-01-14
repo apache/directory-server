@@ -457,7 +457,7 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
      * Test the rename of a subentry under a IAP with no reference to a local name
      */
     @Test
-    public void testRenameSubentryUnderIAPNoLocalName() throws Exception
+    public void testRenameSubentryUnderCaIAPNoLocalName() throws Exception
     {
         DN iapDn = service.getDNFactory().create( "ou=IAP,ou=SAP,ou=system" );
         DN oldSubentryDn = service.getDNFactory().create( "cn=test,ou=IAP,ou=SAP,ou=system" );
@@ -548,7 +548,7 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
             }
         }
     }
-    
+
     
     // ===================================================================
     // Test the Rename operation for Entries
