@@ -683,13 +683,13 @@ public class DefaultDirectoryService implements DirectoryService
         list.add( new DefaultAuthorizationInterceptor() );
         list.add( new AdministrativePointInterceptor() );
         list.add( new ExceptionInterceptor() );
-        list.add( new ChangeLogInterceptor() );
         list.add( new OperationalAttributeInterceptor() );
         list.add( new SchemaInterceptor() );
         list.add( new CollectiveAttributeInterceptor() );
         list.add( new SubentryInterceptor() );
         list.add( new EventInterceptor() );
         list.add( new TriggerInterceptor() );
+        list.add( new ChangeLogInterceptor() );
         list.add( new JournalInterceptor() );
 
         setInterceptors( list );
