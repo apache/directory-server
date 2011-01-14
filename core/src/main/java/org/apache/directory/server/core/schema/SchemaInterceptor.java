@@ -1540,14 +1540,15 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( ( schema != null ) && schema.isEnabled() )
                 {
-                    String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
-                    ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocName );
+                    EntryAttribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
+                    String ocOid = oidAT.getString();
+                    
+                    ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocOid );
                     computeSuperior( addedOC );
                 }
             }
             else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
-
                 // This is an AttributeType addition
                 next.add( addContext );
             }

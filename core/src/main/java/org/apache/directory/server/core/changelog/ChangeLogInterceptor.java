@@ -98,13 +98,11 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
-    
-
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         next.add( addContext );
 
-        if ( ! changeLog.isEnabled() || ! addContext.isFirstOperation() )
+        if ( !changeLog.isEnabled() )
         {
             return;
         }
@@ -143,14 +141,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // must save the entry if change log is enabled
         Entry serverEntry = null;
 
-        if ( changeLog.isEnabled() && deleteContext.isFirstOperation() )
+        if ( changeLog.isEnabled() )
         {
             serverEntry = getAttributes( deleteContext );
         }
 
         next.delete( deleteContext );
 
-        if ( ! changeLog.isEnabled() || ! deleteContext.isFirstOperation() )
+        if ( !changeLog.isEnabled() )
         {
             return;
         }
@@ -220,7 +218,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Modification modification = ServerEntryUtils.getModificationItem( modifyContext.getModItems(), entryDeleted );
         boolean isDelete = ( modification != null );
 
-        if ( ! isDelete && ( changeLog.isEnabled() && modifyContext.isFirstOperation() ) )
+        if ( !isDelete && ( changeLog.isEnabled() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( modifyContext );
@@ -242,7 +240,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
         if ( 
             isDelete ||   
             ! changeLog.isEnabled() || 
-            ! modifyContext.isFirstOperation() ||
             
          // if there are no modifications due to stripping out bogus non-
          // existing attributes then we will have no modification items and
@@ -307,7 +304,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // After this point, the entry has been modified. The cloned entry contains
         // the modified entry, the originalEntry has changed
 
-        if ( ! changeLog.isEnabled() || ! renameContext.isFirstOperation() )
+        if ( !changeLog.isEnabled() )
         {
             return;
         }
@@ -330,7 +327,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         Entry serverEntry = null;
         
-        if ( changeLog.isEnabled() && moveAndRenameContext.isFirstOperation() )
+        if ( changeLog.isEnabled() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = moveAndRenameContext.getOriginalEntry();
@@ -338,7 +335,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         next.moveAndRename( moveAndRenameContext );
 
-        if ( ! changeLog.isEnabled() || ! moveAndRenameContext.isFirstOperation() )
+        if ( !changeLog.isEnabled() )
         {
             return;
         }
@@ -371,7 +368,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         next.move( moveContext );
 
-        if ( ! changeLog.isEnabled() || ! moveContext.isFirstOperation() )
+        if ( !changeLog.isEnabled() )
         {
             return;
         }
