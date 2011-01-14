@@ -21,6 +21,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +60,13 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "cn: testUser",
         "sn: test User",
-        "userpassword: test"
+        "userpassword: test",
+        "",
+        // An entry used as a root for tests
+        "dn: ou=test,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "ou: test"
     })
 public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
 {
@@ -116,6 +123,108 @@ public class SubentryRenameOperationIT extends AbstractSubentryUnitTest
     }
     
     
+    /**
+     * Test a rename of an IAP. We will use this data structure :
+     * <pre>
+     * ou=test,ou=system
+     *   |
+     *   +-- [ou=SAP]
+     *        |
+     *        +-- <cn=test1> base="ou=europe,ou=IAP2,ou=IAP1", will select europe, france, paris
+     *        |
+     *        +-- ou=IAP1
+     *              |
+     *              +-- <cn=test2> base="ou=france,ou=europe,ou=IAP2" will select france, paris
+     *              |
+     *              +-- ou=IAP2
+     *                    |
+     *                    +-- <cn=test3> base="ou=paris,ou=france,ou=europe" will select paris
+     *                    |
+     *                    +-- ou=europe
+     *                          |
+     *                          +-- ou=france
+     *                                |
+     *                                +-- ou=paris 
+     * </pre>
+     * 
+     * We will rename ou=IAP2, and the cn=test1 or cn=test2 will now select nothing
+     */
+    @Test
+    public void testRenameIAP() throws Exception
+    {
+        // Create the APs
+        createCaSAP( "ou=SAP,ou=test,ou=system" );
+        createCaIAP( "ou=IAP1,ou=SAP,ou=test,ou=system" );
+        createCaIAP( "ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system" );
+        
+        // Create the subentries
+        createCaSubentry( "cn=test1,ou=SAP,ou=test,ou=system", "{base \"ou=europe,ou=IAP2,ou=IAP1\"}" );
+        createCaSubentry( "cn=test2,ou=IAP1,ou=SAP,ou=test,ou=system", "{base \"ou=france,ou=europe,ou=IAP2\"}" );
+        createCaSubentry( "cn=test3,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", "{base \"ou=paris,ou=france,ou=europe\"}" );
+        
+        // Add entries
+        Entry e1 = LdifUtils.createEntry( 
+            "ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: europe" );
+        
+        createEntryAdmin( e1 );
+
+        Entry e2 = LdifUtils.createEntry( 
+            "ou=france,ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: france" );
+        
+        createEntryAdmin( e2 );
+
+        Entry e3 = LdifUtils.createEntry( 
+            "ou=paris,ou=france,ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", 
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit", 
+            "ou: paris" );
+        
+        createEntryAdmin( e3 );
+        
+        // Check that the entries are referring the subentries
+        String sapUuid = getEntryUuid( "cn=test1,ou=SAP,ou=test,ou=system" );
+        String iap1Uuid = getEntryUuid( "cn=test2,ou=IAP1,ou=SAP,ou=test,ou=system" );
+        String iap2Uuid = getEntryUuid( "cn=test3,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system" );
+        
+        e1 = adminConnection.lookup( "ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        e2 = adminConnection.lookup( "ou=france,ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        e3 = adminConnection.lookup( "ou=paris,ou=france,ou=europe,ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        
+        assertTrue( e1.contains( "CollectiveAttributeSubentriesUUID", sapUuid ) );
+        assertTrue( e2.contains( "CollectiveAttributeSubentriesUUID", sapUuid, iap1Uuid ) );
+        assertTrue( e3.contains( "CollectiveAttributeSubentriesUUID", sapUuid, iap1Uuid, iap2Uuid ) );
+        
+        dumpBase( "ou=test,ou=system" );
+        dumpSubentries( "ou=test,ou=system" );
+        dumpApCache();
+        dumpSubentryCache();
+        
+        // Now, rename IAP2
+        ModifyDnResponse response = adminConnection.rename( "ou=IAP2,ou=IAP1,ou=SAP,ou=test,ou=system", "ou=IAPnew" );
+        
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        
+        dumpBase( "ou=test,ou=system" );
+        dumpSubentries( "ou=test,ou=system" );
+        dumpApCache();
+        dumpSubentryCache();
+        
+        // Check the references
+        e1 = adminConnection.lookup( "ou=europe,ou=IAPnew,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        e2 = adminConnection.lookup( "ou=france,ou=europe,ou=IAPnew,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        e3 = adminConnection.lookup( "ou=paris,ou=france,ou=europe,ou=IAPnew,ou=IAP1,ou=SAP,ou=test,ou=system", "+" );
+        
+        assertFalse( e1.containsAttribute( "CollectiveAttributeSubentriesUUID" ) );
+        assertFalse( e2.containsAttribute( "CollectiveAttributeSubentriesUUID" ) );
+        assertTrue( e3.contains( "CollectiveAttributeSubentriesUUID", iap2Uuid ) );
+        assertFalse( e3.contains( "CollectiveAttributeSubentriesUUID", iap1Uuid, sapUuid ) );
+    }
     
     
     // ===================================================================

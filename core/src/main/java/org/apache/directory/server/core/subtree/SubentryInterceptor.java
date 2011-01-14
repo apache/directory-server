@@ -789,7 +789,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     entrySeqNumber = adminPoint.getSeqNumber();
                 }
 
-                if ( initialSeqNumber < adminPoint.getSeqNumber() )
+                if ( ( initialSeqNumber < adminPoint.getSeqNumber() ) || seqNumberUpdated )
                 {
                     // Evaluate the current AP on the entry for each subentry
                     for ( Subentry subentry : adminPoint.getSubentries() )
@@ -2780,11 +2780,13 @@ public class SubentryInterceptor extends BaseInterceptor
             switch ( adminPoint.getRole() )
             {
                 case AccessControlSpecificArea :
+                case AccessControlInnerArea :
                     directoryService.getAccessControlAPCache().remove( oldDn );
                     directoryService.getAccessControlAPCache().add( newDn, adminPoint );
                     break;
                     
                 case CollectiveAttributeSpecificArea :
+                case CollectiveAttributeInnerArea :
                     directoryService.getCollectiveAttributeAPCache().remove( oldDn );
                     directoryService.getCollectiveAttributeAPCache().add( newDn, adminPoint );
                     break;
@@ -2795,6 +2797,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     break;
                     
                 case TriggerExecutionSpecificArea :
+                case TriggerExecutionInnerArea :
                     directoryService.getTriggerExecutionAPCache().remove( oldDn );
                     directoryService.getTriggerExecutionAPCache().add( newDn, adminPoint );
                     break;
@@ -2873,7 +2876,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 applyRenameApCache( oldDn, newDn );
                 
                 // And check if we have to change the parent's AP seqNumbers
-                List<Modification> modifications = null;
+                List<Modification> modifications = new ArrayList<Modification>();
+                long newSeqNumber = -1L;
                 
                 for ( AdministrativeRoleEnum role : getRoles( adminPointAT ) )
                 {
@@ -2884,10 +2888,11 @@ public class SubentryInterceptor extends BaseInterceptor
                             
                         case CollectiveAttribute :
                             DnNode<AdministrativePoint> apCache = directoryService.getCollectiveAttributeAPCache();
-                            DnNode<AdministrativePoint> apNode = apCache.getParentWithElement( newDn );
+                            DnNode<AdministrativePoint> apNode = apCache.getNode( newDn );
 
                             // We have an AdministrativePoint for this entry, get its SeqNumber
                             AdministrativePoint adminPoint = apNode.getElement();
+                            AdministrativePoint currentAP = apNode.getElement();
                             EntryAttribute seqNumberAttribute = entry.get( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT );
 
                             // We have to recurse : starting from the IAP, we go up the AP tree
@@ -2901,12 +2906,12 @@ public class SubentryInterceptor extends BaseInterceptor
 
                             do
                             {
-                                if ( adminPoint.isSpecific() )
+                                if ( currentAP.isSpecific() )
                                 {
                                     sapFound = true;
                                 }
 
-                                Set<Subentry> subentries = adminPoint.getSubentries();
+                                Set<Subentry> subentries = currentAP.getSubentries();
                                 
                                 if ( ( subentries != null ) && ( subentries.size() != 0 ) )
                                 {
@@ -2945,50 +2950,44 @@ public class SubentryInterceptor extends BaseInterceptor
                                 
                                 // Go down one level
                                 apNode = apNode.getParentWithElement();
-                                adminPoint = apNode.getElement();
+                                currentAP = apNode.getElement();
                             } while ( !sapFound && !updateSN );
                             
+                            if ( updateSN )
+                            {
+                                if ( newSeqNumber == -1L )
+                                {
+                                    newSeqNumber = directoryService.getNewApSeqNumber();
+
+                                    adminPoint.setSeqNumber( newSeqNumber );
+                                    
+                                    EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SEQ_NUMBER_AT, Long.toString( newSeqNumber ) );
+                                    Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
+                                    
+                                    modifications.add( seqNumberModification );
+                                }
+                            }
                             break;
 
                         case SubSchema :
                         case TriggerExecution :
                     }
+                    
+                    // Update the AdminPoint
+                    
 
-                    // Now, update the seqNumber
-                    /*
+                    // Now, update the AP entry
                     // If we have updated the entry, create the list of modifications to apply
-                    if ( updateSN )
+                    if ( modifications.size() > 0 )
                     {
-                        // Create the list of modifications : we will inject REPLACE operations. 
-                        modifications = new ArrayList<Modification>();
-                        
-                        // The seqNubmer
-                        EntryAttribute newSeqNumberAT = new DefaultEntryAttribute( seqNumberAT, Long.toString( entrySeqNumber ) );
-                        Modification seqNumberModification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSeqNumberAT );
-                        
-                        modifications.add( seqNumberModification );
-                        
-                        // The subentry UUID, if any
-                        if ( ( subentryUuids != null ) && ( subentryUuids.size() != 0 ) )
-                        {
-                            EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT, subentryUuids.toArray( new String[]{} ) );
-                            Modification subentryUuiMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newSubentryUuidAT );
+                        ModifyOperationContext modCtx = new ModifyOperationContext( directoryService.getAdminSession() );
+                        modCtx.setByPassed( BYPASS_INTERCEPTORS );
+                        modCtx.setDn( entry.getDn() );
+                        modCtx.setModItems( modifications );
+                        modCtx.setEntry( renameContext.getEntry() );
 
-                            modifications.add( subentryUuiMod );
-                        }
-                        else
-                        {
-                            // We may have to remove UUID refs from the entry
-                            if ( entry.containsAttribute( subentryUuidAT ) )
-                            {
-                                EntryAttribute newSubentryUuidAT = new DefaultEntryAttribute( subentryUuidAT );
-                                Modification subentryUuiMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, newSubentryUuidAT );
-
-                                modifications.add( subentryUuiMod );
-                            }
-                        }
+                        directoryService.getOperationManager().modify( modCtx );
                     }
-                    */
                 }
             }
             else

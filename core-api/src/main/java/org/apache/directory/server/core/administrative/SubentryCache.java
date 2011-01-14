@@ -403,4 +403,37 @@ public class SubentryCache implements Iterable<String>
             unlock();
         }
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "Subentry cache :\n" );
+        
+        lockRead();
+        sb.append( "  DN cache :\n" ).append( dnCache ).append( "\n" );
+        
+        sb.append( "  UUID cache :\n" );
+        
+        for ( String uuid : uuidCache.keySet() )
+        {
+            sb.append( uuid ).append( " -> " );
+            
+            for ( Subentry subentry : uuidCache.get( uuid ) )
+            {
+                if ( subentry != null )
+                {
+                    sb.append( subentry );
+                }
+            }
+        }
+        
+        unlock();
+        
+        return sb.toString();
+    }
 }
