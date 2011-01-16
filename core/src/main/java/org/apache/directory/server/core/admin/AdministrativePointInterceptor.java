@@ -1424,6 +1424,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                             }
 
                             modifiedAdminRole.remove( value );
+                            delRole( value.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy,
+                                ssapCacheCopy );
+
                         }
 
                         break;

@@ -21,10 +21,8 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -91,11 +89,12 @@ public class AutzIntegUtils
     {
         DN groupDN = new DN( "cn=" + cn + ",ou=groups,ou=system" );
         Entry entry = new DefaultEntry( groupDN );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
-        entry.add( SchemaConstants.UNIQUE_MEMBER_AT, firstMemberDn );
-        entry.add( SchemaConstants.CN_AT, cn );
+        entry.add( "ObjectClass", "groupOfUniqueNames" );
+        entry.add( "uniqueMember", firstMemberDn );
+        entry.add( "cn", cn );
 
         getAdminConnection().add( entry );
+
         return groupDN;
     }
 
@@ -128,11 +127,11 @@ public class AutzIntegUtils
         LdapConnection connection = getAdminConnection();
 
         Entry entry = new DefaultEntry( new DN( "uid=" + uid + ",ou=users,ou=system" ) );
-        entry.add( SchemaConstants.UID_AT, uid );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
-        entry.add( SchemaConstants.SN_AT, uid );
-        entry.add( SchemaConstants.CN_AT, uid );
-        entry.add( SchemaConstants.USER_PASSWORD_AT, password );
+        entry.add( "uid", uid );
+        entry.add( "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson" );
+        entry.add( "sn", uid );
+        entry.add( "cn", uid );
+        entry.add( "userPassword", password );
 
         connection.add( entry );
 
@@ -154,10 +153,10 @@ public class AutzIntegUtils
         DN groupDN = new DN( "cn=" + groupName + ",ou=groups,ou=system" );
 
         Entry entry = new DefaultEntry( groupDN );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
+        entry.add( "objectClass", "top", "groupOfUniqueNames" );
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
-        entry.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=admin, ou=system" );
-        entry.add( SchemaConstants.CN_AT, groupName );
+        entry.add( "uniqueMember", "uid=admin, ou=system" );
+        entry.add( "cn", groupName );
 
         getAdminConnection().add( entry );
 
@@ -179,7 +178,7 @@ public class AutzIntegUtils
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
-        modReq.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
+        modReq.add( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system" );
 
         connection.modify( modReq ).getLdapResult().getResultCode();
     }
@@ -196,14 +195,14 @@ public class AutzIntegUtils
     {
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
-        modReq.remove( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
+        modReq.remove( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system" );
         getAdminConnection().modify( modReq );
     }
 
 
     public static void deleteAccessControlSubentry( String cn ) throws Exception
     {
-        getAdminConnection().delete( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN );
+        getAdminConnection().delete( "cn=" + cn + "," + "ou=system" );
     }
 
 
@@ -235,12 +234,12 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry systemEntry = connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" );
+        Entry systemEntry = connection.lookup( "ou=system", "+", "*" );
 
         // modify ou=system to be an AP for an A/C AA if it is not already
         EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
 
-        if ( administrativeRole == null || !administrativeRole.contains( "accessControlSpecificArea" ) )
+        if ( ( administrativeRole == null ) || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {
             ModifyRequest modReq = new ModifyRequestImpl();
             modReq.setName( systemEntry.getDn() );
@@ -249,11 +248,10 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultEntry( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
-        subEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC,
-            SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
-        subEntry.add( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtree );
-        subEntry.add( SchemaConstants.PRESCRIPTIVE_ACI_AT, aciItem );
+        Entry subEntry = new DefaultEntry( new DN( "cn=" + cn + ",ou=system" ) );
+        subEntry.add( "objectClass", "top", "subentry", "accessControlSubentry" );
+        subEntry.add( "subtreeSpecification", subtree );
+        subEntry.add( "prescriptiveACI", aciItem );
 
         AddResponse addResp = connection.add( subEntry );
 
@@ -307,7 +305,7 @@ public class AutzIntegUtils
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        modReq.setName( new DN( "cn=" + cn + ",ou=system" ) );
         modReq.replace( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
     }
@@ -316,7 +314,7 @@ public class AutzIntegUtils
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        modReq.setName( new DN( "cn=" + cn + ",ou=system" ) );
         modReq.add( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
     }

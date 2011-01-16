@@ -31,8 +31,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -66,7 +64,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConnections();
+        //IntegrationUtils.closeConnections();
     }
 
 
@@ -86,14 +84,16 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      */
     public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
+        LdapConnection connection = null;
+
         try
         {
             DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            LdapConnection connection = getConnectionAs( userName, password );
+            connection = getConnectionAs( userName, password );
 
-            Entry entry = new DefaultEntry( new DN( "ou=testou,ou=system" ) );
-            entry.add( SchemaConstants.OU_AT, "testou" );
-            entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+            Entry entry = new DefaultEntry( new DN( "ou=system" ).add( entryRdn ) );
+            entry.add( "ou", "testou" );
+            entry.add( "ObjectClass", "top", "organizationalUnit" );
 
             AddResponse resp = connection.add( entry );
 
@@ -103,13 +103,19 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
             }
 
             connection.delete( entry.getDn() );
-            connection.close();
 
             return true;
         }
         catch ( LdapException e )
         {
             return false;
+        }
+        finally
+        {
+            if ( connection != null )
+            {
+                connection.close();
+            }
         }
     }
 
@@ -130,11 +136,23 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantAdd perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantAdd, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "administratorAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -142,6 +160,20 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
         // now add billyd to the Administrator group and try again
         addUserToGroup( "billyd", "Administrators" );
+
+        // try an add operation which should succeed with ACI and group membership change
+        assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
+
+        // Now, make sure the ACI is persisted if we stop and restart the server
+        // Stop the server now, we will restart it immediately 
+        // And shutdown the DS too
+        service.shutdown();
+        assertFalse( service.isStarted() );
+
+        // And restart
+        service.startup();
+
+        assertTrue( service.isStarted() );
 
         // try an add operation which should succeed with ACI and group membership change
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -163,11 +195,23 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to add an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "    userPermissions " + "    { "
-            + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantAdd, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "billydAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -189,12 +233,26 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables user billyd to add an entry below ou=system
-        createAccessControlSubentry( "billyAddBySubtree", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses " + "    { " + "      subtree { { base \"ou=users,ou=system\" } } " + "    }, "
-            + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantAdd, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "billyAddBySubtree",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses " +
+                "    { " +
+                "      subtree { { base \"ou=users,ou=system\" } } " +
+                "    }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -216,11 +274,23 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
 
         // now add a subentry that enables anyone to add an entry below ou=system
-        createAccessControlSubentry( "anybodyAdd", "{ " + "  identificationTag \"addAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantAdd, grantBrowse } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "anybodyAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { allUsers }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // see if we can now add that test entry which we could not before
         // should work now with billyd now that all users are authorized
