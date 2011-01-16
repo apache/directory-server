@@ -37,7 +37,6 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -51,7 +50,6 @@ import org.apache.directory.shared.ldap.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -407,36 +405,6 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
-    }
-
-
-    /**
-     * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
-     */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
-    {
-        DN base = searchContext.getDn();
-
-        try
-        {
-            EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
-
-            // Check that if the cursor is empty, it's not because the DN is invalid.
-            if ( !cursor.available() && !base.isEmpty() && !subschemSubentryDn.equals( base ) )
-            {
-                // We just check that the entry exists only if we didn't found any entry
-                assertHasEntry( searchContext, "Attempt to search under non-existant entry:", searchContext.getDn() );
-            }
-
-            return cursor;
-        }
-        catch ( Exception ne )
-        {
-            String msg = I18n.err( I18n.ERR_259 );
-            assertHasEntry( searchContext, msg, searchContext.getDn() );
-            throw new LdapOperationException( msg );
-        }
     }
 
 

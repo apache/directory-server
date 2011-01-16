@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -32,6 +33,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -104,8 +106,16 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            // The entry is not found : ciao !
-            return new EmptyIndexCursor<ID, Entry, ID>();
+            if ( db.getSuffixDn().equals( base ) )
+            {
+                // The context entry is not created yet, return an empty cursor
+                return new EmptyIndexCursor<ID, Entry, ID>();
+            }
+            else
+            {
+                // The search base doesn't exist
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_648, base ) );
+            }
         }
 
         String aliasedBase = db.getAliasIndex().reverseLookup( baseId );

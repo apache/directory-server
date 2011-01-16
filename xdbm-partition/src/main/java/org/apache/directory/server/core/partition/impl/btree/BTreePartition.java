@@ -272,6 +272,11 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
             return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }
+        catch ( LdapException le )
+        {
+            // TODO: SearchEngine.cursor() should only throw LdapException, then the exception handling here can be removed 
+            throw le;
+        }
         catch ( Exception e )
         {
             throw new LdapOperationErrorException( e.getMessage() );
