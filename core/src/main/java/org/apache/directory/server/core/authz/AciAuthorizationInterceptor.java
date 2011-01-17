@@ -37,7 +37,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
-import org.apache.directory.server.core.authz.GroupCache;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -59,6 +58,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
@@ -71,10 +71,16 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -167,8 +173,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
 
-    /** The AccessControlSubentry AttributeType */
-    private static AttributeType ACCESS_CONTROL_SUBENTRY_AT;
+    /** The AccessControlSubentries AttributeType */
+    private static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
 
     /** A storage for the entryACI attributeType */
     private static AttributeType ENTRY_ACI_AT;
@@ -176,7 +182,103 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** the subentry ACI attribute type */
     private static AttributeType SUBENTRY_ACI_AT;
 
+    /** A reference to the nexus for direct backend operations */
+    private PartitionNexus nexus;
+
+    /** A reference to the DirectoryService instance */
+    private DirectoryService directoryService;
+
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
+
+
+    /**
+     * Load the Tuples into the cache
+     */
+    private void initTupleCache() throws LdapException
+    {
+        // Load all the prescriptiveACI : they are stored in AccessControlSubentry entries
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { SchemaConstants.PRESCRIPTIVE_ACI_AT } );
+
+        ExprNode filter =
+                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
+
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, DN.EMPTY_DN, filter,
+            controls );
+
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+        EntryFilteringCursor results = nexus.search( searchOperationContext );
+
+        try
+        {
+            while ( results.next() )
+            {
+                Entry entry = results.get();
+
+                tupleCache.subentryAdded( entry.getDn(), entry );
+            }
+
+            results.close();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage() );
+        }
+    }
+
+
+    /**
+     * Load the Groups into the cache
+     */
+    private void initGroupCache() throws LdapException
+    {
+        // Load all the member/uniqueMember : they are stored in groupOfNames/groupOfUniqueName
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { SchemaConstants.MEMBER_AT, SchemaConstants.UNIQUE_MEMBER_AT } );
+
+        ExprNode filter =
+            new OrNode(
+                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
+                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
+
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
+
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, DN.EMPTY_DN, filter,
+            controls );
+
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+        EntryFilteringCursor results = nexus.search( searchOperationContext );
+
+        try
+        {
+            while ( results.next() )
+            {
+                Entry entry = results.get();
+
+                groupCache.groupAdded( entry.getDn(), entry );
+            }
+
+            results.close();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage() );
+        }
+    }
 
 
     /**
@@ -188,7 +290,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
-        super.init( directoryService );
+        LOG.debug( "Initializing the AciAuthorizationInterceptor" );
+
+        this.directoryService = directoryService;
+        nexus = directoryService.getPartitionNexus();
 
         DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
@@ -202,7 +307,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        ACCESS_CONTROL_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
         ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
         SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
 
@@ -215,6 +320,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         DN subschemaSubentryDnName = directoryService.getDNFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
+
+        // Init the caches now
+        initTupleCache();
+        initGroupCache();
     }
 
 
@@ -284,7 +393,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             originalEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 
-        EntryAttribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRY_AT );
+        EntryAttribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRIES_AT );
 
         if ( subentries == null )
         {
