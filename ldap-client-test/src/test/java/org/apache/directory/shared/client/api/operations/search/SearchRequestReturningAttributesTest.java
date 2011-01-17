@@ -23,6 +23,7 @@ package org.apache.directory.shared.client.api.operations.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -33,10 +34,13 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.AfterClass;
@@ -511,4 +515,33 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryUUID" ) );
         assertTrue( entry.containsAttribute( "entryCSN" ) );
     }
+    
+    
+    /**
+     *  DIRSERVER-1600
+     */
+    @Test
+    public void testSearchTypesOnly() throws Exception
+    {
+        SearchRequest sr = new SearchRequestImpl();
+        sr.setBase( new DN( "uid=admin,ou=system" ) );
+        sr.setFilter( "(uid=admin)" );
+        sr.setScope( SearchScope.OBJECT );
+        sr.setTypesOnly( true );
+        
+        Cursor<Response> cursor = connection.search( sr );
+        int count = 0;
+        Entry response = null;
+
+        while ( cursor.next() )
+        {
+            response = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            assertNotNull( response );
+            count++;
+        }
+        cursor.close();
+
+        assertEquals( 1, count );
+        assertNull( response.get( SchemaConstants.UID_AT ).get() );
+    }    
 }

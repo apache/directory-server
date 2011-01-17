@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.directory.SearchControls;
@@ -75,7 +78,19 @@ public class SearchOperationContext extends SearchingOperationContext
         this.sizeLimit = searchRequest.getSizeLimit();
         this.timeLimit = searchRequest.getTimeLimit();
         this.typesOnly = searchRequest.getTypesOnly();
-        setReturningAttributes( searchRequest.getAttributes() );
+        
+        List<String> ats = searchRequest.getAttributes();
+        
+        // section 4.5.1.8 of RFC 4511
+        //1. An empty list with no attributes requests the return of all user attributes.
+        if ( ats.isEmpty() )
+        {
+            ats = new ArrayList<String>();
+            ats.add( SchemaConstants.ALL_USER_ATTRIBUTES );
+            ats = Collections.unmodifiableList( ats ); 
+        }
+        
+        setReturningAttributes( ats );
         
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
