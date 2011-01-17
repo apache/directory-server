@@ -21,6 +21,7 @@ package org.apache.directory.server.core.jndi;
 
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -71,6 +72,42 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
+import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestControl;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlDecoder;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -138,8 +175,27 @@ public abstract class ServerContext implements EventContext
     /** Connection level controls associated with the session */
     protected Control[] connectControls = EMPTY_CONTROLS;
 
+    /** The session */
     private final CoreSession session;
 
+    private static final Map<String, ControlEnum> ADS_CONTROLS = new HashMap<String, ControlEnum>();
+
+    static
+    {
+        ADS_CONTROLS.put( CascadeControl.CONTROL_OID, ControlEnum.CASCADE_CONTROL );
+        ADS_CONTROLS.put( EntryChangeControl.CONTROL_OID, ControlEnum.ENTRY_CHANGE_CONTROL );
+        ADS_CONTROLS.put( ManageDsaITControl.CONTROL_OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
+        ADS_CONTROLS.put( PagedResultsControl.CONTROL_OID, ControlEnum.PAGED_RESULTS_CONTROL );
+        ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( PersistentSearchControl.CONTROL_OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
+        ADS_CONTROLS.put( SubentriesControl.CONTROL_OID, ControlEnum.SUBENTRIES_CONTROL );
+        ADS_CONTROLS.put( SyncDoneValueControl.CONTROL_OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncInfoValueControl.CONTROL_OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncModifyDnControl.CONTROL_OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
+        ADS_CONTROLS.put( SyncRequestValueControl.CONTROL_OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncStateValueControl.CONTROL_OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
+    }
+    
 
     // ------------------------------------------------------------------------
     // Constructors
@@ -147,7 +203,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.  This
-     * specific contstructor relies on the presence of the {@link
+     * specific constructor relies on the presence of the {@link
      * Context#PROVIDER_URL} key and value to determine the distinguished name
      * of the newly created context.  It also checks to make sure the
      * referenced name actually exists within the system.  This constructor
@@ -161,7 +217,6 @@ public abstract class ServerContext implements EventContext
     protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
     {
         this.service = service;
-
         this.env = env;
 
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
@@ -270,7 +325,7 @@ public abstract class ServerContext implements EventContext
     // Use these methods instead of manually calling the nexusProxy so we can
     // add request controls to operation contexts before the call and extract
     // response controls from the contexts after the call.  NOTE that the
-    // JndiUtils.fromJndiControls( requestControls ) must be cleared after each operation.  This makes a
+    // convertControls( requestControls ) must be cleared after each operation.  This makes a
     // context not thread safe.
     // ------------------------------------------------------------------------
 
@@ -284,7 +339,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         AddOperationContext opCtx = new AddOperationContext( session, entry );
 
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        opCtx.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -308,7 +363,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
 
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        opCtx.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -320,6 +375,187 @@ public abstract class ServerContext implements EventContext
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+    }
+
+
+    private org.apache.directory.shared.ldap.message.control.Control convertControl( boolean isRequest,
+        Control jndiControl ) throws DecoderException
+    {
+        String controlIDStr = jndiControl.getID();
+        org.apache.directory.shared.ldap.message.control.Control control = null;
+
+        ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
+
+        switch ( controlId )
+        {
+            case CASCADE_CONTROL:
+                control = new CascadeControl();
+                break;
+
+            case ENTRY_CHANGE_CONTROL:
+                control = new EntryChangeControl();
+                Asn1Decoder entryChangeControlDecoder = new EntryChangeControlDecoder();
+                EntryChangeControlContainer entryChangeControlContainer = new EntryChangeControlContainer();
+                entryChangeControlContainer.setEntryChangeControl( ( EntryChangeControl ) control );
+                ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                entryChangeControlDecoder.decode( bb, entryChangeControlContainer );
+
+                break;
+
+            case MANAGE_DSA_IT_CONTROL:
+                control = new ManageDsaITControl();
+                break;
+
+            case PAGED_RESULTS_CONTROL:
+                control = new PagedResultsControl();
+                entryChangeControlDecoder = new PagedResultsControlDecoder();
+                PagedResultsControlContainer pagedSearchControlContainer = new PagedResultsControlContainer();
+                pagedSearchControlContainer.setPagedSearchControl( ( PagedResultsControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                entryChangeControlDecoder.decode( bb, pagedSearchControlContainer );
+
+                break;
+
+            case PASSWORD_POLICY_REQUEST_CONTROL:
+                if ( isRequest )
+                {
+                    control = new PasswordPolicyRequestControl();
+                }
+                else
+                {
+                    control = new PasswordPolicyResponseControl();
+                    PasswordPolicyResponseControlDecoder passwordPolicyResponseControlDecoder = new PasswordPolicyResponseControlDecoder();
+                    PasswordPolicyResponseControlContainer passwordPolicyResponseControlContainer = new PasswordPolicyResponseControlContainer();
+                    passwordPolicyResponseControlContainer
+                        .setPasswordPolicyResponseControl( ( PasswordPolicyResponseControl ) control );
+                    bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                    bb.put( jndiControl.getEncodedValue() ).flip();
+
+                    passwordPolicyResponseControlDecoder.decode( bb, passwordPolicyResponseControlContainer );
+                }
+
+                break;
+
+            case PERSISTENT_SEARCH_CONTROL:
+                control = new PersistentSearchControl();
+                PersistentSearchControlDecoder persistentSearchControlDecoder = new PersistentSearchControlDecoder();
+                PersistentSearchControlContainer persistentSearchControlContainer = new PersistentSearchControlContainer();
+                persistentSearchControlContainer.setPSearchControl( ( PersistentSearchControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                persistentSearchControlDecoder.decode( bb, persistentSearchControlContainer );
+
+                break;
+
+            case SUBENTRIES_CONTROL:
+                control = new SubentriesControl();
+                SubentriesControlDecoder controlDecoder = new SubentriesControlDecoder();
+                SubentriesControlContainer subentriesControlContainer = new SubentriesControlContainer();
+                subentriesControlContainer.setSubEntryControl( ( SubentriesControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                controlDecoder.decode( bb, subentriesControlContainer );
+
+                break;
+
+            case SYNC_DONE_VALUE_CONTROL:
+                control = new SyncDoneValueControl();
+                SyncDoneValueControlDecoder syncDoneValueControlDecoder = new SyncDoneValueControlDecoder();
+                SyncDoneValueControlContainer syncDoneValueControlContainer = new SyncDoneValueControlContainer();
+                syncDoneValueControlContainer.setSyncDoneValueControl( ( SyncDoneValueControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                syncDoneValueControlDecoder.decode( bb, syncDoneValueControlContainer );
+
+                break;
+
+            case SYNC_INFO_VALUE_CONTROL:
+                control = new SyncInfoValueControl();
+                SyncInfoValueControlDecoder syncInfoValueControlDecoder = new SyncInfoValueControlDecoder();
+                SyncInfoValueControlContainer syncInfoValueControlContainer = new SyncInfoValueControlContainer();
+                syncInfoValueControlContainer.setSyncInfoValueControl( ( SyncInfoValueControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                syncInfoValueControlDecoder.decode( bb, syncInfoValueControlContainer );
+
+                break;
+
+            case SYNC_MODIFY_DN_CONTROL:
+                control = new SyncModifyDnControl();
+                SyncModifyDnControlDecoder syncModifyDnControlDecoder = new SyncModifyDnControlDecoder();
+                SyncModifyDnControlContainer syncModifyDnControlContainer = new SyncModifyDnControlContainer();
+                syncModifyDnControlContainer.setSyncModifyDnControl( ( SyncModifyDnControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                syncModifyDnControlDecoder.decode( bb, syncModifyDnControlContainer );
+
+                break;
+
+            case SYNC_REQUEST_VALUE_CONTROL:
+                control = new SyncRequestValueControl();
+                SyncRequestValueControlDecoder syncRequestValueControlDecoder = new SyncRequestValueControlDecoder();
+                SyncRequestValueControlContainer syncRequestValueControlContainer = new SyncRequestValueControlContainer();
+                syncRequestValueControlContainer.setSyncRequestValueControl( ( SyncRequestValueControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                syncRequestValueControlDecoder.decode( bb, syncRequestValueControlContainer );
+
+                break;
+
+            case SYNC_STATE_VALUE_CONTROL:
+                control = new SyncStateValueControl();
+                SyncStateValueControlDecoder syncStateValueControlDecoder = new SyncStateValueControlDecoder();
+                SyncStateValueControlContainer syncStateValueControlContainer = new SyncStateValueControlContainer();
+                syncStateValueControlContainer.setSyncStateValueControl( ( SyncStateValueControl ) control );
+                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
+                bb.put( jndiControl.getEncodedValue() ).flip();
+
+                syncStateValueControlDecoder.decode( bb, syncStateValueControlContainer );
+
+                break;
+        }
+
+        control.setCritical( jndiControl.isCritical() );
+        control.setValue( jndiControl.getEncodedValue() );
+
+        return control;
+    }
+
+    /**
+     * Convert the JNDI controls to ADS controls
+     * TODO convertControls.
+     */
+    private org.apache.directory.shared.ldap.message.control.Control[] convertControls( boolean isRequest,
+        Control[] jndiControls ) throws DecoderException
+    {
+        if ( jndiControls != null )
+        {
+            org.apache.directory.shared.ldap.message.control.Control[] controls =
+                new org.apache.directory.shared.ldap.message.control.Control[jndiControls.length];
+            int i = 0;
+
+            for ( javax.naming.ldap.Control jndiControl : jndiControls )
+            {
+                controls[i++] = convertControl( isRequest, jndiControl );
+            }
+
+            return controls;
+        }
+        else
+        {
+            return null;
+        }
+
     }
 
 
@@ -368,7 +604,7 @@ public abstract class ServerContext implements EventContext
             searchContext = new SearchOperationContext( session, dn, filter,
                 searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
-            searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+            searchContext.addRequestControls( convertControls( true, requestControls ) );
 
             searchContext.setTypesOnly(  typesOnly );
 
@@ -389,7 +625,7 @@ public abstract class ServerContext implements EventContext
             // setup the op context and populate with request controls
             searchContext = new SearchOperationContext( session, dn, filter, searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
-            searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+            searchContext.addRequestControls( convertControls( true, requestControls ) );
             searchContext.setTypesOnly(  typesOnly );
 
             // Inject the referral handling into the operation context
@@ -414,7 +650,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         ListOperationContext listContext = new ListOperationContext( session, target );
-        listContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        listContext.addRequestControls( convertControls( true, requestControls ) );
 
         // execute list operation
         OperationManager operationManager = service.getOperationManager();
@@ -431,7 +667,7 @@ public abstract class ServerContext implements EventContext
     protected Entry doGetRootDSEOperation( DN target ) throws Exception
     {
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
-        getRootDseContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
 
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
@@ -448,7 +684,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         // execute lookup/getRootDSE operation
         LookupOperationContext lookupContext = new LookupOperationContext( session, target );
-        lookupContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        lookupContext.addRequestControls( convertControls( true, requestControls ) );
         OperationManager operationManager = service.getOperationManager();
         Entry serverEntry = operationManager.lookup( lookupContext );
 
@@ -467,7 +703,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         // execute lookup/getRootDSE operation
         LookupOperationContext lookupContext = new LookupOperationContext( session, target, attrIds );
-        lookupContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        lookupContext.addRequestControls( convertControls( true, requestControls ) );
         OperationManager operationManager = service.getOperationManager();
         Entry serverEntry = operationManager.lookup( lookupContext );
 
@@ -499,7 +735,7 @@ public abstract class ServerContext implements EventContext
         bindContext.setCredentials( credentials );
         bindContext.setSaslMechanism( saslMechanism );
         bindContext.setSaslAuthId( saslAuthId );
-        bindContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        bindContext.addRequestControls( convertControls( true, requestControls ) );
 
         // execute bind operation
         OperationManager operationManager = service.getOperationManager();
@@ -521,7 +757,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
             newRdn ), delOldDn );
-        moveAndRenameContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( moveAndRenameContext );
@@ -543,7 +779,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
-        modifyContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        modifyContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( modifyContext );
@@ -565,7 +801,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         MoveOperationContext moveContext = new MoveOperationContext( session, oldDn, target );
-        moveContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        moveContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( moveContext );
@@ -587,7 +823,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         RenameOperationContext renameContext = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
-        renameContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        renameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( renameContext );
