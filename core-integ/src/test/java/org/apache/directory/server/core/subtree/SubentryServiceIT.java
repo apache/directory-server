@@ -48,14 +48,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AddResponse;
-import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.Response;
@@ -64,7 +62,6 @@ import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -193,7 +190,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         Attributes subentry = new BasicAttributes( true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
+        objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
@@ -218,7 +215,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         Attributes subentry = new BasicAttributes( true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
+        objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
@@ -306,7 +303,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        Attribute collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -317,7 +314,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
     }
 
 
@@ -464,7 +461,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         // Now delete the AP-B subentry
-        DeleteResponse deleteResponse = connection.delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
+        connection.delete( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" );
 
         // --------------------------------------------------------------------
         // Check that we are back to where we were before the addition of the B
@@ -549,25 +546,25 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -577,23 +574,23 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -611,19 +608,19 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         configuration = results.get( "ou=configuration,ou=system" );
-        collectiveAttributeSubentries = configuration.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = configuration.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -633,26 +630,26 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0,
@@ -675,25 +672,25 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -703,23 +700,23 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -736,19 +733,19 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         configuration = results.get( "ou=configuration,ou=system" );
-        collectiveAttributeSubentries = configuration.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = configuration.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -758,26 +755,26 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         if ( collectiveAttributeSubentries != null )
         {
             assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0,
@@ -802,7 +799,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
 
         if ( collectiveAttributeSubentries != null )
         {
@@ -810,7 +807,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
 
         if ( collectiveAttributeSubentries != null )
         {
@@ -819,7 +816,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
 
         if ( collectiveAttributeSubentries != null )
         {
@@ -828,7 +825,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
 
         if ( collectiveAttributeSubentries != null )
         {
@@ -837,19 +834,19 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         }
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
     }
 
@@ -869,25 +866,25 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -897,23 +894,23 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
     }
 
@@ -934,31 +931,31 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -968,27 +965,27 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -1000,7 +997,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -1012,7 +1009,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -1020,11 +1017,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("Ignored until DIRSERVER-1223 is fixed")
     public void testEntryMoveWithRdnChange() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        addAdministrativeRole( "collectiveAttributeSpecificAreaSpecificArea" );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -1036,31 +1032,31 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -1070,27 +1066,27 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         // --------------------------------------------------------------------
         // Now destroy one of the marked/unmarked and rename to deleted entry
@@ -1102,7 +1098,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -1114,7 +1110,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         assertNull( results.get( "cn=unmarked,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -1122,7 +1118,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("Ignored until DIRSERVER-1223 is fixed")
     public void testEntryMove() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -1138,31 +1133,31 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
         Attribute collectiveAttributeSubentries = configuration
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = interceptors.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = interceptors.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = results.get( "ou=partitions,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = partitions.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = partitions.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = results.get( "ou=services,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = services.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = services.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -1172,30 +1167,30 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+        assertNull( "ou=system should not be marked", system.get( "collectiveAttributeSubentries" ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
         assertNull( "ou=users,ou=system should not be marked", users
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes groups = results.get( "ou=groups,ou=system" );
         assertNull( "ou=groups,ou=system should not be marked", groups
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes admin = results.get( "uid=admin,ou=system" );
         assertNull( "uid=admin,ou=system should not be marked", admin
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes sysPrefRoot = results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+            .get( "collectiveAttributeSubentries" ) );
 
         // --------------------------------------------------------------------
-        // Now destry one of the marked/unmarked and rename to deleted entry
+        // Now destroy one of the marked/unmarked and rename to deleted entry
         // --------------------------------------------------------------------
 
         sysRoot.destroySubcontext( "cn=unmarked" );
@@ -1208,7 +1203,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         marked = results.get( "cn=marked,ou=services,ou=configuration,ou=system" );
         assertNotNull( marked );
-        collectiveAttributeSubentries = marked.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "cn=marked,ou=services,ou=configuration should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -1216,7 +1211,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("Ignored until DIRSERVER-1223 is fixed")
     public void testSubentriesControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
