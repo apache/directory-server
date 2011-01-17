@@ -159,9 +159,21 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "cn: C",
         "sn: entry-C",
+        "",
+        // An entry used to create a User session
+        "dn: cn=testUser,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: testUser",
+        "sn: test User",
+        "userpassword: test",
         "" })
 public class SubentryServiceIT extends AbstractLdapTestUnit
 {
+
+    // The shared LDAP user connection
+    protected static LdapConnection userConnection;
+
 
     public Attributes getTestEntry( String cn )
     {
@@ -843,7 +855,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
     public void testSubentryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -1261,5 +1272,26 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         assertEquals( 1, entries.size() );
         assertNotNull( entries.get( "cn=testsubentry,ou=system" ) );
+    }
+
+
+    @Test
+    public void testUserInjectAccessControlSubentries() throws Exception
+    {
+        userConnection = IntegrationUtils.getConnectionAs( service, "cn=testUser,ou=system", "test" );
+
+        Entry sap = LdifUtils.createEntry(
+            "ou=dummy,ou=system",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: dummy",
+            "accessControlSubentries: ou=system" );
+
+        // It should fail
+        AddResponse response = userConnection.add( sap );
+
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
+
+        userConnection.close();
     }
 }

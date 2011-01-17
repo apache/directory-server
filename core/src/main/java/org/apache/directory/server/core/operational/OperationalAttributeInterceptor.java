@@ -154,6 +154,32 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     /**
+     * Check if we have to add an operational attribute, or if the admin has injected one
+     */
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, String attribute ) throws LdapException
+    {
+        if ( entry.containsAttribute( attribute ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message = I18n.err( I18n.ERR_30, attribute );
+                LOG.error( message );
+                throw new LdapNoPermissionException( message );
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    /**
      * Adds extra operational attributes to the entry before it is added.
      * 
      * We add those attributes :
@@ -173,65 +199,42 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getName().equals(
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
-        if ( entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_UUID_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
+        // The EntryUUID attribute
+        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_UUID_AT ) )
         {
             entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         }
 
-        if ( entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
+        // The EntryCSN attribute
+        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_CSN_AT ) )
         {
             entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         }
 
-        if ( entry.containsAttribute( SchemaConstants.CREATORS_NAME_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATORS_NAME_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
+        // The CreatorsName attribute
+        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATORS_NAME_AT ) )
         {
             entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
         }
 
-        if ( entry.containsAttribute( SchemaConstants.CREATE_TIMESTAMP_AT ) )
-        {
-            if ( !isAdmin )
-            {
-                // Wrong !
-                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATE_TIMESTAMP_AT );
-                LOG.error( message );
-                throw new LdapNoPermissionException( message );
-            }
-        }
-        else
+        // The CreateTimeStamp attribute
+        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATE_TIMESTAMP_AT ) )
         {
             entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
+
+        // Now, check that the user does not add operational attributes
+        // The accessControlSubentries attribute
+        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+
+        // The CollectiveAttributeSubentries attribute
+        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+
+        // The TriggerExecutionSubentries attribute
+        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+
+        // The SubSchemaSybentry attribute
+        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
 
         nextInterceptor.add( addContext );
     }
