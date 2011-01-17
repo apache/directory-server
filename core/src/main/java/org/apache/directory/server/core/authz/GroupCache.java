@@ -204,36 +204,18 @@ public class GroupCache
      */
     private EntryAttribute getMemberAttribute( Entry entry ) throws LdapException
     {
-        EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
+        EntryAttribute member = entry.get( MEMBER_AT );
 
-        if ( oc == null )
+        if ( member != null )
         {
-            EntryAttribute member = entry.get( MEMBER_AT );
-
-            if ( member != null )
-            {
-                return member;
-            }
-
-            EntryAttribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
-
-            if ( uniqueMember != null )
-            {
-                return uniqueMember;
-            }
-
-            return null;
+            return member;
         }
 
-        if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) || oc.contains( SchemaConstants.GROUP_OF_NAMES_OC_OID ) )
-        {
-            return entry.get( MEMBER_AT );
-        }
+        EntryAttribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
 
-        if ( oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC )
-            || oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC_OID ) )
+        if ( uniqueMember != null )
         {
-            return entry.get( UNIQUE_MEMBER_AT );
+            return uniqueMember;
         }
 
         return null;
