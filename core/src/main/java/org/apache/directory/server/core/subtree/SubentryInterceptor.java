@@ -78,7 +78,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
@@ -114,9 +113,6 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-
-    /** The SchemManager instance */
-    private SchemaManager schemaManager;
 
     /** A reference to the ObjectClass AT */
     private static AttributeType OBJECT_CLASS_AT;
@@ -203,7 +199,6 @@ public class SubentryInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         nexus = directoryService.getPartitionNexus();
-        schemaManager = directoryService.getSchemaManager();
 
         // setup various attribute type values
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );

@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,26 +62,23 @@ public class EventInterceptor extends BaseInterceptor
     private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
 
     private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
-    private DirectoryService ds;
     private FilterNormalizingVisitor filterNormalizer;
     private Evaluator evaluator;
     private ExecutorService executor;
 
 
     @Override
-    public void init( DirectoryService ds ) throws LdapException
+    public void init( DirectoryService directpryService ) throws LdapException
     {
         LOG.info( "Initializing ..." );
-        super.init( ds );
+        super.init( directpryService );
 
-        this.ds = ds;
-        SchemaManager schemaManager = ds.getSchemaManager();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );
         evaluator = new ExpressionEvaluator( schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
 
-        this.ds.setEventService( new DefaultEventService() );
+        this.directoryService.setEventService( new DefaultEventService() );
         LOG.info( "Initialization complete." );
     }
 
@@ -336,7 +332,7 @@ public class EventInterceptor extends BaseInterceptor
          */
         public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
         {
-            criteria.getBase().normalize( ds.getSchemaManager() );
+            criteria.getBase().normalize( directoryService.getSchemaManager() );
             ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
             criteria.setFilter( result );
             registrations.add( new RegistrationEntry( listener, criteria ) );

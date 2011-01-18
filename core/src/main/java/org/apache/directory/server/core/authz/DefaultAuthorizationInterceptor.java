@@ -58,7 +58,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,8 +103,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        super.init( directoryService );
+
         nexus = directoryService.getPartitionNexus();
-        SchemaManager schemaManager = directoryService.getSchemaManager();
 
         ADMIN_SYSTEM_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 

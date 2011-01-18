@@ -53,7 +53,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +78,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** a filter node value normalizer and undefined node remover */
     private FilterNormalizingVisitor normVisitor;
 
-    /** The attributeType registry */
-    private SchemaManager schemaManager;
-
-
     /**
      * Initialize the registries, normalizers.
      */
@@ -90,7 +85,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         LOG.debug( "Initialiazing the NormalizationInterceptor" );
 
-        schemaManager = directoryService.getSchemaManager();
+        super.init( directoryService );
+
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         normVisitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }

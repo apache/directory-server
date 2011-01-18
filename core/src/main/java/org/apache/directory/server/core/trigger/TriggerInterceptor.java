@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
@@ -98,9 +97,6 @@ public class TriggerInterceptor extends BaseInterceptor
 
     private StoredProcExecutionManager manager;
     
-    /** The global schemaManager */
-    private SchemaManager schemaManager;
-
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
 
@@ -240,7 +236,6 @@ public class TriggerInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         triggerSpecCache = new TriggerSpecCache( directoryService );
-        schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -252,6 +247,7 @@ public class TriggerInterceptor extends BaseInterceptor
                 return schemaManager.getNormalizerMapping();
             }
         } );
+
         chain = directoryService.getInterceptorChain();
 
         //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();

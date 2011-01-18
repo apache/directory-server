@@ -83,7 +83,6 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,9 +163,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** interceptor chain */
     private InterceptorChain chain;
 
-    /** SchemaManager instance */
-    private SchemaManager schemaManager;
-
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
@@ -184,9 +180,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-
-    /** A reference to the DirectoryService instance */
-    private DirectoryService directoryService;
 
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
 
@@ -292,13 +285,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         LOG.debug( "Initializing the AciAuthorizationInterceptor" );
 
-        this.directoryService = directoryService;
+        super.init( directoryService );
+
         nexus = directoryService.getPartitionNexus();
 
         DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
-        schemaManager = directoryService.getSchemaManager();
         chain = directoryService.getInterceptorChain();
 
         // Create the caches

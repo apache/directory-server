@@ -52,7 +52,6 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +71,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
-    /** The SchemaManager instance */
-    private SchemaManager schemaManager;
-    
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
 
@@ -106,7 +102,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
-        schemaManager = directoryService.getSchemaManager();
         
         // Load some AttributeType
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );

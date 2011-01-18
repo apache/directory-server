@@ -106,7 +106,6 @@ import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformExceptio
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -132,12 +131,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     
     /** A map of authenticators associated with the authentication level required */
     private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
-
-    /** A reference to the DirectoryService instance */
-    private DirectoryService directoryService;
-
-    /** A reference to the SchemaManager instance */
-    private SchemaManager schemaManager;
 
     private CoreSession adminSession;
 
@@ -197,9 +190,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
-        this.directoryService = directoryService;
-
-        schemaManager = directoryService.getSchemaManager();
+        super.init( directoryService );
 
         adminSession = directoryService.getAdminSession();
 

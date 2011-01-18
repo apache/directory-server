@@ -47,6 +47,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -58,6 +59,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public abstract class BaseInterceptor implements Interceptor
 {
+    /** A reference to the DirectoryService instance */
+    protected DirectoryService directoryService;
+
+    /** A reference to the SchemaManager instance */
+    protected SchemaManager schemaManager;
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
     protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
@@ -110,6 +116,8 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        this.directoryService = directoryService;
+        this.schemaManager = directoryService.getSchemaManager();
     }
 
 

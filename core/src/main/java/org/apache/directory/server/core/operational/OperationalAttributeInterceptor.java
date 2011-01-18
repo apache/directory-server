@@ -61,7 +61,6 @@ import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
@@ -106,16 +105,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    private DirectoryService service;
-
     /** The subschemasubentry DN */
     private DN subschemaSubentryDn;
 
     /** The admin DN */
     private DN adminDn;
-
-    /** The schemaManager */
-    private SchemaManager schemaManager;
 
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
@@ -131,16 +125,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws LdapException
     {
-        service = directoryService;
-        schemaManager = directoryService.getSchemaManager();
+        super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = service.getPartitionNexus().getRootDSE( null ).get(
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = service.getDNFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
 
         // Create the Admin DN 
-        adminDn = service.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
@@ -208,7 +201,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // The EntryCSN attribute
         if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_CSN_AT ) )
         {
-            entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
+            entry.put( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
@@ -336,7 +329,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         if ( !entryCsnAtPresent )
         {
-            String csn = service.getCSN().toString();
+            String csn = directoryService.getCSN().toString();
             EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
             Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
             mods.add( updatedCsn );
@@ -431,7 +424,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( searchContext.isAllOperationalAttributes()
             || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
         {
-            if ( service.isDenormalizeOpAttrsEnabled() )
+            if ( directoryService.isDenormalizeOpAttrsEnabled() )
             {
                 cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
             }
@@ -510,13 +503,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     public void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
     {
-        if ( service.isDenormalizeOpAttrsEnabled() )
+        if ( directoryService.isDenormalizeOpAttrsEnabled() )
         {
             EntryAttribute attr = entry.get( SchemaConstants.CREATORS_NAME_AT );
 
             if ( attr != null )
             {
-                DN creatorsName = service.getDNFactory().create( attr.getString() );
+                DN creatorsName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -526,7 +519,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = service.getDNFactory().create( attr.getString() );
+                DN modifiersName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -536,7 +529,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = service.getDNFactory().create( attr.getString() );
+                DN modifiersName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );

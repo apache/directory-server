@@ -54,7 +54,6 @@ import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformExceptio
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -93,9 +92,6 @@ public class ExceptionInterceptor extends BaseInterceptor
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
-    /** SchemaManager instance */
-    private SchemaManager schemaManager;
-
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
 
@@ -110,10 +106,10 @@ public class ExceptionInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = directoryService.getDNFactory().create( attr.getString() );
-        schemaManager = directoryService.getSchemaManager();
 
         // look up some constant information
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );

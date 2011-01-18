@@ -82,7 +82,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -104,12 +103,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Speedup for logs
      */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-    /** A reference to the DirectoryService instance */
-    private DirectoryService directoryService;
-
-    /** A reference to the SchemaManager instance */
-    private SchemaManager schemaManager;
 
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
@@ -1147,9 +1140,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         LOG.debug( "Initializing the AdministrativeInterceptor" );
 
-        this.directoryService = directoryService;
-
-        schemaManager = directoryService.getSchemaManager();
+        super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
 
         // Init the At we use locally

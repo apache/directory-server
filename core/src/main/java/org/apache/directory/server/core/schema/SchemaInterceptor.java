@@ -90,7 +90,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -128,9 +127,6 @@ public class SchemaInterceptor extends BaseInterceptor
     private TopFilter topFilter;
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
-
-    /** the global schema object SchemaManager */
-    private SchemaManager schemaManager;
 
     /** A global reference to the ObjectClass attributeType */
     private AttributeType OBJECT_CLASS_AT;
@@ -184,8 +180,9 @@ public class SchemaInterceptor extends BaseInterceptor
             LOG.debug( "Initializing SchemaInterceptor..." );
         }
 
+        super.init( directoryService );
+
         nexus = directoryService.getPartitionNexus();
-        schemaManager = directoryService.getSchemaManager();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();

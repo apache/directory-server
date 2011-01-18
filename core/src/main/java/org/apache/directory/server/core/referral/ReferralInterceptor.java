@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -65,9 +64,6 @@ public class ReferralInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( ReferralInterceptor.class );
 
     private PartitionNexus nexus;
-
-    /** The global schemaManager */
-    private SchemaManager schemaManager;
 
     /** The referralManager */
     private ReferralManager referralManager;
@@ -203,8 +199,9 @@ public class ReferralInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        super.init( directoryService );
+
         nexus = directoryService.getPartitionNexus();
-        schemaManager = directoryService.getSchemaManager();
 
         // Initialize the referralManager
         referralManager = new ReferralManagerImpl( directoryService );
