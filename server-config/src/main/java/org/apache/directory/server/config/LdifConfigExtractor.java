@@ -36,8 +36,8 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.ResourceMap;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

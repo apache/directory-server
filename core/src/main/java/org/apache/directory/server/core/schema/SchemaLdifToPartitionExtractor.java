@@ -46,9 +46,9 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.ResourceMap;
+import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

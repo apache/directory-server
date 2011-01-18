@@ -76,7 +76,6 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
-import org.apache.directory.shared.ldap.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
@@ -89,6 +88,7 @@ import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSch
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
