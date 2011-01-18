@@ -22,7 +22,6 @@ package org.apache.directory.server.core.operations.lookup;
 
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -31,8 +30,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -56,7 +53,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * A lookup performance test
      */
     @Test
-    @Ignore
+    @Ignore("Ignore atm, this is a perf test")
     public void testPerfLookup() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );

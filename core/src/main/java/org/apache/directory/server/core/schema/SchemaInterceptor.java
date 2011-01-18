@@ -128,9 +128,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
 
-    /** A global reference to the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
-
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
 
@@ -162,10 +159,6 @@ public class SchemaInterceptor extends BaseInterceptor
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
 
-    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
-    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
-
 
     /**
      * Initialize the Schema Service
@@ -183,7 +176,6 @@ public class SchemaInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         nexus = directoryService.getPartitionNexus();
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
@@ -207,10 +199,6 @@ public class SchemaInterceptor extends BaseInterceptor
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
         schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDNFactory() );
 
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
-        
         if ( IS_DEBUG )
         {
             LOG.debug( "SchemaInterceptor Initialized !" );
@@ -1042,9 +1030,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We don't allow modification of operational attributes
             if ( !attributeType.isUserModifiable()
-                && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE )
-                && ( !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
-                && ( !attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
+                && ( !attributeType.equals( MODIFIERS_NAME_AT )
+                    && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
+                    && ( !attributeType.equals( ENTRY_CSN_AT ) )
                 && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
@@ -1234,7 +1222,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
 
-                if ( !MODIFIERS_NAME_ATTRIBUTE_TYPE.equals( at ) && !MODIFY_TIMESTAMP_ATTRIBUTE_TYPE.equals( at ) )
+                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) )
                 {
                     cleanMods.add( mod );
                 }

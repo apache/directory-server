@@ -55,8 +55,8 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class )
-@Ignore ( "Reverts are failing to delete marked entries. Fixing this " +
-        "problem in testEntryAdd() will fix it all over." )
+@Ignore("Reverts are failing to delete marked entries. Fixing this " +
+        "problem in testEntryAdd() will fix it all over.")
 public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 {
 

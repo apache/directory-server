@@ -71,15 +71,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
-    /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
-
-    /** The CollectiveAttributeSubentries AttributeType */
-    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-    
-    /** The CollectiveExclusions AttributeType */
-    private static AttributeType COLLECTIVE_EXCLUSIONS_AT;
-    
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -103,12 +94,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         
-        // Load some AttributeType
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        
-        LOG.debug( "CollectiveAttriute interceptor initilaized" );
+        LOG.debug( "CollectiveAttribute interceptor initilaized" );
     }
 
 

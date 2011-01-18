@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -70,10 +69,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
     /** A normalized form for the SubschemaSubentry DN */
     private DN subschemaSubentryDn;
-
-    /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
-
 
     static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
@@ -209,9 +204,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
-
-        // look up some constant information
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 

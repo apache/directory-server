@@ -55,7 +55,6 @@ import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
@@ -97,10 +96,6 @@ public class TriggerInterceptor extends BaseInterceptor
 
     private StoredProcExecutionManager manager;
     
-    /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
-
-
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
      * TriggerSpeficaitions by accessing the triggerSpecCache.  The trigger
@@ -236,9 +231,6 @@ public class TriggerInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         triggerSpecCache = new TriggerSpecCache( directoryService );
-
-        // look up some constant information
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
         {

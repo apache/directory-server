@@ -50,14 +50,12 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +86,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private PartitionNexus nexus;
 
-    /** A starage for the uniqueMember attributeType */
-    private AttributeType uniqueMemberAT;
-
-
     /**
      * Creates a new instance.
      */
@@ -113,8 +107,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         ADMIN_GROUP_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        uniqueMemberAT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
-
         loadAdministrators( directoryService );
     }
 
@@ -134,7 +126,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        EntryAttribute uniqueMember = adminGroup.get( uniqueMemberAT );
+        EntryAttribute uniqueMember = adminGroup.get( UNIQUE_MEMBER_AT );
 
         for ( Value<?> value : uniqueMember )
         {

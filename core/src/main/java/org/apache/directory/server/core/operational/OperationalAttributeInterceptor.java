@@ -111,10 +111,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The admin DN */
     private DN adminDn;
 
-    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
-    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
-
     /**
      * Creates the operational attribute management service interceptor.
      */
@@ -134,10 +130,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // Create the Admin DN 
         adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
     }
 
 
@@ -255,7 +247,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
 
-            if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
+            if ( attributeType.equals( MODIFIERS_NAME_AT ) )
             {
                 if ( !isAdmin )
                 {
@@ -269,7 +261,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+            if ( attributeType.equals( MODIFY_TIMESTAMP_AT ) )
             {
                 if ( !isAdmin )
                 {
@@ -283,7 +275,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( ENTRY_CSN_ATTRIBUTE_TYPE ) )
+            if ( attributeType.equals( ENTRY_CSN_AT ) )
             {
                 if ( !isAdmin )
                 {
@@ -308,7 +300,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifierAtPresent )
         {
             // Inject the ModifiersName AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_ATTRIBUTE_TYPE, getPrincipal()
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_AT, getPrincipal()
                 .getName() );
 
             Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -319,7 +311,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifiedTimeAtPresent )
         {
             // Inject the ModifyTimestamp AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE, DateUtils
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_AT, DateUtils
                 .getGeneralizedTime() );
 
             Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -330,7 +322,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !entryCsnAtPresent )
         {
             String csn = directoryService.getCSN().toString();
-            EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
+            EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_AT, csn );
             Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
             mods.add( updatedCsn );
         }

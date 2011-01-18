@@ -114,27 +114,6 @@ public class SubentryInterceptor extends BaseInterceptor
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
 
-    /** A reference to the ObjectClass AT */
-    private static AttributeType OBJECT_CLASS_AT;
-
-    /** A reference to the AdministrativeRole AT */
-    private static AttributeType ADMINISTRATIVE_ROLE_AT;
-
-    /** A reference to the SubtreeSpecification AT */
-    private static AttributeType SUBTREE_SPECIFICATION_AT;
-
-    /** A reference to the AccessControlSubentries AT */
-    private static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
-
-    /** A reference to the AccessControlSubentries AT */
-    private static AttributeType SUBSCHEMA_SUBENTRY_AT;
-
-    /** A reference to the CollectiveAttributeSubentries AT */
-    private static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-
-    /** A reference to the TriggerExecutionSubentries AT */
-    private static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
-
     /** An enum used for the entries update */
     private enum OperationEnum
     {
@@ -199,15 +178,6 @@ public class SubentryInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         nexus = directoryService.getPartitionNexus();
-
-        // setup various attribute type values
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
-        SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
-        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {

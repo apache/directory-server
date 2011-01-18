@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -67,6 +68,52 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
     protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+
+    /** The AccessControlSubentries AttributeType */
+    protected static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
+
+    /** A reference to the AdministrativeRole AT */
+    protected static AttributeType ADMINISTRATIVE_ROLE_AT;
+
+    /** The CollectiveAttributeSubentries AttributeType */
+    protected static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+
+    /** The CollectiveExclusions AttributeType */
+    protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
+
+    /** A storage for the entryACI attributeType */
+    protected static AttributeType ENTRY_ACI_AT;
+
+    /** A reference to the EntryCSN AT */
+    protected static AttributeType ENTRY_CSN_AT;
+
+    /** A reference to the EntryUUID AT */
+    protected static AttributeType ENTRY_UUID_AT;
+
+    /** A reference to the ModifiersName AT */
+    protected static AttributeType MODIFIERS_NAME_AT;
+
+    /** A reference to the ModifyTimestamp AT */
+    protected static AttributeType MODIFY_TIMESTAMP_AT;
+
+    /** The ObjectClass AttributeType */
+    protected static AttributeType OBJECT_CLASS_AT;
+
+    /** the subentry ACI attribute type */
+    protected static AttributeType SUBENTRY_ACI_AT;
+
+    /** A reference to the AccessControlSubentries AT */
+    protected static AttributeType SUBSCHEMA_SUBENTRY_AT;
+
+    /** A reference to the SubtreeSpecification AT */
+    protected static AttributeType SUBTREE_SPECIFICATION_AT;
+
+    /** A reference to the TriggerExecutionSubentries AT */
+    protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+
+    /** A starage for the uniqueMember attributeType */
+    protected static AttributeType UNIQUE_MEMBER_AT;
+
 
 
     /**
@@ -118,6 +165,25 @@ public abstract class BaseInterceptor implements Interceptor
     {
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
+
+        // Init the At we use locally
+        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
+            .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
+        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
+        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
+        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
+            .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
     }
 
 

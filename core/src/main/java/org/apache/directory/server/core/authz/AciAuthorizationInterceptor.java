@@ -166,18 +166,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
-    /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
-
-    /** The AccessControlSubentries AttributeType */
-    private static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
-
-    /** A storage for the entryACI attributeType */
-    private static AttributeType ENTRY_ACI_AT;
-
-    /** the subentry ACI attribute type */
-    private static AttributeType SUBENTRY_ACI_AT;
-
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
 
@@ -297,12 +285,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Create the caches
         tupleCache = new TupleCache( adminSession );
         groupCache = new GroupCache( directoryService );
-
-        // look up some constant information
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
-        SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
 
         // Iitialize the ACI PARSER and ACDF engine
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager );

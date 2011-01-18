@@ -81,7 +81,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -106,12 +105,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-
-    /** A reference to the AdministrativeRole AT */
-    private static AttributeType ADMINISTRATIVE_ROLE_AT;
-
-    /** A reference to the EntryUUID AT */
-    private static AttributeType ENTRY_UUID_AT;
 
     /** The possible roles */
     private static final Set<String> ROLES = new HashSet<String>();
@@ -1142,10 +1135,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-
-        // Init the At we use locally
-        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
-        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
 
         // Load all the AdministratvePoint :
         // Autonomous Administrative Point first, then Specific
