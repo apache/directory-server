@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.io.File;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
