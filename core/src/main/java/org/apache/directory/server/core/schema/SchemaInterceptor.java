@@ -1627,11 +1627,28 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( must.size() != 0 )
         {
+            // include AT names for better error reporting
+            StringBuilder sb = new StringBuilder();
+            sb.append( '[' );
+            
+            for( String oid: must )
+            {
+                String name = schemaManager.getAttributeType( oid ).getName();
+                sb.append( name )
+                  .append( '(' )
+                  .append( oid )
+                  .append( "), " );
+            }
+            
+            int end = sb.length();
+            sb.replace( end - 2, end, "" ); // remove the trailing ', '
+            sb.append( ']' );
+            
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_279,
-                must, dn.getName() ) );
+                sb, dn.getName() ) );
         }
     }
-
+    
 
     /**
      * Checck that OC does not conflict :
