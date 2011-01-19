@@ -127,7 +127,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
     
     
-    protected void setReturningAttributes( String[] attributesIds ) throws LdapException
+    public void setReturningAttributes( String[] attributesIds ) throws LdapException
     {
         if ( attributesIds != null && attributesIds.length != 0 )
         {

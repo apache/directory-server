@@ -452,37 +452,16 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( DN dn, String... attributes ) throws LdapException
     {
-        return _lookup( dn, attributes );
+        return _lookup( dn, null, attributes );
     }
 
 
-    /*
-     * this method exists solely for the purpose of calling from
-     * lookup(DN dn) avoiding the varargs,
+    /**
+     * {@inheritDoc}
      */
-    private Entry _lookup( DN dn, String... attributes )
+    public Entry lookup( DN dn, Control[] controls, String... attributes ) throws LdapException
     {
-        messageId.incrementAndGet();
-
-        Entry entry = null;
-
-        try
-        {
-            if ( attributes == null )
-            {
-                entry = session.lookup( dn );
-            }
-            else
-            {
-                entry = session.lookup( dn, attributes );
-            }
-        }
-        catch ( LdapException e )
-        {
-            LOG.warn( e.getMessage(), e );
-        }
-
-        return entry;
+        return _lookup( dn, controls, attributes );
     }
 
 
@@ -491,7 +470,39 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
-        return _lookup( new DN( dn ), attributes );
+        return _lookup( new DN( dn ), null, attributes );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
+    {
+        return _lookup( new DN( dn ), controls, attributes );
+    }
+
+
+    /*
+     * this method exists solely for the purpose of calling from
+     * lookup(DN dn) avoiding the varargs,
+     */
+    private Entry _lookup( DN dn, Control[] controls, String... attributes )
+    {
+        messageId.incrementAndGet();
+
+        Entry entry = null;
+
+        try
+        {
+            entry = session.lookup( dn, controls, attributes );
+        }
+        catch ( LdapException e )
+        {
+            LOG.warn( e.getMessage(), e );
+        }
+
+        return entry;
     }
 
 
@@ -532,7 +543,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( DN dn ) throws LdapException
     {
-        return _lookup( dn );
+        return _lookup( dn, null );
     }
 
 
@@ -541,7 +552,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return _lookup( new DN( dn ) );
+        return _lookup( new DN( dn ), null );
     }
 
 

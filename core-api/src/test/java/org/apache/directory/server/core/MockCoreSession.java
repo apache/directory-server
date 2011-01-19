@@ -480,10 +480,23 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( DN dn, String[] attrId ) throws LdapException
+    public Entry lookup( DN dn, String... attrIds ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( new LookupOperationContext( this, dn, attrId ) );
+        return operationManager.lookup( new LookupOperationContext( this, dn, attrIds ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( DN dn, Control[] controls, String... attrIds ) throws LdapException
+    {
+        OperationManager operationManager = directoryService.getOperationManager();
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
+        lookupContext.addRequestControls( controls );
+        
+        return operationManager.lookup( lookupContext );
     }
 
 

@@ -363,6 +363,7 @@ public interface CoreSession
      */
     Entry lookup( DN dn ) throws LdapException;
 
+    
     /**
      * Looks up an entry in the server returning all attributes: both user and
      * operational attributes.
@@ -371,7 +372,19 @@ public interface CoreSession
      * @param atIds The list of attributes to return
      * @throws Exception if there are failures while looking up the entry
      */
-    Entry lookup( DN dn, String[] atIds ) throws LdapException;
+    Entry lookup( DN dn, String... atIds ) throws LdapException;
+
+    
+    /**
+     * Looks up an entry in the server returning all attributes: both user and
+     * operational attributes.
+     *
+     * @param dn the name of the entry to lookup
+     * @param controls the Controls to use 
+     * @param atIds The list of attributes to return
+     * @throws Exception if there are failures while looking up the entry
+     */
+    Entry lookup( DN dn, Control[] controls, String... atIds ) throws LdapException;
 
     
     /**

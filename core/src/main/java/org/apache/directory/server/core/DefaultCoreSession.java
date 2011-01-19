@@ -488,10 +488,29 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( DN dn, String[] attrId ) throws LdapException
+    public Entry lookup( DN dn, String... attrIds ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrId );
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
+
+        Entry entry = operationManager.lookup( lookupContext );
+
+        return entry;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( DN dn, Control[] controls, String... attrIds ) throws LdapException
+    {
+        OperationManager operationManager = directoryService.getOperationManager();
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
+        
+        if ( controls != null )
+        {
+            lookupContext.addRequestControls( controls );
+        }
 
         Entry entry = operationManager.lookup( lookupContext );
 
