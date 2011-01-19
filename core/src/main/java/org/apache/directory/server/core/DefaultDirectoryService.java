@@ -912,7 +912,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             throw new LdapOperationException( e.getMessage() );
         }
 
