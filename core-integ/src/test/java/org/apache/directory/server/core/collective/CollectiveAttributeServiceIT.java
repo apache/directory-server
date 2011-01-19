@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -317,6 +318,36 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
         }
+    }
+
+
+    @Test
+    @Ignore( "This test is failing until we fix the handling of collective attributes in filters" )
+    public void testSearchFilterCollectiveAttribute() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Setup the collective attribute specific administration point
+        // -------------------------------------------------------------------
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
+        connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+        
+        Cursor<Response> cursor = connection.search( "ou=system", "(c-ou=configuration)", SearchScope.SUBTREE, "+",
+            "*" );
+
+        boolean found = false;
+        
+        while ( cursor.next() )
+        {
+            Response result = cursor.get();
+
+            if ( result instanceof SearchResultEntry )
+            {
+                found = true;
+                break;
+            }
+        }
+        
+        assertTrue( found );
     }
 
 
