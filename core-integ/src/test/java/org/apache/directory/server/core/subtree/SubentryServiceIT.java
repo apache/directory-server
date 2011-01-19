@@ -1270,6 +1270,72 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    public void testSubtreeScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
+        NamingEnumeration<SearchResult> list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)",
+            searchControls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            entries.put( result.getName(), result );
+        }
+
+        assertEquals( 0, entries.size() );
+    }
+
+
+    @Test
+    public void testSubtreeScopeSearchSubentryVisibilityWithTheSubentriesControl() throws Exception
+    {
+        class SubentriesControl implements javax.naming.ldap.Control
+        {
+
+            public boolean isCritical()
+            {
+                return false;
+            }
+
+            public byte[] getEncodedValue()
+            {
+                return new byte[]{0x01, 0x01, (byte)0xFF};
+            }
+
+            public String getID()
+            {
+                return "1.3.6.1.4.1.4203.1.10.1";
+            }
+        }
+        
+        LdapContext sysRoot = getSystemContext( service );
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        sysRoot.setRequestControls( new javax.naming.ldap.Control[]{ new SubentriesControl() } );
+        Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
+        NamingEnumeration<SearchResult> list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)",
+            searchControls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            entries.put( result.getName(), result );
+        }
+
+        assertEquals( 1, entries.size() );
+        assertNotNull( entries.get( "cn=testsubentry,ou=system" ) );
+    }
+
+
+    @Test
     public void testUserInjectAccessControlSubentries() throws Exception
     {
         userConnection = IntegrationUtils.getConnectionAs( service, "cn=testUser,ou=system", "test" );
