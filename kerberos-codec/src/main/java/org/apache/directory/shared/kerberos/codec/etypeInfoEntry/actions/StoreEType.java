@@ -23,10 +23,10 @@ package org.apache.directory.shared.kerberos.codec.etypeInfoEntry.actions;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
+import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.util.IntegerDecoder;
-import org.apache.directory.shared.asn1.util.IntegerDecoderException;
+import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -85,7 +85,7 @@ public class StoreEType extends GrammarAction
         
         try
         {
-            int eType = IntegerDecoder.parse( value );
+            int eType = IntegerDecoder.parse(value);
             etype = EncryptionType.getTypeByValue( eType );
 
             etypeInfoEntry.setEType( etype );
