@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.codec.binary.Hex;
+import org.apache.directory.shared.asn1.Hex;
 
 
 /**
@@ -74,7 +74,7 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
         {
             if ( bites != null )
             {
-                throw new IOException( I18n.err( I18n.ERR_568, new String( Hex.encodeHex( bites ) ) ) );
+                throw new IOException( I18n.err( I18n.ERR_568, new String( Hex.encodeHex(bites) ) ) );
             }
             else
             {
