@@ -28,9 +28,9 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
@@ -313,7 +313,7 @@ public class ETypeInfoEntryDecoderTest
     
     /**
      * Test the decoding of an ETYPE-INFO-ENTRY with an empty etype
-     * @throws DecoderException
+     * @throws org.apache.directory.shared.asn1.DecoderException
      */
     @Test( expected = DecoderException.class )
     public void testDecodeEmptyETypeInfoEntryEmptyEType() throws DecoderException

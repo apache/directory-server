@@ -20,10 +20,10 @@
 package org.apache.directory.shared.kerberos.codec.checksum.actions;
 
 
+import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
