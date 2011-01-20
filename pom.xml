@@ -72,7 +72,7 @@
     <maven.artifact.version>2.2.1</maven.artifact.version>
     <maven.plugin.api.version>2.2.1</maven.plugin.api.version>
     <maven.project.version>2.0.9</maven.project.version>
-    <mina.core.version>2.0.1</mina.core.version>
+    <mina.core.version>2.0.2</mina.core.version>
     <plexus.utils.version>2.0.5</plexus.utils.version>
     <quartz.version>1.6.0</quartz.version>
     <slf4j.api.version>1.6.1</slf4j.api.version>
@@ -375,12 +375,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-server-tools</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-server-xml</artifactId>
         <version>${project.version}</version>
       </dependency>
       
