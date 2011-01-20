@@ -55,7 +55,7 @@ f none /opt/apacheds/lib/commons-net-2.2.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/commons-pool-1.5.r56.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/dom4j-1.6.1.jar 0644 apacheds apacheds
 d none /opt/apacheds/lib/ext 0744 apacheds apacheds
-f none /opt/apacheds/lib/jcl-over-slf4j-1.5.11.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/jcl-over-slf4j-1.6.1.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/jetty-6.1.14.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/jetty-util-6.1.14.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/libwrapper.so 0644 apacheds apacheds
@@ -67,8 +67,8 @@ f none /opt/apacheds/lib/shared-dsml-parser-0.9.20-SNAPSHOT.jar 0644 apacheds ap
 f none /opt/apacheds/lib/shared-i18n-0.9.20-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/shared-ldap-0.9.20-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/shared-ldap-schema-0.9.20-SNAPSHOT.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/slf4j-api-1.5.11.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/slf4j-log4j12-1.5.11.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/slf4j-api-1.6.1.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/slf4j-log4j12-1.6.1.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/spring-beans-2.5.6.SEC01.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/spring-context-2.5.6.SEC01.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/spring-core-2.5.6.SEC01.jar 0644 apacheds apacheds

@@ -65,7 +65,7 @@
     <dnsjava.version>2.0.1</dnsjava.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
-    <junit.version>4.8.1</junit.version>
+    <junit.version>4.8.2</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.16</log4j.version>
     <maven.archiver.version>2.2</maven.archiver.version>
@@ -75,8 +75,8 @@
     <mina.core.version>2.0.1</mina.core.version>
     <plexus.utils.version>2.0.5</plexus.utils.version>
     <quartz.version>1.6.0</quartz.version>
-    <slf4j.api.version>1.5.11</slf4j.api.version>
-    <slf4j.log4j12.version>1.5.11</slf4j.log4j12.version>
+    <slf4j.api.version>1.6.1</slf4j.api.version>
+    <slf4j.log4j12.version>1.6.1</slf4j.log4j12.version>
     <velocity.version>1.5</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.9.1</xercesImpl.version>
