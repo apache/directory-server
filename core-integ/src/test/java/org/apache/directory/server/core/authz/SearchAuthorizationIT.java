@@ -384,12 +384,26 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives search perms to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "searchAdmin", "{ " + "  identificationTag \"searchAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { " + "    userClasses " + "    { "
-            + "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } " + "    }, " + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "searchAdmin", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " + 
+            "    userClasses " + 
+            "    { " +
+            "      userGroup { \"cn=Administrators,ou=groups,ou=system\" } " + 
+            "    }, " + 
+            "    userPermissions " +
+            "    { " + 
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // see if we can now search that test entry which we could not before
         // add or should still fail since billd is not in the admin group
@@ -418,12 +432,26 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
 
         // now add a subentry that enables user billyd to search an entry below ou=system
-        createAccessControlSubentry( "billydSearch", "{ " + "  identificationTag \"searchAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { " + "    userClasses " + "    { "
-            + "      name { \"uid=billyd,ou=users,ou=system\" } " + "    }, " + "    userPermissions " + "    { "
-            + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    }" + "  } "
-            + "}" );
+        createAccessControlSubentry( "billydSearch", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " + 
+            "  precedence 14, " +
+             "  authenticationLevel none, " + 
+             "  itemOrUserFirst userFirst: " + 
+             "  { " + 
+             "    userClasses " + 
+             "    { " +
+            "      name { \"uid=billyd,ou=users,ou=system\" } " + 
+            "    }, " + 
+            "    userPermissions " + 
+            "    { " +
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    }" + 
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
@@ -446,12 +474,26 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanSearchAs( "BillyD", "billyd" ) );
 
         // now add a subentry that enables user billyd to search an entry below ou=system
-        createAccessControlSubentry( "billydSearch", "{ " + "  identificationTag \"searchAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { " + "    userClasses " + "    { "
-            + "      name { \"uid=billyd,ou=users,ou=system\" } " + "    }, " + "    userPermissions " + "    { "
-            + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "billydSearch", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " + 
+            "    userClasses " + 
+            "    { " +
+            "      name { \"uid=billyd,ou=users,ou=system\" } " + 
+            "    }, " + 
+            "    userPermissions " + 
+            "    { " +
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanSearchAs( "BillyD", "billyd" ) );
@@ -473,13 +515,29 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
 
         // now add a subentry that enables user billyd to search an entry below ou=system
-        createAccessControlSubentry( "billySearchBySubtree", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses " + "    { " + "      subtree " + "      { "
-            + "        { base \"ou=users,ou=system\" } " + "      } " + "    }, " + "    userPermissions " + "    { "
-            + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials {  grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "billySearchBySubtree", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses " + 
+            "    { " + 
+            "      subtree " + 
+            "      { " +
+            "        { base \"ou=users,ou=system\" } " + 
+            "      } " + 
+            "    }, " + 
+            "    userPermissions " + 
+            "    { " +
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials {  grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
@@ -501,12 +559,23 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
 
         // now add a subentry that enables anyone to search an entry below ou=system
-        createAccessControlSubentry( "anybodySearch", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "anybodySearch", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // see if we can now search that tree which we could not before
         // should work now with billyd now that all users are authorized
@@ -535,12 +604,23 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         // now add a subentry that enables anyone to search an entry below ou=system
         // down two more rdns for DNs of a max size of 3
-        createAccessControlSubentry( "anybodySearch", "{ maximum 2 }", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "anybodySearch", "{ maximum 2 }", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // see if we can now search that test entry which we could not before
         // should work now with billyd now that all users are authorized
@@ -613,7 +693,6 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    @Ignore
     public void testHidingAttributeValues() throws Exception
     {
         // create the non-admin user
@@ -625,13 +704,29 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // now add a subentry that enables anyone to search an entry below ou=system
         // down two more rdns for DNs of a max size of 3.  It only grants access to
         // the ou and objectClass attributes however.
-        createAccessControlSubentry( "excludeOUValue", "{ maximum 2 }", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems " + "        {" + "          entry, " + "          attributeType { ou }, "
-            + "          allAttributeValues { objectClass }, " + "          attributeValue { ou=0, ou=1, ou=2 } "
-            + "        }, " + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } "
-            + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "excludeOUValue", "{ maximum 2 }",
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems " + 
+            "        {" + 
+            "          entry, " + 
+            "          attributeType { ou }, " +
+            "          allAttributeValues { objectClass }, " + 
+            "          attributeValue { ou=0, ou=1, ou=2 } " +
+            "        }, " + 
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " +
+            "    } " + 
+            "  } " + 
+            "}" );
 
         // see if we can now search and find 4 entries
         assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
@@ -648,12 +743,23 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // now add a subentry that enables anyone to search an entry below ou=system
         // down two more rdns for DNs of a max size of 3.  This time we should be able
         // to see the telephoneNumber attribute
-        createAccessControlSubentry( "includeAllAttributeTypesAndValues", "{ maximum 2 }", "{ "
-            + "  identificationTag \"searchAci\", " + "  precedence 14, " + "  authenticationLevel none, "
-            + "  itemOrUserFirst userFirst: " + "  { " + "    userClasses { allUsers }, " + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems {entry, allUserAttributeTypesAndValues }, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  }"
-            + "}" );
+        createAccessControlSubentry( "includeAllAttributeTypesAndValues", "{ maximum 2 }", 
+            "{ " +
+            "  identificationTag \"searchAci\", " + 
+            "  precedence 14, " + 
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " + 
+            "  { " + 
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " +
+            "    { " + 
+            "      { " + 
+            "        protectedItems {entry, allUserAttributeTypesAndValues }, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  }" +
+            "}" );
 
         // again we should find four entries
         assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
