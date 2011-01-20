@@ -33,7 +33,7 @@ import org.apache.directory.shared.kerberos.codec.lastReq.LastReqContainer;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.LastReqEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -66,7 +66,7 @@ public class LastReqDecoderTest
                     0x18, 0x0F, '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '6', 'Z'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
@@ -106,7 +106,7 @@ public class LastReqDecoderTest
             // Check the length
             assertEquals( 0x36, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

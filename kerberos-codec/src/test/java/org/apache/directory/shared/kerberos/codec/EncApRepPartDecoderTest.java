@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,7 +76,7 @@ public class EncApRepPartDecoderTest
                   0x30, 0x39, 
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a EncApRepPart Container
@@ -109,7 +109,7 @@ public class EncApRepPartDecoderTest
             
             // Check the length
             assertEquals( 0x33, encodedPdu.limit() );
-            assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );
+            assertEquals( decodedPdu, Strings.dumpBytes(encodedPdu.array()) );
         }
         catch ( EncoderException ee )
         {
@@ -298,7 +298,7 @@ public class EncApRepPartDecoderTest
                   0x30, 0x39, 
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a EncApRepPart Container
@@ -331,7 +331,7 @@ public class EncApRepPartDecoderTest
             
             // Check the length
             assertEquals( 0x22, encodedPdu.limit() );
-            assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );
+            assertEquals( decodedPdu, Strings.dumpBytes(encodedPdu.array()) );
         }
         catch ( EncoderException ee )
         {
@@ -367,7 +367,7 @@ public class EncApRepPartDecoderTest
                     0x04, 0x04, 'A', 'B', 'C', 'D',
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a EncApRepPart Container
@@ -400,7 +400,7 @@ public class EncApRepPartDecoderTest
             
             // Check the length
             assertEquals( 0x2D, encodedPdu.limit() );
-            assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );
+            assertEquals( decodedPdu, Strings.dumpBytes(encodedPdu.array()) );
         }
         catch ( EncoderException ee )
         {
@@ -430,7 +430,7 @@ public class EncApRepPartDecoderTest
                 0x02, 0x01, 0x7F, 
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a EncApRepPart Container
@@ -463,7 +463,7 @@ public class EncApRepPartDecoderTest
             
             // Check the length
             assertEquals( 0x1C, encodedPdu.limit() );
-            assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );
+            assertEquals( decodedPdu, Strings.dumpBytes(encodedPdu.array()) );
         }
         catch ( EncoderException ee )
         {

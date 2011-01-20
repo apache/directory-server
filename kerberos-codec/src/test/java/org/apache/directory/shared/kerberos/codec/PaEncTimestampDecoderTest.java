@@ -37,6 +37,7 @@ import org.apache.directory.shared.kerberos.codec.paEncTimestamp.PaEncTimestampC
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,7 +72,7 @@ public class PaEncTimestampDecoderTest
                   0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a PaEncTimestamp Container
@@ -104,7 +105,7 @@ public class PaEncTimestampDecoderTest
             // Check the length
             assertEquals( 0x16, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

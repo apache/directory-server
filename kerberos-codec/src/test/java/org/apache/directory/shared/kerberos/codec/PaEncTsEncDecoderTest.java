@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -57,7 +57,7 @@ public class PaEncTsEncDecoderTest
                     0x02, 0x01, 0x01
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -85,7 +85,7 @@ public class PaEncTsEncDecoderTest
             // Check the length
             assertEquals( 0x1A, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }
@@ -200,7 +200,7 @@ public class PaEncTsEncDecoderTest
                       '2', '0', '1', '0', '1', '0', '1', '0', '2', '3', '4', '5', '4', '5', 'Z',
             } );
         
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -228,7 +228,7 @@ public class PaEncTsEncDecoderTest
             // Check the length
             assertEquals( 0x15, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

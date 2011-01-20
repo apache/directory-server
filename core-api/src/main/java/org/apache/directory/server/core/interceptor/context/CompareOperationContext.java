@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -204,7 +204,7 @@ public class CompareOperationContext extends AbstractOperationContext
                     ( ( !value.isBinary() ) ?
                             value.getString() :
                             ( ( value.isBinary() ) ?
-                                    StringTools.dumpBytes( ((BinaryValue)value).getReference() ) : 
+                                    Strings.dumpBytes(((BinaryValue) value).getReference()) :
                                         "unknown value type" ) )
                         + "'"
                     : "" );

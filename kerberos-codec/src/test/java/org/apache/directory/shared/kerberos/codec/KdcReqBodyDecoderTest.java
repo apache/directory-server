@@ -44,7 +44,7 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -497,7 +497,7 @@ public class KdcReqBodyDecoderTest
                   0x02, 0x01, 0x12
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a KdcReqBody Container
@@ -527,7 +527,7 @@ public class KdcReqBodyDecoderTest
             // Check the length
             assertEquals( 0x40, bb.limit() );
 
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
             
             //assertEquals( decodedPdu, encodedPdu );
         }

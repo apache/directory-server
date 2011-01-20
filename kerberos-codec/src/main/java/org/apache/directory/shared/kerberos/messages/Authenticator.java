@@ -35,6 +35,7 @@ import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -524,7 +525,7 @@ public class Authenticator extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Authenticator encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "Authenticator encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "Authenticator initial value : {}", toString() );
         }
 

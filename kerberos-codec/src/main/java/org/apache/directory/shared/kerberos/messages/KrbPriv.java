@@ -32,7 +32,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +177,7 @@ public class KrbPriv extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbPriv encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "KrbPriv encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "KrbPriv initial value : {}", toString() );
         }
 

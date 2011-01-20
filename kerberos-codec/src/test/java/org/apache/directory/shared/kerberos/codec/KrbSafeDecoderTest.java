@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
 import org.apache.directory.shared.kerberos.messages.KrbSafe;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -72,7 +72,7 @@ public class KrbSafeDecoderTest
                      0x04, 0x02, 0x00, 0x01 
         };
         
-        String decoded = StringTools.dumpBytes( data );
+        String decoded = Strings.dumpBytes(data);
         int streamLen = data.length;
         ByteBuffer stream = ByteBuffer.wrap( data );
         
@@ -105,7 +105,7 @@ public class KrbSafeDecoderTest
             ByteBuffer bb = ByteBuffer.allocate( encodedLen );
             krbSafe.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )

@@ -34,7 +34,7 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +171,7 @@ public class AuthorizationData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AuthorizationData encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "AuthorizationData encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "AuthorizationData initial value : {}", toString() );
         }
 

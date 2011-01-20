@@ -35,7 +35,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.krbSafeBody.KrbSafeBodyContainer;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.KrbSafeBody;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -77,7 +77,7 @@ public class KrbSafeBodyDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -114,7 +114,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -155,7 +155,7 @@ public class KrbSafeBodyDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -191,7 +191,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -230,7 +230,7 @@ public class KrbSafeBodyDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -266,7 +266,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -303,7 +303,7 @@ public class KrbSafeBodyDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -340,7 +340,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -381,7 +381,7 @@ public class KrbSafeBodyDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -418,7 +418,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -450,7 +450,7 @@ public class KrbSafeBodyDecoderTest
                     // NO r-address
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbSafeBodyContainer container = new KrbSafeBodyContainer();
@@ -487,7 +487,7 @@ public class KrbSafeBodyDecoderTest
             
             body.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )

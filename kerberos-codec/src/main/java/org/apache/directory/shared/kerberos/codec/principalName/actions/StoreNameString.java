@@ -30,6 +30,7 @@ import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public class StoreNameString extends GrammarAction
         }
         else
         {
-            String valBytes = StringTools.dumpBytes( value.getData() );
+            String valBytes = Strings.dumpBytes(value.getData());
             String valStr = StringTools.utf8ToString( value.getData() );
             String valAll = valBytes + "/" + valStr;
             LOG.error( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );

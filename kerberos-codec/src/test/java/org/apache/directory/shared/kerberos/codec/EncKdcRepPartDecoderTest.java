@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -400,7 +400,7 @@ public class EncKdcRepPartDecoderTest
                              0x61, 0x62, 0x63, 0x64, 0x65, 0x66,
              });
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a EncKdcRepPart Container
@@ -429,7 +429,7 @@ public class EncKdcRepPartDecoderTest
             
             encKdcRepPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )

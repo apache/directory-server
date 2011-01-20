@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,7 +302,7 @@ public class EncApRepPart extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncApRepPart encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "EncApRepPart encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "EncApRepPart initial value : {}", toString() );
         }
 

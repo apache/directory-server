@@ -32,7 +32,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -356,7 +356,7 @@ public class KrbSafeBody extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbSafeBody encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "KrbSafeBody encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "KrbSafeBody initial value : {}", toString() );
         }
 
@@ -370,7 +370,7 @@ public class KrbSafeBody extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
 
         sb.append( "KRB-SAFE-BODY : {\n" );
-        sb.append( "    user-data: " ).append( StringTools.dumpBytes( userData ) ).append( '\n' );
+        sb.append( "    user-data: " ).append( Strings.dumpBytes(userData) ).append( '\n' );
 
         if ( timestamp != null )
         {

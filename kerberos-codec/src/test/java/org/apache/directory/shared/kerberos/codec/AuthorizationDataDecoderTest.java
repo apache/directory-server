@@ -36,6 +36,7 @@ import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -68,7 +69,7 @@ public class AuthorizationDataDecoderTest
                     0x04, 0x03, 'g', 'h', 'i'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
@@ -108,7 +109,7 @@ public class AuthorizationDataDecoderTest
             // Check the length
             assertEquals( 0x21, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

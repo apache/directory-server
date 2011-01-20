@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -121,7 +121,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             }
             catch (NullPointerException npe )
             {
-                System.out.println( I18n.err( I18n.ERR_438, StringTools.dumpBytes( data ) ) );
+                System.out.println( I18n.err( I18n.ERR_438, Strings.dumpBytes(data) ) );
                 throw npe;
             }
 
@@ -193,7 +193,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch (NullPointerException npe )
         {
-            System.out.println( I18n.err( I18n.ERR_441, StringTools.dumpBytes( data ) ) );
+            System.out.println( I18n.err( I18n.ERR_441, Strings.dumpBytes(data) ) );
             throw npe;
         }
     }

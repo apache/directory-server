@@ -35,7 +35,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -95,7 +95,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -135,7 +135,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -195,7 +195,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -222,7 +222,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -280,7 +280,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -307,7 +307,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -364,7 +364,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -392,7 +392,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -450,7 +450,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -477,7 +477,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -530,7 +530,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -557,7 +557,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -608,7 +608,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -636,7 +636,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -694,7 +694,7 @@ public class KrbErrorDecoderTest
                         0x00, 0x01
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -721,7 +721,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -777,7 +777,7 @@ public class KrbErrorDecoderTest
                       0x1B, 0x5, 'e', 't', 'e', 'x', 't'
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -804,7 +804,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -859,7 +859,7 @@ public class KrbErrorDecoderTest
                             // NO etext and edata
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -887,7 +887,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {
@@ -928,7 +928,7 @@ public class KrbErrorDecoderTest
                             0x1B, 0x05, 's', 'n', 'a', 'm', 'e',
         } );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         KrbErrorContainer container = new KrbErrorContainer( stream );
@@ -960,7 +960,7 @@ public class KrbErrorDecoderTest
         {
             buffer = krbError.encode( buffer );
             
-            assertEquals( decoded, StringTools.dumpBytes( buffer.array() ) );
+            assertEquals( decoded, Strings.dumpBytes(buffer.array()) );
         }
         catch( EncoderException e )
         {

@@ -28,7 +28,7 @@ import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,8 +86,8 @@ public class TicketTest
             };
 
         // We will just compared the first bytes (everything before the encrypted data)
-        String expectedResultString = StringTools.dumpBytes( expectedResult );
-        String resultString = StringTools.dumpBytes( encodedTicket ).substring( 0,  expectedResultString.length() );
+        String expectedResultString = Strings.dumpBytes(expectedResult);
+        String resultString = Strings.dumpBytes(encodedTicket).substring( 0,  expectedResultString.length() );
         
         assertEquals( expectedResultString, resultString );
     }

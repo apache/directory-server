@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -107,7 +107,7 @@ public class AuthenticatorDecoderTest
                       0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
         });
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a Authenticator Container
@@ -140,7 +140,7 @@ public class AuthenticatorDecoderTest
             
             // Check the length
             assertEquals( 0x95, encodedPdu.limit() );
-            assertEquals( decodedPdu, StringTools.dumpBytes( encodedPdu.array() ) );
+            assertEquals( decodedPdu, Strings.dumpBytes(encodedPdu.array()) );
         }
         catch ( EncoderException ee )
         {

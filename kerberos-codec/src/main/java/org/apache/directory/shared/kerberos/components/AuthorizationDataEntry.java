@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * The class storing the individual AuthorizationDatas
@@ -182,7 +183,7 @@ public class AuthorizationDataEntry
         
         sb.append( tabs ).append( "AuthorizationDataEntry : {\n" );
         sb.append( tabs ).append( "    adType : " ).append( adType ).append( "\n" );
-        sb.append( tabs ).append( "    adData : " ).append( StringTools.dumpBytes( adData ) ).append( "\n" );
+        sb.append( tabs ).append( "    adData : " ).append( Strings.dumpBytes(adData) ).append( "\n" );
         sb.append( tabs ).append( "}" );
         return sb.toString();
     }

@@ -45,6 +45,7 @@ import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -99,7 +100,7 @@ public class AdKdcIssuedDecoderTest
                         0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a AdKdcIssued Container
@@ -157,7 +158,7 @@ public class AdKdcIssuedDecoderTest
             // Check the length
             assertEquals( 0x60, bb.limit() );
 
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
 
             assertEquals( encodedPdu, decodedPdu );
         }
@@ -202,7 +203,7 @@ public class AdKdcIssuedDecoderTest
                         0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a AdKdcIssued Container
@@ -260,7 +261,7 @@ public class AdKdcIssuedDecoderTest
             // Check the length
             assertEquals( 0x3B, bb.limit() );
 
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
 
             assertEquals( encodedPdu, decodedPdu );
         }

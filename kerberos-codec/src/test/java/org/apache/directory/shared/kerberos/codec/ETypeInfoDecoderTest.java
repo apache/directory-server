@@ -38,6 +38,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,7 +77,7 @@ public class ETypeInfoDecoderTest
                     0x04, 0x04, 0x35, 0x36, 0x37, 0x38
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a ETypeInfo Container
@@ -118,7 +119,7 @@ public class ETypeInfoDecoderTest
             // Check the length
             assertEquals( 0x20, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

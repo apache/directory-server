@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -305,7 +305,7 @@ public class EncryptedData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncryptedData encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "EncryptedData encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "EncryptedData initial value : {}", toString() );
         }
 
@@ -389,7 +389,7 @@ public class EncryptedData extends AbstractAsn1Object
             sb.append( tabs ).append( "    kvno: " ).append( kvno ).append( '\n' );
         }
 
-        sb.append( tabs ).append( "    cipher: " ).append( StringTools.dumpBytes( cipher ) ).append( "\n}\n" );
+        sb.append( tabs ).append( "    cipher: " ).append( Strings.dumpBytes(cipher) ).append( "\n}\n" );
 
         return sb.toString();
     }

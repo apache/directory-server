@@ -34,6 +34,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.typedData.TypedDataContainer;
 import org.apache.directory.shared.kerberos.components.TypedData;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -66,7 +67,7 @@ public class TypedDataDecoderTest
                     0x04, 0x03, 'g', 'h', 'i'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
@@ -105,7 +106,7 @@ public class TypedDataDecoderTest
             // Check the length
             assertEquals( 0x21, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

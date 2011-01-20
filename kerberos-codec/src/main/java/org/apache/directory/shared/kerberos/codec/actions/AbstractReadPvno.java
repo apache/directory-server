@@ -27,7 +27,7 @@ import org.apache.directory.shared.asn1.ber.tlv.*;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public abstract class AbstractReadPvno extends GrammarAction
 
             if ( pvno != 5 )
             {
-                LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), "The PVNO should be 5" ) );
+                LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), "The PVNO should be 5" ) );
 
                 // This will generate a PROTOCOL_ERROR
                 throw new DecoderException( "The PVNO should be 5" );
@@ -105,7 +105,7 @@ public abstract class AbstractReadPvno extends GrammarAction
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, StringTools.dumpBytes( value.getData() ), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

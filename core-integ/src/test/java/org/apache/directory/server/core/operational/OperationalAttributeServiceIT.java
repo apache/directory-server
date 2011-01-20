@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -124,8 +124,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         EntryAttribute jpegPhoto = loadedEntry.get( "jpegPhoto" );
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
-        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools
-            .dumpBytes( ( byte[] ) value ) );
+        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", Strings
+            .dumpBytes((byte[]) value) );
     }
 
 

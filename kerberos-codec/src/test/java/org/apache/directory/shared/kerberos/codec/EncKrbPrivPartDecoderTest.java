@@ -35,7 +35,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -78,7 +78,7 @@ public class EncKrbPrivPartDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -114,7 +114,7 @@ public class EncKrbPrivPartDecoderTest
             
             encKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -156,7 +156,7 @@ public class EncKrbPrivPartDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -191,7 +191,7 @@ public class EncKrbPrivPartDecoderTest
             
             enKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -231,7 +231,7 @@ public class EncKrbPrivPartDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -266,7 +266,7 @@ public class EncKrbPrivPartDecoderTest
             
             encKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -304,7 +304,7 @@ public class EncKrbPrivPartDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -340,7 +340,7 @@ public class EncKrbPrivPartDecoderTest
             
             encKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -382,7 +382,7 @@ public class EncKrbPrivPartDecoderTest
                               0x04, 0x04, 127, 0, 0, 1
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -418,7 +418,7 @@ public class EncKrbPrivPartDecoderTest
             
             encKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )
@@ -451,7 +451,7 @@ public class EncKrbPrivPartDecoderTest
                     // NO r-address
         } );
 
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         stream.flip();
         
         EncKrbPrivPartContainer container = new EncKrbPrivPartContainer( stream );
@@ -487,7 +487,7 @@ public class EncKrbPrivPartDecoderTest
             
             encKrbPrivPart.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )

@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,7 +253,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     {
                         StringBuffer sb = new StringBuffer();
                         sb.append( "'" + password + "' ( " );
-                        sb.append( StringTools.dumpBytes( ((BinaryValue)firstValue).getBytes() ).trim() );
+                        sb.append( Strings.dumpBytes(((BinaryValue) firstValue).getBytes()).trim() );
                         sb.append( " )" );
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                     }

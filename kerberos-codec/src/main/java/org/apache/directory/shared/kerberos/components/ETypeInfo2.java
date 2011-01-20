@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,7 +260,7 @@ public class ETypeInfo2 extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "ETYPE-INFO encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "ETYPE-INFO initial value : {}", toString() );
         }
 

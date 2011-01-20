@@ -32,7 +32,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbPriv.KrbPrivContainer;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 /**
@@ -63,7 +63,7 @@ public class KrbPrivDecoderTest
         int streamLen = data.length;
         ByteBuffer stream = ByteBuffer.wrap( data );
         
-        String decoded = StringTools.dumpBytes( stream.array() );
+        String decoded = Strings.dumpBytes(stream.array());
         
         Asn1Decoder decoder = new Asn1Decoder();
         
@@ -92,7 +92,7 @@ public class KrbPrivDecoderTest
             ByteBuffer bb = ByteBuffer.allocate( encodedLen );
             krbPriv.encode( bb );
             
-            String encoded = StringTools.dumpBytes( bb.array() );
+            String encoded = Strings.dumpBytes(bb.array());
             assertEquals( decoded, encoded );
         }
         catch( EncoderException e )

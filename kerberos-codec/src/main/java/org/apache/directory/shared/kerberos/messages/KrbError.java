@@ -34,6 +34,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -647,7 +648,7 @@ public class KrbError extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbError encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "KrbError encoding : {}", Strings.dumpBytes(buffer.array()) );
             log.debug( "KrbError initial value : {}", toString() );
         }
 
@@ -701,7 +702,7 @@ public class KrbError extends KerberosMessage
 
         if ( eData != null )
         {
-            sb.append( "    eData: " ).append( StringTools.dumpBytes( eData ) ).append( '\n' );
+            sb.append( "    eData: " ).append( Strings.dumpBytes(eData) ).append( '\n' );
         }
 
         sb.append( "}\n" );

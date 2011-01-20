@@ -31,7 +31,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -320,7 +320,7 @@ public class ApReq extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AP-REQ encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "AP-REQ encoding : {}", Strings.dumpBytes(buffer.array()) );
             LOG.debug( "AP-REQ initial value : {}", toString() );
         }
 

@@ -37,6 +37,7 @@ import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEnc
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +70,7 @@ public class TransitedEncodingDecoderTest
                   0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a TransitedEncoding Container
@@ -101,7 +102,7 @@ public class TransitedEncodingDecoderTest
             // Check the length
             assertEquals( len, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }

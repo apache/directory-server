@@ -35,7 +35,7 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +69,7 @@ public class PrincipalNameDecoderTest
                     0x1B, 0x08, 'h', 'n', 'e', 'l', 's', 'o', 'n', '3',
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        String decodedPdu = Strings.dumpBytes(stream.array());
         stream.flip();
 
         // Allocate a PrincipalName Container
@@ -103,7 +103,7 @@ public class PrincipalNameDecoderTest
             // Check the length
             assertEquals( 0x29, bb.limit() );
     
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            String encodedPdu = Strings.dumpBytes(bb.array());
     
             assertEquals( encodedPdu, decodedPdu );
         }
