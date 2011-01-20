@@ -49,8 +49,10 @@ f none /opt/apacheds/lib/bootstrapper.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/commons-cli-1.2.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/commons-collections-3.2.1.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/commons-daemon-1.0.1.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/commons-io-1.4.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/commons-lang-2.5.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/commons-io-2.0.1.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/commons-lang-2.6.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/commons-net-2.2.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/commons-pool-1.5.r56.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/dom4j-1.6.1.jar 0644 apacheds apacheds
 d none /opt/apacheds/lib/ext 0744 apacheds apacheds
 f none /opt/apacheds/lib/jcl-over-slf4j-1.5.11.jar 0644 apacheds apacheds
