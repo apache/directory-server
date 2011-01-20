@@ -20,11 +20,11 @@
 package org.apache.directory.shared.kerberos.codec.methodData;
 
 
+import org.apache.directory.shared.asn1.actions.CheckNotNullLength;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.Grammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.codec.actions.CheckNotNullLength;
 import org.apache.directory.shared.kerberos.codec.methodData.actions.AddPaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

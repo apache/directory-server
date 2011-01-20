@@ -20,8 +20,8 @@
 package org.apache.directory.shared.kerberos.codec.transitedEncoding.actions;
 
 
+import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEncodingContainer;
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 

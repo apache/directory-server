@@ -20,8 +20,8 @@
 package org.apache.directory.shared.kerberos.codec.lastReq.actions;
 
 
+import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.codec.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.lastReq.LastReqContainer;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
 import org.apache.directory.shared.kerberos.components.LastReq;
