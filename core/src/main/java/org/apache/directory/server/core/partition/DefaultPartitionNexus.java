@@ -146,6 +146,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     final List<Modification> mods = new ArrayList<Modification>( 2 );
 
     private String lastSyncedCtxCsn = null;
+    
+    /** The cn=schema DN */
+    private DN subschemSubentryDn;
+
 
 
     /**
@@ -220,6 +224,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // Initialize and normalize the localy used DNs
         DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager );
+
+        Value<?> attr = rootDSE.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        subschemSubentryDn = directoryService.getDNFactory().create( attr.getString() );
 
         initializeSystemPartition( directoryService );
 
@@ -594,6 +601,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         DN dn = lookupContext.getDn();
+
+        if ( dn.equals( subschemSubentryDn ) )
+        {
+            return new ClonedServerEntry( rootDSE.clone() );
+        }
 
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
