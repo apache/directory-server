@@ -43,20 +43,20 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${project.groupId}</groupId>
     </dependency>
-
+    
     <dependency>
-      <artifactId>apacheds-core-api</artifactId>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
     </dependency>
-
+    
     <dependency>
-      <artifactId>apacheds-core-api</artifactId>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
@@ -65,10 +65,20 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>ldap-client-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-i18n</artifactId>
     </dependency>
     
     <dependency>
@@ -83,12 +93,17 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-i18n</artifactId>
+      <artifactId>shared-util</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
     </dependency>
   </dependencies>
 

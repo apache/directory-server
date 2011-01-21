@@ -35,7 +35,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
@@ -45,15 +45,25 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-api</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-util</artifactId>
     </dependency>
   </dependencies>
 

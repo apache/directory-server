@@ -36,7 +36,7 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
@@ -46,20 +46,45 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-ber</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-util</artifactId>
     </dependency>
   </dependencies>
 

@@ -35,12 +35,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-protocol-shared</artifactId>
+      <artifactId>apacheds-core</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
@@ -48,8 +48,28 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-constants</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-http-directory-bridge</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
     </dependency>
     
     <dependency>
@@ -66,7 +86,6 @@
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-util</artifactId>
     </dependency>
-
   </dependencies>
   
   <build>

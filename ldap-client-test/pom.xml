@@ -44,33 +44,38 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-annotations</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
     </dependency>
-
+    
     <!-- Shared dependencies -->
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+    </dependency>
+    
     <!-- Other dependencies -->
     <dependency>
       <groupId>org.apache.directory.shared</groupId>

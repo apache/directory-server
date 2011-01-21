@@ -63,6 +63,7 @@
     <commons.pool.version>1.5.5</commons.pool.version>
     <derby.version>10.4.2.0</derby.version>
     <dnsjava.version>2.0.1</dnsjava.version>
+    <ehcache.version>2.2.0</ehcache.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
@@ -417,6 +418,12 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-service-builder</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-wrapper</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -446,7 +453,25 @@
       </dependency>
       
       <!-- Shared dependencies -->
-    
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>ldap-client-api</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-asn1-api</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-asn1-ber</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-all</artifactId>
@@ -479,7 +504,7 @@
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>ldap-client-api</artifactId>
+        <artifactId>shared-util</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
@@ -695,6 +720,12 @@
         <groupId>findbugs</groupId>
         <artifactId>annotations</artifactId>
         <version>${findbugs.annotations.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-core</artifactId>
+        <version>${ehcache.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

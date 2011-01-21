@@ -45,7 +45,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-jndi</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
@@ -55,20 +60,25 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>ldap-client-api</artifactId>
     </dependency>
   </dependencies>
 

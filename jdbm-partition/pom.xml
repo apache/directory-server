@@ -38,7 +38,7 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
@@ -47,6 +47,16 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-avl</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
     </dependency>
     
     <dependency>
@@ -67,8 +77,18 @@
     </dependency>
     
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-api</artifactId>
     </dependency>
     
     <dependency>

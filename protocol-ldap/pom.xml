@@ -76,12 +76,27 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-ber</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-i18n</artifactId>
     </dependency>
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-util</artifactId>
     </dependency>
     
     <dependency>

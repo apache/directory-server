@@ -35,10 +35,6 @@
     Contains interfaces and helper classes that are part of the ApacheDS Core API.
   </description>
 
-  <properties>
-    <ehcache-version>2.2.0</ehcache-version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.junit</groupId>
@@ -73,6 +69,21 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
+      <artifactId>ldap-client-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
     </dependency>
     
@@ -83,18 +94,12 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-i18n</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>ldap-client-api</artifactId>
+      <artifactId>shared-util</artifactId>
     </dependency>
     
     <dependency>
        <groupId>net.sf.ehcache</groupId>
        <artifactId>ehcache-core</artifactId>
-       <version>${ehcache-version}</version>
    </dependency>
     
   </dependencies>

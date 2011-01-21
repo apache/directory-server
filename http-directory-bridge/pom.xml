@@ -11,10 +11,20 @@
   <name>ApacheDS DirectoryService-WebApp bridge</name>
 
   <dependencies>
+    
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core</artifactId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>ldap-client-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
     </dependency>
   </dependencies>
 
