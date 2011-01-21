@@ -1188,7 +1188,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        LOG.debug( "Entering into the Administrative Interceptor, addRequest" );
+        LOG.debug( ">>> Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
         DN dn = entry.getDn();
 
@@ -1243,6 +1243,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
+        LOG.debug( ">>> Entering into the Administrative Interceptor, delRequest" );
         Entry entry = deleteContext.getEntry();
         DN dn = entry.getDn();
 
@@ -1304,6 +1305,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
+        LOG.debug( ">>> Entering into the Administrative Interceptor, modifyRequest" );
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
         DN dn = modifyContext.getDn();
@@ -1432,6 +1434,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
+        LOG.debug( ">>> Entering into the Administrative Interceptor, moveRequest" );
         Entry entry = moveContext.getOriginalEntry();
 
         // Check if we are moving an Administrative Point
@@ -1460,6 +1463,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
+        LOG.debug( ">>> Entering into the Administrative Interceptor, moveAndRenameRequest" );
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
         // Check if we are moving and renaming an Administrative Point
@@ -1487,6 +1491,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
+        LOG.debug( ">>> Entering into the Administrative Interceptor, renameRequest" );
         Entry entry = renameContext.getEntry();
 
         // Check if we are renaming an Administrative Point

@@ -470,6 +470,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( lookupContext );
         checkPwdReset( lookupContext );
+        
         return next.lookup( lookupContext );
     }
 

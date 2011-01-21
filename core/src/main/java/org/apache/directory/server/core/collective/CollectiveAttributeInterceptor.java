@@ -133,11 +133,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         Entry result = nextInterceptor.lookup( lookupContext );
 
-        if ( result == null )
-        {
-            return null;
-        }
-
         // Adding the collective attributes if any
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {

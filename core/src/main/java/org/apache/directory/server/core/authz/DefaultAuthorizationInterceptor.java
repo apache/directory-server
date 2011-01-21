@@ -378,7 +378,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         CoreSession session = lookupContext.getSession();
         Entry entry = nextInterceptor.lookup( lookupContext );
 
-        if ( session.getDirectoryService().isAccessControlEnabled() || ( entry == null ) )
+        if ( session.getDirectoryService().isAccessControlEnabled() )
         {
             return entry;
         }

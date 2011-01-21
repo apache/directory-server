@@ -250,18 +250,13 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            return nexus.getRootDSE( null );
+            Entry serverEntry = directoryService.getSchemaService().getSubschemaEntry( lookupContext.getAttrsIdArray() );
+            serverEntry.setDn( dn );
+
+            return serverEntry;
         }
 
         Entry result = nextInterceptor.lookup( lookupContext );
-
-        if ( result == null )
-        {
-            LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
-                + dn.getName() );
-
-            throw e;
-        }
 
         return result;
     }

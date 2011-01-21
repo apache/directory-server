@@ -952,7 +952,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.compare( next.nextInterceptor, compareContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", compareRequest" );
+                        boolean result = interceptor.compare( next.nextInterceptor, compareContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", compareRequest" );
+                        
+                        return result;
                     }
                     catch ( LdapException le )
                     {
@@ -973,7 +977,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.getRootDSE( next.nextInterceptor, getRootDseContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", getRootDSERequest" );
+                        Entry rootDSE = interceptor.getRootDSE( next.nextInterceptor, getRootDseContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", getRootDSERequest" );
+                        
+                        return rootDSE;
                     }
                     catch ( LdapException le )
                     {
@@ -994,7 +1002,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", deleteRequest" );
                         interceptor.delete( next.nextInterceptor, deleteContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", deleteRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1014,7 +1024,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", addRequest" );
                         interceptor.add( next.nextInterceptor, addContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", addRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1034,7 +1046,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
                         interceptor.modify( next.nextInterceptor, modifyContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1054,7 +1068,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.list( next.nextInterceptor, listContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", listRequest" );
+                        EntryFilteringCursor cursor = interceptor.list( next.nextInterceptor, listContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", listRequest" );
+                        
+                        return cursor;
                     }
                     catch ( LdapException le )
                     {
@@ -1075,7 +1093,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.search( next.nextInterceptor, searchContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", searchRequest" );
+                        EntryFilteringCursor cursor =  interceptor.search( next.nextInterceptor, searchContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", searchRequest" );
+                        
+                        return cursor;
                     }
                     catch ( LdapException le )
                     {
@@ -1096,7 +1118,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.lookup( next.nextInterceptor, lookupContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", lookupRequest" );
+                        Entry entry = interceptor.lookup( next.nextInterceptor, lookupContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", lookupRequest" );
+                        
+                        return entry;
                     }
                     catch ( LdapException le )
                     {
@@ -1117,7 +1143,11 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.hasEntry( next.nextInterceptor, hasEntryContext );
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", hasEntryRequest" );
+                        boolean hasEntry = interceptor.hasEntry( next.nextInterceptor, hasEntryContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", hasEntryRequest" );
+                        
+                        return hasEntry;
                     }
                     catch ( LdapException le )
                     {
@@ -1138,7 +1168,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", renameRequest" );
                         interceptor.rename( next.nextInterceptor, renameContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", renameRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1158,7 +1190,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", moveRequest" );
                         interceptor.move( next.nextInterceptor, moveContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", moveRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1178,7 +1212,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
                         interceptor.moveAndRename( next.nextInterceptor, moveAndRenameContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1198,7 +1234,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", bindRequest" );
                         interceptor.bind( next.nextInterceptor, bindContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", bindRequest" );
                     }
                     catch ( LdapException le )
                     {
@@ -1218,7 +1256,9 @@ public class InterceptorChain
 
                     try
                     {
+                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", unbindRequest" );
                         interceptor.unbind( next.nextInterceptor, unbindContext );
+                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", unbindRequest" );
                     }
                     catch ( LdapException le )
                     {

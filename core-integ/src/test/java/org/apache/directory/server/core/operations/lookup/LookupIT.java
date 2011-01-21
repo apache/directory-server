@@ -171,6 +171,25 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
+     * Test a lookup( DN ) operation on the subschema subentry
+     */
+    @Test
+    public void testLookupSubSchemaSubEntry() throws Exception
+    {
+        Entry entry = connection.lookup( "cn=schema", "+" );
+
+        assertNotNull( entry );
+
+        // We should have 2 attributes
+        assertEquals( 2, entry.size() );
+
+        // Check that all the user attributes are present
+        assertEquals( "schema", entry.get( "cn" ).getString() );
+        assertTrue( entry.contains( "objectClass", "top", "subschema", "subentry", "apacheSubschema" ) );
+    }
+
+
+    /**
      * Test a lookup( DN ) operation with a list of attributes
      */
     @Test

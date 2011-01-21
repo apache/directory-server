@@ -744,11 +744,6 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         Entry result = nextInterceptor.lookup( lookupContext );
 
-        if ( result == null )
-        {
-            return null;
-        }
-
         filterBinaryAttributes( result );
 
         return result;
