@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -685,8 +685,8 @@ public class LdifPartition extends AbstractLdifPartition
                 case '\\': // 0x5C
                 case ']': // 0x5D
                 case '|': // 0x7C
-                    sb.append( "%" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) )
-                                    .append( StringTools.dumpHex( ( byte ) ( c & 0xF ) ) );
+                    sb.append( "%" ).append( Strings.dumpHex( ( byte ) ( c >> 4 ) ) )
+                                    .append( Strings.dumpHex( ( byte ) ( c & 0xF ) ) );
                     break;
 
                 default:

@@ -56,6 +56,7 @@ import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -296,7 +297,7 @@ public class ApacheDS
 
         return  new DN( fileSep + 
                 "=" + 
-                StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) + 
+                Strings.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) + 
                 "," + 
                 ServerDNConstants.LDIF_FILES_DN ); 
     }

@@ -79,7 +79,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -975,7 +975,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
             else if ( filterArgs[index] instanceof byte[] )
             {
-                String hexstr = "#" + StringTools.toHexString( ( byte[] ) filterArgs[index] );
+                String hexstr = "#" + Strings.toHexString( ( byte[] ) filterArgs[index] );
                 buf.replace( start, ii + 1, hexstr );
             }
             else
