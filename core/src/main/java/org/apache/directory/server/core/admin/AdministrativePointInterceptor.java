@@ -82,8 +82,8 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -602,7 +602,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkAddRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
     {
-        String roleStr = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+        String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
         // Check that the added AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -657,7 +657,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkDelRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
     {
-        String roleStr = StringTools.toLowerCase( StringTools.trim( role.getString() ) );
+        String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
         // Check that the removed AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -801,7 +801,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isValidRole( String role )
     {
-        return ROLES.contains( StringTools.toLowerCase( StringTools.trim( role ) ) );
+        return ROLES.contains( Strings.toLowerCase(Strings.trim(role)) );
     }
 
 

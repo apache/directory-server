@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -206,7 +206,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
 
                 if ( node.getValue().isBinary() )
                 {
-                    nodeValue = StringTools.utf8ToString( ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue() );
+                    nodeValue = Strings.utf8ToString(((Value<byte[]>) node.getValue()).getNormalizedValue());
                 }
                 else
                 {

@@ -33,7 +33,6 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -439,7 +438,7 @@ public class KrbError extends KerberosMessage
         // The crealm, if any
         if ( cRealm != null )
         {
-            crealmBytes = StringTools.getBytesUtf8( cRealm );
+            crealmBytes = Strings.getBytesUtf8(cRealm);
             cRealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
             krbErrorSeqLength += 1 + TLV.getNbBytes( cRealmLength ) + cRealmLength;
         }
@@ -452,7 +451,7 @@ public class KrbError extends KerberosMessage
         }
 
         // The realm
-        realmBytes = StringTools.getBytesUtf8( realm );
+        realmBytes = Strings.getBytesUtf8(realm);
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
         krbErrorSeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
 
@@ -463,7 +462,7 @@ public class KrbError extends KerberosMessage
         // The e-text, if any
         if ( eText != null )
         {
-            eTextBytes = StringTools.getBytesUtf8( eText );
+            eTextBytes = Strings.getBytesUtf8(eText);
             eTextLength = 1 + TLV.getNbBytes( eTextBytes.length ) + eTextBytes.length;
             krbErrorSeqLength += 1 + TLV.getNbBytes( eTextLength ) + eTextLength;
         }

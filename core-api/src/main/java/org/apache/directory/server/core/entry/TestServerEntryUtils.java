@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * Some common declaration used by the serverEntry tests.
@@ -272,7 +272,7 @@ public class TestServerEntryUtils
                         newVal[i++] = (byte)(b & 0x007F); 
                     }
                     
-                    return new BinaryValue( StringTools.trim( newVal ) );
+                    return new BinaryValue( Strings.trim(newVal) );
                 }
 
                 throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );

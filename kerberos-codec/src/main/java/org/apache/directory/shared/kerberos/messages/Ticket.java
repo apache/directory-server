@@ -34,7 +34,6 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,7 +254,7 @@ public class Ticket extends KerberosMessage
         tktvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the Ticket realm length.
-        realmBytes = StringTools.getBytesUtf8( realm );
+        realmBytes = Strings.getBytesUtf8(realm);
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
 
         // Compute the principal length

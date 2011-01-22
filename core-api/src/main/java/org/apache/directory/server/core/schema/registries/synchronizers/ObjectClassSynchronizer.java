@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the addition and get out
                 String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(), 
-                    StringTools.listToString( schemaManager.getErrors() ) );
+                    Strings.listToString(schemaManager.getErrors()) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -176,7 +176,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 String msg = I18n.err( I18n.ERR_374, entry.getDn().getName(),
-                    StringTools.listToString( schemaManager.getErrors() ) );
+                    Strings.listToString(schemaManager.getErrors()) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }

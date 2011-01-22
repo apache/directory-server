@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -187,7 +187,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new DN( user ) );
-        bindContext.setCredentials( StringTools.getBytesUtf8( password ) );
+        bindContext.setCredentials( Strings.getBytesUtf8(password) );
 
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
 

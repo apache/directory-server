@@ -36,7 +36,6 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEncodingContainer;
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +89,7 @@ public class TransitedEncodingDecoderTest
         TransitedEncoding transitedEncoding = ( ( TransitedEncodingContainer ) transitedEncodingContainer ).getTransitedEncoding();
 
         assertEquals( TransitedEncodingType.DOMAIN_X500_COMPRESS, transitedEncoding.getTrType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "abcdef" ), transitedEncoding.getContents() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), transitedEncoding.getContents() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( transitedEncoding.computeLength() );

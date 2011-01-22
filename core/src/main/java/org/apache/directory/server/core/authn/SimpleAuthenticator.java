@@ -57,9 +57,10 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.util.UnixCrypt;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.UnixCrypt;
+import org.apache.directory.shared.util.StringConstants;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -295,7 +296,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
-            return StringTools.EMPTY_BYTES;
+            return StringConstants.EMPTY_BYTES;
         }
         else
         {
@@ -321,7 +322,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         String result = null;
 
         // Check if password arg is string or byte[]
-        String sPassword = StringTools.utf8ToString( password );
+        String sPassword = Strings.utf8ToString(password);
         int rightParen = sPassword.indexOf( '}' );
 
         if ( ( sPassword.length() > 2 ) && ( sPassword.charAt( 0 ) == '{' ) && ( rightParen > -1 ) )
@@ -375,9 +376,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
             {
-                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( password ), "" );
+                String saltWithCrypted = UnixCrypt.crypt(Strings.utf8ToString(password), "");
                 String crypted = saltWithCrypted.substring( 2 );
-                return '{' + algorithm + '}' + Arrays.toString( StringTools.getBytesUtf8( crypted ) );
+                return '{' + algorithm + '}' + Arrays.toString( Strings.getBytesUtf8(crypted) );
             }
             else
             {
@@ -385,7 +386,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
                 // calculate hashed value of password
                 byte[] fingerPrint = digest.digest( password );
-                char[] encoded = Base64.encode( fingerPrint );
+                char[] encoded = Base64.encode(fingerPrint);
 
                 // create return result of form "{alg}bbbbbbb"
                 return '{' + algorithm + '}' + new String( encoded );

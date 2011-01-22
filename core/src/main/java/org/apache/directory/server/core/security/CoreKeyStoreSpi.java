@@ -45,7 +45,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.SingletonEnumeration;
+import org.apache.directory.shared.util.SingletonEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

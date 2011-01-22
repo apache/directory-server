@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -128,7 +128,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         {
             // Try to bind
             BindResponse bindResponse = ldapConnection.bind( bindContext.getDn(),
-                StringTools.utf8ToString( bindContext.getCredentials() ) );
+                Strings.utf8ToString(bindContext.getCredentials()) );
             
             if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {

@@ -22,7 +22,7 @@ package org.apache.directory.server.config.beans;
 
 import org.apache.directory.server.config.ConfigurationElement;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -173,7 +173,7 @@ public abstract class AdsBaseBean
 
         sb.append( toString( tabs, "enabled", enabled ) );
 
-        if ( !StringTools.isEmpty( description ) )
+        if ( !Strings.isEmpty(description) )
         {
             sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }

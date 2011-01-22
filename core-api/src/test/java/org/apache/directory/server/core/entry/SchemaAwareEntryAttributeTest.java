@@ -58,7 +58,8 @@ import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifEx
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
+import org.apache.directory.shared.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -815,10 +816,10 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
-        nbAdded = attr2.add( StringTools.EMPTY_BYTES );
+        nbAdded = attr2.add( StringConstants.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
+        assertTrue( Arrays.equals( StringConstants.EMPTY_BYTES, attr2.getBytes() ) );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
 
@@ -1169,10 +1170,10 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
-        nbAdded = attr2.add( StringTools.EMPTY_BYTES );
+        nbAdded = attr2.add( StringConstants.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
+        assertTrue( Arrays.equals( StringConstants.EMPTY_BYTES, attr2.getBytes() ) );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
 
@@ -2113,7 +2114,7 @@ public class SchemaAwareEntryAttributeTest
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atPwd );
         dsa.setHR( false );
-        byte[] password = StringTools.getBytesUtf8( "secret" );
+        byte[] password = Strings.getBytesUtf8("secret");
         dsa.add( password );
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );

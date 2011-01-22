@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -264,6 +264,6 @@ public class LookupOperationContext extends AbstractOperationContext
     public String toString()
     {
         return "LookupContext for DN '" + getDn().getName() + "'"
-            + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
+            + ( ( attrsId != null ) ? ", attributes : <" + Strings.listToString(attrsId) + ">" : "" );
     }
 }

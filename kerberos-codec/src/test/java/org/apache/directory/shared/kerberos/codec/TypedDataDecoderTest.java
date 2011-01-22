@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.typedData.TypedDataContainer;
 import org.apache.directory.shared.kerberos.components.TypedData;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -93,7 +92,7 @@ public class TypedDataDecoderTest
         for ( TypedData.TD td : typedData.getTypedData() )
         {
             assertEquals( 2, td.getDataType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), td.getDataValue() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), td.getDataValue() ) );
         }
 
         // Check the encoding

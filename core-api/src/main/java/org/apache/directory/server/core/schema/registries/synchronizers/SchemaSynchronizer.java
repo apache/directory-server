@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -590,7 +590,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             {
                 String dependency = value.getString();
 
-                if ( schemaManager.getLoadedSchema( StringTools.toLowerCase( dependency ) ) == null )
+                if ( schemaManager.getLoadedSchema( Strings.toLowerCase(dependency) ) == null )
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                         I18n.err( I18n.ERR_385, dependency ) );

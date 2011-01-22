@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     protected void setReturningAttributes( Collection<String> attributesIds ) 
         throws LdapException
     {
-        setReturningAttributes( attributesIds.toArray( StringTools.EMPTY_STRINGS ) );
+        setReturningAttributes( attributesIds.toArray( StringConstants.EMPTY_STRINGS ) );
     }
     
     

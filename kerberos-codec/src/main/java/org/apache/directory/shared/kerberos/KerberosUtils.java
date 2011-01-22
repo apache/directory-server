@@ -29,7 +29,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * An utility class for Kerberos.
@@ -99,7 +99,7 @@ public class KerberosUtils
         
         String names = principal.getName();
         
-        if ( StringTools.isEmpty( names ) )
+        if ( Strings.isEmpty(names) )
         {
             // Empty name...
             return EMPTY_PRINCIPAL_NAME;
@@ -216,7 +216,7 @@ public class KerberosUtils
     {
         String name = principal.getNameString(); 
         
-        if ( !StringTools.isEmpty( realm ) )
+        if ( !Strings.isEmpty(realm) )
         {
             name += '@' + realm;
         }

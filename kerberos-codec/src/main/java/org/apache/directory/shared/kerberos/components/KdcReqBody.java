@@ -37,8 +37,8 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.util.StringTools;
 
+import org.apache.directory.shared.util.Strings;
 import sun.security.krb5.internal.AuthorizationData;
 
 
@@ -478,7 +478,7 @@ public class KdcReqBody extends AbstractAsn1Object
         }
 
         // Compute the realm length.
-        realmBytes = StringTools.getBytesUtf8( realm );
+        realmBytes = Strings.getBytesUtf8(realm);
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
         kdcReqBodySeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
 

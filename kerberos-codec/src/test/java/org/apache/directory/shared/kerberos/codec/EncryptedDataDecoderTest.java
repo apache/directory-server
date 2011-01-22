@@ -37,7 +37,6 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +93,7 @@ public class EncryptedDataDecoderTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptedData.getEType() );
         assertEquals( 5, encryptedData.getKvno() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "abcdef" ), encryptedData.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), encryptedData.getCipher() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( encryptedData.computeLength() );
@@ -157,7 +156,7 @@ public class EncryptedDataDecoderTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptedData.getEType() );
         assertFalse( encryptedData.hasKvno() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "abcdef" ), encryptedData.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), encryptedData.getCipher() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( encryptedData.computeLength() );

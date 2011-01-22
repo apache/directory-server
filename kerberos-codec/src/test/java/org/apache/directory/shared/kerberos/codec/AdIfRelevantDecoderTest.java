@@ -35,7 +35,6 @@ import org.apache.directory.shared.kerberos.codec.adIfRelevant.AdIfRelevantConta
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdIfRelevant;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -95,7 +94,7 @@ public class AdIfRelevantDecoderTest
         for ( AuthorizationDataEntry ad : adIfRelevant.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), ad.getAdData() ) );
             
         }
 

@@ -35,10 +35,10 @@ import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.util.UnixCrypt;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.DateUtils;
+import org.apache.directory.shared.util.UnixCrypt;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -125,7 +125,7 @@ public class PasswordUtil
      */
     public static byte[] createStoragePassword( String credentials, LdapSecurityConstants algorithm )
     {
-        return createStoragePassword( StringTools.getBytesUtf8( credentials ), algorithm );
+        return createStoragePassword( Strings.getBytesUtf8(credentials), algorithm );
     }
     
     
@@ -175,8 +175,8 @@ public class PasswordUtil
 
             if ( algorithm == LdapSecurityConstants.HASH_METHOD_CRYPT )
             {
-                sb.append( StringTools.utf8ToString( salt ) );
-                sb.append( StringTools.utf8ToString( hashedPassword ) );
+                sb.append( Strings.utf8ToString(salt) );
+                sb.append( Strings.utf8ToString(hashedPassword) );
             }
             else if ( salt != null )
             {
@@ -186,15 +186,15 @@ public class PasswordUtil
             }
             else
             {
-                sb.append( String.valueOf( Base64.encode( hashedPassword ) ) );
+                sb.append( String.valueOf( Base64.encode(hashedPassword) ) );
             }
         }
         else
         {
-            sb.append( StringTools.utf8ToString( hashedPassword ) );
+            sb.append( Strings.utf8ToString(hashedPassword) );
         }
         
-        return StringTools.getBytesUtf8( sb.toString() );
+        return Strings.getBytesUtf8(sb.toString());
     }
     
 
@@ -302,11 +302,11 @@ public class PasswordUtil
                 return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
 
             case HASH_METHOD_CRYPT:
-                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools
-                    .utf8ToString( salt ) );
+                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString(credentials), Strings
+                    .utf8ToString(salt) );
                 String crypted = saltWithCrypted.substring( 2 );
 
-                return StringTools.getBytesUtf8( crypted );
+                return Strings.getBytesUtf8(crypted);
 
             default:
                 return credentials;

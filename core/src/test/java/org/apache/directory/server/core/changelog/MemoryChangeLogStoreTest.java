@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.DateUtils;
+import org.apache.directory.shared.util.Strings;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -136,7 +136,7 @@ public class MemoryChangeLogStoreTest
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;
         
-        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE, StringTools.getBytesUtf8( "secret"  ) );
+        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE, Strings.getBytesUtf8("secret") );
         ChangeLogEvent event = new ChangeLogEvent( revision, zuluTime, principal, forward, reverse );
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

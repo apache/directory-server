@@ -36,7 +36,6 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +89,7 @@ public class HostAddressDecoderTest
         HostAddress hostAddress = ( ( HostAddressContainer ) hostAddressContainer ).getHostAddress();
 
         assertEquals( HostAddrType.ADDRTYPE_INET, hostAddress.getAddrType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "192.168.0.1" ), hostAddress.getAddress() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("192.168.0.1"), hostAddress.getAddress() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( hostAddress.computeLength() );

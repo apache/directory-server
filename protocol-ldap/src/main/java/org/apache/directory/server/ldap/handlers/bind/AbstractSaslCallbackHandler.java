@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +185,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                     // We assume that we have only one password available
                     byte[] password = userPassword.get().getBytes();
                     
-                    String strPassword = StringTools.utf8ToString( password );
+                    String strPassword = Strings.utf8ToString(password);
                     passwordCB.setPassword( strPassword.toCharArray() );
                 }
             }

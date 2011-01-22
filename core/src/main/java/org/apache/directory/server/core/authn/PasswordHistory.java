@@ -22,9 +22,9 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Base64;
+import org.apache.directory.shared.util.DateUtils;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -87,7 +87,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
 
         sb.append( data );
 
-        return StringTools.getBytesUtf8( sb.toString() );
+        return Strings.getBytesUtf8(sb.toString());
     }
 
 
@@ -158,7 +158,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     public static void main( String[] args )
     {
         byte[] pwdhBytes = new PasswordHistory( DateUtils.getGeneralizedTime(), "secret".getBytes() ).getHistoryValue();
-        PasswordHistory pwdHistory = new PasswordHistory( StringTools.utf8ToString( pwdhBytes ) );
+        PasswordHistory pwdHistory = new PasswordHistory( Strings.utf8ToString(pwdhBytes) );
         System.out.println( pwdHistory );
     }
 }

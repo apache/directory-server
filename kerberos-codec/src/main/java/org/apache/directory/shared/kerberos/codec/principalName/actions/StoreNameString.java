@@ -29,7 +29,6 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +83,7 @@ public class StoreNameString extends GrammarAction
         // The PrincipalName must be pure ASCII witout any control character
         if ( KerberosUtils.isKerberosString( value.getData() ) )
         {
-            String nameString = StringTools.utf8ToString( value.getData() );
+            String nameString = Strings.utf8ToString(value.getData());
     
             principalName.addName( nameString );
             principalNameContainer.setGrammarEndAllowed( true );
@@ -97,7 +96,7 @@ public class StoreNameString extends GrammarAction
         else
         {
             String valBytes = Strings.dumpBytes(value.getData());
-            String valStr = StringTools.utf8ToString( value.getData() );
+            String valStr = Strings.utf8ToString(value.getData());
             String valAll = valBytes + "/" + valStr;
             LOG.error( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
     

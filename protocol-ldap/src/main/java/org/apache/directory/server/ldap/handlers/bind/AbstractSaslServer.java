@@ -25,7 +25,7 @@ import javax.security.sasl.SaslServer;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
 
 
 /**
@@ -61,7 +61,7 @@ public abstract class AbstractSaslServer implements SaslServer
      */
     public byte[] unwrap( byte[] incoming, int offset, int len ) throws SaslException
     {
-        return StringTools.EMPTY_BYTES;
+        return StringConstants.EMPTY_BYTES;
     }
 
 

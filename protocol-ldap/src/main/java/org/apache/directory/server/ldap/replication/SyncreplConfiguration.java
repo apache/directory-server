@@ -27,7 +27,7 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 import javax.net.ssl.X509TrustManager;
 
@@ -178,7 +178,7 @@ public class SyncreplConfiguration
      */
     public String getReplUserPassword()
     {
-        return StringTools.utf8ToString( replUserPassword );
+        return Strings.utf8ToString(replUserPassword);
     }
 
 

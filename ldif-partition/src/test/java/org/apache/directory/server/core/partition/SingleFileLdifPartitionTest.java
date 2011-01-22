@@ -79,7 +79,7 @@ import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifEx
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -180,7 +180,7 @@ public class SingleFileLdifPartitionTest
     {
         // while writing to the file 1 extra newline char will be added
         String ldif = LdifUtils.convertEntryToLdif( entry ) + 1;
-        byte[] data = StringTools.getBytesUtf8( ldif );
+        byte[] data = Strings.getBytesUtf8(ldif);
 
         return data.length;
     }
@@ -433,7 +433,7 @@ public class SingleFileLdifPartitionTest
 
         file.read( entry1Data );
 
-        String ldif = StringTools.utf8ToString( entry1Data );
+        String ldif = Strings.utf8ToString(entry1Data);
 
         LdifEntry ldifEntry = reader.parseLdif( ldif ).get( 0 );
 
@@ -466,7 +466,7 @@ public class SingleFileLdifPartitionTest
 
         file.read( entry1Data );
 
-        ldif = StringTools.utf8ToString( entry1Data );
+        ldif = Strings.utf8ToString(entry1Data);
 
         ldifEntry = reader.parseLdif( ldif ).get( 0 );
 

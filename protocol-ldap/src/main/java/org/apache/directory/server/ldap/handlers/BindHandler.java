@@ -47,7 +47,8 @@ import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,7 +282,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
         {
-            bindRequest.setCredentials( StringTools.EMPTY_BYTES );
+            bindRequest.setCredentials( StringConstants.EMPTY_BYTES );
         }
 
         try
@@ -449,7 +450,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         String saslMechanism = bindRequest.getSaslMechanism();
 
         // The empty mechanism is also a request for a new Bind session
-        if ( StringTools.isEmpty( saslMechanism )
+        if ( Strings.isEmpty(saslMechanism)
             || !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
         {
             sendAuthMethNotSupported( ldapSession, bindRequest );

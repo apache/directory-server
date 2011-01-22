@@ -36,7 +36,6 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.paEncTimestamp.PaEncTimestampContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +92,7 @@ public class PaEncTimestampDecoderTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, paEncTimestamp.getEType() );
         assertEquals( 5, paEncTimestamp.getKvno() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "abcdef" ), paEncTimestamp.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), paEncTimestamp.getCipher() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( paEncTimestamp.computeLength() );

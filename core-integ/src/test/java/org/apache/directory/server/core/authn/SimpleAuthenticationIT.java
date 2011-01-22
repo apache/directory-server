@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,8 +92,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         Entry entry = connection.lookup( userDn );;
         performAdminAccountChecks( entry );
-        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), StringTools
-            .getBytesUtf8( "secret" ) ) );
+        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
+            .getBytesUtf8("secret") ) );
         connection.close();
 
         service.shutdown();
@@ -102,8 +102,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection = getConnectionAs( service, userDn, "secret" );
         entry = connection.lookup( userDn );;
         performAdminAccountChecks( entry );
-        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), StringTools
-            .getBytesUtf8( "secret" ) ) );
+        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
+            .getBytesUtf8("secret") ) );
         connection.close();
     }
 

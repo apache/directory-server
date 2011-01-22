@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -62,7 +62,7 @@ public class ReplicaId implements Comparable, Serializable
      */
     public ReplicaId( String id )
     {
-        if ( StringTools.isEmpty( id ) )
+        if ( Strings.isEmpty(id) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_694, id ) );
         }

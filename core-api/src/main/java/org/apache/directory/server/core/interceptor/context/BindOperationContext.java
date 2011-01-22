@@ -27,7 +27,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +84,7 @@ public class BindOperationContext extends AbstractOperationContext
             // 
             if ( dn.isEmpty() )
             {
-                if ( StringTools.isEmpty( credentials ) )
+                if ( Strings.isEmpty(credentials) )
                 {
                     // Dn and Credentials are empty, this is an anonymous authent
                     return AuthenticationLevel.NONE;
@@ -97,7 +96,7 @@ public class BindOperationContext extends AbstractOperationContext
                     throw new LdapAuthenticationException( "Invalid authentication" );
                 }
             }
-            else if ( StringTools.isEmpty( credentials ) )
+            else if ( Strings.isEmpty(credentials) )
             {
                 return AuthenticationLevel.UNAUTHENT;
             }

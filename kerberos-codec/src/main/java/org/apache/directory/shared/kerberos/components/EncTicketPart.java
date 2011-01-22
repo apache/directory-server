@@ -34,7 +34,6 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,7 +180,7 @@ public class EncTicketPart extends AbstractAsn1Object
         keyLen = key.computeLength();
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( keyLen ) + keyLen;
 
-        cRealmBytes = StringTools.getBytesUtf8( cRealm );
+        cRealmBytes = Strings.getBytesUtf8(cRealm);
         cRealmLen = 1 + TLV.getNbBytes( cRealmBytes.length ) + cRealmBytes.length;
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( cRealmLen ) + cRealmLen;
 

@@ -87,6 +87,7 @@ import org.apache.directory.shared.ldap.message.control.replication.Synchronizat
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,7 +219,7 @@ public class SyncReplProvider implements ReplicationProvider
 
             // cookie is in the format <replicaId>;<Csn value>
             byte[] cookieBytes = syncControl.getCookie();
-            String cookieString = StringTools.utf8ToString( cookieBytes );
+            String cookieString = Strings.utf8ToString(cookieBytes);
 
             if ( cookieBytes == null )
             {
@@ -226,7 +227,7 @@ public class SyncReplProvider implements ReplicationProvider
             }
             else
             {
-                LOG.warn( "search request received with the cookie {}", StringTools.utf8ToString( cookieBytes ) );
+                LOG.warn( "search request received with the cookie {}", Strings.utf8ToString(cookieBytes) );
                 if ( !isValidCookie( cookieString ) )
                 {
                     LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
@@ -320,7 +321,7 @@ public class SyncReplProvider implements ReplicationProvider
 
         String lastSentCsn = sendContentFromLog( session, req, replicaLog );
 
-        byte[] cookie = StringTools.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + lastSentCsn );
+        byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + lastSentCsn);
 
         if ( refreshNPersist )
         {
@@ -410,12 +411,12 @@ public class SyncReplProvider implements ReplicationProvider
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             replicaLog.setLastSentCsn( contextCsn );
-            byte[] cookie = StringTools.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + contextCsn );
+            byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
             if ( refreshNPersist ) // refreshAndPersist mode
             {
                 contextCsn = sendContentFromLog( session, req, replicaLog );
-                cookie = StringTools.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + contextCsn );
+                cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
                 intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );

@@ -72,7 +72,7 @@ import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -507,7 +507,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             PagedResultsControl.CONTROL_OID );
         byte[] cookie = pagedSearchControl.getCookie();
 
-        if ( !StringTools.isEmpty( cookie ) )
+        if ( !Strings.isEmpty(cookie) )
         {
             // If the cookie is not null, we have to destroy the associated
             // cursor stored into the session (if any)
@@ -603,7 +603,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         byte[] cookie = pagedSearchControl.getCookie();
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
 
-        if ( StringTools.isEmpty( cookie ) )
+        if ( Strings.isEmpty(cookie) )
         {
             // This is a new search. We have a special case when the paged size
             // is above the server size limit : in this case, we default to a

@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -79,7 +79,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     {
         StoredProcedure spBean = decodeBean( req.getRequestValue() );
 
-        String procedure = StringTools.utf8ToString( spBean.getProcedure() );
+        String procedure = Strings.utf8ToString(spBean.getProcedure());
         ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
 

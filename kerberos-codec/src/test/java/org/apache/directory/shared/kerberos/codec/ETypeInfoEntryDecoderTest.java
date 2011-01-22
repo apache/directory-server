@@ -34,7 +34,6 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -83,7 +82,7 @@ public class ETypeInfoEntryDecoderTest
         ETypeInfoEntry etypeInforEntry = container.getETypeInfoEntry();
         
         assertEquals( EncryptionType.DES3_CBC_MD5, etypeInforEntry.getEType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "1234" ), etypeInforEntry.getSalt() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("1234"), etypeInforEntry.getSalt() ) );
         
         ByteBuffer bb = ByteBuffer.allocate( etypeInforEntry.computeLength() );
         

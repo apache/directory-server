@@ -34,7 +34,6 @@ import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,7 +333,7 @@ public class Authenticator extends KerberosMessage
         authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
 
         // Compute the  crealm length.
-        crealmBytes = StringTools.getBytesUtf8( crealm );
+        crealmBytes = Strings.getBytesUtf8(crealm);
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
         authenticatorSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength;
 

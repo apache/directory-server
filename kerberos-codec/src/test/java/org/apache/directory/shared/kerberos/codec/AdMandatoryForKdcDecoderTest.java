@@ -35,7 +35,6 @@ import org.apache.directory.shared.kerberos.codec.adMandatoryForKdc.AdMandatoryF
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdMandatoryForKdc;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -95,7 +94,7 @@ public class AdMandatoryForKdcDecoderTest
         for ( AuthorizationDataEntry ad : adMandatoryForKdc.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), ad.getAdData() ) );
             
         }
 

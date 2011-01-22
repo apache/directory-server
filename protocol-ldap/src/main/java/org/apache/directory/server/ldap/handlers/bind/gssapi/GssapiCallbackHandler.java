@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         LOG.debug( "Converted username {} to DN {}.", username, bindDn );
 
         LdapPrincipal ldapPrincipal = new LdapPrincipal( new DN( entry.getDistinguishedName() ),
-            AuthenticationLevel.STRONG, StringTools.EMPTY_BYTES );
+            AuthenticationLevel.STRONG, StringConstants.EMPTY_BYTES );
         ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );
 

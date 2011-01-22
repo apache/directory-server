@@ -45,7 +45,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
  
@@ -355,7 +355,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
 
         // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
         // The value is empty
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", StringTools.EMPTY_BYTES, true );
+        Attributes attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
 
         // Add the AVA
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
@@ -364,7 +364,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( StringTools.EMPTY_BYTES ) );
+        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -548,7 +548,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // Add the first AVA
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
-        attrs = new BasicAttributes( "crossCertificatePair", StringTools.EMPTY_BYTES, true );
+        attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
         
         // Add the second AVA
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
@@ -558,7 +558,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
         assertTrue( attr.contains( "12345".getBytes() ) );
-        assertTrue( attr.contains( StringTools.EMPTY_BYTES ) );
+        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
         assertEquals( 2, attr.size() );
     }
     

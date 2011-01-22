@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifEx
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -698,7 +698,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a binary value
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( atCN, test4 );
         assertFalse( entry.get( atCN ).contains( test4 ) );
@@ -717,9 +717,9 @@ public class SchemaAwareEntryTest
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         AttributeType atJpegPhoto = schemaManager.lookupAttributeTypeRegistry( "jpegPhoto" );
 
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         // Test that we can't inject a null AT
         try
@@ -777,7 +777,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -797,9 +797,9 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] b1 = StringTools.getBytesUtf8( "test1" );
-        byte[] b2 = StringTools.getBytesUtf8( "test2" );
-        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+        byte[] b1 = Strings.getBytesUtf8("test1");
+        byte[] b2 = Strings.getBytesUtf8("test2");
+        byte[] b3 = Strings.getBytesUtf8("test3");
 
         Value<String> test1 = new StringValue( atDC, "test1" );
         Value<String> test2 = new StringValue( atDC, "test2" );
@@ -854,7 +854,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( atDC, test4 );
         assertFalse( entry.contains( atDC, test4 ) );
@@ -894,7 +894,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+        byte[] b4 = Strings.getBytesUtf8("test4");
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -949,7 +949,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a binary value
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "DC", test4 );
         assertFalse( entry.contains( "DC", test4 ) );
@@ -967,9 +967,9 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         // Test a simple addition
         entry.add( "userPassword", test1 );
@@ -1005,7 +1005,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "userPassword", "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -1025,9 +1025,9 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] b1 = StringTools.getBytesUtf8( "test1" );
-        byte[] b2 = StringTools.getBytesUtf8( "test2" );
-        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+        byte[] b1 = Strings.getBytesUtf8("test1");
+        byte[] b2 = Strings.getBytesUtf8("test2");
+        byte[] b3 = Strings.getBytesUtf8("test3");
 
         Value<String> test1 = new StringValue( atDC, "test1" );
         Value<String> test2 = new StringValue( atDC, "test2" );
@@ -1075,7 +1075,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "dC", test4 );
         assertFalse( entry.contains( "cN", test4 ) );
@@ -1117,7 +1117,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+        byte[] b4 = Strings.getBytesUtf8("test4");
 
         entry.add( "userPASSWORD", "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -1169,7 +1169,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a binary value
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "dc", atDC, test4 );
         assertFalse( entry.contains( "dc", test4 ) );
@@ -1187,9 +1187,9 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         // Test a simple addition
         entry.add( "userPassword", atPassword, test1 );
@@ -1225,7 +1225,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "userPassword", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -1245,9 +1245,9 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] b1 = StringTools.getBytesUtf8( "test1" );
-        byte[] b2 = StringTools.getBytesUtf8( "test2" );
-        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+        byte[] b1 = Strings.getBytesUtf8("test1");
+        byte[] b2 = Strings.getBytesUtf8("test2");
+        byte[] b3 = Strings.getBytesUtf8("test3");
 
         Value<String> test1 = new StringValue( atDC, "test1" );
         Value<String> test2 = new StringValue( atDC, "test2" );
@@ -1295,7 +1295,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        byte[] test4 = Strings.getBytesUtf8("test4");
 
         entry.add( "dC", atDC, test4 );
         assertFalse( entry.contains( "cN", test4 ) );
@@ -1337,7 +1337,7 @@ public class SchemaAwareEntryTest
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
-        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+        byte[] b4 = Strings.getBytesUtf8("test4");
 
         entry.add( "userPASSWORD", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
@@ -2761,10 +2761,10 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        byte[] password = StringTools.getBytesUtf8( "test" );
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] password = Strings.getBytesUtf8("test");
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         // Add a single value
         atPwd = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -2950,10 +2950,10 @@ public class SchemaAwareEntryTest
         }
 
         // Add a single value
-        byte[] test = StringTools.getBytesUtf8( "test" );
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] test = Strings.getBytesUtf8("test");
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         entry.put( "userPassword", test );
 
@@ -3107,9 +3107,9 @@ public class SchemaAwareEntryTest
         assertEquals( "userpassword", entry.get( atPassword ).getId() );
 
         // Test that we can add some new attributes with values
-        byte[] test1 = StringTools.getBytesUtf8( "test1" );
-        byte[] test2 = StringTools.getBytesUtf8( "test2" );
-        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        byte[] test1 = Strings.getBytesUtf8("test1");
+        byte[] test2 = Strings.getBytesUtf8("test2");
+        byte[] test3 = Strings.getBytesUtf8("test3");
 
         EntryAttribute result = entry.put( "UserPassword", atPassword, test1, test2, test3 );
         assertNotNull( result );
@@ -3542,8 +3542,8 @@ public class SchemaAwareEntryTest
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
-        byte[] b1 = StringTools.getBytesUtf8( "test1" );
-        byte[] b2 = StringTools.getBytesUtf8( "test2" );
+        byte[] b1 = Strings.getBytesUtf8("test1");
+        byte[] b2 = Strings.getBytesUtf8("test2");
 
         Value<String> test1 = new StringValue( atCN, "test1" );
         Value<String> test2 = new StringValue( atCN, "test2" );

@@ -50,8 +50,8 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.EmptyEnumeration;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * A helper class used to manipulate Entries, Attributes and Values.
@@ -154,7 +154,7 @@ public class ServerEntryUtils
                     }
                     else if ( value instanceof byte[] )
                     {
-                        nbAdded = serverAttribute.add( StringTools.utf8ToString( (byte[])value ) );
+                        nbAdded = serverAttribute.add( Strings.utf8ToString((byte[]) value) );
                     }
                     else
                     {
@@ -165,7 +165,7 @@ public class ServerEntryUtils
                 {
                     if ( value instanceof String )
                     {
-                        nbAdded = serverAttribute.add( StringTools.getBytesUtf8( (String)value ) );
+                        nbAdded = serverAttribute.add( Strings.getBytesUtf8((String) value) );
                     }
                     else if ( value instanceof byte[] )
                     {
@@ -706,7 +706,7 @@ public class ServerEntryUtils
             
             for ( String option:res )
             {
-                if ( !StringTools.isEmpty( option ) )
+                if ( !Strings.isEmpty(option) )
                 {
                     options.add( option );
                 }

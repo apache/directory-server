@@ -92,7 +92,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -1256,8 +1256,8 @@ public class AddIT extends AbstractLdapTestUnit
         assertTrue( res.hasMore() );
         Attribute userPasswordAttribute = res.next().getAttributes().get( "userPassword" );
         assertEquals( 2, userPasswordAttribute.size() );
-        assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "test" ) ) );
-        assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "ABC" ) ) );
+        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8("test") ) );
+        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8("ABC") ) );
         assertFalse( res.hasMore() );
     }
 

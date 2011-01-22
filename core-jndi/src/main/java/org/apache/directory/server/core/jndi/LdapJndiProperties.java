@@ -30,7 +30,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -252,7 +252,7 @@ public class LdapJndiProperties
         {
             if ( credobj instanceof String )
             {
-                props.credentials = StringTools.getBytesUtf8( ( String ) credobj );
+                props.credentials = Strings.getBytesUtf8((String) credobj);
             }
             else if ( credobj instanceof byte[] )
             {

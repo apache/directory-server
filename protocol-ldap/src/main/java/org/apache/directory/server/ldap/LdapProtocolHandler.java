@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -101,7 +101,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                     }
                     catch ( Exception e )
                     {
-                        if ( StringTools.isEmpty( id ) )
+                        if ( Strings.isEmpty(id) )
                         {
                             return false;
                         }

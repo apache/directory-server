@@ -26,7 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public abstract class AbstractReadRealm extends GrammarAction
         
         // The value is the realm
         Value value = tlv.getValue();
-        String realm = StringTools.utf8ToString( value.getData() );
+        String realm = Strings.utf8ToString(value.getData());
 
         if ( IS_DEBUG )
         {

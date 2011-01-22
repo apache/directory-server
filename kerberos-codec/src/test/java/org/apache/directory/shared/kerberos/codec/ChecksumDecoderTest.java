@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -77,7 +76,7 @@ public class ChecksumDecoderTest
         Checksum checksum = chkContainer.getChecksum();
         
         assertEquals( ChecksumType.getTypeByValue( 2 ), checksum.getChecksumType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "chksum" ), checksum.getChecksumValue() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("chksum"), checksum.getChecksumValue() ) );
         
         ByteBuffer bb = ByteBuffer.allocate( checksum.computeLength() );
         

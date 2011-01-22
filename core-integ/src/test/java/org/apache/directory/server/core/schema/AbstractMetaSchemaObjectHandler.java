@@ -24,7 +24,7 @@ import java.io.File;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 
 /**
@@ -57,7 +57,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
         for ( RDN rdn : dn )
         {
             sb.append( '/' );
-            sb.append( StringTools.toLowerCase( rdn.getName() ) );
+            sb.append( Strings.toLowerCase(rdn.getName()) );
         }
 
         sb.append( ".ldif" );

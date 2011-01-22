@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class StoreAddress extends AbstractReadOctetString
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "Address : {}", StringTools.utf8ToString( data ) );
+            LOG.debug( "Address : {}", Strings.utf8ToString(data) );
         }
     }
 }

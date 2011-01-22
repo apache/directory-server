@@ -41,8 +41,8 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -671,7 +671,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
             
             BTree tree = getBTree( values.getBTreeRedirect() );
-            replaced = ( V ) tree.insert( value, StringTools.EMPTY_BYTES, true );
+            replaced = ( V ) tree.insert( value, StringConstants.EMPTY_BYTES, true );
             
             if ( replaced == null )
             {
@@ -1130,7 +1130,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         
         while ( keys.next() )
         {
-            bTree.insert( keys.get(), (K)StringTools.EMPTY_BYTES, true );
+            bTree.insert( keys.get(), (K) StringConstants.EMPTY_BYTES, true );
         }
         
         return bTree;

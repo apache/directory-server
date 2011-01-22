@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.util.Arrays;
 
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
 
 /**
@@ -87,9 +87,9 @@ public class AuthorizationDataEntry
      */
     public byte[] getAdData()
     {
-        if ( StringTools.isEmpty( adData ) )
+        if ( Strings.isEmpty(adData) )
         {
-            return StringTools.EMPTY_BYTES;
+            return StringConstants.EMPTY_BYTES;
         }
         else
         {
@@ -116,9 +116,9 @@ public class AuthorizationDataEntry
      */
     public void setAdData( byte[] adData )
     {
-        if ( StringTools.isEmpty( adData ) )
+        if ( Strings.isEmpty(adData) )
         {
-            this.adData = StringTools.EMPTY_BYTES;
+            this.adData = StringConstants.EMPTY_BYTES;
         }
         else
         {

@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.util.Base64;
 
 
 /**
@@ -322,7 +322,7 @@ public class SchemaSubentryModifier
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
             entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
-                Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() ) );
+                Base64.decode(syntaxCheckerDescription.getBytecode().toCharArray()) );
         }
         
         if ( syntaxCheckerDescription.getDescription() != null )

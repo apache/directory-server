@@ -37,7 +37,6 @@ import org.apache.directory.shared.kerberos.codec.etypeInfo.ETypeInfoContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,7 +104,7 @@ public class ETypeInfoDecoderTest
         for ( ETypeInfoEntry etypeInfoEntry : etypeInfo.getETypeInfoEntries() )
         {
             assertEquals( EncryptionType.DES3_CBC_MD5, etypeInfoEntry.getEType() );
-            assertTrue( Arrays.equals( StringTools.getBytesUtf8( expected[i] ), etypeInfoEntry.getSalt() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i]), etypeInfoEntry.getSalt() ) );
             i++;
         }
 

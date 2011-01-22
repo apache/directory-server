@@ -31,7 +31,6 @@ import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,7 +179,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
         // Compute the salt
         if ( salt != null )
         {
-            saltBytes = StringTools.getBytesUtf8( salt );
+            saltBytes = Strings.getBytesUtf8(salt);
             saltTagLength = 1 + TLV.getNbBytes( saltBytes.length ) + saltBytes.length;
             etypeInfo2EntrySeqLength += 1 + TLV.getNbBytes( saltTagLength ) + saltTagLength;
         }

@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class StoreEText extends GrammarAction
         
         // The value is the realm
         Value value = tlv.getValue();
-        String eText = StringTools.utf8ToString( value.getData() );
+        String eText = Strings.utf8ToString(value.getData());
 
         KrbError krbError = krbErrContainer.getKrbError();
         krbError.setEText( eText );

@@ -33,7 +33,6 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
@@ -79,7 +78,7 @@ public class EncryptionKeyDecoderTest
         EncryptionKey encKey = container.getEncryptionKey();
         
         assertEquals( EncryptionType.getTypeByValue( 2 ), encKey.getKeyType() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "keyval" ), encKey.getKeyValue() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8("keyval"), encKey.getKeyValue() ) );
         
         ByteBuffer bb = ByteBuffer.allocate( encKey.computeLength() );
         

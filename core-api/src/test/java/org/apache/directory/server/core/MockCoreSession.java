@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -199,7 +199,7 @@ public class MockCoreSession implements CoreSession
             }
             else if ( value instanceof byte[] )
             {
-                val = new StringValue( attributeType, StringTools.utf8ToString( ( byte[] ) value ) );
+                val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
             }
             else
             {
@@ -210,7 +210,7 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new BinaryValue( attributeType, StringTools.getBytesUtf8( ( String ) value ) );
+                val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
             }
             else if ( value instanceof byte[] )
             {
@@ -787,7 +787,7 @@ public class MockCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return StringTools.isEmpty( getEffectivePrincipal().getName() );
+        return Strings.isEmpty(getEffectivePrincipal().getName());
     }
 
 

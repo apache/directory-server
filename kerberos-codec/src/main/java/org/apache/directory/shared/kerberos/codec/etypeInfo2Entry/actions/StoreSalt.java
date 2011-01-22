@@ -27,7 +27,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.ETypeInfo2EntryContainer;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class StoreSalt extends GrammarAction
             // The encrypted data may be null
             if ( value.getData() != null ) 
             {
-                String salt = StringTools.utf8ToString( value.getData() );
+                String salt = Strings.utf8ToString(value.getData());
                 etypeInfo2Entry.setSalt( salt );
             }
         }

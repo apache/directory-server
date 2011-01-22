@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 
 /**
  * An specialization of the ASN.1 GeneralTime. The Kerberos time contains date and 
@@ -199,7 +199,7 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public byte[] getBytes()
     {
-        return StringTools.getBytesUtf8( date );
+        return Strings.getBytesUtf8(date);
     }
     
     

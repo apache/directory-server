@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -306,7 +306,7 @@ public class LdifConfigExtractor
                     break;
                 }
                 
-                String s = StringTools.utf8ToString( buf, 0, read );
+                String s = Strings.utf8ToString(buf, 0, read);
                 fw.write( s );
             }
             

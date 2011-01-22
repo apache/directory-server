@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 String msg = I18n.err( I18n.ERR_364, entry.getDn().getName(), 
-                    StringTools.listToString( errors ) );
+                    Strings.listToString(errors) );
                 LOG.info( msg );
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -141,7 +141,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             if ( !errors.isEmpty() )
             {
                 String msg = I18n.err( I18n.ERR_365, entry.getDn().getName(),
-                    StringTools.listToString( errors ) );
+                    Strings.listToString(errors) );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }

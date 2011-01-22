@@ -29,7 +29,7 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class StoreFrom extends GrammarAction
         
         // The value is the KerberosTime
         Value value = tlv.getValue();
-        String date = StringTools.utf8ToString( value.getData() );
+        String date = Strings.utf8ToString(value.getData());
         
         try
         {
