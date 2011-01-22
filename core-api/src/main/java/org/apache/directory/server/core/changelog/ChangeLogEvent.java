@@ -30,7 +30,7 @@ import java.util.List;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.util.UTFUtils;
+import org.apache.directory.shared.util.Unicode;
 
 
 /**
@@ -172,7 +172,7 @@ public class ChangeLogEvent implements Externalizable
         
         if ( hasZuluTime )
         {
-            zuluTime = UTFUtils.readUTF( in );
+            zuluTime = Unicode.readUTF(in);
         }
         
         // Read the forward LDIF
@@ -219,7 +219,7 @@ public class ChangeLogEvent implements Externalizable
         if ( zuluTime != null )
         {
             out.writeBoolean( true );
-            UTFUtils.writeUTF( out, zuluTime );
+            Unicode.writeUTF(out, zuluTime);
         }
         else
         {

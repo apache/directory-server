@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
-import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.exception.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -61,14 +61,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.filter.LessEqNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.message.IntermediateResponse;
 import org.apache.directory.shared.ldap.message.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -85,8 +78,7 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.LdapURL;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.filter.LdapURL;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -563,7 +555,7 @@ public class SyncReplProvider implements ReplicationProvider
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         SyncStateValueControl syncStateControl = new SyncStateValueControl();
         syncStateControl.setSyncStateType( syncStateType );
-        syncStateControl.setEntryUUID( StringTools.uuidToBytes( uuid.getString() ) );
+        syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
         if ( syncStateType == SyncStateTypeEnum.DELETE )
         {
@@ -587,7 +579,7 @@ public class SyncReplProvider implements ReplicationProvider
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         SyncStateValueControl syncStateControl = new SyncStateValueControl();
         syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
-        syncStateControl.setEntryUUID( StringTools.uuidToBytes( uuid.getString() ) );
+        syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
         Response resp = generateResponse( session, req, entry );
         resp.addControl( syncStateControl );

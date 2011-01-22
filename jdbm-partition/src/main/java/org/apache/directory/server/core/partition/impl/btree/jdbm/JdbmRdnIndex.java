@@ -38,7 +38,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

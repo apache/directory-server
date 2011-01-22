@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.future.WriteFuture;
 import org.slf4j.Logger;
@@ -149,7 +148,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 SyncStateValueControl syncAdd = new SyncStateValueControl();
                 syncAdd.setSyncStateType( SyncStateTypeEnum.ADD );
                 syncAdd
-                    .setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+                    .setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT).getString()) );
                 syncAdd.setCookie( getCookie( entry ) );
                 respEntry.addControl( syncAdd );
 
@@ -189,8 +188,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValueControl syncDelete = new SyncStateValueControl();
                 syncDelete.setSyncStateType( SyncStateTypeEnum.DELETE );
-                syncDelete.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncDelete.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
+                        .getString()) );
                 syncDelete.setCookie( getCookie( entry ) );
                 respEntry.addControl( syncDelete );
 
@@ -228,8 +227,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODIFY );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
+                        .getString()) );
                 syncModify.setCookie( getCookie( alteredEntry ) );
                 respEntry.addControl( syncModify );
 
@@ -276,8 +275,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
+                        .getString()) );
                 syncModify.setCookie( getCookie( entry ) );
                 respEntry.addControl( syncModify );
                 respEntry.addControl( modDnControl );
@@ -327,8 +326,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( alteredEntry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
+                        .getString()) );
                 syncModify.setCookie( getCookie( alteredEntry ) );
                 respEntry.addControl( syncModify );
                 respEntry.addControl( modDnControl );
@@ -371,8 +370,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
-                syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT )
-                    .getString() ) );
+                syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
+                        .getString()) );
                 syncModify.setCookie( getCookie( renameContext.getModifiedEntry() ) );
                 respEntry.addControl( syncModify );
                 respEntry.addControl( modDnControl );

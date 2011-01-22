@@ -50,7 +50,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

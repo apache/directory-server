@@ -85,7 +85,6 @@ import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -356,7 +355,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             // check to avoid conversion of UUID from byte[] to String
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "entryUUID = {}", StringTools.uuidToString( syncStateCtrl.getEntryUUID() ) );
+                LOG.debug( "entryUUID = {}", Strings.uuidToString(syncStateCtrl.getEntryUUID()) );
             }
 
             switch ( state )
@@ -873,7 +872,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         for ( byte[] uuid : uuidList )
         {
-            LOG.info( "uuid: {}", StringTools.uuidToString( uuid ) );
+            LOG.info( "uuid: {}", Strings.uuidToString(uuid) );
         }
 
         // if it is refreshPresent list then send all the UUIDs for
@@ -922,7 +921,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         int size = limitedUuidList.size();
         if ( size == 1 )
         {
-            String uuid = StringTools.uuidToString( limitedUuidList.get( 0 ) );
+            String uuid = Strings.uuidToString(limitedUuidList.get(0));
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                 new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
             if ( isRefreshPresent )
@@ -943,7 +942,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
             for ( int i = 0; i < size; i++ )
             {
-                String uuid = StringTools.uuidToString( limitedUuidList.get( i ) );
+                String uuid = Strings.uuidToString(limitedUuidList.get(i));
                 ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                     new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
 

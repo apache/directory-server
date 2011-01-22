@@ -33,7 +33,7 @@ import org.apache.directory.server.core.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
+import org.apache.directory.shared.util.MethodUtils;
 
 
 /**
@@ -75,7 +75,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
         Method proc;
         try
         {
-            proc = DirectoryClassUtils.getAssignmentCompatibleMethod( clazz, spName, types );
+            proc = MethodUtils.getAssignmentCompatibleMethod(clazz, spName, types);
         }
         catch ( NoSuchMethodException e )
         {

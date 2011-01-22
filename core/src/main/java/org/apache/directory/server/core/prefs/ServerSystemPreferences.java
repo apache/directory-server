@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.PreferencesDictionary;
+import org.apache.directory.shared.util.PreferencesDictionary;
 
 
 /**

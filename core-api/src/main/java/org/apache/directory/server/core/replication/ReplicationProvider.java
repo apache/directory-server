@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.core.replication;
 
-import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.util.LdapURL;
+import org.apache.directory.shared.ldap.exception.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.filter.LdapURL;
 
 /**
  * The replication provider data structure.

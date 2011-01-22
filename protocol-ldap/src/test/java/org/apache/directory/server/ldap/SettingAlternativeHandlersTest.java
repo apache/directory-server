@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;

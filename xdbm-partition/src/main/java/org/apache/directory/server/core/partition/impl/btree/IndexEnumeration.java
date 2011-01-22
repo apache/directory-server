@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;

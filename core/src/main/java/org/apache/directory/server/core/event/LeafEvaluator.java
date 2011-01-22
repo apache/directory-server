@@ -23,7 +23,7 @@ package org.apache.directory.server.core.event;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;

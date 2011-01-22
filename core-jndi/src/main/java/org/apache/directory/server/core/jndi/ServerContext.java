@@ -112,10 +112,7 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.*;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -129,7 +126,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
 
@@ -1114,8 +1111,8 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
-                .getAttributes() ), target, service.getSchemaManager() );
+            outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive(res
+                    .getAttributes()), target, service.getSchemaManager() );
         }
         catch ( LdapInvalidAttributeTypeException liate )
         {

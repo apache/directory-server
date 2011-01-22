@@ -22,7 +22,7 @@ package org.apache.directory.server.core.prefs;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
