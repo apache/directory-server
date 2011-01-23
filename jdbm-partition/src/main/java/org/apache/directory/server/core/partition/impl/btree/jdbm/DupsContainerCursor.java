@@ -21,9 +21,9 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.cursor.AbstractTupleCursor;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
 import jdbm.helper.TupleBrowser;
 

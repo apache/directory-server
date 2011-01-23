@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 
 
 /**

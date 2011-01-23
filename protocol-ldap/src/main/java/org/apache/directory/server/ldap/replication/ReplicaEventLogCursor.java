@@ -26,7 +26,7 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.broker.region.Queue;
 import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.directory.shared.ldap.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 
 
 /**

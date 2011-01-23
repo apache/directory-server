@@ -36,9 +36,9 @@ import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.util.SynchronizedLRUMap;
@@ -880,7 +880,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    public Cursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>> cursor() throws Exception
+    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>> cursor() throws Exception
     {
         if ( allowsDuplicates )
         {
@@ -892,23 +892,23 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>> cursor( K key ) throws Exception
+    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>> cursor( K key ) throws Exception
     {
         if ( key == null )
         {
-            return new EmptyCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>>();
         }
 
         V raw = bt.find( key );
 
         if ( null == raw )
         {
-            return new EmptyCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>>();
         }
 
         if ( ! allowsDuplicates )
         {
-            return new SingletonCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>( new org.apache.directory.shared.ldap.cursor.Tuple<K,V>( key, ( V ) raw ) );
+            return new SingletonCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>>( new org.apache.directory.shared.ldap.model.cursor.Tuple<K,V>( key, ( V ) raw ) );
         }
 
         byte[] serialized = ( byte[] ) raw;

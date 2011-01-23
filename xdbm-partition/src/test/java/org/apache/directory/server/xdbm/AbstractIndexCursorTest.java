@@ -26,8 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 
-import org.apache.directory.shared.ldap.cursor.CursorClosedException;
-import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.CursorClosedException;
+import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.junit.Before;
 import org.junit.Test;

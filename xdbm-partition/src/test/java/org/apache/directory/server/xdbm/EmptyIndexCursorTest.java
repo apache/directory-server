@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import static junit.framework.Assert.assertFalse;
 
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.junit.Before;
 import org.junit.Test;

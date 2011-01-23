@@ -27,10 +27,9 @@ import java.util.List;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.cursor.ListCursor;
+import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of a Cursor based on a {@link List} of {@link Cursor}s.  Optionally, the
  * Cursor may be limited to a specific range within the list.
  * 
- * This class is modeled based on the implementation of {@link ListCursor}
+ * This class is modeled based on the implementation of {@link org.apache.directory.shared.ldap.model.cursor.ListCursor}
  * 
  * WARN this is only used internally 
  * 

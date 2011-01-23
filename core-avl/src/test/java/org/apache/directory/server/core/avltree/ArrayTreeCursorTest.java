@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

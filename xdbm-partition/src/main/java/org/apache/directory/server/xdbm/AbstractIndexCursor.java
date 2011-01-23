@@ -23,9 +23,9 @@ package org.apache.directory.server.xdbm;
 import java.util.Iterator;
 
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
 
 
 /**

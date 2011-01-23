@@ -21,7 +21,7 @@ package org.apache.directory.server.core.changelog;
 
 
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.name.Dn;

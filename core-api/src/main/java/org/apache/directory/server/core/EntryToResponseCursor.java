@@ -25,9 +25,9 @@ import java.util.Iterator;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;

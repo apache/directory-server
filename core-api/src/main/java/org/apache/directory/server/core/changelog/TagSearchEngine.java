@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 
 
 /**
@@ -124,6 +124,6 @@ public interface TagSearchEngine
      * @throws IllegalArgumentException if the revision range is not constructed properly
      * or if either revision number is greater than the current revision or less than 0.
      */
-    Cursor<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
+    Cursor<Tag> find( long startRevision, long endRevision, RevisionOrder order )
         throws Exception;
 }
