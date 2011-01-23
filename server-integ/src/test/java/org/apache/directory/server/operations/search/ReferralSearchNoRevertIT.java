@@ -41,7 +41,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.junit.After;
@@ -162,7 +162,7 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
         {
             LdifEntry entry = reader.next();
             ldapServer.getDirectoryService().getAdminSession().add( 
-                new DefaultEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
+                new DefaultEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) );
         }
     }
 

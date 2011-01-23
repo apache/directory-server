@@ -30,9 +30,9 @@ import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaCon
 import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_HISTORY_AT;
 import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
 import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_RESET_AT;
-import static org.apache.directory.shared.ldap.entry.ModificationOperation.ADD_ATTRIBUTE;
-import static org.apache.directory.shared.ldap.entry.ModificationOperation.REMOVE_ATTRIBUTE;
-import static org.apache.directory.shared.ldap.entry.ModificationOperation.REPLACE_ATTRIBUTE;
+import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.ADD_ATTRIBUTE;
+import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
+import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,15 +89,15 @@ import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRes
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.model.entry.BinaryValue;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.StringValue;
+import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.*;

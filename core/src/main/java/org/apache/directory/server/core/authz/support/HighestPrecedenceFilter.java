@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 

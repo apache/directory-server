@@ -29,9 +29,9 @@ import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
@@ -198,7 +198,7 @@ public class LdifFileLoader
                         try
                         {
                             coreSession.add( 
-                                new DefaultEntry( 
+                                new DefaultEntry(
                                     coreSession.getDirectoryService().getSchemaManager(), entry ) ); 
                            count++;
                             log.info( "Created {}.", dn );

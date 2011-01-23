@@ -35,7 +35,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationDecoder;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationObject;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;

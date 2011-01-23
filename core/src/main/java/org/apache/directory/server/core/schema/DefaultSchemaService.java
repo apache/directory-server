@@ -26,10 +26,10 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -151,7 +151,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateObjectClasses() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute(
             getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASSES_AT ) );
 
         for ( ObjectClass objectClass : getSchemaManager().getObjectClassRegistry() )
@@ -193,7 +193,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateMatchingRuleUses() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute(
             getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
         for ( MatchingRuleUse matchingRuleUse : getSchemaManager().getMatchingRuleUseRegistry() )

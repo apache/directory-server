@@ -35,7 +35,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;

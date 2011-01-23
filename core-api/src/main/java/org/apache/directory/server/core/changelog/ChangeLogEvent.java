@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.util.Unicode;
 

@@ -29,12 +29,10 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
@@ -79,7 +77,7 @@ public class ChangePassword implements DirectoryServiceOperation
         
         List<Modification> mods = new ArrayList<Modification>(2);
         
-        EntryAttribute newPasswordAttribute = new DefaultEntryAttribute( 
+        EntryAttribute newPasswordAttribute = new DefaultEntryAttribute(
             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), Strings.getBytesUtf8(newPassword) );
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         

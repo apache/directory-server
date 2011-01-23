@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm.tools;
 
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

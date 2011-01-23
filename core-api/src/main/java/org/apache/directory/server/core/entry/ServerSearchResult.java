@@ -21,7 +21,7 @@ package org.apache.directory.server.core.entry;
 
 
 
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.name.Dn;
 
 /**

@@ -40,7 +40,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +66,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getSystemContext( service );
 

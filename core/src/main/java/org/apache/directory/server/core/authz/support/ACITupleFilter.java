@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.Loggers;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public interface ACITupleFilter
      * 
      * @param aciContext the container for ACI items
      * @param scope the scope of the operation to be performed
-     * @param userEntry the {@link Entry} of the current user entry in the DIT
+     * @param userEntry the {@link org.apache.directory.shared.ldap.model.entry.Entry} of the current user entry in the DIT
      * @return the collection of filtered tuples
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if failed to filter the specific tuples
      */

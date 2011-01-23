@@ -50,13 +50,14 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -921,7 +922,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             String uuid = Strings.uuidToString(limitedUuidList.get(0));
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
+                new StringValue( uuid ) );
             if ( isRefreshPresent )
             {
                 filter = new NotNode( filter );
@@ -942,7 +943,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             {
                 String uuid = Strings.uuidToString(limitedUuidList.get(i));
                 ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                    new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
+                    new StringValue( uuid ) );
 
                 if ( isRefreshPresent )
                 {

@@ -36,11 +36,11 @@ import java.util.List;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -246,7 +246,7 @@ public class SchemaAwareModificationTest
         assertTrue( copy instanceof DefaultModification );
         assertTrue( copy instanceof DefaultModification );
         assertFalse( copy.equals( clientModification ) );
-        assertTrue( copy.getAttribute() instanceof EntryAttribute );
+        assertTrue( copy.getAttribute() instanceof EntryAttribute);
         assertEquals( atC, copy.getAttribute().getAttributeType() );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         assertTrue( copy.getAttribute().contains( "test1", "test2" ) );

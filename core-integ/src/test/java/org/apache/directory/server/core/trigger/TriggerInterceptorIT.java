@@ -33,9 +33,9 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
-import org.apache.directory.shared.ldap.entry.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -244,7 +244,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
         String testEntryName = ( ( LdapContext )sysRoot.lookup( "cn=The Teacher of All Times" ) ).getNameInNamespace();
-        assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get( "uniqueMember" ), testEntryName ) );
+        assertTrue( AttributeUtils.containsValueCaseIgnore(staff.get("uniqueMember"), testEntryName) );
         assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get( "uniqueMember" ), testEntryName ) );
     }
  

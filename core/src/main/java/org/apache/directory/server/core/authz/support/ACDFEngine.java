@@ -41,7 +41,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;

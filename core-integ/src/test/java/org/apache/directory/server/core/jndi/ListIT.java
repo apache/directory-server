@@ -35,7 +35,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,7 +81,7 @@ public class ListIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getContext( akarasulu.getDn().getName(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();

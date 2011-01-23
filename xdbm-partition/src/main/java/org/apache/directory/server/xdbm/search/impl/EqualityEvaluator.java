@@ -26,9 +26,9 @@ import java.util.Iterator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -180,7 +180,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
             if ( value.isBinary() )
             {
                 // Deal with a binary value
-                byte[] serverValue = ( ( Value<byte[]> ) value ).getNormalizedValue();
+                byte[] serverValue = ( (Value<byte[]>) value ).getNormalizedValue();
                 byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue();
 
                 if ( ldapComparator != null )

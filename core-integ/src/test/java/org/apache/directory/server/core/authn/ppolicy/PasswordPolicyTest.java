@@ -47,9 +47,9 @@ import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRes
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlDecoder;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddRequest;

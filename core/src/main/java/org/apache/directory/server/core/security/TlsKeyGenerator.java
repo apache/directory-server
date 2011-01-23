@@ -44,8 +44,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
@@ -300,7 +300,7 @@ public class TlsKeyGenerator
     
 
     /**
-     * @see #addKeyPair(Entry)
+     * @see #addKeyPair(org.apache.directory.shared.ldap.model.entry.Entry)
      * 
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
