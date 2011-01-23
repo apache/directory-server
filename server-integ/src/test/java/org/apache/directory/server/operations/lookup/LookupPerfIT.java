@@ -39,7 +39,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         Entry entry = connection.lookup( "uid=admin,ou=system" );;
         assertNotNull( entry );
-        assertTrue( entry instanceof SearchResultEntry );
+        assertTrue( entry instanceof SearchResultEntry);
 
         long t0 = System.currentTimeMillis();
 

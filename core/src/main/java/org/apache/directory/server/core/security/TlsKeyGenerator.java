@@ -46,7 +46,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public class TlsKeyGenerator
      *
      * @param entry the TLS key/cert entry
      * @return the X509 certificate associated with that entry
-     * @throws LdapException if there are problems accessing or decoding
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems accessing or decoding
      */
     public static X509Certificate getCertificate( Entry entry ) throws LdapException
     {

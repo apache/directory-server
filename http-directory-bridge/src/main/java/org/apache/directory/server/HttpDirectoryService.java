@@ -23,11 +23,11 @@ package org.apache.directory.server;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapCoreSessionConnection;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -88,7 +88,7 @@ public class HttpDirectoryService
 
             LdapResult result = resp.getLdapResult();
             result.setErrorMessage( e.getMessage() );
-            result.setResultCode( ResultCodeEnum.getResultCode( e ) );
+            result.setResultCode( ResultCodeEnum.getResultCode(e) );
 
             holder = new BindResponseHolder( resp, null );
         }

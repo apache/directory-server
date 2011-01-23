@@ -39,7 +39,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

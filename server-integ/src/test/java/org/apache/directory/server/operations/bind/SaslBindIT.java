@@ -65,14 +65,14 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapEncoder;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -541,7 +541,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Retrieve the response back from server to my last request.
             LdapMessageContainer container = new LdapMessageContainer();
             decoder.setLdapMessageContainer( container );
-            return ( BindResponse ) decoder.decode( null, _input_ );
+            return (BindResponse) decoder.decode( null, _input_ );
         }
 
 

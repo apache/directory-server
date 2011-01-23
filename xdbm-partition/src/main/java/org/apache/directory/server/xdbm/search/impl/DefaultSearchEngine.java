@@ -33,13 +33,13 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 
 
@@ -95,7 +95,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
 
     /**
-     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.name.Dn, AliasDerefMode, ExprNode, SearchControls)
+     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception

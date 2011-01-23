@@ -22,8 +22,8 @@ package org.apache.directory.server.ldap.replication;
 
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
 
 /**
  * Interface for a replication provider.

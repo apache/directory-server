@@ -23,13 +23,13 @@ package org.apache.directory.server.core.event;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -241,7 +241,7 @@ public class LeafEvaluator implements Evaluator
      * @param node the equality node to evaluate
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
-     * @throws LdapException if there is a database access failure
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
     private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException

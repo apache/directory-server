@@ -33,7 +33,6 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,7 +82,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     /**
      * Compare with caseIgnoreMatch matching rule.
      * 
-     * @throws LdapException
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
     @Test
     public void testCaseIgnoreMatch() throws Exception
@@ -121,7 +120,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     /**
      * Compare with distinguishedNameMatch matching rule.
      * 
-     * @throws LdapException
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
     @Test
     public void testDistinguishedNameMatch() throws Exception

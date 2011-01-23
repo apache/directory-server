@@ -33,7 +33,7 @@ import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandle
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;

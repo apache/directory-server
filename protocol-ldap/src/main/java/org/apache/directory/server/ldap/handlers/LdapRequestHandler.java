@@ -26,21 +26,19 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
+import org.apache.directory.shared.ldap.model.message.AbandonRequest;
+import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.model.message.Request;
+import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
@@ -273,7 +271,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         result.setErrorMessage( msg );
 
-        if ( e instanceof LdapOperationException )
+        if ( e instanceof LdapOperationException)
         {
             LdapOperationException ne = ( LdapOperationException ) e;
 
@@ -293,7 +291,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
                 do
                 {
-                    String ref = ( ( LdapReferralException ) e ).getReferralInfo();
+                    String ref = ( (LdapReferralException) e ).getReferralInfo();
                     referrals.addLdapUrl( ref );
                 }
                 while ( ( ( LdapReferralException ) e ).skipReferral() );

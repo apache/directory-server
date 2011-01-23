@@ -38,10 +38,10 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -440,7 +440,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( response );
         assertTrue( response instanceof SearchResultEntry );
-        SearchResultEntry resultEntry = ( SearchResultEntry ) response;
+        SearchResultEntry resultEntry = (SearchResultEntry) response;
         Entry entry = resultEntry.getEntry();
 
         assertEquals( 0, entry.size() );

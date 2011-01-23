@@ -42,25 +42,23 @@ import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
-import org.apache.directory.shared.ldap.exception.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.model.exception.*;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.*;
 import org.apache.directory.shared.ldap.filter.*;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchResultDone;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchResultDone;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
-import org.apache.directory.shared.ldap.message.SearchResultReference;
 import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1048,7 +1046,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              *
              * SO DON'T SEND BACK ANYTHING!!!!!
              */
-            if ( e instanceof OperationAbandonedException )
+            if ( e instanceof OperationAbandonedException)
             {
                 return;
             }
@@ -1533,7 +1531,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         if ( e instanceof LdapOperationException )
         {
-            code = ( ( LdapOperationException ) e ).getResultCode();
+            code = ( (LdapOperationException) e ).getResultCode();
         }
         else
         {
@@ -1653,7 +1651,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      *
      * @param session the LDAP session under which processing occurs
      * @param req the request to be handled
-     * @throws LdapException
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
     public void handleSyncreplSearch( LdapSession session, SearchRequest req ) throws LdapException
     {

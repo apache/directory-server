@@ -42,13 +42,13 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
@@ -174,7 +174,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         Cursor<Response> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
 
-        Entry readEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+        Entry readEntry = ( (SearchResultEntry) cursor.get() ).getEntry();
         assertEquals( uuid, readEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
 
         cursor.close();

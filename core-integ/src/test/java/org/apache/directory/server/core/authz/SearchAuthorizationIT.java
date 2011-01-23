@@ -48,8 +48,8 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -892,7 +892,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         list = userCtx.search( dn.getName(), "(objectClass=*)", SearchScope.OBJECT, "*" );
         if ( list.next() )
         {
-            result = ( SearchResultEntry ) list.get();
+            result = (SearchResultEntry) list.get();
         }
 
         list.close();

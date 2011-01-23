@@ -42,8 +42,8 @@ import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -139,11 +139,11 @@ public class ACDFEngine
 
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
-     * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
+     * (entry, attribute type, or attribute value) and throws {@link org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      *
      * @param aciContext the container for ACI items
-     * @throws LdapException if failed to evaluate ACI items
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if failed to evaluate ACI items
      */
     public boolean hasPermission( AciContext aciContext ) throws LdapException
     {

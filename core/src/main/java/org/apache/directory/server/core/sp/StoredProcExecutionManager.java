@@ -33,11 +33,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -109,7 +109,7 @@ public class StoredProcExecutionManager
      * 
      * @param spUnitEntry The entry which a {@link StoredProcEngine} type will be mathched with respect to the language identifier.
      * @return A {@link StoredProcEngine} associated with spUnitEntry.
-     * @throws LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
      */
     public StoredProcEngine getStoredProcEngineInstance( ClonedServerEntry spUnitEntry ) throws LdapException
     {

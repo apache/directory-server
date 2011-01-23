@@ -22,7 +22,7 @@ package org.apache.directory.server;
 
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
 
 
 /**

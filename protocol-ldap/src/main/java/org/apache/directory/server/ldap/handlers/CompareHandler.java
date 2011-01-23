@@ -21,16 +21,16 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.CompareRequest;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link CompareRequest}s.
+ * A single reply handler for {@link org.apache.directory.shared.ldap.model.message.CompareRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -40,7 +40,7 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
 
     
     /**
-     * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.message.Request)
+     * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.model.message.Request)
      */
     @Override
     public void handle( LdapSession session, CompareRequest req )

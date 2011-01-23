@@ -31,8 +31,8 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.message.BindStatus;
+import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.model.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +141,7 @@ public class LdapSession
      */
     public boolean isAuthPending()
     {
-        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) || 
+        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) ||
                ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
     

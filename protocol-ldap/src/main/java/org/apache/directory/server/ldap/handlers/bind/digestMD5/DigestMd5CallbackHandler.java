@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -97,7 +97,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
                 baseDn, 
                 SearchScope.SUBTREE, 
                 filter, 
-                AliasDerefMode.DEREF_ALWAYS, 
+                AliasDerefMode.DEREF_ALWAYS,
                 returningAttributes );
             
             cursor.beforeFirst();

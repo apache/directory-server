@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.CursorClosedException;
-import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
+import org.apache.directory.shared.ldap.model.exception.LdapTimeLimitExceededException;
 
 
 /**

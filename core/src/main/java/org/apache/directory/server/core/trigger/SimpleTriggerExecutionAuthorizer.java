@@ -22,8 +22,8 @@ package org.apache.directory.server.core.trigger;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.Dn;
 
 

@@ -94,8 +94,8 @@ import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -538,7 +538,7 @@ public class ServiceBuilder
      *
      * @param ntpServerBean The NtpServerBean containing the NtpServer configuration
      * @return Instance of NtpServer
-     * @throws LdapException
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
     public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws LdapException
     {
@@ -594,7 +594,7 @@ public class ServiceBuilder
      *
      * @param kdcServerBean The KdcServerBean containing the KdcServer configuration
      * @return Instance of KdcServer
-     * @throws LdapException
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
     public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws LdapException
     {

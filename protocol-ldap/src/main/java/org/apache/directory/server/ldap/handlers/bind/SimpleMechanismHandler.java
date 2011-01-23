@@ -27,13 +27,13 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class SimpleMechanismHandler implements MechanismHandler
 
             if ( e instanceof LdapOperationException )
             {
-                code = ( ( LdapOperationException ) e ).getResultCode();
+                code = ( (LdapOperationException) e ).getResultCode();
                 result.setResultCode( code );
             }
             else
@@ -110,7 +110,7 @@ public class SimpleMechanismHandler implements MechanismHandler
 
             Dn name = null;
             
-            if ( e instanceof LdapAuthenticationException )
+            if ( e instanceof LdapAuthenticationException)
             {
                 name = ((LdapAuthenticationException)e).getResolvedDn();
             }

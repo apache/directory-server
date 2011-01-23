@@ -43,7 +43,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.name.Dn;
 
 

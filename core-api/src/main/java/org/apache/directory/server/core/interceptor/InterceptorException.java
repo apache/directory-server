@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**

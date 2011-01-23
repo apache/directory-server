@@ -51,19 +51,18 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
+import org.apache.directory.shared.ldap.model.message.AddRequest;
+import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.CompareRequest;
+import org.apache.directory.shared.ldap.model.message.DeleteRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -444,7 +443,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
+     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set)
      */
     public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException
@@ -787,7 +786,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set, int, int)
      */
     public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException

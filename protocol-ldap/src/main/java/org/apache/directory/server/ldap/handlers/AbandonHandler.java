@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
+import org.apache.directory.shared.ldap.model.message.AbandonRequest;
 
 
 /**
@@ -33,7 +33,7 @@ public class AbandonHandler extends LdapRequestHandler<AbandonRequest>
 {
     /**
      * @see org.apache.directory.server.ldap.handlers.LdapRequestHandler#handle
-     * (LdapSession, org.apache.directory.shared.ldap.message.Request)
+     * (LdapSession, org.apache.directory.shared.ldap.model.message.Request)
      */
     public void handle( LdapSession session, AbandonRequest request ) throws Exception
     {

@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authn;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 
 
 /**

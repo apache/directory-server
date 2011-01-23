@@ -28,10 +28,10 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -377,7 +377,7 @@ public class DescriptionParsers
      * 
      * @param attr the attribute containing matchingRuleUseDescriptions
      * @return the set of matchingRuleUse objects for the descriptions 
-     * @throws LdapException if there are problems parsing the descriptions
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public MatchingRuleUse[] parseMatchingRuleUses( EntryAttribute attr ) throws LdapException
     {
@@ -420,7 +420,7 @@ public class DescriptionParsers
      * 
      * @param attr the attribute containing ldapSyntaxes
      * @return the set of Syntax objects for the descriptions 
-     * @throws LdapException if there are problems parsing the descriptions
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public LdapSyntax[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
     {
@@ -585,7 +585,7 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_427, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_427,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;

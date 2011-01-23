@@ -40,10 +40,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -249,13 +249,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
             if ( e instanceof LdapOperationException )
             {
-                code = ( ( LdapOperationException ) e ).getResultCode();
+                code = ( (LdapOperationException) e ).getResultCode();
                 result.setResultCode( code );
                 dn = ( ( LdapOperationException ) e ).getResolvedDn();
             }
             else
             {
-                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
+                code = ResultCodeEnum.getBestEstimate(e, bindRequest.getType());
                 result.setResultCode( code );
             }
 

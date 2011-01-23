@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 

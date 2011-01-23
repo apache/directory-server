@@ -21,13 +21,13 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.model.message.Request;
+import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.ResultResponse;
+import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
@@ -235,7 +235,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        if ( cause.getCause() instanceof ResponseCarryingMessageException )
+        if ( cause.getCause() instanceof ResponseCarryingMessageException)
         {
             ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
 

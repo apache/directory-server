@@ -39,10 +39,10 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -115,7 +115,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
+            ExtendedResponse extendedResponse = (ExtendedResponse) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( extendedResponse );
             assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );

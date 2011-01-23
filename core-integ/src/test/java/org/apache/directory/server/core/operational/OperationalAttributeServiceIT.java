@@ -42,10 +42,10 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ModifyResponse;
-import org.apache.directory.shared.ldap.message.Response;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.ModifyResponse;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
@@ -179,7 +179,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         Cursor<Response> responses = connection
             .search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
         responses.next();
-        SearchResultEntry result = ( SearchResultEntry ) responses.get();
+        SearchResultEntry result = (SearchResultEntry) responses.get();
 
         // test to make sure op attribute do not occur - this is the control
         Entry entry = result.getEntry();

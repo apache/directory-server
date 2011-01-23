@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -72,7 +72,7 @@ public interface SchemaPartitionDao
      * @param entityName one of the names of the entity or it's numeric id
      * @return the search result for the entity or null if no such entity exists with 
      * that alias or numeric oid
-     * @throws LdapException if more than one entity has the name, or if there 
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if more than one entity has the name, or if there
      * are underlying data access problems
      */
     Entry find( String entityName ) throws Exception;
@@ -146,7 +146,7 @@ public interface SchemaPartitionDao
      * 
      * @param schemaName the name of the schema to search for dependencies
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
-     * @throws LdapException if there is a problem while searching the schema partition
+     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there is a problem while searching the schema partition
      */
     Set<Entry> listEnabledSchemaDependents( String schemaName ) throws Exception;
 
