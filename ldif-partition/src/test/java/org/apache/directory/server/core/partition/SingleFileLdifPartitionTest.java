@@ -80,10 +80,7 @@ import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.apache.directory.shared.util.Strings;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
 
@@ -869,6 +866,7 @@ public class SingleFileLdifPartitionTest
      * @throws Exception
      */
     @Test
+    @Ignore("Taking way too much time and very timing dependent")
     public void testConcurrentOperations() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
