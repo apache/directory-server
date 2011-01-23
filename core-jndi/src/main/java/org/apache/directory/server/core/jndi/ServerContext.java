@@ -375,11 +375,11 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private org.apache.directory.shared.ldap.message.control.Control convertControl( boolean isRequest,
+    private org.apache.directory.shared.ldap.model.message.Control convertControl( boolean isRequest,
         Control jndiControl ) throws DecoderException
     {
         String controlIDStr = jndiControl.getID();
-        org.apache.directory.shared.ldap.message.control.Control control = null;
+        org.apache.directory.shared.ldap.model.message.Control control = null;
 
         ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
 
@@ -532,13 +532,13 @@ public abstract class ServerContext implements EventContext
      * Convert the JNDI controls to ADS controls
      * TODO convertControls.
      */
-    private org.apache.directory.shared.ldap.message.control.Control[] convertControls( boolean isRequest,
+    private org.apache.directory.shared.ldap.model.message.Control[] convertControls( boolean isRequest,
         Control[] jndiControls ) throws DecoderException
     {
         if ( jndiControls != null )
         {
-            org.apache.directory.shared.ldap.message.control.Control[] controls =
-                new org.apache.directory.shared.ldap.message.control.Control[jndiControls.length];
+            org.apache.directory.shared.ldap.model.message.Control[] controls =
+                new org.apache.directory.shared.ldap.model.message.Control[jndiControls.length];
             int i = 0;
 
             for ( javax.naming.ldap.Control jndiControl : jndiControls )

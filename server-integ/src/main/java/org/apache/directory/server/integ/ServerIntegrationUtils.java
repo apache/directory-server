@@ -32,7 +32,7 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
