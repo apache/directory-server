@@ -72,7 +72,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
@@ -408,9 +408,9 @@ public class PartitionFrame extends JFrame
 
 
     /**
-     * Gets the DN of the DIT node selected in the tree view.
+     * Gets the Dn of the DIT node selected in the tree view.
      * 
-     * @return the DN of the selected tree node or the root Dn of the tree if 
+     * @return the Dn of the selected tree node or the root Dn of the tree if
      * nothing has been selected yet.
      * @throws NamingException on partition access errors
      */
@@ -466,7 +466,7 @@ public class PartitionFrame extends JFrame
             {
                 String updn = entry.getDn().getName();
 
-                DN ndn = new DN( Strings.deepTrimToLower( updn ) );
+                Dn ndn = new Dn( Strings.deepTrimToLower( updn ) );
 
                 Entry attrs = new DefaultEntry( schemaManager, entry.getEntry() );
 
@@ -654,7 +654,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new DN( base ),
+        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";

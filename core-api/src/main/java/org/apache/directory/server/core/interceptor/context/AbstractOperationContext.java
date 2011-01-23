@@ -34,11 +34,11 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
- * This abstract class stores common context elements, like the DN, which is used
+ * This abstract class stores common context elements, like the Dn, which is used
  * in all the contexts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -47,8 +47,8 @@ public abstract class AbstractOperationContext implements OperationContext
 {
     protected static final Control[] EMPTY_CONTROLS = new Control[0];
 
-    /** The DN associated with the context */
-    protected DN dn;
+    /** The Dn associated with the context */
+    protected Dn dn;
     
     /** The entry associated with the target entry of this OperationContext */
     protected ClonedServerEntry entry;
@@ -90,9 +90,9 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param dn The associated DN
+     * @param dn The associated Dn
      */
-    public AbstractOperationContext( CoreSession session, DN dn )
+    public AbstractOperationContext( CoreSession session, Dn dn )
     {
         this.dn = dn;
         this.session = session;
@@ -122,20 +122,20 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     /**
-     * @return The associated DN
+     * @return The associated Dn
      */
-    public DN getDn()
+    public Dn getDn()
     {
         return dn;
     }
 
     
     /**
-     * Set the context DN
+     * Set the context Dn
      *
-     * @param dn The DN to set
+     * @param dn The Dn to set
      */
-    public void setDn( DN dn )
+    public void setDn( Dn dn )
     {
         this.dn = dn;
     }
@@ -304,7 +304,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws LdapException
+    public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
     {
         EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
         setup( hasEntryContext );
@@ -322,7 +322,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void delete( DN dn, Collection<String> byPassed ) throws LdapException
+    public void delete( Dn dn, Collection<String> byPassed ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
         setup( deleteContext );
@@ -331,7 +331,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void modify( DN dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
+    public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
     {
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
         setup( modifyContext );
@@ -341,7 +341,7 @@ public abstract class AbstractOperationContext implements OperationContext
     
     
     // TODO - need synchronization here and where we update links
-    public LookupOperationContext newLookupContext( DN dn )
+    public LookupOperationContext newLookupContext( Dn dn )
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
@@ -360,7 +360,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public Entry lookup( DN dn, Collection<String> byPassed ) throws LdapException
+    public Entry lookup( Dn dn, Collection<String> byPassed ) throws LdapException
     {
         LookupOperationContext lookupContext = newLookupContext( dn );
         lookupContext.setByPassed( byPassed );

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -47,7 +46,7 @@ import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -95,7 +94,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getAdminSession();
@@ -125,7 +124,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDeleteLeafNode() throws Exception
     {
-        DN dn = new DN( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
+        Dn dn = new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
 
         assertTrue( session.exists( dn ) );
 
@@ -140,7 +139,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDeleteNonLeafFailure() throws Exception
     {
-        DN dn = new DN( "cn=child1,cn=parent,ou=system" ); // has children
+        Dn dn = new Dn( "cn=child1,cn=parent,ou=system" ); // has children
         assertTrue( session.exists( dn ) );
 
         DeleteResponse response = connection.delete( dn.getName() );
@@ -155,7 +154,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Ignore
     public void testDeleteWithCascadeControl() throws Exception
     {
-        DN dn = new DN( "cn=parent,ou=system" );
+        Dn dn = new Dn( "cn=parent,ou=system" );
 
         assertTrue( session.exists( dn ) );
 
@@ -185,11 +184,11 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Ignore
     public void testDeleteWithoutCascadeControl() throws Exception
     {
-        DN dn = new DN( "cn=parent,ou=system" );
+        Dn dn = new Dn( "cn=parent,ou=system" );
 
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", Dn.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
 
         DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, null );
@@ -207,11 +206,11 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Ignore
     public void testDeleteAsyncWithoutCascadeControl() throws Exception
     {
-        DN dn = new DN( "cn=parent,ou=system" );
+        Dn dn = new Dn( "cn=parent,ou=system" );
 
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", DN.class, Map.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", Dn.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
 
         final AtomicInteger count = new AtomicInteger();
@@ -231,7 +230,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDeleteAsync() throws Exception
     {
-        DN dn = new DN( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
+        Dn dn = new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
 
         assertTrue( session.exists( dn ) );
 

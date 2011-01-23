@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +158,7 @@ public class DSAnnotationProcessor
                 // that type.
                 partition = createPartition.type().newInstance();
                 partition.setId( createPartition.name() );
-                partition.setSuffix( new DN( createPartition.suffix() ) );
+                partition.setSuffix( new Dn( createPartition.suffix() ) );
 
                 if ( partition instanceof BTreePartition<?> )
                 {
@@ -349,7 +349,7 @@ public class DSAnnotationProcessor
 
 
     /**
-     * Inject an ldif String into the server. DN must be relative to the root.
+     * Inject an ldif String into the server. Dn must be relative to the root.
      * 
      * @param service
      *            the directory service to use
@@ -412,7 +412,7 @@ public class DSAnnotationProcessor
                 {
                     sb.append( s ).append( '\n' );
 
-                    // read the rest of lines till we encounter DN again
+                    // read the rest of lines till we encounter Dn again
                     while ( i < ldifs.length )
                     {
                         s = ldifs[i++];

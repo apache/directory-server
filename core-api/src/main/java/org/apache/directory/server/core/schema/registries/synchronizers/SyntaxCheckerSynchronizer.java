@@ -30,8 +30,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -71,7 +71,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
-        DN name = modifyContext.getDn();
+        Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
@@ -97,11 +97,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX_CHECKER );
 
         // The new schemaObject's OID must not already exist
@@ -144,11 +144,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX_CHECKER );
 
         // Get the SyntaxChecker's instance
@@ -218,7 +218,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
@@ -250,7 +250,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -290,7 +290,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
+    public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -350,7 +350,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( DN newParent ) throws LdapException
+    private void checkNewParent( Dn newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
@@ -358,7 +358,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_396 ) );
         }
 
-        RDN rdn = newParent.getRdn();
+        Rdn rdn = newParent.getRdn();
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {

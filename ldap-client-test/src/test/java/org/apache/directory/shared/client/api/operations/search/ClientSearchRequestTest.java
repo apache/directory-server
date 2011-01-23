@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,7 +91,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
     }
 
@@ -211,7 +211,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     public void testSearchWithDerefAlias() throws Exception
     {
         SearchRequest searchRequest = new SearchRequestImpl();
-        searchRequest.setBase( new DN( "ou=users,ou=system" ) );
+        searchRequest.setBase( new Dn( "ou=users,ou=system" ) );
         searchRequest.setFilter( "(objectClass=*)" );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.addAttributes( "*" );

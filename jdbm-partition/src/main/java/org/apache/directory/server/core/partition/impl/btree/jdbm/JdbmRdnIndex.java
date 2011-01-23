@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A special index which stores RDN objects.
+ * A special index which stores Rdn objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

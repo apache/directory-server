@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
@@ -110,7 +110,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( CoreSession session, DN dn, ExprNode filter, SearchControls searchControls ) throws LdapException
+    public SearchOperationContext( CoreSession session, Dn dn, ExprNode filter, SearchControls searchControls ) throws LdapException
     {
         super( session, dn );
         this.filter = filter;
@@ -140,7 +140,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param aliasDerefMode the alias dereferencing mode
      * @param returningAttributes the attributes to return
      */
-    public SearchOperationContext( CoreSession session, DN dn, SearchScope scope,
+    public SearchOperationContext( CoreSession session, Dn dn, SearchScope scope,
         ExprNode filter, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, returningAttributes );
@@ -186,7 +186,7 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public String toString()
     {
-        return "SearchContext for DN '" + getDn().getName() + "', filter :'"
+        return "SearchContext for Dn '" + getDn().getName() + "', filter :'"
         + filter + "'"; 
     }
 

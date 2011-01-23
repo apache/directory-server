@@ -29,8 +29,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -68,7 +68,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
-        DN name = modifyContext.getDn();
+        Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String oid = getOid( entry );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -92,11 +92,11 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=objectclasses,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.OBJECT_CLASS );
 
         // The new schemaObject's OID must not already exist
@@ -141,11 +141,11 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=objectclasses,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.OBJECT_CLASS );
 
         // Get the ObjectClass from the given entry ( it has been grabbed from the server earlier)
@@ -191,7 +191,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass oldOc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), schemaName );
@@ -212,8 +212,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String newOid = newRdn.getNormValue().getString();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
-        // Inject the new DN
-        DN newDn = new DN( targetEntry.getDn() );
+        // Inject the new Dn
+        Dn newDn = new Dn( targetEntry.getDn() );
         newDn = newDn.remove( newDn.size() - 1 );
         newDn = newDn.add( newRdn );
 
@@ -241,7 +241,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -287,7 +287,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
+    public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
@@ -327,7 +327,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( DN newParent ) throws LdapException
+    private void checkNewParent( Dn newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
@@ -336,7 +336,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 "The parent dn of a objectClass should be at most 3 name components in length." );
         }
 
-        RDN rdn = newParent.getRdn();
+        Rdn rdn = newParent.getRdn();
 
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )

@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -228,7 +228,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final ID getEntryId( DN dn ) throws LdapException
+    public final ID getEntryId( Dn dn ) throws LdapException
     {
         try
         {
@@ -244,7 +244,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final DN getEntryDn( ID id ) throws Exception
+    public final Dn getEntryDn( ID id ) throws Exception
     {
         return store.getEntryDn( id );
     }
@@ -381,8 +381,8 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     {
         try
         {
-            DN oldDn = renameContext.getDn();
-            RDN newRdn = renameContext.getNewRdn();
+            Dn oldDn = renameContext.getDn();
+            Rdn newRdn = renameContext.getNewRdn();
             boolean deleteOldRdn = renameContext.getDeleteOldRdn();
 
             if ( renameContext.getEntry() != null )
@@ -415,9 +415,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            DN oldDn = moveAndRenameContext.getDn();
-            DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-            RDN newRdn = moveAndRenameContext.getNewRdn();
+            Dn oldDn = moveAndRenameContext.getDn();
+            Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
+            Rdn newRdn = moveAndRenameContext.getNewRdn();
             boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
             
@@ -449,9 +449,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            DN oldDn = moveContext.getDn();
-            DN newSuperior = moveContext.getNewSuperior();
-            DN newDn = moveContext.getNewDn();
+            Dn oldDn = moveContext.getDn();
+            Dn newSuperior = moveContext.getNewSuperior();
+            Dn newDn = moveContext.getNewDn();
             Entry modifiedEntry = moveContext.getModifiedEntry();
             
             store.move( oldDn, newSuperior, newDn, modifiedEntry );
@@ -463,7 +463,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final void bind( DN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
+    public final void bind( Dn bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws LdapException
     {
         // does nothing

@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -40,12 +40,12 @@ public class NotificationCriteria
 {
     public static final SearchScope DEFAULT_SCOPE = SearchScope.ONELEVEL;
     public static final AliasDerefMode DEFAULT_ALIAS_DEREF_MODE = AliasDerefMode.DEREF_ALWAYS;
-    public static final DN DEFAULT_BASE = new DN();
+    public static final Dn DEFAULT_BASE = new Dn();
     public static final ExprNode DEFAULT_FILTER = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
     
     private SearchScope scope = DEFAULT_SCOPE;
     private AliasDerefMode aliasDerefMode = DEFAULT_ALIAS_DEREF_MODE;
-    private DN base = DEFAULT_BASE;
+    private Dn base = DEFAULT_BASE;
     private ExprNode filter = DEFAULT_FILTER;
     private int eventMask = EventType.ALL_EVENT_TYPES_MASK;
     
@@ -103,7 +103,7 @@ public class NotificationCriteria
     /**
      * @param base the base to set
      */
-    public void setBase( DN base )
+    public void setBase( Dn base )
     {
         this.base = base;
     }
@@ -114,14 +114,14 @@ public class NotificationCriteria
      */
     public void setBase( String base ) throws Exception
     {
-        this.base = new DN( base );
+        this.base = new Dn( base );
     }
 
 
     /**
      * @return the base
      */
-    public DN getBase()
+    public Dn getBase()
     {
         return base;
     }

@@ -21,7 +21,7 @@ package org.apache.directory.server.config.beans;
 
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -43,9 +43,9 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-replAliasDerefMode")
     private String replAliasDerefMode;
 
-    /** The Search Base DN */
-    @ConfigurationElement(attributeType = "ads-searchBaseDN")
-    private DN searchBaseDN;
+    /** The Search Base Dn */
+    @ConfigurationElement(attributeType = "ads-searchBaseDn")
+    private Dn searchBaseDn;
 
     /** The last CSN sent */
     @ConfigurationElement(attributeType = "ads-replLastSentCsn")
@@ -143,20 +143,20 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the searchBaseDN
+     * @return the searchBaseDn
      */
-    public DN getSearchBaseDN()
+    public Dn getSearchBaseDn()
     {
-        return searchBaseDN;
+        return searchBaseDn;
     }
 
 
     /**
-     * @param searchBaseDN the searchBaseDN to set
+     * @param searchBaseDn the searchBaseDn to set
      */
-    public void setSearchBaseDN( DN searchBaseDN )
+    public void setSearchBaseDn(Dn searchBaseDn)
     {
-        this.searchBaseDN = searchBaseDN;
+        this.searchBaseDn = searchBaseDn;
     }
 
 
@@ -299,7 +299,7 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
         sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN.getName() ).append( '\n' );
+        sb.append( tabs ).append( "  search base Dn : " ).append( searchBaseDn.getName() ).append( '\n' );
         sb.append( tabs ).append( "  search filter : " ).append( replSearchFilter ).append( '\n' );
         sb.append( tabs ).append( "  search scope : " ).append( replSearchScope ).append( '\n' );
         sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replAliasDerefMode ).append( '\n' );

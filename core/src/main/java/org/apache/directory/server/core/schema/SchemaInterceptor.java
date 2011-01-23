@@ -83,9 +83,9 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -128,24 +128,24 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
 
-    /** A normalized form for the SubschemaSubentry DN */
+    /** A normalized form for the SubschemaSubentry Dn */
     private String subschemaSubentryDnNorm;
 
-    /** The SubschemaSubentry DN */
-    private DN subschemaSubentryDn;
+    /** The SubschemaSubentry Dn */
+    private Dn subschemaSubentryDn;
 
     /**
      * the normalized name for the schema modification attributes
      */
-    private DN schemaModificationAttributesDN;
+    private Dn schemaModificationAttributesDn;
 
     /** The schema manager */
     private SchemaSubentryManager schemaSubEntryManager;
 
     private SchemaService schemaService;
 
-    /** the base DN (normalized) of the schema partition */
-    private DN schemaBaseDN;
+    /** the base Dn (normalized) of the schema partition */
+    private Dn schemaBaseDn;
 
     /** A map used to store all the objectClasses superiors */
     private Map<String, List<ObjectClass>> superiors;
@@ -181,7 +181,7 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = directoryService.getDNFactory().create( SchemaConstants.OU_SCHEMA );
+        schemaBaseDn = directoryService.getDNFactory().create( SchemaConstants.OU_SCHEMA );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
@@ -190,8 +190,8 @@ public class SchemaInterceptor extends BaseInterceptor
         subschemaSubentryDn.normalize( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = directoryService.getDNFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationAttributesDN.normalize( schemaManager );
+        schemaModificationAttributesDn = directoryService.getDNFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDn.normalize( schemaManager );
 
         computeSuperiors();
 
@@ -636,7 +636,7 @@ public class SchemaInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        DN base = searchContext.getDn();
+        Dn base = searchContext.getDn();
         SearchControls searchCtls = searchContext.getSearchControls();
         ExprNode filter = searchContext.getFilter();
 
@@ -738,7 +738,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     /**
-     * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
+     * Search for an entry, using its Dn. Binary attributes and ObjectClass attribute are removed.
      */
     public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
@@ -931,32 +931,32 @@ public class SchemaInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
-        DN oldDn = renameContext.getDn();
-        RDN newRdn = renameContext.getNewRdn();
+        Dn oldDn = renameContext.getDn();
+        Rdn newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDeleteOldRdn();
         Entry entry = renameContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
-         *  mandatory attributes are available after deleting the old RDN.
+         *  mandatory attributes are available after deleting the old Rdn.
          *  The real modification is done in the XdbmStore class.
          *  - TODO: this check is missing in the moveAndRename() method
          */
         if ( deleteOldRn )
         {
-            RDN oldRDN = oldDn.getRdn();
+            Rdn oldRdn = oldDn.getRdn();
 
-            // Delete the old RDN means we remove some attributes and values.
+            // Delete the old Rdn means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
             // are still present in the entry.
-            for ( AVA atav : oldRDN )
+            for ( Ava atav : oldRdn)
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
                 entry.remove( type, atav.getUpValue() );
             }
 
             // Check that no operational attributes are removed
-            for ( AVA atav : oldRDN )
+            for ( Ava atav : oldRdn)
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
@@ -967,7 +967,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
-        for ( AVA atav : newRdn )
+        for ( Ava atav : newRdn )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
@@ -977,7 +977,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
-        // Substitute the RDN and check if the new entry is correct
+        // Substitute the Rdn and check if the new entry is correct
         entry.setDn( renameContext.getNewDn() );
 
         check( renameContext.getNewDn(), entry );
@@ -1008,7 +1008,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( DN dn, Entry currentEntry, List<Modification> mods ) throws LdapException
+    private void checkModifyEntry( Dn dn, Entry currentEntry, List<Modification> mods ) throws LdapException
     {
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
@@ -1177,7 +1177,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // - all the MUST are present
         // - all the attribute are in MUST and MAY, except fo the extensibleObeject OC
         // is present
-        // - We haven't removed a part of the RDN
+        // - We haven't removed a part of the Rdn
         check( dn, tempEntry );
     }
 
@@ -1202,7 +1202,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // First, check that the entry is either a subschemaSubentry or a schema element.
         // This is the case if it's a child of cn=schema or ou=schema
-        DN dn = modifyContext.getDn();
+        Dn dn = modifyContext.getDn();
 
         // Gets the stored entry on which the modification must be applied
         if ( dn.equals( subschemaSubentryDn ) )
@@ -1349,7 +1349,7 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * We also check the syntaxes
      */
-    private void check( DN dn, Entry entry ) throws LdapException
+    private void check( Dn dn, Entry entry ) throws LdapException
     {
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
@@ -1480,13 +1480,13 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        DN name = addContext.getDn();
+        Dn name = addContext.getDn();
         Entry entry = addContext.getEntry();
 
         check( name, entry );
 
         // Special checks for the MetaSchema branch
-        if ( name.isChildOf( schemaBaseDN ) )
+        if ( name.isChildOf(schemaBaseDn) )
         {
             // get the schema name
             String schemaName = getSchemaName( name );
@@ -1538,14 +1538,14 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private String getSchemaName( DN dn ) throws LdapException
+    private String getSchemaName( Dn dn ) throws LdapException
     {
         if ( dn.size() < 2 )
         {
             throw new LdapException( I18n.err( I18n.ERR_276 ) );
         }
 
-        RDN rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( 1 );
         return rdn.getNormValue().getString();
     }
 
@@ -1557,7 +1557,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws Exception if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( DN dn, Entry entry, Set<String> allowed ) throws LdapException
+    private void assertAllAttributesAllowed( Dn dn, Entry entry, Set<String> allowed ) throws LdapException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1613,7 +1613,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( DN dn, Entry entry, Set<String> must ) throws LdapException
+    private void assertRequiredAttributesPresent( Dn dn, Entry entry, Set<String> must ) throws LdapException
     {
         for ( EntryAttribute attribute : entry )
         {
@@ -1651,7 +1651,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * inheritance tree
      * - we must have at least one STRUCTURAL OC
      */
-    private void assertObjectClasses( DN dn, List<ObjectClass> ocs ) throws LdapException
+    private void assertObjectClasses( Dn dn, List<ObjectClass> ocs ) throws LdapException
     {
         Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
 
@@ -1762,9 +1762,9 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void assertRdn( DN dn, Entry entry ) throws LdapException
+    private void assertRdn( Dn dn, Entry entry ) throws LdapException
     {
-        for ( AVA atav : dn.getRdn() )
+        for ( Ava atav : dn.getRdn() )
         {
             EntryAttribute attribute = entry.get( atav.getNormType() );
 

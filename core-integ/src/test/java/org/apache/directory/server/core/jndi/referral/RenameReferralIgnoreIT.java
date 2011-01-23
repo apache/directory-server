@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
  * Tests the referral handling functionality for the Modify operation 
  * within the server's core.
  * 
- * The Move operation is a ModifyDN where the RDN is changed, not the superior.
+ * The Move operation is a ModifyDN where the Rdn is changed, not the superior.
  * 
  * All the tests are described on this page :
  * http://cwiki.apache.org/confluence/display/DIRxSRVx11/Referral+Handling+Changes
@@ -136,7 +136,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -175,8 +175,8 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
         CoreSession session = service.getAdminSession();
         try
         {
-            DN dn = new DN( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
-            RDN newRdn = new RDN( "cn=Alex Karasulu" );
+            Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
+            Rdn newRdn = new Rdn( "cn=Alex Karasulu" );
             session.rename( dn, newRdn, false, true );
             fail();
         }
@@ -238,9 +238,9 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
     public void testRenameExistingReferralCoreAPIWithManageDsaIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
-        DN dnRoles = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
-        DN dnGroups = new DN( "ou=Groups,o=MNN,c=WW,ou=system" );
-        RDN newRdn = new RDN( "ou=Groups" );
+        Dn dnRoles = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
+        Dn dnGroups = new Dn( "ou=Groups,o=MNN,c=WW,ou=system" );
+        Rdn newRdn = new Rdn( "ou=Groups" );
 
         // First check that the object exists
         Entry renamed = session.lookup( dnRoles );
@@ -278,7 +278,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a rename a referral using an already existing RDN (the new entry already exists and is a referral),
+     * Test a rename a referral using an already existing Rdn (the new entry already exists and is a referral),
      * using JNDI ignore
      */
     @Test
@@ -298,15 +298,15 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a rename a referral using an already existing RDN (the new entry already exists and is a referral),
+     * Test a rename a referral using an already existing Rdn (the new entry already exists and is a referral),
      * using the Core API, with the ManageDsaIt flag
      */
     @Test
     public void testRenameRdnExistIsReferralCoreAPIWithManageDsaIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
-        DN dn = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
-        RDN newRdn = new RDN( "ou=People" );
+        Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
+        Rdn newRdn = new Rdn( "ou=People" );
 
         try
         {

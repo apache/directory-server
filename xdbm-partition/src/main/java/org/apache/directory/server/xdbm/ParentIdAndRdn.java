@@ -27,13 +27,13 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
- * A wrapper for the tuple of parentId and RDN, used for the RDN index.
+ * A wrapper for the tuple of parentId and Rdn, used for the Rdn index.
  * 
- * If the refered entry is a ContextEntry, we may have more than one RDN stored
+ * If the refered entry is a ContextEntry, we may have more than one Rdn stored
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -42,8 +42,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     /** The entry ID */
     protected ID parentId;
     
-    /** The list of RDN for this instance */
-    protected RDN[] rdns;
+    /** The list of Rdn for this instance */
+    protected Rdn[] rdns;
 
 
     /**
@@ -60,7 +60,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, RDN... rdns )
+    public ParentIdAndRdn( ID parentId, Rdn... rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns;
@@ -73,10 +73,10 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, List<RDN> rdns )
+    public ParentIdAndRdn( ID parentId, List<Rdn> rdns )
     {
         this.parentId = parentId;
-        this.rdns = rdns.toArray( new RDN[rdns.size()] );
+        this.rdns = rdns.toArray( new Rdn[rdns.size()] );
     }
 
 
@@ -107,18 +107,18 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @return the RDNs
      */
-    public RDN[] getRdns()
+    public Rdn[] getRdns()
     {
         return rdns;
     }
 
 
     /**
-     * Sets the RDN.
+     * Sets the Rdn.
      * 
-     * @param rdns the new RDN
+     * @param rdns the new Rdn
      */
-    public void setRdns( RDN[] rdns )
+    public void setRdns( Rdn[] rdns )
     {
         this.rdns = rdns;
     }
@@ -187,7 +187,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         out.writeObject( parentId );
         out.writeInt( rdns.length );
 
-        for ( RDN rdn : rdns )
+        for ( Rdn rdn : rdns )
         {
             rdn.writeExternal( out );
         }
@@ -199,11 +199,11 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     {
         parentId = ( ID ) in.readObject();
         int size = in.readInt();
-        rdns = new RDN[size];
+        rdns = new Rdn[size];
         
         for ( int i = 0; i < size; i++ )
         {
-            RDN rdn = new RDN();
+            Rdn rdn = new Rdn();
             rdn.readExternal( in );
             rdns[i] = rdn;
         }
@@ -222,7 +222,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         
         boolean isFirst = true;
         
-        for ( RDN rdn : rdns )
+        for ( Rdn rdn : rdns )
         {
             if ( isFirst )
             {

@@ -57,6 +57,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.DnUtils;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.apache.directory.shared.util.exception.NotImplementedException;
@@ -90,7 +91,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -147,8 +147,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     private String lastSyncedCtxCsn = null;
     
-    /** The cn=schema DN */
-    private DN subschemSubentryDn;
+    /** The cn=schema Dn */
+    private Dn subschemSubentryDn;
 
 
 
@@ -222,7 +222,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         // Initialize and normalize the localy used DNs
-        DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager );
 
         Value<?> attr = rootDSE.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
@@ -301,7 +301,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         system.initialize();
 
         // Add root context entry for system partition
-        DN systemSuffixDn = directoryService.getDNFactory().create( ServerDNConstants.SYSTEM_DN );
+        Dn systemSuffixDn = directoryService.getDNFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = directoryService.getAdminSession();
 
         if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
@@ -402,7 +402,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#setSuffix(java.lang.String)
      */
-    public void setSuffix( DN suffix )
+    public void setSuffix( Dn suffix )
     {
         throw new UnsupportedOperationException();
     }
@@ -568,11 +568,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-        DN dn = hasEntryContext.getDn();
+        Dn dn = hasEntryContext.getDn();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Check if DN '" + dn + "' exists." );
+            LOG.debug( "Check if Dn '" + dn + "' exists." );
         }
 
         if ( dn.isRootDSE() )
@@ -600,7 +600,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        DN dn = lookupContext.getDn();
+        Dn dn = lookupContext.getDn();
 
         if ( dn.equals( subschemSubentryDn ) )
         {
@@ -760,7 +760,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // return nothing
         if ( noAttribute )
         {
-            Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
+            Entry serverEntry = new DefaultEntry( schemaManager, Dn.EMPTY_DN );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
         }
 
@@ -771,7 +771,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
         }
 
-        Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
+        Entry serverEntry = new DefaultEntry( schemaManager, Dn.EMPTY_DN );
 
         Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchContext.getSession() ) );
 
@@ -802,7 +802,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        DN base = searchContext.getDn();
+        Dn base = searchContext.getDn();
         SearchControls searchCtls = searchContext.getSearchControls();
         ExprNode filter = searchContext.getFilter();
 
@@ -847,7 +847,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
                 for ( Partition partition : partitions.values() )
                 {
-                    DN contextDn = partition.getSuffix();
+                    Dn contextDn = partition.getSuffix();
                     EntryOperationContext hasEntryContext = new EntryOperationContext( null, contextDn );
                     // search only if the context entry exists
                     if( partition.hasEntry( hasEntryContext ) )
@@ -935,7 +935,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         synchronized ( partitionLookupTree )
         {
-            DN partitionSuffix = partition.getSuffix();
+            Dn partitionSuffix = partition.getSuffix();
 
             if ( partitionSuffix == null )
             {
@@ -962,12 +962,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(DN partitionDN)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(Dn partitionDN)
      */
-    public synchronized void removeContextPartition( DN partitionDn )
+    public synchronized void removeContextPartition( Dn partitionDn )
         throws LdapException
     {
-        // Get the Partition name. It's a DN.
+        // Get the Partition name. It's a Dn.
         String key = partitionDn.getNormName();
 
         // Retrieve this partition from the aprtition's table
@@ -1025,9 +1025,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.DN)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.Dn)
      */
-    public Partition getPartition( DN dn ) throws LdapException
+    public Partition getPartition( Dn dn ) throws LdapException
     {
         Partition parent = partitionLookupTree.getElement( dn );
 
@@ -1045,7 +1045,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
      */
-    public DN findSuffix( DN dn ) throws LdapException
+    public Dn findSuffix( Dn dn ) throws LdapException
     {
         Partition backend = getPartition( dn );
 
@@ -1053,7 +1053,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    public DN getSuffix()
+    public Dn getSuffix()
     {
         return null;
     }

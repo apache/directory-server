@@ -47,7 +47,7 @@ import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -260,7 +260,7 @@ public class ApacheDS
      */
     private void ensureLdifFileBase() throws Exception
     {
-        DN dn = new DN( ServerDNConstants.LDIF_FILES_DN );
+        Dn dn = new Dn( ServerDNConstants.LDIF_FILES_DN );
         Entry entry = null;
         
         try
@@ -274,7 +274,7 @@ public class ApacheDS
 
         if ( entry == null )
         {
-            entry = directoryService.newEntry( new DN( ServerDNConstants.LDIF_FILES_DN ) );
+            entry = directoryService.newEntry( new Dn( ServerDNConstants.LDIF_FILES_DN ) );
             entry.add( SchemaConstants.OU_AT, "loadedLdifFiles" );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
     
@@ -288,13 +288,13 @@ public class ApacheDS
      * 
      * It is associated with the attributeType wrt to the underlying system.
      */
-    private DN buildProtectedFileEntryDn( File ldif ) throws Exception
+    private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
     {
         String fileSep = File.separatorChar == '\\' ? 
                 ApacheSchemaConstants.WINDOWS_FILE_AT : 
                 ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return  new DN( fileSep + 
+        return  new Dn( fileSep +
                 "=" + 
                 Strings.dumpHexPairs( Strings.getBytesUtf8(getCanonical(ldif)) ) +
                 "," + 
@@ -393,7 +393,7 @@ public class ApacheDS
         }
 
 
-        DN dn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
+        Dn dn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
         
         ensureLdifFileBase();
 
@@ -502,7 +502,7 @@ public class ApacheDS
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
-        // and normalize their suffix DN
+        // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
         
         schemaPartition.setSchemaManager( schemaManager );

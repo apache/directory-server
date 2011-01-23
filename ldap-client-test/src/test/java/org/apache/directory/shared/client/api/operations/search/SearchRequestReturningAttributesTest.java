@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
     }
 
@@ -524,7 +524,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     public void testSearchTypesOnly() throws Exception
     {
         SearchRequest sr = new SearchRequestImpl();
-        sr.setBase( new DN( "uid=admin,ou=system" ) );
+        sr.setBase( new Dn( "uid=admin,ou=system" ) );
         sr.setFilter( "(uid=admin)" );
         sr.setScope( SearchScope.OBJECT );
         sr.setTypesOnly( true );

@@ -48,7 +48,7 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,7 +125,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         String newIssuerDN = "cn=new_issuer_dn";
         String newSubjectDN = "cn=new_subject_dn";
         Entry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
-            new DN( "uid=admin,ou=system" ) );
+            new Dn( "uid=admin,ou=system" ) );
         TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
 
         // now update the certificate (over the wire)

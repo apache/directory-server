@@ -53,8 +53,8 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
@@ -112,7 +112,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( OperationContext opContext, List<TriggerSpecification> triggerSpecs,
-        DN dn, Entry entry ) throws LdapException
+        Dn dn, Entry entry ) throws LdapException
     {
 
         /*
@@ -126,7 +126,7 @@ public class TriggerInterceptor extends BaseInterceptor
          */
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            DN parentDn = dn;
+            Dn parentDn = dn;
             parentDn = parentDn.remove( dn.size() - 1 );
 
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
@@ -256,7 +256,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        DN name = addContext.getDn();
+        Dn name = addContext.getDn();
         Entry entry = addContext.getEntry();
 
         // Bypass trigger handling if the service is disabled.
@@ -291,7 +291,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN name = deleteContext.getDn();
+        Dn name = deleteContext.getDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -332,7 +332,7 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        DN normName = modifyContext.getDn();
+        Dn normName = modifyContext.getDn();
 
         // Gather supplementary data.
         Entry originalEntry = modifyContext.getEntry();
@@ -359,8 +359,8 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
-        DN name = renameContext.getDn();
-        RDN newRdn = renameContext.getNewRdn();
+        Dn name = renameContext.getDn();
+        Rdn newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDeleteOldRdn();
 
         // Bypass trigger handling if the service is disabled.
@@ -374,16 +374,16 @@ public class TriggerInterceptor extends BaseInterceptor
         Entry renamedEntry = renameContext.getEntry().getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
-        RDN oldRDN = name.getRdn();
-        DN oldSuperiorDN = ( DN ) name;
-        oldSuperiorDN = oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN newSuperiorDN = oldSuperiorDN;
-        DN oldDN = name;
-        DN newDN = name;
-        newDN = newDN.add( newRdn );
+        Rdn oldRdn = name.getRdn();
+        Dn oldSuperiorDn = (Dn) name;
+        oldSuperiorDn = oldSuperiorDn.remove( oldSuperiorDn.size() - 1 );
+        Dn newSuperiorDn = oldSuperiorDn;
+        Dn oldDn = name;
+        Dn newDn = name;
+        newDn = newDn.add( newRdn );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( renameContext,
-            deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
+            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDn, newDn);
 
         // Gather Trigger Specifications which apply to the entry being renamed.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
@@ -394,7 +394,7 @@ public class TriggerInterceptor extends BaseInterceptor
             triggerSpecs, LdapOperation.MODIFYDN_RENAME );
 
         next.rename( renameContext );
-        triggerSpecCache.subentryRenamed( name, newDN );
+        triggerSpecCache.subentryRenamed( name, newDn);
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
@@ -404,9 +404,9 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        DN oldDn = moveAndRenameContext.getDn();
-        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-        RDN newRdn = moveAndRenameContext.getNewRdn();
+        Dn oldDn = moveAndRenameContext.getDn();
+        Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
+        Rdn newRdn = moveAndRenameContext.getNewRdn();
         boolean deleteOldRn = moveAndRenameContext.getDeleteOldRdn();
 
         // Bypass trigger handling if the service is disabled.
@@ -419,14 +419,14 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
-        RDN oldRDN = oldDn.getRdn();
-        DN oldSuperiorDN = oldDn;
-        oldSuperiorDN = oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN oldDN = oldDn;
-        DN newDN = moveAndRenameContext.getNewDn();
+        Rdn oldRdn = oldDn.getRdn();
+        Dn oldSuperiorDn = oldDn;
+        oldSuperiorDn = oldSuperiorDn.remove( oldSuperiorDn.size() - 1 );
+        Dn oldDN = oldDn;
+        Dn newDn = moveAndRenameContext.getNewDn();
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveAndRenameContext,
-            deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDn, oldDN, newDN );
+            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDN, newDn);
 
         // Gather Trigger Specifications which apply to the entry being exported.
         List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
@@ -447,7 +447,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
             .getName() );
-        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
+        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes(newDn, importedEntry );
 
         for ( EntryAttribute attribute : importedEntry )
         {
@@ -457,7 +457,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( moveAndRenameContext, importTriggerSpecs, newDN, fakeImportedEntry );
+        addPrescriptiveTriggerSpecs( moveAndRenameContext, importTriggerSpecs, newDn, fakeImportedEntry );
 
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
             exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
@@ -466,7 +466,7 @@ public class TriggerInterceptor extends BaseInterceptor
             importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
 
         next.moveAndRename( moveAndRenameContext );
-        triggerSpecCache.subentryRenamed( oldDN, newDN );
+        triggerSpecCache.subentryRenamed( oldDN, newDn);
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterExportTriggerSpecs = exportTriggerMap.get( ActionTime.AFTER );
@@ -488,16 +488,16 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        RDN rdn = moveContext.getRdn();
-        DN dn = moveContext.getDn();
-        DN newDn = moveContext.getNewDn();
-        DN oldSuperior = moveContext.getOldSuperior();
-        DN newSuperior = moveContext.getNewSuperior();
+        Rdn rdn = moveContext.getRdn();
+        Dn dn = moveContext.getDn();
+        Dn newDn = moveContext.getNewDn();
+        Dn oldSuperior = moveContext.getOldSuperior();
+        Dn newSuperior = moveContext.getNewSuperior();
 
         // Gather supplementary data.        
         Entry movedEntry = moveContext.getOriginalEntry();
 
-        //RDN newRDN = dn.getRdn();
+        //Rdn newRDN = dn.getRdn();
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveContext, false,
             rdn, rdn, oldSuperior, newSuperior, dn, newDn );

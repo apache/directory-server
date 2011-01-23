@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.replication;
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -31,8 +31,8 @@ import org.apache.directory.shared.ldap.name.DN;
  */
 public abstract class SimpleReplicaConnection extends ReplicaConnection
 {
-    /** The DN to use to bind to the remote server */
-    private DN principal;
+    /** The Dn to use to bind to the remote server */
+    private Dn principal;
 
     /** The password */
     private String credentials;
@@ -40,7 +40,7 @@ public abstract class SimpleReplicaConnection extends ReplicaConnection
     /**
      * @return the principal
      */
-    public DN getPrincipal()
+    public Dn getPrincipal()
     {
         return principal;
     }
@@ -48,7 +48,7 @@ public abstract class SimpleReplicaConnection extends ReplicaConnection
     /**
      * @param principal the principal to set
      */
-    public void setPrincipal( DN principal )
+    public void setPrincipal( Dn principal )
     {
         this.principal = principal;
     }

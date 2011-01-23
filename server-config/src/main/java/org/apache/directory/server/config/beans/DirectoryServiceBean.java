@@ -49,7 +49,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-dsAllowAnonymousAccess")
     private boolean dsAllowAnonymousAccess = false;
 
-    /** The flag that tells if DN must be denormalized */
+    /** The flag that tells if Dn must be denormalized */
     @ConfigurationElement(attributeType = "ads-dsDenormalizeOpAttrsEnabled")
     private boolean dsDenormalizeOpAttrsEnabled = true;
 

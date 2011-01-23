@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -46,16 +46,16 @@ public class AciContext
     private OperationContext operationContext;
     
     /** The Users belonging to a group */
-    private Collection<DN> userGroupNames; 
+    private Collection<Dn> userGroupNames;
 
-    /** The user's DN */
-    private DN userDn;
+    /** The user's Dn */
+    private Dn userDn;
     
     /** The requested Authentication level (default to NONE) */
     private AuthenticationLevel authenticationLevel = AuthenticationLevel.NONE;
     
-    /** the entry's DN */
-    private DN entryDn;
+    /** the entry's Dn */
+    private Dn entryDn;
     
     /** The AttributeType */
     private AttributeType attributeType;
@@ -123,7 +123,7 @@ public class AciContext
     /**
      * @return the userGroupNames
      */
-    public Collection<DN> getUserGroupNames()
+    public Collection<Dn> getUserGroupNames()
     {
         return userGroupNames;
     }
@@ -131,23 +131,23 @@ public class AciContext
     /**
      * @param userGroupNames the userGroupNames to set
      */
-    public void setUserGroupNames( Collection<DN> userGroupNames )
+    public void setUserGroupNames( Collection<Dn> userGroupNames )
     {
         this.userGroupNames = userGroupNames;
     }
 
     /**
-     * @return the user DN
+     * @return the user Dn
      */
-    public DN getUserDn()
+    public Dn getUserDn()
     {
         return userDn;
     }
 
     /**
-     * @param userDn the user DN to set
+     * @param userDn the user Dn to set
      */
-    public void setUserDn( DN userDn )
+    public void setUserDn( Dn userDn )
     {
         this.userDn = userDn;
     }
@@ -169,17 +169,17 @@ public class AciContext
     }
 
     /**
-     * @return the entry DN
+     * @return the entry Dn
      */
-    public DN getEntryDn()
+    public Dn getEntryDn()
     {
         return entryDn;
     }
 
     /**
-     * @param entryDn the entry DN to set
+     * @param entryDn the entry Dn to set
      */
-    public void setEntryDn( DN entryDn )
+    public void setEntryDn( Dn entryDn )
     {
         this.entryDn = entryDn;
     }

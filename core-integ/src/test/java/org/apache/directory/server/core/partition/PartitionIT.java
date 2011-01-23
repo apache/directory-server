@@ -135,10 +135,10 @@ public final class PartitionIT extends AbstractLdapTestUnit
 
 
     /**
-     * Given the suffix DN of a partition this method will add an entry, look 
+     * Given the suffix Dn of a partition this method will add an entry, look
      * it up, then delete it making sure all checks out.
      *
-     * @param partitionSuffix the DN of the partition suffix
+     * @param partitionSuffix the Dn of the partition suffix
      */
     public void addLookupDelete( String partitionSuffix ) throws Exception
     {

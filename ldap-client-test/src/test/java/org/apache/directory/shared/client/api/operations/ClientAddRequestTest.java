@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getSession();
@@ -104,7 +104,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAdd() throws Exception
     {
-        DN dn = new DN( "cn=testadd,ou=system" );
+        Dn dn = new Dn( "cn=testadd,ou=system" );
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testadd_cn" );
@@ -123,7 +123,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAddAsync() throws Exception
     {
-        DN dn = new DN( "cn=testAsyncAdd,ou=system" );
+        Dn dn = new Dn( "cn=testAsyncAdd,ou=system" );
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testAsyncAdd_cn" );
@@ -161,7 +161,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void testAddSystemOperationalAttributes() throws Exception
     {
         //test as admin first
-        DN dn = new DN( "cn=x,ou=system" );
+        Dn dn = new Dn( "cn=x,ou=system" );
         String uuid = UUID.randomUUID().toString();
         String csn = new CsnFactory( 0 ).newInstance().toString();
         String creator = dn.getName();

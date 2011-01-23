@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -437,7 +437,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         try
         {
-            DN base = new DN( "dc=example,dc=com" );
+            Dn base = new Dn( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
             ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
@@ -480,7 +480,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         try
         {
-            DN base = new DN( "dc=example,dc=com" );
+            Dn base = new Dn( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
             ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
@@ -574,7 +574,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         List<String> nextResults = new ArrayList<String>();
 
         ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), filter );
-        EntryFilteringCursor cursor = service.getAdminSession().search( new DN( base ), scope, exprNode,
+        EntryFilteringCursor cursor = service.getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();
         while ( cursor.next() )

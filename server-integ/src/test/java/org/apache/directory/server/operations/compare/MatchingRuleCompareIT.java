@@ -128,7 +128,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     {
         DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
         
-        // determine member DN of person
+        // determine member Dn of person
         DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );
         String memberDN = member.getNameInNamespace();
 

@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -97,9 +97,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of SearchingOperationContext.
      *
-     * @param dn The DN to get the suffix from
+     * @param dn The Dn to get the suffix from
      */
-    public SearchingOperationContext( CoreSession session, DN dn )
+    public SearchingOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }
@@ -109,11 +109,11 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * Creates a new instance of a SearchingOperationContext using one level 
      * scope, with attributes to return.
      *
-     * @param dn The DN to get the suffix from
+     * @param dn The Dn to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws LdapException 
      */
-    public SearchingOperationContext( CoreSession session, DN dn, Set<AttributeTypeOptions> returningAttributes )
+    public SearchingOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn );
         this.returningAttributes = returningAttributes;
@@ -185,7 +185,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "ListOperationContext with DN '" + getDn().getName() + "'";
+        return "ListOperationContext with Dn '" + getDn().getName() + "'";
     }
 
     

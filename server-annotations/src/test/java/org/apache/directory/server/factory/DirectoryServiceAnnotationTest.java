@@ -17,8 +17,8 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.factory;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -47,7 +47,7 @@ import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
@@ -160,7 +160,7 @@ public class DirectoryServiceAnnotationTest
             }
         }
         
-        assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
@@ -227,7 +227,7 @@ public class DirectoryServiceAnnotationTest
             }
         }
         
-        assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         // Now, get the server
         LdapServer ldapServer = ServerAnnotationProcessor.createLdapServer( service, AvailablePortFinder

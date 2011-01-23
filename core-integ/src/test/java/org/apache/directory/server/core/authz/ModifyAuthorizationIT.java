@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
 
     /**
-     * Checks if an attribute of a simple entry (an organizationalUnit) with an RDN
+     * Checks if an attribute of a simple entry (an organizationalUnit) with an Rdn
      * relative to ou=system can be modified by a specific non-admin user.  If a
      * permission exception is encountered it is caught and false is returned,
      * otherwise true is returned.  The entry is deleted after being created just in case
@@ -90,7 +90,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry is created
+     * @param entryRdn the relative Dn, relative to ou=system where entry is created
      * for modification test
      * @param mods the modifications to make to the entry
      * @return true if the modifications can be made by the user at the specified location,
@@ -100,11 +100,11 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, Modification[] mods )
         throws Exception
     {
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -114,13 +114,13 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // create the entry as admin
         adminConnection.add( testEntry );
 
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         // modify the entry as the user
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( entryDN );
+        modReq.setName(entryDn);
 
         for ( Modification modification : mods )
         {
@@ -139,14 +139,14 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         }
 
         // let's clean up
-        adminConnection.delete( entryDN );
+        adminConnection.delete(entryDn);
 
         return result;
     }
 
 
     /**
-     * Checks if an attribute of a simple entry (an organizationalUnit) with an RDN
+     * Checks if an attribute of a simple entry (an organizationalUnit) with an Rdn
      * relative to ou=system can be modified by a specific non-admin user.  If a
      * permission exception is encountered it is caught and false is returned,
      * otherwise true is returned.  The entry is deleted after being created just in case
@@ -156,7 +156,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry is created
+     * @param entryRdn the relative Dn, relative to ou=system where entry is created
      * for modification test
      * @param mods the attributes to modify in the entry
      * @param modOp the modification operation to use for all attributes
@@ -167,11 +167,11 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationOperation modOp,
         EntryAttribute attr ) throws Exception
     {
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -181,11 +181,11 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         adminConnection.add( testEntry );
 
         // create the entry as admin
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         // modify the entry as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( entryDN );
+        modReq.setName(entryDn);
         modReq.addModification( attr, modOp );
 
         ModifyResponse resp = userConnection.modify( modReq );
@@ -200,7 +200,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         }
 
         // let's clean up
-        adminConnection.delete( entryDN );
+        adminConnection.delete(entryDn);
 
         return result;
     }
@@ -221,11 +221,11 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public boolean checkCanSelfModify( String uid, String password, Modification[] mods ) throws Exception
     {
         // modify the entry as the user
-        DN userDN = new DN( "uid=" + uid + ",ou=users,ou=system" );
-        LdapConnection connection = getConnectionAs( userDN, password );
+        Dn userDn = new Dn( "uid=" + uid + ",ou=users,ou=system" );
+        LdapConnection connection = getConnectionAs(userDn, password );
 
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( userDN );
+        modReq.setName(userDn);
 
         for ( Modification modification : mods )
         {

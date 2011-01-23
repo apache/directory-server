@@ -48,8 +48,8 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,7 +80,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 
         try
         {
-            service.getAdminSession().delete( new DN( "uid=admin,ou=system") ); 
+            service.getAdminSession().delete( new Dn( "uid=admin,ou=system") );
             fail( "User 'admin' should not be able to delete his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -106,8 +106,8 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         try
         {
             service.getAdminSession().rename( 
-                new DN( "uid=admin,ou=system" ), 
-                new RDN( "uid=alex" ),
+                new Dn( "uid=admin,ou=system" ),
+                new Rdn( "uid=alex" ),
                 false );
             fail( "admin should not be able to rename his account" );
         }
@@ -143,14 +143,14 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         mods.add( mod );
       
-        DN userDn = new DN( "uid=akarasulu,ou=users,ou=system", service.getSchemaManager() );
+        Dn userDn = new Dn( "uid=akarasulu,ou=users,ou=system", service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         CoreSession akarasuluSession = service.getSession( principal );
 
         try
         {
             akarasuluSession.modify( 
-                new DN( "uid=admin,ou=system" ), mods ); 
+                new Dn( "uid=admin,ou=system" ), mods );
             fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         }
         catch ( Exception e )
@@ -175,7 +175,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         try
         {
             ExprNode filter = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
-            service.getAdminSession().search( new DN( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            service.getAdminSession().search( new Dn( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
         }
         catch ( LdapNoPermissionException e )
         {

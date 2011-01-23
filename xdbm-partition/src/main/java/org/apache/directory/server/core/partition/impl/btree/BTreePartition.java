@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -78,8 +78,8 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /** The Entry cache size for this partition */
     protected int cacheSize = -1;
     
-    /** The root DN for this partition */
-    protected DN suffix;
+    /** The root Dn for this partition */
+    protected Dn suffix;
     
     /** The path in which this Partition stores files */
     protected URI partitionPath;
@@ -223,7 +223,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN dn = deleteContext.getDn();
+        Dn dn = deleteContext.getDn();
 
         ID id = getEntryId( dn );
 
@@ -263,7 +263,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
         {
             SearchControls searchCtls = searchContext.getSearchControls();
             IndexCursor<ID, Entry, ID> underlying;
-            DN dn = searchContext.getDn();
+            Dn dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
 
@@ -406,7 +406,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( DN suffix ) throws LdapInvalidDnException
+    public void setSuffix( Dn suffix ) throws LdapInvalidDnException
     {
         this.suffix = suffix;
 
@@ -420,7 +420,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public DN getSuffix()
+    public Dn getSuffix()
     {
         return suffix;
     }
@@ -432,10 +432,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
 
 
-    public abstract ID getEntryId( DN dn ) throws LdapException;
+    public abstract ID getEntryId( Dn dn ) throws LdapException;
 
 
-    public abstract DN getEntryDn( ID id ) throws Exception;
+    public abstract Dn getEntryDn( ID id ) throws Exception;
 
 
     public abstract ClonedServerEntry lookup( ID id ) throws LdapException;

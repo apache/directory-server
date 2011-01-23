@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test case with different modify DN operations which move the entry under a 
+ * Test case with different modify Dn operations which move the entry under a
  * new superior.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -133,7 +133,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         LdapConnection con = getClientApiConnection( ldapServer );
 
-        //now do something bad: try to move the entry to the same DN
+        //now do something bad: try to move the entry to the same Dn
         ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
     }

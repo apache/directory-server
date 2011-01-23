@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
@@ -90,7 +90,7 @@ public class MaxValueCountFilterTest
             fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
         }
 
-        DN entryName = new DN( "ou=test, ou=system" );
+        Dn entryName = new Dn( "ou=test, ou=system" );
         ENTRY = new DefaultEntry( schemaManager, entryName );
         FULL_ENTRY = new DefaultEntry( schemaManager, entryName );
         

@@ -33,7 +33,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,8 +76,8 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        DN oldDn = new DN( "cn=testOld,ou=system" );
-        DN newDn = new DN( "cn=testNew,ou=users,ou=system" );
+        Dn oldDn = new Dn( "cn=testOld,ou=system" );
+        Dn newDn = new Dn( "cn=testNew,ou=users,ou=system" );
 
         Entry entry = new DefaultEntry( service.getSchemaManager(), oldDn );
         entry.add( "ObjectClass", "top", "person" );
@@ -118,7 +118,7 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
             long ttt1 = System.nanoTime();
 
             // Swap the dn
-            DN tmpDn = newDn;
+            Dn tmpDn = newDn;
             newDn = oldDn;
             oldDn = tmpDn;
 

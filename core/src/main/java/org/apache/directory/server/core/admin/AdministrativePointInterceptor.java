@@ -80,7 +80,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.apache.directory.shared.util.Strings;
@@ -227,7 +227,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Create the list of AP for a given entry
      */
-    private void createAdministrativePoints( EntryAttribute adminPoint, DN dn, String uuid ) throws LdapException
+    private void createAdministrativePoints( EntryAttribute adminPoint, Dn dn, String uuid ) throws LdapException
     {
         if ( isAAP( adminPoint ) )
         {
@@ -338,7 +338,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update the cache clones with the added roles
      */
-    private void addRole( String role, DN dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
+    private void addRole( String role, Dn dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
         DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
         DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
     {
@@ -432,7 +432,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update the cache clones with the added roles
      */
-    private void delRole( String role, DN dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
+    private void delRole( String role, Dn dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
         DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
         DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
     {
@@ -600,7 +600,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check if we can safely add a role. If it's an AAP, we have to be sure that
      * it's the only role present in the AT.
      */
-    private void checkAddRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
+    private void checkAddRole( Value<?> role, EntryAttribute adminPoint, Dn dn ) throws LdapException
     {
         String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
@@ -655,7 +655,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Check if we can safely delete a role
      */
-    private void checkDelRole( Value<?> role, EntryAttribute adminPoint, DN dn ) throws LdapException
+    private void checkDelRole( Value<?> role, EntryAttribute adminPoint, Dn dn ) throws LdapException
     {
         String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
@@ -755,7 +755,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         List<Entry> entries = new ArrayList<Entry>();
 
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -768,7 +768,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, DN.EMPTY_DN, filter,
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.EMPTY_DN, filter,
             controls );
 
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
@@ -813,7 +813,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         for ( Entry adminPointEntry : adminPointEntries )
         {
             // update the cache
-            DN dn = adminPointEntry.getDn();
+            Dn dn = adminPointEntry.getDn();
 
             String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
             EntryAttribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
@@ -829,7 +829,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private void deleteAdminPointCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext )
         throws LdapException
     {
-        DN dn = deleteContext.getDn();
+        Dn dn = deleteContext.getDn();
         
         // Remove the APs in the AP cache
         for ( Value<?> value : adminPoint )
@@ -1067,7 +1067,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check that the IAPs (if any) have a parent. We will check for each kind or role :
      * AC, CA and TE.
      */
-    private void checkIAPHasParent( String role, EntryAttribute adminPoint, DN dn )
+    private void checkIAPHasParent( String role, EntryAttribute adminPoint, Dn dn )
         throws LdapUnwillingToPerformException
     {
         // Check for the AC role
@@ -1139,7 +1139,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Load all the AdministratvePoint :
         // Autonomous Administrative Point first, then Specific
         // administrative point, finally the Inner administrative Point
-        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -1190,7 +1190,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
-        DN dn = entry.getDn();
+        Dn dn = entry.getDn();
 
         // Check if we are adding an Administrative Point
         EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
@@ -1245,7 +1245,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, delRequest" );
         Entry entry = deleteContext.getEntry();
-        DN dn = entry.getDn();
+        Dn dn = entry.getDn();
 
         // Check if we are deleting an Administrative Point
         EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
@@ -1308,7 +1308,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         LOG.debug( ">>> Entering into the Administrative Interceptor, modifyRequest" );
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
-        DN dn = modifyContext.getDn();
+        Dn dn = modifyContext.getDn();
         String uuid = modifyContext.getEntry().get( ENTRY_UUID_AT ).getString();
 
         // Create a clone of the current AdminRole AT

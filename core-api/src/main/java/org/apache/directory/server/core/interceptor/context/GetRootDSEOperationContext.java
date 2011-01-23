@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -43,9 +43,9 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of GetRootDSEOperationContext.
      *
-     * @param dn The entry DN used to get the rootDSE
+     * @param dn The entry Dn used to get the rootDSE
      */
-    public GetRootDSEOperationContext( CoreSession session, DN dn )
+    public GetRootDSEOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }
@@ -64,6 +64,6 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "GetRootDSEContext with DN '" + getDn().getName() + "'";
+        return "GetRootDSEContext with Dn '" + getDn().getName() + "'";
     }
 }

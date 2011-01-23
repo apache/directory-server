@@ -24,7 +24,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class DITUtilitiesSP
      *        the subtree to be deleted
      * @throws LdapException
      */
-    public static void deleteSubtree( CoreSession session, DN rdn ) throws Exception
+    public static void deleteSubtree( CoreSession session, Dn rdn ) throws Exception
     {
         EntryFilteringCursor results = session.list( rdn, AliasDerefMode.DEREF_ALWAYS, null );
         
@@ -55,12 +55,12 @@ public class DITUtilitiesSP
         while ( results.next() )
         {
             ClonedServerEntry result = results.get();
-            DN childRdn = result.getDn();
+            Dn childRdn = result.getDn();
             childRdn = childRdn.remove( 0 );
             deleteSubtree( session, childRdn );
         }
         
-        session.delete( (DN)rdn );
+        session.delete( (Dn)rdn );
         log.info( "Deleted: " + rdn );
     }
 }

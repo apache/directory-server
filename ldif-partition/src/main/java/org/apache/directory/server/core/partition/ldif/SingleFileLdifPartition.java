@@ -350,7 +350,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 cursorMap.put( entryId, cursor );
             }
 
-            if ( !cursor.next() ) // if this is a leaf entry's DN
+            if ( !cursor.next() ) // if this is a leaf entry's Dn
             {
                 cursorMap.remove( entryId );
                 cursor.close();

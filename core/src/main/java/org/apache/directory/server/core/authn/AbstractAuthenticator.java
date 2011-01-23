@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +142,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * Does nothing leaving it so subclasses can override.
      */
-    public void invalidateCache( DN bindDn )
+    public void invalidateCache( Dn bindDn )
     {
     }
 
@@ -162,7 +162,7 @@ public abstract class AbstractAuthenticator implements Authenticator
         // check for locked out account
         if( pPolicyConfig.isPwdLockout() )
         {
-            LOG.debug( "checking if account with the DN {} is locked", userEntry.getDn() );
+            LOG.debug( "checking if account with the Dn {} is locked", userEntry.getDn() );
             
             EntryAttribute accountLockAttr = userEntry.get( PWD_ACCOUNT_LOCKED_TIME_AT );
             if( accountLockAttr != null )

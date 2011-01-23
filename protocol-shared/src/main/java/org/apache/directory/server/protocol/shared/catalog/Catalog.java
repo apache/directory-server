@@ -22,17 +22,17 @@ package org.apache.directory.server.protocol.shared.catalog;
 
 
 /**
- * The interface for resolving search-base DN's from zone or realm names.
+ * The interface for resolving search-base Dn's from zone or realm names.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface Catalog
 {
     /**
-     * Returns the base DN for searches, given a zone or realm name.
+     * Returns the base Dn for searches, given a zone or realm name.
      *
      * @param name
-     * @return The base DN for searches.
+     * @return The base Dn for searches.
      */
     public String getBaseDn( String name );
 }

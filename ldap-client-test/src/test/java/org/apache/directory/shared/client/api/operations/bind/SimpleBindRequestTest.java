@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,7 +131,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         for ( ; i < nbLoop; i++ )
         {
             BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setName( new DN( "uid=admin,ou=system" ) );
+            bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );
@@ -358,7 +358,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             // Send another BindRequest
             BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setName( new DN( "uid=admin,ou=system" ) );
+            bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );

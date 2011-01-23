@@ -182,7 +182,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
-        // and normalize their suffix DN
+        // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
         schemaPartition.setSchemaManager( schemaManager );

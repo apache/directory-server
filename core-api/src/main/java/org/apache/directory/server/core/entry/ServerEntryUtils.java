@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -61,7 +61,7 @@ import org.apache.directory.shared.util.Strings;
 public class ServerEntryUtils
 {
     /**
-     * Convert a ServerAttribute into a BasicAttribute. The DN is lost
+     * Convert a ServerAttribute into a BasicAttribute. The Dn is lost
      * during this conversion, as the Attributes object does not store
      * this element.
      *
@@ -83,7 +83,7 @@ public class ServerEntryUtils
     
     
     /**
-     * Convert a ServerEntry into a BasicAttributes. The DN is lost
+     * Convert a ServerEntry into a BasicAttributes. The Dn is lost
      * during this conversion, as the Attributes object does not store
      * this element.
      *
@@ -197,12 +197,12 @@ public class ServerEntryUtils
      *
      * @param attributes the BasicAttributes or AttributesImpl instance to convert
      * @param registries The registries, needed ro build a ServerEntry
-     * @param dn The DN which is needed by the ServerEntry 
+     * @param dn The Dn which is needed by the ServerEntry
      * @return An instance of a ServerEntry object
      * 
      * @throws LdapInvalidAttributeTypeException If we get an invalid attribute
      */
-    public static Entry toServerEntry( Attributes attributes, DN dn, SchemaManager schemaManager ) 
+    public static Entry toServerEntry( Attributes attributes, Dn dn, SchemaManager schemaManager )
             throws LdapInvalidAttributeTypeException
     {
         if ( attributes instanceof BasicAttributes )

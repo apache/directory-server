@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -55,7 +55,7 @@ public class SubstringEvaluator implements Evaluator
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, Dn dn, Entry entry ) throws LdapException
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;

@@ -74,13 +74,13 @@ public class ServerEntrySerializer implements Serializer
      * access to the registries to read back the values.
      * <p>
      * The structure used to store the entry is the following :
-     * <li><b>[DN length]</b> : can be -1 if we don't have a DN, 0 if the 
-     * DN is empty, otherwise contains the DN's length.<p> 
-     * <b>NOTE :</b>This should be unnecessary, as the DN should always exists
+     * <li><b>[Dn length]</b> : can be -1 if we don't have a Dn, 0 if the
+     * Dn is empty, otherwise contains the Dn's length.<p>
+     * <b>NOTE :</b>This should be unnecessary, as the Dn should always exists
      * <p>
      * </li>
      * <li>
-     * <b>DN</b> : The entry's DN. Can be empty (rootDSE)<p>
+     * <b>Dn</b> : The entry's Dn. Can be empty (rootDSE)<p>
      * </li>
      * <li>
      * <b>[nb attributes]</b> The number of attributes

@@ -21,7 +21,7 @@ package org.apache.directory.server.config.beans;
 
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -129,9 +129,9 @@ public abstract class AdsBaseBean
 
 
     /**
-     * Formated print of a DN that can be null
+     * Formated print of a Dn that can be null
      */
-    protected String toString( String tabs, String name, DN value )
+    protected String toString( String tabs, String name, Dn value )
     {
         if ( value != null )
         {

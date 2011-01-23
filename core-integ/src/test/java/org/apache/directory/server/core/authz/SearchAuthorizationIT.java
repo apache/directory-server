@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -128,14 +128,14 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     }
 
 
-    private void recursivelyAddSearchData( DN parent, Entry[] children, final long sizeLimit, long[] count )
+    private void recursivelyAddSearchData( Dn parent, Entry[] children, final long sizeLimit, long[] count )
         throws Exception
     {
-        DN[] childRdns = new DN[children.length];
+        Dn[] childRdns = new Dn[children.length];
 
         for ( int i = 0; ( i < children.length ) && ( count[0] < sizeLimit ); i++ )
         {
-            DN childRdn = new DN();
+            Dn childRdn = new Dn();
             childRdn = childRdn.addAll( parent );
             childRdn = childRdn.add( "ou=" + i );
             childRdns[i] = childRdn;
@@ -168,9 +168,9 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return the immediate child node created under parent which contains the subtree
      * @throws Exception on error
      */
-    private DN addSearchData( DN parent, int branchingFactor, long sizelimit ) throws Exception
+    private Dn addSearchData( Dn parent, int branchingFactor, long sizelimit ) throws Exception
     {
-        DN base = new DN( "ou=tests," + parent.getName() );
+        Dn base = new Dn( "ou=tests," + parent.getName() );
         Entry entry = getTestNodes( 1 )[0];
         entry.add( SchemaConstants.OU_AT, "tests" );
         entry.setDn( base );
@@ -189,7 +189,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @param rdn the relative dn from ou=system of the entry to delete recursively
      * @throws Exception if there are problems deleting entries
      */
-    private void recursivelyDelete( DN rdn ) throws Exception
+    private void recursivelyDelete( Dn rdn ) throws Exception
     {
         Cursor<Response> results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
@@ -197,7 +197,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         while ( results.next() )
         {
             SearchResultEntry result = ( SearchResultEntry ) results.get();
-            DN childRdn = result.getEntry().getDn();
+            Dn childRdn = result.getEntry().getDn();
             recursivelyDelete( childRdn );
         }
 
@@ -210,7 +210,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * Performs a single level search as a specific user on newly created data and checks
      * that result set count is 3.  The basic (objectClass=*) filter is used.
      *
-     * @param uid the uid RDN attribute value for the user under ou=users,ou=system
+     * @param uid the uid Rdn attribute value for the user under ou=users,ou=system
      * @param password the password of the user
      * @return true if the search succeeds as expected, false otherwise
      * @throws Exception if there are problems conducting the search
@@ -226,7 +226,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * that result set count is equal to a user specified amount.  The basic
      * (objectClass=*) filter is used.
      *
-     * @param uid the uid RDN attribute value for the user under ou=users,ou=system
+     * @param uid the uid Rdn attribute value for the user under ou=users,ou=system
      * @param password the password of the user
      * @param resultSetSz the expected size of the results
      * @return true if the search succeeds as expected, false otherwise
@@ -243,7 +243,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * that result set count is equal to a user specified amount.  The basic
      * (objectClass=*) filter is used.
      *
-     * @param uid the uid RDN attribute value for the user under ou=users,ou=system
+     * @param uid the uid Rdn attribute value for the user under ou=users,ou=system
      * @param password the password of the user
      * @param scope search controls
      * @param resultSetSz the expected size of the results
@@ -261,7 +261,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * Performs a search as a specific user on newly created data and checks
      * that result set count is equal to a user specified amount.
      *
-     * @param uid the uid RDN attribute value for the user under ou=users,ou=system
+     * @param uid the uid Rdn attribute value for the user under ou=users,ou=system
      * @param password the password of the user
      * @param filter the search filter to use
      * @param scope search scope
@@ -273,8 +273,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         throws Exception
     {
 
-        DN base = addSearchData( new DN( "ou=system" ), 3, 10 );
-        DN userDn = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn base = addSearchData( new Dn( "ou=system" ), 3, 10 );
+        Dn userDn = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
         Cursor<Response> cursor = userCtx.search( base.getName(), filter, scope, "*" );
@@ -299,7 +299,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * Adds an entryACI to specified entry below ou=system and runs a search.  Then it
      * checks to see the result size is correct.
      *
-     * @param uid the uid RDN attribute value for the user under ou=users,ou=system
+     * @param uid the uid Rdn attribute value for the user under ou=users,ou=system
      * @param password the password of the user
      * @param scope the search controls
      * @param dn the rdn
@@ -308,12 +308,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return true if the search succeeds as expected, false otherwise
      * @throws Exception if there are problems conducting the search
      */
-    private boolean checkSearchAsWithEntryACI( String uid, String password, SearchScope scope, DN dn, String aci,
+    private boolean checkSearchAsWithEntryACI( String uid, String password, SearchScope scope, Dn dn, String aci,
         int resultSetSz ) throws Exception
     {
-        DN base = addSearchData( dn, 3, 10 );
+        Dn base = addSearchData( dn, 3, 10 );
         addEntryACI( base, aci );
-        DN userDn = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userDn = new Dn( "uid=" + uid + ",ou=users,ou=system" );
 
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
@@ -344,7 +344,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     public void testAddSearchData() throws Exception
     {
         LdapConnection connection = getAdminConnection();
-        DN base = addSearchData( new DN( "ou=system" ), 3, 10 );
+        Dn base = addSearchData( new Dn( "ou=system" ), 3, 10 );
 
         Cursor<Response> results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
             "+" );
@@ -460,7 +460,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
     /**
      * Checks to make sure name based userClass works for search operations
-     * when we vary the case of the DN.
+     * when we vary the case of the Dn.
      *
      * @throws Exception if the test encounters an error
      */
@@ -792,7 +792,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + "      } " + "    } " + "  } " + "}";
 
         // try a search operation which should fail without any prescriptive ACI
-        DN testsDn = new DN( "ou=system" );
+        Dn testsDn = new Dn( "ou=system" );
 
         assertFalse( checkSearchAsWithEntryACI( "billyd", "billyd", SearchScope.SUBTREE, testsDn, aci, 9 ) );
 
@@ -837,7 +837,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + "      } " + "    } " + "  } " + "}";
 
         // try a search operation which should fail without any prescriptive ACI
-        DN testsDn = new DN( "ou=system" );
+        Dn testsDn = new Dn( "ou=system" );
 
         assertFalse( checkSearchAsWithEntryACI( "billyd", "billyd", SearchScope.SUBTREE, testsDn, aci, 9 ) );
 
@@ -877,15 +877,15 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Performs an object level search on the specified subentry relative to ou=system as a specific user.
      *
-     * @param uid the uid RDN attribute value of the user to perform the search as
+     * @param uid the uid Rdn attribute value of the user to perform the search as
      * @param password the password of the user
      * @param dn the relative name to the subentry under the ou=system AP
      * @return the single search result if access is allowed or null
      * @throws Exception if the search fails w/ exception other than no permission
      */
-    private SearchResultEntry checkCanSearhSubentryAs( String uid, String password, DN dn ) throws Exception
+    private SearchResultEntry checkCanSearhSubentryAs( String uid, String password, Dn dn ) throws Exception
     {
-        LdapConnection userCtx = getConnectionAs( new DN( "uid=" + uid + ",ou=users,ou=system" ), password );
+        LdapConnection userCtx = getConnectionAs( new Dn( "uid=" + uid + ",ou=users,ou=system" ), password );
         SearchResultEntry result = null;
         Cursor<Response> list = null;
 
@@ -916,7 +916,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "}" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "cn=anybodySearch,ou=system" ) ) );
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
         addSubentryACI( "{ " + "  identificationTag \"searchAci\", " + "  precedence 14, "
@@ -926,7 +926,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + "      } " + "    } " + "  } " + "}" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "cn=anybodySearch,ou=system" ) ) );
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
     }
 
 
@@ -975,7 +975,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // create an entry subordinate to the user
-        Entry phoneBook = new DefaultEntry( new DN( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) );
+        Entry phoneBook = new DefaultEntry( new Dn( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) );
         phoneBook.add( SchemaConstants.OU_AT, "phoneBook" );
         phoneBook.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
 
@@ -990,7 +990,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "}" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN(
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn(
             "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
@@ -1002,7 +1002,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + "      } " + "    } " + "  } " + "}" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
     }
 
 

@@ -54,7 +54,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -119,7 +119,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
         
         ksFile = File.createTempFile( "testStore", "ks" );
         CoreSession session = ldapServer.getDirectoryService().getAdminSession();
-        Entry entry = session.lookup( new DN( "uid=admin,ou=system" ), CERT_IDS );
+        Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
 

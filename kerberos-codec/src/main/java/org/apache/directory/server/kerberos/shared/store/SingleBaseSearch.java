@@ -29,7 +29,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -41,10 +41,10 @@ import org.apache.directory.shared.ldap.name.DN;
 class SingleBaseSearch implements PrincipalStore
 {
     private final CoreSession session;
-    private final DN searchBaseDn;
+    private final Dn searchBaseDn;
 
 
-    SingleBaseSearch( DirectoryService directoryService, DN searchBaseDn )
+    SingleBaseSearch( DirectoryService directoryService, Dn searchBaseDn )
     {
         try
         {

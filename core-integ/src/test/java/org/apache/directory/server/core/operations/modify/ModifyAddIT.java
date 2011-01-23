@@ -264,15 +264,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     //---------------------------------------------------------------------------------------------
     // 1 Entry exists
     //  1.1 AT does not exist.
-    //    - new valid AVA, new AT is in MAY
-    //    - new valid AVA, new AT is not in MAY => error
-    //    - new valid AVA, new AT is not in MAY, but OC contains extensibleOC
-    //    - new valid AVA, new AT is not in MAY, but OC contains extensibleOC, legal empty value
-    //    - new invalid AVA, not existing AT => error
-    //    - new invalid AVA, existing AT, two values in a single valued AT => error
-    //    - new invalid AVA, not existing AT, extensibleObject in OCs => error
-    //    - new invalid AVA (Value is invalid per syntax), AT is in MAY => error
-    //    - new invalid AVA (Value is invalid per syntax), AT is not in MAY, but OC contains extensibleOC => error
+    //    - new valid Ava, new AT is in MAY
+    //    - new valid Ava, new AT is not in MAY => error
+    //    - new valid Ava, new AT is not in MAY, but OC contains extensibleOC
+    //    - new valid Ava, new AT is not in MAY, but OC contains extensibleOC, legal empty value
+    //    - new invalid Ava, not existing AT => error
+    //    - new invalid Ava, existing AT, two values in a single valued AT => error
+    //    - new invalid Ava, not existing AT, extensibleObject in OCs => error
+    //    - new invalid Ava (Value is invalid per syntax), AT is in MAY => error
+    //    - new invalid Ava (Value is invalid per syntax), AT is not in MAY, but OC contains extensibleOC => error
     //    - new OperationalAttribute => error
     //    - new OperationalAttribute, OC contains extensibleOC => error
     //---------------------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
         Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify that the attribute value has been added
@@ -357,7 +357,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // The value is empty
         Attributes attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify that the attribute value has been added
@@ -385,7 +385,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         Attributes attrs = new BasicAttributes( "c", true );
         attrs.put( attr );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
     }
 
@@ -545,12 +545,12 @@ public class ModifyAddIT extends AbstractLdapTestUnit
 
         Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345".getBytes(), true );
         
-        // Add the first AVA
+        // Add the first Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
         attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
         
-        // Add the second AVA
+        // Add the second Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify that the attribute value has been added
@@ -575,13 +575,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // The initial value
         Attributes attrs = new BasicAttributes( "c", "FR", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
         
         // Add another value
         Attributes attrs2 = new BasicAttributes( "c", "US", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
     }
     
@@ -598,13 +598,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // The initial value
         Attributes attrs = new BasicAttributes( "c", "FR", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
         
         // Add another value
         Attributes attrs2 = new BasicAttributes( "c", "FR", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
     }
     
@@ -621,7 +621,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // The added value
         Attributes attrs = new BasicAttributes( "telephoneNumber", "BAD", true );
 
-        // Add the AVA
+        // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
     }
     

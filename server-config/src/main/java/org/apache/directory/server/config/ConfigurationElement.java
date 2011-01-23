@@ -50,21 +50,21 @@ public @interface ConfigurationElement
 
     /**
      * Returns true if of the qualified field (attribute type and value) 
-     * is the RDN of the entry.
+     * is the Rdn of the entry.
      *
      * @return
      *      <code>true</code> if of the qualified field (attribute type and value) 
-     * is the RDN of the entry,
+     * is the Rdn of the entry,
      *      <code>false</code> if not.
      */
     boolean isRdn() default false;
 
 
     /**
-     * Returns the string value of the DN of the container.
+     * Returns the string value of the Dn of the container.
      *
      * @return
-     *      the string value of the DN of the container.
+     *      the string value of the Dn of the container.
      */
     String container() default "";
 

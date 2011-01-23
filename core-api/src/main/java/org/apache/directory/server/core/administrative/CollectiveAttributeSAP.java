@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,10 +34,10 @@ public class CollectiveAttributeSAP extends CollectiveAttributeAdministrativePoi
     /**
      * Create an instance of CollectiveAttribute SAP
      *
-     * @param dn The AdministrativePoint DN
+     * @param dn The AdministrativePoint Dn
      * @param uuid The AdministrativePoint UUID
      */
-    public CollectiveAttributeSAP( DN dn, String uuid )
+    public CollectiveAttributeSAP( Dn dn, String uuid )
     {
         super( dn, uuid, AdministrativeRole.CollectiveAttributeSpecificArea );
     }

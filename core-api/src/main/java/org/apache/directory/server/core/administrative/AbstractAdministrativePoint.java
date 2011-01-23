@@ -23,7 +23,7 @@ package org.apache.directory.server.core.administrative;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -34,8 +34,8 @@ import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
  */
 public abstract class AbstractAdministrativePoint implements AdministrativePoint
 {
-    /** The AA's DN */
-    protected DN dn;
+    /** The AA's Dn */
+    protected Dn dn;
 
     /** The AA's UUID */
     protected String uuid;
@@ -53,7 +53,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * Creates a new instance of AbstractAdministrativePoint.
      */
-    protected AbstractAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected AbstractAdministrativePoint( Dn dn, String uuid, AdministrativeRole role )
     {
         this.dn = dn;
         this.uuid = uuid;
@@ -74,7 +74,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * {@inheritDoc}
      */
-    public DN getDn()
+    public Dn getDn()
     {
         return dn;
     }
@@ -137,7 +137,7 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
         StringBuilder sb = new StringBuilder();
 
         sb.append( "Role: '" ).append( role ).append( "', " );
-        sb.append( "DN: '" ).append( dn ).append( "', " );
+        sb.append( "Dn: '" ).append( dn ).append( "', " );
         sb.append( "UUID: " ).append( uuid ).append( '\n' );
 
         return sb.toString();

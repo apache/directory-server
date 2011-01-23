@@ -91,7 +91,7 @@ public class BindOperationContext extends AbstractOperationContext
                 }
                 else
                 {
-                    // If we have a password but no DN, this is invalid 
+                    // If we have a password but no Dn, this is invalid
                     LOG.info( "Bad authentication for {}", dn );
                     throw new LdapAuthenticationException( "Invalid authentication" );
                 }
@@ -177,7 +177,7 @@ public class BindOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "BindContext for DN '" + getDn().getName() + "', credentials <" +
+        return "BindContext for Dn '" + getDn().getName() + "', credentials <" +
             ( credentials != null ? Strings.dumpBytes(credentials) : "" ) + ">" +
             ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );

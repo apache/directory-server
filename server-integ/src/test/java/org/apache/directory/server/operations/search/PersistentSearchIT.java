@@ -459,7 +459,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         listener.result = null;
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( Rdn, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
         start = System.currentTimeMillis();
         while ( t.isAlive() )
@@ -472,7 +472,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         }
 
         assertNull( listener.result );
-        //assertEquals( RDN, listener.result.getName() );
+        //assertEquals( Rdn, listener.result.getName() );
         //assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }*/
 
@@ -579,7 +579,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
             try
             {
                 ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
-                ctx.setRequestControls( JndiUtils.toJndiControls( ctxCtls ) );
+                ctx.setRequestControls( JndiUtils.toJndiControls(ctxCtls) );
                 isReady = true;
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
@@ -645,7 +645,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public String toString()
         {
             StringBuffer buf = new StringBuffer();
-            buf.append( "DN: " ).append( getName() ).append( "\n" );
+            buf.append( "Dn: " ).append( getName() ).append( "\n" );
             
             if ( control != null )
             {

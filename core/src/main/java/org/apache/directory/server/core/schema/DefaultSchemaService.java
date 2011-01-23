@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -65,7 +65,7 @@ public class DefaultSchemaService implements SchemaService
     private SchemaPartition schemaPartition;
 
     /** the normalized name for the schema modification attributes */
-    private DN schemaModificationAttributesDN;
+    private Dn schemaModificationAttributesDn;
     
     /** A lock to avid concurrent generation of the SubschemaSubentry */
     private Object schemaSubentrLock = new Object();
@@ -81,7 +81,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public boolean isSchemaSubentry( DN dn ) throws LdapException
+    public boolean isSchemaSubentry( Dn dn ) throws LdapException
     {
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
@@ -276,7 +276,7 @@ public class DefaultSchemaService implements SchemaService
             ApacheSchemaConstants.APACHE_SUBSCHEMA_OC
             );
 
-        // add the cn attribute as required for the RDN
+        // add the cn attribute as required for the Rdn
         attrs.put( SchemaConstants.CN_AT, "schema" );
 
         // generate all the other operational attributes
@@ -342,7 +342,7 @@ public class DefaultSchemaService implements SchemaService
             if ( schemaSubentry == null )
             {
                 generateSchemaSubentry( schemaPartition.lookup(
-                        new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
+                        new LookupOperationContext( null, schemaModificationAttributesDn) ) );
             }
     
             return ( Entry ) schemaSubentry.clone();
@@ -359,7 +359,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
+            schemaModificationAttributesDn = new Dn( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
         }
         catch ( LdapException e )
         {
@@ -376,7 +376,7 @@ public class DefaultSchemaService implements SchemaService
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDn) ) );
         }
 
         return ( Entry ) schemaSubentry.clone();
@@ -394,7 +394,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        Entry attrs = new DefaultEntry( getSchemaManager(), DN.EMPTY_DN );
+        Entry attrs = new DefaultEntry( getSchemaManager(), Dn.EMPTY_DN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )
@@ -405,7 +405,7 @@ public class DefaultSchemaService implements SchemaService
 
             Entry mods = 
                 schemaPartition.lookup( 
-                    new LookupOperationContext( null, schemaModificationAttributesDN ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDn) );
             
 // @todo enable this optimization at some point but for now it
 // is causing some problems so I will just turn it off
@@ -546,7 +546,7 @@ public class DefaultSchemaService implements SchemaService
                 addAttribute( attrs, SchemaConstants.OBJECT_CLASS_AT );
             }
 
-            // add the cn attribute as required for the RDN
+            // add the cn attribute as required for the Rdn
             if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
                  setOids.contains( SchemaConstants.CN_AT_OID ) ||
                  setOids.size() == minSetSize )

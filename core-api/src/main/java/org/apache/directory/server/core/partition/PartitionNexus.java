@@ -26,7 +26,7 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -70,10 +70,10 @@ public interface PartitionNexus extends Partition
     /**
      * Remove a partition from the server.
      * 
-     * @param partitionDn the partition DN
+     * @param partitionDn the partition Dn
      * @throws Exception If the removal can't be done
      */
-    public void removeContextPartition( DN partitionDn )
+    public void removeContextPartition( Dn partitionDn )
         throws LdapException;
 
 
@@ -87,25 +87,25 @@ public interface PartitionNexus extends Partition
      * Get's the partition corresponding to a distinguished name.  This 
      * name need not be the name of the partition suffix.  When used in 
      * conjunction with get suffix this can properly find the partition 
-     * associated with the DN.  Make sure to use the normalized DN.
+     * associated with the Dn.  Make sure to use the normalized Dn.
      * 
      * @param dn the normalized distinguished name to get a partition for
      * @return the partition containing the entry represented by the dn
      * @throws Exception if there is no partition for the dn
      */
-    public Partition getPartition( DN dn ) throws LdapException;
+    public Partition getPartition( Dn dn ) throws LdapException;
 
 
     /**
      * Finds the distinguished name of the suffix that would hold an entry with
-     * the supplied distinguished name parameter.  If the DN argument does not
+     * the supplied distinguished name parameter.  If the Dn argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param The DN we want to find the suffix from
+     * @param The Dn we want to find the suffix from
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      */
-    public DN findSuffix( DN dn ) throws LdapException;
+    public Dn findSuffix( Dn dn ) throws LdapException;
 
 
     /**

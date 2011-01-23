@@ -129,7 +129,7 @@ public class ReplicaEventLog
      */
     public void log( EventType event, Entry entry )
     {
-        LOG.debug( "logging entry with DN {} with the event {}", entry.getDn(), event );
+        LOG.debug( "logging entry with Dn {} with the event {}", entry.getDn(), event );
         log( new ReplicaEventMessage( event, entry ) );
     }
 

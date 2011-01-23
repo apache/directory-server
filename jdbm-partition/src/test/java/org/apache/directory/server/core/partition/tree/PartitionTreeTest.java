@@ -27,8 +27,8 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        DN suffix = new DN( "dc=example, dc=com" );
+        Dn suffix = new Dn( "dc=example, dc=com" );
         Partition partition = new JdbmPartition();
         partition.setSuffix( suffix );
 
@@ -56,13 +56,13 @@ public class PartitionTreeTest
 
         assertNotNull( partitionLookupTree );
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new RDN( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new RDN( "dc=com" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new RDN( "dc=example" ) ) );
+        assertTrue( child.contains( new Rdn( "dc=example" ) ) );
 
-        child = child.getChild( new RDN( "dc=example" ) );
+        child = child.getChild( new Rdn( "dc=example" ) );
         assertEquals( "dc=example, dc=com", child.getElement().getSuffix().getName() );
     }
 
@@ -75,13 +75,13 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        DN suffix1 = new DN( "dc=example, dc=com" );
+        Dn suffix1 = new Dn( "dc=example, dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
-        DN suffix2 = new DN( "ou=system" );
+        Dn suffix2 = new Dn( "ou=system" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2 );
 
@@ -89,18 +89,18 @@ public class PartitionTreeTest
 
         assertNotNull( partitionLookupTree );
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new RDN( "ou=system" ) ) );
-        assertTrue( partitionLookupTree.contains( new RDN( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( "ou=system" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new RDN( "ou=system" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "ou=system" ) );
         assertTrue( child.isLeaf() );
         assertEquals( "ou=system", child.getElement().getSuffix().getName() );
 
-        child = partitionLookupTree.getChild( new RDN( "dc=com" ) );
+        child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new RDN( "dc=example" ) ) );
+        assertTrue( child.contains( new Rdn( "dc=example" ) ) );
 
-        child = child.getChild( new RDN( "dc=example" ) );
+        child = child.getChild( new Rdn( "dc=example" ) );
         assertTrue( child.isLeaf() );
         assertEquals( "dc=example, dc=com", child.getElement().getSuffix().getName() );
     }
@@ -114,13 +114,13 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        DN suffix1 = new DN( "dc=example1, dc=com" );
+        Dn suffix1 = new Dn( "dc=example1, dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
-        DN suffix2 = new DN( "dc=example2, dc=com" );
+        Dn suffix2 = new Dn( "dc=example2, dc=com" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2 );
 
@@ -129,21 +129,21 @@ public class PartitionTreeTest
         assertNotNull( partitionLookupTree );
 
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new RDN( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new RDN( "dc=com" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
         assertTrue( child.hasChildren() );
 
-        child = partitionLookupTree.getChild( new RDN( "dc=com" ) );
+        child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new RDN( "dc=example1" ) ) );
-        assertTrue( child.contains( new RDN( "dc=example2" ) ) );
+        assertTrue( child.contains( new Rdn( "dc=example1" ) ) );
+        assertTrue( child.contains( new Rdn( "dc=example2" ) ) );
 
-        DnNode<Partition> child1 = child.getChild( new RDN( "dc=example1" ) );
+        DnNode<Partition> child1 = child.getChild( new Rdn( "dc=example1" ) );
         assertTrue( child1.isLeaf() );
         assertEquals( "dc=example1, dc=com", child1.getElement().getSuffix().getName() );
 
-        DnNode<Partition> child2 = child.getChild( new RDN( "dc=example1" ) );
+        DnNode<Partition> child2 = child.getChild( new Rdn( "dc=example1" ) );
         assertTrue( child2.isLeaf() );
         assertEquals( "dc=example1, dc=com", child2.getElement().getSuffix().getName() );
     }

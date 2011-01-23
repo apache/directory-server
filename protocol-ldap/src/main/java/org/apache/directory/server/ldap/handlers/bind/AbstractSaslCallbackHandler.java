@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.session.IoSession;
@@ -136,7 +136,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Final check to authorize user.  Used by all SASL mechanisms.  This
      * is the only callback used by GSSAPI.
      * 
-     * Implementors use setAuthorizedID() to set the base DN after canonicalization.
+     * Implementors use setAuthorizedID() to set the base Dn after canonicalization.
      * Implementors must setAuthorized() to <code>true</code> if authentication was successful.
      * 
      * @param callback An {@link AuthorizeCallback}.
@@ -245,7 +245,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         catch ( Exception e )
         {
             ResultCodeEnum code;
-            DN dn = null;
+            Dn dn = null;
 
             if ( e instanceof LdapOperationException )
             {

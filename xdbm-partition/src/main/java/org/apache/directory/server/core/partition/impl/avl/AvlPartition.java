@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -105,7 +105,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
     }
 
 
-    public final void modify( DN dn, List<Modification> modifications ) throws LdapException
+    public final void modify( Dn dn, List<Modification> modifications ) throws LdapException
     {
         try
         {

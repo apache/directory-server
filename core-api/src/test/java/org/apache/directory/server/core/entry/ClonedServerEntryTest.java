@@ -27,7 +27,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,9 +56,9 @@ public class ClonedServerEntryTest
     @BeforeClass
     public static void initNames() throws Exception
     {
-        Entry eA = new DefaultEntry(new DN( "dc=example,dc=com" ));
-        Entry eB = new DefaultEntry(new DN( "dc=example,dc=com" ));
-        Entry eC = new DefaultEntry(new DN( "dc=test,dc=org" ));
+        Entry eA = new DefaultEntry(new Dn( "dc=example,dc=com" ));
+        Entry eB = new DefaultEntry(new Dn( "dc=example,dc=com" ));
+        Entry eC = new DefaultEntry(new Dn( "dc=test,dc=org" ));
 
         clonedServerEntryA = new ClonedServerEntry();
         clonedServerEntryACopy = new ClonedServerEntry();

@@ -80,6 +80,7 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -97,8 +98,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.DateUtils;
@@ -148,7 +148,7 @@ public class DefaultDirectoryService implements DirectoryService
     private OperationManager operationManager = new DefaultOperationManager( this );
 
     /** the distinguished name of the administrative user */
-    private DN adminDn;
+    private Dn adminDn;
 
     /** session used as admin for internal operations */
     private CoreSession adminSession;
@@ -267,7 +267,7 @@ public class DefaultDirectoryService implements DirectoryService
     /** the pwdPolicySubentry AT */
     private AttributeType pwdPolicySubentryAT;
 
-    /** The DN factory */
+    /** The Dn factory */
     private DNFactory dnFactory;
 
     /**
@@ -714,7 +714,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
+    public CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException
     {
         if ( ! started )
         {
@@ -730,7 +730,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+    public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
     {
         if ( ! started )
@@ -777,7 +777,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * We handle the ModDN/ModRDN operation for the revert here.
      */
-    private void moddn( DN oldDn, DN newDn, boolean delOldRdn ) throws LdapException
+    private void moddn( Dn oldDn, Dn newDn, boolean delOldRdn ) throws LdapException
     {
         if ( oldDn.size() == 0 )
         {
@@ -785,22 +785,22 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // calculate parents
-        DN oldBase = oldDn;
+        Dn oldBase = oldDn;
         oldBase = oldBase.remove( oldDn.size() - 1 );
-        DN newBase = newDn;
+        Dn newBase = newDn;
         newBase = newBase.remove( newDn.size() - 1 );
 
-        // Compute the RDN for each of the DN
-        RDN newRdn = newDn.getRdn( newDn.size() - 1 );
-        RDN oldRdn = oldDn.getRdn( oldDn.size() - 1 );
+        // Compute the Rdn for each of the Dn
+        Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
+        Rdn oldRdn = oldDn.getRdn( oldDn.size() - 1 );
 
         /*
          * We need to determine if this rename operation corresponds to a simple
-         * RDN name change or a move operation.  If the two names are the same
-         * except for the RDN then it is a simple modifyRdn operation.  If the
+         * Rdn name change or a move operation.  If the two names are the same
+         * except for the Rdn then it is a simple modifyRdn operation.  If the
          * names differ in size or have a different baseDN then the operation is
-         * a move operation.  Furthermore if the RDN in the move operation
-         * changes it is both an RDN change and a move operation.
+         * a move operation.  Furthermore if the Rdn in the move operation
+         * changes it is both an Rdn change and a move operation.
          */
         if ( ( oldDn.size() == newDn.size() ) && oldBase.equals( newBase ) )
         {
@@ -808,7 +808,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         else
         {
-            DN target = newDn;
+            Dn target = newDn;
             target = target.remove( newDn.size() - 1 );
 
             if ( newRdn.equals( oldRdn ) )
@@ -817,7 +817,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
             else
             {
-                adminSession.moveAndRename( oldDn, target, new RDN( newRdn ), delOldRdn );
+                adminSession.moveAndRename( oldDn, target, new Rdn( newRdn ), delOldRdn );
             }
         }
     }
@@ -890,8 +890,8 @@ public class DefaultDirectoryService implements DirectoryService
                             // NO BREAK - both ModDN and ModRDN handling is the same
 
                         case ChangeType.MODRDN_ORDINAL :
-                            DN forwardDn = event.getForwardLdif().getDn();
-                            DN reverseDn = reverse.getDn();
+                            Dn forwardDn = event.getForwardLdif().getDn();
+                            Dn reverseDn = reverse.getDn();
 
                             moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
 
@@ -1153,7 +1153,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public Entry newEntry( DN dn )
+    public Entry newEntry( Dn dn )
     {
         return new DefaultEntry( schemaManager, dn );
     }
@@ -1209,7 +1209,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        DN userDn = getDNFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
+        Dn userDn = getDNFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
         {
@@ -1234,7 +1234,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system groups area
         // -------------------------------------------------------------------
 
-        DN groupDn = getDNFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
+        Dn groupDn = getDNFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
         {
@@ -1259,7 +1259,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create administrator group
         // -------------------------------------------------------------------
 
-        DN name = getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        Dn name = getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
         {
@@ -1285,7 +1285,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area
         // -------------------------------------------------------------------
 
-        DN configurationDn = getDNFactory().create( "ou=configuration,ou=system" );
+        Dn configurationDn = getDNFactory().create( "ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
         {
@@ -1307,7 +1307,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for partition information
         // -------------------------------------------------------------------
 
-        DN partitionsDn = getDNFactory().create( "ou=partitions,ou=configuration,ou=system" );
+        Dn partitionsDn = getDNFactory().create( "ou=partitions,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
         {
@@ -1328,7 +1328,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for services
         // -------------------------------------------------------------------
 
-        DN servicesDn = getDNFactory().create( "ou=services,ou=configuration,ou=system" );
+        Dn servicesDn = getDNFactory().create( "ou=services,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
         {
@@ -1350,7 +1350,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for interceptors
         // -------------------------------------------------------------------
 
-        DN interceptorsDn = getDNFactory().create( "ou=interceptors,ou=configuration,ou=system" );
+        Dn interceptorsDn = getDNFactory().create( "ou=interceptors,ou=configuration,ou=system" );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
         {
@@ -1372,7 +1372,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system preferences area
         // -------------------------------------------------------------------
 
-        DN sysPrefRootDn = getDNFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        Dn sysPrefRootDn = getDNFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
@@ -1406,7 +1406,7 @@ public class DefaultDirectoryService implements DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        DN adminDn = getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
@@ -1489,7 +1489,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, DN.EMPTY_DN ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.EMPTY_DN ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
 
@@ -1533,7 +1533,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Read an entry (without DN)
+     * Read an entry (without Dn)
      *
      * @param text The ldif format file
      * @return An entry.
@@ -1605,14 +1605,14 @@ public class DefaultDirectoryService implements DirectoryService
      * Create a new Entry
      *
      * @param ldif The String representing the attributes, as a LDIF file
-     * @param dn The DN for this new entry
+     * @param dn The Dn for this new entry
      */
     public Entry newEntry( String ldif, String dn )
     {
         try
         {
             Entry entry = readEntry( ldif );
-            DN newDn = getDNFactory().create( dn );
+            Dn newDn = getDNFactory().create( dn );
 
             entry.setDn( newDn );
 
@@ -1890,7 +1890,7 @@ public class DefaultDirectoryService implements DirectoryService
             
             if ( pwdPolicySubentry != null )
             {
-                DN configDn = getDNFactory().create( pwdPolicySubentry.getString() );
+                Dn configDn = getDNFactory().create( pwdPolicySubentry.getString() );
                 
                 return pwdPolicyContainer.getPolicyConfig( configDn );
             }

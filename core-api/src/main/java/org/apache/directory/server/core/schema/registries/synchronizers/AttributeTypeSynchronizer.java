@@ -28,8 +28,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -67,11 +67,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=attributetypes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
 
         // The new schemaObject's OID must not already exist
@@ -115,7 +115,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
-        DN name = modifyContext.getDn();
+        Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
@@ -143,11 +143,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=attributetypes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
 
         // Get the SchemaName
@@ -193,7 +193,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType oldAt = factory
@@ -205,8 +205,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
-        // Inject the new DN
-        DN newDn = new DN( targetEntry.getDn() );
+        // Inject the new Dn
+        Dn newDn = new Dn( targetEntry.getDn() );
         newDn = newDn.remove( newDn.size() - 1 );
         newDn = newDn.add( newRdn );
         targetEntry.setDn( newDn );
@@ -235,7 +235,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
@@ -287,7 +287,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
+    public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );

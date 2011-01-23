@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -94,7 +94,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
         this.schemaManager = schemaManager;
         this.partition = partition;
 
-        DN dn = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn dn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
         EntryOperationContext hasEntryContext = new EntryOperationContext( null, dn );
         if ( partition.hasEntry( hasEntryContext ) )
         {

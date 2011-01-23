@@ -27,7 +27,7 @@ import org.apache.directory.server.protocol.shared.catalog.Catalog;
 
 
 /**
- * A catalog for mapping DNS zones to search base DN's. 
+ * A catalog for mapping DNS zones to search base Dn's.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

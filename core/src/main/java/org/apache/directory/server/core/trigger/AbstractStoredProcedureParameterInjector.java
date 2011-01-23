@@ -31,7 +31,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 
@@ -51,10 +51,10 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     }
     
     
-    protected DN getOperationPrincipal() throws LdapInvalidDnException
+    protected Dn getOperationPrincipal() throws LdapInvalidDnException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
-        DN userName = opContext.getSession().getDirectoryService().getDNFactory().create( principal.getName() );
+        Dn userName = opContext.getSession().getDirectoryService().getDNFactory().create( principal.getName() );
         return userName;
     }
     
@@ -109,7 +109,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
-            DN ldapCtxName = ldapCtxParam.getCtxName();
+            Dn ldapCtxName = ldapCtxParam.getCtxName();
             return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS );
         }
     };

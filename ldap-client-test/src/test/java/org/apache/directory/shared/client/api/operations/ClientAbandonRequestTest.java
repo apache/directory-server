@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResultDone;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
     }
 
@@ -105,7 +105,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         for ( int i = 0; i < numEntries; i++ )
         {
             String s = String.valueOf( i );
-            DN dn = new DN( "cn=" + s + ",ou=system" );
+            Dn dn = new Dn( "cn=" + s + ",ou=system" );
             Entry entry = new DefaultEntry( dn );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
             entry.add( SchemaConstants.CN_AT, s );
@@ -116,7 +116,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
         SearchRequest sr = new SearchRequestImpl();
         sr.setFilter( "(cn=*)" );
-        sr.setBase( new DN( "ou=system" ) );
+        sr.setBase( new Dn( "ou=system" ) );
         sr.setScope( SearchScope.ONELEVEL );
         sr.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
 

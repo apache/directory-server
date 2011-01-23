@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
 
     /**
      * Checks if a simple entry (organizationalUnit) can be deleted from the DIT at an
-     * RDN relative to ou=system by a specific non-admin user.  The entry is first
+     * Rdn relative to ou=system by a specific non-admin user.  The entry is first
      * created using the admin account which can do anything without limitations.
      * After creating the entry as the admin an attempt is made to delete it as the
      * specified user.
@@ -84,16 +84,16 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry creation then deletion is tested
+     * @param entryRdn the relative Dn, relative to ou=system where entry creation then deletion is tested
      * @return true if the entry can be created by the user at the specified location, false otherwise
      * @throws Exception if there are problems conducting the test
      */
     public boolean checkCanDeleteEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
 
@@ -102,11 +102,11 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         // create the entry as admin
         adminConnection.add( testEntry );
 
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
 
         // delete the newly created context as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
-        DeleteResponse resp = userConnection.delete( entryDN );
+        DeleteResponse resp = userConnection.delete(entryDn);
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -114,7 +114,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         }
         else
         {
-            adminConnection.delete( entryDN );
+            adminConnection.delete(entryDn);
             return false;
         }
     }

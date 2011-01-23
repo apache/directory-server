@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test DIRSERVER-757 : a UniqueMember attribute should only contain a DN completed with an
+ * Test DIRSERVER-757 : a UniqueMember attribute should only contain a Dn completed with an
  * optional UID. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

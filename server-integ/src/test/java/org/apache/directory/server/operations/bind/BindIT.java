@@ -111,7 +111,7 @@ public class BindIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test bind with malformed bind DN.
+     * Test bind with malformed bind Dn.
      */
     @Test
     public void testBadBindDnMalformed() throws Exception

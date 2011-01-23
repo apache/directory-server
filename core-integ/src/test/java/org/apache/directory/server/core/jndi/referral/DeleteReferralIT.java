@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,7 +121,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -190,7 +190,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            session.delete( new DN( "cn=Emmanuel Lecharny,ou=Roles" ) );
+            session.delete( new Dn( "cn=Emmanuel Lecharny,ou=Roles" ) );
             fail();
         }
         catch ( LdapNoSuchObjectException lnsoe )
@@ -207,7 +207,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
     public void testDeleteExistingEntryNotReferral() throws Exception
     {
         CoreSession session = service.getAdminSession();
-        DN dn = new DN( "cn=Alex Karasulu,o=MNN,c=WW,ou=system" );
+        Dn dn = new Dn( "cn=Alex Karasulu,o=MNN,c=WW,ou=system" );
         
         session.delete( dn );
         
@@ -272,7 +272,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
 
         MNNCtx.destroySubcontext( "ou=Roles" );
 
-        DN dn = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
+        Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
         
         // We should not find the entry
         try
@@ -295,7 +295,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
     public void testDeleteExistingEntryReferralCoreAPINoManageDSAIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
-        DN dn = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
+        Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
 
         try
         {
@@ -330,7 +330,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
     public void testDeleteExistingEntryReferralCoreAPIManageDSAIT() throws Exception
     {
         CoreSession session = service.getAdminSession();
-        DN dn = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
+        Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
 
         session.delete( dn, true );
 

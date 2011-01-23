@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,11 +126,11 @@ public class LdifFileLoader
     /**
      * Applies filters making sure failures in one filter do not effect another.
      *
-     * @param dn    the DN of the entry
+     * @param dn    the Dn of the entry
      * @param entry the attributes of the entry
      * @return true if all filters passed the entry, false otherwise
      */
-    private boolean applyFilters( DN dn, Entry entry )
+    private boolean applyFilters( Dn dn, Entry entry )
     {
         boolean accept = true;
         final int limit = filters.size();
@@ -176,7 +176,7 @@ public class LdifFileLoader
 
             for ( LdifEntry ldifEntry:new LdifReader( in ) )
             {
-                DN dn = ldifEntry.getDn();
+                Dn dn = ldifEntry.getDn();
 
                 if ( ldifEntry.isEntry() )
                 {

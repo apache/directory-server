@@ -265,8 +265,8 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Try to delete an entry with invalid DN. The operation fails
-     * during parsing the given DN
+     * Try to delete an entry with invalid Dn. The operation fails
+     * during parsing the given Dn
      */
     @Test
     public void testDeleteWithIllegalName() throws Exception

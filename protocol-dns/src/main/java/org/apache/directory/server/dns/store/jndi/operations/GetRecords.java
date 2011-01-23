@@ -117,7 +117,7 @@ public class GetRecords implements DnsOperation
 
     /**
      * Note that the base is a relative path from the exiting context.
-     * It is not a DN.
+     * It is not a Dn.
      */
     public Set<ResourceRecord> execute( DirContext ctx, Name base ) throws Exception
     {

@@ -26,17 +26,17 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private DN addedEntryName;
+    private Dn addedEntryName;
     private Entry addedEntry;
     
     
-    public AddStoredProcedureParameterInjector( OperationContext opContext, DN addedEntryName, 
+    public AddStoredProcedureParameterInjector( OperationContext opContext, Dn addedEntryName,
         Entry addedEntry )
     {
         super( opContext );

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
     /**
      * Checks if a simple entry (organizationalUnit) can be added to the DIT at an
-     * RDN relative to ou=system by a specific non-admin user.  If a permission exception
+     * Rdn relative to ou=system by a specific non-admin user.  If a permission exception
      * is encountered it is caught and false is returned, otherwise true is returned
      * when the entry is created.  The entry is deleted after being created just in case
      * subsequent calls to this method do not fail: the admin account is used to delete
@@ -78,7 +78,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry creation is tested
+     * @param entryRdn the relative Dn, relative to ou=system where entry creation is tested
      * @return true if the entry can be created by the user at the specified location, false otherwise
      * @throws Exception if there are problems conducting the test
      */
@@ -88,10 +88,10 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
         try
         {
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+            Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
             connection = getConnectionAs( userName, password );
 
-            Entry entry = new DefaultEntry( new DN( "ou=system" ).add( entryRdn ) );
+            Entry entry = new DefaultEntry( new Dn( "ou=system" ).add( entryRdn ) );
             entry.add( "ou", "testou" );
             entry.add( "ObjectClass", "top", "organizationalUnit" );
 

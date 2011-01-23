@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -35,11 +35,11 @@ public abstract class SubschemaAdministrativePoint extends AbstractAdministrativ
     /**
      * Create an instance of Subschema AdministrativePoint
      *
-     * @param dn The AdministrativePoint DN
+     * @param dn The AdministrativePoint Dn
      * @param uuid The AdministrativePoint UUID
      * @param role The AdministrativePoint role
      */
-    protected SubschemaAdministrativePoint( DN dn, String uuid, AdministrativeRole role )
+    protected SubschemaAdministrativePoint( Dn dn, String uuid, AdministrativeRole role )
     {
         super( dn, uuid, role );
     }

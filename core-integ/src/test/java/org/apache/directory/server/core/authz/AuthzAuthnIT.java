@@ -33,7 +33,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -77,7 +77,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     {
         createUser( "billyd", "billyd" );
 
-        DN userName = new DN( "uid=billyd,ou=users,ou=system" );
+        Dn userName = new Dn( "uid=billyd,ou=users,ou=system" );
         // Authenticate to RootDSE
         LdapConnection connection = getConnectionAs( userName, "billyd" );
         Entry entry = connection.lookup( "" );
@@ -97,7 +97,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     {
         createUser( "billyd", "billyd" );
 
-        DN userName = new DN( "uid=billyd,ou=users,ou=system" );
+        Dn userName = new Dn( "uid=billyd,ou=users,ou=system" );
         LdapConnection connection = getConnectionAs( userName, "billyd" );
         Entry entry = connection.lookup( "ou=system" );
         assertNull( entry );
@@ -140,7 +140,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
             "  } " + 
             "}" );
 
-        DN userName = new DN( "uid=billyd,ou=users,ou=system" );
+        Dn userName = new Dn( "uid=billyd,ou=users,ou=system" );
 
         LdapConnection connection = getConnectionAs( userName, "billyd" );
         Entry entry = connection.lookup( "ou=system" );

@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getAdminSession();
@@ -117,7 +117,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModify() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
         ModifyRequest modRequest = new ModifyRequestImpl();
@@ -137,7 +137,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModifyWithEntry() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         Entry entry = new DefaultEntry( dn );
 
@@ -163,7 +163,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModifyReplaceRemove() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         Entry entry = new DefaultEntry( dn );
 
@@ -191,7 +191,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void modifyAsync() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
         ModifyRequest modifyRequest = new ModifyRequestImpl();
@@ -230,7 +230,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModifyEntryUUIDAndEntryCSN() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( dn );
@@ -251,7 +251,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        DN bindDn = new DN( "uid=billyd,ou=users,ou=system" );
+        Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
         
         // non-admin user cannot modify entryCSN
@@ -266,7 +266,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModifyModifierNameAndModifyTimestamp() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         String modifierName = "uid=x,ou=system";
         String modifiedTime = DateUtils.getGeneralizedTime();

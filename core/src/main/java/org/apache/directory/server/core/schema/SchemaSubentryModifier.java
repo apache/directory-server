@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -81,7 +81,7 @@ public class SchemaSubentryModifier
     /** The server schemaManager */
     private SchemaManager schemaManager;
 
-    /** The DN factory */
+    /** The Dn factory */
     private DNFactory dnFactory;
 
 
@@ -90,7 +90,7 @@ public class SchemaSubentryModifier
      * Creates a new instance of SchemaSubentryModifier.
      *
      * @param schemaManager The server schemaManager
-     * @param dnFactory The DN factory
+     * @param dnFactory The Dn factory
      */
     public SchemaSubentryModifier( SchemaManager schemaManager, DNFactory dnFactory )
     {
@@ -99,7 +99,7 @@ public class SchemaSubentryModifier
     }
     
     
-    private DN getDn( SchemaObject obj ) throws LdapInvalidDnException
+    private Dn getDn( SchemaObject obj ) throws LdapInvalidDnException
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "m-oid=" ).append( obj.getOid() ).append( ",ou=" );
@@ -145,7 +145,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );   
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
@@ -160,7 +160,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH , 
             "cn=" + schemaName,
@@ -175,7 +175,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + syntaxCheckerDescription.getOid(),
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName, 
@@ -189,7 +189,7 @@ public class SchemaSubentryModifier
     public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
         Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
-        DN dn = getDn( obj );
+        Dn dn = getDn( obj );
         Entry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );
 
@@ -199,7 +199,7 @@ public class SchemaSubentryModifier
 
     public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
-        DN dn = getDn( obj );
+        Dn dn = getDn( obj );
         opContext.delete( dn, BYPASS );
     }
 
@@ -207,7 +207,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH,
             "cn=" + schemaName, 
@@ -220,7 +220,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + syntaxCheckerDescription.getOid(), 
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
@@ -232,7 +232,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
-        DN dn = dnFactory.create( 
+        Dn dn = dnFactory.create(
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
@@ -242,7 +242,7 @@ public class SchemaSubentryModifier
     }
 
 
-    private Entry getEntry( DN dn, LdapComparatorDescription comparatorDescription )
+    private Entry getEntry( Dn dn, LdapComparatorDescription comparatorDescription )
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
         
@@ -269,7 +269,7 @@ public class SchemaSubentryModifier
     }
 
 
-    private Entry getEntry( DN dn, NormalizerDescription normalizerDescription )
+    private Entry getEntry( Dn dn, NormalizerDescription normalizerDescription )
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
 
@@ -307,7 +307,7 @@ public class SchemaSubentryModifier
     }
     
     
-    private Entry getEntry( DN dn, SyntaxCheckerDescription syntaxCheckerDescription )
+    private Entry getEntry( Dn dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
         

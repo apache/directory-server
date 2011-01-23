@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -325,7 +325,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public DN getDn()
+    public Dn getDn()
     {
         return clonedEntry.getDn();
     }
@@ -397,7 +397,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public void setDn( DN dn )
+    public void setDn( Dn dn )
     {
         clonedEntry.setDn( dn );
     }
@@ -411,7 +411,7 @@ public class ClonedServerEntry implements Entry
 
     public Entry toClientEntry() throws LdapException
     {
-        // Copy the DN
+        // Copy the Dn
         Entry clientEntry = new DefaultEntry( clonedEntry.getDn() );
         
         // Convert each attribute 

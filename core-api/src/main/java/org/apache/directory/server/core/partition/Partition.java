@@ -37,14 +37,14 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
  * Interface for entry stores containing a part of the DIB (Directory 
  * Information Base).  Partitions are associated with a specific suffix, and
- * all entries contained in the them have the same DN suffix in common.
+ * all entries contained in the them have the same Dn suffix in common.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -74,9 +74,9 @@ public interface Partition
      * Sets the user provided suffix for this Partition as a String.
      *
      * @param suffix the suffix String for this Partition.
-     * @throws LdapInvalidDnException if the suffix does not conform to LDAP DN syntax
+     * @throws LdapInvalidDnException if the suffix does not conform to LDAP Dn syntax
      */
-    void setSuffix( DN suffix ) throws LdapInvalidDnException;
+    void setSuffix( Dn suffix ) throws LdapInvalidDnException;
 
 
     /**
@@ -108,14 +108,14 @@ public interface Partition
 
 
     /**
-     * Gets the normalized suffix as an DN for this Partition after it has 
-     * been initialized.  Attempts to get this DN before initialization 
+     * Gets the normalized suffix as an Dn for this Partition after it has
+     * been initialized.  Attempts to get this Dn before initialization
      * throw an IllegalStateException.
      *
      * @return the suffix for this Partition.
      * @throws IllegalStateException if the Partition has not been initialized
      */
-    DN getSuffix();
+    Dn getSuffix();
 
 
     /**
@@ -235,7 +235,7 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelevant.
      *
-     * @param renameContext the modify DN context
+     * @param renameContext the modify Dn context
      * @throws Exception if there are any problems
      */
     void rename( RenameOperationContext renameContext ) throws LdapException;

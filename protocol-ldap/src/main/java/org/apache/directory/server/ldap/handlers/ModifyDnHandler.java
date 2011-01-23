@@ -25,7 +25,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +46,12 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
      *
      * A ModifyDN operation has more than one semantic, depending on its parameters.
      *
-     * In any case, the first argument is the DN entry to be changed. We then
-     * have the new relative DN for this entry.
+     * In any case, the first argument is the Dn entry to be changed. We then
+     * have the new relative Dn for this entry.
      *
      * Two other arguments can be provided :
-     * - deleteOldRdn : if the old RDN attributes should be removed from the
-     * new entry or not (for instance, if the old RDN was cn=acme, and the new
+     * - deleteOldRdn : if the old Rdn attributes should be removed from the
+     * new entry or not (for instance, if the old Rdn was cn=acme, and the new
      * one is sn=acme, then we may have to remove the cn: acme from the attributes
      * list)
      * - newSuperior : this is a move operation. The entry is removed from its
@@ -65,7 +65,7 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
         if ( req.getName().isEmpty() )
         {
             // it is not allowed to modify the name of the Root DSE
-            String msg = "Modify DN is not allowed on Root DSE.";
+            String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
@@ -75,9 +75,9 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
         try
         {
             SchemaManager schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
-            DN newRdn = new DN( req.getNewRdn().getName(), schemaManager );
+            Dn newRdn = new Dn( req.getNewRdn().getName(), schemaManager );
             
-            DN oldRdn = new DN( req.getName().getRdn().getName(), schemaManager );
+            Dn oldRdn = new Dn( req.getName().getRdn().getName(), schemaManager );
             
             boolean rdnChanged = req.getNewRdn() != null && 
                 ! newRdn.getNormName().equals( oldRdn.getNormName() );

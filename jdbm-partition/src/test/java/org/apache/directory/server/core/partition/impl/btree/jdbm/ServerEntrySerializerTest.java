@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -129,7 +129,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeEmtpyServerEntry() throws Exception
     {
-        DN dn = DN.EMPTY_DN;
+        Dn dn = Dn.EMPTY_DN;
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
@@ -145,7 +145,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeDNServerEntry() throws Exception
     {
-        DN dn = new DN( "cn=text, dc=example, dc=com" );
+        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -156,7 +156,7 @@ public class ServerEntrySerializerTest
 
         Entry result = ( Entry ) ses.deserialize( data );
 
-        DN newDn = new DN( dn.getRdn() );
+        Dn newDn = new Dn( dn.getRdn() );
         entry.setDn( newDn );
 
         assertEquals( entry, result );
@@ -166,7 +166,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryOC() throws Exception
     {
-        DN dn = new DN( "cn=text, dc=example, dc=com" );
+        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -178,7 +178,7 @@ public class ServerEntrySerializerTest
 
         Entry result = ( Entry ) ses.deserialize( data );
 
-        DN newDn = new DN();
+        Dn newDn = new Dn();
         newDn = newDn.add( dn.getRdn() );
         entry.setDn( newDn );
 
@@ -189,7 +189,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntry() throws Exception
     {
-        DN dn = new DN( "cn=text, dc=example, dc=com" );
+        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -204,7 +204,7 @@ public class ServerEntrySerializerTest
 
         Entry result = ( Entry ) ses.deserialize( data );
 
-        DN newDn = new DN();
+        Dn newDn = new Dn();
         newDn = newDn.add( dn.getRdn() );
         entry.setDn( newDn );
 
@@ -215,7 +215,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
-        DN dn = new DN( "" );
+        Dn dn = new Dn( "" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -237,7 +237,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithNoAttributes() throws Exception
     {
-        DN dn = new DN( "" );
+        Dn dn = new Dn( "" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -255,7 +255,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeNoValue() throws Exception
     {
-        DN dn = new DN( "" );
+        Dn dn = new Dn( "" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -276,7 +276,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeStringValue() throws Exception
     {
-        DN dn = new DN( "" );
+        Dn dn = new Dn( "" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -295,7 +295,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
     {
-        DN dn = new DN( "" );
+        Dn dn = new Dn( "" );
         dn.normalize( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );

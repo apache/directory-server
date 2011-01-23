@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
- * A special index which stores RDN objects.
+ * A special index which stores Rdn objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

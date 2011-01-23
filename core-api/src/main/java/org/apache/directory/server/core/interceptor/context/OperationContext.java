@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -101,22 +101,22 @@ public interface OperationContext
 
 
     /**
-     * @return The associated DN
+     * @return The associated Dn
      */
-    DN getDn();
+    Dn getDn();
     
     
     /**
-     * Set the context DN
+     * Set the context Dn
      *
-     * @param dn The DN to set
+     * @param dn The Dn to set
      */
-    void setDn( DN dn );
+    void setDn( Dn dn );
 
     
     /**
-     * Gets the server entry associated with the target DN of this 
-     * OperationContext.  The entry associated with the DN may be altered 
+     * Gets the server entry associated with the target Dn of this
+     * OperationContext.  The entry associated with the Dn may be altered
      * during the course of processing an LDAP operation through the 
      * InterceptorChain.  This place holder is put here to prevent the need
      * for repetitive lookups of the target entry.  Furthermore the returned
@@ -129,23 +129,23 @@ public interface OperationContext
      * prevent the need for subsequent lookups.
      * 
      * Also note that during the course of handling some operations such as 
-     * those that rename, move or rename and move the entry, may alter the DN 
-     * of this entry.  Interceptor implementors should not presume the DN or 
+     * those that rename, move or rename and move the entry, may alter the Dn
+     * of this entry.  Interceptor implementors should not presume the Dn or
      * the values contained in this entry are currently what is present in the 
      * DIT.  The original entry contained in the ClonedServerEntry shoudl be 
      * used as the definitive source of information about the state of the 
      * entry in the DIT before returning from the Partition subsystem.
      * 
-     * @return target entry associated with the DN of this OperationContext
+     * @return target entry associated with the Dn of this OperationContext
      */
     ClonedServerEntry getEntry();
     
     
     /**
-     * Sets the server entry associated with the target DN of this 
+     * Sets the server entry associated with the target Dn of this
      * OperationContext.
      *
-     * @param entry the entry whose DN is associated with this OperationContext.
+     * @param entry the entry whose Dn is associated with this OperationContext.
      */
     void setEntry( ClonedServerEntry entry );
     
@@ -294,22 +294,22 @@ public interface OperationContext
     // -----------------------------------------------------------------------
     
     
-    LookupOperationContext newLookupContext( DN dn );
+    LookupOperationContext newLookupContext( Dn dn );
 
     
-    Entry lookup( DN dn, Collection<String> byPass ) throws LdapException;
+    Entry lookup( Dn dn, Collection<String> byPass ) throws LdapException;
     
     
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
     
     
-    void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws LdapException;
+    void modify( Dn dn, List<Modification> mods, Collection<String> byPass ) throws LdapException;
     
     
     void add( Entry entry, Collection<String> byPass ) throws LdapException;
     
     
-    void delete( DN dn, Collection<String> byPass ) throws LdapException;
+    void delete( Dn dn, Collection<String> byPass ) throws LdapException;
 
 
     /**
@@ -320,7 +320,7 @@ public interface OperationContext
      * @return true if the entry exists, false if it does not
      * @throws Exception on failure to perform this operation
      */
-    boolean hasEntry( DN dn, Collection<String> byPass ) throws LdapException;
+    boolean hasEntry( Dn dn, Collection<String> byPass ) throws LdapException;
     
     
     /**

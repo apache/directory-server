@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +126,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
         
-        DN userDn = new DN( "cn=user,ou=system" );
+        Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
             "sn: user_sn", "userPassword: 1234" );
 
@@ -163,7 +163,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
-        DN userDn = new DN( "cn=hashedpwd,ou=system" );
+        Dn userDn = new Dn( "cn=hashedpwd,ou=system" );
         Entry userEntry = new DefaultEntry( userDn );
         userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
         userEntry.add( SchemaConstants.CN_AT, "hashedpwd" );
@@ -204,7 +204,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
-        DN userDn = new DN( "cn=userMinAge,ou=system" );
+        Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
             "sn: userMinAge_sn", "userPassword: 12345" );
 

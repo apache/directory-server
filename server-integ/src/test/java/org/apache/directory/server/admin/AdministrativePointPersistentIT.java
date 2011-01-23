@@ -39,7 +39,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.After;
@@ -199,46 +199,46 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         DnNode<SubschemaAdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
 
         // The ACs
-        AdministrativePoint aap1 = acCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        AdministrativePoint aap1 = acCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
         assertNotNull( aap1 );
 
-        AdministrativePoint aap2 = acCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        AdministrativePoint aap2 = acCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
         assertNotNull( aap2 );
 
-        AdministrativePoint subAap1 = acCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+        AdministrativePoint subAap1 = acCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
             schemaManager ) );
         assertNotNull( subAap1 );
 
         // The ACs
-        aap1 = caCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = caCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
         assertNotNull( aap1 );
 
-        aap2 = caCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = caCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
         assertNotNull( aap2 );
 
-        subAap1 = caCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+        subAap1 = caCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
             schemaManager ) );
         assertNotNull( subAap1 );
 
         // The TEs
-        aap1 = teCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = teCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
         assertNotNull( aap1 );
 
-        aap2 = teCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = teCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
         assertNotNull( aap2 );
 
-        subAap1 = teCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+        subAap1 = teCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
             schemaManager ) );
         assertNotNull( subAap1 );
 
         // The SSs
-        aap1 = ssCache.getElement( new DN( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = ssCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
         assertNotNull( aap1 );
 
-        aap2 = ssCache.getElement( new DN( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = ssCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
         assertNotNull( aap2 );
 
-        subAap1 = ssCache.getElement( new DN( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
+        subAap1 = ssCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
             schemaManager ) );
         assertNotNull( subAap1 );
     }

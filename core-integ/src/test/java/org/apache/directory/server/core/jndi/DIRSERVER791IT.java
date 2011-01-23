@@ -98,11 +98,11 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
 
     /**
      * Tests that it is possible to remove a value (in this case "cn=aaa") 
-     * from the RDN attribute which is not part of the RDN
+     * from the Rdn attribute which is not part of the Rdn
      * 
      * The defect was:
-     * Removal of a value from RDN attribute which is not part
-     * of the RDN is not possible.
+     * Removal of a value from Rdn attribute which is not part
+     * of the Rdn is not possible.
      *
      * @throws NamingException on error
      */
@@ -116,7 +116,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
         env.put( Context.PROVIDER_URL, "ou=system" );
         DirContext ctx = new InitialDirContext( env );
 
-        // remove "cn=aaa", which is not part of the RDN
+        // remove "cn=aaa", which is not part of the Rdn
         Attribute attr = new BasicAttribute( "cn", "aaa" );
         ModificationItem modification = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
         ctx.modifyAttributes( "cn=test", new ModificationItem[]
@@ -134,7 +134,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests that it is possible to replace the RDN attribute with 
+     * Tests that it is possible to replace the Rdn attribute with
      * 
      * Checks whether it is possible to replace the cn attribute with a single
      * value. The JIRA issue states that this one works.

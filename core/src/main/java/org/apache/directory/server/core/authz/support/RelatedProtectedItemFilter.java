@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -91,7 +91,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, AttributeType attributeType,
+    private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName, AttributeType attributeType,
                                Value<?> attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;

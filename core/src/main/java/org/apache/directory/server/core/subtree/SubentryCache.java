@@ -25,18 +25,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
- * A cache for subtree specifications. It associates a Subentry with a DN,
+ * A cache for subtree specifications. It associates a Subentry with a Dn,
  * representing its position in the DIT.<br>
  * This cache has a size limit set to 1000 at the moment. We should add a configuration
  * parameter to manage its size.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubentryCache implements Iterable<DN>
+public class SubentryCache implements Iterable<Dn>
 {
     /** The default cache size limit */
     private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
@@ -48,14 +48,14 @@ public class SubentryCache implements Iterable<DN>
     private AtomicInteger cacheSize;
     
     /** The Subentry cache */
-    private final Map<DN, Subentry> cache;
+    private final Map<Dn, Subentry> cache;
     
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
     public SubentryCache()
     {
-        cache = new ConcurrentHashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<Dn, Subentry>();
         cacheSize = new AtomicInteger( 0 );
     }
     
@@ -65,32 +65,32 @@ public class SubentryCache implements Iterable<DN>
      */
     public SubentryCache( int maxSize )
     {
-        cache = new ConcurrentHashMap<DN, Subentry>();
+        cache = new ConcurrentHashMap<Dn, Subentry>();
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
     
     
     /**
-     * Retrieve a Subentry given a DN. If there is none, null will be returned.
+     * Retrieve a Subentry given a Dn. If there is none, null will be returned.
      *
-     * @param dn The DN we want to get the Subentry for 
+     * @param dn The Dn we want to get the Subentry for
      * @return The found Subentry, or null
      */
-    final Subentry getSubentry( DN dn )
+    final Subentry getSubentry( Dn dn )
     {
         return cache.get( dn );
     }
     
     
     /**
-     * Remove a Subentry for a given DN 
+     * Remove a Subentry for a given Dn
      *
-     * @param dn The DN for which we want to remove the 
+     * @param dn The Dn for which we want to remove the
      * associated Subentry
      * @return The removed Subentry, if any
      */
-    final Subentry removeSubentry( DN dn )
+    final Subentry removeSubentry( Dn dn )
     {
         Subentry oldSubentry = cache.remove( dn );
         
@@ -104,14 +104,14 @@ public class SubentryCache implements Iterable<DN>
     
     
     /**
-     * Stores a new Subentry into the cache, associated with a DN
+     * Stores a new Subentry into the cache, associated with a Dn
      *
-     * @param dn The Subentry DN
+     * @param dn The Subentry Dn
      * @param ss The SubtreeSpecification
      * @param adminRoles The administrative roles for this Subentry
      * @return The old Subentry, if any
      */
-    /* No qualifier */ Subentry addSubentry( DN dn, Subentry subentry )
+    /* No qualifier */ Subentry addSubentry( Dn dn, Subentry subentry )
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
@@ -130,11 +130,11 @@ public class SubentryCache implements Iterable<DN>
     
     
     /**
-     * Tells if there is a Subentry associated with a DN
-     * @param dn The DN
+     * Tells if there is a Subentry associated with a Dn
+     * @param dn The Dn
      * @return True if a Subentry is found
      */
-    /* No qualifier */ boolean hasSubentry( DN dn )
+    /* No qualifier */ boolean hasSubentry( Dn dn )
     {
         return cache.containsKey( dn );
     }
@@ -143,7 +143,7 @@ public class SubentryCache implements Iterable<DN>
     /**
      * @return An Iterator over the Subentry's DNs 
      */
-    public Iterator<DN> iterator()
+    public Iterator<Dn> iterator()
     {
         return cache.keySet().iterator();
     }

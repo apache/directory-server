@@ -34,7 +34,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -195,13 +195,13 @@ public class AvlRdnIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
 
         idx.add( key, 0l );
         assertEquals( 1, idx.count() );
 
         // setting a different parentId should make this key a different key
-        key = new ParentIdAndRdn<Long>( 1L, new RDN( "cn=key" ) );
+        key = new ParentIdAndRdn<Long>( 1L, new Rdn( "cn=key" ) );
 
         idx.add( key, 1l );
         assertEquals( 2, idx.count() );
@@ -210,7 +210,7 @@ public class AvlRdnIndexTest
         idx.add( key, 2l );
         assertEquals( 2, idx.count() );
 
-        key = new ParentIdAndRdn<Long>( 2L, new RDN( "cn=key" ) );
+        key = new ParentIdAndRdn<Long>( 2L, new Rdn( "cn=key" ) );
         idx.add( key, 3l );
         assertEquals( 3, idx.count() );
     }
@@ -221,7 +221,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count( key ) );
 
@@ -239,7 +239,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
@@ -254,7 +254,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
@@ -277,7 +277,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new RDN( "cn=key" ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count() );
 
@@ -286,7 +286,7 @@ public class AvlRdnIndexTest
 
         for ( long i = 1; i < 5; i++ )
         {
-            key = new ParentIdAndRdn<Long>( i, new RDN( "cn=key" + i ) );
+            key = new ParentIdAndRdn<Long>( i, new Rdn( "cn=key" + i ) );
 
             idx.add( key, ( long ) i );
         }
@@ -321,14 +321,14 @@ public class AvlRdnIndexTest
     //    {
     //        initIndex();
     //        
-    //        DN dn = new DN( "dc=example,dc=com" );
+    //        Dn dn = new Dn( "dc=example,dc=com" );
     //        dn.normalize( schemaManager.getNormalizerMapping() );
     //        
-    //        RDN rdn = new RDN( dn.getName() );
+    //        Rdn rdn = new Rdn( dn.getName() );
     //        rdn._setParentId( 1 );
     //        idx.add( rdn, 0l );
     //        
-    //        RDN rdn2 = idx.reverseLookup( 0l );
+    //        Rdn rdn2 = idx.reverseLookup( 0l );
     //        System.out.println( rdn2 );
     //        InternalRdnComparator rdnCom = new InternalRdnComparator( "" );
     //        assertEquals( 0, rdnCom.compare( rdn, rdn2 ) );

@@ -48,10 +48,10 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  *
  * The Filters are also normalized.
  *
- * If the RDN AttributeTypes are not present in the entry for an Add request,
+ * If the Rdn AttributeTypes are not present in the entry for an Add request,
  * they will be added.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -120,7 +120,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN dn = deleteContext.getDn();
+        Dn dn = deleteContext.getDn();
 
         if ( !dn.isNormalized() )
         {
@@ -150,7 +150,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
     {
-        // Normalize the new RDN and the DN if needed
+        // Normalize the new Rdn and the Dn if needed
 
         if ( !renameContext.getDn().isNormalized() )
         {
@@ -240,7 +240,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        DN dn = searchContext.getDn();
+        Dn dn = searchContext.getDn();
 
         if ( !dn.isNormalized() )
         {
@@ -383,31 +383,31 @@ public class NormalizationInterceptor extends BaseInterceptor
 
 
     /**
-     * Adds missing RDN's attributes and values to the entry.
+     * Adds missing Rdn's attributes and values to the entry.
      *
-     * @param dn the DN
+     * @param dn the Dn
      * @param entry the entry
      */
-    private void addRdnAttributesToEntry( DN dn, Entry entry ) throws LdapException
+    private void addRdnAttributesToEntry( Dn dn, Entry entry ) throws LdapException
     {
         if ( dn == null || entry == null )
         {
             return;
         }
 
-        RDN rdn = dn.getRdn();
+        Rdn rdn = dn.getRdn();
 
         // Loop on all the AVAs
-        for ( AVA ava : rdn )
+        for ( Ava ava : rdn )
         {
             Value<?> value = ava.getNormValue();
             Value<?> upValue = ava.getUpValue();
             String upId = ava.getUpType();
 
-            // Check that the entry contains this AVA
+            // Check that the entry contains this Ava
             if ( !entry.contains( upId, value ) )
             {
-                String message = "The RDN '" + upId + "=" + upValue + "' is not present in the entry";
+                String message = "The Rdn '" + upId + "=" + upValue + "' is not present in the entry";
                 LOG.warn( message );
 
                 // We don't have this attribute : add it.

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -128,8 +128,8 @@ public class SubtreeEvaluatorTest
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -148,8 +148,8 @@ public class SubtreeEvaluatorTest
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -170,8 +170,8 @@ public class SubtreeEvaluatorTest
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -197,7 +197,7 @@ public class SubtreeEvaluatorTest
     public void testWithMinMaxAndChopAfter() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        Set<DN> chopAfter = new HashSet<DN>();
+        Set<Dn> chopAfter = new HashSet<Dn>();
         chopAfter.add( dnFactory.create( "uid=Tori Amos" ) );
         chopAfter.add( dnFactory.create( "ou=twolevels,uid=akarasulu" ) );
         modifier.setChopAfterExclusions( chopAfter );
@@ -205,8 +205,8 @@ public class SubtreeEvaluatorTest
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -232,7 +232,7 @@ public class SubtreeEvaluatorTest
     public void testWithMinMaxAndChopBefore() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        Set<DN> chopBefore = new HashSet<DN>();
+        Set<Dn> chopBefore = new HashSet<Dn>();
         chopBefore.add( dnFactory.create( "uid=Tori Amos" ) );
         chopBefore.add( dnFactory.create( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
         modifier.setChopBeforeExclusions( chopBefore );
@@ -240,8 +240,8 @@ public class SubtreeEvaluatorTest
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -275,8 +275,8 @@ public class SubtreeEvaluatorTest
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
         Entry entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
 
@@ -333,8 +333,8 @@ public class SubtreeEvaluatorTest
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( dnFactory.create( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        DN apDn = dnFactory.create( "ou=system" );
-        DN entryDn = dnFactory.create( "ou=users,ou=system" );
+        Dn apDn = dnFactory.create( "ou=system" );
+        Dn entryDn = dnFactory.create( "ou=users,ou=system" );
 
         Entry entry = new DefaultEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );

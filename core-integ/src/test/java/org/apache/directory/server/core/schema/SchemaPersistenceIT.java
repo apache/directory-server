@@ -46,7 +46,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -137,7 +137,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
         Attribute attr = new BasicAttribute( opAttr );
 
         for ( String description : descriptions )

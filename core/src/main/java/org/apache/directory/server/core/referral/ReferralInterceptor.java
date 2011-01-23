@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.LdapURL;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +67,8 @@ public class ReferralInterceptor extends BaseInterceptor
     /** The referralManager */
     private ReferralManager referralManager;
 
-    /** A normalized form for the SubschemaSubentry DN */
-    private DN subschemaSubentryDn;
+    /** A normalized form for the SubschemaSubentry Dn */
+    private Dn subschemaSubentryDn;
 
     static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
@@ -83,7 +83,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // - we don't have filters
         // - we don't have attribute description list
         // - we don't have extensions
-        // - the DN is not empty
+        // - the Dn is not empty
 
         if ( ldapUrl.getScope() != SearchScope.OBJECT )
         {
@@ -123,7 +123,7 @@ public class ReferralInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
-        DN dn = ldapUrl.getDn();
+        Dn dn = ldapUrl.getDn();
 
         if ( ( dn == null ) || dn.isEmpty() )
         {
@@ -286,7 +286,7 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        DN newDn = moveContext.getNewDn();
+        Dn newDn = moveContext.getNewDn();
 
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( moveContext.getOriginalEntry() );
@@ -364,7 +364,7 @@ public class ReferralInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-        DN dn = modifyContext.getDn();
+        Dn dn = modifyContext.getDn();
 
         // handle a normal modify without following referrals
         next.modify( modifyContext );

@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -56,7 +56,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param session the current Session 
      * @param dn the name of the entry being added
      */
-    public AddOperationContext( CoreSession session, DN dn )
+    public AddOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }
@@ -82,7 +82,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param dn the name of the entry being added
      * @param entry the entry being added
      */
-    public AddOperationContext( CoreSession session, DN dn, Entry entry )
+    public AddOperationContext( CoreSession session, Dn dn, Entry entry )
     {
         super( session, dn );
         this.entry = new ClonedServerEntry( entry );
@@ -122,6 +122,6 @@ public class AddOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "AddContext for DN '" + getDn().getName() + "'" + ", added entry: " + entry;
+        return "AddContext for Dn '" + getDn().getName() + "'" + ", added entry: " + entry;
     }
 }

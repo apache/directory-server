@@ -25,20 +25,20 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
  * A Move And Rename context used for Interceptors. It contains all the informations
- * needed for the modify DN operation, and used by all the interceptors
+ * needed for the modify Dn operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class MoveAndRenameOperationContext extends RenameOperationContext
 {
-    /** The new superior DN */
-    private DN newSuperiorDn;
+    /** The new superior Dn */
+    private Dn newSuperiorDn;
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
@@ -52,12 +52,12 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
      *
-     * @param oldDn the original source entry DN to be moved and renamed
+     * @param oldDn the original source entry Dn to be moved and renamed
      * @param parent the new entry superior of the target after the move
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( CoreSession session, DN oldDn, DN newSuperiorDn, RDN newRdn, boolean delOldRdn )
+    public MoveAndRenameOperationContext( CoreSession session, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, boolean delOldRdn )
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.newSuperiorDn = newSuperiorDn;
@@ -100,20 +100,20 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 
 
     /**
-     *  @return The new superior DN
+     *  @return The new superior Dn
      */
-    public DN getNewSuperiorDn()
+    public Dn getNewSuperiorDn()
     {
         return newSuperiorDn;
     }
 
 
     /**
-     * Set the new Superior DN
+     * Set the new Superior Dn
      *
-     * @param newSuperiorDn The new Superior DN
+     * @param newSuperiorDn The new Superior Dn
      */
-    public void setNewSuperiorDn( DN newSuperiorDn )
+    public void setNewSuperiorDn( Dn newSuperiorDn )
     {
         this.newSuperiorDn = newSuperiorDn;
     }
@@ -124,6 +124,6 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getName() + "' : " + newDn;
+        return "ReplaceContext for old Dn '" + getDn().getName() + "' : " + newDn;
     }
 }

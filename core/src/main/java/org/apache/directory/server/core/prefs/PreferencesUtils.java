@@ -22,7 +22,7 @@ package org.apache.directory.server.core.prefs;
  
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -40,9 +40,9 @@ class PreferencesUtils
      * @return the distinguished name of the entry representing the system preferences node
      * @throws LdapInvalidDnException if there are namespace problems while translating the path
      */
-    public static DN toSysDn( String absPrefPath ) throws LdapInvalidDnException
+    public static Dn toSysDn( String absPrefPath ) throws LdapInvalidDnException
     {
-        DN dn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        Dn dn = new Dn( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         String[] comps = absPrefPath.split( "/" );
 

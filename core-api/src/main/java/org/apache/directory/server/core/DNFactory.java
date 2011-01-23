@@ -21,7 +21,7 @@ package org.apache.directory.server.core;
 
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -33,22 +33,22 @@ public interface DNFactory
 {
 
     /**
-     * Creates a DN from user provided RDNs.
+     * Creates a Dn from user provided RDNs.
      *
      * @param upRdns the user provided RDNs
-     * @return the created DN
-     * @throws LdapInvalidDnException if one of the strings isn't a valid RDN
+     * @return the created Dn
+     * @throws LdapInvalidDnException if one of the strings isn't a valid Rdn
      */
-    DN create( String... upRdns ) throws LdapInvalidDnException;
+    Dn create( String... upRdns ) throws LdapInvalidDnException;
 
 
     /**
-     * Creates a DN form a user provided DN.
+     * Creates a Dn form a user provided Dn.
      *
-     * @param upDn the user provided DN
-     * @return the created DN
-     * @throws LdapInvalidDnException if the string isn't a valid DN
+     * @param upDn the user provided Dn
+     * @return the created Dn
+     * @throws LdapInvalidDnException if the string isn't a valid Dn
      */
-    DN create( String upDn ) throws LdapInvalidDnException;
+    Dn create( String upDn ) throws LdapInvalidDnException;
 
 }

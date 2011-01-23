@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -89,9 +89,9 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,7 +130,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         LdapConnection conn = getAdminConnection( service );
 
         ModifyRequest modRequest = new ModifyRequestImpl();
-        modRequest.setName( new DN( GLOBAL_SUBSCHEMA_DN ) );
+        modRequest.setName( new Dn( GLOBAL_SUBSCHEMA_DN ) );
         modRequest.add( "attributeTypes", "( 2.5.4.58 NAME 'attributeCertificateAttribute' "
             + " DESC 'attribute certificate use ;binary' SYNTAX 1.3.6.1.4.1.1466.115.121.1.8 )" );
         ModifyResponse response = conn.modify( modRequest );
@@ -286,7 +286,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory();
 
-            Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+            Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
 
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service
                 .getSchemaManager().getRegistries(), schemaName );
@@ -1394,7 +1394,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     public void testAddAttributeTypeOnDisabledSchema() throws Exception
     {
         disableSchema( "nis" );
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC 'bogus description' SUP name SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
@@ -1424,7 +1424,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );
@@ -1449,13 +1449,13 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     public void testAddAttributeTypeOnEnabledSchema() throws Exception
     {
         enableSchema( "nis" );
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "attributeTypes", substrate ) );
 
-        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        getRootContext( service ).modifyAttributes( JndiUtils.toName(dn), mods );
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
@@ -1487,7 +1487,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );
@@ -1510,7 +1510,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     public void testAddAttributeTypeWithSpaceDesc() throws Exception
     {
         enableSchema( "nis" );
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC '  ' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
@@ -1551,7 +1551,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );
@@ -1923,8 +1923,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttr = subentry.get( "modifiersName" );
         Attribute modifyTimestampAttr = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttr );
-        DN expectedDN = new DN( "uid=admin,ou=system", service.getSchemaManager() );
-        assertEquals( expectedDN.getName(), modifiersNameAttr.get() );
+        Dn expectedDn = new Dn( "uid=admin,ou=system", service.getSchemaManager() );
+        assertEquals( expectedDn.getName(), modifiersNameAttr.get() );
         assertNotNull( modifyTimestampAttr );
 
         Calendar cal = Calendar.getInstance( tz );
@@ -1937,7 +1937,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // now update the schema information: add a new attribute type
 
         enableSchema( "nis" );
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
@@ -1959,8 +1959,8 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttrAfter = subentry.get( "modifiersName" );
         Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
-        expectedDN = new DN( "uid=admin,ou=system", service.getSchemaManager() );
-        assertEquals( expectedDN.getName(), modifiersNameAttrAfter.get() );
+        expectedDn = new Dn( "uid=admin,ou=system", service.getSchemaManager() );
+        assertEquals( expectedDn.getName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
 
         cal = Calendar.getInstance( tz );
@@ -2010,9 +2010,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         modifiersNameAttrAfter = subentry.get( "modifiersName" );
         modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
-        expectedDN = new DN( "cn=bogus user,ou=system" );
-        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
-        assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
+        expectedDn = new Dn( "cn=bogus user,ou=system" );
+        expectedDn.normalize( service.getSchemaManager().getNormalizerMapping() );
+        assertEquals( expectedDn.getNormName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
 
         cal = Calendar.getInstance( tz );
@@ -2030,7 +2030,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
-        DN dn = new DN( getSubschemaSubentryDN() );
+        Dn dn = new Dn( getSubschemaSubentryDN() );
 
         // Uses ModificationItem to keep the modification ordering
         ModificationItem[] modifications = new ModificationItem[descriptions.size()];

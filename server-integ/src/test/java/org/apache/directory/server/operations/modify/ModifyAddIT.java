@@ -489,7 +489,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
 
     /**
      * Create a person entry and perform a modify op on an
-     * attribute which is part of the DN. This is not allowed.
+     * attribute which is part of the Dn. This is not allowed.
      *
      * A JIRA has been created for this bug : DIRSERVER_687
      */

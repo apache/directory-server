@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
@@ -77,10 +77,10 @@ public class RelatedProtectedItemFilterTest
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static DN GROUP_NAME;
-    private static DN USER_NAME;
-    private static Set<DN> USER_NAMES = new HashSet<DN>();
-    private static Set<DN> GROUP_NAMES = new HashSet<DN>();
+    private static Dn GROUP_NAME;
+    private static Dn USER_NAME;
+    private static Set<Dn> USER_NAMES = new HashSet<Dn>();
+    private static Set<Dn> GROUP_NAMES = new HashSet<Dn>();
 
     private static SchemaManager schemaManager;
 
@@ -111,8 +111,8 @@ public class RelatedProtectedItemFilterTest
             fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
         }
 
-        GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
-        USER_NAME = new DN( "ou=test, ou=users, ou=system" );
+        GROUP_NAME = new Dn( "ou=test,ou=groups,ou=system" );
+        USER_NAME = new Dn( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );

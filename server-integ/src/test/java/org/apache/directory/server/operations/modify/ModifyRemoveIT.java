@@ -283,7 +283,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
 
 
     /**
-     * Remove a required attribute from RDN.
+     * Remove a required attribute from Rdn.
      * 
      * Expected Result: Deletion fails with SchemaViolationException.
      */
@@ -300,7 +300,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
         try
         {
             ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
-            fail( "Deletion of RDN attribute should fail." );
+            fail( "Deletion of Rdn attribute should fail." );
         }
         catch ( SchemaViolationException e )
         {
@@ -310,7 +310,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
 
 
     /**
-     * Remove a not required attribute from RDN.
+     * Remove a not required attribute from Rdn.
      * 
      * Expected Result: Deletion fails with SchemaViolationException.
      */
@@ -319,12 +319,12 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        // Change RDN to another attribute
+        // Change Rdn to another attribute
         String newRdn = "description=an American singer-songwriter";
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
         ctx.rename( RDN, newRdn );
 
-        // Remove description, which is now RDN attribute
+        // Remove description, which is now Rdn attribute
         Attribute attr = new BasicAttribute( "description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
@@ -332,14 +332,14 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
         try
         {
             ctx.modifyAttributes( newRdn, DirContext.REMOVE_ATTRIBUTE, attrs );
-            fail( "Deletion of RDN attribute should fail." );
+            fail( "Deletion of Rdn attribute should fail." );
         }
         catch ( SchemaViolationException e )
         {
             // expected behaviour
         }
 
-        // Change RDN back to original
+        // Change Rdn back to original
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
         ctx.rename( newRdn, RDN );
     }
@@ -487,7 +487,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create a person entry and try to remove an attribute value from the RDN
+     * Create a person entry and try to remove an attribute value from the Rdn
      * by Replacement
      */
     @Test
@@ -520,7 +520,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create a person entry and try to remove an attribute from the RDN
+     * Create a person entry and try to remove an attribute from the Rdn
      */
     @Test
     public void testRemoveRdnAttribute() throws Exception
@@ -552,7 +552,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create a person entry and try to remove an attribute from the RDN
+     * Create a person entry and try to remove an attribute from the Rdn
      */
     @Test
     public void testRemoveRdnAttributeValue() throws Exception

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
 
-        // Stores the DN of the user to check, and its password
+        // Stores the Dn of the user to check, and its password
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
@@ -121,7 +121,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
              *    
              *      http://www.faqs.org/rfcs/rfc3296.html
              *      
-             * See section 5.6.1 where if the bind principal DN is a referral 
+             * See section 5.6.1 where if the bind principal Dn is a referral
              * we return an invalidCredentials result response.  Optionally we
              * could support delegated authentication in the future with this
              * potential.  See the following JIRA for more on this possibility:
@@ -130,7 +130,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
              *      
              * NOTE: if this is done then this handler should extend the 
              * a modified form of the ReferralAwareRequestHandler so it can 
-             * detect conditions where ancestors of the DN are referrals
+             * detect conditions where ancestors of the Dn are referrals
              * and delegate appropriately.
              */
             Entry principalEntry = null;
@@ -218,7 +218,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
-            DN dn = null;
+            Dn dn = null;
 
             if ( e instanceof LdapAuthenticationException )
             {

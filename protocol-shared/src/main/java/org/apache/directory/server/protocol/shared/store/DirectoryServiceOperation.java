@@ -23,7 +23,7 @@ package org.apache.directory.server.protocol.shared.store;
 import java.io.Serializable;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -37,9 +37,9 @@ public interface DirectoryServiceOperation extends Serializable
      * The command pattern execute method.
      * 
      * @param session The CoreSession to execute the command with
-     * @param baseDn The base DN for working with the context
+     * @param baseDn The base Dn for working with the context
      * @return Object The result returned by the command
      * @throws Exception The exception thrown by the command
      */
-    public Object execute( CoreSession session, DN baseDn ) throws Exception;
+    public Object execute( CoreSession session, Dn baseDn ) throws Exception;
 }

@@ -38,8 +38,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -95,7 +95,7 @@ public class ConfigWriter
 
                 // Building the default config root entry 'ou=config'
                 LdifEntry configRootEntry = new LdifEntry();
-                configRootEntry.setDn( new DN( SchemaConstants.OU_AT + "=" + "config" ) );
+                configRootEntry.setDn( new Dn( SchemaConstants.OU_AT + "=" + "config" ) );
                 addObjectClassAttribute( schemaManager, configRootEntry, "organizationalUnit" );
                 addAttributeTypeValues( SchemaConstants.OU_AT, "config", configRootEntry );
                 entries.add( configRootEntry );
@@ -274,7 +274,7 @@ public class ConfigWriter
      * Adds a configuration bean to the list of entries.
      *
      * @param rootDn
-     *      the current root DN
+     *      the current root Dn
      * @param schemaManager
      *      the schema manager
      * @param bean
@@ -283,7 +283,7 @@ public class ConfigWriter
      *      the list of the entries
      * @throws Exception
      */
-    private void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
+    private void addBean( Dn rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries )
         throws Exception
     {
         addBean( rootDn, schemaManager, bean, entries, null, null );
@@ -294,7 +294,7 @@ public class ConfigWriter
      * Adds a configuration bean to the list of entries.
      *
      * @param rootDn
-     *      the current root DN
+     *      the current root Dn
      * @param schemaManager
      *      the schema manager
      * @param bean
@@ -305,10 +305,10 @@ public class ConfigWriter
      *      the parent entry
      * @param attributeTypeForParentEntry
      *      the attribute type to use when adding the value of 
-     *      the RDN to the parent entry
+     *      the Rdn to the parent entry
      * @throws Exception
      */
-    private void addBean( DN rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries,
+    private void addBean( Dn rootDn, SchemaManager schemaManager, AdsBaseBean bean, List<LdifEntry> entries,
         LdifEntry parentEntry, String attributeTypeForParentEntry )
         throws Exception
     {
@@ -361,7 +361,7 @@ public class ConfigWriter
                             {
                                 // Creating the entry for the container and adding it to the list
                                 LdifEntry containerEntry = new LdifEntry();
-                                containerEntry.setDn( entry.getDn().add( new RDN( SchemaConstants.OU_AT, container ) ) );
+                                containerEntry.setDn( entry.getDn().add( new Rdn( SchemaConstants.OU_AT, container ) ) );
                                 addObjectClassAttribute( schemaManager, containerEntry,
                                     SchemaConstants.ORGANIZATIONAL_UNIT_OC );
                                 addAttributeTypeValues( SchemaConstants.OU_AT, container, containerEntry );
@@ -396,7 +396,7 @@ public class ConfigWriter
                             }
                             else
                             {
-                                // Is it the field value used as RDN and do we need to insert a value in the parent entry?
+                                // Is it the field value used as Rdn and do we need to insert a value in the parent entry?
                                 if ( ( configurationElement.isRdn() ) && ( parentEntry != null )
                                     && ( attributeTypeForParentEntry != null ) )
                                 {
@@ -490,19 +490,19 @@ public class ConfigWriter
 
 
     /**
-     * Gets the DN associated with the configuration bean based on the given base DN.
+     * Gets the Dn associated with the configuration bean based on the given base Dn.
      *
-     * @param baseDN
-     *      the base DN
+     * @param baseDn
+     *      the base Dn
      * @param bean
      *      the configuration bean
      * @return
-     *      the DN associated with the configuration bean based on the given base DN.
+     *      the Dn associated with the configuration bean based on the given base Dn.
      * @throws LdapInvalidDnException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    private DN getDn( DN baseDN, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
+    private Dn getDn( Dn baseDn, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
         IllegalAccessException
     {
         // Getting the class of the bean
@@ -529,11 +529,11 @@ public class ConfigWriter
                 field.setAccessible( true );
 
                 // Looking for the @ConfigurationElement annotation and
-                // if the field is the RDN
+                // if the field is the Rdn
                 ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
                 if ( ( configurationElement != null ) && ( configurationElement.isRdn() ) )
                 {
-                    return baseDN.add( new RDN( configurationElement.attributeType(), field.get( bean ).toString() ) );
+                    return baseDn.add( new Rdn( configurationElement.attributeType(), field.get( bean ).toString() ) );
                 }
             }
 
@@ -541,7 +541,7 @@ public class ConfigWriter
             beanClass = beanClass.getSuperclass();
         }
 
-        return DN.EMPTY_DN; // TODO Throw an error when we reach that point
+        return Dn.EMPTY_DN; // TODO Throw an error when we reach that point
     }
 
 

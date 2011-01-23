@@ -291,7 +291,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      *
      * @param node the greater or less than node to get a count for 
      * @param isGreaterThan if true test is for >=, otherwise <=
-     * @return the scan count of all nodes satisfying the AVA
+     * @return the scan count of all nodes satisfying the Ava
      * @throws Exception if there is an error accessing an index
      */
     @SuppressWarnings("unchecked")

@@ -21,7 +21,7 @@ package org.apache.directory.server.config.beans;
 
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -39,9 +39,9 @@ public class ReplProviderBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-dsReplicaId")
     private String dsReplicaId;
 
-    /** The Search Base DN */
-    @ConfigurationElement(attributeType = "ads-searchBaseDN")
-    private DN searchBaseDN;
+    /** The Search Base Dn */
+    @ConfigurationElement(attributeType = "ads-searchBaseDn")
+    private Dn searchBaseDn;
 
     /** The replication provider host name */
     @ConfigurationElement(attributeType = "ads-replProvHostName")
@@ -83,9 +83,9 @@ public class ReplProviderBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-replSearchTimeout")
     private int replSearchTimeout;
 
-    /** The replication user DN */
-    @ConfigurationElement(attributeType = "ads-replUserDN")
-    private DN replUserDN;
+    /** The replication user Dn */
+    @ConfigurationElement(attributeType = "ads-replUserDn")
+    private Dn replUserDn;
 
     /** The replication user password */
     @ConfigurationElement(attributeType = "ads-replUserPassword")
@@ -147,18 +147,18 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @return the searchBaseDn
      */
-    public DN getSearchBaseDn()
+    public Dn getSearchBaseDn()
     {
-        return searchBaseDN;
+        return searchBaseDn;
     }
 
 
     /**
      * @param searchBaseDN the searchBaseDn to set
      */
-    public void setSearchBaseDn( DN searchBaseDn )
+    public void setSearchBaseDn( Dn searchBaseDn )
     {
-        this.searchBaseDN = searchBaseDn;
+        this.searchBaseDn = searchBaseDn;
     }
 
 
@@ -345,18 +345,18 @@ public class ReplProviderBean extends AdsBaseBean
     /**
      * @return the replUserDn
      */
-    public DN isReplUserDn()
+    public Dn isReplUserDn()
     {
-        return replUserDN;
+        return replUserDn;
     }
 
 
     /**
      * @param replUserDn the replUserDn to set
      */
-    public void setReplUserDn( DN replUserDn )
+    public void setReplUserDn( Dn replUserDn )
     {
-        this.replUserDN = replUserDn;
+        this.replUserDn = replUserDn;
     }
 
 
@@ -408,7 +408,7 @@ public class ReplProviderBean extends AdsBaseBean
 
         sb.append( tabs ).append( "  provider ID : " ).append( replProviderId ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
-        sb.append( tabs ).append( "  search base DN : " ).append( searchBaseDN.getName() ).append( '\n' );
+        sb.append( tabs ).append( "  search base Dn : " ).append( searchBaseDn.getName() ).append( '\n' );
         sb.append( tabs ).append( "  provider host name : " ).append( replProvHostName ).append( '\n' );
         sb.append( tabs ).append( "  provider port : " ).append( replProvPort ).append( '\n' );
         sb.append( toString( tabs, "  alias dereferencing mode", replAliasDerefMode ) );
@@ -419,7 +419,7 @@ public class ReplProviderBean extends AdsBaseBean
         sb.append( toString( tabs, "  search filter", replSearchFilter ) );
         sb.append( tabs ).append( "  search size limit : " ).append( replSearchSizeLimit ).append( '\n' );
         sb.append( tabs ).append( "  search time limit : " ).append( replSearchTimeout ).append( '\n' );
-        sb.append( toString( tabs, "  user DN", replUserDN ) );
+        sb.append( toString( tabs, "  user Dn", replUserDn) );
         sb.append( toString( tabs, "  user password", replUserPassword ) );
         sb.append( toString( tabs, "  cookie", replCookie ) );
 

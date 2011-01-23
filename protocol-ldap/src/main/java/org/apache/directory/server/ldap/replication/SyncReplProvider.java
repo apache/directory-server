@@ -559,7 +559,7 @@ public class SyncReplProvider implements ReplicationProvider
 
         if ( syncStateType == SyncStateTypeEnum.DELETE )
         {
-            // clear the entry's all attributes except the DN and entryUUID
+            // clear the entry's all attributes except the Dn and entryUUID
             entry.clear();
             entry.add( uuid );
         }

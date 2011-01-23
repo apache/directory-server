@@ -134,7 +134,7 @@ public class ServiceBuilder
     /**
      * Creates the Interceptor instances from the configuration
      *
-     * @param dirServiceDN the DN under which interceptors are configured
+     * @param dirServiceDN the Dn under which interceptors are configured
      * @return a list of instantiated Interceptor objects
      * @throws Exception If the instanciation failed
      */
@@ -1054,7 +1054,7 @@ public class ServiceBuilder
         }
         catch ( LdapInvalidDnException lide )
         {
-            String message = "Cannot set the DN " + jdbmPartitionBean.getPartitionSuffix() + ", " + lide.getMessage();
+            String message = "Cannot set the Dn " + jdbmPartitionBean.getPartitionSuffix() + ", " + lide.getMessage();
             LOG.error( message );
             throw new ConfigurationException( message );
         }

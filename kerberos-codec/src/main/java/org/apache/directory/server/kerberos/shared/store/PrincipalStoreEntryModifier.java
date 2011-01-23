@@ -119,7 +119,7 @@ public class PrincipalStoreEntryModifier
 
 
     /**
-     * Sets the distinguished name (DN).
+     * Sets the distinguished name (Dn).
      *
      * @param distinguishedName
      */

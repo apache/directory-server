@@ -21,7 +21,7 @@ package org.apache.directory.server.config.beans;
 
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -37,8 +37,8 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    @ConfigurationElement(attributeType = "ads-searchBaseDN")
-    private DN searchBaseDN;
+    @ConfigurationElement(attributeType = "ads-searchBaseDn")
+    private Dn searchBaseDn;
 
 
     /**
@@ -50,22 +50,22 @@ public class DSBasedServerBean extends ServerBean
 
 
     /**
-     * Returns the search base DN.
+     * Returns the search base Dn.
      *
-     * @return The search base DN.
+     * @return The search base Dn.
      */
-    public DN getSearchBaseDn()
+    public Dn getSearchBaseDn()
     {
-        return searchBaseDN;
+        return searchBaseDn;
     }
 
 
     /**
      * @param searchBaseDn The searchBaseDn to set.
      */
-    public void setSearchBaseDn( DN searchBaseDn )
+    public void setSearchBaseDn( Dn searchBaseDn )
     {
-        this.searchBaseDN = searchBaseDn;
+        this.searchBaseDn = searchBaseDn;
     }
 
 
@@ -77,7 +77,7 @@ public class DSBasedServerBean extends ServerBean
         StringBuilder sb = new StringBuilder();
 
         sb.append( super.toString( tabs ) );
-        sb.append( toString( tabs, "searchBaseDN", searchBaseDN ) );
+        sb.append( toString( tabs, "searchBaseDn", searchBaseDn) );
 
         return sb.toString();
     }

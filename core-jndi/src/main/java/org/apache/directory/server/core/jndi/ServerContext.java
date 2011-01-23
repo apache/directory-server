@@ -121,9 +121,9 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.entry.AttributeUtils;
@@ -138,7 +138,7 @@ import org.apache.directory.shared.util.Strings;
  */
 public abstract class ServerContext implements EventContext
 {
-    /** property key used for deleting the old RDN on a rename */
+    /** property key used for deleting the old Rdn on a rename */
     public static final String DELETE_OLD_RDN_PROP = JndiPropertyConstants.JNDI_LDAP_DELETE_RDN;
 
     /** Empty array of controls for use in dealing with them */
@@ -157,7 +157,7 @@ public abstract class ServerContext implements EventContext
     private final Hashtable<String, Object> env;
 
     /** The distinguished name of this Context */
-    private final DN dn;
+    private final Dn dn;
 
     /** The set of registered NamingListeners */
     private final Map<NamingListener,DirectoryListener> listeners =
@@ -331,7 +331,7 @@ public abstract class ServerContext implements EventContext
      * @param entry
      * @param target
      */
-    protected void doAddOperation( DN target, Entry entry ) throws Exception
+    protected void doAddOperation( Dn target, Entry entry ) throws Exception
     {
         // setup the op context and populate with request controls
         AddOperationContext opCtx = new AddOperationContext( session, entry );
@@ -355,7 +355,7 @@ public abstract class ServerContext implements EventContext
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
      * @param target
      */
-    protected void doDeleteOperation( DN target ) throws Exception
+    protected void doDeleteOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
@@ -564,7 +564,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return NamingEnumeration
      */
-    protected EntryFilteringCursor doSearchOperation( DN dn, AliasDerefMode aliasDerefMode,
+    protected EntryFilteringCursor doSearchOperation( Dn dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
         OperationManager operationManager = service.getOperationManager();
@@ -607,7 +607,7 @@ public abstract class ServerContext implements EventContext
 
             if ( result )
             {
-                Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), DN.EMPTY_DN );
+                Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), Dn.EMPTY_DN );
                 return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), searchContext );
             }
             else
@@ -643,7 +643,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected EntryFilteringCursor doListOperation( DN target ) throws Exception
+    protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
         ListOperationContext listContext = new ListOperationContext( session, target );
@@ -661,7 +661,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    protected Entry doGetRootDSEOperation( DN target ) throws Exception
+    protected Entry doGetRootDSEOperation( Dn target ) throws Exception
     {
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
@@ -676,7 +676,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected Entry doLookupOperation( DN target ) throws Exception
+    protected Entry doLookupOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
         // execute lookup/getRootDSE operation
@@ -695,7 +695,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected Entry doLookupOperation( DN target, String[] attrIds ) throws Exception
+    protected Entry doLookupOperation( Dn target, String[] attrIds ) throws Exception
     {
         // setup the op context and populate with request controls
         // execute lookup/getRootDSE operation
@@ -723,7 +723,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
-    protected BindOperationContext doBindOperation( DN bindDn, byte[] credentials, String saslMechanism,
+    protected BindOperationContext doBindOperation( Dn bindDn, byte[] credentials, String saslMechanism,
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
@@ -748,11 +748,11 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMoveAndRenameOperation( DN oldDn, DN parent, RDN newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( Dn oldDn, Dn parent, Rdn newRdn, boolean delOldDn )
         throws Exception
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent, new Rdn(
             newRdn ), delOldDn );
         moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
@@ -772,7 +772,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
-    protected void doModifyOperation( DN dn, List<Modification> modifications ) throws Exception
+    protected void doModifyOperation( Dn dn, List<Modification> modifications ) throws Exception
     {
         // setup the op context and populate with request controls
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
@@ -794,7 +794,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMove( DN oldDn, DN target ) throws Exception
+    protected void doMove( Dn oldDn, Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
         MoveOperationContext moveContext = new MoveOperationContext( session, oldDn, target );
@@ -816,7 +816,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
      */
-    protected void doRename( DN oldDn, RDN newRdn, boolean delOldRdn ) throws Exception
+    protected void doRename( Dn oldDn, Rdn newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
         RenameOperationContext renameContext = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
@@ -881,7 +881,7 @@ public abstract class ServerContext implements EventContext
      *
      * @return the distinguished name of this Context's entry.
      */
-    protected DN getDn()
+    protected Dn getDn()
     {
         return dn;
     }
@@ -963,7 +963,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
         Entry serverEntry = null;
 
         try
@@ -985,7 +985,7 @@ public abstract class ServerContext implements EventContext
         }
 
         // Now add the CN attribute, which is mandatory
-        RDN rdn = target.getRdn();
+        Rdn rdn = target.getRdn();
 
         if ( rdn != null )
         {
@@ -1050,7 +1050,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         if ( target.size() == 0 )
         {
@@ -1077,10 +1077,10 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private void injectRdnAttributeValues( DN target, Entry serverEntry ) throws NamingException
+    private void injectRdnAttributeValues( Dn target, Entry serverEntry ) throws NamingException
     {
-        // Add all the RDN attributes and their values to this entry
-        RDN rdn = target.getRdn( target.size() - 1 );
+        // Add all the Rdn attributes and their values to this entry
+        Rdn rdn = target.getRdn( target.size() - 1 );
 
         if ( rdn.size() == 1 )
         {
@@ -1088,7 +1088,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            for ( AVA atav : rdn )
+            for ( Ava atav : rdn )
             {
                 serverEntry.put( atav.getUpType(), atav.getUpValue() );
             }
@@ -1104,7 +1104,7 @@ public abstract class ServerContext implements EventContext
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         // let's be sure that the Attributes is case insensitive
         Entry outServerEntry = null;
@@ -1266,8 +1266,8 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( Name oldName, Name newName ) throws NamingException
     {
-        DN oldDn = buildTarget( JndiUtils.fromName( oldName ) );
-        DN newDn = buildTarget( JndiUtils.fromName( newName ) );
+        Dn oldDn = buildTarget( JndiUtils.fromName( oldName ) );
+        Dn newDn = buildTarget( JndiUtils.fromName( newName ) );
 
         if ( oldDn.size() == 0 )
         {
@@ -1275,7 +1275,7 @@ public abstract class ServerContext implements EventContext
         }
 
         // calculate parents
-        DN oldParent = oldDn;
+        Dn oldParent = oldDn;
 
         try
         {
@@ -1286,7 +1286,7 @@ public abstract class ServerContext implements EventContext
             throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
         }
 
-        DN newParent = newDn;
+        Dn newParent = newDn;
 
         try
         {
@@ -1298,8 +1298,8 @@ public abstract class ServerContext implements EventContext
         }
 
 
-        RDN oldRdn = oldDn.getRdn();
-        RDN newRdn = newDn.getRdn();
+        Rdn oldRdn = oldDn.getRdn();
+        Rdn newRdn = newDn.getRdn();
         boolean delOldRdn = true;
 
         /*
@@ -1315,11 +1315,11 @@ public abstract class ServerContext implements EventContext
 
         /*
          * We need to determine if this rename operation corresponds to a simple
-         * RDN name change or a move operation.  If the two names are the same
-         * except for the RDN then it is a simple modifyRdn operation.  If the
+         * Rdn name change or a move operation.  If the two names are the same
+         * except for the Rdn then it is a simple modifyRdn operation.  If the
          * names differ in size or have a different baseDN then the operation is
-         * a move operation.  Furthermore if the RDN in the move operation
-         * changes it is both an RDN change and a move operation.
+         * a move operation.  Furthermore if the Rdn in the move operation
+         * changes it is both an Rdn change and a move operation.
          */
         if ( oldParent.equals( newParent ) )
         {
@@ -1374,7 +1374,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( Name name, Object obj ) throws NamingException
     {
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
         OperationManager operationManager = service.getOperationManager();
 
         try
@@ -1440,7 +1440,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         Entry serverEntry = null;
 
@@ -1535,7 +1535,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    return JndiUtils.toName( new DN( name ) );
+                    return JndiUtils.toName( new Dn( name ) );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
@@ -1562,7 +1562,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    return JndiUtils.toName( new DN( name.toString() ) );
+                    return JndiUtils.toName( new Dn( name.toString() ) );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
@@ -1593,7 +1593,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            return new NamingEnumerationAdapter( doListOperation( buildTarget( JndiUtils.fromName( name ) ) ) );
+            return new NamingEnumerationAdapter( doListOperation( buildTarget( JndiUtils.fromName(name) ) ) );
         }
         catch ( Exception e )
         {
@@ -1622,7 +1622,7 @@ public abstract class ServerContext implements EventContext
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        DN base = buildTarget( JndiUtils.fromName( name ) );
+        Dn base = buildTarget( JndiUtils.fromName( name ) );
         PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1676,7 +1676,7 @@ public abstract class ServerContext implements EventContext
          */
 
         // 1). Find the Dn for name and walk it from the head to tail
-        DN fqn = buildTarget( JndiUtils.fromName( name ) );
+        Dn fqn = buildTarget( JndiUtils.fromName( name ) );
         String head = prefix.get( 0 );
 
         // 2). Walk the fqn trying to match for the head of the prefix
@@ -1779,19 +1779,19 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
 
     /**
-     * Clones this context's DN and adds the components of the name relative to
-     * this context to the left hand side of this context's cloned DN.
+     * Clones this context's Dn and adds the components of the name relative to
+     * this context to the left hand side of this context's cloned Dn.
      *
      * @param relativeName a name relative to this context.
      * @return the name of the target
      * @throws InvalidNameException if relativeName is not a valid name in
      *      the LDAP namespace.
      */
-    DN buildTarget( DN relativeName ) throws NamingException
+    Dn buildTarget( Dn relativeName ) throws NamingException
     {
-        DN target = dn;
+        Dn target = dn;
 
-        // Add to left hand side of cloned DN the relative name arg
+        // Add to left hand side of cloned Dn the relative name arg
         try
         {
             relativeName.normalize( schemaManager );

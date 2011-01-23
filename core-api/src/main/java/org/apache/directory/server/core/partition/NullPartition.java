@@ -46,7 +46,7 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 public class NullPartition extends AbstractPartition
 {
     private String id;
-    private DN suffix;
+    private Dn suffix;
     
 
     /**
@@ -339,7 +339,7 @@ public class NullPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( DN suffix ) throws LdapInvalidDnException
+    public void setSuffix( Dn suffix ) throws LdapInvalidDnException
     {
         this.suffix = suffix;
     }
@@ -353,7 +353,7 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    public DN getSuffix()
+    public Dn getSuffix()
     {
         return suffix;
     }

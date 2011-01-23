@@ -53,8 +53,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class IntegrationUtils
 
 
     /**
-     * Inject an ldif String into the server. DN must be relative to the
+     * Inject an ldif String into the server. Dn must be relative to the
      * root.
      *
      * @param service the directory service to use
@@ -150,7 +150,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        DN userDn = new DN( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -172,7 +172,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        DN userDn = new DN( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -205,7 +205,7 @@ public class IntegrationUtils
 
     public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
     {
-        DN dn = new DN( entry.getDn() );
+        Dn dn = new Dn( entry.getDn() );
         CoreSession session = service.getAdminSession();
 
         switch( entry.getChangeType().getChangeType() )
@@ -221,14 +221,14 @@ public class IntegrationUtils
 
             case( ChangeType.MODDN_ORDINAL ):
             case( ChangeType.MODRDN_ORDINAL ):
-                RDN newRdn = new RDN( entry.getNewRdn() );
+                Rdn newRdn = new Rdn( entry.getNewRdn() );
 
                 if ( entry.getNewSuperior() != null )
                 {
                     // It's a move. The superior have changed
                     // Let's see if it's a rename too
-                    RDN oldRdn = dn.getRdn();
-                    DN newSuperior = new DN( entry.getNewSuperior() );
+                    Rdn oldRdn = dn.getRdn();
+                    Dn newSuperior = new Dn( entry.getNewSuperior() );
 
                     if ( dn.size() == 0 )
                     {
@@ -266,7 +266,7 @@ public class IntegrationUtils
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
             throws LdapException
     {
-        DN dn = new DN( dnstr );
+        Dn dn = new Dn( dnstr );
         LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
@@ -359,7 +359,7 @@ public class IntegrationUtils
 
 
     /**
-     * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
+     * gets a LdapConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
      */
     public static LdapConnection getAdminConnection( DirectoryService dirService ) throws Exception
     {
@@ -369,11 +369,11 @@ public class IntegrationUtils
 
     public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password ) throws Exception
     {
-        return getConnectionAs( dirService, new DN( dn ), password );
+        return getConnectionAs( dirService, new Dn( dn ), password );
     }
 
 
-    public static LdapConnection getConnectionAs( DirectoryService dirService, DN dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password ) throws Exception
     {
         Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
 

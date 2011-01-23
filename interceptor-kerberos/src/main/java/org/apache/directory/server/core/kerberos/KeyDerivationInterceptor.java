@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -124,14 +124,14 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        DN normName = addContext.getDn();
+        Dn normName = addContext.getDn();
 
         Entry entry = addContext.getEntry();
 
         if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) &&
             ( entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) != null ) )
         {
-            log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
+            log.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
             BinaryValue userPassword = (BinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
             String strUserPassword = userPassword.getString();
@@ -158,7 +158,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getSchemaManager(), keys ) );
 
-            log.debug( "Adding modified entry '{}' for DN '{}'.", entry, normName
+            log.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
                 .getName() );
         }
 
@@ -282,7 +282,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
         throws LdapException
     {
-        DN principalDn = modContext.getDn();
+        Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
         lookupContext.setByPassed( USERLOOKUP_BYPASS );
@@ -309,7 +309,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         else
         {
             subContext.isPrincipal( true );
-            log.debug( "DN {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
+            log.debug( "Dn {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
         }
 
         if ( subContext.getPrincipalName() == null )

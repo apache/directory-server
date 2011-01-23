@@ -33,8 +33,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -72,7 +72,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
-        DN name = modifyContext.getDn();
+        Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oldOid = getOid( entry );
@@ -98,11 +98,11 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=normalizers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
 
         // The new schemaObject's OID must not already exist
@@ -156,11 +156,11 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
 
-        // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
+        // The parent Dn must be ou=normalizers,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
 
         // Get the Normalizer from the given entry ( it has been grabbed from the server earlier)
@@ -198,7 +198,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
@@ -218,8 +218,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             Entry targetEntry = ( Entry ) entry.clone();
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
-            // Inject the new DN
-            DN newDn = new DN( targetEntry.getDn() );
+            // Inject the new Dn
+            Dn newDn = new Dn( targetEntry.getDn() );
             newDn = newDn.remove( newDn.size() - 1 );
             newDn = newDn.add( newRdn );
             targetEntry.setDn( newDn );
@@ -232,7 +232,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -263,7 +263,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
+    public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -313,14 +313,14 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( DN newParent ) throws LdapException
+    private void checkNewParent( Dn newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_370 ) );
         }
 
-        RDN rdn = newParent.getRdn();
+        Rdn rdn = newParent.getRdn();
 
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )

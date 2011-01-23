@@ -24,7 +24,7 @@ package org.apache.directory.server.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -36,7 +36,7 @@ public class PpolicyConfigContainer
 {
 
     /** a map holding the entry specific password policies */
-    private Map<DN, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<DN, PasswordPolicyConfiguration>();
+    private Map<Dn, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<Dn, PasswordPolicyConfiguration>();
 
     /** the default password policy */
     private PasswordPolicyConfiguration defaultPolicy;
@@ -45,14 +45,14 @@ public class PpolicyConfigContainer
     /**
      * add a entry specific policy
      *
-     * @param configDn the DN where this entry's password policy is defined
+     * @param configDn the Dn where this entry's password policy is defined
      * @param policyConfig the password policy configuration
      */
-    public void addPolicy( DN configDn, PasswordPolicyConfiguration policyConfig )
+    public void addPolicy( Dn configDn, PasswordPolicyConfiguration policyConfig )
     {
         if ( configDn == null )
         {
-            throw new IllegalArgumentException( "password policy config's DN cannot be null" );
+            throw new IllegalArgumentException( "password policy config's Dn cannot be null" );
         }
 
         ppolicyConfigMap.put( configDn, policyConfig );
@@ -69,12 +69,12 @@ public class PpolicyConfigContainer
     
     
     /**
-     * Get the password policy configuration defined at a given DN 
+     * Get the password policy configuration defined at a given Dn
      *  
-     * @param configDn the DN where password policy was configured
+     * @param configDn the Dn where password policy was configured
      * @return
      */
-    public PasswordPolicyConfiguration getPolicyConfig( DN configDn )
+    public PasswordPolicyConfiguration getPolicyConfig( Dn configDn )
     {
         return ppolicyConfigMap.get( configDn );
     }

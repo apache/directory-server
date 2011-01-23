@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -44,7 +44,7 @@ public class ScopeEvaluator implements Evaluator
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( ExprNode node, DN dn, Entry record ) throws LdapException
+    public boolean evaluate( ExprNode node, Dn dn, Entry record ) throws LdapException
     {
         ScopeNode snode = ( ScopeNode ) node;
 

@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.CompareResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
     /**
      * Checks if an attribute of a simple entry (an organizationalUnit's telephoneNumber)
-     * with an RDN relative to ou=system can be compared by a specific non-admin user.
+     * with an Rdn relative to ou=system can be compared by a specific non-admin user.
      * If a permission exception is encountered it is caught and false is returned,
      * otherwise true is returned.  The entry is deleted after being created just in case
      * subsequent calls to this method are made in the same test case: the admin account
@@ -81,7 +81,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry is created
+     * @param entryRdn the relative Dn, relative to ou=system where entry is created
      * for comparison test
      * @param number the telephone number to compare to this one
      * @return true if the entry's telephoneNumber can be compared by the user at the
@@ -93,11 +93,11 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         throws Exception
     {
 
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result = true;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -107,10 +107,10 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         // create the entry as admin
         adminConnection.add( testEntry );
 
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
-        CompareResponse resp = userConnection.compare( entryDN, "telephoneNumber", number );
+        CompareResponse resp = userConnection.compare(entryDn, "telephoneNumber", number );
 
         // don't set based on compare result success/failure but based on whether the op was permitted or not
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
@@ -248,8 +248,8 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     {
         LdapConnection adminCtx = getAdminConnection();
 
-        DN userDN = new DN( "uid=bob,ou=users,ou=system" );
-        Entry user = new DefaultEntry( userDN );
+        Dn userDn = new Dn( "uid=bob,ou=users,ou=system" );
+        Entry user = new DefaultEntry(userDn);
         user.add( SchemaConstants.UID_AT, "bob" );
         user.add( SchemaConstants.USER_PASSWORD_AT, "bobspassword" );
         user.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
@@ -258,7 +258,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         adminCtx.add( user );
 
-        CompareResponse resp = adminCtx.compare( userDN, "userPassword", "bobspassword" );
+        CompareResponse resp = adminCtx.compare(userDn, "userPassword", "bobspassword" );
         assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
     }
 

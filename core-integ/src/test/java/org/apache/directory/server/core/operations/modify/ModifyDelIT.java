@@ -290,10 +290,10 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     //---------------------------------------------------------------------------------------------
     // 1 Entry exists
     //  1.1 AT exists
-    //   - The Value exists, it's not part of the RDN, the AT is not singleValued
-    //   - The Value exists, it's not part of the RDN, the AT is singleValued, the AT is not in MUST
-    //   - The Value exists, it's not part of the RDN, the AT is singleValued, the AT is in MUST => error
-    //   - The Value exists, it's part of the RDN => error
+    //   - The Value exists, it's not part of the Rdn, the AT is not singleValued
+    //   - The Value exists, it's not part of the Rdn, the AT is singleValued, the AT is not in MUST
+    //   - The Value exists, it's not part of the Rdn, the AT is singleValued, the AT is in MUST => error
+    //   - The Value exists, it's part of the Rdn => error
     //   - The Value does not exists => error
     //   - Delete all the values, AT is not in MUST => AT must be removed
     //   - Delete all the values, AT is in MUST => error
@@ -451,7 +451,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     
     
     /**
-     * Delete an existing AT not part of the RDN, not in MUST
+     * Delete an existing AT not part of the Rdn, not in MUST
      */
     @Test
     public void testModifyDelExistingEntryExistingATNoInRdnNotInMust() throws Exception
@@ -471,7 +471,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     
     
     /**
-     * Delete an existing AT not part of the RDN, but in MUST
+     * Delete an existing AT not part of the Rdn, but in MUST
      */
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNoInRdnInMust() throws Exception
@@ -486,7 +486,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     
     
     /**
-     * Delete an existing AT part of the RDN
+     * Delete an existing AT part of the Rdn
      */
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATInRdn() throws Exception

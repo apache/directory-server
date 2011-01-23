@@ -40,7 +40,7 @@ public interface DnsOperation extends Serializable
      * The command pattern execute method.
      * 
      * @param ctx The context to execute the command with
-     * @param baseDn The base DN for working with the context
+     * @param baseDn The base Dn for working with the context
      * @return Set<ResourceRecord> The result returned by the command
      * @throws Exception The exception thrown by the command
      */

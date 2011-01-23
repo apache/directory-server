@@ -26,7 +26,7 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,7 +55,7 @@ public class PreferencesUtilsTest
         
         String test = "/org/apache/kerberos/";
 
-        DN dn = ( DN ) PreferencesUtils.toSysDn( test );
+        Dn dn = (Dn) PreferencesUtils.toSysDn( test );
 
         assertEquals( expectedDN, dn.getName() );
 
@@ -63,7 +63,7 @@ public class PreferencesUtilsTest
 
         test = "/org/apache/kerberos";
 
-        dn = ( DN ) PreferencesUtils.toSysDn( test );
+        dn = (Dn) PreferencesUtils.toSysDn( test );
 
         assertEquals( expectedDN, dn.getName() );
 
@@ -71,7 +71,7 @@ public class PreferencesUtilsTest
 
         test = "/";
 
-        dn = ( DN ) PreferencesUtils.toSysDn( test );
+        dn = (Dn) PreferencesUtils.toSysDn( test );
 
         assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
@@ -79,7 +79,7 @@ public class PreferencesUtilsTest
 
         test = "//////";
 
-        dn = ( DN ) PreferencesUtils.toSysDn( test );
+        dn = (Dn) PreferencesUtils.toSysDn( test );
 
         assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 

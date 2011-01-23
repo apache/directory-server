@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -400,7 +400,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Search operation with a base DN which contains a BER encoded value.
+     * Search operation with a base Dn which contains a BER encoded value.
      */
     @Test
     public void testSearchWithBackslashEscapedBase() throws Exception
@@ -531,7 +531,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Search operation with a base DN with quotes
+     * Search operation with a base Dn with quotes
      *
     @Test
     public void testSearchWithQuotesInBase() throws NamingException {
@@ -758,7 +758,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create a person entry with multivalued RDN and check its content. This
+     * Create a person entry with multivalued Rdn and check its content. This
      * testcase was created to demonstrate DIRSERVER-628.
      */
     @Test
@@ -793,7 +793,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create a person entry with multivalued RDN and check its name.
+     * Create a person entry with multivalued Rdn and check its name.
      */
     @Test
     public void testMultiValuedRdnName() throws Exception
@@ -1606,7 +1606,7 @@ public class SearchIT extends AbstractLdapTestUnit
             for ( int i = 0; i < 1000; i++ )
             {
                 String dn = "cn=user" + i + "," + BASE;
-                Entry kate = new DefaultEntry( new DN( dn ) );
+                Entry kate = new DefaultEntry( new Dn( dn ) );
 
                 kate.add( "objectclass", "top", "person" );
                 kate.add( "sn", "Bush" );
@@ -1670,7 +1670,7 @@ public class SearchIT extends AbstractLdapTestUnit
         long sizeLimit = 7;
         LdapConnection connection = getClientApiConnection( ldapServer );
         SearchRequest req = new SearchRequestImpl();
-        req.setBase( new DN( "ou=system" ) );
+        req.setBase( new Dn( "ou=system" ) );
         req.setFilter( "(ou=*)" );
         req.setScope( SearchScope.SUBTREE );
         req.setSizeLimit( sizeLimit );
@@ -1693,7 +1693,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
         SearchRequest req = new SearchRequestImpl();
-        req.setBase( new DN( "ou=schema" ) );
+        req.setBase( new Dn( "ou=schema" ) );
         req.setFilter( "(objectClass=*)" );
         req.setScope( SearchScope.SUBTREE );
 

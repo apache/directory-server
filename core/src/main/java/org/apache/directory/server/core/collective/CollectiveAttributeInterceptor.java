@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.slf4j.Logger;
@@ -182,7 +182,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * <li>The entry is a collectiveAttributeSubentry
      * </ul>
      */
-    private void checkAdd( DN normName, Entry entry ) throws LdapException
+    private void checkAdd( Dn normName, Entry entry ) throws LdapException
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
@@ -392,7 +392,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            DN subentryDn = opContext.getSession().getDirectoryService().getDNFactory().create( subentryDnStr );
+            Dn subentryDn = opContext.getSession().getDirectoryService().getDNFactory().create( subentryDnStr );
 
             /*
              * TODO - Instead of hitting disk here can't we leverage the 

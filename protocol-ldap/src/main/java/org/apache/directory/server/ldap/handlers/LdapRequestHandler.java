@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
@@ -283,7 +283,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( DN ) ne.getResolvedDn() );
+                result.setMatchedDn( (Dn) ne.getResolvedDn() );
             }
 
             // Add the referrals if necessary

@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
         
-        // Stores the DN of the user to check, and its password
+        // Stores the Dn of the user to check, and its password
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
@@ -108,7 +108,7 @@ public class SimpleMechanismHandler implements MechanismHandler
                 msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
-            DN name = null;
+            Dn name = null;
             
             if ( e instanceof LdapAuthenticationException )
             {
@@ -119,7 +119,7 @@ public class SimpleMechanismHandler implements MechanismHandler
                 && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
                     || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
-                result.setMatchedDn( new DN( name ) );
+                result.setMatchedDn( new Dn( name ) );
             }
 
             result.setErrorMessage( msg );

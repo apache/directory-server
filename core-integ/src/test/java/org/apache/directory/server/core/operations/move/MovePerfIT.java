@@ -29,7 +29,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -77,7 +77,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
         String oldSuperior = "ou=system";
         String newSuperior = "ou=users,ou=system";
 
-        DN dn = new DN( oldDn );
+        Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );

@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.UnixCrypt;
 import org.apache.directory.shared.util.StringConstants;
@@ -69,7 +69,7 @@ import org.apache.directory.shared.util.Strings;
  * password is stored with a one-way encryption applied (e.g. SHA), the password
  * is hashed the same way before comparison.
  *
- * We use a cache to speedup authentication, where the DN/password are stored.
+ * We use a cache to speedup authentication, where the Dn/password are stored.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -149,7 +149,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Get the password either from cache or from backend.
-     * @param principalDN The DN from which we want the password
+     * @param principalDN The Dn from which we want the password
      * @return A byte array which can be empty if the password was not found
      * @throws Exception If we have a problem during the lookup operation
      */
@@ -271,7 +271,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             if ( userEntry == null )
             {
-                DN dn = bindContext.getDn();
+                Dn dn = bindContext.getDn();
                 String upDn = ( dn == null ? "" : dn.getName() );
 
                 throw new LdapAuthenticationException( I18n.err( I18n.ERR_231, upDn ) );
@@ -404,7 +404,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Remove the principal form the cache. This is used when the user changes
      * his password.
      */
-    public void invalidateCache( DN bindDn )
+    public void invalidateCache( Dn bindDn )
     {
         synchronized ( credentialCache )
         {

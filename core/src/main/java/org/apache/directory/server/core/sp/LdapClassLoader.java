@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * A class loader that loads classes from an LDAP DIT.
  * 
  * <p>
- * This loader looks for an configuration entry whose DN is
+ * This loader looks for an configuration entry whose Dn is
  * determined by defaultSearchContextsConfig variable. If there is such
  * an entry it gets the search contexts from the entry and searches the 
  * class to be loaded in those contexts.
@@ -63,7 +63,7 @@ public class LdapClassLoader extends ClassLoader
     private static final Logger LOG = LoggerFactory.getLogger( LdapClassLoader.class );
     public static final String DEFAULT_SEARCH_CONTEXTS_CONFIG = "cn=classLoaderDefaultSearchContext,ou=configuration,ou=system";
     
-    private DN defaultSearchDn;
+    private Dn defaultSearchDn;
     private DirectoryService directoryService;
 
     /** A storage for the ObjectClass attributeType */
@@ -80,7 +80,7 @@ public class LdapClassLoader extends ClassLoader
     }
 
     
-    private byte[] findClassInDIT( List<DN> searchContexts, String name ) throws ClassNotFoundException
+    private byte[] findClassInDIT( List<Dn> searchContexts, String name ) throws ClassNotFoundException
     {
         // Set up the search filter
         BranchNode filter = new AndNode( );
@@ -91,7 +91,7 @@ public class LdapClassLoader extends ClassLoader
         
         try
         {
-            for ( DN base : searchContexts )
+            for ( Dn base : searchContexts )
             {
                 EntryFilteringCursor cursor = null;
                 try
@@ -157,12 +157,12 @@ public class LdapClassLoader extends ClassLoader
             
             if ( configEntry != null )
             {
-                List<DN> searchContexts = new ArrayList<DN>();
+                List<Dn> searchContexts = new ArrayList<Dn>();
                 EntryAttribute attr = configEntry.get( "classLoaderDefaultSearchContext" );
                 
                 for ( Value<?> val : attr )
                 {
-                    DN dn = directoryService.getDNFactory().create( val.getString() );
+                    Dn dn = directoryService.getDNFactory().create( val.getString() );
                     searchContexts.add( dn );
                 }
                 
@@ -180,13 +180,13 @@ public class LdapClassLoader extends ClassLoader
             
             if ( classBytes == null )
             {
-                List<DN> namingContexts = new ArrayList<DN>();
+                List<Dn> namingContexts = new ArrayList<Dn>();
                 
                 Set<String> suffixes = directoryService.getPartitionNexus().listSuffixes();
 
                 for ( String suffix:suffixes )
                 {
-                    DN dn = directoryService.getDNFactory().create( suffix );
+                    Dn dn = directoryService.getDNFactory().create( suffix );
                     namingContexts.add( dn );
                 }
                 

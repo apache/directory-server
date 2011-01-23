@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A JNDI-backed search strategy implementation.  This search strategy searches a
- * single base DN for resource records.
+ * single base Dn for resource records.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

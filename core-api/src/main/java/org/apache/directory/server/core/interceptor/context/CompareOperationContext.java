@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
 
@@ -65,7 +65,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, DN dn )
+    public CompareOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }
@@ -88,7 +88,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, DN dn, String oid )
+    public CompareOperationContext( CoreSession session, Dn dn, String oid )
     {
         super( session, dn );
         this.oid = oid;
@@ -100,7 +100,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, DN dn, String oid, Value<?> value )
+    public CompareOperationContext( CoreSession session, Dn dn, String oid, Value<?> value )
     {
         super( session, dn );
         this.oid = oid;
@@ -198,7 +198,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "CompareContext for DN '" + getDn().getName() + "'" + 
+        return "CompareContext for Dn '" + getDn().getName() + "'" +
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
                     ( ( !value.isBinary() ) ?

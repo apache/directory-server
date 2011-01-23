@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -62,7 +62,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      *
      * @param session
      */
-    public AbstractChangeOperationContext( CoreSession session, DN dn )
+    public AbstractChangeOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }

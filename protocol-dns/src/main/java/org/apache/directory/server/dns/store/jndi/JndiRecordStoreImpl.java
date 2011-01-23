@@ -31,7 +31,7 @@ import org.apache.directory.server.dns.store.RecordStore;
 
 /**
  * A DirectoryService-backed implementation of the RecordStore interface.  This RecordStore uses
- * the Strategy pattern to either serve records based on a single base DN or to lookup
+ * the Strategy pattern to either serve records based on a single base Dn or to lookup
  * catalog mappings from directory configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

@@ -41,7 +41,7 @@ import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
@@ -451,7 +451,7 @@ public class KdcServer extends DirectoryBackedService
         PrincipalStore store;
 
         // TODO - for now ignoring this catalog crap
-        store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
+        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn(this.getSearchBaseDn())  );
         
         LOG.debug( "initializing the kerberos replay cache" );
 

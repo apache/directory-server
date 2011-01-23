@@ -25,7 +25,7 @@ import java.io.File;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -45,5 +45,5 @@ public interface LdifLoadFilter
      * @return true if the entry will be created in the DIT, false if it is to be skipped
      * @throws LdapException
      */
-    boolean filter( File file, DN dn, Entry entry, CoreSession coreSession ) throws LdapException;
+    boolean filter( File file, Dn dn, Entry entry, CoreSession coreSession ) throws LdapException;
 }

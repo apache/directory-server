@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
@@ -104,7 +104,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -131,7 +131,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test comparator" );
 
         // nis is by default inactive
-        DN dn = getComparatorContainer( "nis" );
+        Dn dn = getComparatorContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -156,7 +156,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test comparator" );
 
         // nis is by default inactive
-        DN dn = getComparatorContainer( "notloaded" );
+        Dn dn = getComparatorContainer( "notloaded" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -197,7 +197,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -233,7 +233,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
 
         // nis is by default inactive
-        DN dn = getComparatorContainer( "nis" );
+        Dn dn = getComparatorContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -257,7 +257,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteComparatorFromEnabledSchema() throws Exception
     {
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         testAddComparatorToEnabledSchema();
@@ -289,7 +289,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteComparatorFromDisabledSchema() throws Exception
     {
-        DN dn = getComparatorContainer( "nis" );
+        Dn dn = getComparatorContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );
         testAddComparatorToDisabledSchema();
 
@@ -321,7 +321,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteComparatorWhenInUse() throws Exception
     {
-        DN cDn = getComparatorContainer( "apachemeta" );
+        Dn cDn = getComparatorContainer( "apachemeta" );
         cDn = cDn.add( "m-oid" + "=" + OID );
 
         // Create a new Comparator
@@ -338,7 +338,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-syntax", SchemaConstants.INTEGER_SYNTAX,
             "m-description: test" );
 
-        DN mrDn = getMatchingRuleContainer( "apachemeta" );
+        Dn mrDn = getMatchingRuleContainer( "apachemeta" );
         mrDn = mrDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -375,7 +375,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         ModificationItem[] mods = new ModificationItem[1];
@@ -399,12 +399,12 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-fqcn", BooleanComparator.class.getName() );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( JndiUtils.toName(dn), DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -423,11 +423,11 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameComparator() throws Exception
     {
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
         testAddComparatorToEnabledSchema();
 
-        DN newdn = getComparatorContainer( "apachemeta" );
+        Dn newdn = getComparatorContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
@@ -453,12 +453,12 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameComparatorWhenInUse() throws Exception
     {
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
         testAddComparatorToEnabledSchema();
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
 
-        DN newdn = getComparatorContainer( "apachemeta" );
+        Dn newdn = getComparatorContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 
         try
@@ -487,10 +487,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN newdn = getComparatorContainer( "apache" );
+        Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
         getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
@@ -511,10 +511,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN newdn = getComparatorContainer( "apache" );
+        Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 
         getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
@@ -541,10 +541,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddComparatorToEnabledSchema();
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN newdn = getComparatorContainer( "apache" );
+        Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
         try
@@ -571,10 +571,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddComparatorToEnabledSchema();
         schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN newdn = getComparatorContainer( "apache" );
+        Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 
         try
@@ -604,10 +604,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN top = new DN();
+        Dn top = new Dn();
         top = top.add( "m-oid" + "=" + OID );
 
         try
@@ -631,10 +631,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
-        DN newdn = new DN( "ou=normalizers,cn=apachemeta" );
+        Dn newdn = new Dn( "ou=normalizers,cn=apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
         try
@@ -658,11 +658,11 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddComparatorToEnabledSchema();
 
-        DN dn = getComparatorContainer( "apachemeta" );
+        Dn dn = getComparatorContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
-        DN newdn = getComparatorContainer( "nis" );
+        Dn newdn = getComparatorContainer( "nis" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
         getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
@@ -678,13 +678,13 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddComparatorToDisabledSchema();
 
         // nis is inactive by default
-        DN dn = getComparatorContainer( "nis" );
+        Dn dn = getComparatorContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "comparator OID should NOT be present when added to disabled nis schema", schemaManager
             .getComparatorRegistry().contains( OID ) );
 
-        DN newdn = getComparatorContainer( "apachemeta" );
+        Dn newdn = getComparatorContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
         getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );

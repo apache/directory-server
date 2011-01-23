@@ -24,7 +24,7 @@ import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
@@ -62,7 +62,7 @@ public class SubtreeEvaluator
      * @return true if the entry is selected by the specification, false if it is not
      * @throws LdapException if errors are encountered while evaluating selection
      */
-    public boolean evaluate( SubtreeSpecification subtree, DN apDn, DN entryDn, Entry entry )
+    public boolean evaluate( SubtreeSpecification subtree, Dn apDn, Dn entryDn, Entry entry )
         throws LdapException
     {
         /* =====================================================================
@@ -76,13 +76,13 @@ public class SubtreeEvaluator
          * =====================================================================
          */
         // First construct the subtree base, which is the concatenation of the
-        // AP DN and the subentry base
-        DN subentryBaseDn = apDn;
+        // AP Dn and the subentry base
+        Dn subentryBaseDn = apDn;
         subentryBaseDn = subentryBaseDn.addAll( subtree.getBase() );
         
         if ( !entryDn.isChildOf( subentryBaseDn ) )
         {
-            // The entry DN is not part of the subtree specification, get out
+            // The entry Dn is not part of the subtree specification, get out
             return false;
         }
 
@@ -119,9 +119,9 @@ public class SubtreeEvaluator
         if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || 
              ( subtree.getChopAfterExclusions().size() != 0 ) )
         {
-            DN entryRelativeDn = entryDn.getSuffix( apDn.size() + subtree.getBase().size() );
+            Dn entryRelativeDn = entryDn.getSuffix( apDn.size() + subtree.getBase().size() );
             
-            for ( DN chopBeforeDn : subtree.getChopBeforeExclusions() )
+            for ( Dn chopBeforeDn : subtree.getChopBeforeExclusions() )
             {
                 if ( entryRelativeDn.isChildOf( chopBeforeDn ) )
                 {
@@ -129,7 +129,7 @@ public class SubtreeEvaluator
                 }
             }
     
-            for ( DN chopAfterDn : subtree.getChopAfterExclusions() )
+            for ( Dn chopAfterDn : subtree.getChopAfterExclusions() )
             {
                 if ( entryRelativeDn.isChildOf( chopAfterDn ) && !chopAfterDn.equals( entryRelativeDn ) )
                 {

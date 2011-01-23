@@ -23,8 +23,8 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -81,11 +81,11 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.DN, 
-     * org.apache.directory.shared.ldap.name.DN, 
+     * org.apache.directory.shared.ldap.name.Dn,
+     * org.apache.directory.shared.ldap.name.Dn,
      * java.lang.String, boolean, javax.naming.directory.Attributes)
      */
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
@@ -94,11 +94,11 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.DN, 
-     * org.apache.directory.shared.ldap.name.DN, 
+     * org.apache.directory.shared.ldap.name.Dn,
+     * org.apache.directory.shared.ldap.name.Dn,
      * javax.naming.directory.Attributes)
      */
-    public void move( DN oriChildName, DN newParentName, Entry entry, 
+    public void move( Dn oriChildName, Dn newParentName, Entry entry,
         boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
@@ -108,7 +108,7 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }

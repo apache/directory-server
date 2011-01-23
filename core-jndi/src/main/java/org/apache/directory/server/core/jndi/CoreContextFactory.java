@@ -34,7 +34,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
 
@@ -51,11 +51,11 @@ public class CoreContextFactory implements InitialContextFactory
     public synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         env = ( Hashtable<String, Object> ) env.clone();
-        DN principalDn = null;
+        Dn principalDn = null;
         
         try
         {
-            principalDn = new DN( getPrincipal( env ) );
+            principalDn = new Dn( getPrincipal( env ) );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -85,7 +85,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         catch ( Exception e )
         {
-            JndiUtils.wrap( e );
+            JndiUtils.wrap(e);
         }
 
         // check to make sure we have access to the specified dn in provider URL

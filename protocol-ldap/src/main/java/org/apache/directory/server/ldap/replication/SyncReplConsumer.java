@@ -80,8 +80,8 @@ import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -158,7 +158,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
     private List<Modification> cookieModLst;
 
-    private DN configEntryDn;
+    private Dn configEntryDn;
 
     private static AttributeType COOKIE_AT_TYPE;
 
@@ -200,7 +200,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         cookieModLst = new ArrayList<Modification>( 1 );
         cookieModLst.add( cookieMod );
 
-        configEntryDn = new DN( config.getConfigEntryDn(), schemaManager );
+        configEntryDn = new Dn( config.getConfigEntryDn(), schemaManager );
 
         prepareSyncSearchRequest();
     }
@@ -235,7 +235,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
             if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
             {
-                LOG.warn( "Failed to bind to the server with the given bind DN {} and credentials: {}", config.getReplUserDn(), ldapResult );
+                LOG.warn( "Failed to bind to the server with the given bind Dn {} and credentials: {}", config.getReplUserDn(), ldapResult );
             }
             else
             {
@@ -262,7 +262,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         searchRequest = new SearchRequestImpl();
 
-        searchRequest.setBase( new DN( baseDn ) );
+        searchRequest.setBase( new Dn( baseDn ) );
         searchRequest.setFilter( config.getFilter() );
         searchRequest.setSizeLimit( config.getSearchSizeLimit() );
         searchRequest.setTimeLimit( config.getSearchTimeout() );
@@ -395,7 +395,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 case DELETE:
                     LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
                     // incase of a MODDN operation resulting in a branch to be moved out of scope
-                    // ApacheDS replication provider sends a single delete event on the DN of the moved branch
+                    // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
                     // so the branch needs to be recursively deleted here
                     deleteRecursive( remoteEntry.getDn(), null );
                     break;
@@ -576,7 +576,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
             // log the error and handle it appropriately
-            LOG.warn( "given replication base DN {} is not found on provider", config.getBaseDn() );
+            LOG.warn( "given replication base Dn {} is not found on provider", config.getBaseDn() );
             if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
@@ -588,7 +588,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
             try
             {
-                deleteRecursive( new DN( config.getBaseDn() ), null );
+                deleteRecursive( new Dn( config.getBaseDn() ), null );
             }
             catch ( Exception e )
             {
@@ -724,7 +724,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 }
                 catch ( Exception e )
                 {
-                    // can be ignored, most likely happens if there is no entry with the given DN
+                    // can be ignored, most likely happens if there is no entry with the given Dn
                     // log in debug mode
                     LOG.debug( "Failed to read the cookie from the entry", e );
                 }
@@ -763,7 +763,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
             catch ( Exception e )
             {
-                LOG.warn( "Failed to delete the cookie from the entry with DN {}", configEntryDn );
+                LOG.warn( "Failed to delete the cookie from the entry with Dn {}", configEntryDn );
                 LOG.warn( "{}", e );
             }
         }
@@ -779,21 +779,21 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 
-        DN entryDn = new DN( modDnControl.getEntryDn() );
+        Dn entryDn = new Dn( modDnControl.getEntryDn() );
         switch ( modDnType )
         {
             case MOVE:
 
                 LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
 
-                session.move( entryDn, new DN( modDnControl.getNewSuperiorDn() ) );
+                session.move( entryDn, new Dn( modDnControl.getNewSuperiorDn() ) );
                 break;
 
             case RENAME:
 
-                RDN newRdn = new RDN( modDnControl.getNewRdn() );
+                Rdn newRdn = new Rdn( modDnControl.getNewRdn() );
                 boolean deleteOldRdn = modDnControl.isDeleteOldRdn();
-                LOG.debug( "renaming the DN {} with new RDN {} and deleteOldRdn flag set to {}", new String[]
+                LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
                     { entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
 
                 session.rename( entryDn, newRdn, deleteOldRdn );
@@ -801,12 +801,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
             case MOVEANDRENAME:
 
-                DN newParentDn = new DN( modDnControl.getNewSuperiorDn() );
-                newRdn = new RDN( modDnControl.getNewRdn() );
+                Dn newParentDn = new Dn( modDnControl.getNewSuperiorDn() );
+                newRdn = new Rdn( modDnControl.getNewRdn() );
                 deleteOldRdn = modDnControl.isDeleteOldRdn();
 
                 LOG.debug(
-                    "moveAndRename on the DN {} with new newParent DN {}, new RDN {} and deleteOldRdn flag set to {}",
+                    "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
                     new String[]
                         { entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
 
@@ -958,7 +958,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
         }
 
-        DN dn = new DN( config.getBaseDn(), schemaManager );
+        Dn dn = new Dn( config.getBaseDn(), schemaManager );
 
         LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
         EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
@@ -1025,14 +1025,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
 
     /**
-     * removes all child entries present under the given DN and finally the DN itself
+     * removes all child entries present under the given Dn and finally the Dn itself
      *
      * Working:
-     *          This is a recursive function which maintains a Map<DN,Cursor>.
+     *          This is a recursive function which maintains a Map<Dn,Cursor>.
      *          The way the cascade delete works is by checking for children for a
-     *          given DN(i.e opening a search cursor) and if the cursor is empty
-     *          then delete the DN else for each entry's DN present in cursor call
-     *          deleteChildren() with the DN and the reference to the map.
+     *          given Dn(i.e opening a search cursor) and if the cursor is empty
+     *          then delete the Dn else for each entry's Dn present in cursor call
+     *          deleteChildren() with the Dn and the reference to the map.
      *
      *          The reason for opening a search cursor is based on an assumption
      *          that an entry *might* contain children, consider the below DIT fragment
@@ -1048,11 +1048,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
      *   In the case of passing a non-null DeleteListener, the return value will always be null, cause the
      *   operation is treated as asynchronous and response result will be sent using the listener callback
      *
-     * @param rootDn the DN which will be removed after removing its children
-     * @param map a map to hold the Cursor related to a DN
-     * @throws Exception If the DN is not valid or if the deletion failed
+     * @param rootDn the Dn which will be removed after removing its children
+     * @param map a map to hold the Cursor related to a Dn
+     * @throws Exception If the Dn is not valid or if the deletion failed
      */
-    private void deleteRecursive( DN rootDn, Map<DN, EntryFilteringCursor> cursorMap ) throws Exception
+    private void deleteRecursive( Dn rootDn, Map<Dn, EntryFilteringCursor> cursorMap ) throws Exception
     {
         LOG.debug( "searching for {}", rootDn.getName() );
         EntryFilteringCursor cursor = null;
@@ -1061,7 +1061,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             if ( cursorMap == null )
             {
-                cursorMap = new HashMap<DN, EntryFilteringCursor>();
+                cursorMap = new HashMap<Dn, EntryFilteringCursor>();
             }
 
             cursor = cursorMap.get( rootDn );
@@ -1075,7 +1075,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 cursorMap.put( rootDn, cursor );
             }
 
-            if ( !cursor.next() ) // if this is a leaf entry's DN
+            if ( !cursor.next() ) // if this is a leaf entry's Dn
             {
                 LOG.debug( "deleting {}", rootDn.getName() );
                 cursorMap.remove( rootDn );
@@ -1100,7 +1100,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         }
         catch ( Exception e )
         {
-            String msg = "Failed to delete child entries under the DN " + rootDn.getName();
+            String msg = "Failed to delete child entries under the Dn " + rootDn.getName();
             LOG.error( msg, e );
             throw e;
         }

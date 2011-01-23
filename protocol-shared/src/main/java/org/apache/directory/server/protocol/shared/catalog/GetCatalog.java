@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -49,12 +49,12 @@ public class GetCatalog implements DirectoryServiceOperation
     /**
      * Note that the base is relative to the existing context.
      */
-    public Object execute( CoreSession session, DN base ) throws Exception
+    public Object execute( CoreSession session, Dn base ) throws Exception
     {
         String filter = "(objectClass=" + ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC + ")";
 
         EntryFilteringCursor list = session.search( 
-            DN.EMPTY_DN, 
+            Dn.EMPTY_DN,
             SearchScope.SUBTREE, 
             FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ), 
             AliasDerefMode.DEREF_ALWAYS,

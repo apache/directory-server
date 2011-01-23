@@ -167,7 +167,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
 
     /**
-     * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
+     * try to connect using a user with an invalid Dn: we should get a invalidDNSyntax error.
      *
      * @throws Exception on error
      */
@@ -354,7 +354,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( OperationNotSupportedException onse )
         {
-            assertEquals( "Cannot Bind for DN uid=admin,ou=system", onse.getMessage() );
+            assertEquals( "Cannot Bind for Dn uid=admin,ou=system", onse.getMessage() );
         }
         catch ( NamingException ne )
         {

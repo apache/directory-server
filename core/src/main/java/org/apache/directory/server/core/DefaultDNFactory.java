@@ -25,14 +25,14 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * The default DN factory implementation.
+ * The default Dn factory implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -55,7 +55,7 @@ public class DefaultDNFactory implements DNFactory
 
 
     /**
-     * Instantiates a new default DN factory.
+     * Instantiates a new default Dn factory.
      *
      * @param directoryService the directory service
      */
@@ -69,7 +69,7 @@ public class DefaultDNFactory implements DNFactory
     /**
      * {@inheritDoc}
      */
-    public DN create( String dn ) throws LdapInvalidDnException
+    public Dn create( String dn ) throws LdapInvalidDnException
     {
         if ( dn == null )
         {
@@ -78,10 +78,10 @@ public class DefaultDNFactory implements DNFactory
 
         if ( dn.trim().length() == 0 )
         {
-            return DN.EMPTY_DN;
+            return Dn.EMPTY_DN;
         }
 
-        DN cachedDN = null;
+        Dn cachedDn = null;
 
         // read the explanation at the above DN_CACHE variable declaration
         // for the reason for performing this check
@@ -91,19 +91,19 @@ public class DefaultDNFactory implements DNFactory
 
             if ( dnCacheEntry != null )
             {
-                cachedDN = ( DN ) dnCacheEntry.getValue();
+                cachedDn = (Dn) dnCacheEntry.getValue();
             }
         }
 
-        if ( cachedDN == null )
+        if ( cachedDn == null )
         {
-            LOG.debug( "DN {} not found in the cache, creating", dn );
+            LOG.debug( "Dn {} not found in the cache, creating", dn );
 
-            cachedDN = new DN( dn, schemaManager );
+            cachedDn = new Dn( dn, schemaManager );
 
             if ( dnCache != null )
             {
-                dnCache.put( new Element( dn, cachedDN ) );
+                dnCache.put( new Element( dn, cachedDn) );
             }
 
             if ( enableStats )
@@ -113,9 +113,9 @@ public class DefaultDNFactory implements DNFactory
         }
         else
         {
-            if ( !cachedDN.isNormalized() && ( schemaManager != null ) )
+            if ( !cachedDn.isNormalized() && ( schemaManager != null ) )
             {
-                cachedDN.normalize( schemaManager );
+                cachedDn.normalize( schemaManager );
             }
 
             if ( enableStats )
@@ -124,23 +124,23 @@ public class DefaultDNFactory implements DNFactory
             }
         }
 
-        LOG.debug( "DN {} found in the cache", dn );
+        LOG.debug( "Dn {} found in the cache", dn );
 
         if ( enableStats )
         {
-            //System.out.println( "DN '" + cachedDN + "' found in the cache and isNormalized " + cachedDN.isNormalized() );
-            System.out.println( "DN cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
-                + cachedDN.isNormalized() );
+            //System.out.println( "Dn '" + cachedDn + "' found in the cache and isNormalized " + cachedDn.isNormalized() );
+            System.out.println( "Dn cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
+                + cachedDn.isNormalized() );
         }
 
-        return cachedDN;
+        return cachedDn;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public DN create( String... upRdns ) throws LdapInvalidDnException
+    public Dn create( String... upRdns ) throws LdapInvalidDnException
     {
         StringBuilder sb = new StringBuilder();
         for ( String s : upRdns )

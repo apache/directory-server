@@ -73,7 +73,7 @@ import org.apache.directory.shared.ldap.message.LdapEncoder;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -186,7 +186,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         ldapServer.setSaslPrincipal( servicePrincipal );
 
         ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new DN( "uid=ldap,ou=users,dc=example,dc=com" ) );
+        modifyRequest.setName( new Dn( "uid=ldap,ou=users,dc=example,dc=com" ) );
         modifyRequest.replace( "userPassword", "randall" );
         modifyRequest.replace( "krb5PrincipalName", servicePrincipal );
         service.getAdminSession().modify( modifyRequest );
@@ -228,7 +228,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslBindPLAIN() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setCredentials( "secret".getBytes() );
@@ -252,7 +252,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Ignore("Activate and fix when DIRAPI-36 (Provide a SaslBindRequest extending BindRequest that can be used in LdapConnection.bind(...) method) is solved")
     public void testSaslBindNoMech() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setCredentials( "secret".getBytes() );
@@ -280,7 +280,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslCramMd5Bind() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindCramMd5( userDn.getRdn().getUpValue().getString(), "secret", null );
@@ -299,7 +299,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslCramMd5BindBadPassword() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindCramMd5( userDn.getRdn().getUpValue().getString(), "badsecret", null );
@@ -314,7 +314,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5Bind() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindDigestMd5( userDn.getRdn().getUpValue().getString(), "secret", null,
@@ -335,7 +335,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslGssApiBind() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindGssApi( userDn.getRdn().getUpValue().getString(), "secret", ldapServer
@@ -356,7 +356,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5BindBadRealm() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindDigestMd5( userDn.getName(), "secret", null, "badrealm.com" );
@@ -372,7 +372,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5BindBadPassword() throws Exception
     {
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         BindResponse resp = connection.bindDigestMd5( userDn.getName(), "badsecret", null, ldapServer
@@ -445,7 +445,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection;
         BindResponse resp;
         Entry entry;
-        DN userDn = new DN( "uid=hnelson,ou=users,dc=example,dc=com" );
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
 
         for ( int i = 0; i < 1000; i++ )
         {
@@ -515,7 +515,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Setup the bind request
             BindRequestImpl request = new BindRequestImpl( 1 );
-            request.setName( new DN( "uid=admin,ou=system" ) );
+            request.setName( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type1response );
             request.setSaslMechanism( mechanism );
@@ -554,7 +554,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Setup the bind request
             BindRequestImpl request = new BindRequestImpl( 2 );
-            request.setName( new DN( "uid=admin,ou=system" ) );
+            request.setName( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type3response );
             request.setSaslMechanism( mechanism );
@@ -610,7 +610,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     protected Entry getPrincipalAttributes( String dn, String sn, String cn, String uid, String userPassword,
         String principal ) throws LdapException
     {
-        Entry entry = new DefaultEntry( new DN( dn ) );
+        Entry entry = new DefaultEntry( new Dn( dn ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "inetOrgPerson", "krb5principal", "krb5kdcentry" );
         entry.add( SchemaConstants.CN_AT, cn );
         entry.add( SchemaConstants.SN_AT, sn );

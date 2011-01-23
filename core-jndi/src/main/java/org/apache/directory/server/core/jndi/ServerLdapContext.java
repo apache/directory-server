@@ -37,14 +37,14 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -184,7 +184,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * permission is not allowed for this operation or the oid is not recognized,
      * or the attribute is not present in the entry ... you get the picture.
      */
-    public boolean compare( DN name, String oid, Object value ) throws NamingException
+    public boolean compare( Dn name, String oid, Object value ) throws NamingException
     {
         Value<?> val = null;
 
@@ -246,7 +246,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         catch ( Exception e )
         {
-            JndiUtils.wrap( e );
+            JndiUtils.wrap(e);
         }
 
         // extract the response controls from the operation and return

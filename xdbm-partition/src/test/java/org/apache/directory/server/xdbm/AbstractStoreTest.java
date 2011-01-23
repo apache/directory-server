@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -71,7 +71,7 @@ public class AbstractStoreTest
     private static File wkdir;
     private static Store<Entry, Long> store;
     private static SchemaManager schemaManager = null;
-    private static DN EXAMPLE_COM;
+    private static Dn EXAMPLE_COM;
     
     /** The OU AttributType instance */
     private static AttributeType OU_AT;
@@ -109,7 +109,7 @@ public class AbstractStoreTest
             fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
         }
 
-        EXAMPLE_COM = new DN( "dc=example,dc=com", schemaManager );
+        EXAMPLE_COM = new Dn( "dc=example,dc=com", schemaManager );
         
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
@@ -167,7 +167,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyAddObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -200,7 +200,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveIndexedAttribute() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -234,7 +234,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveAllIndexedAttribute() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -267,7 +267,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -300,7 +300,7 @@ public class AbstractStoreTest
     @Test
     public void testModifyRemoveAllObjectClass() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
@@ -329,7 +329,7 @@ public class AbstractStoreTest
     @Test
     public void testCheckCsnIndexUpdate() throws Exception
     {
-        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
 
         List<Modification> mods = new ArrayList<Modification>();
         AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );

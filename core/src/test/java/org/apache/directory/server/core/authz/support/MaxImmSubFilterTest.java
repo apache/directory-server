@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
@@ -69,8 +69,8 @@ public class MaxImmSubFilterTest
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
         .unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static final DN ROOTDSE_NAME = new DN();
-    private static DN ENTRY_NAME;
+    private static final Dn ROOTDSE_NAME = new Dn();
+    private static Dn ENTRY_NAME;
     private static Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static Entry ENTRY;
 
@@ -92,7 +92,7 @@ public class MaxImmSubFilterTest
             fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
         }
 
-        ENTRY_NAME = new DN( "ou=test, ou=system" );
+        ENTRY_NAME = new Dn( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, ENTRY_NAME );
     }

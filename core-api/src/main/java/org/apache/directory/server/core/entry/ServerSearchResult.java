@@ -22,10 +22,10 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 /**
- * Creates a wrapper around a SearchResult object so that we can use the DN
+ * Creates a wrapper around a SearchResult object so that we can use the Dn
  * instead of parser it over and over
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ServerSearchResult
 {
     /** Distinguished name for this result */
-    private DN dn;
+    private Dn dn;
     
     /** The associated entry */
     private Entry serverEntry;
@@ -53,7 +53,7 @@ public class ServerSearchResult
      * @param serverEntry The associated entry 
      * @param isRelative Tells if the name is relative to the target context
      */
-    public ServerSearchResult( DN dn, Entry serverEntry, boolean isRelative )
+    public ServerSearchResult( Dn dn, Entry serverEntry, boolean isRelative )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -69,7 +69,7 @@ public class ServerSearchResult
      * @param dn Distinguished name for this result
      * @param serverEntry The associated entry
      */
-    public ServerSearchResult( DN dn, Entry serverEntry ) 
+    public ServerSearchResult( Dn dn, Entry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -78,9 +78,9 @@ public class ServerSearchResult
 
 
     /**
-     * @return The result DN
+     * @return The result Dn
      */
-    public DN getDn()
+    public Dn getDn()
     {
         return dn;
     }
@@ -130,7 +130,7 @@ public class ServerSearchResult
      */
     public String toString()
     {
-        String name = (dn == null ? "null" : ( dn == DN.EMPTY_DN ? "\"\"" : dn.getName() ) );
+        String name = (dn == null ? "null" : ( dn == Dn.EMPTY_DN ? "\"\"" : dn.getName() ) );
         return "ServerSearchResult : " + name + "\n" + serverEntry;
     }
 }

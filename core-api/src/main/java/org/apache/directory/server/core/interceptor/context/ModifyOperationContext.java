@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -69,7 +69,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( CoreSession session, DN dn, List<Modification> modItems )
+    public ModifyOperationContext( CoreSession session, Dn dn, List<Modification> modItems )
     {
         super( session, dn );
 
@@ -170,7 +170,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "ModifyContext for DN '" ).append( getDn().getName() ).append( "', modifications :\n" );
+        sb.append( "ModifyContext for Dn '" ).append( getDn().getName() ).append( "', modifications :\n" );
 
         if ( modItems != null )
         {

@@ -43,7 +43,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -394,7 +394,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledValidSchema() throws Exception
     {
-        DN dn = getSchemaContainer( "dummy" );
+        Dn dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -415,7 +415,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithExistingEnabledDeps() throws Exception
     {
-        DN dn = getSchemaContainer( "dummy" );
+        Dn dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -443,7 +443,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithExistingDisabledDeps() throws Exception
     {
-        DN dn = getSchemaContainer( "dummy" );
+        Dn dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -477,7 +477,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithNotExistingDeps() throws Exception
     {
-        DN dn = getSchemaContainer( "dummy" );
+        Dn dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -514,7 +514,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteEnabledValidSchema() throws Exception
     {
-        DN dn = getSchemaContainer( "dummy" );
+        Dn dn = getSchemaContainer( "dummy" );
         LdapContext schemaRoot = getSchemaContext( service );
         
         // Create a schema we will delete

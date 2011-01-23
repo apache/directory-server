@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 
@@ -68,7 +68,7 @@ public class ChangePassword implements DirectoryServiceOperation
     }
 
 
-    public Object execute( CoreSession session, DN searchBaseDn ) throws Exception
+    public Object execute( CoreSession session, Dn searchBaseDn ) throws Exception
     {
         if ( principal == null )
         {

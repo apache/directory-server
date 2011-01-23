@@ -70,7 +70,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
 
 
     /**
-     * DIRSERVER-628: Creation of entry with multivalued RDN leads to wrong
+     * DIRSERVER-628: Creation of entry with multivalued Rdn leads to wrong
      * attribute value.
      *
      * @throws NamingException on error
@@ -439,7 +439,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
         try
         {
             sysRoot.createSubcontext( "ou=subtest" );
-            fail( "It is not allowed to create a context with a bad RDN. CN is mandatory");
+            fail( "It is not allowed to create a context with a bad Rdn. CN is mandatory");
         }
         catch ( NamingException ne )
         {

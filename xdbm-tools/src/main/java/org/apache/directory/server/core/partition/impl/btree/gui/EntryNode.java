@@ -37,7 +37,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -194,7 +194,7 @@ public class EntryNode implements TreeNode
 
         try
         {
-            DN dn = partition.getEntryDn( id );
+            Dn dn = partition.getEntryDn( id );
             buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }

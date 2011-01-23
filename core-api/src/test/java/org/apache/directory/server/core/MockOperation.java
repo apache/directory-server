@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 public class MockOperation implements OperationContext
 {
@@ -44,7 +44,7 @@ public class MockOperation implements OperationContext
     public MockOperation( int count ) throws Exception 
     {
         this.count = count;
-        this.session = new MockCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), 
+        this.session = new MockCoreSession( new LdapPrincipal( new Dn(), AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
     }
 
@@ -83,7 +83,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public DN getDn()
+    public Dn getDn()
     {
         return null;
     }
@@ -167,7 +167,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( DN dn, Collection<String> bypass ) throws LdapException
+    public ClonedServerEntry lookup( Dn dn, Collection<String> bypass ) throws LdapException
     {
         return null;
     }
@@ -179,7 +179,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public LookupOperationContext newLookupContext( DN dn )
+    public LookupOperationContext newLookupContext( Dn dn )
     {
         return null;
     }
@@ -195,7 +195,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public void setDn( DN dn )
+    public void setDn( Dn dn )
     {
     }
 
@@ -241,17 +241,17 @@ public class MockOperation implements OperationContext
     }
 
 
-    public void delete( DN dn, Collection<String> bypass ) throws LdapException
+    public void delete( Dn dn, Collection<String> bypass ) throws LdapException
     {
     }
 
 
-    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
+    public void modify( Dn dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
     {
     }
 
 
-    public boolean hasEntry( DN dn, Collection<String> byPass ) throws LdapException
+    public boolean hasEntry( Dn dn, Collection<String> byPass ) throws LdapException
     {
         return false;
     }

@@ -44,7 +44,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
@@ -281,7 +281,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    List<RegistrationEntry> getSelectingRegistrations( DN name, Entry entry ) throws LdapException
+    List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
     {
         if ( registrations.isEmpty() )
         {
@@ -294,7 +294,7 @@ public class EventInterceptor extends BaseInterceptor
         {
             NotificationCriteria criteria = registration.getCriteria();
 
-            DN base = criteria.getBase();
+            Dn base = criteria.getBase();
 
             if ( !criteria.getFilter().isSchemaAware() )
             {

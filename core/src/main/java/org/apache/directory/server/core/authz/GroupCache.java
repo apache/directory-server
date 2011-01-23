@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -87,15 +87,15 @@ public class GroupCache
      */
     private SchemaManager schemaManager;
     
-    /** the DN factory */
+    /** the Dn factory */
     private DNFactory dnFactory;
 
     /** the normalized dn of the administrators group */
-    private DN administratorsGroupDn;
+    private Dn administratorsGroupDn;
 
-    private static final Set<DN> EMPTY_GROUPS = new HashSet<DN>();
+    private static final Set<Dn> EMPTY_GROUPS = new HashSet<Dn>();
 
-    /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
+    /** String key for the Dn of a group to a Set (HashSet) for the Strings of member DNs */
     private Cache ehCache;
 
     /**
@@ -122,9 +122,9 @@ public class GroupCache
     }
 
 
-    private DN parseNormalized( String name ) throws LdapException
+    private Dn parseNormalized( String name ) throws LdapException
     {
-        DN dn = dnFactory.create( name );
+        Dn dn = dnFactory.create( name );
         return dn;
     }
 
@@ -147,7 +147,7 @@ public class GroupCache
             filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
                 SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-            DN baseDn = dnFactory.create( suffix );
+            Dn baseDn = dnFactory.create( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
@@ -161,7 +161,7 @@ public class GroupCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    DN groupDn = result.getDn().normalize( schemaManager );
+                    Dn groupDn = result.getDn().normalize( schemaManager );
                     EntryAttribute members = getMemberAttribute( result );
     
                     if ( members != null )
@@ -234,7 +234,7 @@ public class GroupCache
         for ( Value<?> value : members )
         {
 
-            // get and normalize the DN of the member
+            // get and normalize the Dn of the member
             String memberDn = value.getString();
 
             try
@@ -243,7 +243,7 @@ public class GroupCache
             }
             catch ( LdapException e )
             {
-                LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
+                LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
             }
 
             memberSet.add( memberDn );
@@ -262,7 +262,7 @@ public class GroupCache
     {
         for ( Value<?> value : members )
         {
-            // get and normalize the DN of the member
+            // get and normalize the Dn of the member
             String memberDn = value.getString();
 
             try
@@ -271,7 +271,7 @@ public class GroupCache
             }
             catch ( LdapException e )
             {
-                LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
+                LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
             }
 
             memberSet.remove( memberDn );
@@ -287,7 +287,7 @@ public class GroupCache
      * @param entry the group entry's attributes
      * @throws LdapException if there are problems accessing the attr values
      */
-    public void groupAdded( DN name, Entry entry ) throws LdapException
+    public void groupAdded( Dn name, Entry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -313,10 +313,10 @@ public class GroupCache
      * Deletes a group's members from the cache.  Called by interceptor to account for
      * the deletion of groups.
      *
-     * @param name the normalized DN of the group entry
+     * @param name the normalized Dn of the group entry
      * @param entry the attributes of entry being deleted
      */
-    public void groupDeleted( DN name, Entry entry ) throws LdapException
+    public void groupDeleted( Dn name, Entry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -381,7 +381,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws LdapException if there are problems accessing attribute  values
      */
-    public void groupModified( DN name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
+    public void groupModified( Dn name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
         EntryAttribute members = null;
@@ -437,7 +437,7 @@ public class GroupCache
      * @param mods the modifications being performed
      * @throws LdapException if there are problems accessing attribute  values
      */
-    public void groupModified( DN name, ModificationOperation modOp, Entry mods ) throws LdapException
+    public void groupModified( Dn name, ModificationOperation modOp, Entry mods ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( mods );
 
@@ -465,10 +465,10 @@ public class GroupCache
      * An optimization.  By having this method here we can directly access the group
      * membership information and lookup to see if the principalDn is contained within.
      *
-     * @param principalDn the normalized DN of the user to check if they are an admin
+     * @param principalDn the normalized Dn of the user to check if they are an admin
      * @return true if the principal is an admin or the admin
      */
-    public final boolean isPrincipalAnAdministrator( DN principalDn )
+    public final boolean isPrincipalAnAdministrator( Dn principalDn )
     {
         if ( principalDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
         {
@@ -498,9 +498,9 @@ public class GroupCache
      * @return a Set of Name objects representing the groups
      * @throws LdapException if there are problems accessing attribute  values
      */
-    public Set<DN> getGroups( String member ) throws LdapException
+    public Set<Dn> getGroups( String member ) throws LdapException
     {
-        DN normMember;
+        Dn normMember;
 
         try
         {
@@ -510,12 +510,12 @@ public class GroupCache
         {
             LOG
                 .warn(
-                    "Malformed member DN.  Could not find groups for member '{}' in GroupCache. Returning empty set for groups!",
+                    "Malformed member Dn.  Could not find groups for member '{}' in GroupCache. Returning empty set for groups!",
                     member, e );
             return EMPTY_GROUPS;
         }
 
-        Set<DN> memberGroups = null;
+        Set<Dn> memberGroups = null;
 
         for ( Object obj : ehCache.getKeys() )
         {
@@ -531,7 +531,7 @@ public class GroupCache
             {
                 if ( memberGroups == null )
                 {
-                    memberGroups = new HashSet<DN>();
+                    memberGroups = new HashSet<Dn>();
                 }
 
                 memberGroups.add( parseNormalized( group ) );
@@ -547,7 +547,7 @@ public class GroupCache
     }
 
 
-    public boolean groupRenamed( DN oldName, DN newName )
+    public boolean groupRenamed( Dn oldName, Dn newName )
     {
         Element membersElement = ehCache.get( oldName.getNormName() );
         

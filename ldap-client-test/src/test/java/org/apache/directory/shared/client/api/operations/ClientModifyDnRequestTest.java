@@ -42,8 +42,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getAdminSession();
@@ -106,8 +106,8 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     {
         ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString" );
         assertNotNull( resp );
-        assertFalse( session.exists( new DN( dn ) ) );
-        assertTrue( session.exists( new DN( "cn=modifyDnWithString,ou=system" ) ) );
+        assertFalse( session.exists( new Dn( dn ) ) );
+        assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
     }
 
 
@@ -117,13 +117,13 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString", false );
         assertNotNull( resp );
 
-        DN oldDn = new DN( dn );
+        Dn oldDn = new Dn( dn );
         assertFalse( session.exists( oldDn ) );
 
-        Entry entry = session.lookup( new DN( "cn=modifyDnWithString,ou=system" ) );
+        Entry entry = session.lookup( new Dn( "cn=modifyDnWithString,ou=system" ) );
         assertNotNull( entry );
 
-        RDN oldRdn = oldDn.getRdn();
+        Rdn oldRdn = oldDn.getRdn();
         assertTrue( entry.contains( oldRdn.getUpType(), oldRdn.getNormValue() ) );
     }
 
@@ -134,22 +134,22 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         ModifyDnResponse resp = connection.move( dn, "ou=users,ou=system" );
         assertNotNull( resp );
 
-        DN oldDn = new DN( dn );
+        Dn oldDn = new Dn( dn );
         assertFalse( session.exists( oldDn ) );
 
-        assertTrue( session.exists( new DN( "cn=modDn,ou=users,ou=system" ) ) );
+        assertTrue( session.exists( new Dn( "cn=modDn,ou=users,ou=system" ) ) );
     }
 
 
     @Test
     public void testModifyDnAsync() throws Exception
     {
-        DN oldDn = new DN( dn );
-        DN newDn = new DN( "cn=modifyDnWithString,ou=system" );
+        Dn oldDn = new Dn( dn );
+        Dn newDn = new Dn( "cn=modifyDnWithString,ou=system" );
 
         ModifyDnRequest modDnReq = new ModifyDnRequestImpl();
         modDnReq.setName( oldDn );
-        modDnReq.setNewRdn( new RDN( "cn=modifyDnWithString" ) );
+        modDnReq.setNewRdn( new Rdn( "cn=modifyDnWithString" ) );
         modDnReq.setDeleteOldRdn( true );
 
         ModifyDnFuture modifyDnFuture = connection.modifyDnAsync( modDnReq );
@@ -169,6 +169,6 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
             fail();
         }
 
-        assertTrue( session.exists( new DN( "cn=modifyDnWithString,ou=system" ) ) );
+        assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
     }
 }

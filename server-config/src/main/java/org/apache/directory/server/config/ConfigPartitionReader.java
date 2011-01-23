@@ -53,8 +53,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -308,17 +308,17 @@ public class ConfigPartitionReader
             {
                 beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
             }
-            else if ( type == DN.class )
+            else if ( type == Dn.class )
             {
                 try
                 {
-                    DN dn = new DN( valueStr );
+                    Dn dn = new Dn( valueStr );
                     beanField.set( bean, dn );
                 }
                 catch ( LdapInvalidDnException lide )
                 {
-                    String message = "The DN '" + valueStr + "' for attribute " + fieldAttr.getId()
-                        + " is not a valid DN";
+                    String message = "The Dn '" + valueStr + "' for attribute " + fieldAttr.getId()
+                        + " is not a valid Dn";
                     LOG.error( message );
                     throw new ConfigurationException( message );
                 }
@@ -378,17 +378,17 @@ public class ConfigPartitionReader
                 {
                     beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
                 }
-                else if ( type == DN.class )
+                else if ( type == Dn.class )
                 {
                     try
                     {
-                        DN dn = new DN( valueStr );
+                        Dn dn = new Dn( valueStr );
                         beanField.set( bean, dn );
                     }
                     catch ( LdapInvalidDnException lide )
                     {
-                        String message = "The DN '" + valueStr + "' for attribute " + fieldAttr.getId()
-                            + " is not a valid DN";
+                        String message = "The Dn '" + valueStr + "' for attribute " + fieldAttr.getId()
+                            + " is not a valid Dn";
                         LOG.error( message );
                         throw new ConfigurationException( message );
                     }
@@ -563,7 +563,7 @@ public class ConfigPartitionReader
                 {
                     // No : we have to loop recursively on all the elements which are
                     // under the ou=<element-name> branch
-                    DN newBase = entry.getDn().add( "ou=" + beanFieldName );
+                    Dn newBase = entry.getDn().add( "ou=" + beanFieldName );
 
                     // We have to remove the 's' at the end of the field name
                     String attributeName = fieldName.substring( 0, fieldName.length() - 1 );
@@ -708,7 +708,7 @@ public class ConfigPartitionReader
     /**
      * Read some configuration element from the DIT using its name 
      */
-    private List<AdsBaseBean> read( DN baseDn, String name, SearchScope scope, boolean mandatory )
+    private List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
     {
         LOG.debug( "Reading from '{}', entry {}", baseDn, name );
@@ -737,7 +737,7 @@ public class ConfigPartitionReader
                     cursor.close();
 
                     // the requested element is mandatory so let's throw an exception
-                    String message = "No directoryService instance was configured under the DN "
+                    String message = "No directoryService instance was configured under the Dn "
                         + configPartition.getSuffix();
                     LOG.error( message );
                     throw new ConfigurationException( message );
@@ -817,7 +817,7 @@ public class ConfigPartitionReader
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * <p>
-     * This method implicitly uses <em>"ou=config"</em> as base DN
+     * This method implicitly uses <em>"ou=config"</em> as base Dn
      * 
      * @return The Config bean, containing the whole configuration
      * @throws ConfigurationException If we had some issue reading the configuration
@@ -825,32 +825,32 @@ public class ConfigPartitionReader
     public ConfigBean readConfig() throws LdapException
     {
         // The starting point is the DirectoryService element
-        return readConfig( new DN( new RDN( SchemaConstants.OU_AT, "config" ) ) );
+        return readConfig( new Dn( new Rdn( SchemaConstants.OU_AT, "config" ) ) );
     }
 
 
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param base The base DN in the DIT where the configuration is stored
+     * @param base The base Dn in the DIT where the configuration is stored
      * @return The Config bean, containing the whole configuration
      * @throws ConfigurationException If we had some issue reading the configuration
      */
     public ConfigBean readConfig( String baseDn ) throws LdapException
     {
         // The starting point is the DirectoryService element
-        return readConfig( new DN( baseDn ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+        return readConfig( new Dn( baseDn ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
     }
 
 
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param base The base DN in the DIT where the configuration is stored
+     * @param base The base Dn in the DIT where the configuration is stored
      * @return The Config bean, containing the whole configuration
      * @throws ConfigurationException If we had some issue reading the configuration
      */
-    public ConfigBean readConfig( DN baseDn ) throws ConfigurationException
+    public ConfigBean readConfig( Dn baseDn ) throws ConfigurationException
     {
         // The starting point is the DirectoryService element
         return readConfig( baseDn, ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
@@ -860,26 +860,26 @@ public class ConfigPartitionReader
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param baseDn The base DN in the DIT where the configuration is stored
+     * @param baseDn The base Dn in the DIT where the configuration is stored
      * @param objectClass The element to read from the DIT
      * @return The bean containing the configuration for the required element
      * @throws ConfigurationException
      */
     public ConfigBean readConfig( String baseDn, String objectClass ) throws LdapException
     {
-        return readConfig( new DN( baseDn ), objectClass );
+        return readConfig( new Dn( baseDn ), objectClass );
     }
 
 
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param baseDn The base DN in the DIT where the configuration is stored
+     * @param baseDn The base Dn in the DIT where the configuration is stored
      * @param objectClass The element to read from the DIT
      * @return The bean containing the configuration for the required element
      * @throws ConfigurationException
      */
-    public ConfigBean readConfig( DN baseDn, String objectClass ) throws ConfigurationException
+    public ConfigBean readConfig( Dn baseDn, String objectClass ) throws ConfigurationException
     {
         LOG.debug( "Reading configuration for the {} element, from {} ", objectClass, baseDn );
         ConfigBean configBean = new ConfigBean();

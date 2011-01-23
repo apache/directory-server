@@ -31,7 +31,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,13 +61,13 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
 
     
     /**
-     * Test a lookup( DN ) operation with the ACI subsystem enabled
+     * Test a lookup( Dn ) operation with the ACI subsystem enabled
      */
     @Test
     public void testLookupACIEnabled() throws Exception
     {
         service.setAccessControlEnabled( true );
-        DN dn = new DN( "cn=test,ou=system" );
+        Dn dn = new Dn( "cn=test,ou=system" );
         
         try
         {      

@@ -23,7 +23,7 @@ package org.apache.directory.server.replication.configuration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -79,7 +79,7 @@ public class ReplicationAgreement
     /**
      * The administrative point for the replication specific autonomous area.
      */
-    DN replicationBase;
+    Dn replicationBase;
     
     /**
      * The schedule to use for initiating replication cycles.  You can have more than

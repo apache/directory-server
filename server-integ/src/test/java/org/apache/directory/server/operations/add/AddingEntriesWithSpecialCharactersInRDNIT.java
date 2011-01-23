@@ -38,14 +38,14 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
  * Test case to demonstrate DIRSERVER-631 ("Creation of entry with special (and
- * escaped) character in RDN leads to wrong attribute value").
+ * escaped) character in Rdn leads to wrong attribute value").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -76,7 +76,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with hash sign (#) in RDN.
+     * adding an entry with hash sign (#) in Rdn.
      * 
      * @throws Exception 
      */
@@ -87,7 +87,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry personEntry = getPersonEntry( "Bush", "Kate#Bush" );
         String dn = "cn=Kate\\#Bush,ou=system";
-        personEntry.setDn( new DN( dn ) );
+        personEntry.setDn( new Dn( dn ) );
         connection.add( personEntry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
@@ -111,7 +111,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with comma sign (,) in RDN.
+     * adding an entry with comma sign (,) in Rdn.
      *    
      * @throws Exception 
      */
@@ -122,7 +122,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getPersonEntry( "Bush", "Bush, Kate" );
         String dn = "cn=Bush\\, Kate,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
@@ -147,7 +147,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with quotes (") in RDN.
+     * adding an entry with quotes (") in Rdn.
      */
     @Test
     public void testAddingWithQuotesInRdn() throws Exception
@@ -156,7 +156,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getPersonEntry( "Messer", "Mackie \"The Knife\" Messer" );
         String dn = "cn=Mackie \\\"The Knife\\\" Messer,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
@@ -179,7 +179,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with backslash (\) in RDN.
+     * adding an entry with backslash (\) in Rdn.
      */
     @Test
     public void testAddingWithBackslashInRdn() throws Exception
@@ -188,7 +188,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getOrgUnitEntry( "AC\\DC" );
         String dn = "ou=AC\\\\DC,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
@@ -211,7 +211,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with greater sign (>) in RDN.
+     * adding an entry with greater sign (>) in Rdn.
      * 
      * @throws Exception 
      */
@@ -222,7 +222,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getOrgUnitEntry( "East -> West" );
         String dn = "ou=East -\\> West,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection
@@ -247,7 +247,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with less sign (<) in RDN.
+     * adding an entry with less sign (<) in Rdn.
      * 
      * @throws Exception 
      */
@@ -258,7 +258,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getOrgUnitEntry( "Scissors 8<" );
         String dn = "ou=Scissors 8\\<,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
@@ -283,7 +283,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with semicolon (;) in RDN.
+     * adding an entry with semicolon (;) in Rdn.
      * 
      * @throws Exception 
      */
@@ -294,7 +294,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getOrgUnitEntry( "semicolon group;" );
         String dn = "ou=semicolon group\\;,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE,
@@ -319,7 +319,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
 
     /**
-     * adding an entry with equals sign (=) in RDN.
+     * adding an entry with equals sign (=) in Rdn.
      * 
      * @throws Exception 
      */
@@ -330,7 +330,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         Entry entry = getOrgUnitEntry( "nomen=omen" );
         String dn = "ou=nomen\\=omen,ou=system";
-        entry.setDn( new DN( dn ) );
+        entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
         Cursor<Response> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );

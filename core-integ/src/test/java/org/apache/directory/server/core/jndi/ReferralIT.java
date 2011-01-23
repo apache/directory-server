@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -272,7 +272,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         catch ( PartialResultException pre )
         {
             assertEquals( "cn=alex karasulu,ou=apache", pre.getRemainingName().toString() );
-            assertEquals( DN.EMPTY_DN, new DN( pre.getResolvedName().toString() ) );
+            assertEquals( Dn.EMPTY_DN, new Dn( pre.getResolvedName().toString() ) );
         }
     }
 
@@ -328,8 +328,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         // Attempt to add a normal entry below the referral ancestor. We should
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
-        DN userDN = new DN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
-        Entry userEntry = new DefaultEntry( service.getSchemaManager(), userDN );
+        Dn userDn = new Dn( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+        Entry userEntry = new DefaultEntry( service.getSchemaManager(), userDn);
         
         userEntry.add(  "ObjectClass", "top", "person" );
         userEntry.add( "sn", "karasulu" );
@@ -343,7 +343,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         catch ( LdapPartialResultException lpre )
         {
             assertEquals( "cn=alex karasulu,ou=apache", lpre.getRemainingDn().toString() );
-            assertEquals( DN.EMPTY_DN, lpre.getResolvedDn() );
+            assertEquals( Dn.EMPTY_DN, lpre.getResolvedDn() );
         }
     }
 
@@ -430,7 +430,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
-                DN dn = new DN( "cn=alex karasulu,ou=users,ou=system" );
+                Dn dn = new Dn( "cn=alex karasulu,ou=users,ou=system" );
                 ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
             }
             else
@@ -470,7 +470,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
-                DN dn = new DN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+                Dn dn = new Dn( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
                 ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
             }
             else
@@ -1160,7 +1160,7 @@ public class ReferralIT extends AbstractLdapTestUnit
 
 
     /**
-     * Checks that when injecting LDAP ref with an empty DN we get an exception
+     * Checks that when injecting LDAP ref with an empty Dn we get an exception
      *
      * @throws Exception on error
      */

@@ -25,27 +25,27 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
  * A RenameService context used for Interceptors. It contains all the informations
- * needed for the modify DN operation, and used by all the interceptors
+ * needed for the modify Dn operation, and used by all the interceptors
  * 
- * This is used when the modifyDN is about changing the RDN, not the base DN.
+ * This is used when the modifyDN is about changing the Rdn, not the base Dn.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class RenameOperationContext extends AbstractChangeOperationContext
 {
-    /** The new RDN */
-    protected RDN newRdn;
+    /** The new Rdn */
+    protected Rdn newRdn;
 
-    /** Cached copy of the new DN */
-    protected DN newDn;
+    /** Cached copy of the new Dn */
+    protected Dn newDn;
 
-    /** The flag to remove the old RDN Attribute  */
+    /** The flag to remove the old Rdn Attribute  */
     private boolean deleteOldRdn;
 
     /**
@@ -61,10 +61,10 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * Creates a new instance of RenameOperationContext.
      *
      * @param oldDn the dn of the entry before the rename
-     * @param newRdn the new RDN to use for the target
-     * @param delOldDn true if we delete the old RDN value
+     * @param newRdn the new Rdn to use for the target
+     * @param delOldDn true if we delete the old Rdn value
      */
-    public RenameOperationContext( CoreSession session, DN oldDn, RDN newRdn, boolean deleteOldRdn )
+    public RenameOperationContext( CoreSession session, Dn oldDn, Rdn newRdn, boolean deleteOldRdn )
     {
         super( session, oldDn );
         this.newRdn = newRdn;
@@ -97,7 +97,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * @return The delete old RDN flag
+     * @return The delete old Rdn flag
      */
     public boolean getDeleteOldRdn() 
     {
@@ -106,7 +106,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * Set the flag to delete the old RDN
+     * Set the flag to delete the old Rdn
      * @param deleteOldRdn the flag to set
      */
     public void setDelOldDn( boolean deleteOldRdn ) 
@@ -116,38 +116,38 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * @return The new DN either computed if null or already computed
+     * @return The new Dn either computed if null or already computed
      */
-    public DN getNewDn()
+    public Dn getNewDn()
     {
         return newDn;
     }
 
 
     /**
-     * @return The new RDN
+     * @return The new Rdn
      */
-    public RDN getNewRdn()
+    public Rdn getNewRdn()
     {
         return newRdn;
     }
 
 
     /**
-     * Set the new RDN
-     * @param newRdn The new RDN
+     * Set the new Rdn
+     * @param newRdn The new Rdn
      */
-    public void setNewRdn( RDN newRdn )
+    public void setNewRdn( Rdn newRdn )
     {
         this.newRdn = newRdn;
     }
 
 
     /**
-     * Set the new DN
-     * @param newDn The new DN
+     * Set the new Dn
+     * @param newDn The new Dn
      */
-    public void setNewDn( DN newDn )
+    public void setNewDn( Dn newDn )
     {
         this.newDn = newDn;
     }
@@ -167,8 +167,8 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "RenameContext for old DN '" + getDn().getName() + "'" +
-        ", new RDN '" + newRdn + "'" +
+        return "RenameContext for old Dn '" + getDn().getName() + "'" +
+        ", new Rdn '" + newRdn + "'" +
         ( deleteOldRdn ? ", delete old Rdn" : "" ) ; 
     }
 }

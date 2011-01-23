@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.Set;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
@@ -47,9 +47,9 @@ public class ListOperationContext extends SearchingOperationContext
     /**
      * Creates a new instance of ListOperationContext.
      *
-     * @param dn The DN to get the suffix from
+     * @param dn The Dn to get the suffix from
      */
-    public ListOperationContext( CoreSession session, DN dn )
+    public ListOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
     }
@@ -59,11 +59,11 @@ public class ListOperationContext extends SearchingOperationContext
      * Creates a new instance of ListOperationContext with attributes to return.
      *
      * @param session the session associated with this {@link OperationContext}
-     * @param dn the base DN 
+     * @param dn the base Dn
      * @param aliasDerefMode the alias dereferencing mode to use
      * @param returningAttributes the attributes to return
      */
-    public ListOperationContext( CoreSession session, DN dn, Set<AttributeTypeOptions> returningAttributes )
+    public ListOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, returningAttributes );
     }
@@ -83,6 +83,6 @@ public class ListOperationContext extends SearchingOperationContext
      */
     public String toString()
     {
-        return "List with DN '" + getDn().getName() + "'";
+        return "List with Dn '" + getDn().getName() + "'";
     }
 }

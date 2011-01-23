@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -171,7 +171,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /**
      * We don't handle any cache when using a delegated authentication
      */
-    public void invalidateCache( DN bindDn )
+    public void invalidateCache( Dn bindDn )
     {
         // cache is not implemented here
     }

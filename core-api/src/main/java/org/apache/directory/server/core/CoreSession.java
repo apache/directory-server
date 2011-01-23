@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
@@ -272,7 +272,7 @@ public interface CoreSession
      * @param value the value to check for
      * @throws Exception if there are failures while comparing
      */
-    boolean compare( DN dn, String oid, Object value ) throws LdapException;
+    boolean compare( Dn dn, String oid, Object value ) throws LdapException;
     
     
     /**
@@ -286,7 +286,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while comparing
      */
-    boolean compare( DN dn, String oid, Object value, boolean ignoreReferral ) throws LdapException;
+    boolean compare( Dn dn, String oid, Object value, boolean ignoreReferral ) throws LdapException;
     
     
     /**
@@ -304,7 +304,7 @@ public interface CoreSession
      * @param dn the distinguished name of the entry to delete
      * @throws Exception if there are failures while deleting the entry
      */
-    void delete( DN dn ) throws LdapException;
+    void delete( Dn dn ) throws LdapException;
 
     
     /**
@@ -314,7 +314,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while deleting the entry
      */
-    void delete( DN dn, LogChange log ) throws LdapException;
+    void delete( Dn dn, LogChange log ) throws LdapException;
     
     
     void delete( DeleteRequest deleteRequest ) throws LdapException;
@@ -332,7 +332,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while deleting the entry
      */
-    void delete( DN dn, boolean ignoreReferral ) throws LdapException;
+    void delete( Dn dn, boolean ignoreReferral ) throws LdapException;
     
     
     /**
@@ -345,13 +345,13 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while deleting the entry
      */
-    void delete( DN dn, boolean ignoreReferral, LogChange log ) throws LdapException;
+    void delete( Dn dn, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
     /**
      * Checks to see if an entry exists. 
      */
-    boolean exists( DN dn ) throws LdapException;
+    boolean exists( Dn dn ) throws LdapException;
     
     
     /**
@@ -361,7 +361,7 @@ public interface CoreSession
      * @param dn the name of the entry to lookup
      * @throws Exception if there are failures while looking up the entry
      */
-    Entry lookup( DN dn ) throws LdapException;
+    Entry lookup( Dn dn ) throws LdapException;
 
     
     /**
@@ -372,7 +372,7 @@ public interface CoreSession
      * @param atIds The list of attributes to return
      * @throws Exception if there are failures while looking up the entry
      */
-    Entry lookup( DN dn, String... atIds ) throws LdapException;
+    Entry lookup( Dn dn, String... atIds ) throws LdapException;
 
     
     /**
@@ -384,7 +384,7 @@ public interface CoreSession
      * @param atIds The list of attributes to return
      * @throws Exception if there are failures while looking up the entry
      */
-    Entry lookup( DN dn, Control[] controls, String... atIds ) throws LdapException;
+    Entry lookup( Dn dn, Control[] controls, String... atIds ) throws LdapException;
 
     
     /**
@@ -395,7 +395,7 @@ public interface CoreSession
      * @param mods the list of modifications to apply
      * @throws Exception if there are failures while modifying the entry
      */
-    void modify( DN dn, List<Modification> mods ) throws LdapException;
+    void modify( Dn dn, List<Modification> mods ) throws LdapException;
     
     
     /**
@@ -407,7 +407,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while modifying the entry
      */
-    void modify( DN dn, List<Modification> mods, LogChange log ) throws LdapException;
+    void modify( Dn dn, List<Modification> mods, LogChange log ) throws LdapException;
     
     
     /**
@@ -421,7 +421,7 @@ public interface CoreSession
      * @param mods the list of modifications to apply
      * @throws Exception if there are failures while modifying the entry
      */
-    void modify( DN dn, List<Modification> mods, boolean ignoreReferral ) throws LdapException;
+    void modify( Dn dn, List<Modification> mods, boolean ignoreReferral ) throws LdapException;
     
     
     /**
@@ -436,7 +436,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while modifying the entry
      */
-    void modify( DN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws LdapException;
+    void modify( Dn dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
     void modify( ModifyRequest modifyRequest ) throws LdapException;
@@ -453,7 +453,7 @@ public interface CoreSession
      * @param newParent the new parent under which the entry/branch is moved
      * @exception if there are failures while moving the entry/branch
      */
-    void move( DN dn, DN newParent ) throws LdapException;
+    void move( Dn dn, Dn newParent ) throws LdapException;
     
     
     /**
@@ -465,7 +465,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception if there are failures while moving the entry/branch
      */
-    void move( DN dn, DN newParent, LogChange log ) throws LdapException;
+    void move( Dn dn, Dn newParent, LogChange log ) throws LdapException;
     
     
     /**
@@ -477,7 +477,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @exception if there are failures while moving the entry/branch
      */
-    void move( DN dn, DN newParent, boolean ignoreReferral ) throws Exception;
+    void move( Dn dn, Dn newParent, boolean ignoreReferral ) throws Exception;
     
     
     /**
@@ -490,7 +490,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception if there are failures while moving the entry/branch
      */
-    void move( DN dn, DN newParent, boolean ignoreReferral, LogChange log ) throws LdapException;
+    void move( Dn dn, Dn newParent, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
     /**
@@ -524,7 +524,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn ) throws LdapException;
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn ) throws LdapException;
     
     
     /**
@@ -540,7 +540,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
     
     
     /**
@@ -556,7 +556,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
     
     
     /**
@@ -573,11 +573,11 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
     /**
-     * Move and rename an entry. We change the RDN and the superior.
+     * Move and rename an entry. We change the Rdn and the superior.
      *
      * @param modifyDnRequest The move and rename request
      * @throws Exception if there are failures while moving and renaming the entry
@@ -587,7 +587,7 @@ public interface CoreSession
     
     
     /**
-     * Move and rename an entry. We change the RDN and the superior.
+     * Move and rename an entry. We change the Rdn and the superior.
      *
      * @param modifyDnRequest The move and rename request
      * @param log a flag set if the added entry should be stored in the changeLog
@@ -609,7 +609,7 @@ public interface CoreSession
      * distinguished name is to be deleted from the entry
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws LdapException;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws LdapException;
     
     
     /**
@@ -625,7 +625,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
     
     
     /**
@@ -641,7 +641,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
     
     
     /**
@@ -658,7 +658,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
     
     
     /**
@@ -691,7 +691,7 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
     
     
@@ -710,7 +710,7 @@ public interface CoreSession
      * terminating the search
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
     
     
@@ -723,7 +723,7 @@ public interface CoreSession
      * @param filter the search filter
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( DN dn, String filter ) throws LdapException;
+    EntryFilteringCursor search( Dn dn, String filter ) throws LdapException;
     
     
     /**
@@ -736,7 +736,7 @@ public interface CoreSession
      * @param ignoreReferrals a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( DN dn, String filter, boolean ignoreReferrals ) throws LdapException;
+    EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
     
     
     /**
@@ -749,7 +749,7 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
     
     
@@ -764,7 +764,7 @@ public interface CoreSession
      * terminating the search
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
 
 

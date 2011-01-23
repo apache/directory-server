@@ -80,8 +80,8 @@ import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
@@ -255,7 +255,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public CompareResponse compare( DN dn, String attributeName, byte[] value ) throws LdapException
+    public CompareResponse compare( Dn dn, String attributeName, byte[] value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
@@ -269,7 +269,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public CompareResponse compare( DN dn, String attributeName, String value ) throws LdapException
+    public CompareResponse compare( Dn dn, String attributeName, String value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
@@ -285,7 +285,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
-        return compare( new DN( dn ), attributeName, value );
+        return compare( new Dn( dn ), attributeName, value );
     }
 
 
@@ -294,14 +294,14 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, String value ) throws LdapException
     {
-        return compare( new DN( dn ), attributeName, value );
+        return compare( new Dn( dn ), attributeName, value );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public CompareResponse compare( DN dn, String attributeName, Value<?> value ) throws LdapException
+    public CompareResponse compare( Dn dn, String attributeName, Value<?> value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
@@ -325,7 +325,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, Value<?> value ) throws LdapException
     {
-        return compare( new DN( dn ), attributeName, value );
+        return compare( new Dn( dn ), attributeName, value );
     }
 
 
@@ -367,7 +367,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public DeleteResponse delete( DN dn ) throws LdapException
+    public DeleteResponse delete( Dn dn ) throws LdapException
     {
         DeleteRequest deleteRequest = new DeleteRequestImpl();
         deleteRequest.setName( dn );
@@ -381,7 +381,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public DeleteResponse delete( String dn ) throws LdapException
     {
-        return delete( new DN( dn ) );
+        return delete( new Dn( dn ) );
     }
 
 
@@ -451,7 +451,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( DN dn, String... attributes ) throws LdapException
+    public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
         return _lookup( dn, null, attributes );
     }
@@ -460,7 +460,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( DN dn, Control[] controls, String... attributes ) throws LdapException
+    public Entry lookup( Dn dn, Control[] controls, String... attributes ) throws LdapException
     {
         return _lookup( dn, controls, attributes );
     }
@@ -471,7 +471,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
-        return _lookup( new DN( dn ), null, attributes );
+        return _lookup( new Dn( dn ), null, attributes );
     }
 
 
@@ -480,15 +480,15 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
     {
-        return _lookup( new DN( dn ), controls, attributes );
+        return _lookup( new Dn( dn ), controls, attributes );
     }
 
 
     /*
      * this method exists solely for the purpose of calling from
-     * lookup(DN dn) avoiding the varargs,
+     * lookup(Dn dn) avoiding the varargs,
      */
-    private Entry _lookup( DN dn, Control[] controls, String... attributes )
+    private Entry _lookup( Dn dn, Control[] controls, String... attributes )
     {
         messageId.incrementAndGet();
 
@@ -512,14 +512,14 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public boolean exists( String dn ) throws LdapException
     {
-        return exists( new DN( dn ) );
+        return exists( new Dn( dn ) );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean exists( DN dn ) throws LdapException
+    public boolean exists( Dn dn ) throws LdapException
     {
         try
         {
@@ -542,7 +542,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( DN dn ) throws LdapException
+    public Entry lookup( Dn dn ) throws LdapException
     {
         return _lookup( dn, null );
     }
@@ -553,19 +553,19 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return _lookup( new DN( dn ), null );
+        return _lookup( new Dn( dn ), null );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public ModifyResponse modify( DN dn, Modification... modifications ) throws LdapException
+    public ModifyResponse modify( Dn dn, Modification... modifications ) throws LdapException
     {
         if ( dn == null )
         {
             LOG.debug( "received a null dn for modification" );
-            throw new IllegalArgumentException( "The DN to be modified cannot be null" );
+            throw new IllegalArgumentException( "The Dn to be modified cannot be null" );
         }
 
         if ( ( modifications == null ) || ( modifications.length == 0 ) )
@@ -611,7 +611,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyResponse modify( String dn, Modification... modifications ) throws LdapException
     {
-        return modify( new DN( dn ), modifications );
+        return modify( new Dn( dn ), modifications );
     }
 
 
@@ -713,7 +713,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         if ( modDnRequest.getName().isEmpty() )
         {
             // it is not allowed to modify the name of the Root DSE
-            String msg = "Modify DN is not allowed on Root DSE.";
+            String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             return resp;
@@ -721,14 +721,14 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         try
         {
-            DN newRdn = null;
+            Dn newRdn = null;
 
             if ( modDnRequest.getNewRdn() != null )
             {
-                newRdn = new DN( modDnRequest.getNewRdn().getName(), schemaManager );
+                newRdn = new Dn( modDnRequest.getNewRdn().getName(), schemaManager );
             }
 
-            DN oldRdn = new DN( modDnRequest.getName().getRdn().getName(), schemaManager );
+            Dn oldRdn = new Dn( modDnRequest.getName().getRdn().getName(), schemaManager );
 
             boolean rdnChanged = modDnRequest.getNewRdn() != null
                 && !newRdn.getNormName().equals( oldRdn.getNormName() );
@@ -773,18 +773,18 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ModifyDnResponse move( DN entryDn, DN newSuperiorDn ) throws LdapException
+    public ModifyDnResponse move( Dn entryDn, Dn newSuperiorDn ) throws LdapException
     {
         if ( entryDn == null )
         {
-            String msg = "Cannot process a move of a null DN";
+            String msg = "Cannot process a move of a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
         if ( newSuperiorDn == null )
         {
-            String msg = "Cannot process a move to a null DN";
+            String msg = "Cannot process a move to a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
@@ -804,37 +804,37 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         if ( entryDn == null )
         {
-            String msg = "Cannot process a move of a null DN";
+            String msg = "Cannot process a move of a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
         if ( newSuperiorDn == null )
         {
-            String msg = "Cannot process a move to a null DN";
+            String msg = "Cannot process a move to a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
-        return move( new DN( entryDn ), new DN( newSuperiorDn ) );
+        return move( new Dn( entryDn ), new Dn( newSuperiorDn ) );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public ModifyDnResponse rename( DN entryDn, RDN newRdn, boolean deleteOldRdn ) throws LdapException
+    public ModifyDnResponse rename( Dn entryDn, Rdn newRdn, boolean deleteOldRdn ) throws LdapException
     {
         if ( entryDn == null )
         {
-            String msg = "Cannot process a rename of a null DN";
+            String msg = "Cannot process a rename of a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
         if ( newRdn == null )
         {
-            String msg = "Cannot process a rename with a null RDN";
+            String msg = "Cannot process a rename with a null Rdn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
@@ -851,7 +851,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ModifyDnResponse rename( DN entryDn, RDN newRdn ) throws LdapException
+    public ModifyDnResponse rename( Dn entryDn, Rdn newRdn ) throws LdapException
     {
         return rename( entryDn, newRdn, false );
     }
@@ -862,7 +862,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse rename( String entryDn, String newRdn, boolean deleteOldRdn ) throws LdapException
     {
-        return rename( new DN( entryDn ), new RDN( newRdn ), deleteOldRdn );
+        return rename( new Dn( entryDn ), new Rdn( newRdn ), deleteOldRdn );
     }
 
 
@@ -873,57 +873,57 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         if ( entryDn == null )
         {
-            String msg = "Cannot process a rename of a null DN";
+            String msg = "Cannot process a rename of a null Dn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
         if ( newRdn == null )
         {
-            String msg = "Cannot process a rename with a null RDN";
+            String msg = "Cannot process a rename with a null Rdn";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
 
-        return rename( new DN( entryDn ), new RDN( newRdn ) );
+        return rename( new Dn( entryDn ), new Rdn( newRdn ) );
     }
 
 
     /**
-     * Moves and renames the given entryDn.The old RDN will be deleted
+     * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(DN, DN, boolean)
+     * @see #moveAndRename(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.name.Dn, boolean)
      */
-    public ModifyDnResponse moveAndRename( DN entryDn, DN newDn ) throws LdapException
+    public ModifyDnResponse moveAndRename( Dn entryDn, Dn newDn ) throws LdapException
     {
         return moveAndRename( entryDn, newDn, true );
     }
 
 
     /**
-     * Moves and renames the given entryDn.The old RDN will be deleted
+     * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(DN, DN, boolean)
+     * @see #moveAndRename(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.name.Dn, boolean)
      */
     public ModifyDnResponse moveAndRename( String entryDn, String newDn ) throws LdapException
     {
-        return moveAndRename( new DN( entryDn ), new DN( newDn ), true );
+        return moveAndRename( new Dn( entryDn ), new Dn( newDn ), true );
     }
 
 
     /**
-     * Moves and renames the given entryDn.The old RDN will be deleted if requested
+     * Moves and renames the given entryDn.The old Rdn will be deleted if requested
      *
-     * @param entryDn The original entry DN
-     * @param newDn The new Entry DN
-     * @param deleteOldRdn Tells if the old RDN must be removed
+     * @param entryDn The original entry Dn
+     * @param newDn The new Entry Dn
+     * @param deleteOldRdn Tells if the old Rdn must be removed
      */
-    public ModifyDnResponse moveAndRename( DN entryDn, DN newDn, boolean deleteOldRdn ) throws LdapException
+    public ModifyDnResponse moveAndRename( Dn entryDn, Dn newDn, boolean deleteOldRdn ) throws LdapException
     {
         // Check the parameters first
         if ( entryDn == null )
         {
-            throw new IllegalArgumentException( "The entry DN must not be null" );
+            throw new IllegalArgumentException( "The entry Dn must not be null" );
         }
 
         if ( entryDn.isRootDSE() )
@@ -933,7 +933,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         if ( newDn == null )
         {
-            throw new IllegalArgumentException( "The new DN must not be null" );
+            throw new IllegalArgumentException( "The new Dn must not be null" );
         }
 
         if ( newDn.isRootDSE() )
@@ -956,15 +956,15 @@ public class LdapCoreSessionConnection implements LdapConnection
 
 
     /**
-     * Moves and renames the given entryDn.The old RDN will be deleted if requested
+     * Moves and renames the given entryDn.The old Rdn will be deleted if requested
      *
-     * @param entryDn The original entry DN
-     * @param newDn The new Entry DN
-     * @param deleteOldRdn Tells if the old RDN must be removed
+     * @param entryDn The original entry Dn
+     * @param newDn The new Entry Dn
+     * @param deleteOldRdn Tells if the old Rdn must be removed
      */
     public ModifyDnResponse moveAndRename( String entryDn, String newDn, boolean deleteOldRdn ) throws LdapException
     {
-        return moveAndRename( new DN( entryDn ), new DN( newDn ), deleteOldRdn );
+        return moveAndRename( new Dn( entryDn ), new Dn( newDn ), deleteOldRdn );
     }
 
 
@@ -1004,13 +1004,13 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public SearchCursor search( DN baseDn, String filter, SearchScope scope, String... attributes )
+    public SearchCursor search( Dn baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
         if ( baseDn == null )
         {
             LOG.debug( "received a null dn for a search" );
-            throw new IllegalArgumentException( "The base DN cannot be null" );
+            throw new IllegalArgumentException( "The base Dn cannot be null" );
         }
 
         // generate some random operation number
@@ -1032,7 +1032,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public SearchCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
-        return search( new DN( baseDn ), filter, scope, attributes );
+        return search( new Dn( baseDn ), filter, scope, attributes );
     }
 
 
@@ -1138,7 +1138,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public BindResponse bind() throws LdapException, IOException
     {
         BindRequest bindReq = new BindRequestImpl();
-        bindReq.setName( DN.EMPTY_DN );
+        bindReq.setName( Dn.EMPTY_DN );
         bindReq.setCredentials( ( byte[] ) null );
 
         return bind( bindReq );
@@ -1161,7 +1161,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( new DN( bindRequest.getName() ) );
+        bindContext.setDn( new Dn( bindRequest.getName() ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
 
@@ -1195,7 +1195,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public BindResponse bind( DN name, String credentials ) throws LdapException, IOException
+    public BindResponse bind( Dn name, String credentials ) throws LdapException, IOException
     {
         byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
 
@@ -1212,7 +1212,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( String name, String credentials ) throws LdapException, IOException
     {
-        return bind( new DN( name ), credentials );
+        return bind( new Dn( name ), credentials );
     }
 
 

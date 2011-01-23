@@ -55,8 +55,8 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -195,7 +195,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
     private EntryFilteringCursor listSchemas() throws Exception
     {
-        DN base = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn base = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
         ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
 
@@ -213,7 +213,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public Schema getSchema( String schemaName ) throws Exception
     {
-        DN dn = new DN( "cn=" + schemaName + ",ou=schema", schemaManager );
+        Dn dn = new Dn( "cn=" + schemaName + ",ou=schema", schemaManager );
         return factory.getSchema( partition.lookup( new LookupOperationContext( null, dn ) ) );
     }
 
@@ -483,13 +483,13 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public String findSchema( String entityName ) throws Exception
     {
-        DN dn = findDn( entityName );
+        Dn dn = findDn( entityName );
         if ( dn == null )
         {
             return null;
         }
 
-        RDN rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( 1 );
 
         if ( !rdn.getNormType().equalsIgnoreCase( SchemaConstants.CN_AT_OID ) )
         {
@@ -503,10 +503,10 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#findDn(java.lang.String)
      */
-    public DN findDn( String entityName ) throws Exception
+    public Dn findDn( String entityName ) throws Exception
     {
         Entry sr = find( entityName );
-        DN dn = sr.getDn();
+        Dn dn = sr.getDn();
         dn.normalize( schemaManager );
         return dn;
     }
@@ -565,7 +565,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public void enableSchema( String schemaName ) throws Exception
     {
-        DN dn = new DN( "cn=" + schemaName + ",ou=schema", schemaManager );
+        Dn dn = new Dn( "cn=" + schemaName + ",ou=schema", schemaManager );
         Entry entry = partition.lookup( new LookupOperationContext( null, dn ) );
         EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );

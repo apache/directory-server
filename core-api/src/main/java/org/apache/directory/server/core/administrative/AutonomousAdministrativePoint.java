@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.administrative;
 
 
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 
@@ -45,10 +45,10 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     /**
      * Create an instance of AutonomousAdministrativePoint
      *
-     * @param dn The AdministrativePoint DN
+     * @param dn The AdministrativePoint Dn
      * @param uuid The AdministrativePoint UUID
      */
-    public AutonomousAdministrativePoint( DN dn, String uuid )
+    public AutonomousAdministrativePoint( Dn dn, String uuid )
     {
         super( dn, uuid, AdministrativeRole.AutonomousArea );
     }

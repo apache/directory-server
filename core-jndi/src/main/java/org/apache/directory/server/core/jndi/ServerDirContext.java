@@ -74,9 +74,9 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
@@ -343,7 +343,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return;
         }
 
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         Entry serverEntry = null;
 
@@ -526,7 +526,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void rebind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         try
         {
@@ -566,8 +566,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return ( DirContext ) super.createSubcontext( name );
         }
 
-        DN target = buildTarget( JndiUtils.fromName( name ) );
-        RDN rdn = target.getRdn( target.size() - 1 );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
+        Rdn rdn = target.getRdn( target.size() - 1 );
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();
@@ -577,7 +577,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             String rdnAttribute = rdn.getUpType();
             String rdnValue = rdn.getUpValue().getString();
 
-            // Add the RDN attribute
+            // Add the Rdn attribute
             boolean doRdnPut = attributes.get( rdnAttribute ) == null;
             doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
 
@@ -591,11 +591,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            for ( Iterator<AVA> ii = rdn.iterator(); ii.hasNext(); /**/)
+            for ( Iterator<Ava> ii = rdn.iterator(); ii.hasNext(); /**/)
             {
-                AVA atav = ii.next();
+                Ava atav = ii.next();
 
-                // Add the RDN attribute
+                // Add the Rdn attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;
                 doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
 
@@ -717,7 +717,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         throws NamingException
     {
         SearchControls ctls = new SearchControls();
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         // If we need to return specific attributes add em to the SearchControls
         if ( null != attributesToReturn )
@@ -774,7 +774,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
                 catch ( Exception e )
                 {
-                    JndiUtils.wrap( e );
+                    JndiUtils.wrap(e);
                     return null; // shut compiler up
                 }
             }
@@ -807,13 +807,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             /*
              * With 1 or more value we build a set of simple nodes and add them
-             * to the AND node - each attribute value pair is a simple AVA node.
+             * to the AND node - each attribute value pair is a simple Ava node.
              */
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 Object val = attr.get( ii );
 
-                // Add simpel AVA node if its value is a String
+                // Add simpel Ava node if its value is a String
                 if ( val instanceof String )
                 {
                     node = new EqualityNode<String>( attr.getID(), new StringValue( ( String ) val ) );
@@ -861,7 +861,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons )
         throws NamingException
     {
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         try
         {
@@ -883,7 +883,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         throws NamingException
     {
         ExprNode filterNode;
-        DN target = buildTarget( JndiUtils.fromName( name ) );
+        Dn target = buildTarget( JndiUtils.fromName( name ) );
 
         try
         {

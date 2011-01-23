@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test case with different modify DN operations on a person entry.
+ * Test case with different modify Dn operations on a person entry.
  * Originally created to demonstrate DIREVE-173.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -297,7 +297,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
 
     /**
-     * Modify DN of an entry, changing RDN from cn to sn.
+     * Modify Dn of an entry, changing Rdn from cn to sn.
      */
     @Test
     public void testModifyRdnDifferentAttribute() throws Exception
@@ -346,7 +346,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
 
     /**
-     * Modify DN of an entry, changing RDN from cn to sn, 
+     * Modify Dn of an entry, changing Rdn from cn to sn,
      * delete old RDn, must fail because cn can not be deleted.
      */
     @Test
@@ -451,7 +451,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
     /**
      * Test for DIRSERVER-1096.
-     * Modify the RDN of an entry with an escaped new RDN. 
+     * Modify the Rdn of an entry with an escaped new Rdn.
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
@@ -488,7 +488,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( newCtx );
 
-        // Check that the DN contains the escaped value
+        // Check that the Dn contains the escaped value
         assertEquals( "cn=" + newCnEscapedVal + "," + ctx.getNameInNamespace(), newCtx.getNameInNamespace() );
 
         // Check that cn contains the unescaped value
@@ -504,7 +504,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
     /**
      * Test for DIRSERVER-1096.
-     * Modify the RDN of an entry with an escaped new RDN. 
+     * Modify the Rdn of an entry with an escaped new Rdn.
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
@@ -539,7 +539,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( newCtx );
 
-        // Check that the DN contains the escaped value
+        // Check that the Dn contains the escaped value
         assertEquals( "cn=\\23test," + ctx.getNameInNamespace(), newCtx.getNameInNamespace() );
 
         // Check that cn contains the unescaped value
@@ -555,7 +555,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: cn
      * - New Rdn: cn+sn
      * - Keep old Rdn
@@ -595,7 +595,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: cn
      * - New Rdn: cn+sn
      * - Delete old Rdn
@@ -635,7 +635,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: description
      * - New Rdn: cn+sn
      * - Keep old Rdn
@@ -675,7 +675,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: description
      * - New Rdn: cn+sn
      * - Delete old Rdn
@@ -715,7 +715,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: cn
      * - New Rdn: sn+telephoneNumber
      * - Keep old Rdn
@@ -761,7 +761,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify single valued RDN to a multi valued RDN.
+     * Modify single valued Rdn to a multi valued Rdn.
      * - Old Rdn: cn
      * - New Rdn: sn+telephoneNumber
      * - Delete old Rdn
@@ -821,7 +821,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify multi valued RDN to a single valued RDN.
+     * Modify multi valued Rdn to a single valued Rdn.
      * - Old Rdn: cn+sn
      * - New Rdn: cn
      * - Keep old Rdn
@@ -863,7 +863,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
-     * Modify multi valued RDN to a single valued RDN.
+     * Modify multi valued Rdn to a single valued Rdn.
      * - Old Rdn: cn+sn
      * - New Rdn: cn
      * - Delete old Rdn
@@ -923,7 +923,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
      * Tries to rename+deleteOldRdn an entry that has an operational attribute
-     * in its RDN. Must fail because an operational attribute can not be
+     * in its Rdn. Must fail because an operational attribute can not be
      * deleted.
      * 
      * @throws LdapException
@@ -968,7 +968,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
      * Tries to rename+deleteOldRdn an entry that has the structural object class
-     * person in its RDN (objectClass=person,ou=system). Must fail because the 
+     * person in its Rdn (objectClass=person,ou=system). Must fail because the
      * structural object class can not be deleted.
      * 
      * @throws LdapException

@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -50,7 +50,7 @@ public class StoreUtils
      * Structure and Organization</a>
      *
      * TODO might want to make this load an LDIF instead in the future
-     * TODO correct size of spaces in user provided DN
+     * TODO correct size of spaces in user provided Dn
      * 
      * @param store the store object to be initialized
      * @param registries oid registries
@@ -60,7 +60,7 @@ public class StoreUtils
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
     {
-        DN suffixDn = new DN( "o=Good Times Co.", schemaManager );
+        Dn suffixDn = new Dn( "o=Good Times Co.", schemaManager );
         store.setSuffixDn( suffixDn );
 
         store.init( schemaManager );
@@ -74,7 +74,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #2
-        DN dn = new DN( "ou=Sales,o=Good Times Co.", schemaManager );
+        Dn dn = new Dn( "ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
@@ -83,7 +83,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #3
-        dn = new DN( "ou=Board of Directors,o=Good Times Co.", schemaManager );
+        dn = new Dn( "ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Board of Directors" );
@@ -92,7 +92,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #4
-        dn = new DN( "ou=Engineering,o=Good Times Co.", schemaManager );
+        dn = new Dn( "ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
@@ -101,7 +101,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #5
-        dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
+        dn = new Dn( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -112,7 +112,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #6
-        dn = new DN( "cn=JIM BEAN,ou=Sales,o=Good Times Co.", schemaManager );
+        dn = new Dn( "cn=JIM BEAN,ou=Sales,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
@@ -123,7 +123,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #7
-        dn = new DN( "ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
+        dn = new Dn( "ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Apache" );
@@ -132,7 +132,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #8
-        dn = new DN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co.", schemaManager );
+        dn = new Dn( "cn=Jack Daniels,ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -145,7 +145,7 @@ public class StoreUtils
         // aliases -------------
 
         // Entry #9
-        dn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
+        dn = new Dn( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
@@ -154,7 +154,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #10
-        dn = new DN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co.", schemaManager );
+        dn = new Dn( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
@@ -162,7 +162,7 @@ public class StoreUtils
         injectEntryInStore( store, entry );
 
         // Entry #11
-        dn = new DN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co.", schemaManager );
+        dn = new Dn( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co.", schemaManager );
         entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Engineering" );
@@ -270,7 +270,7 @@ public class StoreUtils
      * attributes
      *
      * @param store the store
-     * @param dn the normalized DN
+     * @param dn the normalized Dn
      * @param entry the server entry
      * @throws Exception in case of any problems in adding the entry to the store
      */

@@ -29,7 +29,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -43,8 +43,8 @@ public class LdapJndiProperties
 {
     private static final String SASL_AUTHID = "java.naming.security.sasl.authorizationId";
 
-    private DN providerDn;
-    private DN bindDn;
+    private Dn providerDn;
+    private Dn bindDn;
     private String saslAuthId;
     private AuthenticationLevel level;
     private String saslMechanism;
@@ -130,13 +130,13 @@ public class LdapJndiProperties
 
         if ( url.trim().equals( "" ) )
         {
-            props.providerDn = DN.EMPTY_DN;
+            props.providerDn = Dn.EMPTY_DN;
         }
         else
         {
             try
             {
-                props.providerDn = new DN( url );
+                props.providerDn = new Dn( url );
             }
             catch ( LdapInvalidDnException lide )
             {
@@ -201,7 +201,7 @@ public class LdapJndiProperties
         }
         else if ( principal == null && props.level == AuthenticationLevel.NONE )
         {
-            props.bindDn = DN.EMPTY_DN;
+            props.bindDn = Dn.EMPTY_DN;
         }
         else if ( !( principal instanceof String ) )
         {
@@ -209,13 +209,13 @@ public class LdapJndiProperties
         }
         else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
-            props.bindDn = DN.EMPTY_DN;
+            props.bindDn = Dn.EMPTY_DN;
         }
         else
         {
             try
             {
-                props.providerDn = new DN( ( String ) principal );
+                props.providerDn = new Dn( ( String ) principal );
             }
             catch ( LdapInvalidDnException lide )
             {
@@ -268,13 +268,13 @@ public class LdapJndiProperties
     }
 
 
-    public DN getBindDn()
+    public Dn getBindDn()
     {
         return bindDn;
     }
 
 
-    public DN getProviderDn()
+    public Dn getProviderDn()
     {
         return providerDn;
     }

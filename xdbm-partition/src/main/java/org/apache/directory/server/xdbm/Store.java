@@ -33,8 +33,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -143,19 +143,19 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Sets the suffix DN, must be normalized.
+     * Sets the suffix Dn, must be normalized.
      * 
-     * @param suffixDn the new suffix DN
+     * @param suffixDn the new suffix Dn
      */
-    void setSuffixDn( DN suffixDn );
+    void setSuffixDn( Dn suffixDn );
 
 
     /**
-     * Gets the suffix DN.
+     * Gets the suffix Dn.
      * 
-     * @return the suffix DN
+     * @return the suffix Dn
      */
-    DN getSuffixDn();
+    Dn getSuffixDn();
 
 
     /**
@@ -445,20 +445,20 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the entry's id. Returns <code>null</code> if the DN doesn't exist in this store.
-     * Note that the DN must be normalized!
-     * @param dn the normalized entry DN
-     * @return the entry's id, or <code>null</code> if the DN doesn't exists
+     * Gets the entry's id. Returns <code>null</code> if the Dn doesn't exist in this store.
+     * Note that the Dn must be normalized!
+     * @param dn the normalized entry Dn
+     * @return the entry's id, or <code>null</code> if the Dn doesn't exists
      */
-    ID getEntryId( DN dn ) throws Exception;
+    ID getEntryId( Dn dn ) throws Exception;
 
 
     /**
-     * Gets the normalized DN of the entry identified by the given id.
+     * Gets the normalized Dn of the entry identified by the given id.
      * @param id the entry's id
-     * @return the normalized entry DN
+     * @return the normalized entry Dn
      */
-    DN getEntryDn( ID id ) throws Exception;
+    Dn getEntryDn( ID id ) throws Exception;
 
 
     /**
@@ -535,65 +535,65 @@ public interface Store<E, ID extends Comparable<ID>>
     String getProperty( String propertyName ) throws Exception;
 
 
-    void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception;
+    void modify( Dn dn, ModificationOperation modOp, Entry mods ) throws Exception;
 
 
     /**
      * Modify an entry applying the given list of modifications.
      *
-     * @param dn The Entry's DN
+     * @param dn The Entry's Dn
      * @param mods The list of modifications
      * @return The modified entry
      * @throws Exception If the modification failed
      */
-    Entry modify( DN dn, List<Modification> mods ) throws Exception;
+    Entry modify( Dn dn, List<Modification> mods ) throws Exception;
 
 
     /**
      * Changes the relative distinguished name of an entry specified by a
-     * distinguished name with the optional removal of the old RDN attribute
+     * distinguished name with the optional removal of the old Rdn attribute
      * value from the entry.  Name changes propagate down as dn changes to the
-     * descendants of the entry where the RDN changed.
+     * descendants of the entry where the Rdn changed.
      *
-     * An RDN change operation does not change parent child relationships.  It
-     * merely propagates a name change at a point in the DIT where the RDN is
+     * An Rdn change operation does not change parent child relationships.  It
+     * merely propagates a name change at a point in the DIT where the Rdn is
      * changed. The change propagates down the subtree rooted at the
      * distinguished name specified.
      *
      * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new RDN to set
-     * @param deleteOldRdn whether or not to remove the old RDN attr/val
+     * @param newRdn the new Rdn to set
+     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @param entry the modified entry
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
 
     /**
      * Changes the relative distinguished name of an entry specified by a
-     * distinguished name with the optional removal of the old RDN attribute
+     * distinguished name with the optional removal of the old Rdn attribute
      * value from the entry.  Name changes propagate down as dn changes to the
-     * descendants of the entry where the RDN changed.
+     * descendants of the entry where the Rdn changed.
      *
-     * An RDN change operation does not change parent child relationships.  It
-     * merely propagates a name change at a point in the DIT where the RDN is
+     * An Rdn change operation does not change parent child relationships.  It
+     * merely propagates a name change at a point in the DIT where the Rdn is
      * changed. The change propagates down the subtree rooted at the
      * distinguished name specified.
      *
      * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new RDN to set
-     * @param deleteOldRdn whether or not to remove the old RDN attr/val
+     * @param newRdn the new Rdn to set
+     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
+    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
 
     
-    void moveAndRename( DN oldChildDn, DN newParentDn, RDN newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
+    void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
 
 
     /**
-     * <p>Move an entry from one place to the other. The RDN remains unchanged,
-     * the parent DN changes</p>
+     * <p>Move an entry from one place to the other. The Rdn remains unchanged,
+     * the parent Dn changes</p>
      * <p>We have to update some of the index when moving an entry. Assuming
      * that the target destination does not exist, the following index must
      * be updated :</p>
@@ -615,17 +615,17 @@ public interface Store<E, ID extends Comparable<ID>>
      * <li>The moved entry must not inherit from a referral (already checked)
      * </ul>
      *
-     * @param oldDn The previous entry DN
-     * @param newSuperior The new superior DN
-     * @param newDn The new DN
+     * @param oldDn The previous entry Dn
+     * @param newSuperior The new superior Dn
+     * @param newDn The new Dn
      * @throws Exception If the move failed
      */
-    void move( DN oldDn, DN newSuperior, DN newDn ) throws Exception;
+    void move( Dn oldDn, Dn newSuperior, Dn newDn ) throws Exception;
 
 
     /**
-     * <p>Move an entry from one place to the other. The RDN remains unchanged,
-     * the parent DN changes</p>
+     * <p>Move an entry from one place to the other. The Rdn remains unchanged,
+     * the parent Dn changes</p>
      * <p>We have to update some of the index when moving an entry. Assuming
      * that the target destination does not exist, the following index must
      * be updated :</p>
@@ -647,13 +647,13 @@ public interface Store<E, ID extends Comparable<ID>>
      * <li>The moved entry must not inherit from a referral (already checked)
      * </ul>
      *
-     * @param oldDn The previous entry DN
-     * @param newSuperior The new superior DN
-     * @param newDn The new DN
+     * @param oldDn The previous entry Dn
+     * @param newSuperior The new superior Dn
+     * @param newDn The new Dn
      * @param entry The entry to move
      * @throws Exception If the move failed
      */
-    void move( DN oldDn, DN newSuperior, DN newDn, Entry entry ) throws Exception;
+    void move( Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws Exception;
 
 
     /**

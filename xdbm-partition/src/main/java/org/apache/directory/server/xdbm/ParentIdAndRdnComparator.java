@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
 
 
 /**
- * A comparator used to compare {@link ParentIdAndRdn} stored in the RDN index.
+ * A comparator used to compare {@link ParentIdAndRdn} stored in the Rdn index.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

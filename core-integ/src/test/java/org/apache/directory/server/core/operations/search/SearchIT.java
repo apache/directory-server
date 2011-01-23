@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Before;
 import org.junit.Test;
@@ -1355,7 +1355,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Search operation with a base DN with quotes
+     * Search operation with a base Dn with quotes
      * Commented as it's not valid by RFC 5514
     @Test
     public void testSearchWithQuotesInBase() throws NamingException
@@ -1766,7 +1766,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        DN dn = new DN( "cn=testLowerCsnAdd,ou=system" );
+        Dn dn = new Dn( "cn=testLowerCsnAdd,ou=system" );
         Entry entry = new DefaultEntry( dn );
         entry.add( "objectClass", SchemaConstants.PERSON_OC );
         entry.add( "cn", "testLowerCsnAdd_cn" );
@@ -1775,7 +1775,7 @@ public class SearchIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         // add an entry to have a entry with higher CSN value
-        DN dn2 = new DN( "cn=testHigherCsnAdd,ou=system" );
+        Dn dn2 = new Dn( "cn=testHigherCsnAdd,ou=system" );
         Entry entry2 = new DefaultEntry( dn2 );
         entry2.add( "objectClass", SchemaConstants.PERSON_OC );
         entry2.add( "cn", "testHigherCsnAdd_cn" );

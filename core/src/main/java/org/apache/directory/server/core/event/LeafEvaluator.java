@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -107,7 +107,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, Dn dn, Entry entry ) throws LdapException
     {
         if ( node instanceof ScopeNode )
         {
@@ -258,7 +258,7 @@ public class LeafEvaluator implements Evaluator
             return false;
         }
 
-        // check if AVA value exists in attribute
+        // check if Ava value exists in attribute
         AttributeType attributeType = node.getAttributeType();
         Value<?> value = null;
         
@@ -283,7 +283,7 @@ public class LeafEvaluator implements Evaluator
             return true;
         }
 
-        // get the normalized AVA filter value
+        // get the normalized Ava filter value
         Value<?> filterValue = normalizer.normalize( value );
 
         // check if the normalized value is present

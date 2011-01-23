@@ -29,7 +29,7 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -78,7 +78,7 @@ public interface Authenticator
      * 
      * @param bindDn the already normalized distinguished name of the bind principal
      */
-    void invalidateCache( DN bindDn );
+    void invalidateCache( Dn bindDn );
 
     
     /**

@@ -106,7 +106,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
         }
 
-        // check if AVA value exists in attribute
+        // check if Ava value exists in attribute
         // If the filter value for the objectClass is an OID we need to resolve a name
         String value = node.getValue().getString();
 

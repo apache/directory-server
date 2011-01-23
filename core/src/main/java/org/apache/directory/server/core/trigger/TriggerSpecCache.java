@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -123,13 +123,13 @@ public class TriggerSpecCache
 
         for ( String suffix:suffixes )
         {
-            DN baseDn = directoryService.getDNFactory().create( suffix );
+            Dn baseDn = directoryService.getDNFactory().create( suffix );
             ExprNode filter = new EqualityNode<String>( objectClassAt,
                     new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            DN adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
@@ -144,7 +144,7 @@ public class TriggerSpecCache
                 while ( results.next() )
                 {
                     ClonedServerEntry resultEntry = results.get();
-                    DN subentryDn = resultEntry.getDn();
+                    Dn subentryDn = resultEntry.getDn();
                     EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
                     if ( triggerSpec == null )
@@ -153,7 +153,7 @@ public class TriggerSpecCache
                         continue;
                     }
 
-                    DN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager() );
+                    Dn normSubentryName = subentryDn.normalize( directoryService.getSchemaManager() );
                     subentryAdded( normSubentryName, resultEntry );
                 }
 
@@ -176,7 +176,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( DN normName, Entry entry ) throws LdapException
+    public void subentryAdded( Dn normName, Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -209,7 +209,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( DN normName, Entry entry ) throws LdapException
+    public void subentryDeleted( Dn normName, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -227,7 +227,7 @@ public class TriggerSpecCache
             return;
         }
 
-        DN normName = opContext.getDn();
+        Dn normName = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
@@ -256,7 +256,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryRenamed( DN oldName, DN newName )
+    public void subentryRenamed( Dn oldName, Dn newName )
     {
         triggerSpecs.put( newName.getNormName(), triggerSpecs.remove( oldName.getNormName() ) );
     }

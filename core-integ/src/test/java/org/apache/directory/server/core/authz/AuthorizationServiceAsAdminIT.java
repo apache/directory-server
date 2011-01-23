@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
@@ -99,7 +99,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     @Test
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        ModifyDnResponse resp = getAdminConnection().rename( new DN( "uid=admin,ou=system" ), new RDN( "uid=alex" ) );
+        ModifyDnResponse resp = getAdminConnection().rename( new Dn( "uid=admin,ou=system" ), new Rdn( "uid=alex" ) );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
     }
 
@@ -113,7 +113,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     public void testModifyOnAdminByAdmin() throws Exception
     {
         LdapConnection connection = getAdminConnection();
-        DN adminDn = new DN( "uid=admin,ou=system" );
+        Dn adminDn = new Dn( "uid=admin,ou=system" );
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( adminDn );
         String newPwd = "replaced";

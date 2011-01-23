@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,10 +75,10 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
     public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newNameRdn ) throws Exception
     {
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result;
 
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
 
@@ -87,10 +87,10 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         // create the new entry as the admin user
         adminConnection.add( testEntry );
 
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
 
         LdapConnection userConnection = getConnectionAs( userName, password );
-        ModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
+        ModifyDnResponse resp = userConnection.rename( entryDn.getName(), newNameRdn );
 
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -99,7 +99,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         }
         else
         {
-            adminConnection.delete( entryDN );
+            adminConnection.delete(entryDn);
             result = false;
         }
 
@@ -108,7 +108,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
 
     /**
-     * Checks if a simple entry (organizationalUnit) can be renamed at an RDN relative
+     * Checks if a simple entry (organizationalUnit) can be renamed at an Rdn relative
      * to ou=system by a specific non-admin user.  If a permission exception
      * is encountered it is caught and false is returned, otherwise true is returned
      * when the entry is created.  The entry is deleted after being created just in case
@@ -117,19 +117,19 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      *
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
-     * @param entryRdn the relative DN, relative to ou=system where entry renames are tested
-     * @param newNameRdn the new RDN for the entry under ou=system
-     * @param newParentRdn the new parent RDN for the entry under ou=system
+     * @param entryRdn the relative Dn, relative to ou=system where entry renames are tested
+     * @param newNameRdn the new Rdn for the entry under ou=system
+     * @param newParentRdn the new parent Rdn for the entry under ou=system
      * @return true if the entry can be renamed by the user at the specified location, false otherwise
      * @throws Exception if there are problems conducting the test
      */
     public boolean checkCanMoveAndRenameAs( String uid, String password, String entryRdn, String newNameRdn,
         String newParentRdn ) throws Exception
     {
-        DN entryDN = new DN( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result;
 
-        Entry testEntry = new DefaultEntry( entryDN );
+        Entry testEntry = new DefaultEntry(entryDn);
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
 
@@ -138,12 +138,12 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         // create the new entry as the admin user
         adminConnection.add( testEntry );
 
-        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
 
         LdapConnection userConnection = getConnectionAs( userName, password );
 
         boolean isMoved = false;
-        ModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
+        ModifyDnResponse moveResp = userConnection.move( entryDn.getName(), newParentRdn + ",ou=system" );
 
         if ( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -151,7 +151,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         }
         else
         {
-            adminConnection.delete( entryDN );
+            adminConnection.delete(entryDn);
             return false;
         }
 
@@ -169,8 +169,8 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         {
             if ( isMoved )
             {
-                entryDN = entryDN.add( 1, newParentRdn );
-                adminConnection.delete( entryDN );
+                entryDn = entryDn.add( 1, newParentRdn );
+                adminConnection.delete(entryDn);
             }
 
             result = false;
@@ -191,7 +191,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void testGrantByAdministrators() throws Exception
     {
         // ----------------------------------------------------------------------------
-        // Test simple RDN change: NO SUBTREE MOVEMENT!
+        // Test simple Rdn change: NO SUBTREE MOVEMENT!
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -223,7 +223,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move and RDN change at the same time.
+        // Test move and Rdn change at the same time.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -257,7 +257,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move ONLY without any RDN changes.
+        // Test move ONLY without any Rdn changes.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -301,7 +301,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void testGrantByName() throws Exception
     {
         // ----------------------------------------------------------------------------
-        // Test simple RDN change: NO SUBTREE MOVEMENT!
+        // Test simple Rdn change: NO SUBTREE MOVEMENT!
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -325,7 +325,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move and RDN change at the same time.
+        // Test move and Rdn change at the same time.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -350,7 +350,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move ONLY without any RDN changes.
+        // Test move ONLY without any Rdn changes.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -386,7 +386,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void testGrantBySubtree() throws Exception
     {
         // ----------------------------------------------------------------------------
-        // Test simple RDN change: NO SUBTREE MOVEMENT!
+        // Test simple Rdn change: NO SUBTREE MOVEMENT!
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -410,7 +410,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move and RDN change at the same time.
+        // Test move and Rdn change at the same time.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -435,7 +435,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move ONLY without any RDN changes.
+        // Test move ONLY without any Rdn changes.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -471,7 +471,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void testGrantByAnyuser() throws Exception
     {
         // ----------------------------------------------------------------------------
-        // Test simple RDN change: NO SUBTREE MOVEMENT!
+        // Test simple Rdn change: NO SUBTREE MOVEMENT!
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -495,7 +495,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move and RDN change at the same time.
+        // Test move and Rdn change at the same time.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -520,7 +520,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         deleteUser( "billyd" );
 
         // ----------------------------------------------------------------------------
-        // Test move ONLY without any RDN changes.
+        // Test move ONLY without any Rdn changes.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user
@@ -556,7 +556,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void testExportAndImportSeperately() throws Exception
     {
         // ----------------------------------------------------------------------------
-        // Test move and RDN change at the same time.
+        // Test move and Rdn change at the same time.
         // ----------------------------------------------------------------------------
 
         // create the non-admin user

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        DN bindDn = new DN( "uid=admin,ou=system" );
+        Dn bindDn = new Dn( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getSession();
@@ -97,7 +97,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     @Test
     public void testCompare() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         CompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
         assertNotNull( response );
@@ -112,7 +112,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     @Test
     public void testCompareAsync() throws Exception
     {
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
 
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );

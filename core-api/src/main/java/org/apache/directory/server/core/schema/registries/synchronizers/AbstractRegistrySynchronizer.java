@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
@@ -99,13 +99,13 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
 
     /**
-     * Tells if the schema the DN references is loaded or not
+     * Tells if the schema the Dn references is loaded or not
      *
-     * @param dn The SchemaObject's DN
+     * @param dn The SchemaObject's Dn
      * @return true if the schema is loaded
-     * @throws Exception If The DN is not a SchemaObject DN
+     * @throws Exception If The Dn is not a SchemaObject Dn
      */
-    protected boolean isSchemaLoaded( DN dn ) throws Exception
+    protected boolean isSchemaLoaded( Dn dn ) throws Exception
     {
         return schemaManager.isSchemaLoaded( getSchemaName( dn ) );
     }
@@ -138,25 +138,25 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
 
     /**
-     * Exctract the schema name from the DN. It is supposed to be the
-     * second RDN in the dn :
+     * Exctract the schema name from the Dn. It is supposed to be the
+     * second Rdn in the dn :
      * <pre>
      * ou=schema, cn=MySchema, ...
      * </pre>
      * Here, the schemaName is MySchema
      *
-     * @param dn The DN we want to get the schema name from
+     * @param dn The Dn we want to get the schema name from
      * @return The schema name
      * @throws NamingException If we got an error
      */
-    protected String getSchemaName( DN dn ) throws LdapException
+    protected String getSchemaName( Dn dn ) throws LdapException
     {
         if ( dn.size() < 2 )
         {
             throw new LdapInvalidDnException( I18n.err( I18n.ERR_276 ) );
         }
 
-        RDN rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( 1 );
         return rdn.getNormValue().getString();
     }
 
@@ -193,16 +193,16 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
 
     /**
-     * Checks that the parent DN is a valid DN
+     * Checks that the parent Dn is a valid Dn
      */
-    protected void checkParent( DN newParent, SchemaManager schemaManager, String objectType ) throws LdapException
+    protected void checkParent( Dn newParent, SchemaManager schemaManager, String objectType ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_337 ) );
         }
 
-        RDN rdn = newParent.getRdn();
+        Rdn rdn = newParent.getRdn();
 
         if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
@@ -327,7 +327,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         for ( Entry result : results )
         {
-            DN dn = result.getDn();
+            Dn dn = result.getDn();
             dn.normalize( schemaManager );
             oids.add( dn.getRdn().getNormValue().getString() );
         }

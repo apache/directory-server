@@ -46,7 +46,7 @@ public class SyncreplConfiguration
     /** port number of the syncrepl provider server, default is 389 */
     private int port = 389;
 
-    /** replication user's DN */
+    /** replication user's Dn */
     private String replUserDn;
 
     /** password for binding with replication user dn */
@@ -58,7 +58,7 @@ public class SyncreplConfiguration
     /** time interval for successive sync requests, default is 60 seconds */
     private long refreshInterval = 60 * 1000;
 
-    /** the base DN whose content will be searched for replicating */
+    /** the base Dn whose content will be searched for replicating */
     private String baseDn;
 
     /** the ldap filter for fetching the entries, default value is (objectClass=*) */
@@ -156,7 +156,7 @@ public class SyncreplConfiguration
 
 
     /**
-     * @return the replication user's DN
+     * @return the replication user's Dn
      */
     public String getReplUserDn()
     {
@@ -165,7 +165,7 @@ public class SyncreplConfiguration
 
 
     /**
-     * @param replUserdDn the DN of the replication user
+     * @param replUserdDn the Dn of the replication user
      */
     public void setReplUserDn( String replUserdDn )
     {

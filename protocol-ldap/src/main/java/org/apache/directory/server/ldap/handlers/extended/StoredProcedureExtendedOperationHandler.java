@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 import org.apache.directory.shared.util.Strings;
 
@@ -93,7 +93,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
-                value = session.getCoreSession().lookup( new DN( paramCtx ) );
+                value = session.getCoreSession().lookup( new Dn( paramCtx ) );
             }
 
             valueList.add( value );

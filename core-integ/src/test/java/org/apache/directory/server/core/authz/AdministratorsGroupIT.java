@@ -32,7 +32,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     @CreateDS(enableAccessControl = true, name = "testNonAdminReadAccessToGroups-method")
     public void testNonAdminReadAccessToGroups() throws Exception
     {
-        DN billydDn = createUser( "billyd", "s3kr3t" );
+        Dn billydDn = createUser( "billyd", "s3kr3t" );
 
         // this should fail with a no permission exception because we
         // are not allowed to browse ou=system without an ACI 
@@ -118,7 +118,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     @CreateDS(name = "testDefaultNonAdminReadAccessToGroups-method")
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
-        DN billydDn = createUser( "billyd", "s3kr3t" );
+        Dn billydDn = createUser( "billyd", "s3kr3t" );
         assertFalse( service.isAccessControlEnabled() );
         LdapConnection connection = getConnectionAs( billydDn, "s3kr3t" );
 

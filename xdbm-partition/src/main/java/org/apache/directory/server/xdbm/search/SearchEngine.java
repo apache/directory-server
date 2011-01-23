@@ -24,7 +24,7 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.server.xdbm.IndexCursor;
 
 import javax.naming.directory.SearchControls;
@@ -83,7 +83,7 @@ public interface SearchEngine<E, ID>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    IndexCursor<ID, E, ID> cursor( DN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    IndexCursor<ID, E, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception;
 
 

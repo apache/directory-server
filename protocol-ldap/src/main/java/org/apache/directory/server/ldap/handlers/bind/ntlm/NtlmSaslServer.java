@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -156,7 +156,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                 try
                 {
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
-                    DN dn = getBindRequest().getName();
+                    Dn dn = getBindRequest().getName();
                     dn.normalize( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager() );
                     LdapPrincipal ldapPrincipal = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
                     getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
@@ -186,7 +186,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
-        bindContext.setDn( new DN( user ) );
+        bindContext.setDn( new Dn( user ) );
         bindContext.setCredentials( Strings.getBytesUtf8(password) );
 
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );

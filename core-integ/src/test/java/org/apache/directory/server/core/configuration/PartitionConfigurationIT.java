@@ -37,7 +37,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,7 +62,7 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
         // Test AddContextPartition
         service.addPartition( partition );
 
-        DN suffixDn = new DN( "ou=removable", service.getSchemaManager() );
+        Dn suffixDn = new Dn( "ou=removable", service.getSchemaManager() );
 
         Entry ctxEntry = LdifUtils.createEntry( service.getSchemaManager(), suffixDn,
             "objectClass: top",

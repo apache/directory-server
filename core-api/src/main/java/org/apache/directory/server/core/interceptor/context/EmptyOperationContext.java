@@ -22,12 +22,12 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
  * An EmptySuffix context used for Interceptors. It contains no data, and mask
- * the DN in AbstractOperationContext
+ * the Dn in AbstractOperationContext
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -38,18 +38,18 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
      */
     public EmptyOperationContext( CoreSession session )
     {
-        super( session, DN.EMPTY_DN );
+        super( session, Dn.EMPTY_DN );
     }
     
 
     /**
-     * Set the context DN
+     * Set the context Dn
      *
-     * @param dn The DN to set
+     * @param dn The Dn to set
      */
-    public void setDn( DN dn )
+    public void setDn( Dn dn )
     {
-        if ( dn.equals( DN.EMPTY_DN ) )
+        if ( dn.equals( Dn.EMPTY_DN ) )
         {
             return;
         }

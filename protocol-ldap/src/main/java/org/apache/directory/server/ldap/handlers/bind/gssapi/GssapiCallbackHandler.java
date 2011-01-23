@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,19 +72,19 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
     protected void authorize( AuthorizeCallback authorizeCB ) throws Exception
     {
-        LOG.debug( "Processing conversion of principal name to DN." );
+        LOG.debug( "Processing conversion of principal name to Dn." );
 
         String username = authorizeCB.getAuthorizationID();
 
         // find the user's entry
         GetPrincipal getPrincipal = new GetPrincipal( new KerberosPrincipal( username ) );
-        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new DN( ldapSession
+        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new Dn( ldapSession
             .getLdapServer().getSearchBaseDn() ) );
         String bindDn = entry.getDistinguishedName();
 
-        LOG.debug( "Converted username {} to DN {}.", username, bindDn );
+        LOG.debug( "Converted username {} to Dn {}.", username, bindDn );
 
-        LdapPrincipal ldapPrincipal = new LdapPrincipal( new DN( entry.getDistinguishedName() ),
+        LdapPrincipal ldapPrincipal = new LdapPrincipal( new Dn( entry.getDistinguishedName() ),
             AuthenticationLevel.STRONG, StringConstants.EMPTY_BYTES );
         ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );

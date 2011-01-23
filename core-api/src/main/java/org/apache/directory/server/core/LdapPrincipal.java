@@ -28,7 +28,7 @@ import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -43,9 +43,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private DN dn;
+    private Dn dn;
 
-    /** the no name anonymous user whose DN is the empty String */
+    /** the no name anonymous user whose Dn is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
     /** the authentication level for this principal */
@@ -66,7 +66,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      */
-    public LdapPrincipal( DN dn, AuthenticationLevel authenticationLevel )
+    public LdapPrincipal( Dn dn, AuthenticationLevel authenticationLevel )
     {
         this.dn = dn;
         
@@ -88,7 +88,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    public LdapPrincipal( DN dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal( Dn dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
     {
         this.dn = dn;
         this.authenticationLevel = authenticationLevel;
@@ -98,12 +98,12 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
 
     /**
-     * Creates a principal for the no name anonymous user whose DN is the empty
+     * Creates a principal for the no name anonymous user whose Dn is the empty
      * String.
      */
     public LdapPrincipal()
     {
-        dn = new DN();
+        dn = new Dn();
         authenticationLevel = AuthenticationLevel.NONE;
         userPassword = null;
     }
@@ -111,11 +111,11 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a reference to the distinguished name of this
-     * principal as a {@link DN}.
+     * principal as a {@link org.apache.directory.shared.ldap.name.Dn}.
      *
-     * @return the distinguished name of the principal as a {@link DN}
+     * @return the distinguished name of the principal as a {@link org.apache.directory.shared.ldap.name.Dn}
      */
-    public DN getDNRef()
+    public Dn getDNRef()
     {
         return dn;
     }
@@ -123,11 +123,11 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a {@link DN}.
+     * principal as a {@link org.apache.directory.shared.ldap.name.Dn}.
      *
-     * @return the cloned distinguished name of the principal as a {@link DN}
+     * @return the cloned distinguished name of the principal as a {@link org.apache.directory.shared.ldap.name.Dn}
      */
-    public DN getDN()
+    public Dn getDN()
     {
         return dn;
     }
@@ -203,7 +203,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the name
-        dn = (DN)in.readObject();
+        dn = (Dn)in.readObject();
         
         // read the authentication level
         int level = in.readInt();
@@ -226,7 +226,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         // Write the name
         if ( dn == null )
         {
-            out.writeObject( DN.EMPTY_DN );
+            out.writeObject( Dn.EMPTY_DN );
         }
         else
         {

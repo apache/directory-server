@@ -24,7 +24,7 @@
  * <p>
  * Use AdminModel to control what goes into the changelog ?  Or use admin model to identify 
  * scopes/concerns which are put into different channels in the changelog?  Cool idea perhaps,
- * perhaps not.  To some degree the DN does the scope thingy for us.  There really is no point
+ * perhaps not.  To some degree the Dn does the scope thingy for us.  There really is no point
  * to having an additional scope parameter.
  * </p><p>
  * Perhaps we can also inject a new revisions (multi-valued) operational attribute into 

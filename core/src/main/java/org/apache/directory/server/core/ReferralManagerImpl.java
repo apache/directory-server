@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
@@ -160,8 +160,8 @@ public class ReferralManagerImpl implements ReferralManager
 
         for ( String suffix:suffixes )
         {
-            // We will store each entry's DN into the Referral tree
-            DN suffixDn = directoryService.getDNFactory().create( suffix );
+            // We will store each entry's Dn into the Referral tree
+            Dn suffixDn = directoryService.getDNFactory().create( suffix );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, referralFilter, searchControl );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
@@ -199,7 +199,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void remove( DirectoryService directoryService, DN suffix ) throws Exception
+    public void remove( DirectoryService directoryService, Dn suffix ) throws Exception
     {
         ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( SchemaConstants.REFERRAL_OC ) );
@@ -212,7 +212,7 @@ public class ReferralManagerImpl implements ReferralManager
         CoreSession adminSession = directoryService.getAdminSession();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
-        // We will store each entry's DN into the Referral tree
+        // We will store each entry's Dn into the Referral tree
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffix,
             referralFilter, searchControl );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
@@ -234,7 +234,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public boolean hasParentReferral( DN dn )
+    public boolean hasParentReferral( Dn dn )
     {
         DnNode<Entry> referral = referrals.getNode( dn );
 
@@ -245,7 +245,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public Entry getParentReferral( DN dn )
+    public Entry getParentReferral( Dn dn )
     {
         if ( !hasParentReferral( dn ) )
         {
@@ -259,7 +259,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public boolean isReferral( DN dn )
+    public boolean isReferral( Dn dn )
     {
         Entry parent = referrals.getElement( dn );
 

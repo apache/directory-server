@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
@@ -115,11 +115,11 @@ public final class SchemaPartition extends AbstractPartition
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
 
-    /** A static DN for the ou=schemaModifications entry */
-    private static DN schemaModificationDN;
+    /** A static Dn for the ou=schemaModifications entry */
+    private static Dn schemaModificationDn;
 
-    /** A static DN for the ou=schema partition */
-    private static DN schemaDN;
+    /** A static Dn for the ou=schema partition */
+    private static Dn schemaDn;
 
 
     /**
@@ -172,7 +172,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN_NORMALIZED}: '2.5.4.11=schema'.
      */
-    public DN getSuffix()
+    public Dn getSuffix()
     {
         return wrapped.getSuffix();
     }
@@ -181,7 +181,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Has no affect: just logs a warning.
      */
-    public void setSuffix( DN suffix )
+    public void setSuffix( Dn suffix )
     {
         LOG.warn( "This partition's suffix is fixed: {}", SchemaConstants.OU_SCHEMA );
     }
@@ -211,10 +211,10 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        schemaDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        schemaDn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
         
         wrapped.setId( ID );
-        wrapped.setSuffix( schemaDN );
+        wrapped.setSuffix(schemaDn);
         wrapped.setSchemaManager( schemaManager );
 
         try
@@ -236,7 +236,7 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        schemaModificationDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, schemaManager );
+        schemaModificationDn = new Dn( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, schemaManager );
     }
 
 
@@ -364,7 +364,7 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.modify( modifyContext );
         }
 
-        if ( !modifyContext.getDn().equals( schemaModificationDN ) )
+        if ( !modifyContext.getDn().equals(schemaModificationDn) )
         {
             updateSchemaModificationAttributes( modifyContext );
         }
@@ -448,7 +448,7 @@ public final class SchemaPartition extends AbstractPartition
      * ou=schema,cn=schemaModifications.  This entry is hardcoded at that 
      * position for now.
      * 
-     * The current time is used to set the timestamp and the DN of current user
+     * The current time is used to set the timestamp and the Dn of current user
      * is set for the modifiersName.
      * 
      * @throws LdapException if the update fails
@@ -468,7 +468,7 @@ public final class SchemaPartition extends AbstractPartition
             ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 
-        opContext.modify( schemaModificationDN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        opContext.modify(schemaModificationDn, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 
 

@@ -71,7 +71,7 @@ public class ExistsIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a exists( DN ) operation
+     * Test a exists( Dn ) operation
      */
     @Test
     public void testExists() throws Exception
@@ -81,7 +81,7 @@ public class ExistsIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a wrong exists( DN ) operation
+     * Test a wrong exists( Dn ) operation
      */
     @Test
     public void testNotExists() throws Exception

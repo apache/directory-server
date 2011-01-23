@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -88,7 +88,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void initializeSchemas() throws Exception
     {
-        DN dn = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn dn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
 
         // Check that the ou=schema entry exists
         if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
@@ -120,11 +120,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
 
     /**
-     * Gets the base DN for an Schema Object
+     * Gets the base Dn for an Schema Object
      */
-    private DN getBaseDN( String path, Schema schema ) throws LdapInvalidDnException
+    private Dn getBaseDN( String path, Schema schema ) throws LdapInvalidDnException
     {
-        DN dn = new DN( schemaManager, path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
+        Dn dn = new Dn( schemaManager, path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
 
         return dn;
     }
@@ -259,7 +259,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
 
             // Check that we don't have an entry in the Dit for this schema
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
@@ -306,7 +306,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.COMPARATORS_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.COMPARATORS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -374,7 +374,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.MATCHING_RULES_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.MATCHING_RULES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -442,7 +442,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.NORMALIZERS_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.NORMALIZERS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -486,7 +486,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.OBJECT_CLASSES_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.OBJECT_CLASSES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -530,7 +530,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.SYNTAXES_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.SYNTAXES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -574,7 +574,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            DN dn = getBaseDN( SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {

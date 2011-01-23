@@ -25,7 +25,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class ListUtilsSP
     private static final Logger LOG = LoggerFactory.getLogger( ListUtilsSP.class );
 
 
-    public static void subscribeToGroup( DN addedEntryName, LdapContext groupCtx ) throws NamingException
+    public static void subscribeToGroup( Dn addedEntryName, LdapContext groupCtx ) throws NamingException
     {
         LOG.info( "User \"" + addedEntryName + "\" will be subscribed to \"" + groupCtx + "\"" );
         groupCtx.modifyAttributes("", DirContext.ADD_ATTRIBUTE,

@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class ReplicaDitStoreUtil
 
     private void init() throws Exception
     {
-        DN replConsumerDn = new DN( REPL_CONSUMER_DN );
+        Dn replConsumerDn = new Dn( REPL_CONSUMER_DN );
 
         if ( !adminSession.exists( replConsumerDn ) )
         {
@@ -106,7 +106,7 @@ public class ReplicaDitStoreUtil
         }
 
         Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new DN( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
+        entry.setDn( new Dn( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
 
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replConsumer" );
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
@@ -146,7 +146,7 @@ public class ReplicaDitStoreUtil
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        DN dn = new DN( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = new Dn( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
     }
 

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,14 +35,14 @@ public class TestClassC extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new DN( "cn=testSuite,ou=system" ) ) );
+            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertFalse( service.getAdminSession().exists( new DN( "cn=testClassC,ou=system" ) ) );
+        assertFalse( service.getAdminSession().exists( new Dn( "cn=testClassC,ou=system" ) ) );
         
-        // the below DN will be injected in TestClassB when ran as suite, but that DN
+        // the below Dn will be injected in TestClassB when ran as suite, but that Dn
         // shouldn't be present in the suite level DS cause of revert operation
-        assertFalse( service.getAdminSession().exists( new DN( "cn=testClassB,ou=system" ) ) );
+        assertFalse( service.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
     
     
@@ -50,7 +50,7 @@ public class TestClassC extends AbstractLdapTestUnit
     @ApplyLdifFiles( "test-entry.ldif" )
     public void testWithApplyLdifFiles() throws Exception
     {
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testPerson1,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testPerson2,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
     }
 }

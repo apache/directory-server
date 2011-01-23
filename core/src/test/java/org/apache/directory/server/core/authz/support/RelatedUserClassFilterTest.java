@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,10 +58,10 @@ public class RelatedUserClassFilterTest
 
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static DN GROUP_NAME;
-    private static DN USER_NAME;
-    private static final Set<DN> USER_NAMES = new HashSet<DN>();
-    private static final Set<DN> GROUP_NAMES = new HashSet<DN>();
+    private static Dn GROUP_NAME;
+    private static Dn USER_NAME;
+    private static final Set<Dn> USER_NAMES = new HashSet<Dn>();
+    private static final Set<Dn> GROUP_NAMES = new HashSet<Dn>();
 
     private static SubtreeEvaluator SUBTREE_EVALUATOR;
 
@@ -75,8 +75,8 @@ public class RelatedUserClassFilterTest
         
         try
         {
-            GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new DN( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new Dn( "ou=test,ou=groups,ou=system" );
+            USER_NAME = new Dn( "ou=test, ou=users, ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -127,7 +127,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
+        aciContext.setEntryDn( new Dn( "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -142,7 +142,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new DN( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
+        aciContext.setEntryDn( new Dn( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
@@ -150,7 +150,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new DN( "ou=unrelated" ) );
+        aciContext.setEntryDn( new Dn( "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -170,7 +170,7 @@ public class RelatedUserClassFilterTest
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
-        aciContext.setUserDn( new DN( "ou=unrelateduser, ou=users" ) );
+        aciContext.setUserDn( new Dn( "ou=unrelateduser, ou=users" ) );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
         aciContext.setEntryDn( USER_NAME );
 
@@ -191,8 +191,8 @@ public class RelatedUserClassFilterTest
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
-        Set<DN> wrongGroupNames = new HashSet<DN>();
-        wrongGroupNames.add( new DN( "ou=unrelatedgroup" ) );
+        Set<Dn> wrongGroupNames = new HashSet<Dn>();
+        wrongGroupNames.add( new Dn( "ou=unrelatedgroup" ) );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -282,11 +282,11 @@ public class RelatedUserClassFilterTest
         }
         else
         {
-            Set<DN> names = new HashSet<DN>();
+            Set<Dn> names = new HashSet<Dn>();
             
             try
             {
-                names.add( new DN( "dummy=dummy" ) );
+                names.add( new Dn( "dummy=dummy" ) );
             }
             catch ( LdapInvalidDnException e )
             {

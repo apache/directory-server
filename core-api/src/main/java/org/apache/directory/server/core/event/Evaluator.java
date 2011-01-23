@@ -23,7 +23,7 @@ package org.apache.directory.server.core.event;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -44,5 +44,5 @@ public interface Evaluator
      * @return true if the filter selects the candidate false otherwise
      * @throws LdapException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode refinement, DN dn, Entry entry ) throws LdapException;
+    boolean evaluate( ExprNode refinement, Dn dn, Entry entry ) throws LdapException;
 }

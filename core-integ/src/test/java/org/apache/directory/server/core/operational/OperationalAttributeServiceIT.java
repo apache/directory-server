@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
@@ -97,7 +97,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     public void testBinaryAttributeFilterExtension() throws Exception
     {
         Entry entry = LdifUtils
-            .createEntry( new DN( "ou=test,ou=system" ), "objectClass: top", "objectClass: person",
+            .createEntry( new Dn( "ou=test,ou=system" ), "objectClass: top", "objectClass: person",
                 "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "ou", "test", "cn", "test", "sn",
                 "test" );
 
@@ -114,7 +114,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
             { ( byte ) 0xFF, ( byte ) 0xD8, ( byte ) 0xFF, ( byte ) 0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45,
                 0x23, 0x7d, 0x7f };
         entry.put( "jpegPhoto", keyValue );
-        entry.setDn( new DN( "ou=anothertest,ou=system" ) );
+        entry.setDn( new Dn( "ou=anothertest,ou=system" ) );
         entry.set( "ou", "anothertest" );
         connection.add( entry );
         Entry loadedEntry = connection.lookup( "ou=anothertest,ou=system" );
@@ -135,7 +135,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         /*
          * create ou=testing00,ou=system
          */
-        Entry entry = LdifUtils.createEntry( new DN( "ou=testing00,ou=system" ), "objectClass: top",
+        Entry entry = LdifUtils.createEntry( new Dn( "ou=testing00,ou=system" ), "objectClass: top",
             "objectClass: organizationalUnit", "ou", "testing00" );
 
         connection.add( entry );
@@ -203,7 +203,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
     /**
      * Test which confirms that all new users created under the user's dn
-     * (ou=users,ou=system) have the creatorsName set to the DN of the new
+     * (ou=users,ou=system) have the creatorsName set to the Dn of the new
      * user even though the admin is creating the user.  This is the basis
      * for some authorization rules to protect passwords.
      *
@@ -217,7 +217,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
-        Entry entry = LdifUtils.createEntry( new DN( "uid=akarasulu,ou=users,ou=system" ), "objectClass: top",
+        Entry entry = LdifUtils.createEntry( new Dn( "uid=akarasulu,ou=users,ou=system" ), "objectClass: top",
             "objectClass: person", "objectClass: organizationalPerson", "objectClass: inetOrgPerson",
             "ou: Engineering", "ou: People", "uid: akarasulu", "l", "Bogusville", "cn: Alex Karasulu", "sn: Karasulu",
             "givenName", "mail: akarasulu@apache.org", "telephoneNumber: +1 408 555 4798",

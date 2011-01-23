@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -91,7 +91,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
             returningAttributes.add( new AttributeTypeOptions( passwordAT) );
             bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
             
-            DN baseDn = new DN( bindDn );
+            Dn baseDn = new Dn( bindDn );
 
             EntryFilteringCursor cursor = adminSession.search( 
                 baseDn, 
@@ -127,7 +127,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     {
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "Converted username " + getUsername() + " to DN " + bindDn );
+            LOG.debug( "Converted username " + getUsername() + " to Dn " + bindDn );
         }
 
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );

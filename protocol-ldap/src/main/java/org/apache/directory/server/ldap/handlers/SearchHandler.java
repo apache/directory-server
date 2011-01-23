@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResultReference;
 import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.filter.LdapURL;
 import org.apache.directory.shared.util.Strings;
@@ -1086,7 +1086,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         boolean isparentReferral = false;
         DirectoryService directoryService = session.getCoreSession().getDirectoryService();
         ReferralManager referralManager = directoryService.getReferralManager();
-        DN reqTargetDn = req.getBase();
+        Dn reqTargetDn = req.getBase();
 
         reqTargetDn.normalize( directoryService.getSchemaManager() );
 
@@ -1241,7 +1241,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 continue;
             }
 
-            // parse the ref value and normalize the DN
+            // parse the ref value and normalize the Dn
             LdapURL ldapUrl = new LdapURL();
             try
             {
@@ -1267,7 +1267,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * Determines if a search request is on the RootDSE of the server.
      *
      * It is a RootDSE search if :
-     * - the base DN is empty
+     * - the base Dn is empty
      * - and the scope is BASE OBJECT
      * - and the filter is (ObjectClass = *)
      *
@@ -1309,7 +1309,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * </p>
      * <p>
      * It is a schema search if:
-     * - the base DN is the DN of the subSchemaSubEntry of the root DSE
+     * - the base Dn is the Dn of the subSchemaSubEntry of the root DSE
      * - and the scope is BASE OBJECT
      * - and the filter is (objectClass=subschema)
      * (RFC 4512, 4.4,)
@@ -1328,13 +1328,13 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private boolean isSubSchemaSubEntrySearch( LdapSession session, SearchRequest req ) throws Exception
     {
-        DN base = req.getBase();
+        Dn base = req.getBase();
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.getNormName() );
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        DN subschemaSubentryDn = new DN( subschemaSubentry.getString(), ds.getSchemaManager() );
+        Dn subschemaSubentryDn = new Dn( subschemaSubentry.getString(), ds.getSchemaManager() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         return subschemaSubentryDnNorm.equals( baseNormForm );
@@ -1381,8 +1381,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
 
-            // Normalize the DN to check for same dn
-            DN urlDn = new DN( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
+            // Normalize the Dn to check for same dn
+            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
                 .getSchemaManager() );
 
             if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
@@ -1395,16 +1395,16 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             /*
-             * If we get here then the DN of the referral was not the same as the
-             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
-             * name past the farthest referral DN which the target name extends.
+             * If we get here then the Dn of the referral was not the same as the
+             * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral Dn which the target name extends.
              */
             int diff = req.getBase().size() - referralAncestor.getDn().size();
-            DN extra = new DN();
+            Dn extra = new Dn();
 
-            // TODO - fix this by access unormalized RDN values
+            // TODO - fix this by access unormalized Rdn values
             // seems we have to do this because get returns normalized rdns
-            DN reqUnnormalizedDn = new DN( req.getBase().getName() );
+            Dn reqUnnormalizedDn = new Dn( req.getBase().getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
@@ -1430,7 +1430,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * @param referralAncestor the farthest referral ancestor of the missing
      * entry
      */
-    public Referral getReferralOnAncestor( LdapSession session, DN reqTargetDn, SearchRequest req,
+    public Referral getReferralOnAncestor( LdapSession session, Dn reqTargetDn, SearchRequest req,
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
@@ -1451,7 +1451,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 continue;
             }
 
-            // parse the ref value and normalize the DN
+            // parse the ref value and normalize the Dn
             LdapURL ldapUrl = new LdapURL();
             try
             {
@@ -1462,7 +1462,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
 
-            DN urlDn = new DN( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
+            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
                 .getSchemaManager() );
 
             if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
@@ -1483,16 +1483,16 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             /*
-             * If we get here then the DN of the referral was not the same as the
-             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
-             * name past the farthest referral DN which the target name extends.
+             * If we get here then the Dn of the referral was not the same as the
+             * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral Dn which the target name extends.
              */
             int diff = reqTargetDn.size() - referralAncestor.getDn().size();
-            DN extra = new DN();
+            Dn extra = new Dn();
 
-            // TODO - fix this by access unormalized RDN values
+            // TODO - fix this by access unormalized Rdn values
             // seems we have to do this because get returns normalized rdns
-            DN reqUnnormalizedDn = new DN( reqTargetDn.getName() );
+            Dn reqUnnormalizedDn = new Dn( reqTargetDn.getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
@@ -1576,7 +1576,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Searches up the ancestry of a DN searching for the farthest referral
+     * Searches up the ancestry of a Dn searching for the farthest referral
      * ancestor.  This is required to properly handle referrals.  Note that
      * this function is quite costly since it attempts to lookup all the
      * ancestors up the hierarchy just to see if they represent referrals.
@@ -1588,11 +1588,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    public static final Entry getFarthestReferralAncestor( LdapSession session, DN target ) throws Exception
+    public static final Entry getFarthestReferralAncestor( LdapSession session, Dn target ) throws Exception
     {
         Entry entry;
         Entry farthestReferralAncestor = null;
-        DN dn = target;
+        Dn dn = target;
 
         try
         {
@@ -1625,7 +1625,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             {
                 LOG.debug( "Entry for {} not found.", dn );
 
-                // update the DN as we strip last component
+                // update the Dn as we strip last component
                 try
                 {
                     dn = dn.remove( dn.size() - 1 );

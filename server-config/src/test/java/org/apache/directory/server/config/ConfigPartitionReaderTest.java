@@ -32,7 +32,7 @@ import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -83,7 +83,7 @@ public class ConfigPartitionReaderTest
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
-        // and normalize their suffix DN
+        // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
         List<Throwable> errors = schemaManager.getErrors();
@@ -106,7 +106,7 @@ public class ConfigPartitionReaderTest
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffix( new DN( "ou=config" ) );
+        configPartition.setSuffix( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.initialize();

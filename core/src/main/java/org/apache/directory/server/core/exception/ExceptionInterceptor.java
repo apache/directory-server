@@ -52,21 +52,21 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
  * An {@link org.apache.directory.server.core.interceptor.Interceptor} that detects any operations that breaks integrity
  * of {@link Partition} and terminates the current invocation chain by
  * throwing a {@link Exception}. Those operations include when an entry
- * already exists at a DN and is added once again to the same DN.
+ * already exists at a Dn and is added once again to the same Dn.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ExceptionInterceptor extends BaseInterceptor
 {
     private PartitionNexus nexus;
-    private DN subschemSubentryDn;
+    private Dn subschemSubentryDn;
 
     /**
      * A cache to store entries which are not aliases.
@@ -119,7 +119,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
-        DN name = addContext.getDn();
+        Dn name = addContext.getDn();
 
         if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
@@ -134,7 +134,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw ne;
         }
 
-        DN suffix = nexus.findSuffix( name );
+        Dn suffix = nexus.findSuffix( name );
 
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )
@@ -143,7 +143,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return;
         }
 
-        DN parentDn = name;
+        Dn parentDn = name;
         parentDn = parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
@@ -200,7 +200,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN dn = deleteContext.getDn();
+        Dn dn = deleteContext.getDn();
 
         if ( dn.equals( subschemSubentryDn ) )
         {
@@ -246,7 +246,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
-        DN dn = lookupContext.getDn();
+        Dn dn = lookupContext.getDn();
 
         if ( dn.equals( subschemSubentryDn ) )
         {
@@ -284,7 +284,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // Let's assume that the new modified entry may be an alias,
         // but we don't want to check that now...
-        // We will simply remove the DN from the NotAlias cache.
+        // We will simply remove the Dn from the NotAlias cache.
         // It would be smarter to check the modified attributes, but
         // it would also be more complex.
         synchronized ( notAliasCache )
@@ -304,7 +304,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
     {
-        DN dn = renameContext.getDn();
+        Dn dn = renameContext.getDn();
 
         if ( dn.equals( subschemSubentryDn ) )
         {
@@ -313,7 +313,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         // check to see if target entry exists
-        DN newDn = renameContext.getNewDn();
+        Dn newDn = renameContext.getNewDn();
 
         if ( nextInterceptor.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
@@ -341,7 +341,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
-        DN oriChildName = moveContext.getDn();
+        Dn oriChildName = moveContext.getDn();
 
         if ( oriChildName.equals( subschemSubentryDn ) )
         {
@@ -369,7 +369,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        DN oldDn = moveAndRenameContext.getDn();
+        Dn oldDn = moveAndRenameContext.getDn();
 
         // Don't allow M&R in the SSSE
         if ( oldDn.equals( subschemSubentryDn ) )
@@ -401,7 +401,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     private void assertHasEntry( OperationContext opContext, String msg ) throws LdapException
     {
-        DN dn = opContext.getDn();
+        Dn dn = opContext.getDn();
 
         if ( subschemSubentryDn.equals( dn ) )
         {
@@ -435,7 +435,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * @throws Exception if the entry does not exist
      * @param nextInterceptor the next interceptor in the chain
      */
-    private void assertHasEntry( OperationContext opContext, String msg, DN dn ) throws LdapException
+    private void assertHasEntry( OperationContext opContext, String msg, Dn dn ) throws LdapException
     {
         if ( subschemSubentryDn.equals( dn ) )
         {

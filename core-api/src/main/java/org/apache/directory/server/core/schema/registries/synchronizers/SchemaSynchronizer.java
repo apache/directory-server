@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -83,8 +83,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /** The m-dependencies AttributeType */
     private final AttributeType dependenciesAT;
 
-    /** A static DN referencing ou=schema */
-    private final DN ouSchemaDN;
+    /** A static Dn referencing ou=schema */
+    private final Dn ouSchemaDn;
 
     /**
      * Creates and initializes a new instance of Schema synchronizer
@@ -102,7 +102,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
 
-        ouSchemaDN = new DN( SchemaConstants.OU_SCHEMA, schemaManager );
+        ouSchemaDn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
     }
 
 
@@ -144,7 +144,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, Entry entry, boolean cascaded ) throws LdapException
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn, Entry entry, boolean cascaded ) throws LdapException
     {
 
     }
@@ -158,14 +158,14 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public void add( Entry entry ) throws LdapException
     {
-        DN dn = entry.getDn();
-        DN parentDn = dn;
+        Dn dn = entry.getDn();
+        Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
         parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
-        if ( !parentDn.equals( ouSchemaDN ) )
+        if ( !parentDn.equals(ouSchemaDn) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380, ouSchemaDN.getName(),
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380, ouSchemaDn.getName(),
                     parentDn.getNormName() ) );
         }
 
@@ -260,7 +260,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
+    public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
@@ -342,7 +342,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void moveAndRename( DN oriChildName, DN newParentName, String newRn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, String newRn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
@@ -354,7 +354,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void move( DN oriChildName, DN newParentName,
+    public void move( Dn oriChildName, Dn newParentName,
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
@@ -392,7 +392,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private boolean modifyDisable( ModifyOperationContext modifyContext, ModificationOperation modOp,
         EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws LdapException
     {
-        DN name = modifyContext.getDn();
+        Dn name = modifyContext.getDn();
 
         switch ( modOp )
         {
@@ -470,7 +470,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    private String getSchemaName( DN schema )
+    private String getSchemaName( Dn schema )
     {
         return schema.getRdn().getNormValue().getString();
     }

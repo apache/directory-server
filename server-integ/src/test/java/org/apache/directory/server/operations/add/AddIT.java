@@ -91,7 +91,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -288,7 +288,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new Dn( dn ) );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -328,7 +328,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new Dn( dn ) );
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
         kate.add( "cn", "Kate Bush" );
@@ -368,7 +368,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new Dn( dn ) );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -739,7 +739,7 @@ public class AddIT extends AbstractLdapTestUnit
             principalDn = "";
         }
 
-        DN userDn = new DN( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -906,7 +906,7 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create an entry a RDN which is not present in the entry
+     * Create an entry a Rdn which is not present in the entry
      */
     @Test
     public void testAddEntryNoRDNInEntry() throws Exception
@@ -944,7 +944,7 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create an entry a RDN which is not present in the entry, but
+     * Create an entry a Rdn which is not present in the entry, but
      * with another attribute's value
      */
     @Test
@@ -991,7 +991,7 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create an entry a RDN which is not present in the entry, 
+     * Create an entry a Rdn which is not present in the entry,
      * with another attribute's value, and on a SingleValued attribute
      */
     @Test
@@ -1033,7 +1033,7 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Create an entry a composed RDN which is not present in the entry, 
+     * Create an entry a composed Rdn which is not present in the entry,
      * with another attribute's value, and on a SingleValued attribute
      */
     @Test
@@ -1197,9 +1197,9 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test for DIRSERVER-1311: If the RDN attribute+value is not present
+     * Test for DIRSERVER-1311: If the Rdn attribute+value is not present
      * in the entry the server should implicit add this attribute+value to
-     * the entry. Additionally, if the RDN value is escaped or a hexstring
+     * the entry. Additionally, if the Rdn value is escaped or a hexstring
      * the server must add the unescaped string or binary value to the entry.
      */
     @Test
@@ -1215,9 +1215,9 @@ public class AddIT extends AbstractLdapTestUnit
         tori.put( "cn", "Tori Amos" );
         tori.put( "sn", "Amos" );
         /*
-         * Note that the RDN attribute is different to the cn specified in the entry.
+         * Note that the Rdn attribute is different to the cn specified in the entry.
          * This creates a second cn attribute "cn:Amos,Tori". This is a JNDI hack:
-         * If no other cn is available in the entry, JNDI adds the RDN 
+         * If no other cn is available in the entry, JNDI adds the Rdn
          * attribute to the entry before sending the request to the server.
          */
         ctx.createSubcontext( " cn = Amos\\,Tori ", tori );
@@ -1231,10 +1231,10 @@ public class AddIT extends AbstractLdapTestUnit
         binary.put( "sn", "Binary" );
         binary.put( "userPassword", "test" );
         /*
-         * Note that the RDN attribute is different to the userPassword specified 
+         * Note that the Rdn attribute is different to the userPassword specified
          * in the entry. This creates a second cn attribute "userPassword:#414243". 
          * This is a JNDI hack:
-         * If no other userPassword is available in the entry, JNDI adds the RDN 
+         * If no other userPassword is available in the entry, JNDI adds the Rdn
          * attribute to the entry before sending the request to the server.
          */
         ctx.createSubcontext( " userPassword = #414243 ", binary );
@@ -1268,7 +1268,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry entry = new DefaultEntry( new DN( dn ) );
+        Entry entry = new DefaultEntry( new Dn( dn ) );
         entry.add( "objectclass", "top", "person" );
         entry.add( "sn", "Bush" );
         entry.add( "cn", "Kate Bush" );

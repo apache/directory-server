@@ -31,13 +31,13 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private DN modifiedEntryName;
+    private Dn modifiedEntryName;
     private List<Modification> modifications;
     private Entry oldEntry;
     

@@ -49,9 +49,9 @@ import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -295,7 +295,7 @@ public class LdifPartition extends AbstractLdifPartition
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
-        DN dn = modifyContext.getDn();
+        Dn dn = modifyContext.getDn();
 
         // And write it back on disk
         try
@@ -317,7 +317,7 @@ public class LdifPartition extends AbstractLdifPartition
     @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        DN oldDn = moveContext.getDn();
+        Dn oldDn = moveContext.getDn();
         Long id = getEntryId( oldDn );
 
         wrappedPartition.move( moveContext );
@@ -335,7 +335,7 @@ public class LdifPartition extends AbstractLdifPartition
     @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        DN oldDn = moveAndRenameContext.getDn();
+        Dn oldDn = moveAndRenameContext.getDn();
         Long id = getEntryId( oldDn );
 
         wrappedPartition.moveAndRename( moveAndRenameContext );
@@ -354,7 +354,7 @@ public class LdifPartition extends AbstractLdifPartition
     @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        DN oldDn = renameContext.getDn();
+        Dn oldDn = renameContext.getDn();
         Long id = getEntryId( oldDn );
 
         // Create the new entry
@@ -375,12 +375,12 @@ public class LdifPartition extends AbstractLdifPartition
      * Note that instead of moving and updating the existing files on disk
      * this method gets the moved entry and its children and writes the LDIF files
      *
-     * @param oldEntryDn the moved entry's old DN
+     * @param oldEntryDn the moved entry's old Dn
      * @param entryId the moved entry's master table ID
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
+    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
     {
         // First, add the new entry
         add( modifiedEntry );
@@ -498,14 +498,14 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-     * Create the file name from the entry DN.
+     * Create the file name from the entry Dn.
      */
-    private File getFile( DN entryDn, boolean create ) throws LdapException
+    private File getFile( Dn entryDn, boolean create ) throws LdapException
     {
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        DN baseDn = entryDn.getSuffix( suffix.size() );
+        Dn baseDn = entryDn.getSuffix( suffix.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
@@ -548,19 +548,19 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-     * Compute the real name based on the RDN, assuming that depending on the underlying
+     * Compute the real name based on the Rdn, assuming that depending on the underlying
      * OS, some characters are not allowed.
      *
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( RDN rdn ) throws LdapException
+    private String getFileName( Rdn rdn ) throws LdapException
     {
         StringBuilder fileName = new StringBuilder( "" );
 
-        Iterator<AVA> iterator = rdn.iterator();
+        Iterator<Ava> iterator = rdn.iterator();
         while ( iterator.hasNext() )
         {
-            AVA ava = iterator.next();
+            Ava ava = iterator.next();
 
             // First, get the AT name, or OID
             String normAT = ava.getNormType();
@@ -584,17 +584,17 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-     * Compute the real name based on the DN, assuming that depending on the underlying
+     * Compute the real name based on the Dn, assuming that depending on the underlying
      * OS, some characters are not allowed.
      *
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( DN dn ) throws LdapException
+    private String getFileName( Dn dn ) throws LdapException
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
 
-        for ( RDN rdn : dn.getRdns() )
+        for ( Rdn rdn : dn.getRdns() )
         {
             // First, get the AT name, or OID
             String normAT = rdn.getAVA().getNormType();

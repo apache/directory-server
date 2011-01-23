@@ -60,9 +60,9 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
 
 
     /**
-     * Returns the search base DN.
+     * Returns the search base Dn.
      *
-     * @return The search base DN.
+     * @return The search base Dn.
      */
     public String getSearchBaseDn()
     {

@@ -30,7 +30,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 
 /**
  * Interface for search strategies.  The DNS protocol may search a single
- * base DN for resource records or use a catalog to lookup resource records
+ * base Dn for resource records or use a catalog to lookup resource records
  * in multiple zones.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

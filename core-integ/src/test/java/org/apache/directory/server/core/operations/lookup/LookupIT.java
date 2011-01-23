@@ -78,7 +78,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN, "*") operation
+     * Test a lookup( Dn, "*") operation
      */
     @Test
     public void testLookupStar() throws Exception
@@ -98,7 +98,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN, "+") operation
+     * Test a lookup( Dn, "+") operation
      */
     @Test
     @Ignore( "The '+' special attribute is not correctly handled." )
@@ -132,7 +132,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN, []) operation
+     * Test a lookup( Dn, []) operation
      */
     @Test
     public void testLookupEmptyAtrid() throws Exception
@@ -151,7 +151,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN ) operation
+     * Test a lookup( Dn ) operation
      */
     @Test
     public void testLookup() throws Exception
@@ -171,7 +171,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN ) operation on the subschema subentry
+     * Test a lookup( Dn ) operation on the subschema subentry
      */
     @Test
     public void testLookupSubSchemaSubEntry() throws Exception
@@ -190,7 +190,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN ) operation with a list of attributes
+     * Test a lookup( Dn ) operation with a list of attributes
      */
     @Test
     public void testLookupWithAttrs() throws Exception
@@ -224,7 +224,7 @@ public class LookupIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a lookup( DN ) operation with no attributes
+     * Test a lookup( Dn ) operation with no attributes
      */
     @Test
     public void testLookupWithNoAttrs() throws Exception

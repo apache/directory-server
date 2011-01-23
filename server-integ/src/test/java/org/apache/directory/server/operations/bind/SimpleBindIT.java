@@ -189,7 +189,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
 
     /**
-     * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
+     * try to connect using a user with an invalid Dn: we should get a invalidDNSyntax error.
      */
     @Test
     public void testSimpleBindBadPrincipalAPassword()
@@ -209,7 +209,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         catch ( InvalidNameException ine )
         {
             // Error code 34 : LDAP_INVALID_DN_SYNTAX
-            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect DN given" ) );
+            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect Dn given" ) );
         }
         catch ( NamingException e )
         {

@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -49,7 +49,7 @@ public class AutzIntegUtils
     // -----------------------------------------------------------------------
 
     /**
-     * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
+     * gets a LdapConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
      */
     public static LdapConnection getAdminConnection() throws Exception
     {
@@ -63,7 +63,7 @@ public class AutzIntegUtils
     }
 
 
-    public static LdapConnection getConnectionAs( DN dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( Dn dn, String password ) throws Exception
     {
         return IntegrationUtils.getConnectionAs( service, dn.getName(), password );
     }
@@ -79,30 +79,30 @@ public class AutzIntegUtils
      * Creates a group using the groupOfUniqueNames objectClass under the
      * ou=groups,ou=sytem container with an initial member.
      *
-     * @param cn the common name of the group used as the RDN attribute
-     * @param firstMemberDn the DN of the first member of this group
+     * @param cn the common name of the group used as the Rdn attribute
+     * @param firstMemberDn the Dn of the first member of this group
      * @return the distinguished name of the group entry
      * @throws Exception if there are problems creating the new group like
      * it exists already
      */
-    public static DN createGroup( String cn, String firstMemberDn ) throws Exception
+    public static Dn createGroup( String cn, String firstMemberDn ) throws Exception
     {
-        DN groupDN = new DN( "cn=" + cn + ",ou=groups,ou=system" );
-        Entry entry = new DefaultEntry( groupDN );
+        Dn groupDn = new Dn( "cn=" + cn + ",ou=groups,ou=system" );
+        Entry entry = new DefaultEntry(groupDn);
         entry.add( "ObjectClass", "groupOfUniqueNames" );
         entry.add( "uniqueMember", firstMemberDn );
         entry.add( "cn", cn );
 
         getAdminConnection().add( entry );
 
-        return groupDN;
+        return groupDn;
     }
 
 
     /**
      * Deletes a user with a specific UID under ou=users,ou=system.
      *
-     * @param uid the RDN value for the user to delete
+     * @param uid the Rdn value for the user to delete
      * @throws Exception if there are problems removing the user
      * i.e. user does not exist
      */
@@ -114,19 +114,19 @@ public class AutzIntegUtils
 
     /**
      * Creates a simple user as an inetOrgPerson under the ou=users,ou=system
-     * container.  The user's RDN attribute is the uid argument.  This argument
+     * container.  The user's Rdn attribute is the uid argument.  This argument
      * is also used as the value of the two MUST attributes: sn and cn.
      *
-     * @param uid the value of the RDN attriubte (uid), the sn and cn attributes
+     * @param uid the value of the Rdn attriubte (uid), the sn and cn attributes
      * @param password the password to use to create the user
      * @return the dn of the newly created user entry
      * @throws Exception if there are problems creating the user entry
      */
-    public static DN createUser( String uid, String password ) throws Exception
+    public static Dn createUser( String uid, String password ) throws Exception
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry entry = new DefaultEntry( new DN( "uid=" + uid + ",ou=users,ou=system" ) );
+        Entry entry = new DefaultEntry( new Dn( "uid=" + uid + ",ou=users,ou=system" ) );
         entry.add( "uid", uid );
         entry.add( "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson" );
         entry.add( "sn", uid );
@@ -145,14 +145,14 @@ public class AutzIntegUtils
      * group.
      *
      * @param groupName the name of the cgroup to create
-     * @return the DN of the group as a Name object
+     * @return the Dn of the group as a Name object
      * @throws Exception if the group cannot be created
      */
-    public static DN createGroup( String groupName ) throws Exception
+    public static Dn createGroup( String groupName ) throws Exception
     {
-        DN groupDN = new DN( "cn=" + groupName + ",ou=groups,ou=system" );
+        Dn groupDn = new Dn( "cn=" + groupName + ",ou=groups,ou=system" );
 
-        Entry entry = new DefaultEntry( groupDN );
+        Entry entry = new DefaultEntry(groupDn);
         entry.add( "objectClass", "top", "groupOfUniqueNames" );
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
         entry.add( "uniqueMember", "uid=admin, ou=system" );
@@ -160,7 +160,7 @@ public class AutzIntegUtils
 
         getAdminConnection().add( entry );
 
-        return groupDN;
+        return groupDn;
     }
 
 
@@ -177,7 +177,7 @@ public class AutzIntegUtils
         LdapConnection connection = getAdminConnection();
 
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        modReq.setName( new Dn( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.add( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system" );
 
         connection.modify( modReq ).getLdapResult().getResultCode();
@@ -187,14 +187,14 @@ public class AutzIntegUtils
     /**
      * Removes a user from a group.
      *
-     * @param userUid the RDN attribute value of the user to remove from the group
-     * @param groupCn the RDN attribute value of the group to have user removed from
+     * @param userUid the Rdn attribute value of the user to remove from the group
+     * @param groupCn the Rdn attribute value of the group to have user removed from
      * @throws Exception if there are problems accessing the group
      */
     public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        modReq.setName( new Dn( "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.remove( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system" );
         getAdminConnection().modify( modReq );
     }
@@ -248,7 +248,7 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultEntry( new DN( "cn=" + cn + ",ou=system" ) );
+        Entry subEntry = new DefaultEntry( new Dn( "cn=" + cn + ",ou=system" ) );
         subEntry.add( "objectClass", "top", "subentry", "accessControlSubentry" );
         subEntry.add( "subtreeSpecification", subtree );
         subEntry.add( "prescriptiveACI", aciItem );
@@ -267,7 +267,7 @@ public class AutzIntegUtils
      * @param aciItem the entryACI attribute value
      * @throws Exception if there is a problem adding the attribute
      */
-    public static void addEntryACI( DN dn, String aciItem ) throws Exception
+    public static void addEntryACI( Dn dn, String aciItem ) throws Exception
     {
         // modify the entry relative to ou=system to include the aciItem
         ModifyRequest modReq = new ModifyRequestImpl();
@@ -288,7 +288,7 @@ public class AutzIntegUtils
     {
         // modify the entry relative to ou=system to include the aciItem
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "ou=system" ) );
+        modReq.setName( new Dn( "ou=system" ) );
         modReq.add( "subentryACI", aciItem );
         getAdminConnection().modify( modReq );
     }
@@ -305,7 +305,7 @@ public class AutzIntegUtils
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + cn + ",ou=system" ) );
+        modReq.setName( new Dn( "cn=" + cn + ",ou=system" ) );
         modReq.replace( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
     }
@@ -314,7 +314,7 @@ public class AutzIntegUtils
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new DN( "cn=" + cn + ",ou=system" ) );
+        modReq.setName( new Dn( "cn=" + cn + ",ou=system" ) );
         modReq.add( "prescriptiveACI", aciItem );
         getAdminConnection().modify( modReq );
     }

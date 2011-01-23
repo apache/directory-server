@@ -24,7 +24,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  *   <li>find all changes</li>
  *   <li>find all changes before or after a revision</li>
  *   <li>find all changes in a revision range</li>
- *   <li>find changes by LDAP namespace scope on DN</li>
- *   <li>find changes by DN</li>
+ *   <li>find changes by LDAP namespace scope on Dn</li>
+ *   <li>find changes by Dn</li>
  *   <li>find changes by principal</li>
  *   <li>find changes by change type</li>
  *   <li>find changes by attribute</li>
@@ -141,24 +141,24 @@ public interface ChangeLogSearchEngine
     /**
      * Finds all the ChangeLogEvents on an entry.
      *
-     * @param dn the normalized DN of the entry to get ChangeLogEvents for
+     * @param dn the normalized Dn of the entry to get ChangeLogEvents for
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of changes that occurred on an entry
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( DN dn, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( Dn dn, RevisionOrder order ) throws Exception;
     
     
     /**
      * Finds all the ChangeLogEvents on an entry base and/or it's children/descendants.
      *
-     * @param base the normalized DN of the entry base to get ChangeLogEvents for
+     * @param base the normalized Dn of the entry base to get ChangeLogEvents for
      * @param scope the scope of the search under the base similar to LDAP search scope
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of changes that occurred on an entry and/or it's descendants depending on the scope
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( DN base, Scope scope, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( Dn base, Scope scope, RevisionOrder order ) throws Exception;
     
 
     /**
@@ -222,7 +222,7 @@ public interface ChangeLogSearchEngine
      *   <li>principal: normalized distinguishedName syntax (defaults to matching a string)</li>
      * </ul>
      * 
-     * The following are the only kinds of AVA node types allowed:
+     * The following are the only kinds of Ava node types allowed:
      * 
      * <ul>
      *   <li>equality (=) </li>

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,11 +59,11 @@ public class TestClassA extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new DN( "cn=testSuite,ou=system" ) ) );
+            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
         
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testClassA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
     }
 
 
@@ -79,12 +79,12 @@ public class TestClassA extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new DN( "cn=testSuite,ou=system" ) ) );
+            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testClassA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testClassA2,ou=system" ) ) );
-        assertFalse( service.getAdminSession().exists( new DN( "cn=testMethodA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new DN( "cn=testMethodWithApplyLdif,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
+        assertFalse( service.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
     }
 }

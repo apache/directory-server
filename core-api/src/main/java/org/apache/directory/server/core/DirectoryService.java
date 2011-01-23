@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
@@ -201,7 +201,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return a logical session as a specific user
      */
-    CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException;
+    CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException;
 
     
     /**
@@ -212,7 +212,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return a logical session as a specific user
      */
-    CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+    CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception;
 
     
@@ -422,7 +422,7 @@ public interface DirectoryService extends ServerEntryFactory
      * Create a new Entry.
      * 
      * @param ldif the String representing the attributes, in LDIF format
-     * @param dn the DN for this new entry
+     * @param dn the Dn for this new entry
      */
     Entry newEntry( String ldif, String dn );
     
@@ -562,7 +562,7 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Gets the effective password policy of the given entry. 
      * If the entry has defined a custom password policy by setting "pwdPolicySubentry" attribute
-     * then the password policy associated with the DN specified at the above attribute's value will be returned.
+     * then the password policy associated with the Dn specified at the above attribute's value will be returned.
      * Otherwise the default password policy will be returned (if present)
      * 
      * @param userEntry the user's entry
@@ -582,9 +582,9 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Gets the DN factory.
+     * Gets the Dn factory.
      *
-     * @return the DN factory
+     * @return the Dn factory
      */
     DNFactory getDNFactory();
 }

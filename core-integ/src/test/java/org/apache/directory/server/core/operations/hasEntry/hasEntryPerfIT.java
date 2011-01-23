@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,7 +43,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfHasEntry() throws Exception
     {
-        DN adminDn = new DN( "uid=admin, ou=system" );
+        Dn adminDn = new Dn( "uid=admin, ou=system" );
         EntryOperationContext hasEntryContext = new EntryOperationContext( service.getAdminSession(), adminDn );
         boolean hasEntry = service.getOperationManager().hasEntry( hasEntryContext );
 

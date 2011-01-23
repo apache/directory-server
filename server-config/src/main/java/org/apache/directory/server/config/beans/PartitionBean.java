@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -40,7 +40,7 @@ public abstract class PartitionBean extends AdsBaseBean
 
     /** The Partition suffix */
     @ConfigurationElement(attributeType = "ads-partitionSuffix")
-    private DN partitionSuffix;
+    private Dn partitionSuffix;
 
     /** Tells if the data should be flushed to disk immediately */
     @ConfigurationElement(attributeType = "ads-partitionSyncOnWrite")
@@ -84,7 +84,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @return the partitionSuffix
      */
-    public DN getPartitionSuffix()
+    public Dn getPartitionSuffix()
     {
         return partitionSuffix;
     }
@@ -93,7 +93,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * @param partitionSuffix the partitionSuffix to set
      */
-    public void setPartitionSuffix( DN partitionSuffix )
+    public void setPartitionSuffix( Dn partitionSuffix )
     {
         this.partitionSuffix = partitionSuffix;
     }

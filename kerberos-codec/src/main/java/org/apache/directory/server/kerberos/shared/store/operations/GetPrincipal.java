@@ -39,7 +39,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -68,9 +68,9 @@ public class GetPrincipal implements DirectoryServiceOperation
 
     /**
      * Note that the base is a relative path from the existing context.
-     * It is not a DN.
+     * It is not a Dn.
      */
-    public Object execute( CoreSession session, DN base ) throws Exception
+    public Object execute( CoreSession session, Dn base ) throws Exception
     {
         if ( principal == null )
         {

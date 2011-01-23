@@ -44,7 +44,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -168,6 +168,6 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
     private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
     {
         CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
-        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new DN( ldapServer.getSearchBaseDn() ) );
+        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new Dn( ldapServer.getSearchBaseDn() ) );
     }
 }

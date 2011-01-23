@@ -47,9 +47,9 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -92,8 +92,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** The store unique identifier */
     protected String id;
 
-    /** The suffix DN */
-    protected DN suffixDn;
+    /** The suffix Dn */
+    protected Dn suffixDn;
 
     /** A pointer on the schemaManager */
     protected SchemaManager schemaManager;
@@ -110,7 +110,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** the attribute presence index */
     protected Index<String, E, ID> presenceIdx;
 
-    /** a system index on the entries of descendants of root DN*/
+    /** a system index on the entries of descendants of root Dn*/
     protected Index<ID, E, ID> subLevelIdx;
 
     /** the parent child relationship index */
@@ -224,7 +224,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public void setSuffixDn( DN suffixDn )
+    public void setSuffixDn( Dn suffixDn )
     {
         protect( "suffixDn" );
 
@@ -237,7 +237,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public DN getSuffixDn()
+    public Dn getSuffixDn()
     {
         return suffixDn;
     }
@@ -765,14 +765,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     //------------------------------------------------------------------------
-    // DN and ID handling
+    // Dn and ID handling
     //------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
-    public ID getEntryId( DN dn ) throws Exception
+    public ID getEntryId( Dn dn ) throws Exception
     {
-        // Just to be sure that the DN is normalized
+        // Just to be sure that the Dn is normalized
         if ( !dn.isNormalized() )
         {
             dn.normalize( schemaManager );
@@ -783,7 +783,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
-        // Check into the RDN index
+        // Check into the Rdn index
         ID curEntryId = rdnIdx.forwardLookup( key );
 
         for ( ; i < dnSize; i++ )
@@ -804,7 +804,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public DN getEntryDn( ID id ) throws Exception
+    public Dn getEntryDn( ID id ) throws Exception
     {
         return buildEntryDn( id );
     }
@@ -839,7 +839,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( entry != null )
         {
-            DN dn = buildEntryDn( id );
+            Dn dn = buildEntryDn( id );
             entry.setDn( dn );
             return entry;
         }
@@ -874,7 +874,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
-        DN entryDn = entry.getDn();
+        Dn entryDn = entry.getDn();
 
         if ( checkHasEntryDuringAdd )
         {
@@ -895,7 +895,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // capped off using the zero value which no entry can have since
         // entry sequences start at 1.
         //
-        DN parentDn = null;
+        Dn parentDn = null;
         ParentIdAndRdn<ID> key = null;
 
         if ( entryDn.equals( suffixDn ) )
@@ -1023,7 +1023,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
+    public synchronized void modify( Dn dn, ModificationOperation modOp, Entry mods ) throws Exception
     {
         if ( mods instanceof ClonedServerEntry )
         {
@@ -1070,7 +1070,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized Entry modify( DN dn, List<Modification> mods ) throws Exception
+    public synchronized Entry modify( Dn dn, List<Modification> mods ) throws Exception
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
@@ -1168,7 +1168,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
+    public synchronized void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
         ID id = getEntryId( dn );
 
@@ -1177,20 +1177,20 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             entry = lookup( id );
         }
 
-        DN updn = entry.getDn();
+        Dn updn = entry.getDn();
 
         newRdn.normalize( schemaManager.getNormalizerMapping() );
 
         /*
          * H A N D L E   N E W   R D N
          * ====================================================================
-         * Add the new RDN attribute to the entry.  If an index exists on the
-         * new RDN attribute we add the index for this attribute value pair.
+         * Add the new Rdn attribute to the entry.  If an index exists on the
+         * new Rdn attribute we add the index for this attribute value pair.
          * Also we make sure that the presence index shows the existence of the
-         * new RDN attribute within this entry.
+         * new Rdn attribute within this entry.
          */
 
-        for ( AVA newAtav : newRdn )
+        for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().get();
@@ -1215,31 +1215,31 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         /*
          * H A N D L E   O L D   R D N
          * ====================================================================
-         * If the old RDN is to be removed we need to get the attribute and
-         * value for it.  Keep in mind the old RDN need not be based on the
-         * same attr as the new one.  We remove the RDN value from the entry
-         * and remove the value/id tuple from the index on the old RDN attr
-         * if any.  We also test if the delete of the old RDN index tuple
-         * removed all the attribute values of the old RDN using a reverse
+         * If the old Rdn is to be removed we need to get the attribute and
+         * value for it.  Keep in mind the old Rdn need not be based on the
+         * same attr as the new one.  We remove the Rdn value from the entry
+         * and remove the value/id tuple from the index on the old Rdn attr
+         * if any.  We also test if the delete of the old Rdn index tuple
+         * removed all the attribute values of the old Rdn using a reverse
          * lookup.  If so that means we blew away the last value of the old
-         * RDN attribute.  In this case we need to remove the attrName/id
+         * Rdn attribute.  In this case we need to remove the attrName/id
          * tuple from the presence index.
          *
-         * We only remove an ATAV of the old RDN if it is not included in the
-         * new RDN.
+         * We only remove an ATAV of the old Rdn if it is not included in the
+         * new Rdn.
          */
 
         if ( deleteOldRdn )
         {
-            RDN oldRdn = updn.getRdn();
+            Rdn oldRdn = updn.getRdn();
 
-            for ( AVA oldAtav : oldRdn )
+            for ( Ava oldAtav : oldRdn )
             {
-                // check if the new ATAV is part of the old RDN
+                // check if the new ATAV is part of the old Rdn
                 // if that is the case we do not remove the ATAV
                 boolean mustRemove = true;
 
-                for ( AVA newAtav : newRdn )
+                for ( Ava newAtav : newRdn )
                 {
                     if ( oldAtav.equals( newAtav ) )
                     {
@@ -1277,8 +1277,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
-         * We only need to update the RDN index.
-         * No need to calculate the new DN.
+         * We only need to update the Rdn index.
+         * No need to calculate the new Dn.
          */
 
         ID parentId = getParentId( id );
@@ -1298,7 +1298,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public synchronized void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
         rename( dn, newRdn, deleteOldRdn, null );
     }
@@ -1307,7 +1307,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void moveAndRename( DN oldDn, DN newSuperiorDn, RDN newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
+    public synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
     	// Check that the old entry exists
         ID oldId = getEntryId( oldDn );
@@ -1331,7 +1331,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw nse;
         }
 
-        DN newDn = newSuperiorDn.add( newRdn );
+        Dn newDn = newSuperiorDn.add( newRdn );
 
         // Now check that the new entry does not exist
         ID newId = getEntryId( newDn );
@@ -1358,7 +1358,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void move( DN oldDn, DN newSuperiorDn, DN newDn  ) throws Exception
+    public synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) throws Exception
     {
         move( oldDn, newSuperiorDn, newDn, null );
     }
@@ -1367,9 +1367,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void move( DN oldDn, DN newSuperiorDn, DN newDn, Entry modifiedEntry ) throws Exception
+    public synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry ) throws Exception
     {
-        // Check that the parent DN exists
+        // Check that the parent Dn exists
         ID newParentId = getEntryId( newSuperiorDn );
 
         if ( newParentId == null )
@@ -1415,7 +1415,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         updateSubLevelIndex( entryId, oldParentId, newParentId );
 
-        // Update the RDN index
+        // Update the Rdn index
         rdnIdx.drop( entryId );
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
         rdnIdx.add( key, entryId );
@@ -1460,26 +1460,26 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     //------------------------------------------------------------------------
 
     /**
-     * builds the DN of the entry identified by the given id
+     * builds the Dn of the entry identified by the given id
      *
      * @param id the entry's id
-     * @return the normalized DN of the entry
+     * @return the normalized Dn of the entry
      * @throws Exception
      */
-    protected DN buildEntryDn( ID id ) throws Exception
+    protected Dn buildEntryDn( ID id ) throws Exception
     {
         ID parentId = id;
 
-        List<RDN> rdnList = new ArrayList<RDN>();
+        List<Rdn> rdnList = new ArrayList<Rdn>();
         String upName = "";
         String normName = "";
 
         do
         {
             ParentIdAndRdn<ID> cur = rdnIdx.reverseLookup( parentId );
-            RDN[] rdns = cur.getRdns();
+            Rdn[] rdns = cur.getRdns();
 
-            for ( RDN rdn : rdns )
+            for ( Rdn rdn : rdns )
             {
                 if ( rdnList.isEmpty() )
                 {
@@ -1499,7 +1499,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
         while ( !parentId.equals( getRootId() ) );
 
-        DN dn = new DN( upName, normName, Strings.getBytesUtf8(normName), rdnList );
+        Dn dn = new Dn( upName, normName, Strings.getBytesUtf8(normName), rdnList );
 
         return dn;
     }
@@ -1558,7 +1558,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
-            DN ndn = getEntryDn( id );
+            Dn ndn = getEntryDn( id );
             addAliasIndices( id, ndn, mods.getString() );
         }
     }
@@ -1648,7 +1648,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
-            DN entryDn = getEntryDn( id );
+            Dn entryDn = getEntryDn( id );
             addAliasIndices( id, entryDn, mods.getString() );
         }
     }
@@ -1777,15 +1777,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * not allowed due to chaining or cycle formation.
      * @throws Exception if the wrappedCursor btrees cannot be altered
      */
-    protected void addAliasIndices( ID aliasId, DN aliasDn, String aliasTarget ) throws Exception
+    protected void addAliasIndices( ID aliasId, Dn aliasDn, String aliasTarget ) throws Exception
     {
-        DN normalizedAliasTargetDn; // Name value of aliasedObjectName
+        Dn normalizedAliasTargetDn; // Name value of aliasedObjectName
         ID targetId; // Id of the aliasedObjectName
-        DN ancestorDn; // Name of an alias entry relative
+        Dn ancestorDn; // Name of an alias entry relative
         ID ancestorId; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name
-        normalizedAliasTargetDn = new DN( aliasTarget, schemaManager );
+        normalizedAliasTargetDn = new Dn( aliasTarget, schemaManager );
 
         /*
          * Check For Cycles
@@ -1880,7 +1880,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
-        DN normalizedAliasTargetParentDn = normalizedAliasTargetDn;
+        Dn normalizedAliasTargetParentDn = normalizedAliasTargetDn;
         normalizedAliasTargetParentDn = normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
 
         if ( !aliasDn.isChildOf( normalizedAliasTargetParentDn ) )
@@ -1923,7 +1923,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected void dropAliasIndices( ID aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new DN( targetDn, schemaManager ) );
+        ID targetId = getEntryId( new Dn( targetDn, schemaManager ) );
 
         if ( targetId == null )
         {
@@ -1932,10 +1932,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             return;
         }
 
-        DN aliasDN = getEntryDn( aliasId );
+        Dn aliasDn = getEntryDn( aliasId );
 
-        DN ancestorDn = aliasDN;
-        ancestorDn = ancestorDn.remove( aliasDN.size() - 1 );
+        Dn ancestorDn = aliasDn;
+        ancestorDn = ancestorDn.remove( aliasDn.size() - 1 );
         ID ancestorId = getEntryId( ancestorDn );
 
         /*
@@ -1973,7 +1973,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param movedBase the base at which the move occured - the moved node
      * @throws Exception if system userIndices fail
      */
-    protected void dropMovedAliasIndices( final DN movedBase ) throws Exception
+    protected void dropMovedAliasIndices( final Dn movedBase ) throws Exception
     {
         ID movedBaseId = getEntryId( movedBase );
 
@@ -1992,17 +1992,17 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param movedBase the base where the move occured
      * @throws Exception if userIndices fail
      */
-    protected void dropAliasIndices( ID aliasId, DN movedBase ) throws Exception
+    protected void dropAliasIndices( ID aliasId, Dn movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new DN( targetDn, schemaManager ) );
-        DN aliasDn = getEntryDn( aliasId );
+        ID targetId = getEntryId( new Dn( targetDn, schemaManager ) );
+        Dn aliasDn = getEntryDn( aliasId );
 
         /*
          * Start droping index tuples with the first ancestor right above the
          * moved base.  This is the first ancestor effected by the move.
          */
-        DN ancestorDn = movedBase.getPrefix( 1 );
+        Dn ancestorDn = movedBase.getPrefix( 1 );
         ID ancestorId = getEntryId( ancestorDn );
 
         /*
@@ -2049,7 +2049,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param modifiedEntry the modified entry
      * @throws Exception if something goes wrong
      */
-    protected void moveAndRename( DN oldDn, ID childId, DN newSuperior, RDN newRdn, Entry modifiedEntry ) throws Exception
+    protected void moveAndRename( Dn oldDn, ID childId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         ID newParentId = getEntryId( newSuperior );
@@ -2075,7 +2075,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         updateSubLevelIndex( childId, oldParentId, newParentId );
 
         /*
-         * Update the RDN index
+         * Update the Rdn index
          */
         rdnIdx.drop( childId );
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, newRdn );

@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -216,7 +216,7 @@ public class ApacheDsService
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
-        // and normalize their suffix DN
+        // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
         List<Throwable> errors = schemaManager.getErrors();
@@ -252,7 +252,7 @@ public class ApacheDsService
         configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
         configPartition.setPartitionPath( confFile.toURI() );
-        configPartition.setSuffix( new DN( "ou=config", schemaManager ) );
+        configPartition.setSuffix( new Dn( "ou=config", schemaManager ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.initialize();
@@ -671,7 +671,7 @@ public class ApacheDsService
             EntryAttribute creatorAt = entry.get( atType );
             String creator = ( creatorAt == null ? "" : creatorAt.getString().trim() );
 
-            if ( ( creator.length() == 0 ) || ( !DN.isValid( creator ) ) )
+            if ( ( creator.length() == 0 ) || ( !Dn.isValid(creator) ) )
             {
                 creatorAt = new DefaultEntryAttribute( atType, adminDn );
             }

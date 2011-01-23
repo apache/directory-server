@@ -57,9 +57,9 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.name.Ava;
+import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.util.DateUtils;
@@ -105,11 +105,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    /** The subschemasubentry DN */
-    private DN subschemaSubentryDn;
+    /** The subschemasubentry Dn */
+    private Dn subschemaSubentryDn;
 
-    /** The admin DN */
-    private DN adminDn;
+    /** The admin Dn */
+    private Dn adminDn;
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -128,7 +128,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
 
-        // Create the Admin DN 
+        // Create the Admin Dn
         adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
     }
 
@@ -457,7 +457,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
-        DN dn = lookupContext.getDn();
+        Dn dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
 
         // still need to protect against returning op attrs when ids is null
@@ -496,7 +496,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN creatorsName = directoryService.getDNFactory().create( attr.getString() );
+                Dn creatorsName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -506,7 +506,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = directoryService.getDNFactory().create( attr.getString() );
+                Dn modifiersName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -516,7 +516,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                DN modifiersName = directoryService.getDNFactory().create( attr.getString() );
+                Dn modifiersName = directoryService.getDNFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -526,39 +526,39 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     /**
-     * Does not create a new DN but alters existing DN by using the first
+     * Does not create a new Dn but alters existing Dn by using the first
      * short name for an attributeType definition.
      * 
      * @param dn the normalized distinguished name
      * @return the distinuished name denormalized
      * @throws Exception if there are problems denormalizing
      */
-    public DN denormalizeTypes( DN dn ) throws LdapException
+    public Dn denormalizeTypes( Dn dn ) throws LdapException
     {
-        DN newDn = new DN();
+        Dn newDn = new Dn();
 
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
-            RDN rdn = dn.getRdn( ii );
+            Rdn rdn = dn.getRdn( ii );
             if ( rdn.size() == 0 )
             {
-                newDn = newDn.add( new RDN() );
+                newDn = newDn.add( new Rdn() );
                 continue;
             }
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 String value = rdn.getAVA().getNormValue().getString();
-                newDn = newDn.add( new RDN( name, name, value, value ) );
+                newDn = newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }
 
             // below we only process multi-valued rdns
             StringBuffer buf = new StringBuffer();
 
-            for ( Iterator<AVA> atavs = rdn.iterator(); atavs.hasNext(); /**/)
+            for ( Iterator<Ava> atavs = rdn.iterator(); atavs.hasNext(); /**/)
             {
-                AVA atav = atavs.next();
+                Ava atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getNormValue() );
 
@@ -568,7 +568,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            newDn = newDn.add( new RDN( buf.toString() ) );
+            newDn = newDn.add( new Rdn( buf.toString() ) );
         }
 
         return newDn;

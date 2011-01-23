@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -79,7 +79,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
         // Initializing the wrapped partition
         setWrappedPartition( new AvlPartition() );
         setId( "config" );
-        setSuffix( new DN( "ou=config" ) );
+        setSuffix( new Dn( "ou=config" ) );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
 

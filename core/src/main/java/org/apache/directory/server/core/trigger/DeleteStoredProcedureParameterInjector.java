@@ -26,17 +26,17 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private DN deletedEntryName;
+    private Dn deletedEntryName;
     private Entry deletedEntry;
 
     
-    public DeleteStoredProcedureParameterInjector( OperationContext opContext, DN deletedEntryName ) 
+    public DeleteStoredProcedureParameterInjector( OperationContext opContext, Dn deletedEntryName )
         throws LdapException
     {
         super( opContext );

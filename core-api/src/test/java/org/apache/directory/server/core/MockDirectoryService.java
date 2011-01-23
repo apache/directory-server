@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
@@ -345,7 +345,7 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public Entry newEntry( DN dn ) throws LdapException
+    public Entry newEntry( Dn dn ) throws LdapException
     {
         return null;
     }
@@ -374,13 +374,13 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
+    public CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException
     {
         return null;
     }
 
     
-    public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+    public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws LdapException
     {
         return null;

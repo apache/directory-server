@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.message.ModifyResponse;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -71,7 +71,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: person", "cn", cn,
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: person", "cn", cn,
             "sn: testentry" );
 
         return subentry;
@@ -80,7 +80,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry", "c-ou: configuration",
             "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry" );
 
@@ -90,7 +90,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry", "c-ou: configuration2",
             "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry2" );
 
@@ -100,7 +100,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry", "c-st: FL",
             "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry3" );
 

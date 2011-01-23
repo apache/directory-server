@@ -43,7 +43,7 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -176,7 +176,7 @@ public class HttpServer
             if ( httpsTransport != null )
             {
                 // load the admin entry to get the private key and certificate
-                DN adminDn = dirService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+                Dn adminDn = dirService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
                 Entry adminEntry = dirService.getAdminSession().lookup( adminDn, new String[]{ "+" } );
                 
                 File confDir = dirService.getInstanceLayout().getConfDirectory();

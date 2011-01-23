@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.util.PreferencesDictionary;
 
@@ -66,7 +66,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     /** maps changes based on key: key->list of mods (on same key) */
     private HashMap<String, List<Modification>> keyToChange = new HashMap<String, List<Modification>>( 3 );
     
-    private DN dn;
+    private Dn dn;
     
     private DirectoryService directoryService;
     
@@ -112,7 +112,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         super( parent, name );
 
         this.directoryService = parent.directoryService;
-        DN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
+        Dn parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
             dn = directoryService.getDNFactory().create( "prefNodeName=" + name + "," + parentDn.getName() );

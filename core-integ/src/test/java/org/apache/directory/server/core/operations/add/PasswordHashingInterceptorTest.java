@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +71,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         byte[] plainPwd = "secret".getBytes();
-        DN dn = new DN( "cn=test,ou=system" );
+        Dn dn = new Dn( "cn=test,ou=system" );
 
         Entry entry = connection.lookup( dn );
         EntryAttribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
@@ -87,7 +87,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         byte[] plainPwd = "newsecret".getBytes();
-        DN dn = new DN( "cn=test,ou=system" );
+        Dn dn = new Dn( "cn=test,ou=system" );
 
         AttributeType pwdAtType = service.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
@@ -113,7 +113,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         byte[] plainPwd = "secret".getBytes();
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA );
         
-        DN dn = new DN( "cn=testHash,ou=system" );
+        Dn dn = new Dn( "cn=testHash,ou=system" );
         Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
@@ -137,7 +137,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         byte[] plainPwd = "xyzsecret".getBytes();
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA256 );
 
-        DN dn = new DN( "cn=test,ou=system" );
+        Dn dn = new Dn( "cn=test,ou=system" );
 
         AttributeType pwdAtType = service.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         

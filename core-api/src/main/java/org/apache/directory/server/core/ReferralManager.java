@@ -21,7 +21,7 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 /**
  * An interface for managing referrals in the server
@@ -55,35 +55,35 @@ public interface ReferralManager
 
 
     /**
-     * Tells if a DN is a referral (its associated entry contains the Referral ObjectClass).
+     * Tells if a Dn is a referral (its associated entry contains the Referral ObjectClass).
      *
      * It does not check that the associated entry inherits from a referral.
      *
-     * @param dn The entry's DN we want to check
-     * @return <code>true</code> if the DN is associated with a referral
+     * @param dn The entry's Dn we want to check
+     * @return <code>true</code> if the Dn is associated with a referral
      */
-    boolean isReferral( DN dn );
+    boolean isReferral( Dn dn );
 
 
     /**
-     * Tells if this DN has a parent which is a referral.
+     * Tells if this Dn has a parent which is a referral.
      * <br>
-     * For instance, if cn=example, dc=acme, dc=org is the DN to check,
+     * For instance, if cn=example, dc=acme, dc=org is the Dn to check,
      * and if dc=acme, dc=org is a referral, this this method will return true.
      *
-     * @param dn The DN we want to check for a referral in its partents
+     * @param dn The Dn we want to check for a referral in its partents
      * @return <code>true</code> if there is a parent referral
      */
-    boolean hasParentReferral( DN dn );
+    boolean hasParentReferral( Dn dn );
 
 
     /**
-     * Get the DN of the parent referral for a specific DN
+     * Get the Dn of the parent referral for a specific Dn
      *
-     * @param dn The DN from which we want to get the parent referral
+     * @param dn The Dn from which we want to get the parent referral
      * @return The parent referral of null if none is found
      */
-    Entry getParentReferral( DN dn );
+    Entry getParentReferral( Dn dn );
 
 
     /**
@@ -119,8 +119,8 @@ public interface ReferralManager
      * will remove them from the referrals table.
      *
      * @param directoryService The associated LDAP service
-     * @param suffixes The partition DN to remove
+     * @param suffixes The partition Dn to remove
      * @exception If the removal failed
      */
-    void remove( DirectoryService directoryService, DN suffix ) throws Exception;
+    void remove( DirectoryService directoryService, Dn suffix ) throws Exception;
 }

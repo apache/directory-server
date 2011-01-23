@@ -44,7 +44,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,7 +132,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = new LdapNetworkConnection( sslConfig );
 
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
 
         List<String> controlList = connection.getSupportedControls();
@@ -181,7 +181,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         connection.connect();
         connection.startTls();
 
-        DN dn = new DN( "uid=admin,ou=system" );
+        Dn dn = new Dn( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
 
         List<String> controlList = connection.getSupportedControls();

@@ -27,7 +27,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,7 +47,7 @@ public class ListPerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfList() throws Exception
     {
-        ListOperationContext listContext = new ListOperationContext( service.getAdminSession(), new DN( "ou=system" ) );
+        ListOperationContext listContext = new ListOperationContext( service.getAdminSession(), new Dn( "ou=system" ) );
         EntryFilteringCursor cursor = service.getOperationManager().list( listContext );
 
         assertNotNull( cursor );

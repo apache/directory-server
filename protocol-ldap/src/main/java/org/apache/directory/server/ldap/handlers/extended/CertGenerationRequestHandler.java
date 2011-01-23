@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 
 
 /**
@@ -90,7 +90,7 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
 
         CertGenerationObject certGenObj = container.getCertGenerationObject();
 
-        Entry entry = session.getCoreSession().lookup( new DN( certGenObj.getTargetDN() ) );
+        Entry entry = session.getCoreSession().lookup( new Dn( certGenObj.getTargetDN() ) );
 
         if ( entry != null )
         {

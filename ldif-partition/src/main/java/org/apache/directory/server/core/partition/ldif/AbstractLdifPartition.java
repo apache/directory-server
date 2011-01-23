@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -146,7 +146,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public DN getEntryDn( Long id ) throws Exception
+    public Dn getEntryDn( Long id ) throws Exception
     {
         return wrappedPartition.getEntryDn( id );
     }
@@ -156,7 +156,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public Long getEntryId( DN dn ) throws LdapException
+    public Long getEntryId( Dn dn ) throws LdapException
     {
         return wrappedPartition.getEntryId( dn );
     }
@@ -373,7 +373,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void setSuffix( DN suffix ) throws LdapInvalidDnException
+    public void setSuffix( Dn suffix ) throws LdapInvalidDnException
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );

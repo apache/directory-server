@@ -104,7 +104,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;
@@ -135,7 +135,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private CoreSession adminSession;
 
-    private Set<DN> pwdResetSet = new HashSet<DN>();
+    private Set<Dn> pwdResetSet = new HashSet<Dn>();
 
     // pwdpolicy state attribute types
     private AttributeType AT_PWD_RESET;
@@ -476,7 +476,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private void invalidateAuthenticatorCaches( DN principalDn )
+    private void invalidateAuthenticatorCaches( Dn principalDn )
     {
         for ( AuthenticationLevel authMech : authenticatorsMapByType.keySet() )
         {
@@ -512,7 +512,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
         
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
-        DN userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
+        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
 
         PwdModDetailsHolder pwdModDetails = null;
         if ( policyConfig.isPwdSafeModify() || pwdResetSet.contains( userDn ) || ( policyConfig.getPwdMinAge() > 0 ) )
@@ -844,10 +844,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( level == AuthenticationLevel.UNAUTHENT )
         {
-            // This is a case where the Bind request contains a DN, but no password.
-            // We don't check the DN, we just return a UnwillingToPerform error
+            // This is a case where the Bind request contains a Dn, but no password.
+            // We don't check the Dn, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for DN "
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for Dn "
                 + bindContext.getDn().getName() );
         }
 
@@ -934,7 +934,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             throw ppe;
         }
 
-        DN dn = bindContext.getDn();
+        Dn dn = bindContext.getDn();
         Entry userEntry = bindContext.getEntry();
         
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( userEntry );
@@ -1104,7 +1104,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         super.unbind( next, unbindContext );
 
-        // remove the DN from the password reset Set
+        // remove the Dn from the password reset Set
         // we do not perform a check to see if the reset flag in the associated ppolicy is enabled
         // cause that requires fetching the ppolicy first, which requires a lookup for user entry
         if ( !directoryService.isPwdPolicyEnabled() )
@@ -1424,7 +1424,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             CoreSession session = opContext.getSession();
 
-            DN userDn = session.getAuthenticatedPrincipal().getDN();
+            Dn userDn = session.getAuthenticatedPrincipal().getDN();
 
             if ( pwdResetSet.contains( userDn ) )
             {

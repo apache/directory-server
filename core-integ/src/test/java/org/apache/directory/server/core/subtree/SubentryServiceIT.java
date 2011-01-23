@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -222,7 +222,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getSubentry( String dn ) throws Exception
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ), "objectClass: top", "objectClass: subentry",
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry", "subtreeSpecification: { base \"ou=configuration\" }",
             "c-o: Test Org", "cn: testsubentry" );
 
@@ -248,7 +248,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getTestSubentryWithExclusion( String dn ) throws LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new DN( dn ),
+        Entry subentry = LdifUtils.createEntry( new Dn( dn ),
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -274,7 +274,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     private void addAdministrativeRole( LdapConnection connection, String dn, String role ) throws Exception
     {
         ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new DN( dn ) );
+        modifyRequest.setName( new Dn( dn ) );
         modifyRequest.add( "administrativeRole", role );
         connection.modify( modifyRequest );
     }
@@ -402,7 +402,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         // Add the subentry
-        Entry subEntryA = LdifUtils.createEntry( new DN( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ),
+        Entry subEntryA = LdifUtils.createEntry( new Dn( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ),
             "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
             "c-o: Test Org", "cn: testsubentryA" );
@@ -444,7 +444,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // Now add another subentry on AP-B
         // Add the subentry
-        Entry subEntryB = LdifUtils.createEntry( new DN( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ),
+        Entry subEntryB = LdifUtils.createEntry( new Dn( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ),
             "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
             "c-o: Test Org", "cn: testsubentryB" );
@@ -1270,8 +1270,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // except subentries disappear
         SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
-        sysRoot.setRequestControls( JndiUtils.toJndiControls( new Control[]
-            { ctl } ) );
+        sysRoot.setRequestControls( JndiUtils.toJndiControls(new Control[]
+                {ctl}) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = list.next();
         assertFalse( list.hasMore() );

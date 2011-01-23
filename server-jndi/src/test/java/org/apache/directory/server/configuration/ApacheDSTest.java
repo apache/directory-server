@@ -53,7 +53,7 @@ public class ApacheDSTest
         JdbmPartition example = new JdbmPartition();
         example.setId( "example" );
         example.setSuffix( "dc=example,dc=com" );
-        DN contextDn = new DN( "dc=example,dc=com" );
+        Dn contextDn = new Dn( "dc=example,dc=com" );
         contextDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         ServerEntry contextEntry = new DefaultServerEntry( directoryService.getRegistries(), contextDn );
         contextEntry.add( "objectClass", "top", "domain" );
@@ -82,7 +82,7 @@ public class ApacheDSTest
             LOG.error( "Failed to start up ApacheDS!", t );
         }
         
-        DN dn = new DN( "uid=aeinstein,ou=Users,dc=example,dc=com" );
+        Dn dn = new Dn( "uid=aeinstein,ou=Users,dc=example,dc=com" );
         assertNotNull( directoryService.getAdminSession().lookup( dn ) );
     }
     */
