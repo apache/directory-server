@@ -42,7 +42,7 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -184,10 +184,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntaxChecker", "m-fqcn",
-            "org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
-                .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker" );
+        Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: metaTop",
+                "objectClass: metaSyntaxChecker", "m-fqcn",
+                "org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
+                .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker");
 
         Dn dn = getSyntaxCheckerContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );

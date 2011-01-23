@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -77,7 +77,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // add this entry before each test because we want 
         // to check that operational attributes are added
         Entry entry = LdifUtils
-            .createEntry( DN_KATE_BUSH, "objectClass: top", "objectClass: person", "cn: Kate Bush", "sn: Bush" );
+            .createEntry(DN_KATE_BUSH, "objectClass: top", "objectClass: person", "cn: Kate Bush", "sn: Bush");
         connection.add( entry );
     }
 

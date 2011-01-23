@@ -66,9 +66,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -176,7 +176,7 @@ public class SingleFileLdifPartitionTest
     private long getEntryLdifLen( Entry entry ) throws LdapException
     {
         // while writing to the file 1 extra newline char will be added
-        String ldif = LdifUtils.convertEntryToLdif( entry ) + 1;
+        String ldif = LdifUtils.convertEntryToLdif(entry) + 1;
         byte[] data = Strings.getBytesUtf8(ldif);
 
         return data.length;

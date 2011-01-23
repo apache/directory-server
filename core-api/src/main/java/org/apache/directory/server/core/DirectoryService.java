@@ -40,7 +40,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -320,7 +320,7 @@ public interface DirectoryService extends ServerEntryFactory
 
     
     /**
-     * Returns test directory entries({@link LdifEntry}) to be loaded while
+     * Returns test directory entries({@link org.apache.directory.shared.ldap.model.ldif.LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @return test entries to load during bootstrapping

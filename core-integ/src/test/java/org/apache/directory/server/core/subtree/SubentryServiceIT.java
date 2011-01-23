@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
@@ -443,10 +443,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // Now add another subentry on AP-B
         // Add the subentry
-        Entry subEntryB = LdifUtils.createEntry( new Dn( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ),
-            "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
-            "subtreeSpecification: {}", // All the entry from the AP, including the AP
-            "c-o: Test Org", "cn: testsubentryB" );
+        Entry subEntryB = LdifUtils.createEntry(new Dn("cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system"),
+                "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
+                "subtreeSpecification: {}", // All the entry from the AP, including the AP
+                "c-o: Test Org", "cn: testsubentryB");
 
         response = connection.add( subEntryB );
 

@@ -39,7 +39,7 @@ import javax.naming.event.ObjectChangeListener;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,10 +66,10 @@ public class EventServiceIT extends AbstractLdapTestUnit
         EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou", "testentry" );
+        Attributes testEntry = LdifUtils.createAttributes(
+                "objectClass: top",
+                "objectClass: organizationalUnit",
+                "ou", "testentry");
 
         ctx.createSubcontext( "ou=testentry", testEntry );
 

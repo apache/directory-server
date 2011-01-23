@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
@@ -297,12 +297,12 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
     public void testModifyAddInnerArea() throws Exception
     {
         // Inject an CASA
-        Entry caArea = LdifUtils.createEntry( 
-            "ou=caArea, ou=system", 
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit", 
-            "ou: caArea", 
-            "administrativeRole: collectiveAttributeSpecificArea" );
+        Entry caArea = LdifUtils.createEntry(
+                "ou=caArea, ou=system",
+                "ObjectClass: top",
+                "ObjectClass: organizationalUnit",
+                "ou: caArea",
+                "administrativeRole: collectiveAttributeSpecificArea");
 
         connection.add( caArea );
 

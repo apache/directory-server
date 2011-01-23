@@ -38,9 +38,9 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifRevertor;
+import org.apache.directory.shared.ldap.model.ldif.ChangeType;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -131,7 +131,7 @@ public class MemoryChangeLogStoreTest
         Dn reverseDn = new Dn( forward.getDn() );
         reverseDn.normalize( oidsMap );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );
+        LdifEntry reverse = LdifRevertor.reverseAdd(reverseDn);
 
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;

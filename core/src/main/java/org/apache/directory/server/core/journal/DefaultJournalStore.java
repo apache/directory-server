@@ -29,8 +29,8 @@ import java.io.Writer;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 
 /**
  * @todo : Missing Javadoc
@@ -117,7 +117,7 @@ public class DefaultJournalStore implements JournalStore
                 writer.write( "\n" );
                 
                 // Write the entry
-                writer.write( LdifUtils.convertToLdif( forward, 80 ) );
+                writer.write( LdifUtils.convertToLdif(forward, 80) );
                 writer.flush();
             }
             catch ( LdapException ne )

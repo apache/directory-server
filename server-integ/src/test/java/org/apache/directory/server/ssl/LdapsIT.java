@@ -44,7 +44,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,12 +113,12 @@ public class LdapsIT extends AbstractLdapTestUnit
     public void testLdaps() throws Exception
     {
         // Create a person
-        Attributes attributes = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: person",
-            "cn: The Person",
-            "sn: Person",
-            "description: this is a person" );
+        Attributes attributes = LdifUtils.createAttributes(
+                "objectClass: top",
+                "objectClass: person",
+                "cn: The Person",
+                "sn: Person",
+                "description: this is a person");
         DirContext ctx = getSecureConnectionSystem();
         DirContext person = ctx.createSubcontext( RDN, attributes );
 

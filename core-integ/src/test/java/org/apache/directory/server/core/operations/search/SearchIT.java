@@ -64,7 +64,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
@@ -222,8 +222,8 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: posixGroup", "cn", name,
-            "gidNumber", String.valueOf( gid ) );
+        Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: posixGroup", "cn", name,
+                "gidNumber", String.valueOf(gid));
 
         return getSystemContext( service ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }

@@ -45,10 +45,10 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.Ava;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -301,7 +301,7 @@ public class LdifPartition extends AbstractLdifPartition
         try
         {
             FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-            fw.write( LdifUtils.convertEntryToLdif( modifiedEntry, true ) );
+            fw.write( LdifUtils.convertEntryToLdif(modifiedEntry, true) );
             fw.close();
         }
         catch ( IOException ioe )

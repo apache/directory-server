@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.*;
@@ -204,8 +204,8 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
-        Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
-            "sn: userMinAge_sn", "userPassword: 12345" );
+        Entry userEntry = LdifUtils.createEntry(userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
+                "sn: userMinAge_sn", "userPassword: 12345");
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );

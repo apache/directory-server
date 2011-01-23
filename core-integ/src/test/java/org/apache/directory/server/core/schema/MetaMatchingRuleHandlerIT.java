@@ -39,7 +39,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -164,12 +164,12 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         createComparator();
 
         Attributes attrs = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: metaTop",
-            "objectClass: metaMatchingRule",
-            "m-oid", OID,
-            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
-            "m-description", DESCRIPTION0 );
+                "objectClass: top",
+                "objectClass: metaTop",
+                "objectClass: metaMatchingRule",
+                "m-oid", OID,
+                "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+                "m-description", DESCRIPTION0);
 
         Dn dn = getMatchingRuleContainer( "notloaded" );
         dn = dn.add( "m-oid" + "=" + OID );

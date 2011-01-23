@@ -33,7 +33,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -195,12 +195,12 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         // Add the entry under a SAP with the same role which has no parent AAP
         entry = LdifUtils.createEntry(
-            "ou=IAP-CANew,ou=SAP-CA2,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: IAP-CANew",
-            "administrativeRole: collectiveAttributeInnerArea"
-            );
+                "ou=IAP-CANew,ou=SAP-CA2,ou=system",
+                "ObjectClass: top",
+                "ObjectClass: organizationalUnit",
+                "ou: IAP-CANew",
+                "administrativeRole: collectiveAttributeInnerArea"
+        );
 
         response = connection.add( entry );
 

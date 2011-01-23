@@ -44,9 +44,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifRevertor;
+import org.apache.directory.shared.ldap.model.ldif.ChangeType;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
@@ -378,7 +378,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( moveContext.getDn() );
         forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
-        LdifEntry reverse = LdifRevertor.reverseMove( moveContext.getNewSuperior(), moveContext.getDn() );
+        LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
         moveContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 }

@@ -44,7 +44,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -130,8 +130,8 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
-            "ou: Test", "description: Old Value" );
+        Attributes attributes = LdifUtils.createAttributes("objectClass: top", "objectClass: organizationalUnit",
+                "ou: Test", "description: Old Value");
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );

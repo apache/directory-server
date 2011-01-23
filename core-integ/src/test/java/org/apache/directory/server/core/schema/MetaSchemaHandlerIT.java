@@ -42,7 +42,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -420,13 +420,13 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
 
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
-            "cn: dummy",
-            "m-dependencies: core",
-            "m-dependencies: system",
-            MetaSchemaConstants.M_DISABLED_AT, "FALSE" );
+        Attributes dummySchema = LdifUtils.createAttributes(
+                "objectClass: top",
+                "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+                "cn: dummy",
+                "m-dependencies: core",
+                "m-dependencies: system",
+                MetaSchemaConstants.M_DISABLED_AT, "FALSE");
         
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         

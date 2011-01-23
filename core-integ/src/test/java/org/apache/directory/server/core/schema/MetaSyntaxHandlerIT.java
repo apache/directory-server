@@ -47,7 +47,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -444,12 +444,12 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
         Attributes attrs = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: metaTop",
-            "objectClass: metaMatchingRule",
-            "m-oid", MR_OID,
-            "m-syntax", OID,
-            "m-description", MR_DESCRIPTION );
+                "objectClass: top",
+                "objectClass: metaTop",
+                "objectClass: metaMatchingRule",
+                "m-oid", MR_OID,
+                "m-syntax", OID,
+                "m-description", MR_DESCRIPTION);
 
         Dn dn = getMatchingRuleContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + MR_OID );

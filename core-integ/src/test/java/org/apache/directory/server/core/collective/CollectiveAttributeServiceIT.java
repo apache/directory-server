@@ -42,8 +42,8 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
@@ -90,9 +90,9 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-ou: configuration2",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry2" );
+        Entry subentry = LdifUtils.createEntry(new Dn(dn), "objectClass: top", "objectClass: subentry",
+                "objectClass: collectiveAttributeSubentry", "c-ou: configuration2",
+                "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry2");
 
         return subentry;
     }

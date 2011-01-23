@@ -43,7 +43,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -427,12 +427,12 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Create a MR using this Normalizer
         Attributes attrs = LdifUtils.createAttributes(
-            "objectClass: top",
-            "objectClass: metaTop",
-            "objectClass: metaMatchingRule",
-            "m-oid", OID,
-            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
-            "m-description: test" );
+                "objectClass: top",
+                "objectClass: metaTop",
+                "objectClass: metaMatchingRule",
+                "m-oid", OID,
+                "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+                "m-description: test");
 
         Dn mrDn = getMatchingRuleContainer( "apachemeta" );
         mrDn = mrDn.add( "m-oid" + "=" + OID );

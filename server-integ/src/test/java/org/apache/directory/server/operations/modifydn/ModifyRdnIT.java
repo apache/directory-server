@@ -42,7 +42,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,11 +86,11 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      */
     private Attributes getOrganizationalUnitAttributes( String ou ) throws Exception
     {
-        Attributes attributes = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou", ou,
-            "description", ou + " is an organizational unit." );
+        Attributes attributes = LdifUtils.createAttributes(
+                "objectClass: top",
+                "objectClass: organizationalUnit",
+                "ou", ou,
+                "description", ou + " is an organizational unit.");
 
         return attributes;
     }
