@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

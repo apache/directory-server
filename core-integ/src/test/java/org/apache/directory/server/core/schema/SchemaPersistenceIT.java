@@ -47,7 +47,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;

@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;

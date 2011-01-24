@@ -28,7 +28,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

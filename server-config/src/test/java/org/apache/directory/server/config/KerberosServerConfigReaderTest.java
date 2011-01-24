@@ -33,7 +33,7 @@ import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;

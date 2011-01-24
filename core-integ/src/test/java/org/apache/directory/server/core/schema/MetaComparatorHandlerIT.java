@@ -47,10 +47,10 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
-import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
+import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Before;
 import org.junit.Ignore;

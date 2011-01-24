@@ -32,9 +32,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterE
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
 
 
 /**

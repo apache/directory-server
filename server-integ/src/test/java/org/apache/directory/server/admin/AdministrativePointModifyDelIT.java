@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

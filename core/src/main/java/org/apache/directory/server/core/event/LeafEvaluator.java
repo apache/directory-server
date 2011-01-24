@@ -39,11 +39,11 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

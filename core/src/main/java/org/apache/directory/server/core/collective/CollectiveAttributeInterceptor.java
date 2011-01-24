@@ -50,8 +50,8 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

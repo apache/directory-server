@@ -70,7 +70,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

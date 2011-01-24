@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.filter.LdapURL;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;

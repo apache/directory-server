@@ -41,8 +41,8 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

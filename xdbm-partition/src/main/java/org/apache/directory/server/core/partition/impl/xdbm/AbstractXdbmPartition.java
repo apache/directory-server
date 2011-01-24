@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
 /**

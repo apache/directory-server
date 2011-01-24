@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
 
 

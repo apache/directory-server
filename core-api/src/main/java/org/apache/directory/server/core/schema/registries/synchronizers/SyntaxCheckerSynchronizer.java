@@ -32,8 +32,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;

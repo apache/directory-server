@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

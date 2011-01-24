@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorExcept
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.model.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;

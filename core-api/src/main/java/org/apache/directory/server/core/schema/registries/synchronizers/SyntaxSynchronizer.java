@@ -34,11 +34,11 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;

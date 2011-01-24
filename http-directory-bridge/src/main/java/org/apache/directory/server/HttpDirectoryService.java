@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

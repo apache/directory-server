@@ -77,7 +77,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;

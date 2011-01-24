@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaObjectType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;

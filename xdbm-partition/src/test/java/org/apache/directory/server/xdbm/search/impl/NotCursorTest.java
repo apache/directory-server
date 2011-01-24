@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.filter.*;
 import org.apache.directory.shared.ldap.model.filter.NotNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;

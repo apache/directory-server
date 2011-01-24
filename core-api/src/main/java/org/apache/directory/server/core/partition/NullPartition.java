@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

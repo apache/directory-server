@@ -27,8 +27,8 @@ import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.MasterTable;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 
 
 /**

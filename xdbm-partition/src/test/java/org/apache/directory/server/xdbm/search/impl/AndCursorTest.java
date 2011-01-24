@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.ObjectClass;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

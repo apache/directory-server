@@ -30,11 +30,11 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

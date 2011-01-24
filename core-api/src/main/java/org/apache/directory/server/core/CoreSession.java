@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
+import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**

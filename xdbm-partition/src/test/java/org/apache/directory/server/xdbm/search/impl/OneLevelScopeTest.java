@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

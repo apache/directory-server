@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.name.*;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

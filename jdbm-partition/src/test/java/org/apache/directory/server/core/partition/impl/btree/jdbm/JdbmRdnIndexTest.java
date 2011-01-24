@@ -36,7 +36,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

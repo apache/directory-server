@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.exception.Exceptions;

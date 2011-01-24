@@ -82,7 +82,7 @@ import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

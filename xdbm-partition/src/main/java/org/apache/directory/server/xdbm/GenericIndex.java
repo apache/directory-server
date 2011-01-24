@@ -23,7 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.net.URI;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
 /**

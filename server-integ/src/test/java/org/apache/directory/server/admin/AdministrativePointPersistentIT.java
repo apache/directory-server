@@ -40,7 +40,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.After;
 import org.junit.Before;

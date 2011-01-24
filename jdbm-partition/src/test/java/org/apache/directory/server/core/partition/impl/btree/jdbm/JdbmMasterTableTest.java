@@ -29,7 +29,7 @@ import java.io.File;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

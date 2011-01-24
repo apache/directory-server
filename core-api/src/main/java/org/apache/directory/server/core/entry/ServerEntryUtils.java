@@ -47,9 +47,9 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.EmptyEnumeration;
 import org.apache.directory.shared.util.Strings;
 

@@ -31,7 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;

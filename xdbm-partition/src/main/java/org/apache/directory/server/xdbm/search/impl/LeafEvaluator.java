@@ -24,10 +24,10 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 /**
  * An abstract evaluator to store the common fileds for the Simple node evaluators

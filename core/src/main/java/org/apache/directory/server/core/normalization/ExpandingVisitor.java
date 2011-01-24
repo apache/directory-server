@@ -35,8 +35,8 @@ import org.apache.directory.shared.ldap.model.filter.LeafNode;
 import org.apache.directory.shared.ldap.model.filter.LessEqNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

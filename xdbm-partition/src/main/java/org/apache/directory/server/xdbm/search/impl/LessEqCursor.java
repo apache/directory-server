@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
 /**

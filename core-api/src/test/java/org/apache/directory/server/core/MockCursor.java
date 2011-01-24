@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 public class MockCursor implements Cursor<Entry>
 {

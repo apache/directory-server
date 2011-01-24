@@ -91,9 +91,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeExcep
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
