@@ -222,11 +222,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         // Initialize and normalize the localy used DNs
-        Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager );
 
         Value<?> attr = rootDSE.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = directoryService.getDNFactory().create( attr.getString() );
+        subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
 
         initializeSystemPartition( directoryService );
 
@@ -301,7 +301,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         system.initialize();
 
         // Add root context entry for system partition
-        Dn systemSuffixDn = directoryService.getDNFactory().create( ServerDNConstants.SYSTEM_DN );
+        Dn systemSuffixDn = directoryService.getDnFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = directoryService.getAdminSession();
 
         if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
@@ -369,7 +369,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                removeContextPartition(  directoryService.getDNFactory().create( suffix ) );
+                removeContextPartition(  directoryService.getDnFactory().create( suffix ) );
             }
             catch ( Exception e )
             {

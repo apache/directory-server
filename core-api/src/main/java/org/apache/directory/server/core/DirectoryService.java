@@ -586,5 +586,5 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return the Dn factory
      */
-    DNFactory getDNFactory();
+    DnFactory getDnFactory();
 }

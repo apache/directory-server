@@ -74,7 +74,7 @@ public class LdapClassLoader extends ClassLoader
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
-        defaultSearchDn = directoryService.getDNFactory().create( DEFAULT_SEARCH_CONTEXTS_CONFIG );
+        defaultSearchDn = directoryService.getDnFactory().create( DEFAULT_SEARCH_CONTEXTS_CONFIG );
         
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
@@ -162,7 +162,7 @@ public class LdapClassLoader extends ClassLoader
                 
                 for ( Value<?> val : attr )
                 {
-                    Dn dn = directoryService.getDNFactory().create( val.getString() );
+                    Dn dn = directoryService.getDnFactory().create( val.getString() );
                     searchContexts.add( dn );
                 }
                 
@@ -186,7 +186,7 @@ public class LdapClassLoader extends ClassLoader
 
                 for ( String suffix:suffixes )
                 {
-                    Dn dn = directoryService.getDNFactory().create( suffix );
+                    Dn dn = directoryService.getDnFactory().create( suffix );
                     namingContexts.add( dn );
                 }
                 

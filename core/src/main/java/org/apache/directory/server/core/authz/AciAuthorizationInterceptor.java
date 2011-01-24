@@ -277,7 +277,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         chain = directoryService.getInterceptorChain();
@@ -293,7 +293,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDnName = directoryService.getDNFactory().create( subschemaSubentry.getString() );
+        Dn subschemaSubentryDnName = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
 
         // Init the caches now

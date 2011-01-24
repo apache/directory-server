@@ -54,7 +54,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     protected Dn getOperationPrincipal() throws LdapInvalidDnException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
-        Dn userName = opContext.getSession().getDirectoryService().getDNFactory().create( principal.getName() );
+        Dn userName = opContext.getSession().getDirectoryService().getDnFactory().create( principal.getName() );
         return userName;
     }
     

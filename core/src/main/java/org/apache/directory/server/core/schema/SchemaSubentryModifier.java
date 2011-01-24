@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.DNFactory;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -82,7 +82,7 @@ public class SchemaSubentryModifier
     private SchemaManager schemaManager;
 
     /** The Dn factory */
-    private DNFactory dnFactory;
+    private DnFactory dnFactory;
 
 
     /**
@@ -92,7 +92,7 @@ public class SchemaSubentryModifier
      * @param schemaManager The server schemaManager
      * @param dnFactory The Dn factory
      */
-    public SchemaSubentryModifier( SchemaManager schemaManager, DNFactory dnFactory )
+    public SchemaSubentryModifier( SchemaManager schemaManager, DnFactory dnFactory )
     {
         this.schemaManager = schemaManager;
         this.dnFactory = dnFactory;

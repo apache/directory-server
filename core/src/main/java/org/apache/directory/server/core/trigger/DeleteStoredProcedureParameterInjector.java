@@ -52,7 +52,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             // Return a safe copy constructed with user provided name.
-            return opContext.getSession().getDirectoryService().getDNFactory().create( deletedEntryName.getName() );
+            return opContext.getSession().getDirectoryService().getDnFactory().create( deletedEntryName.getName() );
         }
     };
     

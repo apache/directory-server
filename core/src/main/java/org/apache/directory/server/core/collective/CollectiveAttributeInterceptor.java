@@ -391,7 +391,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            Dn subentryDn = opContext.getSession().getDirectoryService().getDNFactory().create( subentryDnStr );
+            Dn subentryDn = opContext.getSession().getDirectoryService().getDnFactory().create( subentryDnStr );
 
             /*
              * TODO - Instead of hitting disk here can't we leverage the 

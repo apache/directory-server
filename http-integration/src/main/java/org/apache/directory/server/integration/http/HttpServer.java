@@ -176,7 +176,7 @@ public class HttpServer
             if ( httpsTransport != null )
             {
                 // load the admin entry to get the private key and certificate
-                Dn adminDn = dirService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+                Dn adminDn = dirService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
                 Entry adminEntry = dirService.getAdminSession().lookup( adminDn, new String[]{ "+" } );
                 
                 File confDir = dirService.getInstanceLayout().getConfDirectory();

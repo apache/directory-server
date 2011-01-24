@@ -53,7 +53,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return opContext.getSession().getDirectoryService().getDNFactory().create( addedEntryName.getName() );
+            return opContext.getSession().getDirectoryService().getDnFactory().create( addedEntryName.getName() );
         }
     };
     

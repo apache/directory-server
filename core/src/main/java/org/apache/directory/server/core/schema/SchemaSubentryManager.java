@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.DNFactory;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -109,7 +109,7 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, DNFactory dnFactory )
+    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, DnFactory dnFactory )
         throws LdapException
     {
         this.schemaManager = schemaManager;

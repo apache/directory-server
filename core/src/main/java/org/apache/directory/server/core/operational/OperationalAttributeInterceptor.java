@@ -126,10 +126,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
-        adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
     }
 
 
@@ -496,7 +496,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn creatorsName = directoryService.getDNFactory().create( attr.getString() );
+                Dn creatorsName = directoryService.getDnFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -506,7 +506,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDNFactory().create( attr.getString() );
+                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -516,7 +516,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDNFactory().create( attr.getString() );
+                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );

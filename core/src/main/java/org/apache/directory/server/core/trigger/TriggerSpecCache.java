@@ -123,13 +123,13 @@ public class TriggerSpecCache
 
         for ( String suffix:suffixes )
         {
-            Dn baseDn = directoryService.getDNFactory().create( suffix );
+            Dn baseDn = directoryService.getDnFactory().create( suffix );
             ExprNode filter = new EqualityNode<String>( objectClassAt,
                     new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 

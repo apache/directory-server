@@ -31,7 +31,7 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -77,7 +77,7 @@ public class TupleCache
     private final Map<String, List<ACITuple>> tuples = new HashMap<String, List<ACITuple>>();
 
     /** the Dn factory */
-    private final DNFactory dnFactory;
+    private final DnFactory dnFactory;
 
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
@@ -101,7 +101,7 @@ public class TupleCache
     public TupleCache( CoreSession session ) throws LdapException
     {
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-        this.dnFactory = session.getDirectoryService().getDNFactory();
+        this.dnFactory = session.getDirectoryService().getDnFactory();
         this.nexus = session.getDirectoryService().getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         aciParser = new ACIItemParser( ncn, schemaManager );

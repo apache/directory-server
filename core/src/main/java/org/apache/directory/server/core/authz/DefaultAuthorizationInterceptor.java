@@ -101,11 +101,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        ADMIN_SYSTEM_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        ADMIN_SYSTEM_DN = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
-        GROUP_BASE_DN = directoryService.getDNFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
+        GROUP_BASE_DN = directoryService.getDnFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
-        ADMIN_GROUP_DN = directoryService.getDNFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        ADMIN_GROUP_DN = directoryService.getDnFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         loadAdministrators( directoryService );
     }
@@ -115,7 +115,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
@@ -130,7 +130,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value : uniqueMember )
         {
-            Dn memberDn = directoryService.getDNFactory().create( value.getString() );
+            Dn memberDn = directoryService.getDnFactory().create( value.getString() );
             newAdministrators.add( memberDn.getNormName() );
         }
 

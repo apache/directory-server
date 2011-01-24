@@ -85,7 +85,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         
         try
         {
-            dn = directoryService.getDNFactory().create( "prefNodeName=sysPrefRoot,ou=system" );
+            dn = directoryService.getDnFactory().create( "prefNodeName=sysPrefRoot,ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -115,7 +115,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         Dn parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = directoryService.getDNFactory().create( "prefNodeName=" + name + "," + parentDn.getName() );
+            dn = directoryService.getDnFactory().create( "prefNodeName=" + name + "," + parentDn.getName() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {

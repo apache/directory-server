@@ -89,7 +89,7 @@ public class StoredProcExecutionManager
         AttributeType storeProcUnitNamAT = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT, new StringValue( storeProcUnitNamAT, spUnitName ) );
-        Dn dn = session.getDirectoryService().getDNFactory().create( storedProcContainer );
+        Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
         if ( results.first() )

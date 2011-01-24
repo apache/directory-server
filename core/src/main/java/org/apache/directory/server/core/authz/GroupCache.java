@@ -31,7 +31,7 @@ import net.sf.ehcache.Element;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DNFactory;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -88,7 +88,7 @@ public class GroupCache
     private SchemaManager schemaManager;
     
     /** the Dn factory */
-    private DNFactory dnFactory;
+    private DnFactory dnFactory;
 
     /** the normalized dn of the administrators group */
     private Dn administratorsGroupDn;
@@ -107,7 +107,7 @@ public class GroupCache
     public GroupCache( DirectoryService dirService ) throws LdapException
     {
         schemaManager = dirService.getSchemaManager();
-        dnFactory = dirService.getDNFactory();
+        dnFactory = dirService.getDnFactory();
         nexus = dirService.getPartitionNexus();
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );

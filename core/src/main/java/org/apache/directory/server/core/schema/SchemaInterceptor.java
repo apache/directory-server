@@ -181,23 +181,23 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDn = directoryService.getDNFactory().create( SchemaConstants.OU_SCHEMA );
+        schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = directoryService.getDNFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDn = directoryService.getDNFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDn = directoryService.getDnFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDn.normalize( schemaManager );
 
         computeSuperiors();
 
         // Initialize the schema manager
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDNFactory() );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDnFactory() );
 
         if ( IS_DEBUG )
         {

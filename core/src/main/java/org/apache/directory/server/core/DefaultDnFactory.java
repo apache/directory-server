@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultDNFactory implements DNFactory
+public class DefaultDnFactory implements DnFactory
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultDNFactory.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultDnFactory.class );
 
     /** The cache for DNs */
     private Cache dnCache;
@@ -59,7 +59,7 @@ public class DefaultDNFactory implements DNFactory
      *
      * @param directoryService the directory service
      */
-    public DefaultDNFactory( SchemaManager schemaManager, Cache dnCache )
+    public DefaultDnFactory( SchemaManager schemaManager, Cache dnCache )
     {
         this.schemaManager = schemaManager;
         this.dnCache = dnCache;

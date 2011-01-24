@@ -199,12 +199,12 @@ public class SubentryInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
-        Dn adminDn = directoryService.getDNFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
-            Dn suffixDn = directoryService.getDNFactory().create( suffix );
+            Dn suffixDn = directoryService.getDnFactory().create( suffix );
 
             CoreSession adminSession = new DefaultCoreSession(
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
