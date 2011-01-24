@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,12 +30,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 
 import java.util.List;
 import java.util.ArrayList;

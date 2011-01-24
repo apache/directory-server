@@ -33,8 +33,8 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
@@ -109,7 +109,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
                 entry = cursor.get();
                 LdapPrincipal ldapPrincipal = new LdapPrincipal( 
                     entry.getDn(), 
-                    AuthenticationLevel.STRONG, 
+                    AuthenticationLevel.STRONG,
                     entry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes() );
                 ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
             }

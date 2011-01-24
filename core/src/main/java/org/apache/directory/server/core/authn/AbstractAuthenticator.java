@@ -22,19 +22,19 @@ package org.apache.directory.server.core.authn;
 
 import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.ACCOUNT_LOCKED;
 import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
-import static org.apache.directory.shared.ldap.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
 import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;

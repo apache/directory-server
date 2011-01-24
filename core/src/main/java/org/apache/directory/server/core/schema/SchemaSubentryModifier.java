@@ -31,8 +31,8 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -321,7 +321,7 @@ public class SchemaSubentryModifier
 
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
-            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT,
                 Base64.decode(syntaxCheckerDescription.getBytecode().toCharArray()) );
         }
         

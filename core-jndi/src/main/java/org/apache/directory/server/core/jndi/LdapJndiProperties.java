@@ -27,7 +27,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;

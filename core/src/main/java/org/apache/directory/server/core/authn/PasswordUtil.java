@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
-import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
+import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.util.Base64;

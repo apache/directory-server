@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.types;
 
 
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 
 
 /**

@@ -30,7 +30,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;

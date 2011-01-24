@@ -21,7 +21,7 @@
 package org.apache.directory.server.core.authn;
 
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;

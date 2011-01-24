@@ -32,7 +32,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 
 
@@ -84,7 +84,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
             ss = Sasl.createSaslServer( 
-                SupportedSaslMechanisms.DIGEST_MD5, 
+                SupportedSaslMechanisms.DIGEST_MD5,
                 SaslConstants.LDAP_PROTOCOL, 
                 (String)ldapSession.getSaslProperty( SaslConstants.SASL_HOST ),
                 (Map<String, String>)ldapSession.getSaslProperty( SaslConstants.SASL_PROPS ),

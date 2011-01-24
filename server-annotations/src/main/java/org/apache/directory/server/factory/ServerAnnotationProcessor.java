@@ -36,7 +36,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.runner.Description;
 

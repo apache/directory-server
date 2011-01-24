@@ -31,7 +31,7 @@ import jdbm.RecordManager;
 import jdbm.helper.DefaultSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;

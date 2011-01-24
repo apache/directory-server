@@ -33,7 +33,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -120,7 +120,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {
                 Entry entry = directoryService.newEntry( dn );
-                entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
+                entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
                     ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
                 entry.add( "prefNodeName", name );
     

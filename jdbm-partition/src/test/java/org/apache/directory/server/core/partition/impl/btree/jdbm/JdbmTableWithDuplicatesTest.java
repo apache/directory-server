@@ -33,7 +33,7 @@ import jdbm.helper.DefaultSerializer;
 import jdbm.helper.IntegerSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.schema.SchemaManager;

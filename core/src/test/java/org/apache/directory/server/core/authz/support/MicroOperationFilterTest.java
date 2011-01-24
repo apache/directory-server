@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,7 +86,7 @@ public class MicroOperationFilterTest
         MicroOperationFilter filter = new MicroOperationFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
             TUPLE_OPERATIONS, true, 0 ) );
 
         AciContext aciContext = new AciContext( null, null );

@@ -22,7 +22,7 @@ package org.apache.directory.server.config.beans;
 
 
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**
