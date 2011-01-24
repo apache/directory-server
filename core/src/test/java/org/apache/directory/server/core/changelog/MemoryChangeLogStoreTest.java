@@ -42,8 +42,8 @@ import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 import org.junit.AfterClass;
@@ -72,7 +72,7 @@ public class MemoryChangeLogStoreTest
         store = new MemoryChangeLogStore();
 
         // The uid/UserId/0.9.2342.19200300.100.1.1 normalizer
-        OidNormalizer uidOidNormalizer = new OidNormalizer( SchemaConstants.UID_AT_OID, 
+        OidNormalizer uidOidNormalizer = new OidNormalizer( SchemaConstants.UID_AT_OID,
             new NoOpNormalizer( SchemaConstants.UID_AT_OID ) );
         
         oidsMap.put( SchemaConstants.UID_AT, uidOidNormalizer );
