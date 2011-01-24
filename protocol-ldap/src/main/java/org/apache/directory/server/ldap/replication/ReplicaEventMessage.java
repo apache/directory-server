@@ -35,8 +35,8 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.name.Dn;
-import org.apache.directory.shared.ldap.name.DnSerializer;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.Unicode;
@@ -138,7 +138,7 @@ public class ReplicaEventMessage implements Externalizable
         entry = new DefaultEntry( schemaManager );
 
         // Read the Dn
-        Dn dn = DnSerializer.deserialize( in );
+        Dn dn = DnSerializer.deserialize(in);
         entry.setDn( dn );
 
         // Read the number of attributes

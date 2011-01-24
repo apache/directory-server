@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;

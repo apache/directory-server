@@ -29,7 +29,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.schema.PrepareString;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;

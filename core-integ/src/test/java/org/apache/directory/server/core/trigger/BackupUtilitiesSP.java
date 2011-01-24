@@ -23,7 +23,7 @@ package org.apache.directory.server.core.trigger;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -78,8 +78,8 @@ import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.Control;
-import org.apache.directory.shared.ldap.name.Dn;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
@@ -890,7 +890,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.name.Dn, boolean)
+     * @see #moveAndRename(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.name.Dn, boolean)
      */
     public ModifyDnResponse moveAndRename( Dn entryDn, Dn newDn ) throws LdapException
     {
@@ -901,7 +901,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.name.Dn, boolean)
+     * @see #moveAndRename(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.name.Dn, boolean)
      */
     public ModifyDnResponse moveAndRename( String entryDn, String newDn ) throws LdapException
     {

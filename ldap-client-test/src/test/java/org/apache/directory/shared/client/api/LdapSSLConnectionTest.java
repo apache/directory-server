@@ -44,7 +44,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

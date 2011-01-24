@@ -23,7 +23,7 @@ package org.apache.directory.server.replication.configuration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 

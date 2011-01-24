@@ -27,7 +27,7 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

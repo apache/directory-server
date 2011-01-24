@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

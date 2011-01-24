@@ -23,7 +23,7 @@ package org.apache.directory.server.core.administrative;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
 
 

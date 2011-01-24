@@ -23,8 +23,8 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.name.Dn;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -81,8 +81,8 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.Dn,
-     * org.apache.directory.shared.ldap.name.Dn,
+     * org.apache.directory.shared.ldap.model.name.Dn,
+     * org.apache.directory.shared.ldap.model.name.Dn,
      * java.lang.String, boolean, javax.naming.directory.Attributes)
      */
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn,
@@ -94,8 +94,8 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.Dn,
-     * org.apache.directory.shared.ldap.name.Dn,
+     * org.apache.directory.shared.ldap.model.name.Dn,
+     * org.apache.directory.shared.ldap.model.name.Dn,
      * javax.naming.directory.Attributes)
      */
     public void move( Dn oriChildName, Dn newParentName, Entry entry,

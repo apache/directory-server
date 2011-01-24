@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;

@@ -62,8 +62,8 @@ import org.apache.directory.shared.ldap.model.exception.*;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.Dn;
-import org.apache.directory.shared.ldap.name.DnUtils;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
@@ -1025,7 +1025,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.Dn)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.model.name.Dn)
      */
     public Partition getPartition( Dn dn ) throws LdapException
     {

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.junit.Test;
 import org.junit.runner.RunWith;

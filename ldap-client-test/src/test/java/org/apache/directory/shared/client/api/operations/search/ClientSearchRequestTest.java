@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

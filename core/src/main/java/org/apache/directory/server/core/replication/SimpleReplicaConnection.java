@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.replication;
 
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

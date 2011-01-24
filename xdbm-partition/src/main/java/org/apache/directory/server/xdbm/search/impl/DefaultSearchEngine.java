@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.filter.*;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -93,7 +93,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
 
     /**
-     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
+     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception

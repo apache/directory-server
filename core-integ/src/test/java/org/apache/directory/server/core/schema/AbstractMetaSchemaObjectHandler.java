@@ -22,8 +22,8 @@ package org.apache.directory.server.core.schema;
 import java.io.File;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.shared.ldap.name.Dn;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 

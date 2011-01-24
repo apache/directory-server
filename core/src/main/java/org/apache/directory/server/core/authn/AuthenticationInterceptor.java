@@ -104,7 +104,7 @@ import org.apache.directory.shared.ldap.model.exception.*;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;

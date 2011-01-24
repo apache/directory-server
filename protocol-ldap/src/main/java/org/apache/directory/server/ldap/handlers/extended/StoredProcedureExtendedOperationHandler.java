@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 import org.apache.directory.shared.util.Strings;
 

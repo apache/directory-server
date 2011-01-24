@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.filter.BranchNode;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

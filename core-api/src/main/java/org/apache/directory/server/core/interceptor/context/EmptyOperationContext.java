@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

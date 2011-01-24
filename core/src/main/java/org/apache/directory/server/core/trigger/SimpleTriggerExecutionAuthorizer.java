@@ -24,7 +24,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer

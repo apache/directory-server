@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.model.message.CompareResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

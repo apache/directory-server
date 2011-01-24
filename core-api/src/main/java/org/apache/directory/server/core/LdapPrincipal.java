@@ -28,7 +28,7 @@ import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -111,9 +111,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a reference to the distinguished name of this
-     * principal as a {@link org.apache.directory.shared.ldap.name.Dn}.
+     * principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}.
      *
-     * @return the distinguished name of the principal as a {@link org.apache.directory.shared.ldap.name.Dn}
+     * @return the distinguished name of the principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}
      */
     public Dn getDNRef()
     {
@@ -123,9 +123,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a {@link org.apache.directory.shared.ldap.name.Dn}.
+     * principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}.
      *
-     * @return the cloned distinguished name of the principal as a {@link org.apache.directory.shared.ldap.name.Dn}
+     * @return the cloned distinguished name of the principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}
      */
     public Dn getDN()
     {

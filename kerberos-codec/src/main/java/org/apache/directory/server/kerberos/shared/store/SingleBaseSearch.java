@@ -29,7 +29,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.shared.ldap.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
