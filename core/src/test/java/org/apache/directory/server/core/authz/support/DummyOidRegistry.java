@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.OidRegistry;
 
 
 /**

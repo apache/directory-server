@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

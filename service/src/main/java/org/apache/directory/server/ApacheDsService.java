@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.GeneralizedTimeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;

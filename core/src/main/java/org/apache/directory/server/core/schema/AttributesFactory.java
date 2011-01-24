@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.DateUtils;
 
 

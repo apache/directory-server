@@ -11,7 +11,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 
 
 public interface SchemaPartitionDao

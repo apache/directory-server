@@ -33,14 +33,13 @@ import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.DefaultSchemaObjectRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.SchemaObjectRegistry;
 
 
 /**
- * A mock {@link AttributeTypeRegistry} to test {@link ACITupleFilter} implementations.
+ * A mock {@link org.apache.directory.shared.ldap.model.schema.registries.AttributeTypeRegistry} to test {@link ACITupleFilter} implementations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *

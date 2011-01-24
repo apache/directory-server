@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -45,8 +45,8 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

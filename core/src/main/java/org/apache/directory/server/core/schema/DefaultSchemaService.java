@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.model.schema.registries.NormalizerRegistry;
 
 
 /**

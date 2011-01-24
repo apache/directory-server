@@ -34,7 +34,7 @@ import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

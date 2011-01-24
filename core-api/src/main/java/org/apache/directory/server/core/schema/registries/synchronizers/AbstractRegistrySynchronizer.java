@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectWrapper;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

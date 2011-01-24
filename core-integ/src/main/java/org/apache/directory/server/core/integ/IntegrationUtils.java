@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

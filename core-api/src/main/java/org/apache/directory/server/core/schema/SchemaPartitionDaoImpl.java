@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.util.DateUtils;
