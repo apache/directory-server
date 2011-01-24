@@ -28,12 +28,12 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
@@ -92,14 +92,7 @@ public class SearchOperationContext extends SearchingOperationContext
         
         setReturningAttributes( ats );
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
-        {
-            throwReferral = false;
-        }
-        else
-        {
-            throwReferral = true;
-        }
+        throwReferral = !requestControls.containsKey( ManageDsaITControl.CONTROL_OID );
     }
 
 

@@ -67,7 +67,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
 
-        Entry entry = connection.lookup( "uid=admin,ou=system" );;
+        Entry entry = connection.lookup( "uid=admin,ou=system" );
         assertNotNull( entry );
         assertTrue( entry instanceof SearchResultEntry);
 

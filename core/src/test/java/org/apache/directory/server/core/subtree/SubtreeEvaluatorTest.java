@@ -336,7 +336,7 @@ public class SubtreeEvaluatorTest
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
 
-        Entry entry = new DefaultEntry( schemaManager, entryDn );;
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Ersin" );
 
@@ -346,7 +346,7 @@ public class SubtreeEvaluatorTest
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the filter so the entry is rejected
-        entry = new DefaultEntry( schemaManager, entryDn );;
+        entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Alex" );
 

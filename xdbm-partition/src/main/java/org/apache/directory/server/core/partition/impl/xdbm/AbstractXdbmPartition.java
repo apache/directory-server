@@ -40,9 +40,9 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -130,7 +130,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception
+    public final void addIndexOn( Index<?, Entry, ID> index ) throws Exception
     {
         store.addIndex( index );
     }
@@ -211,7 +211,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final Index<? extends Object, Entry, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public final Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         return store.getUserIndex( attributeType );
     }
@@ -220,7 +220,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public final Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         return store.getSystemIndex( attributeType );
     }

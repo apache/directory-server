@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.exception.*;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -85,7 +85,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     protected URI partitionPath;
 
     /** The set of indexed attributes */
-    private Set<Index<? extends Object, Entry, ID>> indexedAttributes;
+    private Set<Index<?, Entry, ID>> indexedAttributes;
 
 
     // ------------------------------------------------------------------------
@@ -97,7 +97,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     protected BTreePartition()
     {
-        indexedAttributes = new HashSet<Index<? extends Object, Entry, ID>>();
+        indexedAttributes = new HashSet<Index<?, Entry, ID>>();
     }
 
 
@@ -127,22 +127,22 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public void setIndexedAttributes( Set<Index<? extends Object, Entry, ID>> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<?, Entry, ID>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public void addIndexedAttributes( Index<? extends Object, Entry, ID>... indexes )
+    public void addIndexedAttributes( Index<?, Entry, ID>... indexes )
     {
-        for ( Index<? extends Object, Entry, ID> index : indexes )
+        for ( Index<?, Entry, ID> index : indexes )
         {
             indexedAttributes.add( index );
         }
     }
 
 
-    public Set<Index<? extends Object, Entry, ID>> getIndexedAttributes()
+    public Set<Index<?, Entry, ID>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -344,7 +344,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     // Index Operations
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception;
+    public abstract void addIndexOn( Index<?, Entry, ID> index ) throws Exception;
 
 
     public abstract boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
@@ -426,10 +426,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract Index<? extends Object, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
+    public abstract Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
 
 
-    public abstract Index<? extends Object, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
+    public abstract Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
 
 
     public abstract ID getEntryId( Dn dn ) throws LdapException;

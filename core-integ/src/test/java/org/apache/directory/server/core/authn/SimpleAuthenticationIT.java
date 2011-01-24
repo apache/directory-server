@@ -33,11 +33,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -90,7 +90,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         String userDn = "uid=admin,ou=system";
         LdapConnection connection = getConnectionAs( service, userDn, "secret" );
 
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8("secret") ) );
@@ -100,7 +100,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         service.startup();
 
         connection = getConnectionAs( service, userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8("secret") ) );
@@ -115,7 +115,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         EntryAttribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
@@ -216,7 +216,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try again now with new password (should succeed)
         connection.bind( userDn, "newpwd" );
 
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
@@ -248,7 +248,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // Check that we can get the attributes
 
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -267,7 +267,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
         assertTrue( connection.isAuthenticated() );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -276,7 +276,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection.close();
         connection.bind( userDn, "secret" );
         assertTrue( connection.isAuthenticated() );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
@@ -290,7 +290,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -308,7 +308,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -316,7 +316,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // cache is updated (should be successfull)
         connection.close();
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
@@ -330,7 +330,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -348,7 +348,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "test123" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -356,7 +356,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // cache is updated (should be successfull)
         connection.close();
         connection.bind( userDn, "test123" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
@@ -370,7 +370,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -388,7 +388,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -397,7 +397,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         connection.close();
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
@@ -411,7 +411,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -429,7 +429,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -437,7 +437,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // cache is updated (should be successfull)
         connection.close();
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
@@ -451,7 +451,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
-        Entry entry = connection.lookup( userDn );;
+        Entry entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
@@ -469,14 +469,14 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
         connection.bind( userDn, "secret" );
-        entry = connection.lookup( userDn );;
+        entry = connection.lookup( userDn );
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }

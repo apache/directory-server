@@ -45,7 +45,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -326,13 +326,13 @@ public class ConfigPartitionReader
         }
         catch ( IllegalArgumentException iae )
         {
-            String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();;
+            String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
             LOG.error( message );
             throw new ConfigurationException( message );
         }
         catch ( IllegalAccessException e )
         {
-            String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();;
+            String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
             LOG.error( message );
             throw new ConfigurationException( message );
         }
@@ -442,13 +442,13 @@ public class ConfigPartitionReader
             }
             catch ( IllegalArgumentException iae )
             {
-                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();;
+                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
             catch ( IllegalAccessException e )
             {
-                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();;
+                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }

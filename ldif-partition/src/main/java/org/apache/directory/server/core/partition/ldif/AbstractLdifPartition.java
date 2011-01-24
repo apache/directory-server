@@ -96,7 +96,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void addIndexOn( Index<? extends Object, Entry, Long> index ) throws Exception
+    public void addIndexOn( Index<?, Entry, Long> index ) throws Exception
     {
         wrappedPartition.addIndexOn( index );
     }
@@ -246,7 +246,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public Index<? extends Object, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
+    public Index<?, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
     {
         return wrappedPartition.getUserIndex( attributeType );
     }

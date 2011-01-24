@@ -226,11 +226,6 @@ public abstract class AbstractKerberosFlags extends BitString
         
         AbstractKerberosFlags other = ( AbstractKerberosFlags ) obj;
         
-        if ( value != other.value )
-        {
-            return false;
-        }
-        
-        return true;
+        return value == other.value;
     }
 }

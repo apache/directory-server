@@ -28,11 +28,13 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.filter.*;
-import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.NotNode;
+import org.apache.directory.shared.ldap.model.filter.OrNode;
+import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 
 
 /**
@@ -131,7 +133,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
     private IndexCursor<?, Entry, ID> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<IndexCursor<? extends Object, Entry, ID>> childCursors = new ArrayList<IndexCursor<?, Entry, ID>>(
+        List<IndexCursor<?, Entry, ID>> childCursors = new ArrayList<IndexCursor<?, Entry, ID>>(
             children.size() );
         List<Evaluator<? extends ExprNode, Entry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             children.size() );
