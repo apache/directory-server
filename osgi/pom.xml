@@ -32,7 +32,6 @@
 
   <properties>
     <apache.directory.version>${project.version}</apache.directory.version>
-    <xbean.version>3.5</xbean.version>
     <commons-collections.version>3.2.1</commons-collections.version>
   </properties>
   
@@ -73,26 +72,6 @@
       <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <exclusions>
-          <exclusion>
-              <groupId>commons-logging</groupId>
-              <artifactId>commons-logging</artifactId>
-          </exclusion>
-      </exclusions>
-    </dependency>
-      <dependency>
-          <groupId>org.springframework.osgi</groupId>
-          <artifactId>spring-osgi-extender</artifactId>
-          <version>1.2.0-rc1</version>
-      </dependency>
-      <dependency>
-          <groupId>org.springframework.osgi</groupId>
-          <artifactId>spring-osgi-core</artifactId>
-          <version>1.2.0-rc1</version>
-      </dependency>
 
   </dependencies>
 
@@ -180,10 +159,6 @@
                       '=META-INF.services.org.apache.xbean.spring.http.apacheds.org.config'
                   </Export-Package>
                   <Import-Package>
-                      org.apache.xbean*,
-                      org.apache.xbean.spring.context.v2,
-                      org.springframework.beans.factory.xml,
-                      org.springframework*,
                       org.bouncycastle*,
                       *
                   </Import-Package>

@@ -38,7 +38,6 @@ f none /opt/apacheds/lib/apacheds-protocol-ldap-1.5.8-SNAPSHOT.jar 0644 apacheds
 f none /opt/apacheds/lib/apacheds-protocol-ntp-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/apacheds-protocol-shared-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/apacheds-server-jndi-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/apacheds-server-xml-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/apacheds-utils-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/apacheds-xbean-spring-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/apacheds-xdbm-base-1.5.8-SNAPSHOT.jar 0644 apacheds apacheds
@@ -60,7 +59,7 @@ f none /opt/apacheds/lib/jetty-6.1.14.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/jetty-util-6.1.14.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/libwrapper.so 0644 apacheds apacheds
 f none /opt/apacheds/lib/log4j-1.2.16.jar 0644 apacheds apacheds
-f none /opt/apacheds/lib/mina-core-2.0.1.jar 0644 apacheds apacheds
+f none /opt/apacheds/lib/mina-core-2.0.2.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/servlet-api-2.5-6.1.14.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/shared-dsml-engine-0.9.20-SNAPSHOT.jar 0644 apacheds apacheds
 f none /opt/apacheds/lib/shared-dsml-parser-0.9.20-SNAPSHOT.jar 0644 apacheds apacheds
