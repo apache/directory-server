@@ -94,7 +94,7 @@ import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
