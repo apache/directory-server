@@ -41,20 +41,17 @@ import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.*;
+import org.apache.directory.shared.ldap.model.schema.parsers.DITContentRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.NameFormDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 
 
 /**

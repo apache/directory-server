@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

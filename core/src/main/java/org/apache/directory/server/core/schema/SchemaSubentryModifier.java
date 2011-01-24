@@ -48,9 +48,9 @@ import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Base64;
 
