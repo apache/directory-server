@@ -194,7 +194,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DummyComparator", "m-bytecode", out
+            "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
 
         Dn dn = getComparatorContainer( "apachemeta" );
@@ -211,7 +211,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.schema.comparators.DummyComparator" );
+        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -229,7 +229,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DummyComparator", "m-bytecode", out
+            "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
 
         // nis is by default inactive

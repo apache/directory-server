@@ -379,7 +379,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
                 + getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         // 4th change
@@ -399,7 +399,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
                 + getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
         // 6th change
@@ -543,7 +543,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator BYTECODE "
                 + getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -562,7 +562,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator BYTECODE "
                 + getByteCode( "DummyComparator.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -698,7 +698,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
                 + getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
@@ -717,7 +717,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
                 + getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );

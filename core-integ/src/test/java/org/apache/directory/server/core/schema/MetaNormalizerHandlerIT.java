@@ -174,7 +174,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
-            "m-fqcn", "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer",
+            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test normalizer" );
@@ -186,7 +186,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
         assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer" );
+        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -206,7 +206,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
-            "m-fqcn", "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer",
+            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test normalizer" );

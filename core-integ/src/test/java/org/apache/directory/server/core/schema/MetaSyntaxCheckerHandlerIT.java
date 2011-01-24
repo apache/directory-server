@@ -158,7 +158,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntaxChecker", "m-fqcn",
-            "org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
+            "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker" );
 
         Dn dn = getSyntaxCheckerContainer( "apachemeta" );
@@ -168,7 +168,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker" );
+        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -186,7 +186,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: metaTop",
                 "objectClass: metaSyntaxChecker", "m-fqcn",
-                "org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
+                "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker");
 
         Dn dn = getSyntaxCheckerContainer( "nis" );
