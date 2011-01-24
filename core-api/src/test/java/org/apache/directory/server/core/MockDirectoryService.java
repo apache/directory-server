@@ -560,7 +560,7 @@ public class MockDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public DNFactory getDNFactory()
+    public DnFactory getDnFactory()
     {
         return null;
     }
