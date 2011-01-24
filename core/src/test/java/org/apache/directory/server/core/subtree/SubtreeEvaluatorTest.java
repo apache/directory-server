@@ -33,8 +33,8 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DNFactory;
-import org.apache.directory.server.core.DefaultDNFactory;
+import org.apache.directory.server.core.DefaultDnFactory;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -65,7 +65,7 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class SubtreeEvaluatorTest
 {
-    private static DNFactory dnFactory;
+    private static DnFactory dnFactory;
     private static SchemaManager schemaManager;
     private static SubtreeEvaluator evaluator;
     private static FilterNormalizingVisitor visitor;
@@ -98,7 +98,7 @@ public class SubtreeEvaluatorTest
 
         CacheManager.getInstance().addCacheIfAbsent( "dnCache" );
         Cache dnCache = CacheManager.getInstance().getCache( "dnCache" );
-        dnFactory = new DefaultDNFactory( schemaManager, dnCache );
+        dnFactory = new DefaultDnFactory( schemaManager, dnCache );
         
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
