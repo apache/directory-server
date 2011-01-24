@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 
 
 /**

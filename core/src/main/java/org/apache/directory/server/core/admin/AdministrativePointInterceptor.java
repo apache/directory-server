@@ -81,7 +81,7 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.administrative;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 
 
 /**

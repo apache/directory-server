@@ -22,8 +22,8 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 
 
 /**

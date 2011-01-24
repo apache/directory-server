@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 
 
 /**

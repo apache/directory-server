@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 
 
 /**

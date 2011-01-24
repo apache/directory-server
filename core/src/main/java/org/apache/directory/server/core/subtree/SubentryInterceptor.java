@@ -78,9 +78,9 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.subtree.AdministrativeRole;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
+import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
