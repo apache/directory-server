@@ -40,11 +40,11 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.model.filter.AndNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -168,7 +168,7 @@ public class AndCursorTest
     {
         String filter = "(&(cn=J*)(sn=*))";
 
-        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        ExprNode exprNode = FilterParser.parse(schemaManager, filter);
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
@@ -206,7 +206,7 @@ public class AndCursorTest
         Evaluator<? extends ExprNode, Entry, Long> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
+        eval = new SubstringEvaluator( (SubstringNode) exprNode, store, schemaManager );
         IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
@@ -216,7 +216,7 @@ public class AndCursorTest
         andNode.addNode( exprNode );
 
         exprNode = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-        eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
+        eval = new PresenceEvaluator( (PresenceNode) exprNode, store, schemaManager );
         evaluators.add( eval );
 
         andNode.addNode( exprNode );

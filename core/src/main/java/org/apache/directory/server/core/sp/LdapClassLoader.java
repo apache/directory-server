@@ -34,10 +34,10 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.AndNode;
+import org.apache.directory.shared.ldap.model.filter.BranchNode;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -86,7 +86,7 @@ public class LdapClassLoader extends ClassLoader
         BranchNode filter = new AndNode( );
         AttributeType fqjcnAt = directoryService.getSchemaManager().getAttributeType( "fullyQualifiedJavaClassName" );
         filter.addNode( new EqualityNode<String>( fqjcnAt, new StringValue( name ) ) );
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, 
+        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
         
         try

@@ -36,9 +36,9 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.name.Dn;
@@ -93,7 +93,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
 
             EntryFilteringCursor cursor = adminSession.search( 
                 baseDn, 
-                SearchScope.SUBTREE, 
+                SearchScope.SUBTREE,
                 filter, 
                 AliasDerefMode.DEREF_ALWAYS, 
                 returningAttributes );

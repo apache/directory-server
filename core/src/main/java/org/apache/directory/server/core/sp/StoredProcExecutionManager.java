@@ -34,9 +34,9 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -90,7 +90,7 @@ public class StoredProcExecutionManager
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT, new StringValue( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDNFactory().create( storedProcContainer );
-        EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter, 
+        EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
         if ( results.first() )
         {

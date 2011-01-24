@@ -69,18 +69,18 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeType
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.filter.AssertionNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.filter.LessEqNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.model.filter.AssertionNode;
+import org.apache.directory.shared.ldap.model.filter.BranchNode;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.model.filter.LessEqNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.filter.ScopeNode;
+import org.apache.directory.shared.ldap.model.filter.SimpleNode;
+import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.name.Ava;
@@ -561,7 +561,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( filter.isLeaf() )
         {
-            if ( filter instanceof EqualityNode )
+            if ( filter instanceof EqualityNode)
             {
                 EqualityNode node = ( ( EqualityNode ) filter );
                 Value<?> value = node.getValue();
@@ -582,7 +582,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
             else if ( filter instanceof GreaterEqNode )
             {
-                GreaterEqNode node = ( ( GreaterEqNode ) filter );
+                GreaterEqNode node = ( (GreaterEqNode) filter );
                 Value<?> value = node.getValue();
 
                 Value<?> newValue = convert( node.getAttributeType(), value );
@@ -605,13 +605,13 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( filter instanceof ExtensibleNode )
+            else if ( filter instanceof ExtensibleNode)
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
             }
             else if ( filter instanceof ApproximateNode )
             {
-                ApproximateNode node = ( ( ApproximateNode ) filter );
+                ApproximateNode node = ( (ApproximateNode) filter );
                 Value<?> value = node.getValue();
 
                 Value<?> newValue = convert( node.getAttributeType(), value );
@@ -678,7 +678,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
             // The filter can be an equality or a presence, but nothing else
-            if ( filter instanceof SimpleNode )
+            if ( filter instanceof SimpleNode)
             {
                 // We should get the value for the filter.
                 // only 'top' and 'subSchema' are valid values

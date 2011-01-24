@@ -38,8 +38,8 @@ import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -197,7 +197,7 @@ public class NestedFilterTest
     {
         String filter = "(&(&(cn=Jo*)(sn=w*))(!(ou=apache)))";
 
-        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        ExprNode exprNode = FilterParser.parse(schemaManager, filter);
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );

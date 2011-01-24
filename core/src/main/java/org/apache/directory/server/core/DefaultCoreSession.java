@@ -53,9 +53,9 @@ import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
@@ -771,7 +771,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.model.filter.SearchScope, org.apache.directory.shared.ldap.model.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
      */
     public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException
@@ -786,7 +786,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set, int, int)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.Dn, org.apache.directory.shared.ldap.model.filter.SearchScope, org.apache.directory.shared.ldap.model.filter.ExprNode, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set, int, int)
      */
     public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException

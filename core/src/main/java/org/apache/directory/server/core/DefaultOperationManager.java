@@ -54,8 +54,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorExcept
 import org.apache.directory.shared.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.model.exception.LdapServiceUnavailableException;
-import org.apache.directory.shared.ldap.filter.LdapURL;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.LdapURL;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.slf4j.Logger;

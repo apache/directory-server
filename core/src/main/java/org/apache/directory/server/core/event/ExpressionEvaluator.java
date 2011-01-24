@@ -24,11 +24,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.model.filter.AndNode;
+import org.apache.directory.shared.ldap.model.filter.BranchNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.NotNode;
+import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -112,7 +112,7 @@ public class ExpressionEvaluator implements Evaluator
 
             return false;
         }
-        else if ( bnode instanceof AndNode )
+        else if ( bnode instanceof AndNode)
         {
             for ( ExprNode child: bnode.getChildren() )
             {
@@ -126,7 +126,7 @@ public class ExpressionEvaluator implements Evaluator
 
             return true;
         }
-        else if ( bnode instanceof NotNode )
+        else if ( bnode instanceof NotNode)
         {
             if ( null != bnode.getFirstChild() )
             {

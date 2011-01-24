@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 
 
 /**

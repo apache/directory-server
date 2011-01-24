@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
@@ -187,7 +187,7 @@ public class ReplicaDitStoreUtil
         replica.setLastSentCsn( lastSentCsn );
 
         String scope = entry.get( "ads-replSearchScope" ).getString();
-        searchCriteria.setScope( SearchScope.getSearchScope( Integer.parseInt( scope ) ) );
+        searchCriteria.setScope( SearchScope.getSearchScope(Integer.parseInt(scope)) );
 
         String filter = entry.get( "ads-replSearchFilter" ).getString();
         searchCriteria.setFilter( filter );

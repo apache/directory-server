@@ -34,11 +34,9 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.*;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 
@@ -173,8 +171,8 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
-            .getSearchScope() ) );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope(searchCtls
+                .getSearchScope()) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

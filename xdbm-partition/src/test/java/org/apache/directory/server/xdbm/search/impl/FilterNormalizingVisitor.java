@@ -27,16 +27,16 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.filter.FilterVisitor;
-import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.model.filter.AndNode;
+import org.apache.directory.shared.ldap.model.filter.BranchNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.model.filter.*;
+import org.apache.directory.shared.ldap.model.filter.LeafNode;
+import org.apache.directory.shared.ldap.model.filter.NotNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.filter.SimpleNode;
+import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -345,7 +345,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
                 node.setChildren( newChildren );
                 return node;
             }
-            else if ( result instanceof LeafNode )
+            else if ( result instanceof LeafNode)
             {
                 List<ExprNode> newChildren = new ArrayList<ExprNode>( 1 );
                 newChildren.add( result );
@@ -379,7 +379,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
                 }
             }
 
-            if ( ( branchNode instanceof AndNode ) && ( newChildren.size() != children.size() ) )
+            if ( ( branchNode instanceof AndNode) && ( newChildren.size() != children.size() ) )
             {
                 return null;
             }
@@ -452,7 +452,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         {
             return visitSimpleNode( ( SimpleNode ) node );
         }
-        else if ( node instanceof ExtensibleNode )
+        else if ( node instanceof ExtensibleNode)
         {
             return visitExtensibleNode( ( ExtensibleNode ) node );
         }

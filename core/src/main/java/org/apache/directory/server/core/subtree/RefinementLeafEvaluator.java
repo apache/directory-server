@@ -26,8 +26,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -77,7 +77,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
         }
         
-        if ( !( node instanceof EqualityNode ) )
+        if ( !( node instanceof EqualityNode) )
         {
             throw new LdapException( I18n.err( I18n.ERR_301, node ) );
         }

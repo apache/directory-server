@@ -34,9 +34,9 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.junit.Ignore;
@@ -573,7 +573,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> nextResults = new ArrayList<String>();
 
-        ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), filter );
+        ExprNode exprNode = FilterParser.parse(service.getSchemaManager(), filter);
         EntryFilteringCursor cursor = service.getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();

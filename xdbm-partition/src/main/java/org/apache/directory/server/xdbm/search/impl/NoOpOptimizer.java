@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.BranchNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.server.xdbm.search.Optimizer;
 
 

@@ -59,6 +59,9 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.exception.*;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.name.DnUtils;
 import org.apache.directory.shared.util.exception.MultiException;
@@ -87,9 +90,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -824,7 +824,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             boolean isSearchAll = false;
 
             // We have to be careful, as we may have a filter which is not a PresenceFilter
-            if ( filter instanceof PresenceNode )
+            if ( filter instanceof PresenceNode)
             {
                 isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
             }

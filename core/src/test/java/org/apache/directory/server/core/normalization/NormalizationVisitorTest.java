@@ -29,11 +29,10 @@ import java.text.ParseException;
 
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.*;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -85,10 +84,10 @@ public class NormalizationVisitorTest
     public void testSimpleFilter() throws ParseException
     {
         ExprNode filter = FilterParser.parse( schemaManager, "(ou=  test  1 )" );
-        ExprNode result = ( ExprNode ) filter.accept( normVisitor );
+        ExprNode result = (ExprNode) filter.accept( normVisitor );
 
         assertNotNull( result );
-        assertTrue( result instanceof EqualityNode<?> );
+        assertTrue( result instanceof EqualityNode<?>);
         EqualityNode<?> equalityNode = ( EqualityNode<?> ) result;
 
         assertEquals( "test 1", equalityNode.getValue().getNormalizedValue() );
@@ -103,7 +102,7 @@ public class NormalizationVisitorTest
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         assertNotNull( result );
-        assertTrue( result instanceof PresenceNode );
+        assertTrue( result instanceof PresenceNode);
         PresenceNode presenceNode = ( PresenceNode ) result;
 
         assertEquals( "2.5.4.11", presenceNode.getAttributeType().getOid() );

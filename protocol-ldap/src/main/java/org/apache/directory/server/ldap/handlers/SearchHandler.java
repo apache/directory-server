@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.model.filter.*;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.name.Dn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.filter.LdapURL;
+import org.apache.directory.shared.ldap.model.filter.LdapURL;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * objectClass is a referral.
      *
      * @param session the {@link LdapSession} to construct the node for
-     * @return the {@link EqualityNode} (objectClass=referral) non-normalized
+     * @return the {@link org.apache.directory.shared.ldap.model.filter.EqualityNode} (objectClass=referral) non-normalized
      * @throws Exception in the highly unlikely event of schema related failures
      */
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
@@ -1286,7 +1286,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             if ( filter.isSchemaAware() )
             {
-                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
+                AttributeType attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
                 isRootDSEFilter = attributeType.equals( OBJECT_CLASS_AT );
             }
             else
