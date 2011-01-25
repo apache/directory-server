@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.Referral;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.model.message.ReferralImpl;
 import org.apache.directory.shared.ldap.model.message.Request;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.model.name.Dn;

@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.*;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.Referral;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.model.message.ReferralImpl;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
