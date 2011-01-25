@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
 import org.apache.directory.shared.ldap.model.message.*;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
