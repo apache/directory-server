@@ -43,7 +43,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
+import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
