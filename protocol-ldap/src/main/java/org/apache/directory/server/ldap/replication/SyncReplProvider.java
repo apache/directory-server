@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;

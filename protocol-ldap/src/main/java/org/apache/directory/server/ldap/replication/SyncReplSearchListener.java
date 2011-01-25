@@ -35,11 +35,8 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.model.message.AbandonListener;
-import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.util.Strings;

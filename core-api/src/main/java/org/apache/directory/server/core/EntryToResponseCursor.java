@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.SearchResultDoneImpl;
-import org.apache.directory.shared.ldap.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 
 
 /**
