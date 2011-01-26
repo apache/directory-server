@@ -110,9 +110,10 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecoder;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -189,7 +190,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
         ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.CONTROL_OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
-        ADS_CONTROLS.put( SubentriesControl.CONTROL_OID, ControlEnum.SUBENTRIES_CONTROL );
+        ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValueControl.CONTROL_OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncInfoValueControl.CONTROL_OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncModifyDnControl.CONTROL_OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
@@ -454,14 +455,14 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case SUBENTRIES_CONTROL:
-                control = new SubentriesControl();
-                SubentriesControlDecoder controlDecoder = new SubentriesControlDecoder();
-                SubentriesControlContainer subentriesControlContainer = new SubentriesControlContainer();
-                subentriesControlContainer.setSubEntryControl( ( SubentriesControl ) control );
+                control = new SubentriesDecorator();
+                SubentriesDecoder decoder = new SubentriesDecoder();
+                SubentriesContainer subentriesContainer = new SubentriesContainer();
+                subentriesContainer.setSubEntryControl( ( SubentriesDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
-                controlDecoder.decode( bb, subentriesControlContainer );
+                decoder.decode( bb, subentriesContainer );
 
                 break;
 

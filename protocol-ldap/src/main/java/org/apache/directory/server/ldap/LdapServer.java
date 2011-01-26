@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -237,7 +237,7 @@ public class LdapServer extends DirectoryBackedService
         this.supportedControls = new HashSet<String>();
         this.supportedControls.add( PersistentSearch.CONTROL_OID );
         this.supportedControls.add( EntryChange.OID );
-        this.supportedControls.add( SubentriesControl.CONTROL_OID );
+        this.supportedControls.add( Subentries.OID );
         this.supportedControls.add( ManageDsaIT.OID );
         this.supportedControls.add( Cascade.OID );
         this.supportedControls.add( PagedResults.OID );

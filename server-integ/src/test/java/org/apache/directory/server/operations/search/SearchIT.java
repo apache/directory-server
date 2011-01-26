@@ -54,7 +54,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -735,10 +735,10 @@ public class SearchIT extends AbstractLdapTestUnit
             + "        } " + "      } " + "    } " + "  } " + "}" );
 
         // prepare the subentry decorator to make the subentry visible
-        SubentriesControl control = new SubentriesControl();
-        control.setVisibility( true );
+        SubentriesDecorator decorator = new SubentriesDecorator();
+        decorator.setVisibility( true );
         Control[] reqControls = new Control[]
-            { control };
+            { decorator };
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
 

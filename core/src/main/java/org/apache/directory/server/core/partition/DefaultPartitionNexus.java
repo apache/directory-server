@@ -62,6 +62,7 @@ import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.exception.*;
@@ -76,7 +77,6 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
@@ -175,7 +175,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Add the supported controls
         rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, PersistentSearch.CONTROL_OID,
-            EntryChange.OID, SubentriesControl.CONTROL_OID, ManageDsaIT.OID,
+            EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls
             SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, SyncRequestValueControl.CONTROL_OID,

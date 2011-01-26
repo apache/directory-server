@@ -51,7 +51,8 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -97,7 +98,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( SubentryInterceptor.class );
 
     /** the subentry control OID */
-    private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
+    private static final String SUBENTRY_CONTROL = Subentries.OID;
 
     /** The set of Subentry operational attributes */
     public static AttributeType[] SUBENTRY_OPATTRS;
@@ -314,9 +315,9 @@ public class SubentryInterceptor extends BaseInterceptor
         // found the subentry request control so we return its value
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
-            SubentriesControl subentriesControl = ( SubentriesControl ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            SubentriesDecorator subentriesDecorator = ( SubentriesDecorator ) opContext.getRequestControl( SUBENTRY_CONTROL );
 
-            return subentriesControl.isVisible();
+            return subentriesDecorator.isVisible();
         }
 
         return false;
