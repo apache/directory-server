@@ -60,7 +60,7 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
+import org.apache.directory.shared.ldap.codec.controls.Cascade;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
@@ -239,7 +239,7 @@ public class LdapServer extends DirectoryBackedService
         this.supportedControls.add( EntryChangeControl.CONTROL_OID );
         this.supportedControls.add( SubentriesControl.CONTROL_OID );
         this.supportedControls.add( ManageDsaIT.OID );
-        this.supportedControls.add( CascadeControl.CONTROL_OID );
+        this.supportedControls.add( Cascade.OID );
         this.supportedControls.add( PagedResultsControl.CONTROL_OID );
         // Replication controls
         this.supportedControls.add( SyncDoneValueControl.CONTROL_OID );

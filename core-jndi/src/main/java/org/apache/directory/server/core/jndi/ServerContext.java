@@ -74,7 +74,8 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
+import org.apache.directory.shared.ldap.codec.controls.Cascade;
+import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
@@ -179,7 +180,7 @@ public abstract class ServerContext implements EventContext
 
     static
     {
-        ADS_CONTROLS.put( CascadeControl.CONTROL_OID, ControlEnum.CASCADE_CONTROL );
+        ADS_CONTROLS.put( Cascade.OID, ControlEnum.CASCADE_CONTROL );
         ADS_CONTROLS.put( EntryChangeControl.CONTROL_OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResultsControl.CONTROL_OID, ControlEnum.PAGED_RESULTS_CONTROL );
@@ -386,7 +387,7 @@ public abstract class ServerContext implements EventContext
         switch ( controlId )
         {
             case CASCADE_CONTROL:
-                control = new CascadeControl();
+                control = new CascadeDecorator();
                 break;
 
             case ENTRY_CHANGE_CONTROL:

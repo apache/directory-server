@@ -46,7 +46,7 @@ import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
+import org.apache.directory.shared.ldap.codec.controls.Cascade;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.*;
@@ -303,7 +303,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        boolean cascade = deleteContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = deleteContext.hasRequestControl( Cascade.OID );
 
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
@@ -355,7 +355,7 @@ public final class SchemaPartition extends AbstractPartition
 
         Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( modifyContext.getModItems(), entry );
 
-        boolean cascade = modifyContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = modifyContext.hasRequestControl( Cascade.OID );
 
         boolean hasModification = synchronizer.modify( modifyContext, targetEntry, cascade );
 
@@ -376,7 +376,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        boolean cascade = moveContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = moveContext.hasRequestControl( Cascade.OID );
         Entry entry = moveContext.lookup( moveContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.move( moveContext, entry, cascade );
         wrapped.move( moveContext );
@@ -389,7 +389,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        boolean cascade = moveAndRenameContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = moveAndRenameContext.hasRequestControl( Cascade.OID );
         Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         wrapped.moveAndRename( moveAndRenameContext );
@@ -402,7 +402,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        boolean cascade = renameContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = renameContext.hasRequestControl( Cascade.OID );
 
         // First update the registries
         synchronizer.rename( renameContext, cascade );
