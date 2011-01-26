@@ -64,7 +64,7 @@ import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
@@ -1669,7 +1669,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         long sizeLimit = 7;
         LdapConnection connection = getClientApiConnection( ldapServer );
-        SearchRequest req = new SearchRequestImpl();
+        SearchRequest req = new org.apache.directory.shared.ldap.model.message.SearchRequestImpl();
         req.setBase( new Dn( "ou=system" ) );
         req.setFilter( "(ou=*)" );
         req.setScope( SearchScope.SUBTREE );
