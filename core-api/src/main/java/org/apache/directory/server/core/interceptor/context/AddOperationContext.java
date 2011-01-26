@@ -22,10 +22,10 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -97,7 +97,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
         }

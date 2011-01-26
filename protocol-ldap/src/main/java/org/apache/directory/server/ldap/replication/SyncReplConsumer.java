@@ -39,7 +39,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
@@ -274,7 +274,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.addControl( new ManageDsaITControl() );
+            searchRequest.addControl( new ManageDsaITDecorator() );
         }
     }
 

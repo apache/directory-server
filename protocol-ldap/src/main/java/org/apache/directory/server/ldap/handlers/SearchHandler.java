@@ -38,7 +38,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
@@ -174,7 +174,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         // if we have the ManageDSAIt control, go directly
         // to the handling without pre-processing the request
-        else if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        else if ( req.getControls().containsKey( ManageDsaIT.OID ) )
         {
             // If the ManageDsaIT control is present, we will
             // consider that the user wants to get entry which
@@ -820,7 +820,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
         EntryAttribute ref = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
-        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
+        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )
         {
@@ -909,7 +909,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private void modifyFilter( LdapSession session, SearchRequest req ) throws Exception
     {
-        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
+        if ( req.hasControl( ManageDsaIT.OID ) )
         {
             return;
         }

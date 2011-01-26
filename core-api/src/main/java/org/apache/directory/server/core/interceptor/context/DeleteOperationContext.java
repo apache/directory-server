@@ -22,9 +22,9 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -68,7 +68,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
         super( session, deleteRequest.getName() );
         requestControls = deleteRequest.getControls();
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
         }

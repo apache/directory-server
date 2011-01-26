@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -83,7 +83,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
         requestControls = modifyRequest.getControls();
 
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
         }

@@ -22,8 +22,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -89,7 +89,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
             throw new IllegalArgumentException( I18n.err( I18n.ERR_327_MOVE_AND_RENAME_OPERATION, modifyDnRequest ) );
         }
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
         }

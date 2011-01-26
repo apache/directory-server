@@ -47,7 +47,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
@@ -593,7 +593,7 @@ public class SyncReplProvider implements ReplicationProvider
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
         EntryAttribute ref = entry.get( SchemaConstants.REF_AT );
-        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
+        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )
         {
@@ -775,7 +775,7 @@ public class SyncReplProvider implements ReplicationProvider
         }
 
         ExprNode filter = req.getFilter();
-        if ( !req.hasControl( ManageDsaITControl.CONTROL_OID ) && !isOcPresenceFilter )
+        if ( !req.hasControl( ManageDsaIT.OID ) && !isOcPresenceFilter )
         {
             filter = new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) );
         }

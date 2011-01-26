@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -92,7 +92,7 @@ public class SearchOperationContext extends SearchingOperationContext
         
         setReturningAttributes( ats );
         
-        throwReferral = !requestControls.containsKey( ManageDsaITControl.CONTROL_OID );
+        throwReferral = !requestControls.containsKey( ManageDsaIT.OID );
     }
 
 
@@ -150,7 +150,7 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public boolean hasManageDsaItControl()
     {
-        return super.hasRequestControl( ManageDsaITControl.CONTROL_OID );
+        return super.hasRequestControl( ManageDsaIT.OID );
     }
     
     

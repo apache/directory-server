@@ -76,7 +76,8 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestControl;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlContainer;
@@ -180,7 +181,7 @@ public abstract class ServerContext implements EventContext
     {
         ADS_CONTROLS.put( CascadeControl.CONTROL_OID, ControlEnum.CASCADE_CONTROL );
         ADS_CONTROLS.put( EntryChangeControl.CONTROL_OID, ControlEnum.ENTRY_CHANGE_CONTROL );
-        ADS_CONTROLS.put( ManageDsaITControl.CONTROL_OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
+        ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResultsControl.CONTROL_OID, ControlEnum.PAGED_RESULTS_CONTROL );
         ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearchControl.CONTROL_OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
@@ -401,7 +402,7 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case MANAGE_DSA_IT_CONTROL:
-                control = new ManageDsaITControl();
+                control = new ManageDsaITDecorator();
                 break;
 
             case PAGED_RESULTS_CONTROL:

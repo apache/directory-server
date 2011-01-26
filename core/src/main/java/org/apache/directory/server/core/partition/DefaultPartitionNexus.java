@@ -57,6 +57,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.exception.*;
@@ -68,7 +69,6 @@ import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
@@ -175,7 +175,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Add the supported controls
         rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, PersistentSearchControl.CONTROL_OID,
-            EntryChangeControl.CONTROL_OID, SubentriesControl.CONTROL_OID, ManageDsaITControl.CONTROL_OID,
+            EntryChangeControl.CONTROL_OID, SubentriesControl.CONTROL_OID, ManageDsaIT.OID,
             CascadeControl.CONTROL_OID, PagedResultsControl.CONTROL_OID,
             // Replication controls
             SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, SyncRequestValueControl.CONTROL_OID,
