@@ -1268,8 +1268,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries
         // except subentries disappear
-        Subentries ctl = new Subentries();
+        SubentriesDecorator decorator = new SubentriesDecorator();
+        Subentries ctl = ( Subentries ) decorator.getDecorated();
         ctl.setVisibility( true );
+        decorator.getValue();
         sysRoot.setRequestControls( JndiUtils.toJndiControls(new Control[]
                 {ctl}) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
