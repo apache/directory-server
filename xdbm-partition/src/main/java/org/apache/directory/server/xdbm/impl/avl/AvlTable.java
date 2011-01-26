@@ -34,7 +34,7 @@ import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.cursor.*;
+import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
 

@@ -20,21 +20,9 @@
 package org.apache.directory.server.kerberos.sam;
 
 
-import java.io.IOException;
-
 import javax.security.auth.kerberos.KerberosKey;
 
-import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
-
-import sun.security.krb5.internal.PAEncTSEnc;
 
 
 /**
