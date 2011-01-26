@@ -98,9 +98,10 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlDecoder;
@@ -181,7 +182,7 @@ public abstract class ServerContext implements EventContext
     static
     {
         ADS_CONTROLS.put( Cascade.OID, ControlEnum.CASCADE_CONTROL );
-        ADS_CONTROLS.put( EntryChangeControl.CONTROL_OID, ControlEnum.ENTRY_CHANGE_CONTROL );
+        ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResultsControl.CONTROL_OID, ControlEnum.PAGED_RESULTS_CONTROL );
         ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
@@ -391,10 +392,10 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case ENTRY_CHANGE_CONTROL:
-                control = new EntryChangeControl();
-                Asn1Decoder entryChangeControlDecoder = new EntryChangeControlDecoder();
+                control = new EntryChangeDecorator();
+                Asn1Decoder entryChangeControlDecoder = new EntryChangeDecoder();
                 EntryChangeControlContainer entryChangeControlContainer = new EntryChangeControlContainer();
-                entryChangeControlContainer.setEntryChangeControl( ( EntryChangeControl ) control );
+                entryChangeControlContainer.setEntryChangeControl( ( EntryChangeDecorator ) control );
                 ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 

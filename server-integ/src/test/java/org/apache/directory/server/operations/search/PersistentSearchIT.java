@@ -51,8 +51,9 @@ import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -584,7 +585,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
                 LOG.debug( "PSearchListener search request returned." );
-                EntryChangeControl ecControl = null;
+                EntryChangeDecorator ecControl = null;
 
                 while ( list.hasMore() )
                 {
@@ -601,10 +602,10 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                             for ( javax.naming.ldap.Control control : controls )
                             {
                                 if ( control.getID().equals(
-                                    EntryChangeControl.CONTROL_OID ) )
+                                    EntryChange.OID ) )
                                 {
-                                    EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
-                                    ecControl = ( EntryChangeControl ) decoder.decode( control.getEncodedValue(), new EntryChangeControl() );
+                                    EntryChangeDecoder decoder = new EntryChangeDecoder();
+                                    ecControl = ( EntryChangeDecorator ) decoder.decode( control.getEncodedValue(), new EntryChangeDecorator() );
                                 }
                             }
                         }
@@ -631,10 +632,10 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     class PSearchNotification extends SearchResult
     {
         private static final long serialVersionUID = 1L;
-        final EntryChangeControl control;
+        final EntryChangeDecorator control;
 
 
-        public PSearchNotification(SearchResult result, EntryChangeControl control)
+        public PSearchNotification(SearchResult result, EntryChangeDecorator control)
         {
             super( result.getName(), result.getClassName(), result.getObject(), result.getAttributes(), result
                 .isRelative() );
