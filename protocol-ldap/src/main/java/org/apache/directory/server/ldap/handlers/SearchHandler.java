@@ -40,8 +40,10 @@ import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.exception.*;
@@ -110,23 +112,23 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles search requests containing the persistent search control but
+     * Handles search requests containing the persistent search decorator but
      * delegates to doSimpleSearch() if the changesOnly parameter of the
-     * control is set to false.
+     * decorator is set to false.
      *
      * @param session the LdapSession for which this search is conducted
-     * @param req the search request containing the persistent search control
-     * @param psearchControl the persistent search control extracted
+     * @param req the search request containing the persistent search decorator
+     * @param psearchDecorator the persistent search decorator extracted
      * @throws Exception if failures are encountered while searching
      */
     private void handlePersistentSearch( LdapSession session, SearchRequest req,
-        PersistentSearchControl psearchControl ) throws Exception
+        PersistentSearchDecorator psearchDecorator ) throws Exception
     {
         /*
          * We want the search to complete first before we start listening to
-         * events when the control does NOT specify changes ONLY mode.
+         * events when the decorator does NOT specify changes ONLY mode.
          */
-        if ( !psearchControl.isChangesOnly() )
+        if ( !psearchDecorator.isChangesOnly() )
         {
             SearchResultDone done = doSimpleSearch( session, req );
 
@@ -154,7 +156,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         criteria.setBase( req.getBase() );
         criteria.setFilter( req.getFilter() );
         criteria.setScope( req.getScope() );
-        criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
+        criteria.setEventMask( EventType.getEventTypes( psearchDecorator.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
         req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
     }
@@ -167,16 +169,16 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Handling single reply request: {}", req );
 
-        // check first for the syncrepl search request control
+        // check first for the syncrepl search request decorator
         if ( req.getControls().containsKey( SyncRequestValueControl.CONTROL_OID ) )
         {
             handleSyncreplSearch( session, req );
         }
-        // if we have the ManageDSAIt control, go directly
+        // if we have the ManageDSAIt decorator, go directly
         // to the handling without pre-processing the request
         else if ( req.getControls().containsKey( ManageDsaIT.OID ) )
         {
-            // If the ManageDsaIT control is present, we will
+            // If the ManageDsaIT decorator is present, we will
             // consider that the user wants to get entry which
             // are referrals as plain entry. We have to return
             // SearchResponseEntry elements instead of
@@ -186,7 +188,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         else
         {
-            // No ManageDsaIT control. If the found entries is a referral,
+            // No ManageDsaIT decorator. If the found entries is a referral,
             // we will return SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl NOT detected." );
 
@@ -395,7 +397,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
     private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
-        PagedResultsControl pagedResultsControl ) throws Exception
+        PagedResultsDecorator pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
@@ -447,7 +449,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
             }
 
-            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl = new PagedResultsDecorator();
             pagedResultsControl.setCritical( true );
             pagedResultsControl.setSize( 0 );
             req.getResultResponse().addControl( pagedResultsControl );
@@ -493,9 +495,9 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private SearchResultDone abandonPagedSearch( LdapSession session, SearchRequest req ) throws Exception
     {
-        PagedResultsControl pagedResultsControl = null;
-        PagedResultsControl pagedSearchControl = ( PagedResultsControl ) req.getControls().get(
-            PagedResultsControl.CONTROL_OID );
+        PagedResultsDecorator pagedResultsControl = null;
+        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator ) req.getControls().get(
+            PagedResults.OID );
         byte[] cookie = pagedSearchControl.getCookie();
 
         if ( !Strings.isEmpty(cookie) )
@@ -504,7 +506,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // cursor stored into the session (if any)
             int cookieValue = pagedSearchControl.getCookieValue();
             PagedSearchContext psCookie = session.removePagedSearchContext( cookieValue );
-            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl = new PagedResultsDecorator();
             pagedResultsControl.setCookie( psCookie.getCookie() );
             pagedResultsControl.setSize( 0 );
             pagedResultsControl.setCritical( true );
@@ -519,7 +521,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         else
         {
-            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl = new PagedResultsDecorator();
             pagedResultsControl.setSize( 0 );
             pagedResultsControl.setCritical( true );
         }
@@ -552,11 +554,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     /**
      * Handle a Paged Search request.
      */
-    private SearchResultDone doPagedSearch( LdapSession session, SearchRequest req, PagedResultsControl control )
+    private SearchResultDone doPagedSearch( LdapSession session, SearchRequest req, PagedResultsDecorator control )
         throws Exception
     {
-        PagedResultsControl pagedSearchControl = control;
-        PagedResultsControl pagedResultsControl = null;
+        PagedResultsDecorator pagedSearchControl = control;
+        PagedResultsDecorator pagedResultsControl = null;
 
         // Get the size limits
         // Don't bother setting size limits for administrators that don't ask for it
@@ -636,7 +638,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 session.addPagedSearchContext( pagedContext );
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl = new PagedResultsDecorator();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -675,7 +677,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // get the cookie
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl = new PagedResultsDecorator();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -698,7 +700,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 session.addPagedSearchContext( pagedContext );
 
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl = new PagedResultsDecorator();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -751,12 +753,12 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
 
         // Check if we are using the Paged Search Control
-        Object control = req.getControls().get( PagedResultsControl.CONTROL_OID );
+        Object control = req.getControls().get( PagedResults.OID );
 
         if ( control != null )
         {
             // Let's deal with the pagedControl
-            return doPagedSearch( session, req, ( PagedResultsControl ) control );
+            return doPagedSearch( session, req, ( PagedResultsDecorator ) control );
         }
 
         // A normal search
@@ -870,7 +872,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         else
         {
-            // The entry is not a referral, or the ManageDsaIt control is set
+            // The entry is not a referral, or the ManageDsaIt decorator is set
             SearchResultEntry respEntry;
             respEntry = new SearchResultEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
@@ -890,7 +892,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
     /**
      * Alters the filter expression based on the presence of the
-     * ManageDsaIT control.  If the control is not present, the search
+     * ManageDsaIT decorator.  If the decorator is not present, the search
      * filter will be altered to become a disjunction with two terms.
      * The first term is the original filter.  The second term is a
      * (objectClass=referral) assertion.  When OR'd together these will
@@ -964,7 +966,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
     /**
      * Main message handing method for search requests.  This will be called
-     * even if the ManageDsaIT control is present because the super class does
+     * even if the ManageDsaIT decorator is present because the super class does
      * not know that the search operation has more to do after finding the
      * base.  The call to this means that finding the base can ignore
      * referrals.
@@ -1008,16 +1010,16 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchControl psearchControl = ( PersistentSearchControl ) req.getControls().get(
-                PersistentSearchControl.CONTROL_OID );
+            PersistentSearchDecorator psearchDecorator = ( PersistentSearchDecorator ) req.getControls().get(
+                PersistentSearch.CONTROL_OID );
 
-            if ( psearchControl != null )
+            if ( psearchDecorator != null )
             {
                 // Set the flag to avoid the request being removed
                 // from the session
                 isPersistentSearch = true;
 
-                handlePersistentSearch( session, req, psearchControl );
+                handlePersistentSearch( session, req, psearchDecorator );
 
                 return;
             }
@@ -1074,7 +1076,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles processing with referrals without ManageDsaIT control.
+     * Handles processing with referrals without ManageDsaIT decorator.
      */
     private void handleWithReferrals( LdapSession session, SearchRequest req ) throws LdapException
     {
@@ -1340,7 +1342,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles processing with referrals without ManageDsaIT control and with
+     * Handles processing with referrals without ManageDsaIT decorator and with
      * an ancestor that is a referral.  The original entry was not found and
      * the walk of the ancestry returned a referral.
      *
@@ -1421,7 +1423,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles processing with referrals without ManageDsaIT control and with
+     * Handles processing with referrals without ManageDsaIT decorator and with
      * an ancestor that is a referral.  The original entry was not found and
      * the walk of the ancestry returned a referral.
      *
@@ -1518,7 +1520,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles processing with referrals without ManageDsaIT control.
+     * Handles processing with referrals without ManageDsaIT decorator.
      */
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {

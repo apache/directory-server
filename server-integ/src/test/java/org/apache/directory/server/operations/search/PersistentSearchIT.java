@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Test case which tests the correct operation of the persistent search control.
+ * Test case which tests the correct operation of the persistent search decorator.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -119,11 +119,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
     private void setUpListenerReturnECs() throws Exception
     {
-        setUpListener( true, new PersistentSearchControl(), false );
+        setUpListener( true, new PersistentSearchDecorator(), false );
     }
     
     
-    private void setUpListener( boolean returnECs, PersistentSearchControl  control, boolean ignoreEmptyRegistryCheck ) 
+    private void setUpListener( boolean returnECs, PersistentSearchDecorator decorator, boolean ignoreEmptyRegistryCheck )
         throws Exception
     {
         ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
@@ -135,8 +135,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
             assertTrue( registrationEntryList.isEmpty() );
         }
         
-        control.setReturnECs( returnECs );
-        listener = new PSearchListener( control );
+        decorator.setReturnECs( returnECs );
+        listener = new PSearchListener( decorator );
         t = new Thread( listener, "PSearchListener" );
         t.start();
 
@@ -331,11 +331,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        control.setChangeTypes( ChangeType.ADD.getValue() );
-        control.enableNotification( ChangeType.MODIFY );
-        setUpListener( true, control, false );
+        PersistentSearchDecorator decorator = new PersistentSearchDecorator();
+        decorator.setReturnECs( true );
+        decorator.setChangeTypes( ChangeType.ADD.getValue() );
+        decorator.enableNotification( ChangeType.MODIFY );
+        setUpListener( true, decorator, false );
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
         waitForThreadToDie( t );
 
@@ -344,7 +344,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
         tearDownListener();
 
-        setUpListener( true, control, true );
+        setUpListener( true, decorator, true );
         ctx.destroySubcontext( "cn=Jack Black" );
         waitForThreadToDie( t );
         assertNull( listener.result );
@@ -372,10 +372,10 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
      */
     //    public void testPsearchAddWithECAndFalseChangesOnly() throws Exception
     //    {
-    //        PersistentSearchControl control = new PersistentSearchControl();
-    //        control.setReturnECs( true );
-    //        control.setChangesOnly( false );
-    //        PSearchListener listener = new PSearchListener( control );
+    //        PersistentSearchDecorator decorator = new PersistentSearchDecorator();
+    //        decorator.setReturnECs( true );
+    //        decorator.setChangesOnly( false );
+    //        PSearchListener listener = new PSearchListener( decorator );
     //        Thread t = new Thread( listener );
     //        t.start();
     //        
@@ -397,7 +397,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     //        assertEquals( 6, listener.count );
     //        assertNotNull( listener.result );
     //        assertEquals( "cn=Jack Black", listener.result.getName() );
-    //        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+    //        assertEquals( listener.result.decorator.getChangeType(), ChangeType.ADD );
     //    }
 
     /**
@@ -407,9 +407,9 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchAbandon() throws Exception
     {
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        PSearchListener listener = new PSearchListener( control );
+        PersistentSearchDecorator decorator = new PersistentSearchDecorator();
+        decorator.setReturnECs( true );
+        PSearchListener listener = new PSearchListener( decorator );
         Thread t = new Thread( listener );
         t.start();
 
@@ -433,9 +433,9 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        assertEquals( listener.result.decorator.getChangeType(), ChangeType.ADD );
         
-        listener = new PSearchListener( control );
+        listener = new PSearchListener( decorator );
 
         t = new Thread( listener );
         t.start();
@@ -456,7 +456,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         // assertNull( listener.result );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( ChangeType.DELETE, listener.result.control.getChangeType() );
+        assertEquals( ChangeType.DELETE, listener.result.decorator.getChangeType() );
         listener.result = null;
 
         // thread is still waiting for notifications try a modify
@@ -474,7 +474,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNull( listener.result );
         //assertEquals( Rdn, listener.result.getName() );
-        //assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        //assertEquals( listener.result.decorator.getChangeType(), ChangeType.MODIFY );
     }*/
 
     
@@ -521,19 +521,19 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     {
         boolean isReady = false;
         PSearchNotification result;
-        final PersistentSearchControl control;
+        final PersistentSearchDecorator decorator;
         LdapContext ctx;
         NamingEnumeration<SearchResult> list;
         
         PSearchListener()
         {
-            control = new PersistentSearchControl();
+            decorator = new PersistentSearchDecorator();
         }
 
 
-        PSearchListener(PersistentSearchControl control)
+        PSearchListener(PersistentSearchDecorator decorator )
         {
-            this.control = control;
+            this.decorator = decorator;
         }
 
         
@@ -570,12 +570,12 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
-            control.setCritical( true );
+            decorator.setCritical( true );
             
-            control.setValue( control.getValue() );
+            decorator.setValue( decorator.getValue() );
 
             Control[] ctxCtls = new Control[]
-                { control };
+                { decorator };
 
             try
             {

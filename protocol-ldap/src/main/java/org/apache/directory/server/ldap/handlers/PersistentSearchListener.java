@@ -32,7 +32,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
@@ -57,7 +58,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final LdapSession session;
     final SearchRequest req;
-    final PersistentSearchControl control;
+    final PersistentSearchDecorator decorator;
 
 
     PersistentSearchListener( LdapSession session, SearchRequest req )
@@ -65,7 +66,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
-        this.control = ( PersistentSearchControl ) req.getControls().get( PersistentSearchControl.CONTROL_OID );
+        this.decorator = ( PersistentSearchDecorator ) req.getControls().get( PersistentSearch.CONTROL_OID );
     }
 
 
@@ -104,7 +105,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     private void setECResponseControl( SearchResultEntry response, ChangeOperationContext opContext, ChangeType type )
     {
-        if ( control.isReturnECs() )
+        if ( decorator.isReturnECs() )
         {
             EntryChangeDecorator ecControl = new EntryChangeDecorator();
             ecControl.setChangeType( type );
@@ -126,7 +127,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryAdded( AddOperationContext addContext )
     {
-        if ( !control.isNotificationEnabled( ChangeType.ADD ) )
+        if ( !decorator.isNotificationEnabled( ChangeType.ADD ) )
         {
             return;
         }
@@ -141,7 +142,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryDeleted( DeleteOperationContext deleteContext )
     {
-        if ( !control.isNotificationEnabled( ChangeType.DELETE ) )
+        if ( !decorator.isNotificationEnabled( ChangeType.DELETE ) )
         {
             return;
         }
@@ -156,7 +157,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryModified( ModifyOperationContext modifyContext )
     {
-        if ( !control.isNotificationEnabled( ChangeType.MODIFY ) )
+        if ( !decorator.isNotificationEnabled( ChangeType.MODIFY ) )
         {
             return;
         }
@@ -171,7 +172,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryMoved( MoveOperationContext moveContext )
     {
-        if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !decorator.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }
@@ -192,7 +193,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryRenamed( RenameOperationContext renameContext )
     {
-        if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !decorator.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }

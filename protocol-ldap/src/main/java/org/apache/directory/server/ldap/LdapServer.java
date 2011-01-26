@@ -67,8 +67,8 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
@@ -235,12 +235,12 @@ public class LdapServer extends DirectoryBackedService
         saslRealms.add( "example.com" );
 
         this.supportedControls = new HashSet<String>();
-        this.supportedControls.add( PersistentSearchControl.CONTROL_OID );
+        this.supportedControls.add( PersistentSearch.CONTROL_OID );
         this.supportedControls.add( EntryChange.OID );
         this.supportedControls.add( SubentriesControl.CONTROL_OID );
         this.supportedControls.add( ManageDsaIT.OID );
         this.supportedControls.add( Cascade.OID );
-        this.supportedControls.add( PagedResultsControl.CONTROL_OID );
+        this.supportedControls.add( PagedResults.OID );
         // Replication controls
         this.supportedControls.add( SyncDoneValueControl.CONTROL_OID );
         this.supportedControls.add( SyncInfoValueControl.CONTROL_OID );

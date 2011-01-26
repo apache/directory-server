@@ -99,15 +99,17 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlDecoder;
@@ -184,9 +186,9 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( Cascade.OID, ControlEnum.CASCADE_CONTROL );
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
-        ADS_CONTROLS.put( PagedResultsControl.CONTROL_OID, ControlEnum.PAGED_RESULTS_CONTROL );
+        ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
         ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
-        ADS_CONTROLS.put( PersistentSearchControl.CONTROL_OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
+        ADS_CONTROLS.put( PersistentSearch.CONTROL_OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( SubentriesControl.CONTROL_OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValueControl.CONTROL_OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncInfoValueControl.CONTROL_OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
@@ -394,12 +396,12 @@ public abstract class ServerContext implements EventContext
             case ENTRY_CHANGE_CONTROL:
                 control = new EntryChangeDecorator();
                 Asn1Decoder entryChangeControlDecoder = new EntryChangeDecoder();
-                EntryChangeControlContainer entryChangeControlContainer = new EntryChangeControlContainer();
-                entryChangeControlContainer.setEntryChangeControl( ( EntryChangeDecorator ) control );
+                EntryChangeContainer entryChangeContainer = new EntryChangeContainer();
+                entryChangeContainer.setEntryChangeControl( ( EntryChangeDecorator ) control );
                 ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
-                entryChangeControlDecoder.decode( bb, entryChangeControlContainer );
+                entryChangeControlDecoder.decode( bb, entryChangeContainer );
 
                 break;
 
@@ -408,14 +410,14 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case PAGED_RESULTS_CONTROL:
-                control = new PagedResultsControl();
-                entryChangeControlDecoder = new PagedResultsControlDecoder();
-                PagedResultsControlContainer pagedSearchControlContainer = new PagedResultsControlContainer();
-                pagedSearchControlContainer.setPagedSearchControl( ( PagedResultsControl ) control );
+                control = new PagedResultsDecorator();
+                entryChangeControlDecoder = new PagedResultsDecoder();
+                PagedResultsContainer pagedSearchContainer = new PagedResultsContainer();
+                pagedSearchContainer.setPagedSearchControl( ( PagedResultsDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
-                entryChangeControlDecoder.decode( bb, pagedSearchControlContainer );
+                entryChangeControlDecoder.decode( bb, pagedSearchContainer );
 
                 break;
 
@@ -440,14 +442,14 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case PERSISTENT_SEARCH_CONTROL:
-                control = new PersistentSearchControl();
-                PersistentSearchControlDecoder persistentSearchControlDecoder = new PersistentSearchControlDecoder();
-                PersistentSearchControlContainer persistentSearchControlContainer = new PersistentSearchControlContainer();
-                persistentSearchControlContainer.setPSearchControl( ( PersistentSearchControl ) control );
+                control = new PersistentSearchDecorator();
+                PersistentSearchDecoder persistentSearchDecoder = new PersistentSearchDecoder();
+                PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer();
+                persistentSearchContainer.setPSearchControl( ( PersistentSearchDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
-                persistentSearchControlDecoder.decode( bb, persistentSearchControlContainer );
+                persistentSearchDecoder.decode( bb, persistentSearchContainer );
 
                 break;
 

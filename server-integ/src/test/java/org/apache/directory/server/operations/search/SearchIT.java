@@ -611,7 +611,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     /**
-     * Creates an access control subentry under ou=system whose subtree covers
+     * Creates an access decorator subentry under ou=system whose subtree covers
      * the entire naming context.
      *
      * @param cn the common name and rdn for the subentry
@@ -726,7 +726,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
-        // create a real access control subentry
+        // create a real access decorator subentry
         createAccessControlSubentry( "anyBodyAdd", "{}", "{ " + "  identificationTag \"addAci\", "
             + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
             + "    userClasses " + "    { " + "      allUsers " + "    }, " + "    userPermissions " + "    { "
@@ -734,7 +734,7 @@ public class SearchIT extends AbstractLdapTestUnit
             + "        }, " + "        grantsAndDenials " + "        { " + "          grantAdd, grantBrowse "
             + "        } " + "      } " + "    } " + "  } " + "}" );
 
-        // prepare the subentry control to make the subentry visible
+        // prepare the subentry decorator to make the subentry visible
         SubentriesControl control = new SubentriesControl();
         control.setVisibility( true );
         Control[] reqControls = new Control[]

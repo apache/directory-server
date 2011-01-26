@@ -292,14 +292,14 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     
     /**
      * Test case for DIRSERVER-: Ensure that schema entry is returned, 
-     * even if no ManageDsaIT control is present in the search request.
+     * even if no ManageDsaIT decorator is present in the search request.
      */
     @Test
     public void testRequestWithoutManageDsaITControl() throws Exception
     {
         DirContext ctx = getWiredContext( ldapServer );
 
-        // this removes the ManageDsaIT control from the search request
+        // this removes the ManageDsaIT decorator from the search request
         ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
 
         SearchControls ctls = new SearchControls();
