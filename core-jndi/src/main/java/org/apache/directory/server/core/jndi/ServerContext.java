@@ -398,7 +398,7 @@ public abstract class ServerContext implements EventContext
                 control = new EntryChangeDecorator();
                 Asn1Decoder entryChangeControlDecoder = new EntryChangeDecoder();
                 EntryChangeContainer entryChangeContainer = new EntryChangeContainer();
-                entryChangeContainer.setEntryChangeControl( ( EntryChangeDecorator ) control );
+                entryChangeContainer.setEntryChangeDecorator( ( EntryChangeDecorator ) control );
                 ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
@@ -446,7 +446,7 @@ public abstract class ServerContext implements EventContext
                 control = new PersistentSearchDecorator();
                 PersistentSearchDecoder persistentSearchDecoder = new PersistentSearchDecoder();
                 PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer();
-                persistentSearchContainer.setPSearchControl( ( PersistentSearchDecorator ) control );
+                persistentSearchContainer.setPSearchDecorator( ( PersistentSearchDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
