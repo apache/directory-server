@@ -128,7 +128,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
          * We want the search to complete first before we start listening to
          * events when the decorator does NOT specify changes ONLY mode.
          */
-        if ( !psearchDecorator.isChangesOnly() )
+
+        PersistentSearch psearchControl = ( PersistentSearch ) psearchDecorator.getDecorated();
+
+        if ( !psearchControl.isChangesOnly() )
         {
             SearchResultDone done = doSimpleSearch( session, req );
 
@@ -156,7 +159,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         criteria.setBase( req.getBase() );
         criteria.setFilter( req.getFilter() );
         criteria.setScope( req.getScope() );
-        criteria.setEventMask( EventType.getEventTypes( psearchDecorator.getChangeTypes() ) );
+        criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
         req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
     }
@@ -1011,7 +1014,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // ===============================================================
 
             PersistentSearchDecorator psearchDecorator = ( PersistentSearchDecorator ) req.getControls().get(
-                PersistentSearch.CONTROL_OID );
+                PersistentSearch.OID );
 
             if ( psearchDecorator != null )
             {
@@ -1214,7 +1217,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * response.
      *
      * @param session the session to use for processing
-     * @param reqTargetDn the dn of the target entry of the request
      * @param req the request
      * @param entry the entry associated with the request
      */

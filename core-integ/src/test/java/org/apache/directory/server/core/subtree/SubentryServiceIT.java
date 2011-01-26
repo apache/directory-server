@@ -47,6 +47,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -1267,7 +1268,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries
         // except subentries disappear
-        SubentriesDecorator ctl = new SubentriesDecorator();
+        Subentries ctl = new Subentries();
         ctl.setVisibility( true );
         sysRoot.setRequestControls( JndiUtils.toJndiControls(new Control[]
                 {ctl}) );

@@ -301,7 +301,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * Checks to see if subentries for the search and list operations should be
      * made visible based on the availability of the search request control
      *
-     * @param invocation the invocation object to use for determining subentry visibility
+     * @param opContext the invocation object to use for determining subentry visibility
      * @return true if subentries should be visible, false otherwise
      * @throws Exception if there are problems accessing request controls
      */
@@ -316,8 +316,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
             SubentriesDecorator subentriesDecorator = ( SubentriesDecorator ) opContext.getRequestControl( SUBENTRY_CONTROL );
-
-            return subentriesDecorator.isVisible();
+            return ( ( Subentries ) subentriesDecorator.getDecorated() ).isVisible();
         }
 
         return false;

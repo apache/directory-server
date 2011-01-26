@@ -31,9 +31,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.*;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
@@ -58,7 +57,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final LdapSession session;
     final SearchRequest req;
-    final PersistentSearchDecorator decorator;
+    final PersistentSearch psearchControl;
 
 
     PersistentSearchListener( LdapSession session, SearchRequest req )
@@ -66,7 +65,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
-        this.decorator = ( PersistentSearchDecorator ) req.getControls().get( PersistentSearch.CONTROL_OID );
+        this.psearchControl = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
     }
 
 
@@ -105,9 +104,9 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     private void setECResponseControl( SearchResultEntry response, ChangeOperationContext opContext, ChangeType type )
     {
-        if ( decorator.isReturnECs() )
+        if ( psearchControl.isReturnECs() )
         {
-            EntryChangeDecorator ecControl = new EntryChangeDecorator();
+            EntryChange ecControl = new EntryChange();
             ecControl.setChangeType( type );
 
             if ( opContext.getChangeLogEvent() != null )
@@ -127,7 +126,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryAdded( AddOperationContext addContext )
     {
-        if ( !decorator.isNotificationEnabled( ChangeType.ADD ) )
+        if ( !psearchControl.isNotificationEnabled( ChangeType.ADD ) )
         {
             return;
         }
@@ -142,7 +141,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryDeleted( DeleteOperationContext deleteContext )
     {
-        if ( !decorator.isNotificationEnabled( ChangeType.DELETE ) )
+        if ( !psearchControl.isNotificationEnabled( ChangeType.DELETE ) )
         {
             return;
         }
@@ -157,7 +156,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryModified( ModifyOperationContext modifyContext )
     {
-        if ( !decorator.isNotificationEnabled( ChangeType.MODIFY ) )
+        if ( !psearchControl.isNotificationEnabled( ChangeType.MODIFY ) )
         {
             return;
         }
@@ -172,7 +171,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryMoved( MoveOperationContext moveContext )
     {
-        if ( !decorator.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !psearchControl.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }
@@ -193,7 +192,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void entryRenamed( RenameOperationContext renameContext )
     {
-        if ( !decorator.isNotificationEnabled( ChangeType.MODDN ) )
+        if ( !psearchControl.isNotificationEnabled( ChangeType.MODDN ) )
         {
             return;
         }

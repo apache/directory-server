@@ -174,7 +174,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the supported controls
-        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, PersistentSearch.CONTROL_OID,
+        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, PersistentSearch.OID,
             EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls

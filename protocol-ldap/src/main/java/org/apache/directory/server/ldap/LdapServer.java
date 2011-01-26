@@ -235,7 +235,7 @@ public class LdapServer extends DirectoryBackedService
         saslRealms.add( "example.com" );
 
         this.supportedControls = new HashSet<String>();
-        this.supportedControls.add( PersistentSearch.CONTROL_OID );
+        this.supportedControls.add( PersistentSearch.OID );
         this.supportedControls.add( EntryChange.OID );
         this.supportedControls.add( Subentries.OID );
         this.supportedControls.add( ManageDsaIT.OID );

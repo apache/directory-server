@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -119,11 +119,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
     private void setUpListenerReturnECs() throws Exception
     {
-        setUpListener( true, new PersistentSearchDecorator(), false );
+        setUpListener( true, new PersistentSearch(), false );
     }
     
     
-    private void setUpListener( boolean returnECs, PersistentSearchDecorator decorator, boolean ignoreEmptyRegistryCheck )
+    private void setUpListener( boolean returnECs, PersistentSearch persistentSearch, boolean ignoreEmptyRegistryCheck )
         throws Exception
     {
         ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
@@ -135,8 +135,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
             assertTrue( registrationEntryList.isEmpty() );
         }
         
-        decorator.setReturnECs( returnECs );
-        listener = new PSearchListener( decorator );
+        persistentSearch.setReturnECs( returnECs );
+        listener = new PSearchListener( persistentSearch );
         t = new Thread( listener, "PSearchListener" );
         t.start();
 
@@ -331,11 +331,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
-        PersistentSearchDecorator decorator = new PersistentSearchDecorator();
-        decorator.setReturnECs( true );
-        decorator.setChangeTypes( ChangeType.ADD.getValue() );
-        decorator.enableNotification( ChangeType.MODIFY );
-        setUpListener( true, decorator, false );
+        PersistentSearch ctrl = new PersistentSearch();
+        ctrl.setReturnECs( true );
+        ctrl.setChangeTypes( ChangeType.ADD.getValue() );
+        ctrl.enableNotification( ChangeType.MODIFY );
+        setUpListener( true, ctrl, false );
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
         waitForThreadToDie( t );
 
@@ -344,7 +344,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
         tearDownListener();
 
-        setUpListener( true, decorator, true );
+        setUpListener( true, ctrl, true );
         ctx.destroySubcontext( "cn=Jack Black" );
         waitForThreadToDie( t );
         assertNull( listener.result );
@@ -521,19 +521,19 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     {
         boolean isReady = false;
         PSearchNotification result;
-        final PersistentSearchDecorator decorator;
+        final PersistentSearch persistentSearch;
         LdapContext ctx;
         NamingEnumeration<SearchResult> list;
         
         PSearchListener()
         {
-            decorator = new PersistentSearchDecorator();
+            persistentSearch = new PersistentSearch();
         }
 
 
-        PSearchListener(PersistentSearchDecorator decorator )
+        PSearchListener(PersistentSearch persistentSearch )
         {
-            this.decorator = decorator;
+            this.persistentSearch = persistentSearch;
         }
 
         
@@ -570,12 +570,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
-            decorator.setCritical( true );
+            persistentSearch.setCritical( true );
             
-            decorator.setValue( decorator.getValue() );
+            persistentSearch.setValue( persistentSearch.getValue() );
 
-            Control[] ctxCtls = new Control[]
-                { decorator };
+            Control[] ctxCtls = new Control[] { persistentSearch };
 
             try
             {
@@ -590,7 +589,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 while ( list.hasMore() )
                 {
                     LOG.debug( "PSearchListener search request got an item." );
-                    javax.naming.ldap.Control[] controls = null;
+                    javax.naming.ldap.Control[] controls;
                     SearchResult sresult = list.next();
                     
                     if ( sresult instanceof HasControls )
@@ -605,13 +604,14 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                                     EntryChange.OID ) )
                                 {
                                     EntryChangeDecoder decoder = new EntryChangeDecoder();
-                                    ecControl = ( EntryChangeDecorator ) decoder.decode( control.getEncodedValue(), new EntryChangeDecorator() );
+                                    ecControl = ( EntryChangeDecorator ) decoder.decode( control.getEncodedValue(), 
+                                            new EntryChangeDecorator() );
                                 }
                             }
                         }
                     }
                     
-                    result = new PSearchNotification( sresult, ecControl );
+                    result = new PSearchNotification( sresult, ( EntryChange ) ecControl.getDecorated() );
                     break;
                 }
                 
@@ -632,10 +632,10 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     class PSearchNotification extends SearchResult
     {
         private static final long serialVersionUID = 1L;
-        final EntryChangeDecorator control;
+        final EntryChange control;
 
 
-        public PSearchNotification(SearchResult result, EntryChangeDecorator control)
+        public PSearchNotification( SearchResult result, EntryChange control )
         {
             super( result.getName(), result.getClassName(), result.getObject(), result.getAttributes(), result
                 .isRelative() );
