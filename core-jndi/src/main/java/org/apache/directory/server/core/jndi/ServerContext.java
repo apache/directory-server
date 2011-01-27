@@ -74,7 +74,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.ldap.codec.controls.Cascade;
+import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;

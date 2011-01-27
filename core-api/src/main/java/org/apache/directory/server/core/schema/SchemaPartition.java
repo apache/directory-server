@@ -46,7 +46,7 @@ import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.Cascade;
+import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
