@@ -444,7 +444,7 @@ public abstract class ServerContext implements EventContext
                 control = new PersistentSearchDecorator();
                 PersistentSearchDecoder persistentSearchDecoder = new PersistentSearchDecoder();
                 PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer();
-                persistentSearchContainer.setPSearchDecorator( ( PersistentSearchDecorator ) control );
+                persistentSearchContainer.setPersistentSearchDecorator( ( PersistentSearchDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
