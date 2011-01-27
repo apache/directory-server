@@ -50,7 +50,7 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
