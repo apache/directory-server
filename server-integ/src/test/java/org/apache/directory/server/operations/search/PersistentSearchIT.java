@@ -50,7 +50,7 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.controls.SimplePersistentSearch;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearchImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
@@ -120,7 +120,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
     private void setUpListenerReturnECs() throws Exception
     {
-        setUpListener( true, new SimplePersistentSearch(), false );
+        setUpListener( true, new PersistentSearchImpl(), false );
     }
     
     
@@ -332,7 +332,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
-        PersistentSearch ctrl = new SimplePersistentSearch();
+        PersistentSearch ctrl = new PersistentSearchImpl();
         ctrl.setReturnECs( true );
         ctrl.setChangeTypes( ChangeType.ADD.getValue() );
         ctrl.enableNotification( ChangeType.MODIFY );
@@ -528,7 +528,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         
         PSearchListener()
         {
-            persistentSearch = new SimplePersistentSearch();
+            persistentSearch = new PersistentSearchImpl();
         }
 
 
