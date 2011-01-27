@@ -456,7 +456,7 @@ public abstract class ServerContext implements EventContext
                 control = new SubentriesDecorator();
                 SubentriesDecoder decoder = new SubentriesDecoder();
                 SubentriesContainer subentriesContainer = new SubentriesContainer();
-                subentriesContainer.setSubEntryControl( ( SubentriesDecorator ) control );
+                subentriesContainer.setSubentriesDecorator( ( SubentriesDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
