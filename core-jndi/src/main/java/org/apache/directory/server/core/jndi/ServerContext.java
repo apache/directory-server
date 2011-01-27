@@ -107,7 +107,7 @@ import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentries;
+import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecoder;
